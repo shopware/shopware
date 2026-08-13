@@ -122,24 +122,17 @@ export function normalizeCrossBlockConditionals(body: string): string {
     };
 
     /**
-     * Detects `<sw-block>` elements emitted by this codemod, not arbitrary user
-     * components with the same tag. Use it to limit rewrites to adjacency broken
-     * by converted Twig blocks.
+     * Detects block declarations emitted by this codemod. Use it to limit
+     * rewrites to adjacency broken by converted Twig blocks. A static `name` is
+     * the only attribute such a block carries — the build-time setup transform
+     * owns every other `<sw-block>` binding and rejects an authored one.
      *
      * @example
-     * isConvertedSwBlock(node); // true for <sw-block name="sw_foo" :data="$dataScope">
+     * isConvertedSwBlock(node); // true for <sw-block name="sw_foo">
      */
     const isConvertedSwBlock = (node: ElementNode): boolean => {
-        const dataScope = node.props.find((prop): prop is DirectiveNode => {
-            return prop.type === NodeTypes.DIRECTIVE && prop.name === 'bind';
-        });
-
         return (
-            node.tag === 'sw-block' &&
-            node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name') &&
-            dataScope?.arg?.type === NodeTypes.SIMPLE_EXPRESSION &&
-            dataScope.arg.content === 'data' &&
-            dataScope.exp?.loc.source.trim() === '$dataScope'
+            node.tag === 'sw-block' && node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name')
         );
     };
 

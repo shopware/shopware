@@ -48,7 +48,7 @@ function hasTwigSyntaxInComment(twigContent: string): boolean {
 /**
  * Converts a `.html.twig` file's content into a Vue `<template>` block.
  *
- * - `{% block name %}` → `<sw-block name="name" :data="$dataScope">`
+ * - `{% block name %}` → `<sw-block name="name">`
  * - `{% endblock %}`  → `</sw-block>`
  * - `{{ parent() }}`  → `<sw-block-parent/>`
  * - `{% extends '…' %}` throws because template inheritance is unsupported
@@ -107,7 +107,9 @@ export function transformTemplate(twigContent: string): { template: string } {
     if (hasTwigBlocks) {
         body = body
             .split('\n')
-            .map((line) => line.replace(BLOCK_START_RE, '<sw-block name="$1" :data="$dataScope">'))
+            // Only the static name: the build-time setup transform owns the
+            // `data` binding of <sw-block> and rejects an authored one.
+            .map((line) => line.replace(BLOCK_START_RE, '<sw-block name="$1">'))
             .map((line) => line.replace(BLOCK_END_RE, '</sw-block>'))
             .map((line) => line.replace(PARENT_RE, '<sw-block-parent/>'))
             .join('\n');

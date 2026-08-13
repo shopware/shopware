@@ -318,13 +318,58 @@ describe('runMigration — report paths', () => {
             '✗  not-migratable      [no options object found]  ./src/module/sw-dashboard/page/sw-dashboard-index/index.js',
         );
         expect(report).toContain('SKIP (no twig)  ./src/module/sw-customer/index.js');
+        // The fixture registers 'sw-simple-card', and native setup takes the
+        // component name from the filename, so that name wins over the directory.
         expect(report).toContain(
-            '✓  fully-migrated        [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-order/sw-customer-detail-order.vue',
+            '✓  fully-migrated        [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-order/sw-simple-card.vue',
         );
         expect(report).toContain(
-            '~  partially-migrated  [mixins]  [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.vue',
+            '✗  not-migratable      [mixins]  ./src/module/sw-customer/view/sw-customer-detail-addresses/index.js',
         );
         expect(report.join('\n')).not.toContain(tmpDir);
+    });
+});
+
+describe('runMigration — .vue filename', () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    // Native setup infers the component name — and the override target — from the
+    // filename, so a directory that disagrees with the registration must not win.
+    it('names the .vue file after the registered component, not the directory', () => {
+        const componentDir = makeComponent(
+            tmpDir,
+            'sw-legacy-directory-name',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+
+        runMigration(tmpDir, { dryRun: false });
+
+        expect(existsSync(join(componentDir, 'sw-simple-card.vue'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-legacy-directory-name.vue'))).toBe(false);
+    });
+
+    it('keeps the originals when the registered name disagrees with the directory', () => {
+        const componentDir = makeComponent(
+            tmpDir,
+            'sw-legacy-directory-name',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+
+        const { report, stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+
+        expect(existsSync(join(componentDir, 'sw-legacy-directory-name.html.twig'))).toBe(true);
+        expect(stats.deletedOriginals).toBe(0);
+        expect(report.join('\n')).toContain("registered component name 'sw-simple-card' differs from directory");
     });
 });
 
@@ -627,7 +672,7 @@ describe('runMigration — overwrite protection', () => {
     });
 });
 
-describe('runMigration — partially-migrated (mixins)', () => {
+describe('runMigration — not-migratable (mixins)', () => {
     let tmpDir: string;
     let componentDir: string;
 
@@ -646,9 +691,10 @@ describe('runMigration — partially-migrated (mixins)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('increments partiallyMigrated count in dry-run', () => {
+    it('increments notMigratable count in dry-run', () => {
         const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.partiallyMigrated).toBe(1);
+        expect(stats.notMigratable).toBe(1);
+        expect(stats.partiallyMigrated).toBe(0);
     });
 
     it('does not write .vue file in dry-run', () => {
@@ -656,33 +702,33 @@ describe('runMigration — partially-migrated (mixins)', () => {
         expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(false);
     });
 
-    it('writes .vue file in write mode', () => {
+    // An Options API backoff has no <script setup> block, so the native setup
+    // transform would reject the .vue file at build time.
+    it('does not write a .vue file in write mode either', () => {
         runMigration(tmpDir, { dryRun: false });
-        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(false);
     });
 
-    it('dry-run report line contains [DRY RUN] and blocker info', () => {
+    it('report line names the blocker instead of announcing a write', () => {
         const { report } = runMigration(tmpDir, { dryRun: true });
-        expect(report[0]).toContain('[DRY RUN] Would write:');
-        expect(report[0]).toContain('partially-migrated');
+        expect(report[0]).toContain('not-migratable');
         expect(report[0]).toContain('mixins');
+        expect(report[0]).not.toContain('Would write:');
     });
 
-    it('skips an existing .vue file without counting it as partially migrated', () => {
+    it('leaves an existing .vue file untouched', () => {
         const originalContent = 'existing content';
         writeFileSync(join(componentDir, 'sw-mixin-list.vue'), originalContent, 'utf-8');
 
-        const { report, stats } = runMigration(tmpDir, { dryRun: false });
+        const { stats } = runMigration(tmpDir, { dryRun: false });
         const content = readFileSync(join(componentDir, 'sw-mixin-list.vue'), 'utf-8');
 
         expect(content).toBe(originalContent);
-        expect(stats.skippedExisting).toBe(1);
-        expect(stats.partiallyMigrated).toBe(0);
-        expect(report[0]).toContain('SKIP (already exists)');
+        expect(stats.notMigratable).toBe(1);
     });
 });
 
-describe('runMigration — partially-migrated (extends)', () => {
+describe('runMigration — not-migratable (extends)', () => {
     let tmpDir: string;
 
     beforeAll(() => {
@@ -700,9 +746,9 @@ describe('runMigration — partially-migrated (extends)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('increments partiallyMigrated count', () => {
+    it('increments notMigratable count', () => {
         const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.partiallyMigrated).toBe(1);
+        expect(stats.notMigratable).toBe(1);
         expect(stats.fullyMigrated).toBe(0);
     });
 
@@ -711,9 +757,9 @@ describe('runMigration — partially-migrated (extends)', () => {
         expect(stats.extendsComponents).toBe(1);
     });
 
-    it('report line contains partially-migrated and the parent component name', () => {
+    it('report line contains not-migratable and the parent component name', () => {
         const { report } = runMigration(tmpDir, { dryRun: true });
-        const mainLine = report.find((l) => l.includes('partially-migrated'));
+        const mainLine = report.find((l) => l.includes('not-migratable'));
         expect(mainLine).toBeDefined();
         expect(mainLine).toContain('extends (parent: sw-button)');
     });
@@ -726,9 +772,9 @@ describe('runMigration — partially-migrated (extends)', () => {
         expect(warnLine).toContain('README.md');
     });
 
-    it('warning line appears after the partially-migrated line in the report', () => {
+    it('warning line appears after the not-migratable line in the report', () => {
         const { report } = runMigration(tmpDir, { dryRun: true });
-        const mainIdx = report.findIndex((l) => l.includes('partially-migrated'));
+        const mainIdx = report.findIndex((l) => l.includes('not-migratable'));
         const warnIdx = report.findIndex((l) => l.includes('⚠'));
         expect(mainIdx).toBeGreaterThanOrEqual(0);
         expect(warnIdx).toBeGreaterThan(mainIdx);
@@ -837,17 +883,29 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
 });
 
 describe('runMigration — delete-originals (partially-migrated)', () => {
+    // A nested watch path is migrated as a TODO comment, so the component stays a
+    // native setup SFC that needs manual follow-up — unlike an Options API
+    // backoff, which produces no .vue file at all.
+    const partialSetupIndexJs = `Shopware.Component.register('sw-partial-setup', {
+    template,
+
+    data() {
+        return { count: 0 };
+    },
+
+    watch: {
+        'settings.count'(newVal) {
+            this.count = newVal;
+        },
+    },
+});
+`;
     let tmpDir: string;
     let componentDir: string;
 
     beforeEach(() => {
         tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-mixin-list',
-            readFixture('mixin-component.index.js'),
-            '<div class="sw-mixin-list"></div>',
-        );
+        componentDir = makeComponent(tmpDir, 'sw-partial-setup', partialSetupIndexJs, '<div>{{ count }}</div>');
     });
 
     afterEach(() => {
@@ -856,11 +914,11 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
 
     it('keeps originals for a partially-migrated component', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-partial-setup.html.twig'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-partial-setup.vue'))).toBe(true);
 
         const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe(readFixture('mixin-component.index.js'));
+        expect(entrypoint).toBe(partialSetupIndexJs);
     });
 
     it('does not increment deletedOriginals stat for partially-migrated component', () => {

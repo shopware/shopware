@@ -24,19 +24,15 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('simple-component.index.js'));
         });
 
-        it('reports status fully-migratable with no blockers', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
 
-        it('produces a <script setup> script type', () => {
-            expect(result.scriptType).toBe('setup');
-        });
 
-        it('imports createExtendableSetup from the composition extension system', () => {
-            expect(result.script).toContain(
-                "import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';",
-            );
+        it('emits no extension wrapper — the native setup transform generates it', () => {
+            expect(result.script).not.toContain('createExtendableSetup');
+            expect(result.script).not.toContain('composition-extension-system');
         });
 
         it('imports the required Vue composables from vue', () => {
@@ -45,29 +41,31 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain('inject');
         });
 
-        it('passes the component name "sw-simple-card" to createExtendableSetup', () => {
-            expect(result.script).toContain("name: 'sw-simple-card'");
+        it('does not repeat the component name in the script — it comes from the .vue filename', () => {
+            expect(result.script).not.toContain("'sw-simple-card'");
         });
 
-        it('declares inject, data, computed, and method state inside the createExtendableSetup callback', () => {
-            const setupCallbackStart = result.script.indexOf('createExtendableSetup(');
-            expect(result.script.indexOf("inject('repositoryFactory')")).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf("ref('Default Title')")).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf('ref(false)')).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf('computed(')).toBeGreaterThan(setupCallbackStart);
+        it('declares inject, data, computed, and method state as top-level setup code', () => {
+            const markerStart = result.script.indexOf('swDefinePublic({');
+            expect(markerStart).toBeGreaterThan(-1);
+            expect(result.script).toContain("const repositoryFactory = inject('repositoryFactory');");
+            expect(result.script).toContain("const title = ref('Default Title');");
+            expect(result.script).toContain('const isLoading = ref(false);');
+            expect(result.script.indexOf('const description = computed(')).toBeLessThan(markerStart);
         });
 
-        it('returns state under the public: key inside the createExtendableSetup callback', () => {
-            expect(result.script).toContain('public:');
-            expect(result.script).toContain('repositoryFactory');
-            expect(result.script).toContain('title');
-            expect(result.script).toContain('isLoading');
-            expect(result.script).toContain('description');
-            expect(result.script).toContain('onSave');
-        });
-
-        it('destructures the createExtendableSetup result at the top level', () => {
-            expect(result.script).toMatch(/const\s*\{[^}]*\}\s*=\s*createExtendableSetup\s*\(/);
+        it('declares the migrated state as the public override API', () => {
+            expect(result.script).toContain(
+                [
+                    'swDefinePublic({',
+                    '    repositoryFactory,',
+                    '    title,',
+                    '    isLoading,',
+                    '    description,',
+                    '    onSave,',
+                    '});',
+                ].join('\n'),
+            );
         });
 
         it('does not contain any this. references', () => {
@@ -87,14 +85,11 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('block-component.index.js'));
         });
 
-        it('reports status fully-migratable with no blockers', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
 
-        it('produces a <script setup> script type', () => {
-            expect(result.scriptType).toBe('setup');
-        });
 
         it('emits defineProps with the correct prop names', () => {
             expect(result.script).toContain('const props = defineProps(');
@@ -182,8 +177,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('created-component.index.js'));
         });
 
-        it('reports status fully-migratable', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated', () => {
+            expect(result.status).toBe('fully-migrated');
         });
 
         it('emits defineProps and defineEmits', () => {
@@ -192,9 +187,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain("'ready'");
         });
 
-        it('places the created() body inside createExtendableSetup callback (before onMounted), giving it access to inject values', () => {
-            // The shortcutService.stopEventListener() call should appear inside
-            // the createExtendableSetup() callback, before the onMounted call
+        it('places the created() body in the setup body (before onMounted), giving it access to inject values', () => {
             const stopListenerPos = result.script.indexOf('shortcutService.stopEventListener()');
             const onMountedPos = result.script.indexOf('onMounted(');
             expect(stopListenerPos).toBeGreaterThan(-1);
@@ -226,6 +219,48 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         it('matches the complete converted script snapshot', () => {
             expect(result.script).toMatchSnapshot();
         });
+
+        // The setup body is module-level code, where a bare `return` is a syntax
+        // error — unlike the Options API method the body came from.
+        it('wraps a created() body with a guard clause in an IIFE', () => {
+            const withGuardClause = transformScript(`Shopware.Component.register('sw-guarded', {
+                data() {
+                    return { items: [] };
+                },
+
+                created() {
+                    if (this.items.length === 0) {
+                        return;
+                    }
+
+                    this.items = [];
+                },
+            });`);
+
+            expect(withGuardClause.status).toBe('fully-migrated');
+            expect(withGuardClause.script).toContain('(() => {');
+            expect(withGuardClause.script).toContain('})();');
+        });
+
+        it('does not wrap a created() body whose only return is inside a callback', () => {
+            const withCallbackReturn = transformScript(`Shopware.Component.register('sw-unguarded', {
+                data() {
+                    return { items: [] };
+                },
+
+                created() {
+                    this.items = [
+                        1,
+                        2,
+                    ].map((entry) => {
+                        return entry * 2;
+                    });
+                },
+            });`);
+
+            expect(withCallbackReturn.status).toBe('fully-migrated');
+            expect(withCallbackReturn.script).not.toContain('})();');
+        });
     });
 
     // -------------------------------------------------------------------------
@@ -236,8 +271,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('async-lifecycle-component.index.js'));
         });
 
-        it('reports status fully-migratable', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated', () => {
+            expect(result.status).toBe('fully-migrated');
         });
 
         it('emits async callbacks for Composition API lifecycle hooks', () => {
@@ -259,8 +294,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('module-level-component.index.js'));
         });
 
-        it('reports status fully-migratable', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated', () => {
+            expect(result.status).toBe('fully-migrated');
         });
 
         it('includes the scss side-effect import', () => {
@@ -289,37 +324,24 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    describe('mixin-component: detects mixins as a blocker and falls back to Options API', () => {
+    describe('mixin-component: detects mixins as a blocker', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
             result = transformScript(readFixture('mixin-component.index.js'));
         });
 
-        it('reports status partially-migratable with mixins as the blocker', () => {
-            expect(result.status).toBe('partially-migratable');
+        // A mixin keeps part of the component in another file, so there is no
+        // native setup component to emit — only the blocker.
+        it('reports status not-migratable with mixins as the blocker', () => {
+            expect(result.status).toBe('not-migratable');
             expect(result.blockers).toContain('mixins');
+            expect(result.script).toBe('');
+            expect(result.publicNames).toEqual([]);
         });
 
-        it('produces an options script type (backoff — no createExtendableSetup)', () => {
-            expect(result.scriptType).toBe('options');
-            expect(result.script).not.toContain('createExtendableSetup');
-        });
-
-        it('preserves the original Options API component registration intact', () => {
-            expect(result.script).toContain('sw-mixin-list');
-            expect(result.script).toContain('mixins:');
-            expect(result.script).toContain('loadItems');
-        });
-
-        it('removes the template import and stale top-level template option from backoff output', () => {
-            expect(result.script).not.toContain('import template from');
-            expect(result.script).not.toMatch(/^[\t ]*template,?$/m);
-            expect(result.script).not.toMatch(/^[\t ]*template\s*:/m);
-        });
-
-        it('matches the complete Options API backoff script snapshot', () => {
-            expect(result.script).toMatchSnapshot();
+        it('still reports the component name for the migration report', () => {
+            expect(result.componentName).toBe('sw-mixin-list');
         });
     });
 
@@ -349,14 +371,11 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('composables-component.index.js'));
         });
 
-        it('reports status fully-migratable with no blockers', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
 
-        it('produces a <script setup> script type', () => {
-            expect(result.scriptType).toBe('setup');
-        });
 
         it('rewrites this.$router → router and imports useRouter from vue-router', () => {
             expect(result.script).toContain('router.back()');
@@ -407,8 +426,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('instance-api-component.index.js'));
         });
 
-        it('reports status partially-migratable with a $el blocker', () => {
-            expect(result.status).toBe('partially-migratable');
+        it('reports status partially-migrated with a $el blocker', () => {
+            expect(result.status).toBe('partially-migrated');
             expect(result.blockers.join('\n')).toContain('$el');
         });
 
@@ -427,24 +446,18 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('inherit-attrs-component.index.js'));
         });
 
-        it('reports status fully-migratable with no blockers', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
 
-        it('produces a <script setup> script type', () => {
-            expect(result.scriptType).toBe('setup');
-        });
 
         it('emits defineOptions({ inheritAttrs: false }) at the top of the script', () => {
             expect(result.script).toContain('defineOptions({ inheritAttrs: false })');
         });
 
-        it('does not leave an inheritAttrs key inside the createExtendableSetup call', () => {
-            const setupStart = result.script.indexOf('createExtendableSetup(');
-            expect(setupStart).toBeGreaterThan(-1);
-            const afterSetup = result.script.slice(setupStart);
-            expect(afterSetup).not.toContain('inheritAttrs:');
+        it('declares inheritAttrs only through defineOptions, not as leftover setup state', () => {
+            expect((result.script.match(/inheritAttrs/g) ?? []).length).toBe(1);
         });
 
         it('matches the complete converted script snapshot', () => {
@@ -486,8 +499,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('debounce-component.index.js'));
         });
 
-        it('reports status fully-migratable with no blockers', () => {
-            expect(result.status).toBe('fully-migratable');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
         });
 
@@ -500,10 +513,10 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toMatch(/\bthis\.doSearch\b/);
         });
 
-        it('includes searchDebounce in the public: return', () => {
-            const publicStart = result.script.indexOf('public:');
-            expect(publicStart).toBeGreaterThan(-1);
-            expect(result.script.slice(publicStart)).toContain('searchDebounce');
+        it('includes searchDebounce in the swDefinePublic marker', () => {
+            const markerStart = result.script.indexOf('swDefinePublic({');
+            expect(markerStart).toBeGreaterThan(-1);
+            expect(result.script.slice(markerStart)).toContain('searchDebounce');
         });
 
         it('rewrites this.searchDebounce() in the onInput method', () => {
@@ -521,35 +534,22 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    describe('extend-component: Shopware.Component.extend() triggers the partially-migratable soft blocker', () => {
+    describe('extend-component: Shopware.Component.extend() is a blocker', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
             result = transformScript(readFixture('extend-component.index.js'));
         });
 
-        it('reports status partially-migratable', () => {
-            expect(result.status).toBe('partially-migratable');
+        // The parent's options live in another file, so the child cannot be
+        // converted until they are inlined by hand.
+        it('reports status not-migratable with nothing emitted', () => {
+            expect(result.status).toBe('not-migratable');
+            expect(result.script).toBe('');
         });
 
         it('lists extends with parent component name as a blocker', () => {
             expect(result.blockers).toContain('extends (parent: sw-button)');
-        });
-
-        it('produces an options script type (backoff — no createExtendableSetup)', () => {
-            expect(result.scriptType).toBe('options');
-            expect(result.script).not.toContain('createExtendableSetup');
-        });
-
-        it('preserves the original Shopware.Component.extend() registration intact', () => {
-            expect(result.script).toContain('sw-extended-button');
-            expect(result.script).toContain('sw-button');
-            expect(result.script).toContain('extraLabel');
-            expect(result.script).toContain('getLabel');
-        });
-
-        it('matches the complete Options API backoff script snapshot', () => {
-            expect(result.script).toMatchSnapshot();
         });
     });
 
@@ -670,7 +670,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('data: title: shorthand data entries must be migrated manually');
         expect(result.blockers).toContain('data: ...args: spread data entries must be migrated manually');
         expect(result.script).toContain(
@@ -699,7 +699,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('methods: ...sharedMethods: spread method entries must be migrated manually');
         expect(result.blockers).toContain('methods: shorthandMethod: shorthand method entries must be migrated manually');
         expect(result.script).toContain(
@@ -723,7 +723,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('watch: items: unsupported watcher handler shape');
         expect(result.script).toContain('TODO: migrate watch entry manually: items: unsupported watcher handler shape');
     });
@@ -736,7 +736,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('watch: watch must be an object literal');
         expect(result.script).toContain('TODO: migrate watch entry manually: watch must be an object literal');
         expect(result.script).not.toContain("import { watch } from 'vue';");
@@ -823,7 +823,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain(
             'watch: item-count: watch targets that are not valid identifiers must be migrated manually',
         );
@@ -852,7 +852,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('fully-migratable');
+        expect(result.status).toBe('fully-migrated');
         expect(result.blockers).not.toContain(
             'watch: item-count: watch targets that are not valid identifiers must be migrated manually',
         );
@@ -903,7 +903,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('watch: items: watch target is not declared in props, data, computed, or inject');
         expect(result.script).toContain(
             'TODO: migrate watch entry manually: items: watch target is not declared in props, data, computed, or inject',
@@ -949,7 +949,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('watch: items: deep must be a boolean literal');
         expect(result.blockers).toContain('watch: items: immediate must be a boolean literal');
         expect(result.script).toContain('TODO: migrate watch entry manually: items: deep must be a boolean literal');
@@ -1122,7 +1122,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    it('falls back to the Options API when a method depends on an unsupported inject initializer', () => {
+    it('reports a blocker when a method depends on an unsupported inject initializer', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             inject: {
@@ -1134,16 +1134,13 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
-        expect(result.scriptType).toBe('options');
+        expect(result.status).toBe('not-migratable');
+        expect(result.script).toBe('');
         expect(result.blockers).toContain('inject: repositoryFactory: unsupported inject definition');
-        expect(result.script).not.toContain('createExtendableSetup(');
-        expect(result.script).toContain('create() { return this.repositoryFactory.create(); }');
-        expect(result.script).not.toContain("const repositoryFactory = inject('repositoryFactory');");
     });
 
     // -------------------------------------------------------------------------
-    it('falls back to the Options API when inject aliases are not valid identifiers', () => {
+    it('reports a blocker when inject aliases are not valid identifiers', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             inject: {
@@ -1152,15 +1149,13 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
-        expect(result.scriptType).toBe('options');
+        expect(result.status).toBe('not-migratable');
+        expect(result.script).toBe('');
         expect(result.blockers).toContain('inject: repository-factory is not a valid JavaScript identifier');
-        expect(result.script).not.toContain('createExtendableSetup(');
-        expect(result.script).not.toContain("const repository-factory = inject('repositoryFactory');");
     });
 
     // -------------------------------------------------------------------------
-    it('falls back to the Options API for shorthand inject object entries', () => {
+    it('reports a blocker for shorthand inject object entries', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             inject: {
@@ -1169,15 +1164,13 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
-        expect(result.scriptType).toBe('options');
+        expect(result.status).toBe('not-migratable');
+        expect(result.script).toBe('');
         expect(result.blockers).toContain('inject: repositoryFactory: shorthand inject entries must be migrated manually');
-        expect(result.script).not.toContain('createExtendableSetup(');
-        expect(result.script).not.toContain("const repositoryFactory = inject('repositoryFactory');");
     });
 
     // -------------------------------------------------------------------------
-    it('falls back to the Options API for unsupported inject object members', () => {
+    it('reports a blocker for unsupported inject object members', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             inject: {
@@ -1186,39 +1179,35 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
-        expect(result.scriptType).toBe('options');
+        expect(result.status).toBe('not-migratable');
+        expect(result.script).toBe('');
         expect(result.blockers).toContain('inject: ...sharedInject: unsupported inject entry');
-        expect(result.script).not.toContain('createExtendableSetup(');
     });
 
     // -------------------------------------------------------------------------
-    it('falls back to the Options API for unsupported array-form inject entries', () => {
+    it('reports a blocker for unsupported array-form inject entries', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             inject: ['repositoryFactory', ...sharedInject],
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
-        expect(result.scriptType).toBe('options');
+        expect(result.status).toBe('not-migratable');
+        expect(result.script).toBe('');
         expect(result.blockers).toContain('inject: ...sharedInject: unsupported inject entry');
-        expect(result.script).not.toContain('createExtendableSetup(');
     });
 
     // -------------------------------------------------------------------------
-    it('falls back to the Options API for unsupported inject root shapes', () => {
+    it('reports a blocker for unsupported inject root shapes', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
             inject: createInjectConfig(),
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
-        expect(result.scriptType).toBe('options');
+        expect(result.status).toBe('not-migratable');
+        expect(result.script).toBe('');
         expect(result.blockers).toContain('inject: inject must be an array or object literal');
-        expect(result.script).not.toContain('createExtendableSetup(');
-        expect(result.script).not.toContain('const createInjectConfig = inject(');
     });
 
     // -------------------------------------------------------------------------
@@ -1239,7 +1228,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('fully-migratable');
+        expect(result.status).toBe('fully-migrated');
         expect(result.script).toMatch(/import\s*\{[^}]*watch[^}]*unref[^}]*\}\s*from\s*'vue';/);
         expect(result.script).toContain('watch(() => unref(repositoryFactory), (newFactory) => {');
         expect(result.script).not.toContain('watch(() => repositoryFactory.value');
@@ -1316,7 +1305,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('fully-migratable');
+        expect(result.status).toBe('fully-migrated');
         expect(result.script).toContain('const emit = defineEmits({');
         expect(result.script).toContain('save(payload)');
         expect(result.script).toContain('return payload !== null;');
@@ -1333,7 +1322,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
     `;
         const result = transformScript(js);
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain(
             '$store usage requires manual migration to the appropriate Pinia store or composable',
         );
@@ -1356,7 +1345,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain('provide option requires manual migration');
         expect(result.blockers).toContain('components option requires manual verification');
         expect(result.blockers).toContain('directives option requires manual migration');
@@ -1380,7 +1369,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('partially-migratable');
+        expect(result.status).toBe('partially-migrated');
         expect(result.blockers).toContain("computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
         expect(result.script).toContain(
             "TODO: migrate computed entry manually: computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry",
@@ -1401,7 +1390,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('fully-migratable');
+        expect(result.status).toBe('fully-migrated');
         expect(result.script).toContain('const label = computed(() => {');
         expect(result.script).toContain('return title.value;');
     });
@@ -1416,7 +1405,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.status).toBe('fully-migratable');
+        expect(result.status).toBe('fully-migrated');
         expect(result.script).toContain('const label = computed(() => {');
         expect(result.script).toContain("return 'Title';");
     });
@@ -1439,7 +1428,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         ].join('\n');
         const result = transformScript(js);
 
-        expect(result.status).toBe('fully-migratable');
+        expect(result.status).toBe('fully-migrated');
         expect(result.script).toContain("return 'this.$route';");
         expect(result.script).toContain('return `debug: ${label} this.title`;');
         expect(result.script).toContain("// this.$emit('save') must stay a comment");
@@ -1462,7 +1451,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('const $router = useRouter();');
             expect(result.script).toContain('$router.back();');
             expect(result.script).toContain('const router = ref(null);');
@@ -1481,7 +1470,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('const vueRouter = useRouter();');
             expect(result.script).toContain('vueRouter.back();');
             expect(result.script).not.toContain('const router = useRouter();');
@@ -1500,7 +1489,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('const router2 = useRouter();');
             expect(result.script).toContain('router2.back();');
         });
@@ -1516,7 +1505,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('const $route = useRoute();');
             expect(result.script).toContain('return $route.name || route.name;');
             expect(result.script).not.toContain('const route = useRoute();');
@@ -1546,7 +1535,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('const $router = useRouter();');
             expect(result.script).toContain('const $route = useRoute();');
             expect(result.script).toContain('const $slots = useSlots();');
@@ -1581,7 +1570,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain('const { t: t2 } = useI18n();');
             expect(result.script).toContain("return t2('sw.test.label', 2);");
             expect(result.script).toContain('const t = ref(null);');
@@ -1604,7 +1593,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain("const $emit = defineEmits(['save']);");
             expect(result.script).toContain("$emit('save');");
             expect(result.script).toContain('const emit = ref(null);');
@@ -1623,7 +1612,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.script).toContain("const vueEmit = defineEmits(['save']);");
             expect(result.script).toContain("vueEmit('save');");
             expect(result.script).toContain('const emit = ref(null);');
@@ -1653,7 +1642,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     // -------------------------------------------------------------------------
     describe('unsupported-shape regression coverage: never silently generate non-equivalent setup code', () => {
         function expectManualFallback(result: ReturnType<typeof transformScript>, blocker: string): void {
-            expect(result.status).not.toBe('fully-migratable');
+            expect(result.status).not.toBe('fully-migrated');
             expect(result.blockers.join('\n')).toContain(blocker);
         }
 
@@ -2549,9 +2538,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
-            expect(result.scriptType).toBe('setup');
         });
 
         it('does not back off when a prop key matches an unrelated module-local name', () => {
@@ -2569,9 +2557,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             });`;
             const result = transformScript(js);
 
-            expect(result.status).toBe('fully-migratable');
+            expect(result.status).toBe('fully-migrated');
             expect(result.blockers).toEqual([]);
-            expect(result.scriptType).toBe('setup');
         });
     });
 });

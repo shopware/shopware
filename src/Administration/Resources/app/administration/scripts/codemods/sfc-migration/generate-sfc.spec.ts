@@ -14,9 +14,10 @@ function readFixture(name: string): string {
  * Each test provides a complete .html.twig + index.js pair and asserts that
  * the entire resulting .vue SFC is structurally correct in one end-to-end pass.
  *
- * Fully-migrated components wrap all their state in createExtendableSetup() so
- * they remain extensible via overrideComponentSetup() — exactly as specified by
- * the composition extension system (composition-extension-system.ts).
+ * Fully-migrated components are native `<script setup>` components that declare
+ * their public override API with swDefinePublic(). The build-time transform in
+ * build/vue-setup-transform lowers that into the extension runtime, so no
+ * wrapper is written into the SFC itself.
  */
 describe('scripts/codemods/sfc-migration/generate-sfc', () => {
     describe('simple-component: fully migrated SFC with plain template and <script setup>', () => {
@@ -46,32 +47,36 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).not.toContain('<script>');
         });
 
-        it('imports createExtendableSetup from the composition extension system', () => {
-            expect(result.sfc).toContain(
-                "import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';",
-            );
+        it('emits no extension wrapper — the native setup transform generates it', () => {
+            expect(result.sfc).not.toContain('createExtendableSetup');
+            expect(result.sfc).not.toContain('composition-extension-system');
         });
 
         it('imports the required Vue composables from vue', () => {
             expect(result.sfc).toMatch(/import\s*\{[^}]*ref[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('wraps all state in createExtendableSetup with the component name "sw-simple-card"', () => {
-            expect(result.sfc).toContain('createExtendableSetup(');
-            expect(result.sfc).toContain("name: 'sw-simple-card'");
+        it('declares inject, data, computed, and method state before the swDefinePublic marker', () => {
+            const markerStart = result.sfc.indexOf('swDefinePublic({');
+            expect(markerStart).toBeGreaterThan(-1);
+            expect(result.sfc.indexOf("inject('repositoryFactory')")).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf("ref('Default Title')")).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf('ref(false)')).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf('computed(')).toBeLessThan(markerStart);
         });
 
-        it('declares inject, data, computed, and method state inside the createExtendableSetup callback', () => {
-            const setupStart = result.sfc.indexOf('createExtendableSetup(');
-            expect(result.sfc.indexOf("inject('repositoryFactory')")).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf("ref('Default Title')")).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf('ref(false)')).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf('computed(')).toBeGreaterThan(setupStart);
-        });
-
-        it('returns state under a public: key and destructures the result for template access', () => {
-            expect(result.sfc).toContain('public:');
-            expect(result.sfc).toMatch(/const\s*\{[^}]*\}\s*=\s*createExtendableSetup\s*\(/);
+        it('declares the migrated state as the public override API', () => {
+            expect(result.sfc).toContain(
+                [
+                    'swDefinePublic({',
+                    '    repositoryFactory,',
+                    '    title,',
+                    '    isLoading,',
+                    '    description,',
+                    '    onSave,',
+                    '});',
+                ].join('\n'),
+            );
         });
 
         it('places <template> before <script setup> in the file', () => {
@@ -83,7 +88,7 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
-    describe('block-component: fully migrated SFC with twig blocks replaced and createExtendableSetup script', () => {
+    describe('block-component: fully migrated SFC with twig blocks replaced and native setup script', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
@@ -96,45 +101,38 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
 
         it('replaces all twig block syntax with <sw-block> components in the <template> section', () => {
-            expect(result.sfc).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
-            expect(result.sfc).toContain('<sw-block name="sw_block_card_header" :data="$dataScope">');
-            expect(result.sfc).toContain('<sw-block name="sw_block_card_content" :data="$dataScope">');
-            expect(result.sfc).toContain('<sw-block name="sw_block_card_footer" :data="$dataScope">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card_header">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card_content">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card_footer">');
             expect(result.sfc).toContain('<sw-block-parent/>');
             expect(result.sfc).not.toContain('{%');
             expect(result.sfc).not.toContain('%}');
         });
 
-        it('wraps all state in createExtendableSetup with the component name "sw-block-card"', () => {
-            expect(result.sfc).toContain('createExtendableSetup(');
-            expect(result.sfc).toContain("name: 'sw-block-card'");
+        it('emits no extension wrapper — the native setup transform generates it', () => {
+            expect(result.sfc).not.toContain('createExtendableSetup');
         });
 
-        it('declares inject, all data refs, computed properties, watch, method, and lifecycle hook inside the callback', () => {
-            const setupStart = result.sfc.indexOf('createExtendableSetup(');
-            expect(result.sfc.indexOf("inject('acl')")).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf("ref('Block Card')")).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf('computed(')).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf('watch(')).toBeGreaterThan(setupStart);
-            expect(result.sfc.indexOf('onMounted(')).toBeGreaterThan(setupStart);
+        it('declares inject, all data refs, computed properties, watch, method, and lifecycle hook before the marker', () => {
+            const markerStart = result.sfc.indexOf('swDefinePublic({');
+            expect(markerStart).toBeGreaterThan(-1);
+            expect(result.sfc.indexOf("inject('acl')")).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf("ref('Block Card')")).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf('computed(')).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf('watch(')).toBeLessThan(markerStart);
+            expect(result.sfc.indexOf('onMounted(')).toBeLessThan(markerStart);
         });
 
-        it('returns state under a public: key', () => {
-            expect(result.sfc).toContain('public:');
+        it('declares the migrated state as the public override API', () => {
+            expect(result.sfc).toContain('swDefinePublic({');
+            expect(result.sfc).toContain('    canEdit,');
+            expect(result.sfc).toContain('    onAction,');
         });
 
-        it('passes the global $dataScope to <sw-block> without generating a local data scope', () => {
-            expect(result.sfc).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
-            expect(result.sfc).not.toContain('const $dataScope =');
+        it('leaves the <sw-block> data binding to the transform, which owns it', () => {
+            expect(result.sfc).not.toContain('$dataScope');
             expect(result.sfc).not.toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
-        });
-
-        it('does not define $dataScope for components without twig blocks', () => {
-            const simple = mergeComponentFiles(
-                readFixture('simple-component.html.twig'),
-                readFixture('simple-component.index.js'),
-            );
-            expect(simple.sfc).not.toContain('$dataScope');
         });
 
         it('matches the complete SFC output snapshot', () => {
@@ -142,41 +140,63 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
-    describe('mixin-component: partially migrated SFC — template converted, script kept as Options API without createExtendableSetup', () => {
+    describe('mixin-component: Options API backoff — not migratable as a native setup SFC', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
             result = mergeComponentFiles('<div class="sw-mixin-list"></div>', readFixture('mixin-component.index.js'));
         });
 
-        it('reports status partially-migrated with mixins listed as a blocker', () => {
-            expect(result.status).toBe('partially-migrated');
+        it('reports status not-migratable with mixins listed as a blocker', () => {
+            expect(result.status).toBe('not-migratable');
             expect(result.blockers).toContain('mixins');
         });
 
-        it('produces a plain <script> block (not <script setup>) as Options API backoff', () => {
-            expect(result.sfc).toContain('<script>');
-            expect(result.sfc).not.toContain('<script setup>');
+        // Every .vue file must be a native setup component, so an Options API
+        // script has no valid SFC to be written into.
+        it('produces an empty SFC string — nothing is written to disk', () => {
+            expect(result.sfc).toBe('');
         });
 
-        it('does not use createExtendableSetup — backoff components remain as-is for manual migration', () => {
-            expect(result.sfc).not.toContain('createExtendableSetup');
+        it('reports the component name so the blocker can be attributed', () => {
+            expect(result.componentName).toBe('sw-mixin-list');
         });
+    });
 
-        it('preserves the full Options API component definition intact in the script', () => {
-            expect(result.sfc).toContain('sw-mixin-list');
-            expect(result.sfc).toContain('mixins:');
-            expect(result.sfc).toContain('loadItems');
-            expect(result.sfc).toContain('onNotify');
+    describe('transform rejections: output the build would refuse is reported, not written', () => {
+        it('reports a reserved top-level binding name instead of writing the SFC', () => {
+            const result = mergeComponentFiles(
+                '<div>{{ Shopware }}</div>',
+                `Shopware.Component.register('sw-reserved-binding', {
+                    data() {
+                        return { Shopware: 'shadowed' };
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers.join('\n')).toContain('native setup transform:');
+            expect(result.blockers.join('\n')).toContain('reserved');
+            expect(result.sfc).toBe('');
         });
+    });
 
-        it('matches the complete partially-migrated SFC output snapshot', () => {
-            expect(result.sfc).toMatchSnapshot();
+    describe('components without public state: the marker is still mandatory', () => {
+        it('emits swDefinePublic({}) when nothing was migrated into public state', () => {
+            const result = mergeComponentFiles(
+                '<div class="sw-empty"></div>',
+                `Shopware.Component.register('sw-empty', {
+                    inheritAttrs: false,
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migrated');
+            expect(result.sfc).toContain('swDefinePublic({});');
         });
     });
 
     describe('manual-follow-up partials: generated setup scripts stay wrapped in <script setup>', () => {
-        it('keeps <script setup> for partially-migratable setup output', () => {
+        it('keeps <script setup> for partially-migrated setup output', () => {
             const result = mergeComponentFiles(
                 '<div>{{ count }}</div>',
                 `Shopware.Component.register('sw-partial-setup', {

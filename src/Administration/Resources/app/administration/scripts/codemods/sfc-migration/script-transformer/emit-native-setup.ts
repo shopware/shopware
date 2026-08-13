@@ -1,13 +1,19 @@
 import { quoteJsString } from '../string-literals';
+import { hasTopLevelReturn } from './ast';
 import type { CompositionScriptState } from './composition-script-state';
 import { indentBlock, sanitizeTodoCommentText } from './helpers';
 import { identTemplate } from './identifier-template';
 import type { ScriptLine } from './identifier-template';
 import { buildWatchSource, rewriteThisInBody } from './rewrite-this';
 
-export function emitCreateExtendableSetup(lines: ScriptLine[], state: CompositionScriptState): void {
-    emitCreateExtendableSetupOpening(lines, state);
-    emitCreateExtendableSetupOptions(lines, state);
+/**
+ * Emits the setup body as native `<script setup>` code. The build-time transform
+ * in `build/vue-setup-transform` lowers it into the extension runtime, so no
+ * `createExtendableSetup()` wrapper is written here.
+ *
+ * See `technical-docs/03-extensibility/07-native-setup-authoring.md`.
+ */
+export function emitNativeSetup(lines: ScriptLine[], state: CompositionScriptState): void {
     emitSupportedInjectProps(lines, state);
     emitSupportedDataProps(lines, state);
     emitSupportedComputedProps(lines, state);
@@ -16,33 +22,7 @@ export function emitCreateExtendableSetup(lines: ScriptLine[], state: Compositio
     emitSupportedWatchProps(lines, state);
     emitCreatedHooks(lines, state);
     emitRegularHooks(lines, state);
-    emitCreateExtendableSetupReturn(lines, state);
-    emitCreateExtendableSetupClosing(lines, state);
-}
-
-function emitCreateExtendableSetupOpening(lines: ScriptLine[], state: CompositionScriptState): void {
-    const { publicNames } = state;
-
-    // createExtendableSetup is the Shopware compatibility layer for
-    // overrideComponentSetup. Only names returned under `public` are available
-    // to templates and downstream overrides.
-    if (publicNames.length > 0) {
-        lines.push('const {');
-        publicNames.forEach((n) => lines.push(`    ${n},`));
-        lines.push('} = createExtendableSetup(');
-    } else {
-        lines.push('createExtendableSetup(');
-    }
-}
-
-function emitCreateExtendableSetupOptions(lines: ScriptLine[], state: CompositionScriptState): void {
-    const { registration } = state;
-
-    lines.push('    {');
-    lines.push(`        name: '${registration.componentName}',`);
-    lines.push('        props,');
-    lines.push('    },');
-    lines.push('    () => {');
+    emitSwDefinePublic(lines, state);
 }
 
 function emitSupportedInjectProps(lines: ScriptLine[], state: CompositionScriptState): void {
@@ -59,7 +39,7 @@ function emitSupportedInjectProps(lines: ScriptLine[], state: CompositionScriptS
             }
         }
 
-        lines.push(`        const ${localName} = inject(${args.join(', ')});`);
+        lines.push(`const ${localName} = inject(${args.join(', ')});`);
     });
     if (supportedInjectProps.length > 0) lines.push('');
 }
@@ -69,7 +49,7 @@ function emitSupportedDataProps(lines: ScriptLine[], state: CompositionScriptSta
 
     supportedDataProps.forEach(({ name, valueText }) => {
         const rewrittenValue = rewriteThisInBody(valueText, ctx, 'expression');
-        lines.push(identTemplate`        const ${name} = ref(${rewrittenValue});`);
+        lines.push(identTemplate`const ${name} = ref(${rewrittenValue});`);
     });
     if (supportedDataProps.length > 0) lines.push('');
 }
@@ -80,20 +60,20 @@ function emitSupportedComputedProps(lines: ScriptLine[], state: CompositionScrip
     supportedComputedProps.forEach((prop) => {
         if (prop.kind === 'getter') {
             const body = rewriteThisInBody(prop.bodyText, ctx);
-            lines.push(`        const ${prop.name} = computed(() => {`);
-            lines.push(indentBlock(body, 12));
-            lines.push(`        });`);
+            lines.push(`const ${prop.name} = computed(() => {`);
+            lines.push(indentBlock(body, 4));
+            lines.push(`});`);
         } else {
             const getterBody = rewriteThisInBody(prop.getterBodyText, ctx);
             const setterBody = rewriteThisInBody(prop.setterBodyText, ctx);
-            lines.push(`        const ${prop.name} = computed({`);
-            lines.push(`            get: () => {`);
-            lines.push(indentBlock(getterBody, 16));
-            lines.push(`            },`);
-            lines.push(`            set: (${prop.setterParam}) => {`);
-            lines.push(indentBlock(setterBody, 16));
-            lines.push(`            },`);
-            lines.push(`        });`);
+            lines.push(`const ${prop.name} = computed({`);
+            lines.push(`    get: () => {`);
+            lines.push(indentBlock(getterBody, 8));
+            lines.push(`    },`);
+            lines.push(`    set: (${prop.setterParam}) => {`);
+            lines.push(indentBlock(setterBody, 8));
+            lines.push(`    },`);
+            lines.push(`});`);
         }
     });
     if (supportedComputedProps.length > 0) lines.push('');
@@ -109,13 +89,13 @@ function emitSupportedMethodProps(lines: ScriptLine[], state: CompositionScriptS
             // flattening it into a plain arrow method.
             const normalizedRawText = rawText.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
             const rewritten = rewriteThisInBody(normalizedRawText, ctx, 'expression');
-            lines.push(identTemplate`        const ${name} = ${rewritten};`);
+            lines.push(identTemplate`const ${name} = ${rewritten};`);
         } else {
             const asyncKw = isAsync ? 'async ' : '';
             const body = rewriteThisInBody(bodyText, ctx);
-            lines.push(`        const ${name} = ${asyncKw}(${paramsText}) => {`);
-            lines.push(indentBlock(body, 12));
-            lines.push(`        };`);
+            lines.push(`const ${name} = ${asyncKw}(${paramsText}) => {`);
+            lines.push(indentBlock(body, 4));
+            lines.push(`};`);
         }
     });
     if (supportedMethodProps.length > 0) lines.push('');
@@ -125,7 +105,7 @@ function emitUnsupportedWatchEntries(lines: ScriptLine[], state: CompositionScri
     const { unsupportedWatchEntries } = state;
 
     unsupportedWatchEntries.forEach((entry) => {
-        lines.push(`        // TODO: migrate watch entry manually: ${sanitizeTodoCommentText(entry)}`);
+        lines.push(`// TODO: migrate watch entry manually: ${sanitizeTodoCommentText(entry)}`);
     });
     if (unsupportedWatchEntries.length > 0) lines.push('');
 }
@@ -143,7 +123,7 @@ function emitSupportedWatchProps(lines: ScriptLine[], state: CompositionScriptSt
 
         if (handlerName) {
             lines.push(
-                identTemplate`        watch(() => ${source}, (...args) => ${handlerName}(...args)${hasOptions ? `, { ${optionsParts.join(', ')} }` : ''});`,
+                identTemplate`watch(() => ${source}, (...args) => ${handlerName}(...args)${hasOptions ? `, { ${optionsParts.join(', ')} }` : ''});`,
             );
             return;
         }
@@ -151,9 +131,9 @@ function emitSupportedWatchProps(lines: ScriptLine[], state: CompositionScriptSt
         const body = rewriteThisInBody(bodyText ?? '', ctx);
         const asyncPrefix = isAsync ? 'async ' : '';
         const paramPart = paramsText ? `${asyncPrefix}(${paramsText}) => {` : `${asyncPrefix}() => {`;
-        lines.push(identTemplate`        watch(() => ${source}, ${paramPart}`);
-        lines.push(indentBlock(body, 12));
-        lines.push(hasOptions ? `        }, { ${optionsParts.join(', ')} });` : `        });`);
+        lines.push(identTemplate`watch(() => ${source}, ${paramPart}`);
+        lines.push(indentBlock(body, 4));
+        lines.push(hasOptions ? `}, { ${optionsParts.join(', ')} });` : `});`);
     });
     if (supportedWatchProps.length > 0) lines.push('');
 }
@@ -172,11 +152,18 @@ function emitCreatedHooks(lines: ScriptLine[], state: CompositionScriptState): v
     for (const hook of createdHooks) {
         const body = rewriteThisInBody(hook.bodyText.trim(), ctx);
         if (hook.isAsync) {
-            lines.push('        void (async () => {');
-            lines.push(indentBlock(body, 12));
-            lines.push('        })();');
+            lines.push('void (async () => {');
+            lines.push(indentBlock(body, 4));
+            lines.push('})();');
+        } else if (hasTopLevelReturn(hook.bodyText)) {
+            // A guard clause like `if (…) { return; }` is only legal inside a
+            // function, and the setup body is module-level code.
+            lines.push('(() => {');
+            lines.push(indentBlock(body, 4));
+            lines.push('})();');
         } else {
-            lines.push(indentBlock(body, 8));
+            // Zero indentation still normalizes whitespace-only lines.
+            lines.push(indentBlock(body, 0));
         }
     }
     lines.push('');
@@ -188,24 +175,26 @@ function emitRegularHooks(lines: ScriptLine[], state: CompositionScriptState): v
     for (const { compositionName, bodyText, isAsync } of regularHooks) {
         const body = rewriteThisInBody(bodyText, ctx);
         const asyncPrefix = isAsync ? 'async ' : '';
-        lines.push(`        ${compositionName}(${asyncPrefix}() => {`);
-        lines.push(indentBlock(body, 12));
-        lines.push(`        });`);
+        lines.push(`${compositionName}(${asyncPrefix}() => {`);
+        lines.push(indentBlock(body, 4));
+        lines.push(`});`);
     }
     if (regularHooks.length > 0) lines.push('');
 }
 
-function emitCreateExtendableSetupReturn(lines: ScriptLine[], state: CompositionScriptState): void {
+function emitSwDefinePublic(lines: ScriptLine[], state: CompositionScriptState): void {
     const { publicNames } = state;
 
-    lines.push('        return {');
-    lines.push('            public: {');
-    publicNames.forEach((n) => lines.push(`                ${n},`));
-    lines.push('            },');
-    lines.push('        };');
-}
+    // Base mode is auto-private: every top-level binding stays component state,
+    // but only the names listed here form the public override API. The marker is
+    // mandatory, so an empty object is emitted when nothing is public.
+    if (publicNames.length === 0) {
+        lines.push('swDefinePublic({});');
 
-function emitCreateExtendableSetupClosing(lines: ScriptLine[], state: CompositionScriptState): void {
-    lines.push('    },');
-    lines.push(');');
+        return;
+    }
+
+    lines.push('swDefinePublic({');
+    publicNames.forEach((n) => lines.push(`    ${n},`));
+    lines.push('});');
 }

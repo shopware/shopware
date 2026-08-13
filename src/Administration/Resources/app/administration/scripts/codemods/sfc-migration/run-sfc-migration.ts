@@ -31,6 +31,7 @@ import { Project, ScriptKind } from 'ts-morph';
 import type { MergeResult } from './generate-sfc';
 import { mergeComponentFiles } from './generate-sfc';
 import { quoteJsString } from './string-literals';
+import { UNKNOWN_COMPONENT_NAME } from './types';
 
 export interface RunOptions {
     dryRun?: boolean;
@@ -211,6 +212,20 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
     );
 }
 
+/**
+ * Native setup infers the component name — and with it the public override
+ * target — from the `.vue` filename, so the file is named after the registered
+ * component rather than after its directory.
+ *
+ * The directory name is the fallback for a non-literal registration name. It is
+ * also what `normaliseJsContent` synthesizes for `export default {}` components,
+ * whose real name is registered elsewhere: those keep writing under the directory
+ * name, which is only correct when the two agree.
+ */
+export function resolveVueFileName(registeredName: string, directoryName: string): string {
+    return registeredName && registeredName !== UNKNOWN_COMPONENT_NAME ? registeredName : directoryName;
+}
+
 function buildIndexShim(componentName: string): string {
     const vueImportPath = `./${componentName}.vue`;
 
@@ -278,9 +293,10 @@ function writeMigrationOutput(
         return true;
     }
 
-    // The generated entry point registers under the directory name. When the
-    // original registered a different literal component name, replacing it would
-    // silently re-register the component, so keep the originals for manual review.
+    // The generated entry point imports and registers under the directory name.
+    // When the original registered a different literal component name, the SFC
+    // is written under that name instead, so the directory-based entry point
+    // would import the wrong file — keep the originals for manual review.
     if (result.componentName !== context.componentName) {
         report.push(
             `   ⚠  kept originals because the registered component name '${result.componentName}' differs from directory '${context.componentName}'`,
@@ -357,6 +373,7 @@ function reportPartiallyMigrated(
 function reportNotMigratable(context: MigrationContext, result: MergeResult, stats: RunStats, report: string[]): void {
     stats.notMigratable++;
     report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${formatReportPath(context.indexPath)}`);
+    reportExtendsBlocker(result.blockers, stats, report);
 }
 
 function handleMigrationResult(
@@ -435,7 +452,7 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 indexPath,
                 twigPath,
                 componentName,
-                vuePath: join(dir, `${componentName}.vue`),
+                vuePath: join(dir, `${resolveVueFileName(result.componentName, componentName)}.vue`),
             };
 
             handleMigrationResult(context, result, runOptions, stats, report);
@@ -501,7 +518,9 @@ Errors:               ${stats.errors}
         }
 
         if (stats.errors > 0 || stats.notMigratable > 0) {
-            process.exit(1);
+            // Not process.exit(): it aborts before a piped stdout is flushed, and
+            // a full-tree report is long enough to be truncated mid-line.
+            process.exitCode = 1;
         }
     } catch (err) {
         console.error(`ERROR: ${err instanceof Error ? err.message : String(err)}`);

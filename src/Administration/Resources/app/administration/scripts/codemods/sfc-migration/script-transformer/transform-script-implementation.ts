@@ -1,60 +1,48 @@
 import { findComponentRegistration, parseSource } from './ast';
 import { buildCompositionApiScript } from './build-composition-api-script';
-import { buildOptionsApiBackoff } from './build-options-api-backoff';
 import { detectBlockers } from './extract-component-options';
 import { analyzeUnsupportedInjectEntries } from './extract-inject';
+import { UNKNOWN_COMPONENT_NAME } from '../types';
 import type { TransformScriptResult } from './types';
+
+function notMigratable(blockers: string[], componentName: string): TransformScriptResult {
+    return { script: '', status: 'not-migratable', blockers, publicNames: [], componentName };
+}
 
 export function transformScript(jsContent: string): TransformScriptResult {
     const sourceFile = parseSource(jsContent);
     const registration = findComponentRegistration(sourceFile);
     const optionsObj = registration?.optionsObject;
 
-    const componentName = registration?.componentName ?? 'unknown-component';
+    const componentName = registration?.componentName ?? UNKNOWN_COMPONENT_NAME;
 
     if (!optionsObj) {
-        return {
-            script: '',
-            scriptType: 'options',
-            status: 'not-migratable',
-            blockers: ['no options object found'],
-            publicNames: [],
-            componentName,
-        };
+        return notMigratable(['no options object found'], componentName);
     }
 
     const blockers = detectBlockers(optionsObj, registration);
     const unsupportedInjectAnalysis = analyzeUnsupportedInjectEntries(optionsObj);
 
-    if (blockers.includes('render function')) {
-        // render() owns the component output. Combining it with the migrated
-        // Twig template would either be ignored by Vue or change rendering
-        // semantics, so the component must be rewritten by hand first.
-        return { script: '', scriptType: 'options', status: 'not-migratable', blockers, publicNames: [], componentName };
-    }
-
+    // A blocker means the component cannot become a native setup component, and a
+    // `.vue` file that is not one is rejected by the build. So there is nothing to
+    // emit — the blockers are the result. Examples: `render()` owns the component
+    // output; mixins and `extend()` keep their options in another file; an
+    // unsupported `inject` shape leaves `this.<injectName>` unresolvable.
     if (blockers.length > 0 || unsupportedInjectAnalysis.reasons.length > 0) {
-        // Unsupported inject shapes are a full backoff case: methods may depend
-        // on `this.<injectName>`, and converting only the supported pieces would
-        // leave unresolved instance access inside setup code.
-        return {
-            script: buildOptionsApiBackoff(sourceFile),
-            scriptType: 'options',
-            status: 'partially-migratable',
-            blockers: [
+        return notMigratable(
+            [
                 ...blockers,
                 ...unsupportedInjectAnalysis.reasons,
             ],
-            publicNames: [],
             componentName,
-        };
+        );
     }
 
     const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(optionsObj, registration, sourceFile);
+
     return {
         script,
-        scriptType: 'setup',
-        status: manualMigrationReasons.length > 0 ? 'partially-migratable' : 'fully-migratable',
+        status: manualMigrationReasons.length > 0 ? 'partially-migrated' : 'fully-migrated',
         blockers: manualMigrationReasons,
         publicNames,
         componentName,

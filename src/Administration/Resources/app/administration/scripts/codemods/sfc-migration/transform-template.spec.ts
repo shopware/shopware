@@ -40,11 +40,16 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
             expect(result.trimEnd().endsWith('</template>')).toBe(true);
         });
 
-        it('converts all four {% block %} start tags to <sw-block name="..." :data="$dataScope">', () => {
-            expect(result).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
-            expect(result).toContain('<sw-block name="sw_block_card_header" :data="$dataScope">');
-            expect(result).toContain('<sw-block name="sw_block_card_content" :data="$dataScope">');
-            expect(result).toContain('<sw-block name="sw_block_card_footer" :data="$dataScope">');
+        it('converts all four {% block %} start tags to <sw-block name="...">', () => {
+            expect(result).toContain('<sw-block name="sw_block_card">');
+            expect(result).toContain('<sw-block name="sw_block_card_header">');
+            expect(result).toContain('<sw-block name="sw_block_card_content">');
+            expect(result).toContain('<sw-block name="sw_block_card_footer">');
+        });
+
+        it('emits no data binding because the build-time setup transform owns it', () => {
+            expect(result).not.toContain('$dataScope');
+            expect(result).not.toContain(':data');
         });
 
         it('converts all {% endblock %} tags to </sw-block> — one per block', () => {
@@ -137,7 +142,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         });
 
         it('still converts Twig blocks correctly alongside comments', () => {
-            expect(result).toContain('<sw-block name="sw_demo" :data="$dataScope">');
+            expect(result).toContain('<sw-block name="sw_demo">');
             expect(result).toContain('</sw-block>');
         });
 
@@ -167,7 +172,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         `).template;
 
-        expect(result).toContain('<sw-block name="sw_example" :data="$dataScope">');
+        expect(result).toContain('<sw-block name="sw_example">');
         expect(result).toContain('</sw-block>');
         expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
     });
@@ -365,7 +370,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         `).template;
 
         expect(result).toContain('<div v-if="false"></div>');
-        expect(result).toContain('<sw-block name="sw_filter_panel_extension_point" :data="$dataScope"></sw-block>');
+        expect(result).toContain('<sw-block name="sw_filter_panel_extension_point"></sw-block>');
         expect(result).toContain(
             '<template v-if="(false)"><!-- Keeps the conditional chain connected across sw-block. --></template>',
         );

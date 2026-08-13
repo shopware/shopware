@@ -1,5 +1,5 @@
 import type { CompositionScriptState } from './composition-script-state';
-import { emitCreateExtendableSetup } from './emit-create-extendable-setup';
+import { emitNativeSetup } from './emit-native-setup';
 import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
 import { IDENTIFIER_TEMPLATE_MARKER, identTemplate, renderIdentifierTemplates } from './identifier-template';
 import type { IdentifierTemplate, IdentifierToken, ScriptLine } from './identifier-template';
@@ -13,7 +13,7 @@ export function emitCompositionApiScript(state: CompositionScriptState): string 
     emitImports(lines, state);
     emitComposableDeclarations(lines, state);
     emitTemplateRefs(lines, state);
-    emitCreateExtendableSetup(lines, state);
+    emitNativeSetup(lines, state);
 
     return renderIdentifierTemplates(lines, collectTakenNames(state)).join('\n');
 }
@@ -47,40 +47,55 @@ function emitCompilerMacros(lines: ScriptLine[], state: CompositionScriptState):
         lines.push('');
     }
 
+    const declarationLines: ScriptLine[] = [];
+
+    // An empty defineProps({}) would only add an unused `props` binding to the
+    // component state, so the macro is emitted for real props definitions only.
     if (propsText) {
-        lines.push(`const props = defineProps(${propsText});`);
-    } else {
-        lines.push(`const props = defineProps({});`);
+        declarationLines.push(`const props = defineProps(${propsText});`);
     }
 
     if (emitsDefinition.objectText !== null) {
-        lines.push(identTemplate`const ${emitIdent} = defineEmits(${emitsDefinition.objectText});`);
+        declarationLines.push(identTemplate`const ${emitIdent} = defineEmits(${emitsDefinition.objectText});`);
     } else if (effectiveEmitsKeys.length > 0) {
         const emitsList = effectiveEmitsKeys.map((k) => `'${k}'`).join(', ');
-        lines.push(identTemplate`const ${emitIdent} = defineEmits([${emitsList}]);`);
+        declarationLines.push(identTemplate`const ${emitIdent} = defineEmits([${emitsList}]);`);
     } else if (usedComposables.needsEmit) {
-        lines.push(identTemplate`const ${emitIdent} = defineEmits([]);`);
+        declarationLines.push(identTemplate`const ${emitIdent} = defineEmits([]);`);
     }
+
+    if (declarationLines.length === 0) {
+        return;
+    }
+
+    lines.push(...declarationLines);
     lines.push('');
 }
 
 function emitImports(lines: ScriptLine[], state: CompositionScriptState): void {
     const { usedComposables, vueImports } = state;
 
-    lines.push(`import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';`);
+    const importLines: string[] = [];
+
     if (vueImports.length > 0) {
-        lines.push(`import { ${[...new Set(vueImports)].join(', ')} } from 'vue';`);
+        importLines.push(`import { ${[...new Set(vueImports)].join(', ')} } from 'vue';`);
     }
 
     const routerImports: string[] = [];
     if (usedComposables.needsRouter) routerImports.push('useRouter');
     if (usedComposables.needsRoute) routerImports.push('useRoute');
     if (routerImports.length > 0) {
-        lines.push(`import { ${routerImports.join(', ')} } from 'vue-router';`);
+        importLines.push(`import { ${routerImports.join(', ')} } from 'vue-router';`);
     }
     if (usedComposables.needsI18n) {
-        lines.push(`import { useI18n } from 'vue-i18n';`);
+        importLines.push(`import { useI18n } from 'vue-i18n';`);
     }
+
+    if (importLines.length === 0) {
+        return;
+    }
+
+    lines.push(...importLines);
     lines.push('');
 }
 
@@ -113,10 +128,14 @@ function emitTemplateRefs(lines: ScriptLine[], state: CompositionScriptState): v
 }
 
 function collectTakenNames(state: CompositionScriptState): Set<string> {
+    // Declared prop names count as taken: the extension runtime strips them from
+    // the returned setup state, so a generated binding that shadows a prop would
+    // be dropped and leave the template reading `undefined`.
     return new Set([
         ...state.existingBindingNames,
         ...state.publicNames,
         ...state.templateRefNames,
+        ...state.propNames,
         'props',
     ]);
 }

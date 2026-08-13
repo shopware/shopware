@@ -2,11 +2,11 @@ import type { CallExpression, ObjectLiteralExpression } from 'ts-morph';
 import type { MigrationStatus } from '../types';
 
 export interface TransformScriptResult {
+    /** The generated `<script setup>` body, or `''` when a blocker was found. */
     script: string;
-    scriptType: 'setup' | 'options';
     status: MigrationStatus;
     blockers: string[];
-    /** Names exposed in the `public:` return of createExtendableSetup. */
+    /** Names declared as the public override API in the `swDefinePublic({ … })` marker. */
     publicNames: string[];
     /** Component name from the registration call (`unknown-component` when non-literal). */
     componentName: string;

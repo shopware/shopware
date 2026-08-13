@@ -156,6 +156,7 @@ export function collectCompositionScriptState(
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
     const vueImports = collectVueImports(supportedMembers, templateRefNames, usedComposables, regularHooks, allSnippets);
     const publicNames = collectPublicNames(supportedMembers);
+    collectPropShadowingReasons(templateRefNames, propNames, manualMigrationReasons, todoComments);
     const manualFollowUps = collectManualFollowUps(optionsObj);
 
     manualMigrationReasons.push(...manualFollowUps.manualMigrationReasons);
@@ -441,6 +442,31 @@ const UNSUPPORTED_TOP_LEVEL_OPTIONS = [
 function pushManualMigration(reasons: string[], todoComments: string[], label: string, reason: string): void {
     reasons.push(reason);
     todoComments.push(`// TODO: migrate ${label} manually: ${sanitizeTodoCommentText(reason)}`);
+}
+
+/**
+ * Template refs share the setup scope with declared props, unlike `$refs` in the
+ * Options API. The extension runtime strips prop keys from the returned setup
+ * state, so a ref binding named after a prop is dropped and the template reads
+ * `undefined`. The ref name is fixed by the template, so it cannot be renamed
+ * automatically.
+ */
+function collectPropShadowingReasons(
+    templateRefNames: string[],
+    propNames: Set<string>,
+    reasons: string[],
+    todoComments: string[],
+): void {
+    templateRefNames
+        .filter((name) => propNames.has(name))
+        .forEach((name) => {
+            pushManualMigration(
+                reasons,
+                todoComments,
+                'template ref',
+                `template ref '${name}' shadows the prop of the same name`,
+            );
+        });
 }
 
 function filterInstanceDependentData(

@@ -1,5 +1,6 @@
 import type { BindingName, CallExpression, PropertyAccessExpression, SourceFile } from 'ts-morph';
 import { Node, Project, ScriptKind, SyntaxKind } from 'ts-morph';
+import { UNKNOWN_COMPONENT_NAME } from '../types';
 import type { CodeSnippet, ComponentRegistration, RewriteSnippetKind } from './types';
 
 /**
@@ -28,6 +29,32 @@ export function createWrappedSnippetSource(
 
 export function isNodeInsideSnippet(node: Node, snippetStart: number, snippetEnd: number): boolean {
     return node.getStart() >= snippetStart && node.getEnd() <= snippetEnd;
+}
+
+function isFunctionLike(node: Node): boolean {
+    return (
+        Node.isFunctionDeclaration(node) ||
+        Node.isFunctionExpression(node) ||
+        Node.isArrowFunction(node) ||
+        Node.isMethodDeclaration(node)
+    );
+}
+
+/**
+ * Detects a `return` that belongs to the snippet itself rather than to a nested
+ * function. `created()` has no Composition API hook, so its body is emitted as
+ * top-level setup code — where a bare `return` is a syntax error and the body
+ * has to be wrapped in a function instead.
+ */
+export function hasTopLevelReturn(bodyText: string): boolean {
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(bodyText, 'body');
+    // The snippet wrapper is the only function a top-level return is nested in.
+    const wrapper = sourceFile.getFunctions()[0];
+
+    return sourceFile
+        .getDescendantsOfKind(SyntaxKind.ReturnStatement)
+        .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
+        .some((node) => node.getFirstAncestor(isFunctionLike) === wrapper);
 }
 
 export function getDirectThisPropertyName(node: PropertyAccessExpression): string | null {
@@ -103,7 +130,7 @@ export function findComponentRegistration(sourceFile: SourceFile): ComponentRegi
         // componentNameIsLiteral to report this instead of renaming silently.
         componentName: componentNameIsLiteral
             ? componentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
-            : 'unknown-component',
+            : UNKNOWN_COMPONENT_NAME,
         componentNameIsLiteral,
         // Example: the second argument in `Shopware.Component.register('sw-card', { props: {} })`.
         optionsObject: optionsArg?.asKind(SyntaxKind.ObjectLiteralExpression),

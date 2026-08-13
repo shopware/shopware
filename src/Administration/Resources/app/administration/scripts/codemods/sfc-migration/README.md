@@ -2,6 +2,8 @@
 
 Automatically converts Shopware Administration components from the Options API (`index.js` + `.html.twig`) to Vue 3 Single File Components (`<script setup>`).
 
+The generated SFCs are native `<script setup>` base components: the migrated state lives at the top level of the setup block and the public override API is declared with the `swDefinePublic({ … })` marker. The build-time transform lowers that into Shopware's extension runtime — see [Native Setup Authoring](../../../technical-docs/03-extensibility/07-native-setup-authoring.md).
+
 ## Requirements
 
 - Node.js 20+
@@ -55,11 +57,11 @@ my-component/
 | `emits` array/object form                 | `defineEmits(…)`                               |
 | `inheritAttrs: false`                     | `defineOptions({ inheritAttrs: false })`       |
 | `name`                                    | `defineOptions({ name })`                      |
-| `data()` / `data: () => ({ … })`          | `ref(…)` inside `createExtendableSetup`        |
-| `computed`                                | `computed(…)` inside `createExtendableSetup`   |
-| `inject` array/object form                | `inject(…)` inside `createExtendableSetup`     |
-| `watch` method/object/string-handler form | `watch(…)` inside `createExtendableSetup`      |
-| `methods`                                 | plain functions inside `createExtendableSetup` |
+| `data()` / `data: () => ({ … })`          | `ref(…)` in `<script setup>`                   |
+| `computed`                                | `computed(…)` in `<script setup>`              |
+| `inject` array/object form                | `inject(…)` in `<script setup>`                |
+| `watch` method/object/string-handler form | `watch(…)` in `<script setup>`                 |
+| `methods`                                 | plain functions in `<script setup>`            |
 | `created`                                 | runs directly in setup (equivalent behaviour)  |
 | other lifecycle hooks                     | `onMounted`, `onBeforeUnmount`, etc.           |
 | `this.$emit`                              | `emit(…)`                                      |
@@ -70,17 +72,36 @@ my-component/
 | `this.$refs.name`                         | `const name = ref(null)`                       |
 | Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
 
+Every converted `inject`, `data`, `computed`, and `methods` name is additionally listed in a
+`swDefinePublic({ … })` marker at the end of the setup block — that is the public override API a
+plugin can replace. The marker is mandatory, so a component without any of those options gets
+`swDefinePublic({})`. Every other top-level binding (props, emits, template refs, composables) stays
+normal component and template state; it is only excluded from the public override API and remains
+reachable for overrides through the `_private` group.
+
+The override target name is no longer passed to a wrapper: it comes from the `.vue` filename. The
+codemod therefore names the file after the registered component name and falls back to the component
+directory name only when the registration has no literal name (`defineOptions({ name })` is still
+emitted when the source declared a `name` option). With `--delete-originals`, originals are kept and
+a warning is printed when the registered component name differs from the directory name, because the
+generated entry point would import the wrong file.
+
 Template transformation only supports Twig block tags (`{% block %}`, `{% endblock %}`, `{% parent %}`) and Twig comments. Templates containing Twig `{% extends '…' %}` fail the migration and must be handled manually before running the codemod.
 
 ## Migration outcomes
 
 Each component is classified into one of three states:
 
-| Status               | Meaning                                                                                           | Output                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `fully-migrated`     | Full `<script setup>` with `createExtendableSetup`                                                | `.vue` file written                            |
-| `partially-migrated` | Soft blocker found (mixins, `Shopware.Component.extend()`) — Options API kept in plain `<script>` | `.vue` file written, manual follow-up required |
-| `not-migratable`     | Hard blocker found (`render()`) — cannot be automatically converted                               | No file written                                |
+| Status               | Meaning                                                                                     | Output                                         |
+| -------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `fully-migrated`     | Native `<script setup>` with a `swDefinePublic({ … })` marker                               | `.vue` file written                            |
+| `partially-migrated` | Native `<script setup>`, but parts were emitted as `TODO` comments                          | `.vue` file written, manual follow-up required |
+| `not-migratable`     | Blocker found (`render()`, mixins, `Shopware.Component.extend()`, unsupported `inject`)      | No file written                                |
+
+Every `.vue` file is a native setup component, so a component that cannot be
+converted to `<script setup>` produces no file at all: a plain `<script>` SFC is
+rejected by the build. Those components are reported with their blockers so they
+can be prepared by hand and migrated on a second run.
 
 ## Programmatic API
 
@@ -100,8 +121,8 @@ if (result.status === 'fully-migrated') {
 
 `--delete-originals` is **irreversible**. It replaces `index.js` with a generated
 entry point that imports the new `.vue` file, and deletes `.html.twig` for every
-component that produces a `.vue` file — including **partially-migrated** components
-(those with unresolved blockers that still use Options API).
+**fully-migrated** component. Partially-migrated components keep their originals,
+because their `TODO` comments must be resolved before the entry point may switch.
 
 Before using `--delete-originals`:
 
@@ -132,19 +153,19 @@ After running the codemod, search for `TODO` comments in the generated files:
        bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
        setup phase. If the method runs after setup completes, store the element in a template ref instead.
 
-- **Partially migrated components** — mixins and `Shopware.Component.extend()` must be manually inlined
+- **Mixins and `Shopware.Component.extend()`** — must be manually inlined
 - **Render functions** — must be rewritten as templates by hand
 
 ## Manual migration: `extends`-based components
 
-Components registered via `Shopware.Component.extend()` are partially migrated — the Options API is preserved in a plain `<script>` block. The migration report shows a `⚠` warning line with the parent component name:
+Components registered via `Shopware.Component.extend()` cannot be converted, because their parent's options are not part of the source file. The migration report shows a `⚠` warning line with the parent component name:
 
 ```
-~  partially-migrated  [extends (parent: sw-button)]  sw-extended-button.vue
+✗  not-migratable      [extends (parent: sw-button)]  sw-extended-button/index.js
    ⚠  manually inline parent options from 'sw-button' before re-running codemod; see README.md
 ```
 
-Automatic inlining is out of scope for this codemod because it requires resolving and deep-merging the parent's implementation, which has too many edge cases (chained inheritance, circular references, parents that are themselves partially-migratable).
+Automatic inlining is out of scope for this codemod because it requires resolving and deep-merging the parent's implementation, which has too many edge cases (chained inheritance, circular references, parents that are themselves not migratable).
 
 ### Steps
 
@@ -182,7 +203,7 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
     });
     ```
 
-4. **Re-run the codemod** — the component should now be classified as `fully-migratable`
+4. **Re-run the codemod** — the component should now be classified as `fully-migrated`
    (unless other blockers remain).
 
     ```bash

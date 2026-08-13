@@ -24,9 +24,13 @@ With `--delete-originals`, the codemod also replaces `index.js` with a small
 entry point and removes the Twig file.
 
 The important technical part is that the codemod does more than copy files into
-an SFC. When possible, it converts Options API component code to Vue 3
-`<script setup>` and wraps the generated state in `createExtendableSetup()` so
-Shopware component overrides still work.
+an SFC. When possible, it converts Options API component code to native Vue 3
+`<script setup>` and declares the migrated state as the public override API with
+`swDefinePublic({ … })` so Shopware component overrides still work. No wrapper
+function is generated: the build-time transform in `build/vue-setup-transform`
+lowers the marker into the extension runtime. The authoring contract is
+[Native Setup Authoring](../../../technical-docs/03-extensibility/07-native-setup-authoring.md),
+which this codemod must not contradict.
 
 ## High-Level Flow
 
@@ -58,16 +62,22 @@ The code is split into three layers:
 | Status | Meaning | Output |
 | --- | --- | --- |
 | `fully-migrated` | Template and script were converted automatically. | Writes a `.vue` file. |
-| `partially-migrated` | A `.vue` file was generated, but manual follow-up is required. | Writes a `.vue` file. |
-| `not-migratable` | A hard blocker was found. | Writes nothing. |
+| `partially-migrated` | A native setup `.vue` file was generated, but it carries `TODO` comments. | Writes a `.vue` file. |
+| `not-migratable` | A blocker was found, or the generated SFC was rejected by the transform. | Writes nothing. |
+
+Every `.vue` file is a native setup component, so anything that cannot become a
+`<script setup>` component is `not-migratable` rather than a partial write: a
+plain `<script>` SFC fails the build. Such a component produces no script at all —
+its blockers are the result.
 
 Examples:
 
 | Case | Status |
 | --- | --- |
 | Normal Options API component | `fully-migrated` |
-| Component with `mixins` | `partially-migrated`, script stays Options API |
-| Component using `Shopware.Component.extend()` | `partially-migrated`, script stays Options API |
+| Component with an unsupported `watch` path | `partially-migrated`, `TODO` comment emitted |
+| Component with `mixins` | `not-migratable` |
+| Component using `Shopware.Component.extend()` | `not-migratable` |
 | Component with `render()` | `not-migratable` |
 | Template with `{% extends ... %}` | `not-migratable` |
 
@@ -140,12 +150,9 @@ import component from './sw-example.vue';
 Shopware.Component.register('sw-example', component);
 ```
 
-or imports the SFC for side effects when the SFC still contains an Options API
-`Shopware.Component.register()` or `.extend()` call:
-
-```js
-import './sw-example.vue';
-```
+The entry point is only replaced for fully-migrated components whose registered
+name matches their directory, because the generated import path is derived from
+the directory name.
 
 ## SFC Merge Layer
 
@@ -161,14 +168,16 @@ It does this:
    `not-migratable`.
 3. Runs `transformScript(...)`.
 4. If script transformation is `not-migratable`, returns an empty SFC.
-5. Wraps the generated script in `<script setup>` or plain `<script>`.
-6. Returns the final SFC with `<template>` first and script second.
+5. Wraps the generated script in `<script setup>`.
+6. Validates the assembled SFC by running it through the real build-time
+   transform from `build/vue-setup-transform`, so success is only reported for
+   output that transform accepts.
+7. Returns the final SFC with `<template>` first and script second.
 
-The template is transformed first because Twig blocks need a data scope. The
-Administration app already provides a global `$dataScope` getter in
-`vue.adapter.ts`, which returns the current component proxy. Generated
-`<sw-block>` elements therefore keep `:data="$dataScope"` and do not need a
-local `$dataScope` variable in the generated script.
+Generated `<sw-block>` elements carry only their `name`. The data binding and the
+default slot scope of `<sw-block>` are owned by the base transform, which adds
+`:data="$dataScope"` itself and rejects an authored one — so neither the template
+transformer nor the script transformer produces anything `$dataScope`-related.
 
 ## Template Transformer
 
@@ -179,7 +188,7 @@ syntax used for Shopware block inheritance and comments.
 
 | Input | Output |
 | --- | --- |
-| `{% block sw_foo %}` | `<sw-block name="sw_foo" :data="$dataScope">` |
+| `{% block sw_foo %}` | `<sw-block name="sw_foo">` |
 | `{% endblock %}` | `</sw-block>` |
 | `{{ parent() }}` / `{% parent() %}` | `<sw-block-parent/>` |
 | `{# comment #}` | `<!-- comment -->` |
@@ -214,10 +223,12 @@ flowchart TD
     E --> F{render function?}
     F -- yes --> D
     F -- no --> G{mixins, extend, unsupported inject?}
-    G -- yes --> H[Options API backoff]
+    G -- yes --> D
     G -- no --> I[Build CompositionScriptState]
     I --> J[Emit script setup]
-    J --> K{manual TODOs?}
+    J --> N{transform accepts the SFC?}
+    N -- no --> D
+    N -- yes --> K{manual TODOs?}
     K -- yes --> L[partially-migrated]
     K -- no --> M[fully-migrated]
 ```
@@ -235,8 +246,8 @@ It extracts:
 
 | Extracted value | Used for |
 | --- | --- |
-| `componentName` | `createExtendableSetup({ name })`, reports, generated entry points. |
-| `isExtend` | Detecting `.extend()` as a soft blocker. |
+| `componentName` | The `.vue` filename — and with it the override target, since native setup infers the component name from the filename. Also used for reports, generated entry points, and the mismatch check against the directory name. |
+| `isExtend` | Detecting `.extend()` as a blocker. |
 | `parentComponentName` | Reporting which parent component must be inlined manually. |
 | `optionsObject` | The Options API object that gets converted. |
 
@@ -248,21 +259,23 @@ inside the SFC.
 
 | Feature | Handling |
 | --- | --- |
-| `render()` | Hard blocker. No SFC is generated. |
-| `mixins` | Soft blocker. Generates a plain Options API `<script>`. |
-| `Shopware.Component.extend()` | Soft blocker. Generates a plain Options API `<script>`. |
-| Unsupported `inject` shape | Soft blocker. Generates a plain Options API `<script>`. |
+| `render()` | Blocker. No SFC is generated. |
+| `mixins` | Blocker. Part of the component lives in another file. |
+| `Shopware.Component.extend()` | Blocker. The parent's options live in another file. |
+| Unsupported `inject` shape | Blocker. `this.<injectName>` stays unresolvable. |
 
-Options API backoff is built in `build-options-api-backoff.ts`. It clones the
-source AST, removes the template import and template option, and emits the rest
-inside a plain `<script>` block.
+Every blocker is reported the same way: `transformScript()` returns
+`not-migratable` with an empty script. There is no partial Options API output —
+a `.vue` file without `<script setup>` is rejected by the build, so there is
+nothing useful to write.
 
 ## Composition API Conversion
 
 The full script conversion has two phases:
 
 1. `composition-script-state.ts` extracts and classifies all Options API parts.
-2. `emit-composition-api-script.ts` prints the new `<script setup>` code.
+2. `emit-composition-api-script.ts` prints the new `<script setup>` code, calling
+   `emit-native-setup.ts` for the setup body and its `swDefinePublic({ … })` marker.
 
 This keeps "understand the old component" separate from "print the new code".
 
@@ -289,51 +302,63 @@ This keeps "understand the old component" separate from "print the new code".
 4. Imports required by the converted code.
 5. Composable declarations such as `const router = useRouter()`.
 6. Template refs generated from `this.$refs`.
-7. `createExtendableSetup(...)`.
+7. The migrated setup body, printed by `emit-native-setup.ts`: `inject`, `data`,
+   `computed`, methods, watchers, `created`, other lifecycle hooks.
+8. The `swDefinePublic({ … })` marker.
+
+`defineOptions` is only emitted for a `name` or `inheritAttrs: false` option, and
+`defineProps` only when the component really declares props — an empty
+`defineProps({})` would just add an unused `props` binding.
 
 The generated setup state looks like this:
 
 ```js
-const {
+defineOptions({ inheritAttrs: false });
+
+const props = defineProps({ /* … */ });
+const emit = defineEmits(['save']);
+
+import { ref } from 'vue';
+
+const title = ref('Example');
+
+const onSave = () => {
+    emit('save', title.value);
+};
+
+swDefinePublic({
     title,
     onSave,
-} = createExtendableSetup(
-    {
-        name: 'sw-example',
-        props,
-    },
-    () => {
-        const title = ref('Example');
-
-        const onSave = () => {
-            emit('save', title.value);
-        };
-
-        return {
-            public: {
-                title,
-                onSave,
-            },
-        };
-    },
-);
+});
 ```
 
-Returning values under `public` is important. It exposes them to the template
-and to Shopware's Composition API extension system.
+Everything is top-level `<script setup>` code, so the macros stay where Vue
+expects them and the state is ordinary component and template state.
 
-## Why `createExtendableSetup()` Is Used
+## Why `swDefinePublic()` Is Emitted
 
 Shopware plugins can override Administration components. After moving a
 component to Composition API, those overrides still need a stable public state
 to hook into.
 
-The codemod therefore places converted `inject`, `data`, `computed`, and
-`methods` inside `createExtendableSetup()` and returns them as `public`.
+Base components are auto-private: every top-level binding is normal component
+and template state, but only the names listed in `swDefinePublic({ … })` form the
+public override API. The codemod therefore lists exactly the converted `inject`,
+`data`, `computed`, and `methods` names — the surface the earlier wrapper-based
+output exposed as public state — so overrides written against the Options API
+component keep working after migration. Everything else (props, emits, template
+refs, composable locals) stays reachable for overrides through the `_private`
+group of the previous-state payload.
 
-For templates with migrated Twig blocks, `<sw-block :data="$dataScope">` uses
-the global `$dataScope` getter from `vue.adapter.ts` so block overrides can
-access the host component proxy.
+The marker is mandatory, so a component with none of those options gets
+`swDefinePublic({})`. It needs no import: `swDefinePublic` is an ambient global
+declared in `build/vue-setup-transform/shopware-setup-macros.d.ts`. The component
+name is not passed to it either — the override target comes from the `.vue`
+filename (`sw-foo.vue` or `sw-foo/index.vue` → `sw-foo`).
+
+Templates with migrated Twig blocks need no such marker: the codemod emits plain
+`<sw-block name="…">` elements and the base transform adds the `:data="$dataScope"`
+binding that block overrides read.
 
 ## `this.` Rewriting
 
@@ -391,7 +416,7 @@ Lifecycle hooks are mapped like this:
 
 | Options API | Composition API |
 | --- | --- |
-| `created()` | Runs directly inside `createExtendableSetup()`. |
+| `created()` | Runs directly in the `<script setup>` body. |
 | `mounted()` | `onMounted(...)` |
 | `beforeMount()` | `onBeforeMount(...)` |
 | `beforeUnmount()` / `beforeDestroy()` | `onBeforeUnmount(...)` |
@@ -411,7 +436,7 @@ timing does not map cleanly to generated setup code.
 | `README.md` | User-facing usage guide. |
 | `TECHNICAL_README.md` | Technical explanation of the implementation. |
 | `run-sfc-migration.ts` | CLI, scanning, writing, reporting. |
-| `generate-sfc.ts` | Merges template and script transformation results. |
+| `generate-sfc.ts` | Merges template and script transformation results, then validates the SFC against the real build-time transform. |
 | `transform-template.ts` | Converts supported Twig syntax. |
 | `transform-script.ts` | Public export for the script transformer. |
 | `types.ts` | Shared status types. |
@@ -419,8 +444,8 @@ timing does not map cleanly to generated setup code.
 | `script-transformer/ast.ts` | AST helpers and component registration detection. |
 | `script-transformer/transform-script-implementation.ts` | Script transformation decision tree. |
 | `script-transformer/composition-script-state.ts` | Collects all data needed to print setup code. |
-| `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`. |
-| `script-transformer/build-options-api-backoff.ts` | Emits plain Options API script for soft blockers. |
+| `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`: macros, imports, composables, template refs. |
+| `script-transformer/emit-native-setup.ts` | Emits the migrated setup body and the `swDefinePublic({ … })` marker (replaces the former `emit-create-extendable-setup.ts`). |
 | `script-transformer/rewrite-this.ts` | Rewrites known `this.*` references. |
 | `script-transformer/extract-*.ts` | Focused extractors for Options API sections. |
 | `__fixtures__/` | Input examples used by tests. |

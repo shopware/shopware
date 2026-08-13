@@ -2,21 +2,21 @@
 
 exports[`scripts/codemods/sfc-migration/transform-template block-component: twig block syntax is fully replaced across the whole template matches the complete transformed template snapshot 1`] = `
 "<template>
-<sw-block name="sw_block_card" :data="$dataScope">
+<sw-block name="sw_block_card">
 <div class="sw-block-card">
-    <sw-block name="sw_block_card_header" :data="$dataScope">
+    <sw-block name="sw_block_card_header">
     <div class="sw-block-card__header">
         <h3>{{ title }}</h3>
     </div>
     </sw-block>
 
-    <sw-block name="sw_block_card_content" :data="$dataScope">
+    <sw-block name="sw_block_card_content">
     <div class="sw-block-card__content">
         <p>{{ description }}</p>
     </div>
     </sw-block>
 
-    <sw-block name="sw_block_card_footer" :data="$dataScope">
+    <sw-block name="sw_block_card_footer">
     <div class="sw-block-card__footer">
         <sw-block-parent/>
         <button @click="onAction">Action</button>
@@ -42,7 +42,7 @@ exports[`scripts/codemods/sfc-migration/transform-template simple-component: pla
 exports[`scripts/codemods/sfc-migration/transform-template twig-comments: converts {# ... #} Twig comments to HTML comments matches the complete transformed template snapshot 1`] = `
 "<template>
 <!-- @deprecated tag:v6.8.0 - Use mt-button instead -->
-<sw-block name="sw_demo" :data="$dataScope">
+<sw-block name="sw_demo">
 <div class="sw-demo">
     <!-- This is an inline comment -->
     <span>Hello</span>

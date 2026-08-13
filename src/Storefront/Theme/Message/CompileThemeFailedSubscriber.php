@@ -12,9 +12,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
- * Reacts to a deferred theme compilation that Messenger has finally given up on (dead-lettered).
- * Notifying from inside the handler would fire on every retry attempt and leave the pending marker
- * dangling, so both the user notification and the marker cleanup happen here, exactly once.
+ * Handles a deferred theme compile that Messenger finally gave up on: notifies the user once and
+ * clears the pending marker. Doing this in the handler would repeat on every retry.
  *
  * @internal
  */
@@ -46,8 +45,8 @@ class CompileThemeFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Stop the Administration from polling for a switch that will never be applied, but keep a
-        // newer request intact by clearing the marker only while it still points at the failed theme.
+        // Clear the marker so the admin stops polling, but only while it still points at the failed
+        // theme (a newer request must survive).
         if ($this->systemConfigService->getString(ThemeService::CONFIG_KEY_PENDING_THEME, $message->getSalesChannelId()) === $message->getThemeId()) {
             $this->systemConfigService->set(ThemeService::CONFIG_KEY_PENDING_THEME, '', $message->getSalesChannelId(), false);
         }

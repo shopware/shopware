@@ -55,8 +55,8 @@ final readonly class CompileThemeHandler
             return;
         }
 
-        // A compile failure propagates so Messenger can retry and finally dead-letter the message;
-        // the user is then notified once by CompileThemeFailedSubscriber, not on every attempt.
+        // On failure the exception propagates for Messenger to retry/dead-letter; the user is
+        // notified once by CompileThemeFailedSubscriber, not per attempt.
         $themeConfig = $this->configLoader->load($message->getThemeId(), $message->getContext());
         $this->themeCompiler->compileTheme(
             $message->getSalesChannelId(),
@@ -76,8 +76,8 @@ final readonly class CompileThemeHandler
         );
 
         if ($message->isAssign()) {
-            // Re-check after the (possibly long) compile: a newer switch may have arrived
-            // meanwhile, and it must win. The compiled files stay and are reused if reassigned.
+            // Re-check after the compile: a switch requested meanwhile must win (compiled files
+            // stay and are reused if reassigned).
             if ($this->isSuperseded($message)) {
                 return;
             }

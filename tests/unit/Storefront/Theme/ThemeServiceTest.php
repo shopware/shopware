@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
@@ -145,12 +146,14 @@ class ThemeServiceTest extends TestCase
         static::assertTrue($assigned);
     }
 
-    public function testAssignThemeRecordsThePendingTheme(): void
+    public function testAssignThemeRecordsThePendingThemeOnTheDeferredPath(): void
     {
-        // the pending theme is the source for both the supersede check and the admin indicator
+        // the pending theme drives both the supersede check and the admin indicator; it is only
+        // recorded on the deferred (async) path - a synchronous switch takes effect at once
         $themeId = Uuid::randomHex();
 
         $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig->method('get')->willReturn(true); // async compilation enabled
         $systemConfig->expects($this->once())->method('set')->with(
             ThemeService::CONFIG_KEY_PENDING_THEME,
             $themeId,
@@ -158,8 +161,62 @@ class ThemeServiceTest extends TestCase
             false,
         );
 
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
+
+        $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
+
+        $this->getThemeService(systemConfig: $systemConfig, messageBus: $messageBus)
+            ->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
+    }
+
+    public function testAssignThemeRestoresThePendingMarkerWhenDispatchFails(): void
+    {
+        // if the compile message cannot be queued, the marker is rolled back to its previous value
+        // so the admin does not keep polling a switch that was never started
+        $themeId = Uuid::randomHex();
+        $previousThemeId = Uuid::randomHex();
+
+        $systemConfig = new StaticSystemConfigService([
+            ThemeService::CONFIG_THEME_COMPILE_ASYNC => true,
+            TestDefaults::SALES_CHANNEL => [ThemeService::CONFIG_KEY_PENDING_THEME => $previousThemeId],
+        ]);
+
+        $messageBus = $this->createMock(MessageBus::class);
+        $messageBus->method('dispatch')->willThrowException(new \RuntimeException('transport down'));
+
+        $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
+
+        try {
+            $this->getThemeService(systemConfig: $systemConfig, messageBus: $messageBus)
+                ->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
+            static::fail('dispatch failure should propagate');
+        } catch (\RuntimeException $e) {
+            static::assertSame('transport down', $e->getMessage());
+        }
+
+        // the marker is restored to the previously pending theme, not left pointing at the failed one
+        static::assertSame(
+            $previousThemeId,
+            $systemConfig->getString(ThemeService::CONFIG_KEY_PENDING_THEME, TestDefaults::SALES_CHANNEL)
+        );
+    }
+
+    public function testAssignThemeRecordsThePendingThemeOnTheSynchronousPath(): void
+    {
+        // the marker is written for every switch, not just deferred ones, so a synchronous switch
+        // supersedes an in-flight deferred compile and leaves no phantom pending indicator
+        $themeId = Uuid::randomHex();
+
+        $systemConfig = new StaticSystemConfigService();
+
         $this->getThemeService(systemConfig: $systemConfig)
             ->assignTheme($themeId, TestDefaults::SALES_CHANNEL, $this->context);
+
+        static::assertSame(
+            $themeId,
+            $systemConfig->getString(ThemeService::CONFIG_KEY_PENDING_THEME, TestDefaults::SALES_CHANNEL)
+        );
     }
 
     public function testAssignThemeSkipCompile(): void

@@ -119,8 +119,7 @@ export default {
                 return;
             }
 
-            // Tag this run so a result that resolves after the component unmounted or the sales
-            // channel changed is discarded instead of mutating state or scheduling another poll.
+            // Tag this run so a result resolving after unmount or a sales-channel change is discarded.
             this.activeCheckId += 1;
             const checkId = this.activeCheckId;
 

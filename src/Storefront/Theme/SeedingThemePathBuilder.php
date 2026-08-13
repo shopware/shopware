@@ -11,18 +11,14 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class SeedingThemePathBuilder extends AbstractThemePathBuilder
 {
     /**
-     * Each theme stores its seed under its own key ("<prefix><themeId>") so that saving a seed is a
-     * single-row write. A shared map would require a non-atomic read-modify-write: two concurrent
-     * compilations of the same sales channel could then overwrite each other's entry and leave a
-     * theme pointing at a directory that was never compiled.
+     * Each theme's seed lives under its own key ("<prefix><themeId>") so saving is a single-row
+     * write; a shared map would need a racy read-modify-write across concurrent compilations.
      */
     private const SYSTEM_CONFIG_KEY_PREFIX = 'storefront.themeSeeds.';
 
     /**
-     * Legacy sales-channel-wide seed (a single string shared by every theme) used before the seed
-     * became per-theme. Kept as a fallback so themes compiled under it keep resolving until they are
-     * recompiled. The prefix above is intentionally distinct ("themeSeeds" vs "themeSeed") to avoid
-     * key nesting collisions in the system config loader.
+     * Legacy sales-channel-wide seed (one string for all themes), kept as a fallback until each
+     * theme is recompiled. Distinct prefix ("themeSeeds" vs "themeSeed") avoids key-nesting clashes.
      */
     private const LEGACY_SYSTEM_CONFIG_KEY = 'storefront.themeSeed';
 

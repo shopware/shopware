@@ -44,8 +44,7 @@ class CompileThemeMessage implements AsyncMessageInterface
     }
 
     /**
-     * Whether to assign the theme to the sales channel once compiled. Defers a theme
-     * switch until its files exist so the storefront never renders without CSS.
+     * Whether to assign the theme to the sales channel once compiled (deferred switch).
      */
     public function isAssign(): bool
     {

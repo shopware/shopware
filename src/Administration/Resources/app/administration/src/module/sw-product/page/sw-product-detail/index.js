@@ -171,14 +171,12 @@ export default {
             }
 
             if (!this.isChild && this.showModeSetting) {
-                tabs.push(
-                    createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'),
-                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
-                );
+                tabs.push(createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'));
             }
 
             if (this.showModeSetting) {
                 tabs.push(
+                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
                     createRouteTab('sw-product.detail.tabSeo', 'sw.product.detail.seo'),
                     createRouteTab('sw-product.detail.tabCrossSelling', 'sw.product.detail.crossSelling', {
                         hasError: this.swProductDetailCrossSellingError,

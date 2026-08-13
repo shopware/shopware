@@ -84,6 +84,10 @@ class DocumentV2Exception extends HttpException
 
     public const REFERENCED_DOCUMENT_NOT_SUPPORTED = 'DOCUMENT_V2__REFERENCED_DOCUMENT_NOT_SUPPORTED';
 
+    public const NO_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_CREDIT_LINE_ITEMS';
+
+    public const NO_UNPROCESSED_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -446,6 +450,26 @@ class DocumentV2Exception extends HttpException
             'Failed to embed the XML into the PDF: {{ reason }}.',
             ['reason' => $previous->getMessage()],
             $previous,
+        );
+    }
+
+    public static function noCreditLineItems(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_CREDIT_LINE_ITEMS,
+            'Cannot generate credit note because order "{{ orderId }}" has no credit line items.',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function noUnprocessedCreditLineItems(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_UNPROCESSED_CREDIT_LINE_ITEMS,
+            'Cannot generate credit note because every credit line item of order "{{ orderId }}" is already invoiced or credited.',
+            ['orderId' => $orderId],
         );
     }
 }

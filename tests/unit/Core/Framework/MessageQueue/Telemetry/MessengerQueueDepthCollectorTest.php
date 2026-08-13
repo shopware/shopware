@@ -80,7 +80,7 @@ class MessengerQueueDepthCollectorTest extends TestCase
 
     public function testFailingTransportIsLoggedAndDoesNotStopTheOthers(): void
     {
-        $failing = $this->createMockForIntersectionOfInterfaces([MessageCountAwareInterface::class, ReceiverInterface::class]);
+        $failing = static::createStubForIntersectionOfInterfaces([MessageCountAwareInterface::class, ReceiverInterface::class]);
         $failing->method('getMessageCount')->willThrowException(new \RuntimeException('broker down'));
 
         $logger = $this->createMock(LoggerInterface::class);

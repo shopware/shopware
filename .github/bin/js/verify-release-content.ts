@@ -167,9 +167,10 @@ function commitMd(sha: string, commitUrlBase: string): string {
     return commitUrlBase !== '' ? `[\`${short}\`](${commitUrlBase}/${sha})` : `\`${short}\``;
 }
 
-/** Strip the leading "### " from a heading and escape pipes for Markdown table cells. */
+/** Strip the leading "### " from a heading and escape it for a Markdown table cell. */
 function mdTitle(heading: string): string {
-    return heading.replace(/^###\s+/, '').replace(/\|/g, '\\|');
+    // Escape the backslash first, otherwise the one added for a pipe would be escaped in turn.
+    return heading.replace(/^###\s+/, '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 }
 
 export function consoleReport(result: VerificationResult, releaseInfoFile: string, commitUrlBase = ''): string {

@@ -215,6 +215,16 @@ test('markdownSummary renders the missing table with a linked commit and escaped
     assert.match(markdown, /\| Feature \\\| A \| \[`aaaa1111`]\(https:\/\/github\.com\/shopware\/shopware\/commit\/aaaa11112222\) \|/);
 });
 
+test('markdownSummary escapes backslashes in a heading before the pipe', () => {
+    const markdown = markdownSummary(
+        { total: 1, confirmed: 0, missing: [{ heading: '### Path C:\\ | D', sha: '' }], warnings: [] },
+        { versionPrefix: VERSION, branchRef: BRANCH, releaseInfoFile: FILE },
+    );
+
+    // Backslash doubled, then the literal pipe escaped: "C:\ | D" → "C:\\ \| D".
+    assert.match(markdown, /\| Path C:\\\\ \\\| D \| `unknown` \|/);
+});
+
 test('commitStatusDescription summarises the three outcomes', () => {
     assert.equal(
         commitStatusDescription({ total: 0, confirmed: 0, missing: [], warnings: [] }, VERSION, '6.7.11.x'),

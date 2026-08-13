@@ -69,6 +69,5 @@ export default {
                 this.supportedDocumentTypes = response.documentTypes ?? {};
             });
         },
-
     },
 };

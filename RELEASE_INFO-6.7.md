@@ -121,16 +121,6 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 
 When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
-### Admin search index updates are no longer dropped for storefront writes
-
-`AdminSearchRegistry::refresh()` returned after it queued the first affected indexer when the write came from the storefront or the Store API. Every other indexed entity of the same write was skipped, so admin search kept stale data for them until the next full reindex. Every affected indexer is queued now.
-
-### Admin index alias swap no longer stops at the first entity
-
-`AdminSearchRegistry` swapped the aliases of an indexing run in one loop and returned from that loop when an alias did not exist, instead of continuing with the next entity. The remaining entities kept serving their previous index, and the index that was just built for them was left without an alias.
-
-An alias is created together with its index, so this only happened when an alias was removed while the run was in progress. Each entity is handled on its own now.
-
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

@@ -1452,8 +1452,23 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         ]);
 
         $numberRangeRepository = self::getContainer()->get('number_range.repository');
+
+        $numberRangeCriteria = new Criteria();
+        $numberRangeCriteria->addAssociation('type');
+        $numberRangeCriteria->addFilter(new EqualsFilter(
+            'type.technicalName',
+            CustomerDefinition::ENTITY_NAME,
+        ));
+        $numberRangeCriteria->addFilter(new EqualsFilter('global', true));
+
+        $customerNumberRange = $numberRangeRepository
+            ->search($numberRangeCriteria, $context)
+            ->first();
+
+        static::assertNotNull($customerNumberRange);
+
         $numberRangeRepository->update([[
-            'id' => $customerNumberRangeId,
+            'id' => $customerNumberRange->getId(),
             'pattern' => 'SWDEMO{n}',
         ]], $context);
 

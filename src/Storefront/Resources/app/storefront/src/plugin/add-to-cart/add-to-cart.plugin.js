@@ -33,6 +33,8 @@ export default class AddToCartPlugin extends Plugin {
         this._prepareFormRedirect();
 
         this._registerEvents();
+
+        this.el.setAttribute('data-add-to-cart-ready', 'true');
     }
 
     /**

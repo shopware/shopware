@@ -9,8 +9,9 @@ tags: [core, documents]
 
 [2026-03-17-refactor-of-document-generation.md](https://github.com/shopware/shopware/blob/trunk/adr/2026-03-17-refactor-of-document-generation.md)
 decided to rewrite the document generation system, this document outlines the concrete migration strategy.
-Both implementations will coexist throughout the 6.7 and 6.8 release lines. The new implementation persists into the same `document`
-table and both render the same Twig document templates. The feature flag `DOCUMENT_GENERATION_REWORK` opts into version 2.
+Both implementations will coexist throughout the 6.7 and 6.8 release lines. The new implementation persists into the same
+`document` table and both render the same Twig document templates. The feature flag `DOCUMENT_GENERATION_REWORK` opts
+into version 2.
 
 ## Decision Roadmap
 
@@ -97,13 +98,13 @@ live across three tables: `document`, `document_base_config`, and `document_base
 
 #### During 6.7
 
-A nullable `technical_name` column is added to all three affected tables. Version 2 writes both the string and the legacy
+A nullable `type_name` column is added to all three affected tables. Version 2 writes both the string and the legacy
 foreign key, while v1 continues writing only the foreign key. The legacy entities `document_type` and
 `document_type_translation` are deprecated with `reason:remove-entity` for removal in 6.9.
 
 #### During 6.9
 
-The `technical_name` columns are backfilled from the foreign keys and the legacy `document_type_id` columns are made nullable.
+The `type_name` columns are backfilled from the foreign keys and the legacy `document_type_id` columns are made nullable.
 The entity classes, dependency injection registrations, and foreign key fields are removed. Persisted merchant data is migrated
 from IDs to technical names.
 
@@ -118,7 +119,7 @@ from IDs to technical names.
 1. Remove `DOCUMENT_GENERATION_REWORK` and every gate (PHP, DI, Twig, admin JS, system config XML).
 2. Delete the v1 domain, v1 admin components, v1 flow/mail branches, v1-only Twig branches, and the v1 entries in the PHPStan tagged-service contracts.
 3. Move the surviving shared classes into the `DocumentV2` namespace.
-4. Execute the prepared backfills: `document_file` rows (incl. Zugferd normalization), the `technical_name` columns, rule/flow payloads; make the `document_type_id` columns nullable.
+4. Execute the prepared backfills: `document_file` rows (incl. Zugferd normalization), the `type_name` columns, rule/flow payloads; make the `document_type_id` columns nullable.
 5. Drop the `document_base_config.config` JSON blob (destructive) and remove the `DocumentBaseConfigSyncSubscriber`.
 6. Make the v2 branch of the storefront and Store API download routes unconditional.
 7. Write the `UPGRADE-6.9.md` entries and the destructive migrations (`updateDestructive()`: `document_type` tables, the `document_type_id` columns, `document.document_media_file_id`, `document.document_a11y_media_file_id`).
@@ -129,3 +130,26 @@ Merchants have the freedom to switch between v1 and v2 freely during the 6.7 and
 surfaces represent at most two formats per document and default to PDF, so a v2 document generated without a PDF is
 reachable in v1 only by an explicit file-type request while the flag is off. Already generated documents remain fully
 accessible after 6.9 without any need for regeneration, as the backfills simply add the required metadata.
+
+### For extension developers
+
+- Twig template overrides keep working: v2 renders the same `@Framework/documents/*.html.twig` files, so
+  presentation only extensions are largely unaffected.
+- Code extension points are not carried over: custom document types or formats registered through the v1
+  `document.renderer` / `document_type.renderer` tags, v1 document events, and decorators of the v1 `DocumentGenerator`
+  are never invoked by the new pipeline. v2 discovers types, formats, and data exclusively through its own tagged
+  services (`shopware.document_v2.{type,provider,renderer}`) or the app manifest.
+
+To stay compatible, such extensions must be ported to v2 (a data provider, a renderer, and a type, or an app manifest
+entry). During the transition an extension may register its v2 and v1 variants side by side to work in either flag
+state. Step-by-step guidance lives in `UPGRADE-6.7.md` and `UPGRADE-6.8.md`.
+
+### For merchants and partners
+
+- **6.7:** opt in to v2 and test it (in staging). Confirm your document related extensions still work under v2.
+- **6.8:** v2 is the default. Before upgrading, verify every document related extension is v2 ready. If one is not, opt-out, upgrade safely, and migrate later.
+- **6.9:** v1 and the flag are gone, opting out is no longer possible, so everything must be on v2.
+
+The extra major cycle adds time flexibility without significantly changing the overall workload: because v2 becomes the default in 6.8, an extension that is
+not v2 ready works only for merchants who explicitly opt out. Extension authors should therefore be v2 ready by 6.8, or
+coordinate opt-out with their merchants, and fully migrated by 6.9.

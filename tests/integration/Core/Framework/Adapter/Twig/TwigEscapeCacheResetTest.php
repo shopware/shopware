@@ -11,14 +11,8 @@ use Twig\Environment;
 use Twig\Runtime\EscaperRuntime;
 
 /**
- * Regression guard for the escape-cache memory leak in long-running workers (issue #19272).
- *
- * The bug was not that the reset logic was wrong, but that Symfony's ServicesResetter never ran it:
- * the reset-carrying service was never initialized, so `initialized(...)` stayed false and the reset
- * was skipped. A unit test that calls `reset()` directly cannot catch that, because it bypasses the
- * one broken link. This test drives the real `services_resetter` from a booted container, exactly as
- * a worker runtime does between requests, so it fails on the unfixed code and passes once the reset
- * hangs off the always-initialized `twig` service.
+ * Drives the real `services_resetter` (not `reset()` directly), so it fails unless the reset actually
+ * runs on the initialized `twig` service between requests. Regression guard for issue #19272.
  *
  * @internal
  */
@@ -34,15 +28,13 @@ class TwigEscapeCacheResetTest extends TestCase
         CachedEscaperRuntime::resetEscapeCache();
 
         try {
-            // Render once so the `twig` service is initialized. The fix hangs the reset off `twig`,
-            // and ServicesResetter only resets services that a request already initialized.
+            // Render so ServicesResetter has an initialized `twig` service to reset.
             $twig = $container->get('twig');
             static::assertInstanceOf(Environment::class, $twig);
             $twig->createTemplate('{{ "warmup"|escape }}')->render([]);
-            static::assertTrue($container->initialized('twig'), 'a render must initialize the twig service');
+            static::assertTrue($container->initialized('twig'));
 
-            // Warm the static cache under an isolated escaper strategy, and prove it really is a cache:
-            // the inner escaper runs once, the second identical escape is served from the cache.
+            // Warm the cache: a second identical escape is a hit, so the inner escaper runs only once.
             $callCount = 0;
             $escaper = new EscaperRuntime();
             $escaper->setEscaper('test', static function (string $value) use (&$callCount): string {
@@ -54,21 +46,16 @@ class TwigEscapeCacheResetTest extends TestCase
             CachedEscaperRuntime::escape($escaper, 'foo', 'test');
             $callsWhileWarm = $callCount;
 
-            // The exact reset a long-running runtime (RoadRunner, FrankenPHP, Swoole) fires between requests.
+            // What a worker fires between requests.
             $resetter = $container->get('services_resetter');
             static::assertInstanceOf(ServicesResetter::class, $resetter);
             $resetter->reset();
 
-            // If the reset actually ran, the cache is empty and the next identical escape is a miss.
-            // On the unfixed code the cache survives the reset and the inner escaper is not called again.
+            // Cache cleared, so this is a miss and the inner escaper runs again.
             CachedEscaperRuntime::escape($escaper, 'foo', 'test');
 
-            static::assertSame(1, $callsWhileWarm, 'the escape cache should be warm before the reset (one inner call for two identical escapes)');
-            static::assertSame(
-                2,
-                $callCount,
-                'ServicesResetter must clear the escape cache between requests, otherwise it grows unbounded in worker mode'
-            );
+            static::assertSame(1, $callsWhileWarm);
+            static::assertSame(2, $callCount, 'ServicesResetter must clear the escape cache, else it grows unbounded in worker mode');
         } finally {
             CachedEscaperRuntime::resetEscapeCache();
         }

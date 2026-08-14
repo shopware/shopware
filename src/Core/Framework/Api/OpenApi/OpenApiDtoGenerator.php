@@ -155,7 +155,7 @@ final class OpenApiDtoGenerator
 
         // 1. Shared components -> their own declared namespace.
         foreach ($componentsWithNamespace as $schemaName => $namespace) {
-            foreach ($this->schemaParser->parseComponents($spec, [$schemaName]) as $definition) {
+            foreach ($this->schemaParser->parseComponents($spec, [$schemaName], namespace: $namespace) as $definition) {
                 $placements[$definition->name] ??= ['definition' => $definition, 'namespace' => $namespace];
                 $externalNamespaces[$definition->name] = $namespace;
             }
@@ -186,7 +186,7 @@ final class OpenApiDtoGenerator
 
     private function shortClassName(string $fqcn): string
     {
-        return (string) substr($fqcn, (int) strrpos($fqcn, '\\') + 1);
+        return substr($fqcn, (int) strrpos($fqcn, '\\') + 1);
     }
 
     /**
@@ -204,8 +204,8 @@ final class OpenApiDtoGenerator
                 continue;
             }
 
-            $namespace = $schema[self::NAMESPACE_EXTENSION] ?? null;
-            if (\is_string($namespace) && $namespace !== '') {
+            $namespace = $this->namespaceFromSchema($schema);
+            if ($namespace !== null) {
                 $namespaces[$name] = $namespace;
             }
         }
@@ -238,8 +238,8 @@ final class OpenApiDtoGenerator
                     continue;
                 }
 
-                $namespace = $operation[self::NAMESPACE_EXTENSION] ?? null;
-                if (!\is_string($namespace) || $namespace === '') {
+                $namespace = $this->namespaceFromSchema($operation);
+                if ($namespace === null) {
                     continue;
                 }
 
@@ -248,6 +248,25 @@ final class OpenApiDtoGenerator
         }
 
         return $groups;
+    }
+
+    /**
+     * Returns and validates the namespace declared by a schema extension.
+     *
+     * @param array<string, mixed> $schema
+     */
+    private function namespaceFromSchema(array $schema): ?string
+    {
+        $namespace = $schema[self::NAMESPACE_EXTENSION] ?? null;
+        if ($namespace === null) {
+            return null;
+        }
+
+        if (!\is_string($namespace) || preg_match('/^[A-Za-z_][A-Za-z0-9_]*(?:\\\\[A-Za-z_][A-Za-z0-9_]*)*$/D', $namespace) !== 1) {
+            throw FrameworkException::invalidArgumentException('The ' . self::NAMESPACE_EXTENSION . ' extension must contain a valid PHP namespace.');
+        }
+
+        return $namespace;
     }
 
     private function namespaceToDirectory(string $namespace): string

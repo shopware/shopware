@@ -20,6 +20,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class OrderBillingAddressCountry extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * ISO 3166-1 alpha-2 code

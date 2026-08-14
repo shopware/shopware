@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class SalesChannelContextContextSource extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Choice(choices: ['sales-channel', 'shop-api'])]

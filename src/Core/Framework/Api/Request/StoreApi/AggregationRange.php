@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-13 14:36:46
+ * Last generated: 2026-08-14 11:56:12
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class AggregationRange extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Give your aggregation an identifier, so you can find it easier

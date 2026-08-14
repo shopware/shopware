@@ -22,6 +22,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class UserProfile extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Unique identifier

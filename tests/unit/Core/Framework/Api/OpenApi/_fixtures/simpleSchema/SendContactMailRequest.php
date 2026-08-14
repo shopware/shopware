@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class SendContactMailRequest extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Email address

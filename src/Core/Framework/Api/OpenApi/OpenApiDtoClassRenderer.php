@@ -84,6 +84,9 @@ final class OpenApiDtoClassRenderer
         $classDeclaration = 'final class ' . $this->shortClassName($definition->name) . ' extends ' . $this->shortClassName($baseClass);
         $lines[] = $classDeclaration;
         $lines[] = '{';
+        $lines[] = '    /**';
+        $lines[] = '     * @internal';
+        $lines[] = '     */';
         $lines[] = '    public function __construct(';
 
         $propertyBlocks = array_map(

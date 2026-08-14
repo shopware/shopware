@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class CreateCartRequest extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Name of the cart, e.g. guest-cart

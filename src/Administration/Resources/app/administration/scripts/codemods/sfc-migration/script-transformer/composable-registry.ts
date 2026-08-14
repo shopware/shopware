@@ -207,12 +207,68 @@ const translateWithFallbackDescriptor: ComposableDescriptor = {
     members: methodMembers(['tWithFallback']),
 };
 
+const positionDescriptor: ComposableDescriptor = {
+    id: 'position',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['position'],
+        // lower/raisePositionValue call changePosition, and getSibling calls
+        // getSiblingIndex, internally — a component override of those would be
+        // ignored by the composable, so back off.
+        internallyReferencedMembers: ['changePosition', 'getSiblingIndex'],
+    },
+    import: { source: 'src/app/composables/use-position', name: 'usePosition' },
+    declarationStyle: 'destructure',
+    members: methodMembers([
+        'getNewPosition',
+        'lowerPositionValue',
+        'raisePositionValue',
+        'changePosition',
+        'getSiblingIndex',
+        'getSibling',
+        'renumberPositions',
+    ]),
+};
+
+const notificationTranslationDescriptor: ComposableDescriptor = {
+    id: 'notification-translation',
+    trigger: { type: 'mixin', mixinNames: ['notification-translation'] },
+    import: {
+        source: 'src/app/composables/use-notification-translation',
+        name: 'useNotificationTranslation',
+    },
+    declarationStyle: 'destructure',
+    members: methodMembers(['getTranslatedTitle', 'getTranslatedMessage']),
+};
+
+const userSettingsDescriptor: ComposableDescriptor = {
+    id: 'user-settings',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['user-settings'],
+        // get/saveUserSettings call getUserSettingsEntity internally.
+        internallyReferencedMembers: ['getUserSettingsEntity'],
+        // The mixin exposed `userConfigRepository` as an internal computed the
+        // composable inlines and does not provide. (`currentUser` is deliberately
+        // not listed: the name is generic enough that a component's own
+        // `currentUser` would otherwise force a false backoff — a stray read of the
+        // mixin's copy is handled by the generic unknown-`this` backoff instead.)
+        unmappedMembers: ['userConfigRepository'],
+    },
+    import: { source: 'src/app/composables/use-user-settings', name: 'useUserSettings' },
+    declarationStyle: 'destructure',
+    members: methodMembers(['getUserSettingsEntity', 'getUserSettings', 'saveUserSettings', 'userGridSettingsCriteria']),
+};
+
 export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     notificationDescriptor,
     placeholderDescriptor,
     inlineSnippetDescriptor,
     salutationDescriptor,
     translateWithFallbackDescriptor,
+    positionDescriptor,
+    notificationTranslationDescriptor,
+    userSettingsDescriptor,
 ];
 
 export const COMPOSABLE_REGISTRY: readonly ComposableDescriptor[] = [

@@ -104,6 +104,16 @@ describe('scripts/codemods/sfc-migration/analyze-skips', () => {
                 'this-rewrite',
             ],
             [
+                'module-level code outside the default export runs once per component instance',
+                'module-level code outside the default export',
+                'module',
+            ],
+            [
+                'named export outside the default export is dropped by the index.js shim',
+                'named export outside the default export',
+                'module',
+            ],
+            [
                 '`this.repository` inside a nested function keeps its own `this`',
                 '`this` inside a nested function (own `this`)',
                 'this-rewrite',

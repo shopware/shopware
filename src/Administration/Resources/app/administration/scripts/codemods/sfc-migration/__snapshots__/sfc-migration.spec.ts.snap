@@ -236,6 +236,77 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-module-level-code 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "module-level code outside the default export runs once per component instance",
+    "module-level code outside the default export runs once per component instance",
+    "module-level code outside the default export runs once per component instance",
+  ],
+  "sfc": "<template>
+    <sw-block name="sw_module_level_code">
+        <div class="sw-module-level-code">{{ label }}</div>
+    </sw-block>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+/**
+ * @sw-package framework
+ */
+
+// Hoistable: imports, type-only declarations and const bindings with a pure read as initializer.
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
+
+type Row = { id: string };
+
+const MAX_ROWS = 25 as number;
+const LABEL = 'sw-module-level-code';
+
+// Not hoistable: a fresh Map per component instance instead of one shared module singleton.
+const sharedCache = new Map<string, Row>();
+
+function buildCriteria(): unknown {
+    return new Criteria(1, MAX_ROWS);
+}
+
+// Not hoistable either: registering a listener here re-runs it on every mount.
+Shopware.Service('loginService').addOnLoginListener(() => sharedCache.clear());
+
+const cache = () => {
+    return sharedCache;
+};
+
+const criteria = () => {
+    return buildCriteria();
+};
+
+const label = ref(LABEL);
+
+// TODO(sfc-migration): module-level code outside the default export runs once per component instance — original code:
+// const sharedCache = new Map<string, Row>();
+
+// TODO(sfc-migration): module-level code outside the default export runs once per component instance — original code:
+// function buildCriteria(): unknown {
+//     return new Criteria(1, MAX_ROWS);
+// }
+
+// TODO(sfc-migration): module-level code outside the default export runs once per component instance — original code:
+// Shopware.Service('loginService').addOnLoginListener(() => sharedCache.clear());
+
+swDefinePublic({
+    label,
+    cache,
+    criteria,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-name-mismatch 1`] = `
 {
   "outcome": "skipped",

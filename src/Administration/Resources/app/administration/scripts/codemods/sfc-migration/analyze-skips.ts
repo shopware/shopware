@@ -174,6 +174,16 @@ const TODO_RULES: ReasonRule[] = [
         label: (match) => `unsupported ${match[1]} declaration/entry`,
         stage: 'option',
     },
+    {
+        pattern: /^module-level code outside the default export/,
+        label: 'module-level code outside the default export',
+        stage: 'module',
+    },
+    {
+        pattern: /^named export outside the default export/,
+        label: 'named export outside the default export',
+        stage: 'module',
+    },
     { pattern: /^non-literal inheritAttrs$/, label: 'non-literal inheritAttrs', stage: 'option' },
     { pattern: /^\w+ is not a plain function$/, label: 'lifecycle/created hook is not a plain function', stage: 'option' },
 ];
@@ -326,7 +336,7 @@ function buildReport(result: MigrationResult, target: string, generatedAt: strin
         `## Skip reasons (${stats.skipped} components)`,
         '',
         'A component can be skipped for several reasons at once, so the component counts add up to more than the number of skipped components.',
-        'Stages: precheck (file layout before conversion), template (twig transform), script (Options API transform), validation (generated SFC rejected).',
+        'Stages: precheck (file layout before conversion), template (twig transform), script (Options API transform), module (code outside the component options), validation (generated SFC rejected).',
         'The class columns split the component count by how the component is registered.',
         '',
         ...renderGroupTable(skipGroups, classes, false),

@@ -19,7 +19,7 @@ import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
 import MagicString from 'magic-string';
 import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type TodoEntry } from './tables';
-import { type Ctx, arrowText, blockInner, snip, unwrapOptions } from './ast';
+import { type Ctx, arrowText, blockInner, raw, snip, todo, unwrapOptions } from './ast';
 import { buildWatchers, classifyOptions } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
@@ -42,6 +42,76 @@ function todoBlock(entry: TodoEntry): string {
         `${header} — original code:`,
         ...codeLines,
     ].join('\n');
+}
+
+const PURE_LITERALS = new Set([
+    'StringLiteral',
+    'NumericLiteral',
+    'BooleanLiteral',
+    'NullLiteral',
+    'RegExpLiteral',
+    'BigIntLiteral',
+]);
+
+/**
+ * Initializers that evaluate to the same thing every time with no side effects, so running them
+ * once per instance is indistinguishable from running them once at module load. Deliberately
+ * narrow: object and array literals are excluded, because a fresh object per instance is
+ * observable through its identity and through shared mutation even when its shape is constant.
+ */
+function isPureInitializer(node: t.Node | null | undefined): boolean {
+    if (!node) {
+        return false;
+    }
+
+    if (PURE_LITERALS.has(node.type) || node.type === 'Identifier') {
+        return true;
+    }
+
+    switch (node.type) {
+        case 'TemplateLiteral':
+            return node.expressions.length === 0;
+        case 'MemberExpression':
+            return !node.optional && isPureInitializer(node.object) && (!node.computed || isPureInitializer(node.property));
+        case 'TSAsExpression':
+        case 'TSSatisfiesExpression':
+        case 'TSNonNullExpression':
+            return isPureInitializer(node.expression);
+        case 'UnaryExpression':
+            return (node.operator === '-' || node.operator === '+') && isPureInitializer(node.argument);
+        default:
+            return false;
+    }
+}
+
+/**
+ * Top-level statements that keep their meaning when spliced into `<script setup>`, whose body runs
+ * once per component instance rather than once per module load: imports (the compiler hoists them
+ * back to module scope), type-only declarations (erased), and const bindings with a pure read as
+ * their initializer.
+ */
+function isHoistableTopLevel(statement: t.Statement): boolean {
+    if (statement.type === 'ImportDeclaration' || statement.type === 'EmptyStatement') {
+        return true;
+    }
+
+    if (
+        statement.type === 'TSTypeAliasDeclaration' ||
+        statement.type === 'TSInterfaceDeclaration' ||
+        statement.type === 'TSDeclareFunction'
+    ) {
+        return true;
+    }
+
+    if ('declare' in statement && statement.declare === true) {
+        return true;
+    }
+
+    if (statement.type === 'VariableDeclaration' && statement.kind === 'const') {
+        return statement.declarations.every((declarator) => isPureInitializer(declarator.init));
+    }
+
+    return false;
 }
 
 function transformScript(source: string, componentName: string): ScriptResult {
@@ -150,6 +220,23 @@ function transformScript(source: string, componentName: string): ScriptResult {
     if (templateImport) {
         const end = ctx.source.indexOf('\n', templateImport.end as number);
         ctx.ms.remove(templateImport.start as number, end === -1 ? (templateImport.end as number) : end + 1);
+    }
+
+    // The prelude is spliced verbatim into `<script setup>`, whose body runs per component instance.
+    // The index.js shim keeps nothing but the re-export, so anything that is not provably inert
+    // there silently changes meaning once the original is deleted.
+    for (const statement of body) {
+        if (statement === exportDefault || isHoistableTopLevel(statement)) {
+            continue;
+        }
+
+        todo(
+            ctx,
+            statement.type === 'ExportNamedDeclaration' || statement.type === 'ExportAllDeclaration'
+                ? 'named export outside the default export is dropped by the index.js shim'
+                : 'module-level code outside the default export runs once per component instance',
+            raw(ctx, statement),
+        );
     }
 
     const preludeBefore = ctx.ms

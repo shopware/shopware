@@ -102,6 +102,26 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.sfc).toContain('props.title');
         });
 
+        it('reports module-level code that would run once per component instance', async () => {
+            const result = await convertFixture('sw-module-level-code');
+
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toEqual(
+                expect.arrayContaining([
+                    expect.stringContaining('module-level code outside the default export'),
+                ]),
+            );
+        });
+
+        // The `const { X } = Shopware` prelude is by far the most common shape in src/; widening the
+        // allowlist check to reject it would downgrade more than half of all components.
+        it('keeps a pure Shopware-namespace prelude a full migration', async () => {
+            const result = await convertFixture('sw-wrap-config');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+        });
+
         it('skips mixin components entirely', async () => {
             const result = await convertFixture('sw-mixin-demo');
 

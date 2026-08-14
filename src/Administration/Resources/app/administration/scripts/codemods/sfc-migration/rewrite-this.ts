@@ -111,12 +111,7 @@ function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponent: boolean, scope: Lo
     visitChildren(node, (child) => rewriteThis(ctx, child, rebindsThis ? false : thisIsComponent, childScope));
 }
 
-function rewriteThisMember(
-    ctx: Ctx,
-    node: t.MemberExpression,
-    thisIsComponent: boolean,
-    scope: LocalScope | null,
-): void {
+function rewriteThisMember(ctx: Ctx, node: t.MemberExpression, thisIsComponent: boolean, scope: LocalScope | null): void {
     const name = memberName(node);
 
     if (!name) {

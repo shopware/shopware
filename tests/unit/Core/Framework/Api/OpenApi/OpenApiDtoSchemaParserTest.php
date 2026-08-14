@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoType;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -18,6 +19,38 @@ use Symfony\Component\Finder\Finder;
 #[CoversClass(OpenApiDtoSchemaParser::class)]
 class OpenApiDtoSchemaParserTest extends TestCase
 {
+    public function testDuplicateNormalizedPropertiesThrowException(): void
+    {
+        $this->expectException(FrameworkException::class);
+
+        (new OpenApiDtoSchemaParser())->parse([
+            'paths' => [
+                '/duplicate-properties' => [
+                    'post' => [
+                        'operationId' => 'duplicateProperties',
+                        'parameters' => [
+                            ['name' => 'limit', 'in' => 'query', 'schema' => ['type' => 'integer']],
+                            ['name' => 'foo-bar', 'in' => 'query', 'schema' => ['type' => 'string']],
+                            ['name' => 'fooBar', 'in' => 'query', 'schema' => ['type' => 'string']],
+                        ],
+                        'requestBody' => [
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'limit' => ['type' => 'integer'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
     public function testComponentReferencedByResponseIsClassifiedAsResponse(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parseComponents([

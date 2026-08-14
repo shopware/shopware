@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -47,11 +48,13 @@ class RefreshAppCommand extends Command
                 'a',
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
-            )->addOption(
+            )
+            /** @deprecated tag:v6.8.0 - the pre-flight report will always run */
+            ->addOption(
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip the optional manifest validation performed by this command. The required validators still run during the installation itself and can still refuse the app.'
+                '[DEPRECATED] Skip the pre-flight validation report. Blocking findings still refuse an app during the refresh itself.'
             );
     }
 
@@ -82,6 +85,13 @@ class RefreshAppCommand extends Command
 
                 return self::FAILURE;
             }
+        }
+
+        if ($input->getOption('no-validate')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-validate" option of the "app:refresh" command is deprecated and will be removed in v6.8.0.'
+            );
         }
 
         if (!$input->getOption('no-validate')) {

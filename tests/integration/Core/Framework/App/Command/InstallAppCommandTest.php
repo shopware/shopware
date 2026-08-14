@@ -15,8 +15,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -247,25 +245,24 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('App installation of invalidWebhooks failed due: ', $commandTester->getDisplay());
     }
 
-    public function testNoValidateStillRunsTheRequiredValidators(): void
+    public function testABlockingValidationErrorIsReportedAndFailsTheCommand(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));
         $commandTester->setInputs(['yes', 'yes']);
 
-        // --no-validate only skips this command's own check; AppManager still refuses on a blocking
-        // error. The non-hookable tax.written webhook is only reported, the missing permissions refuse.
-        $this->expectExceptionObject(AppException::validationFailedFromError(
-            new MissingPermissionError(['order:read'])
-        ));
+        // The non-hookable tax.written webhook is only reported; the missing permissions refuse.
+        $commandTester->execute(['name' => 'invalidWebhooks']);
 
-        $commandTester->execute(['name' => 'invalidWebhooks', '--no-validate' => true]);
+        static::assertSame(1, $commandTester->getStatusCode());
+        static::assertStringContainsString('App installation of invalidWebhooks failed due', $commandTester->getDisplay());
+        static::assertStringContainsString('order:read', $commandTester->getDisplay());
     }
 
-    public function testNoValidateSkipsTheOptionalValidators(): void
+    public function testAnAdvisoryValidationErrorDoesNotStopAnInstall(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->setInputs(['yes', 'yes']);
-        $commandTester->execute(['name' => 'withoutPermissions', '--no-validate' => true]);
+        $commandTester->execute(['name' => 'withoutPermissions']);
 
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringContainsString('App withoutPermissions has been successfully installed.', $commandTester->getDisplay());
@@ -335,8 +332,7 @@ class InstallAppCommandTest extends TestCase
         return new InstallAppCommand(
             new AppLoader($appFolder, new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
-            new AppPrinter($this->appRepository),
-            static::getContainer()->get(ManifestValidator::class)
+            new AppPrinter($this->appRepository)
         );
     }
 }

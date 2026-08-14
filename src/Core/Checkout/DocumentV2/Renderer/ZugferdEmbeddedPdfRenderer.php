@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use horstoeko\zugferd\ZugferdDocumentPdfMerger;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
@@ -41,13 +40,6 @@ final readonly class ZugferdEmbeddedPdfRenderer extends AbstractDocumentRenderer
     public function getFileExtension(): string
     {
         return self::FORMAT->fileExtension();
-    }
-
-    public function getDocumentTypes(): array
-    {
-        return [
-            DocumentType::INVOICE->value,
-        ];
     }
 
     public function getDependencies(): array

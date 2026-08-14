@@ -10,12 +10,7 @@
 
     <template #smart-bar-header>
         <h2>
-            {{ $t('sw-settings.index.title') }}
-            <mt-icon
-                name="regular-chevron-right-xs"
-                size="12px"
-            />
-            {{ $t('sw-flow.list.textHeadline') }}
+            <span>{{ $t('sw-flow.list.textHeadline') }}</span>
 
             <span
                 v-if="!isLoading"

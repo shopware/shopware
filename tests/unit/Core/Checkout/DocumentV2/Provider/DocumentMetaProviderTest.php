@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -71,7 +72,7 @@ class DocumentMetaProviderTest extends TestCase
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $meta = $provider->provideRenderingData($this->createOrder(), $request, Context::createDefaultContext());
+        $meta = $provider->provideRenderingData(new ProviderInput($this->createOrder(), $request), Context::createDefaultContext());
 
         static::assertSame('2026-05-05T12:00:00+00:00', $meta->documentDate);
         static::assertSame('12345', $meta->documentNumber);
@@ -95,7 +96,7 @@ class DocumentMetaProviderTest extends TestCase
 
         $this->expectExceptionObject(DocumentV2Exception::missingDocumentNumber(DocumentType::INVOICE->value));
 
-        $provider->provideRenderingData($this->createOrder(), $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($this->createOrder(), $request), Context::createDefaultContext());
     }
 
     /**

@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(OpenApiSchemaBuilder::class)]
 class OpenApiSchemaBuilderTest extends TestCase
 {
-    public function testEnrichAddsDefaultErrorResponses(): void
+    public function testEnrichAddsDefaultErrorResponsesForStoreApi(): void
     {
         $openApi = new OpenApi([]);
 
@@ -33,11 +33,24 @@ class OpenApiSchemaBuilderTest extends TestCase
             Response::HTTP_FORBIDDEN => 'Forbidden',
             Response::HTTP_NOT_FOUND => 'Not Found',
             Response::HTTP_TOO_MANY_REQUESTS => 'Too Many Requests',
-            Response::HTTP_NO_CONTENT => 'No Content',
         ] as $statusCode => $description) {
             static::assertArrayHasKey($statusCode, $responses, \sprintf('Default response for status %d is missing', $statusCode));
             static::assertSame($description, $responses[$statusCode]->description);
         }
+
+        static::assertArrayNotHasKey(Response::HTTP_NO_CONTENT, $responses);
+    }
+
+    public function testEnrichAddsNoContentDefaultResponseForAdminApi(): void
+    {
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::API);
+
+        $responses = $this->getResponsesByStatusCode($openApi);
+
+        static::assertArrayHasKey(Response::HTTP_NO_CONTENT, $responses);
+        static::assertSame('No Content', $responses[Response::HTTP_NO_CONTENT]->description);
     }
 
     public function testEnrichUsesApiKeySecurityForStoreApi(): void
@@ -58,6 +71,56 @@ class OpenApiSchemaBuilderTest extends TestCase
 
         static::assertSame([['oAuth' => ['write']]], $openApi->security);
         static::assertSame('Shopware Admin API', $openApi->info->title);
+    }
+
+    public function testEnrichAddsRelationshipSchemasForAdminApi(): void
+    {
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::API);
+
+        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'];
+
+        static::assertSame(
+            ['$ref' => '#/components/schemas/relationship'],
+            $schema['relationships']['additionalProperties']
+        );
+        static::assertEqualsCanonicalizing(['data', 'meta', 'links'], array_keys($schema['relationship']['properties']));
+        static::assertSame(1, $schema['relationship']['minProperties']);
+        static::assertFalse($schema['relationship']['additionalProperties']);
+        static::assertArrayNotHasKey('anyOf', $schema['relationship']);
+    }
+
+    public function testEnrichDoesNotAddRelationshipSchemasForStoreApi(): void
+    {
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::STORE_API);
+
+        $schemas = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR)['components']['schemas'] ?? [];
+
+        foreach ([
+            'success',
+            'failure',
+            'info',
+            'meta',
+            'data',
+            'resource',
+            'relationshipLinks',
+            'links',
+            'link',
+            'attributes',
+            'relationships',
+            'relationship',
+            'relationshipToOne',
+            'relationshipToMany',
+            'linkage',
+            'pagination',
+            'jsonapi',
+            'error',
+        ] as $schemaName) {
+            static::assertArrayNotHasKey($schemaName, $schemas);
+        }
     }
 
     /**

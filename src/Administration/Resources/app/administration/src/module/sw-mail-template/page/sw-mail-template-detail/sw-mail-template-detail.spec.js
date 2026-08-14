@@ -562,6 +562,32 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         });
     });
 
+    it('should enable the preview button only with edit permission', async () => {
+        const wrapper = await createWrapper(['api_send_email']);
+        await wrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const previewButton = wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(previewButton?.attributes('disabled')).toBeDefined();
+
+        const editorWrapper = await createWrapper(['mail_templates.editor']);
+        await editorWrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const editorPreviewButton = editorWrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(editorPreviewButton?.attributes('disabled')).toBeUndefined();
+    });
+
     it('should not be able to show preview if html content is empty', async () => {
         const wrapper = await createWrapper();
 

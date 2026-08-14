@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Validation\AbstractManifestValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
@@ -20,7 +19,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 #[CoversClass(ManifestValidator::class)]
 class ManifestValidatorTest extends TestCase
 {
-    public function testValidateReportsEveryError(): void
+    public function testValidateReturnsEveryError(): void
     {
         $incompatible = static::createStub(AbstractManifestValidator::class);
         $incompatible->method('validate')->willReturn([new IncompatibleAppError('test')]);
@@ -28,44 +27,36 @@ class ManifestValidatorTest extends TestCase
         $badName = static::createStub(AbstractManifestValidator::class);
         $badName->method('validate')->willReturn([new AppNameError('test')]);
 
-        $validator = new ManifestValidator([$incompatible, $badName]);
+        $result = (new ManifestValidator([$incompatible, $badName]))
+            ->validate(ManifestFixture::empty(), Context::createDefaultContext());
 
-        try {
-            $validator->validate(ManifestFixture::empty(), Context::createDefaultContext());
-            static::fail('expected the manifest to be refused');
-        } catch (AppException $e) {
-            static::assertStringContainsString('is not compatible with this Shopware version', $e->getMessage());
-            static::assertStringContainsString('and the folder name must be equal', $e->getMessage());
-        }
+        static::assertFalse($result->isOk());
+        static::assertCount(2, $result->errors);
+        static::assertInstanceOf(IncompatibleAppError::class, $result->errors[0]);
+        static::assertInstanceOf(AppNameError::class, $result->errors[1]);
     }
 
-    public function testThrowOnFirstErrorStopsAtTheFirstFailureAndKeepsItsErrorCode(): void
+    public function testValidateRunsEveryValidator(): void
     {
         $incompatible = static::createStub(AbstractManifestValidator::class);
         $incompatible->method('validate')->willReturn([new IncompatibleAppError('test')]);
 
         $later = $this->createMock(AbstractManifestValidator::class);
-        $later->expects($this->never())->method('validate');
+        $later->expects($this->once())->method('validate')->willReturn([]);
 
-        $validator = new ManifestValidator([$incompatible, $later]);
-
-        try {
-            $validator->throwOnFirstError(ManifestFixture::empty(), Context::createDefaultContext());
-            static::fail('expected the manifest to be refused');
-        } catch (AppException $e) {
-            static::assertSame(AppException::NOT_COMPATIBLE, $e->getErrorCode());
-            static::assertSame(['name' => 'test'], $e->getParameters());
-        }
+        (new ManifestValidator([$incompatible, $later]))
+            ->validate(ManifestFixture::empty(), Context::createDefaultContext());
     }
 
-    public function testThrowOnFirstErrorPassesAValidManifest(): void
+    public function testValidateReturnsOkWhenNoValidatorReportsAnything(): void
     {
-        $this->expectNotToPerformAssertions();
-
         $valid = static::createStub(AbstractManifestValidator::class);
         $valid->method('validate')->willReturn([]);
 
-        (new ManifestValidator([$valid]))
-            ->throwOnFirstError(ManifestFixture::empty(), Context::createDefaultContext());
+        $result = (new ManifestValidator([$valid]))
+            ->validate(ManifestFixture::empty(), Context::createDefaultContext());
+
+        static::assertTrue($result->isOk());
+        static::assertNull($result->errors);
     }
 }

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -252,10 +252,10 @@ class InstallAppCommandTest extends TestCase
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));
         $commandTester->setInputs(['yes', 'yes']);
 
-        // --no-validate only skips this command's own check; the enforced validators run inside
-        // AppManager and still refuse the installation.
+        // --no-validate only skips this command's own check; AppManager still refuses on a blocking
+        // error. The non-hookable tax.written webhook is only reported, the missing permissions refuse.
         $this->expectExceptionObject(AppException::validationFailedFromError(
-            new NotHookableError(['hook4NotAllowed: tax.written'])
+            new MissingPermissionError(['order:read'])
         ));
 
         $commandTester->execute(['name' => 'invalidWebhooks', '--no-validate' => true]);

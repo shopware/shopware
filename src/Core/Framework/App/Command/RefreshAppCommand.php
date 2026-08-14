@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
@@ -115,10 +114,13 @@ class RefreshAppCommand extends Command
         // validate refreshable apps
         $invalids = [];
         foreach ($refreshableManifests as $refreshableManifest) {
-            try {
-                $this->manifestValidator->validate($refreshableManifest, $context);
-            } catch (AppValidationException $e) {
-                $invalids[] = $e->getMessage();
+            $result = $this->manifestValidator->validate($refreshableManifest, $context);
+
+            if (!$result->isOk()) {
+                $invalids[] = AppException::validationFailed(
+                    $refreshableManifest->getMetadata()->getName(),
+                    $result->errors
+                )->getMessage();
             }
         }
 

@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -19,6 +18,7 @@ use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Result;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -56,7 +56,7 @@ class InstallAppCommandTest extends TestCase
     {
         $manifest = $this->createManifest();
         $this->appLoader->method('load')->willReturn(['test' => $manifest]);
-        $this->manifestValidator->expects($this->once())->method('validate')->with($manifest);
+        $this->manifestValidator->expects($this->once())->method('validate')->with($manifest)->willReturn(Result::ok());
         $this->appLifecycle
             ->expects($this->once())
             ->method('install')
@@ -112,9 +112,7 @@ class InstallAppCommandTest extends TestCase
         $this->manifestValidator
             ->expects($this->once())
             ->method('validate')
-            ->willThrowException(new AppValidationException('test', [
-                new MissingPermissionError(['product:read']),
-            ]));
+            ->willReturn(Result::failed([new MissingPermissionError(['product:read'])]));
         $this->appLifecycle->expects($this->never())->method('install');
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute([

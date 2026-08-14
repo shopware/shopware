@@ -71,10 +71,11 @@ final class OpenApiDtoSchemaParser
      *
      * @param array<string, mixed> $schema
      * @param list<string> $schemaNames
+     * @param string $namespace Target namespace, resolved once by the generator.
      *
      * @return list<OpenApiDtoDefinition>
      */
-    public function parseComponents(array $schema, array $schemaNames, ?string $namespace = null): array
+    public function parseComponents(array $schema, array $schemaNames, string $namespace): array
     {
         $registry = $this->schemaRegistry($schema);
         $componentTypes = $this->componentRootTypes($schema);
@@ -87,8 +88,7 @@ final class OpenApiDtoSchemaParser
             }
 
             $componentDefinitions = $this->extractDtoFromSchema($this->toPascalCase($name), $schemaData, $registry, $componentTypes[$name] ?? OpenApiDtoType::Nested);
-            $componentNamespace = $namespace ?? $this->stringOrNull($schemaData[OpenApiDtoGenerator::NAMESPACE_EXTENSION] ?? null);
-            $definitions = [...$definitions, ...($componentNamespace === null ? $componentDefinitions : $this->qualifyDefinitions($componentDefinitions, $componentNamespace))];
+            $definitions = [...$definitions, ...$this->qualifyDefinitions($componentDefinitions, $namespace)];
         }
 
         return $this->deduplicate($definitions);
@@ -124,6 +124,7 @@ final class OpenApiDtoSchemaParser
      *
      * @param array<string, mixed> $schema
      * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OpenApiDtoType> $componentTypes
      *
      * @return list<OpenApiDtoDefinition>
      */
@@ -299,6 +300,7 @@ final class OpenApiDtoSchemaParser
     /**
      * @param array<string, mixed> $schema
      * @param array<string, array<string, mixed>> $registry
+     * @param array<string, OpenApiDtoType> $componentTypes
      *
      * @return list<OpenApiDtoDefinition>
      */
@@ -1301,10 +1303,6 @@ final class OpenApiDtoSchemaParser
      */
     private function nativeEnumType(array $schema): ?string
     {
-        if (!\is_string($schema[OpenApiDtoGenerator::NAMESPACE_EXTENSION] ?? null) || $schema[OpenApiDtoGenerator::NAMESPACE_EXTENSION] === '') {
-            return null;
-        }
-
         $values = $this->scalarEnum($schema['enum'] ?? null);
         $type = $this->schemaType($schema);
 

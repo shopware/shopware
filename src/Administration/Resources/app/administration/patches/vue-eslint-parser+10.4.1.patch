@@ -1,5 +1,5 @@
 diff --git a/node_modules/vue-eslint-parser/dist/index.cjs b/node_modules/vue-eslint-parser/dist/index.cjs
-index 8801806..416ddfb 100644
+index 8801806..57fc05c 100644
 --- a/node_modules/vue-eslint-parser/dist/index.cjs
 +++ b/node_modules/vue-eslint-parser/dist/index.cjs
 @@ -705,7 +705,7 @@ function isBasicParserObject(value) {
@@ -86,19 +86,69 @@ index 8801806..416ddfb 100644
  const AMPERSAND = 38;
  const APOSTROPHE = 39;
  const LEFT_PARENTHESIS = 40;
-@@ -6582,6 +6608,11 @@ var Tokenizer = class {
+@@ -6311,6 +6337,11 @@ var Tokenizer = class {
+ 		this.gaps = [];
+ 		this.lineTerminators = [];
+ 		this.parserOptions = parserOptions || {};
++		// Shopware lints `.html.twig` component templates through this parser too,
++		// but `{{ }}` there is Twig output, not a Vue interpolation — leave it as
++		// opaque text (only `.vue` mustache is parsed) so Twig templates keep the
++		// pre-`.twig`-support lint behaviour.
++		this.isTwigTemplate = path.extname(this.parserOptions.filePath || "") === ".twig";
+ 		this.lastCodePoint = this.lastCodePointRaw = NULL;
+ 		this.offset = -1;
+ 		this.column = -1;
+@@ -6582,12 +6613,17 @@ var Tokenizer = class {
  				this.setStartTokenMark();
  				return "TAG_OPEN";
  			}
+-			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
 +			if (cp === LEFT_CURLY_BRACKET && this.text[this.offset + 1] === "%") {
 +				this.setStartTokenMark();
 +				this.returnState = "DATA";
 +				return "TWIG_EXPRESSION";
 +			}
- 			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
++			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled && !this.isTwigTemplate) {
  				this.setStartTokenMark();
  				this.returnState = "DATA";
-@@ -6896,6 +6927,11 @@ var Tokenizer = class {
+ 				return "V_EXPRESSION_START";
+ 			}
+-			if (cp === RIGHT_CURLY_BRACKET && this.expressionEnabled) {
++			if (cp === RIGHT_CURLY_BRACKET && this.expressionEnabled && !this.isTwigTemplate) {
+ 				this.setStartTokenMark();
+ 				this.returnState = "DATA";
+ 				return "V_EXPRESSION_END";
+@@ -6620,12 +6656,12 @@ var Tokenizer = class {
+ 				this.setStartTokenMark();
+ 				return "RCDATA_LESS_THAN_SIGN";
+ 			}
+-			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
++			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled && !this.isTwigTemplate) {
+ 				this.setStartTokenMark();
+ 				this.returnState = "RCDATA";
+ 				return "V_EXPRESSION_START";
+ 			}
+-			if (cp === RIGHT_CURLY_BRACKET && this.expressionEnabled) {
++			if (cp === RIGHT_CURLY_BRACKET && this.expressionEnabled && !this.isTwigTemplate) {
+ 				this.setStartTokenMark();
+ 				this.returnState = "RCDATA";
+ 				return "V_EXPRESSION_END";
+@@ -6657,12 +6693,12 @@ var Tokenizer = class {
+ 				this.setStartTokenMark();
+ 				return "RAWTEXT_LESS_THAN_SIGN";
+ 			}
+-			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
++			if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled && !this.isTwigTemplate) {
+ 				this.setStartTokenMark();
+ 				this.returnState = "RAWTEXT";
+ 				return "V_EXPRESSION_START";
+ 			}
+-			if (cp === RIGHT_CURLY_BRACKET && this.expressionEnabled) {
++			if (cp === RIGHT_CURLY_BRACKET && this.expressionEnabled && !this.isTwigTemplate) {
+ 				this.setStartTokenMark();
+ 				this.returnState = "RAWTEXT";
+ 				return "V_EXPRESSION_END";
+@@ -6896,6 +6932,11 @@ var Tokenizer = class {
  			this.appendTokenValue(cp, "HTMLIdentifier");
  			return "ATTRIBUTE_NAME";
  		}
@@ -110,7 +160,7 @@ index 8801806..416ddfb 100644
  		this.startToken("HTMLIdentifier");
  		return this.reconsumeAs("ATTRIBUTE_NAME");
  	}
-@@ -6946,6 +6982,11 @@ var Tokenizer = class {
+@@ -6946,6 +6987,11 @@ var Tokenizer = class {
  			this.reportParseError("eof-in-tag");
  			return "DATA";
  		}
@@ -122,7 +172,7 @@ index 8801806..416ddfb 100644
  		this.startToken("HTMLIdentifier");
  		return this.reconsumeAs("ATTRIBUTE_NAME");
  	}
-@@ -7571,6 +7612,31 @@ var Tokenizer = class {
+@@ -7571,6 +7617,31 @@ var Tokenizer = class {
  		this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
  		return this.reconsumeAs(this.returnState);
  	}

@@ -50,6 +50,16 @@ const contentTwig = [
     '',
 ].join('\n');
 
+// A Vue-2 `{{ x | filter }}` in a Twig template: `{{ }}` there is Twig output,
+// not a Vue interpolation, so the parser must leave it as opaque text. If it
+// parsed the interpolation, `vue/no-deprecated-filter` (and every other
+// mustache-scoped rule) would fire on Twig that was never linted before support
+// for `.twig` was added — including downstream/theme templates.
+const filterTwig = [
+    '<p>{{ theme.description | truncate(140) }}</p>',
+    '',
+].join('\n');
+
 const probeScript = `
 import { ESLint } from 'eslint';
 
@@ -58,12 +68,13 @@ const config = shopwareAdminExtension({ tsconfigRootDir: process.cwd() });
 // The factory leaves html-indent off on legacy Twig; the Administration's own
 // config runs it as an error over the same templates, so turn it on here to
 // guard the parser behaviour that keeps those 994 files clean.
-config.push({ files: ['**/*.html.twig'], rules: { 'vue/html-indent': ['error', 4, { baseIndent: 0 }] } });
+config.push({ files: ['**/*.html.twig'], rules: { 'vue/html-indent': ['error', 4, { baseIndent: 0 }], 'vue/no-deprecated-filter': 'error' } });
 const eslint = new ESLint({ overrideConfigFile: true, overrideConfig: config });
 
 const cases = [
     ['blockIndent', ${JSON.stringify(blockIndentTwig)}],
     ['content', ${JSON.stringify(contentTwig)}],
+    ['filterOpaque', ${JSON.stringify(filterTwig)}],
 ];
 const result = {};
 for (const [key, code] of cases) {
@@ -101,5 +112,9 @@ describe('extension-tooling legacy Twig lint behaviour', () => {
     it('parses Twig-wrapped content into a traversable AST so functional Vue rules fire', () => {
         expect(result.content).toContain('vue/require-v-for-key');
         expect(result.content).not.toContain('vue/no-parsing-error');
+    });
+
+    it('leaves Twig `{{ }}` opaque instead of parsing it as a Vue interpolation', () => {
+        expect(result.filterOpaque).not.toContain('vue/no-deprecated-filter');
     });
 });

@@ -192,16 +192,16 @@
                         >
                             <template v-if="deprecation.replacement">
                                 {{ $t('sw-product-stream.detail.deprecatedFilterWarning', {
-                                    label: $t(deprecation.label),
-                                    version: deprecation.version,
-                                    replacement: $t(deprecation.replacement.label),
+                                label: $t(deprecation.label),
+                                version: deprecation.version,
+                                replacement: $t(deprecation.replacement.label),
                                 }) }}
                             </template>
 
                             <template v-else>
                                 {{ $t('sw-product-stream.detail.deprecatedFilterWarningNoReplacement', {
-                                    label: $t(deprecation.label),
-                                    version: deprecation.version,
+                                label: $t(deprecation.label),
+                                version: deprecation.version,
                                 }) }}
                             </template>
                         </span>

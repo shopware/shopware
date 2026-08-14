@@ -15,7 +15,10 @@ import { extractInjectProps } from './extract-inject';
 import { analyzeUnsupportedLifecycleHooks, extractLifecycleHooks } from './extract-lifecycle';
 import { extractMethodProps } from './extract-methods';
 import { extractWatchProps } from './extract-watch';
-import { isDefined, isSafeIdentifier, sanitizeTodoCommentText } from './helpers';
+import { buildPropertyAccess, isDefined, isSafeIdentifier, sanitizeTodoCommentText } from './helpers';
+import { identTemplate } from './identifier-template';
+import { emitIdent } from './identifiers';
+import { quoteJsString } from '../string-literals';
 import {
     collectEmittedEventNames,
     collectThisRefNames,
@@ -28,6 +31,7 @@ import type {
     ActiveComposable,
     CodeSnippet,
     ComponentRegistration,
+    ComposableArgument,
     ComposableMemberRewrite,
     ComputedProp,
     DataProp,
@@ -69,8 +73,8 @@ export interface CompositionScriptState {
     propNames: Set<string>;
     injectNames: Set<string>;
     manualMigrationReasons: string[];
-    /** Template-read composable members whose binding would be renamed on collision. */
-    templateBindingCollisions: string[];
+    /** Reasons the generated setup cannot be used at all — force the Options-API backoff. */
+    backoffReasons: string[];
     existingBindingNames: Set<string>;
 }
 
@@ -156,10 +160,18 @@ export function collectCompositionScriptState(
 
     const allSnippets = collectSetupSnippets(supportedMembers, lifecycleHooks);
 
+    const backoffReasons: string[] = [];
     const usedComposables = detectUsedComposables(allSnippets, supportedMembers.supportedWatchProps);
     const activeComposables = [
         ...collectActiveGlobalComposables(usedComposables),
-        ...collectActiveMixinComposables(mixinDescriptors, allSnippets, ownMemberNames, templateReferences),
+        ...collectActiveMixinComposables(
+            mixinDescriptors,
+            allSnippets,
+            ownMemberNames,
+            templateReferences,
+            ctx,
+            backoffReasons,
+        ),
     ];
     const templateRefNames = collectThisRefNames(allSnippets);
 
@@ -168,10 +180,25 @@ export function collectCompositionScriptState(
     }
     collectPlaceholderApiReasons(allSnippets, manualMigrationReasons, todoComments);
 
-    const effectiveEmitsKeys =
-        emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
-            ? emitsDefinition.keys
-            : collectEmittedEventNames(allSnippets);
+    // Events a converted mixin used to emit through the component instance are
+    // now emitted by the callbacks the codemod passes in, so they must join the
+    // component's own defineEmits declaration.
+    const mixinEmitEvents = activeComposables.flatMap(({ descriptor }) =>
+        (descriptor.instanceDependencies?.emits ?? []).map(({ event }) => event),
+    );
+    if (mixinEmitEvents.length > 0 && emitsDefinition.objectText !== null) {
+        backoffReasons.push(
+            `mixins: object-form 'emits' cannot be merged with the mixin events ${mixinEmitEvents.map((event) => `'${event}'`).join(', ')}`,
+        );
+    }
+    const effectiveEmitsKeys = [
+        ...new Set([
+            ...(emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
+                ? emitsDefinition.keys
+                : collectEmittedEventNames(allSnippets)),
+            ...mixinEmitEvents,
+        ]),
+    ];
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
     const vueImports = collectVueImports(supportedMembers, templateRefNames, usedComposables, regularHooks, allSnippets);
@@ -202,15 +229,20 @@ export function collectCompositionScriptState(
     }
 
     const existingBindingNames = collectExistingBindingNames(sourceFile);
-    const templateBindingCollisions = collectTemplateBindingCollisions(
-        activeComposables,
-        templateReferences,
-        new Set([
-            ...existingBindingNames,
-            ...publicNames,
-            ...templateRefNames,
-            'props',
-        ]),
+    backoffReasons.push(
+        ...collectTemplateBindingCollisions(
+            activeComposables,
+            templateReferences,
+            new Set([
+                ...existingBindingNames,
+                ...publicNames,
+                ...templateRefNames,
+                'props',
+            ]),
+        ).map(
+            (member) =>
+                `mixins: template reads '${member}' but its composable binding collides with an existing name and cannot be renamed in the template`,
+        ),
     );
 
     return {
@@ -239,7 +271,7 @@ export function collectCompositionScriptState(
         propNames,
         injectNames,
         manualMigrationReasons,
-        templateBindingCollisions,
+        backoffReasons,
         existingBindingNames,
     };
 }
@@ -856,7 +888,84 @@ function collectActiveGlobalComposables(usedComposables: UsedComposables): Activ
     return GLOBAL_DESCRIPTORS.filter((descriptor) => activeById[descriptor.id]).map((descriptor) => ({
         descriptor,
         memberKeys: Object.keys(descriptor.members),
+        argumentEntries: [],
     }));
+}
+
+/**
+ * Turns a descriptor's declared instance dependencies into the `option: value`
+ * entries of the composable's options argument. A dependency the generated setup
+ * cannot satisfy is a backoff reason, not a silent omission — the composable
+ * would otherwise run without the emit, prop, or override the mixin relied on.
+ */
+function resolveInstanceDependencies(
+    descriptor: ComposableDescriptor,
+    ctx: RewriteContext,
+    backoffReasons: string[],
+): ComposableArgument[] {
+    const dependencies = descriptor.instanceDependencies;
+    if (!dependencies) {
+        return [];
+    }
+
+    const argumentEntries: ComposableArgument[] = [];
+
+    for (const { option, event } of dependencies.emits ?? []) {
+        argumentEntries.push({
+            option,
+            valueSnippet: identTemplate`(...args) => ${emitIdent}(${quoteJsString(event)}, ...args)`,
+        });
+    }
+
+    for (const { option, prop } of dependencies.props ?? []) {
+        if (!ctx.propNames.has(prop)) {
+            backoffReasons.push(
+                `mixins: the '${descriptor.id}' composable needs the '${prop}' prop, which the component does not declare`,
+            );
+            continue;
+        }
+
+        argumentEntries.push({ option, valueSnippet: `() => ${buildPropertyAccess('props', prop)}` });
+    }
+
+    for (const { option, member } of dependencies.callbacks ?? []) {
+        const valueSnippet = buildCallbackSnippet(member, ctx);
+        if (valueSnippet === null) {
+            backoffReasons.push(
+                `mixins: the '${descriptor.id}' composable needs the component member '${member}', which the generated setup does not declare`,
+            );
+            continue;
+        }
+
+        argumentEntries.push({ option, valueSnippet });
+    }
+
+    return argumentEntries;
+}
+
+/**
+ * Reads an overridable component member through a getter. The binding lives in
+ * the `createExtendableSetup` destructure that follows the composable
+ * declaration, so the read must stay deferred.
+ */
+function buildCallbackSnippet(member: string, ctx: RewriteContext): string | null {
+    if (ctx.propNames.has(member)) {
+        return `() => ${buildPropertyAccess('props', member)}`;
+    }
+
+    if (ctx.dataNames.has(member) || ctx.computedNames.has(member)) {
+        return `() => ${member}.value`;
+    }
+
+    if (ctx.methodNames.has(member)) {
+        return `(...args) => ${member}(...args)`;
+    }
+
+    if (ctx.injectNames.has(member)) {
+        return `() => ${member}`;
+    }
+
+    return null;
 }
 
 /**
@@ -894,6 +1003,8 @@ function collectActiveMixinComposables(
     snippets: CodeSnippet[],
     ownMemberNames: Set<string>,
     templateReferences: Set<string>,
+    ctx: RewriteContext,
+    backoffReasons: string[],
 ): ActiveComposable[] {
     // A member counts as used when accessed via `this` in the script or read as
     // a binding in the template (e.g. `placeholder(...)` in a `{{ }}`), so a
@@ -907,7 +1018,11 @@ function collectActiveMixinComposables(
                     (hasDirectThisPropertyUsage(snippets, key) || templateReferences.has(key)),
             ),
         }))
-        .filter((active) => active.memberKeys.length > 0);
+        .filter((active) => active.memberKeys.length > 0)
+        .map((active) => ({
+            ...active,
+            argumentEntries: resolveInstanceDependencies(active.descriptor, ctx, backoffReasons),
+        }));
 }
 
 function collectVueImports(

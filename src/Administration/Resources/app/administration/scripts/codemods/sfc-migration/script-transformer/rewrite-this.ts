@@ -2,8 +2,8 @@ import type { Node as TsNode, PropertyAccessExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import { emitIdent, routeIdent } from './identifiers';
 import { findGlobalDescriptorByThisKey } from './composable-registry';
-import { createIdentifierTemplate, identTemplate, isIdentifierToken } from './identifier-template';
-import type { IdentifierTemplateValue, IdentifierToken, ScriptSnippet } from './identifier-template';
+import { createIdentifierTemplate, identTemplate, isIdentifierTemplate, isIdentifierToken } from './identifier-template';
+import type { IdentifierTemplate, IdentifierTemplateValue, IdentifierToken, ScriptSnippet } from './identifier-template';
 import type { CodeSnippet, RewriteContext, RewriteSnippetKind, UsedComposables, WatchProp } from './types';
 import {
     createWrappedSnippetSource,
@@ -270,7 +270,7 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
         lastReplacedStart = start;
     }
 
-    if (!acceptedReplacements.some(({ replacement }) => isIdentifierToken(replacement))) {
+    if (!acceptedReplacements.some(({ replacement }) => isIdentifierToken(replacement) || isIdentifierTemplate(replacement))) {
         let result = bodyText;
 
         for (const { start, end, replacement } of acceptedReplacements) {
@@ -301,7 +301,10 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
     return createIdentifierTemplate(parts);
 }
 
-function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContext): string | IdentifierToken | null {
+function buildThisReplacement(
+    node: PropertyAccessExpression,
+    ctx: RewriteContext,
+): string | IdentifierToken | IdentifierTemplate | null {
     const refName = getThisRefName(node);
 
     if (refName) {
@@ -369,9 +372,10 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
     // component-declared member of the same name wins (Vue override semantics).
     const composableMember = ctx.composableMembers.get(name);
     if (composableMember) {
-        // Every mapped mixin member is a method or plain value, so the bare binding
-        // is used as-is; none are reactive refs that would need a `.value` suffix.
-        return composableMember.binding;
+        // `ref` members mirror the mixin's data entries and computeds, so both
+        // reads and writes go through `.value`; methods and plain values use the
+        // bare binding.
+        return composableMember.kind === 'ref' ? identTemplate`${composableMember.binding}.value` : composableMember.binding;
     }
 
     // Unknown `this.<name>` is left unrewritten here; findUnsupportedThisUsage

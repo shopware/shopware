@@ -23,9 +23,6 @@ export function buildCompositionApiScript(
         script: emitCompositionApiScript(state),
         publicNames: state.publicNames,
         manualMigrationReasons: [...new Set(state.manualMigrationReasons)],
-        backoffReasons: state.templateBindingCollisions.map(
-            (member) =>
-                `mixins: template reads '${member}' but its composable binding collides with an existing name and cannot be renamed in the template`,
-        ),
+        backoffReasons: [...new Set(state.backoffReasons)],
     };
 }

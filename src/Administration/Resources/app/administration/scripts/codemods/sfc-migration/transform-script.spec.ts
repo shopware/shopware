@@ -631,6 +631,181 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('cms-state mixin: converts the store-backed computeds to composable refs', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('cms-state')],
+                    computed: {
+                        hasOverrides() { return !Shopware.Utils.types.isEmpty(this.contentEntity?.slotConfig); },
+                    },
+                    methods: {
+                        reset() { this.selectedBlock = null; },
+                        view() { return this.currentDeviceView; },
+                    },
+                });`,
+            );
+        });
+
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('imports the composable without an options argument — it needs nothing from the instance', () => {
+            expect(result.script).toContain("import { useCmsState } from 'src/module/sw-cms/composables/use-cms-state';");
+            expect(result.script).toContain('const { selectedBlock, currentDeviceView, contentEntity } = useCmsState();');
+        });
+
+        it('rewrites reads and writes of ref members through .value', () => {
+            expect(result.script).toContain('contentEntity.value?.slotConfig');
+            expect(result.script).toContain('selectedBlock.value = null;');
+            expect(result.script).toContain('return currentDeviceView.value;');
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('mixin instance dependency `emits`: wires the mixin events to defineEmits', () => {
+        it('merges the mixin events with the component emits and passes emit callbacks', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    emits: ['media-item-selection-remove'],
+                    mixins: [Shopware.Mixin.getByName('media-sidebar-modal-mixin')],
+                    methods: {
+                        onDelete(ids) { this.deleteSelectedItems(ids); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain(
+                "const emit = defineEmits(['media-item-selection-remove', 'media-sidebar-items-delete', 'media-sidebar-folder-items-dissolve', 'media-sidebar-items-move']);",
+            );
+            expect(result.script).toContain("onItemsDelete: (...args) => emit('media-sidebar-items-delete', ...args),");
+            expect(result.script).toContain('} = useMediaSidebarModal({');
+        });
+
+        it('backs off when the component declares object-form emits that cannot be merged', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    emits: { 'media-item-selection-remove': null },
+                    mixins: [Shopware.Mixin.getByName('media-sidebar-modal-mixin')],
+                    methods: {
+                        onDelete(ids) { this.deleteSelectedItems(ids); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers.some((b) => b.includes("object-form 'emits' cannot be merged"))).toBe(true);
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('mixin instance dependency `props`: passes the required prop as a getter', () => {
+        it('converts a component that declares the prop the mixin reads', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('video-cover')],
+                    props: { item: { type: Object, required: true } },
+                    methods: {
+                        open() { this.openCoverSelectionModal(); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('} = useVideoCover({');
+            expect(result.script).toContain('item: () => props.item,');
+        });
+
+        it('backs off when the component does not declare the required prop', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('video-cover')],
+                    methods: {
+                        open() { this.openCoverSelectionModal(); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain(
+                "mixins: the 'video-cover' composable needs the 'item' prop, which the component does not declare",
+            );
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('mixin instance dependency `callbacks`: passes the overridable member as a getter', () => {
+        it('converts a component that declares the member the mixin expects it to override', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('media-grid-listener')],
+                    computed: {
+                        selectableItems() { return []; },
+                    },
+                    methods: {
+                        reset() { this.clearSelection(); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('selectableItems: () => selectableItems.value,');
+            expect(result.script).toContain("onFolderChange: (...args) => emit('media-folder-change', ...args),");
+        });
+
+        it('backs off when the component does not declare the overridable member', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('media-grid-listener')],
+                    methods: {
+                        reset() { this.clearSelection(); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain(
+                "mixins: the 'media-grid-listener' composable needs the component member 'selectableItems', which the generated setup does not declare",
+            );
+        });
+
+        it('backs off when the component calls a selection internal the composable keeps private', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('media-grid-listener')],
+                    computed: {
+                        selectableItems() { return []; },
+                    },
+                    methods: {
+                        pick(item) { this._singleSelect(item); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers.some((b) => b.includes("reads '_singleSelect'"))).toBe(true);
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('render-component: detects render() as a hard blocker and marks as not-migratable', () => {
         let result: ReturnType<typeof transformScript>;
 

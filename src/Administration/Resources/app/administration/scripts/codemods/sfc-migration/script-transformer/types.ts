@@ -1,7 +1,13 @@
 import type { CallExpression, ObjectLiteralExpression } from 'ts-morph';
 import type { MigrationStatus } from '../types';
 import type { ComposableDescriptor, ComposableMemberKind } from './composable-registry';
-import type { IdentifierToken } from './identifier-template';
+import type { IdentifierToken, ScriptSnippet } from './identifier-template';
+
+/** One `option: <expression>` entry of a composable call's options argument. */
+export interface ComposableArgument {
+    option: string;
+    valueSnippet: ScriptSnippet;
+}
 
 /**
  * A composable the component actually uses, together with the `this.<key>`
@@ -11,6 +17,8 @@ import type { IdentifierToken } from './identifier-template';
 export interface ActiveComposable {
     descriptor: ComposableDescriptor;
     memberKeys: string[];
+    /** Resolved instance dependencies, emitted as the composable's options argument. */
+    argumentEntries: ComposableArgument[];
 }
 
 export interface TransformScriptResult {

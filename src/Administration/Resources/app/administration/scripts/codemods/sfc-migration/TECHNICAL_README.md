@@ -66,7 +66,8 @@ Examples:
 | Case | Status |
 | --- | --- |
 | Normal Options API component | `fully-migrated` |
-| Component with `mixins` | `partially-migrated`, script stays Options API |
+| Component with a registered mixin | `fully-migrated`, the mixin becomes a composable |
+| Component with an unregistered mixin | `partially-migrated`, script stays Options API |
 | Component using `Shopware.Component.extend()` | `partially-migrated`, script stays Options API |
 | Component with `render()` | `not-migratable` |
 | Template with `{% extends ... %}` | `not-migratable` |
@@ -213,7 +214,7 @@ flowchart TD
     C -- yes --> E[Detect blockers]
     E --> F{render function?}
     F -- yes --> D
-    F -- no --> G{mixins, extend, unsupported inject?}
+    F -- no --> G{unresolved mixin, extend, unsupported inject?}
     G -- yes --> H[Options API backoff]
     G -- no --> I[Build CompositionScriptState]
     I --> J[Emit script setup]
@@ -249,7 +250,7 @@ inside the SFC.
 | Feature | Handling |
 | --- | --- |
 | `render()` | Hard blocker. No SFC is generated. |
-| `mixins` | Soft blocker. Generates a plain Options API `<script>`. |
+| A mixin with no registry entry | Soft blocker. Generates a plain Options API `<script>`. |
 | `Shopware.Component.extend()` | Soft blocker. Generates a plain Options API `<script>`. |
 | Unsupported `inject` shape | Soft blocker. Generates a plain Options API `<script>`. |
 
@@ -321,6 +322,78 @@ const {
 
 Returning values under `public` is important. It exposes them to the template
 and to Shopware's Composition API extension system.
+
+## Mixins To Composables
+
+`script-transformer/composable-registry.ts` is the single declarative layer that
+maps a `this.<member>` access onto an imported composable call. It covers both
+Vue globals (`$router`, `$t`, …) and mixins.
+
+A mixin descriptor names the mixin, the composable to import, and every member
+the mixin put on `this`:
+
+```ts
+const salutationDescriptor: ComposableDescriptor = {
+    id: 'salutation',
+    trigger: { type: 'mixin', mixinNames: ['salutation'], unmappedMembers: ['salutationFilter'] },
+    import: { source: 'src/app/composables/use-salutation', name: 'useSalutation' },
+    declarationStyle: 'destructure',
+    members: methodMembers(['salutation']),
+};
+```
+
+Each member declares how it is read back:
+
+| Member kind | Rewrite of `this.<member>` |
+| --- | --- |
+| `method` | `<binding>(…)` |
+| `value` | `<binding>` |
+| `ref` | `<binding>.value` — the mixin's `data()` entries and computeds |
+
+Conversion is all-or-nothing per component: a mixin without a registry entry
+keeps the whole component on the Options API backoff. So do
+`unmappedMembers` (members the composable does not provide) and
+`internallyReferencedMembers` (members the composable calls itself, where a
+component override would silently stop taking effect).
+
+### Instance Dependencies
+
+Some mixins reach into the component instance in ways a plain composable cannot:
+they emit events, read a prop, or call a method the host is expected to override.
+The descriptor declares those, and the codemod passes them in one options
+argument:
+
+```ts
+instanceDependencies: {
+    emits: [{ option: 'onFolderChange', event: 'media-folder-change' }],
+    props: [{ option: 'item', prop: 'item' }],
+    callbacks: [{ option: 'selectableItems', member: 'selectableItems' }],
+}
+```
+
+which generates:
+
+```js
+const emit = defineEmits(['media-folder-change']);
+
+const { clearSelection } = useMediaGridListener({
+    onFolderChange: (...args) => emit('media-folder-change', ...args),
+    item: () => props.item,
+    selectableItems: () => selectableItems.value,
+});
+```
+
+| Dependency | Generated value | Backoff when |
+| --- | --- | --- |
+| `emits` | A callback forwarding to `emit`; the event joins `defineEmits`. | The component declares object-form `emits`, which cannot be merged. |
+| `props` | `() => props.<prop>` | The component does not declare the prop. |
+| `callbacks` | A getter for the component member. | The generated setup has no binding for that member. |
+
+Callback and prop values are getters so the read happens when the composable
+calls them, not while the declaration is emitted. The callback member's binding
+comes from the `createExtendableSetup()` destructure below the composable
+declaration, so a composable that invoked such a callback during setup itself
+would read it too early.
 
 ## Why `createExtendableSetup()` Is Used
 
@@ -422,6 +495,7 @@ timing does not map cleanly to generated setup code.
 | `script-transformer/emit-composition-api-script.ts` | Emits the generated `<script setup>`. |
 | `script-transformer/build-options-api-backoff.ts` | Emits plain Options API script for soft blockers. |
 | `script-transformer/rewrite-this.ts` | Rewrites known `this.*` references. |
+| `script-transformer/composable-registry.ts` | Maps globals and mixins onto composable calls. |
 | `script-transformer/extract-*.ts` | Focused extractors for Options API sections. |
 | `__fixtures__/` | Input examples used by tests. |
 | `__snapshots__/` | Expected generated output snapshots. |

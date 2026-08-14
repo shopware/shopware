@@ -51,6 +51,41 @@ export type ComposableTrigger =
           internallyReferencedMembers?: readonly string[];
       };
 
+/** An event the mixin emitted on the host component via `this.$emit`. */
+export interface ComposableEmitDependency {
+    /** Property name on the composable's options argument. */
+    option: string;
+    /** The event the generated callback forwards to `emit`. */
+    event: string;
+}
+
+/** A prop the mixin read from the host component. */
+export interface ComposablePropDependency {
+    option: string;
+    /** The prop the component must declare; passed as a getter so reads stay reactive. */
+    prop: string;
+}
+
+/** A member the mixin expected the host component to define (an overridable). */
+export interface ComposableCallbackDependency {
+    option: string;
+    /** The component member the generated callback reads. */
+    member: string;
+}
+
+/**
+ * What a mixin needs from the component instance. A composable has no `$emit`,
+ * no props and no overridable members, so a mixin that uses any of them can only
+ * become a composable if the descriptor declares what to hand over. The codemod
+ * passes every declared dependency in one options argument:
+ * `useVideoCover({ item: () => props.item })`.
+ */
+export interface ComposableInstanceDependencies {
+    emits?: readonly ComposableEmitDependency[];
+    props?: readonly ComposablePropDependency[];
+    callbacks?: readonly ComposableCallbackDependency[];
+}
+
 export interface ComposableDescriptor {
     id: string;
     trigger: ComposableTrigger;
@@ -60,6 +95,7 @@ export interface ComposableDescriptor {
     binding?: IdentifierToken;
     /** key = the `this.<key>` access this descriptor answers. */
     members: Record<string, ComposableMemberBinding>;
+    instanceDependencies?: ComposableInstanceDependencies;
 }
 
 // --- Globals -----------------------------------------------------------------
@@ -133,6 +169,15 @@ function methodMembers(names: readonly string[]): Record<string, ComposableMembe
     return Object.fromEntries(
         names.map((name) => [name, { ident: ident(name), kind: 'method' as const, sourceKey: name }]),
     );
+}
+
+/**
+ * Build a destructured-members map for members the composable returns as refs —
+ * the mixin's `data()` entries and computeds. Reads and writes are rewritten to
+ * `<binding>.value`.
+ */
+function refMembers(names: readonly string[]): Record<string, ComposableMemberBinding> {
+    return Object.fromEntries(names.map((name) => [name, { ident: ident(name), kind: 'ref' as const, sourceKey: name }]));
 }
 
 const notificationDescriptor: ComposableDescriptor = {
@@ -259,6 +304,183 @@ const userSettingsDescriptor: ComposableDescriptor = {
     members: methodMembers(['getUserSettingsEntity', 'getUserSettings', 'saveUserSettings', 'userGridSettingsCriteria']),
 };
 
+const cmsStateDescriptor: ComposableDescriptor = {
+    id: 'cms-state',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['cms-state'],
+        // The store-backed computeds and contentEntity feed each other inside the
+        // composable, so a component override of one would not take effect.
+        internallyReferencedMembers: [
+            'cmsPageState',
+            'category',
+            'product',
+            'landingPage',
+            'contentEntity',
+            'getSlotConfigForLanguage',
+        ],
+    },
+    import: { source: 'src/module/sw-cms/composables/use-cms-state', name: 'useCmsState' },
+    declarationStyle: 'destructure',
+    members: {
+        ...refMembers([
+            'cmsPageState',
+            'selectedBlock',
+            'selectedSection',
+            'currentDeviceView',
+            'isSystemDefaultLanguage',
+            'category',
+            'product',
+            'landingPage',
+            'contentEntity',
+            'inheritedSlotConfig',
+        ]),
+        ...methodMembers(['getSlotConfigForLanguage']),
+    },
+};
+
+const mediaSidebarModalDescriptor: ComposableDescriptor = {
+    id: 'media-sidebar-modal',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['media-sidebar-modal-mixin'],
+        // The delete/dissolve/move handlers close their own modal first.
+        internallyReferencedMembers: [
+            'closeModalDelete',
+            'closeFolderDissolve',
+            'closeModalMove',
+        ],
+    },
+    import: { source: 'src/module/sw-media/composables/use-media-sidebar-modal', name: 'useMediaSidebarModal' },
+    declarationStyle: 'destructure',
+    instanceDependencies: {
+        emits: [
+            { option: 'onItemsDelete', event: 'media-sidebar-items-delete' },
+            { option: 'onFolderItemsDissolve', event: 'media-sidebar-folder-items-dissolve' },
+            { option: 'onItemsMove', event: 'media-sidebar-items-move' },
+        ],
+    },
+    members: {
+        ...refMembers([
+            'showModalReplace',
+            'showModalDelete',
+            'showFolderSettings',
+            'showFolderDissolve',
+            'showModalMove',
+        ]),
+        ...methodMembers([
+            'openModalReplace',
+            'closeModalReplace',
+            'openModalDelete',
+            'closeModalDelete',
+            'openFolderSettings',
+            'closeFolderSettings',
+            'openFolderDissolve',
+            'closeFolderDissolve',
+            'openModalMove',
+            'closeModalMove',
+            'deleteSelectedItems',
+            'onFolderDissolved',
+            'onFolderMoved',
+        ]),
+    },
+};
+
+const videoCoverDescriptor: ComposableDescriptor = {
+    id: 'video-cover',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['video-cover'],
+        // The cover computeds and persist flow call these helpers internally.
+        internallyReferencedMembers: [
+            'showCoverSelectionModal',
+            'isVideoMedia',
+            'isVideo',
+            'isImage',
+            'getCoverMediaId',
+            'closeCoverSelectionModal',
+            'persistCoverMedia',
+        ],
+    },
+    import: { source: 'src/module/sw-media/composables/use-video-cover', name: 'useVideoCover' },
+    declarationStyle: 'destructure',
+    instanceDependencies: {
+        props: [{ option: 'item', prop: 'item' }],
+    },
+    members: {
+        ...refMembers([
+            'showCoverSelectionModal',
+            'isVideoMedia',
+            'hasVideoCover',
+        ]),
+        ...methodMembers([
+            'openCoverSelectionModal',
+            'closeCoverSelectionModal',
+            'onCoverSelectionChange',
+            'persistCoverMedia',
+            'isImage',
+            'isVideo',
+            'removeVideoCover',
+            'getCoverMediaId',
+        ]),
+    },
+};
+
+const mediaGridListenerDescriptor: ComposableDescriptor = {
+    id: 'media-grid-listener',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['media-grid-listener'],
+        internallyReferencedMembers: [
+            'selectedItems',
+            'listSelectionStartItem',
+            'isListSelect',
+            'isItemSelected',
+            'navigateToFolder',
+            'handleMediaItemClicked',
+            'handleMediaGridItemSelected',
+            'handleMediaGridItemUnselected',
+        ],
+        // The mixin's underscore-prefixed selection internals stay private to the
+        // composable, so a component that calls one directly must back off.
+        unmappedMembers: [
+            '_singleSelect',
+            '_startListSelect',
+            '_handleSelection',
+            '_removeItemFromSelection',
+            '_addItemToSelection',
+            '_handleShiftSelect',
+            '_findSelectionIndices',
+        ],
+    },
+    import: { source: 'src/module/sw-media/composables/use-media-grid-listener', name: 'useMediaGridListener' },
+    declarationStyle: 'destructure',
+    instanceDependencies: {
+        emits: [{ option: 'onFolderChange', event: 'media-folder-change' }],
+        // The mixin declared an empty `selectableItems` computed purely so the host
+        // could override it; the composable takes it as a callback instead.
+        callbacks: [{ option: 'selectableItems', member: 'selectableItems' }],
+    },
+    members: {
+        ...refMembers([
+            'selectedItems',
+            'listSelectionStartItem',
+            'mediaItemSelectionHandler',
+            'isListSelect',
+        ]),
+        ...methodMembers([
+            'isItemSelected',
+            'showItemSelected',
+            'clearSelection',
+            'navigateToFolder',
+            'showDetails',
+            'handleMediaItemClicked',
+            'handleMediaGridItemSelected',
+            'handleMediaGridItemUnselected',
+        ]),
+    },
+};
+
 export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     notificationDescriptor,
     placeholderDescriptor,
@@ -268,6 +490,10 @@ export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     positionDescriptor,
     notificationTranslationDescriptor,
     userSettingsDescriptor,
+    cmsStateDescriptor,
+    mediaSidebarModalDescriptor,
+    videoCoverDescriptor,
+    mediaGridListenerDescriptor,
 ];
 
 export const COMPOSABLE_REGISTRY: readonly ComposableDescriptor[] = [

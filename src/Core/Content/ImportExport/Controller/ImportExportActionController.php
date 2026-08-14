@@ -73,17 +73,17 @@ class ImportExportActionController extends AbstractController
         $profileId = (string) $request->request->get('profileId');
         $expireDate = (string) $request->request->get('expireDate');
 
-        /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
         $profile = $this->findProfile($context, $profileId);
         $expireDate = new \DateTimeImmutable($expireDate);
 
-        if ($file !== null) {
+        if ($file instanceof UploadedFile) {
             $log = $this->importExportService->prepareImport(
                 $context,
                 $profile->getId(),
                 $expireDate,
                 $file,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('config'),
                 $request->request->has('dryRun')
             );
@@ -97,6 +97,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 null,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('config')
             );
         }

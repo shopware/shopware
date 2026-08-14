@@ -3,7 +3,15 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper({ documentV2ServiceOverrides = {} } = {}) {
+const documentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+    },
+];
+
+async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
             stubs: {
@@ -13,19 +21,17 @@ async function createWrapper({ documentV2ServiceOverrides = {} } = {}) {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(),
+                            search: () => Promise.resolve([...documentTypesFixtures]),
                         };
                     },
                 },
-                documentV2Service: {
+                documentV2ApiService: {
                     getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: {
-                                invoice: { formats: ['pdf'] },
-                            },
+                        documentTypes: {
+                            invoice: { formats: ['pdf'] },
                         },
                     }),
-                    ...documentV2ServiceOverrides,
+                    ...documentV2ApiServiceOverrides,
                 },
             },
         },
@@ -90,9 +96,9 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
-                id: 'invoice',
+                id: 'invoice-id',
                 technicalName: 'invoice',
-                translated: { name: 'invoice' },
+                translated: { name: 'Invoice' },
                 selected: false,
             },
         ]);

@@ -13,14 +13,32 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @phpstan-type DeliveryArray  array{id?: string, shippingDateEarliest: string, shippingDateLatest: string, shippingOrderAddress?: mixed, shippingCosts: CalculatedPrice, positions: array<array{price: CalculatedPrice}>, stateId: string}
+ * @phpstan-import-type TransformedAddressArray from AddressTransformer
+ *
+ * @phpstan-type DeliveryArray array{
+ *     id?: string,
+ *     shippingDateEarliest: string,
+ *     shippingDateLatest: string,
+ *     shippingMethodId: string,
+ *     shippingOrderAddress?: TransformedAddressArray,
+ *     shippingOrderAddressId?: string,
+ *     shippingOrderAddressVersionId?: string,
+ *     shippingCosts: CalculatedPrice,
+ *     positions: list<array{
+ *         id: string|null,
+ *         price: CalculatedPrice,
+ *         orderLineItemId: string,
+ *         orderLineItemVersionId: string
+ *     }>,
+ *     stateId: string
+ * }
  */
 #[Package('checkout')]
 class DeliveryTransformer
 {
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<int|string, array<string, string|array<mixed>>> $addresses
+     * @param array<string, TransformedAddressArray> $addresses
      *
      * @return list<DeliveryArray>
      */
@@ -41,7 +59,7 @@ class DeliveryTransformer
 
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<int|string, array<string, string|array<mixed>>> $addresses
+     * @param array<string, TransformedAddressArray> $addresses
      *
      * @return DeliveryArray
      */

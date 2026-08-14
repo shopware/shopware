@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(documentV2ServiceOverrides = {}) {
+async function createWrapper(documentV2ApiServiceOverrides = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-invoice', { sync: true }), {
         global: {
             stubs: {
@@ -13,20 +13,31 @@ async function createWrapper(documentV2ServiceOverrides = {}) {
             },
             provide: {
                 documentV2Service: {
+                    sortFileFormats: (formats) => {
+                        const priority = [
+                            'pdf',
+                            'html',
+                            'zugferd_embedded_pdf',
+                            'zugferd_xml',
+                        ];
+
+                        return [...formats].sort((left, right) => priority.indexOf(left) - priority.indexOf(right));
+                    },
+                    getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+                },
+                documentV2ApiService: {
                     getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: {
-                                invoice: {
-                                    formats: [
-                                        'zugferd_xml',
-                                        'pdf',
-                                        'html',
-                                    ],
-                                },
+                        documentTypes: {
+                            invoice: {
+                                formats: [
+                                    'zugferd_xml',
+                                    'pdf',
+                                    'html',
+                                ],
                             },
                         },
                     }),
-                    ...documentV2ServiceOverrides,
+                    ...documentV2ApiServiceOverrides,
                 },
             },
         },
@@ -85,9 +96,9 @@ describe('sw-bulk-edit-order-documents-generate-invoice', () => {
         await flushPromises();
 
         expect(wrapper.vm.fileFormatOptions).toEqual([
-            { label: 'sw-bulk-edit.order.documents.generateInvoice.fileFormats.pdf', value: 'pdf' },
-            { label: 'sw-bulk-edit.order.documents.generateInvoice.fileFormats.html', value: 'html' },
-            { label: 'sw-bulk-edit.order.documents.generateInvoice.fileFormats.zugferdXml', value: 'zugferd_xml' },
+            { label: 'sw-order.components.createDocumentModal.fileFormats.pdf', value: 'pdf' },
+            { label: 'sw-order.components.createDocumentModal.fileFormats.html', value: 'html' },
+            { label: 'sw-order.components.createDocumentModal.fileFormats.zugferd_xml', value: 'zugferd_xml' },
         ]);
     });
 });

@@ -30,6 +30,9 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
         $validator->validate($schema);
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     #[DataProvider('xmlProvider')]
     public function testValidate(string $xml, \Exception $expectedException): void
     {

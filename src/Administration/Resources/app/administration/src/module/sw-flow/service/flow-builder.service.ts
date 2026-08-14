@@ -78,6 +78,7 @@ type ActionSequence = Entity<'flow_sequence'> & {
         documentTypes?: Array<{
             documentType: string;
         }>;
+        fileFormats?: string[];
     };
 };
 
@@ -640,15 +641,29 @@ export default class FlowBuilderService {
         const {
             sequence: { config },
             data,
+            translator,
         } = context;
 
-        if (config.documentType) {
-            Object.assign(config, {
-                documentType: [config],
-            });
+        if (config.fileFormats) {
+            const documentTypeName =
+                data.documentTypes.find((item) => item.technicalName === config.documentType)?.translated?.name ?? '';
+
+            const fileFormatLabels = config.fileFormats.map((format) =>
+                translator.$t(Shopware.Service('documentV2Service').getFileFormatSnippet(format)),
+            );
+
+            if (!fileFormatLabels.length) {
+                return documentTypeName;
+            }
+
+            const formatsLabel = this.convertTagString(fileFormatLabels);
+
+            return `${documentTypeName} <span class="sw-flow-sequence-action__file-formats">(${formatsLabel})</span>`;
         }
 
-        const documentType = config.documentTypes?.map((type) => {
+        const documentTypesConfig = config.documentType ? [config] : config.documentTypes;
+
+        const documentType = documentTypesConfig?.map((type) => {
             return data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
         });
 

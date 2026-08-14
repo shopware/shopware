@@ -133,156 +133,53 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
         },
     });
     createDocumentV2Mock = jest.fn().mockResolvedValue({
-        data: {
-            documentId: '1234',
-            documentDeepLink: '12341234',
-            formats: ['html'],
-        },
+        documentId: '1234',
+        documentDeepLink: '12341234',
+        formats: ['html'],
     });
     uploadDocumentV2Mock = jest.fn().mockResolvedValue({
-        data: {
-            documentId: '1234',
-            deepLinkCode: '12341234',
-            formats: ['pdf'],
-        },
+        documentId: '1234',
+        deepLinkCode: '12341234',
+        formats: ['pdf'],
     });
     getDocumentV2Mock = jest.fn().mockResolvedValue({
-        headers: {
-            'content-disposition': 'attachment; filename=dummny.html',
-        },
-        data: 'https://shopware.test/dummny.html',
+        file: 'https://shopware.test/dummny.html',
+        fileName: 'dummy.html',
     });
     getDocumentArchiveV2Mock = jest.fn().mockResolvedValue({
-        headers: {
-            'content-disposition': 'attachment; filename=documents.zip',
-        },
-        data: 'https://shopware.test/documents.zip',
+        file: 'https://shopware.test/documents.zip',
+        fileName: 'documents.zip',
     });
     getDocumentPreviewV2Mock = jest.fn().mockResolvedValue({
-        data: 'https://shopware.test/dummny.html',
+        file: 'https://shopware.test/dummny.html',
+        fileName: 'dummy.html',
     });
 
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         props,
         global: {
             stubs: {
-                'sw-card-section': {
-                    template: '<div class="sw-card-section"><slot></slot></div>',
-                },
-                'sw-card-filter': {
-                    template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
-                },
-                'sw-modal': {
-                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-                },
-                'sw-container': {
-                    template: '<div class="sw-container"><slot></slot></div>',
-                },
-                'sw-text-field': true,
-                'sw-context-button': {
-                    template: '<div class="sw-context-button"><slot></slot></div>',
-                },
-                'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', {
-                    sync: true,
-                }),
-                'sw-order-create-document-modal': true,
-                'sw-order-upload-document-modal': true,
-                'sw-order-send-document-modal': true,
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                 'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', {
                     sync: true,
                 }),
-                'sw-order-document-settings-delivery-note-modal': true,
+                'sw-order-document-settings-credit-note-modal': await wrapTestComponent(
+                    'sw-order-document-settings-credit-note-modal',
+                    { sync: true },
+                ),
+                'sw-order-document-settings-delivery-note-modal': await wrapTestComponent(
+                    'sw-order-document-settings-delivery-note-modal',
+                    { sync: true },
+                ),
                 'sw-order-document-settings-invoice-modal': await wrapTestComponent(
                     'sw-order-document-settings-invoice-modal',
                     { sync: true },
                 ),
-                'sw-order-document-settings-credit-note-modal': await wrapTestComponent(
-                    'sw-order-document-settings-credit-note-modal',
-                ),
                 'sw-order-document-settings-storno-modal': await wrapTestComponent(
                     'sw-order-document-settings-storno-modal',
+                    { sync: true },
                 ),
-                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
-                'sw-bulk-edit-modal': await wrapTestComponent('sw-bulk-edit-modal', { sync: true }),
-                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
-                'sw-data-grid-column-boolean': {
-                    props: ['value'],
-                    template: '<div class="sw-data-grid-column-boolean"><slot></slot></div>',
-                },
-                'sw-context-menu-item': {
-                    emits: ['click'],
-                    template: `
-                        <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
-                            <slot></slot>
-                        </div>`,
-                },
-                'mt-dropdown-menu-root': {
-                    template: '<div class="mt-dropdown-menu-root"><slot></slot></div>',
-                },
-                'mt-dropdown-menu-trigger': {
-                    template: '<div class="mt-dropdown-menu-trigger"><slot></slot></div>',
-                },
-                'mt-dropdown-menu-sub': {
-                    template: '<div class="mt-dropdown-menu-sub"><slot></slot></div>',
-                },
-                'mt-dropdown-menu-portal': {
-                    template: '<div class="mt-dropdown-menu-portal"><slot></slot></div>',
-                },
-                'mt-action-menu': {
-                    template: '<div class="mt-action-menu"><slot></slot></div>',
-                },
-                'mt-action-menu-group': {
-                    template: '<div class="mt-action-menu-group"><slot></slot></div>',
-                },
-                'mt-action-menu-item': {
-                    props: {
-                        disabled: {
-                            type: Boolean,
-                            default: false,
-                        },
-                        icon: {
-                            type: String,
-                            required: false,
-                            default: null,
-                        },
-                        isSubTrigger: {
-                            type: Boolean,
-                            default: false,
-                        },
-                        variant: {
-                            type: String,
-                            required: false,
-                            default: 'default',
-                        },
-                    },
-                    emits: ['select'],
-                    template: `
-                        <div
-                            class="mt-action-menu-item"
-                            :disabled="String(disabled)"
-                            @click="$emit('select')"
-                        >
-                            <slot></slot>
-                        </div>`,
-                },
-                'sw-radio-field': true,
-                'sw-datepicker': true,
-                'sw-textarea-field': true,
-
-                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
-                'sw-loader': true,
-                'sw-extension-component-section': true,
-                'sw-ai-copilot-badge': true,
-                'router-link': true,
-                'sw-checkbox-field': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-inline-edit': true,
-                'sw-data-grid-skeleton': true,
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-media-modal-v2': true,
-                'sw-provide': { template: '<slot/>', inheritAttrs: false },
-                'sw-time-ago': true,
+                'sw-loader': await wrapTestComponent('sw-loader'),
             },
             provide: {
                 documentService: {
@@ -296,7 +193,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                         }),
                     createDocument: (...args) => createDocumentMock(...args),
                 },
-                documentV2Service: {
+                documentV2ApiService: {
                     setListener: () => ({}),
                     getDocument: (...args) => getDocumentV2Mock(...args),
                     getDocumentArchive: (...args) => getDocumentArchiveV2Mock(...args),
@@ -304,8 +201,12 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     createDocument: (...args) => createDocumentV2Mock(...args),
                     uploadDocument: (...args) => uploadDocumentV2Mock(...args),
                 },
+                documentV2Service: {
+                    getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
+                    getFileFormatSnippet: (format) => `${format}--snippet`,
+                },
                 numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1000 }),
+                    reserve: () => Promise.resolve({ number: '1000' }),
                 },
                 repositoryFactory: {
                     create: (entity) => ({
@@ -370,6 +271,9 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     let wrapper;
 
     beforeAll(() => {
+        global.activeAclRoles = [];
+        global.activeFeatureFlags = [];
+
         global.allowedErrors.push({
             method: 'warn',
             msgCheck: (msg) => {
@@ -385,12 +289,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     afterEach(() => {
+        global.activeAclRoles = [];
         global.activeFeatureFlags = [];
     });
 
-    it('should have an disabled create new button', async () => {
-        global.activeAclRoles = [];
+    it('should have an disabled create new button when missing acl roles', async () => {
         wrapper = await createWrapper();
+
         const createNewButton = wrapper.findComponent('.sw-order-document-grid-button');
         expect(createNewButton.attributes('disabled')).toBeDefined();
     });
@@ -400,15 +305,14 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             'order.editor',
             'document.viewer',
         ];
-        wrapper = await createWrapper();
-        const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
+        wrapper = await createWrapper();
+
+        const createNewButton = wrapper.find('.sw-order-document-grid-button');
         expect(createNewButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should show the error of invoice number is existing', async () => {
-        global.activeAclRoles = [];
-
+    it('should show the error of document number already exists', async () => {
         wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -423,85 +327,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
-    });
-
-    it('should show the error of credit note number is existing', async () => {
-        global.activeAclRoles = [];
-
-        wrapper = await createWrapper();
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.vm.convertStoreEventToVueEvent({
-            action: 'create-document-fail',
-            payload: {
-                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                detail: 'error message',
-                meta: {
-                    parameters: [],
-                },
-            },
-        });
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
-    });
-
-    it('should show the error of delivery note number is existing', async () => {
-        global.activeAclRoles = [];
-
-        wrapper = await createWrapper();
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.vm.convertStoreEventToVueEvent({
-            action: 'create-document-fail',
-            payload: {
-                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                detail: 'error message',
-                meta: {
-                    parameters: [],
-                },
-            },
-        });
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
-    });
-
-    it('should show the error of cancellation invoice number is existing', async () => {
-        global.activeAclRoles = [];
-
-        wrapper = await createWrapper();
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.vm.convertStoreEventToVueEvent({
-            action: 'create-document-fail',
-            payload: {
-                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                detail: 'error message',
-                meta: {
-                    parameters: [],
-                },
-            },
-        });
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
@@ -511,40 +337,30 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should save document when the event return finished', async () => {
-        global.activeAclRoles = [];
         wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
         await wrapper.vm.convertStoreEventToVueEvent({
             action: 'create-document-finished',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.showModal).toBeFalsy();
-
-        // Wait 3 ticks for parent component to update
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
-    it('should show Select document type modal when click on Create new button', async () => {
-        global.activeFeatureFlags = [];
+    it('should show the select document type modal after clicking on the create new button', async () => {
         global.activeAclRoles = [
             'order.editor',
             'document.viewer',
         ];
+
         wrapper = await createWrapper();
 
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
         await createNewButton.trigger('click');
 
-        const documentTypeSelectModal = wrapper.find('.sw-order-select-document-type-modal');
-        expect(documentTypeSelectModal.exists()).toBeTruthy();
+        expect(wrapper.find('sw-order-select-document-type-modal').exists()).toBeTruthy();
     });
 
     it('should show the reworked create document modal when the feature flag is active', async () => {
@@ -553,12 +369,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             'order.editor',
             'document.viewer',
         ];
+
         wrapper = await createWrapper();
 
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
         await createNewButton.trigger('click');
 
-        const createDocumentModal = wrapper.find('sw-order-create-document-modal-stub');
+        const createDocumentModal = wrapper.find('sw-order-create-document-modal');
         expect(createDocumentModal.exists()).toBeTruthy();
     });
 
@@ -568,16 +385,18 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             'order.editor',
             'document.viewer',
         ];
+
         wrapper = await createWrapper();
 
         await wrapper.find('.sw-order-document-grid-button-upload').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-order-upload-document-modal-stub').exists()).toBeTruthy();
+        expect(wrapper.find('sw-order-upload-document-modal').exists()).toBeTruthy();
     });
 
     it('should show Send document modal when click on Send document option', async () => {
         global.activeAclRoles = ['order.editor'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -590,13 +409,14 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const sendDocumentButton = wrapper.find('.sw-order-document-card__context-button-send');
         await sendDocumentButton.trigger('click');
 
-        const sendDocumentModal = wrapper.find('sw-order-send-document-modal-stub');
+        const sendDocumentModal = wrapper.find('sw-order-send-document-modal');
         expect(sendDocumentModal.exists()).toBeTruthy();
         expect(wrapper.vm.sendDocument).toEqual(documentFixture);
     });
 
     it('should show file types on order documents route', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
@@ -614,75 +434,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should derive available formats from V2 document files', async () => {
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        expect(wrapper.vm.availableFormatsFilter(documentV2Fixture)).toBe('HTML, ZUGFeRD XML');
-    });
-
-    it('should render open and download actions for each available format', async () => {
-        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentV2Fixture,
-            ]),
-        });
-
-        const openFormatActions = wrapper.findAll('.sw-order-document-card__context-button-open-format');
-        expect(openFormatActions).toHaveLength(2);
-        expect(openFormatActions.map((action) => action.text())).toEqual(
-            expect.arrayContaining(['sw-order.documentCard.labelOpenFormat']),
-        );
-
-        const downloadFormatActions = wrapper.findAll('.sw-order-document-card__context-button-download-format');
-        expect(downloadFormatActions).toHaveLength(2);
-        expect(downloadFormatActions.map((action) => action.text())).toEqual(
-            expect.arrayContaining(['sw-order.documentCard.labelDownloadFormat']),
-        );
-
-        expect(wrapper.vm.getDocumentFormatLabel('html')).toBe('HTML');
-        expect(wrapper.vm.getDocumentFormatLabel('zugferd_xml')).toBe('ZUGFeRD XML');
-
-        expect(wrapper.find('.sw-order-document-card__context-button-download-all-formats').exists()).toBe(true);
-    });
-
-    it('should open V2 documents from the format action', async () => {
-        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
-        URL.createObjectURL = jest.fn().mockReturnValue('blob:open');
-        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentV2Fixture,
-            ]),
-        });
-
-        await wrapper.find('.sw-order-document-card__context-button-open-format').trigger('click');
-
-        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'html');
-        dispatchEventSpy.mockRestore();
-    });
-
-    it('should download V2 documents from the format action', async () => {
-        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
-        URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
-        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentV2Fixture,
-            ]),
-        });
-
-        await wrapper.find('.sw-order-document-card__context-button-download-format').trigger('click');
-
-        expect(getDocumentV2Mock).toHaveBeenCalledWith('document1', 'html');
-        dispatchEventSpy.mockRestore();
+        expect(wrapper.vm.availableFormatsFilter(documentV2Fixture)).toBe('html--snippet, zugferd_xml--snippet');
     });
 
     it('should only show the download all action when multiple formats are available', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
@@ -737,12 +494,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        expect(wrapper.find('.mt-dropdown-menu-root').exists()).toBe(false);
-        expect(wrapper.find('.sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
+        expect(wrapper.find('sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
     });
 
     it('should render the reworked action menu when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -751,14 +508,18 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        expect(wrapper.find('.mt-dropdown-menu-root').exists()).toBe(true);
+        await wrapper.find('.sw-order-document-card__actions-button').trigger('click');
+
+        expect(document.body.querySelector('.mt-action-menu')).not.toBeNull();
         expect(wrapper.find('.sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(false);
     });
 
     it('should use the V2 create endpoint when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
         const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -772,7 +533,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentComment: '',
                 documentDate: '2026-07-06T00:00:00.000Z',
                 documentNumber: '1000',
-                requestedFormats: ['html'],
+                requestedFileFormats: ['html'],
             },
             'download',
         );
@@ -785,6 +546,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '1000',
             '2026-07-06T00:00:00.000Z',
             '',
+            undefined,
+            null,
         );
         expect(getDocumentV2Mock).toHaveBeenCalledWith('1234', 'html');
         dispatchEventSpy.mockRestore();
@@ -792,19 +555,19 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should download the V2 archive after creating multiple formats', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
         const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+
         wrapper = await createWrapper();
 
         createDocumentV2Mock.mockResolvedValueOnce({
-            data: {
-                documentId: '1234',
-                deepLinkCode: '12341234',
-                formats: [
-                    'html',
-                    'pdf',
-                ],
-            },
+            documentId: '1234',
+            deepLinkCode: '12341234',
+            formats: [
+                'html',
+                'pdf',
+            ],
         });
 
         await wrapper.setData({
@@ -818,7 +581,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentComment: '',
                 documentDate: '2026-07-06T00:00:00.000Z',
                 documentNumber: '1000',
-                requestedFormats: [
+                requestedFileFormats: [
                     'html',
                     'pdf',
                 ],
@@ -837,6 +600,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '1000',
             '2026-07-06T00:00:00.000Z',
             '',
+            undefined,
+            null,
         );
         expect(getDocumentV2Mock).not.toHaveBeenCalled();
         expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['1234']);
@@ -845,6 +610,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should open the send modal after creating a V2 document', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -858,7 +624,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentComment: '',
                 documentDate: '2026-07-06T00:00:00.000Z',
                 documentNumber: '1000',
-                requestedFormats: ['html'],
+                requestedFileFormats: ['html'],
             },
             'send',
         );
@@ -872,12 +638,15 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             '1000',
             '2026-07-06T00:00:00.000Z',
             '',
+            undefined,
+            null,
         );
         expect(wrapper.vm.showSendDocumentModal).toBe(true);
     });
 
     it('should use the V2 upload endpoint for uploaded custom documents', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -888,7 +657,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         const file = new File(['pdf'], 'document.pdf', { type: 'application/pdf' });
 
-        await wrapper.vm.onCreateDocument(
+        await wrapper.vm.onUploadDocument(
             {
                 documentComment: '',
                 documentDate: '2026-07-06T00:00:00.000Z',
@@ -896,30 +665,20 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentNumber: '1000',
                 requestedFormats: ['pdf'],
             },
-            false,
-            'referenced-document-id',
+            null,
             file,
         );
 
         expect(createDocumentV2Mock).not.toHaveBeenCalled();
         expect(createDocumentMock).not.toHaveBeenCalled();
-        expect(uploadDocumentV2Mock).toHaveBeenCalledWith(
-            '1234',
-            'order-version-id',
-            'invoice',
-            'pdf',
-            '1000',
-            '2026-07-06T00:00:00.000Z',
-            '',
-            null,
-            file,
-            'referenced-document-id',
-        );
+        expect(uploadDocumentV2Mock).toHaveBeenCalledWith('1234', 'order-version-id', 'invoice', 'pdf', '1000', null, file);
     });
 
     it('should use the V2 preview endpoint when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         URL.createObjectURL = jest.fn().mockReturnValue('blob:preview');
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -949,7 +708,9 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should not fail when the V2 preview endpoint handles an error', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+
         wrapper = await createWrapper();
+
         getDocumentPreviewV2Mock.mockResolvedValue(undefined);
 
         await wrapper.setData({
@@ -996,8 +757,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show card filter when order has document', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper();
-        expect(wrapper.find('.sw-card-filter').exists()).toBeFalsy();
+
+        expect(wrapper.find('sw-card-filter').exists()).toBeFalsy();
 
         await wrapper.setProps({
             order: {
@@ -1013,7 +776,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        expect(wrapper.find('.sw-card-filter').exists()).toBeTruthy();
+        expect(wrapper.find('sw-card-filter').exists()).toBeTruthy();
     });
 
     it('should change sent status when click on "Mark as unsent" context menu', async () => {
@@ -1027,7 +790,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeTruthy();
+        expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('true');
 
         // Mark as sent option is disabled
         const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
@@ -1037,12 +800,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
         await markUnsentButton.trigger('click');
 
-        expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
+        expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBeFalsy();
         expect(markUnsentButton.attributes('disabled')).toBe('true');
     });
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1056,7 +820,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
 
-        expect(wrapper.findComponent('.sw-data-grid-column-boolean').props('value')).toBeFalsy();
+        expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('false');
 
         // Mark as unsent option is disabled
         const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
@@ -1072,6 +836,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
         global.activeAclRoles = ['order.editor'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1094,11 +859,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await wrapper.find('.sw-order-document-settings-modal__send-button').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('sw-order-send-document-modal-stub').exists()).toBeTruthy();
+        expect(wrapper.find('sw-order-send-document-modal').exists()).toBeTruthy();
     });
 
     it('should call downloadDocument method when choosing option Create and download in Create document modal', async () => {
         global.activeAclRoles = ['order.editor'];
+
         wrapper = await createWrapper();
 
         wrapper.vm.downloadDocument = jest.fn();
@@ -1197,6 +963,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should call downloadDocument with pdf fileType for regular invoice', async () => {
         global.activeAclRoles = ['order.editor'];
+
         wrapper = await createWrapper();
 
         const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
@@ -1221,6 +988,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should show permission tooltip message on Create document button correctly', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper();
 
         const buttonCreate = wrapper.find('.sw-order-document-grid-button');
@@ -1233,10 +1001,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             'order.editor',
             'document.viewer',
         ];
+
         wrapper = await createWrapper();
 
         Shopware.Store.get('swOrderDetail').editing = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const buttonCreate = wrapper.findComponent('.sw-order-document-grid-button');
         expect(buttonCreate.attributes()['tooltip-message']).toBe('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
@@ -1245,6 +1014,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should search documents with criteria queries', async () => {
         global.activeAclRoles = [];
+
         wrapper = await createWrapper();
 
         expect(wrapper.vm.documentCriteria.term).toBeNull();
@@ -1289,7 +1059,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const row = wrapper.find('.sw-data-grid__row--0');
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
-        expect(fileTypes.text()).toBe('PDF');
+        expect(fileTypes.text()).toBe('pdf--snippet');
     });
 
     it('should render html and pdf on available formats column', async () => {
@@ -1314,11 +1084,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const row = wrapper.find('.sw-data-grid__row--0');
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
-        expect(fileTypes.text()).toBe('PDF, HTML');
+        expect(fileTypes.text()).toBe('pdf--snippet, html--snippet');
     });
 
     it('should render the delete-button when attachView is false', async () => {
         global.activeAclRoles = ['document.deleter'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1334,6 +1105,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should disable the delete-button when attachView is true', async () => {
         global.activeAclRoles = ['document.deleter'];
+
         wrapper = await createWrapper(
             {
                 ...defaultProps,
@@ -1355,6 +1127,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should have a disabled delete-button with missing permissions', async () => {
         global.activeAclRoles = ['document.viewer'];
+
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
@@ -1370,6 +1143,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should open the delete confirmation modal when delete button was clicked', async () => {
         global.activeAclRoles = ['document.deleter'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1397,6 +1171,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should remove the document from the list when delete was successful', async () => {
         global.activeAclRoles = ['document.deleter'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1423,6 +1198,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should not remove the document from the list when delete return an exception', async () => {
         global.activeAclRoles = ['document.viewer'];
+
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -1466,7 +1242,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         },
         {
             technicalName: DOCUMENT_TYPES.DELIVERY_NOTE,
-            expectedSelector: 'sw-order-document-settings-delivery-note-modal-stub',
+            expectedSelector: '.sw-order-document-settings-delivery-note-modal__document-number',
         },
         {
             technicalName: DOCUMENT_TYPES.CREDIT_NOTE,

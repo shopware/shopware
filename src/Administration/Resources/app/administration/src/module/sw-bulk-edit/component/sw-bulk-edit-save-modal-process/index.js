@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import Criteria from 'src/core/data/criteria.data';
-import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
 
@@ -17,7 +16,7 @@ export default {
         repositoryFactory: {},
         syncService: {},
         feature: {},
-        documentV2Service: {},
+        documentV2ApiService: {},
     },
 
     mixins: [
@@ -261,25 +260,23 @@ export default {
             const requestedTotal = payload.length;
             const failedItems = [];
             let completed = 0;
-            let latestError = null;
-
-            this.documentV2Service.setListener(({ action, payload: eventPayload }) => {
-                if (action === DocumentEvents.DOCUMENT_FAILED) {
-                    latestError = eventPayload;
-                }
-            });
 
             for (const item of payload) {
-                latestError = null;
+                let response = null;
+                let latestError = null;
 
-                const response = await this.documentV2Service.createDocument(
-                    item.orderId,
-                    documentType,
-                    item.config?.fileFormats,
-                    undefined,
-                    item.config?.documentDate,
-                    item.config?.documentComment,
-                );
+                try {
+                    response = await this.documentV2ApiService.createDocument(
+                        item.orderId,
+                        documentType,
+                        item.config?.fileFormats,
+                        undefined,
+                        item.config?.documentDate,
+                        item.config?.documentComment,
+                    );
+                } catch (error) {
+                    latestError = error.response?.data?.errors?.pop();
+                }
 
                 if (!response) {
                     failedItems.push({

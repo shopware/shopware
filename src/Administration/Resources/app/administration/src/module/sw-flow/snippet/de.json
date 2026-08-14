@@ -199,7 +199,17 @@
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
-        "placeholderDocumentType": "Dokumente auswählen ..."
+        "placeholderDocumentType": "Dokumente auswählen ...",
+        "labelDocumentTypeSingle": "Dokumenttyp",
+        "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
+        "labelFileFormats": "Dateiformate",
+        "placeholderFileFormats": "Dateiformate auswählen ...",
+        "fileFormats": {
+          "pdf": "PDF",
+          "html": "HTML",
+          "zugferdXml": "ZUGFeRD XML",
+          "zugferdEmbeddedPdf": "ZUGFeRD Embedded PDF"
+        }
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Download-Recht setzen",

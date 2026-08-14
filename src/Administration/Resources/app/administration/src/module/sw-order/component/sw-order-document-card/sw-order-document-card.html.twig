@@ -82,7 +82,9 @@
                         data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
+                    {% block sw_order_document_card_header_create_document_button_label %}
                         {{ $t('sw-order.documentCard.labelCreateNew') }}
+                    {% endblock %}
                     </mt-button>
                     {% endblock %}
                 </template>
@@ -181,7 +183,7 @@
                                                 @select="onOpenDocument(item.id, item.deepLinkCode, format)"
                                             >
                                                 {{ $t('sw-order.documentCard.labelOpenFormat', {
-                                                format: getDocumentFormatLabel(format),
+                                                format: $t(documentV2Service.getFileFormatSnippet(format)),
                                                 }) }}
                                             </mt-action-menu-item>
                                         </mt-action-menu>
@@ -211,7 +213,7 @@
                                                     @select="onDownload(item.id, item.deepLinkCode, format)"
                                                 >
                                                     {{ $t('sw-order.documentCard.labelDownloadFormat', {
-                                                    format: getDocumentFormatLabel(format),
+                                                    format: $t(documentV2Service.getFileFormatSnippet(format)),
                                                     }) }}
                                                 </mt-action-menu-item>
                                             </mt-action-menu-group>
@@ -281,10 +283,11 @@
                     variant="small"
                     @modal-close="onCloseDeleteDocumentModal"
                 >
+                    <mt-banner variant="attention">
+                        {{ $t('sw-order.documentCard.confirmDeleteText') }}
+                    </mt-banner>
+
                     <p class="sw-listing__confirm-delete-text">
-                        <mt-banner variant="attention">
-                            {{ $t('sw-order.documentCard.confirmDeleteText') }}
-                        </mt-banner>
                         <span>{{ $t('global.entity-components.deleteMessage') }}</span>
                     </p>
 
@@ -443,8 +446,6 @@
         :order="order"
         :is-loading-document="isLoadingDocument"
         :is-loading-preview="isLoadingPreview"
-        @loading-document="onLoadingDocument"
-        @loading-preview="onLoadingPreview"
         @page-leave="onCloseCreateDocumentModal"
         @document-create="onCreateDocument"
         @preview-show="onPreview"
@@ -456,7 +457,7 @@
         :is-loading-document="isLoadingDocument"
         @loading-document="onLoadingDocument"
         @page-leave="onCloseUploadDocumentModal"
-        @document-create="onCreateDocument"
+        @document-upload="onUploadDocument"
     />
     <sw-order-select-document-type-modal
         v-else-if="showSelectDocumentTypeModal"

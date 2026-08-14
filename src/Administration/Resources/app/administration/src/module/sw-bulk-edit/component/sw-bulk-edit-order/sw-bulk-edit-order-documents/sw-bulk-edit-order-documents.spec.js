@@ -3,6 +3,14 @@
  */
 import { mount } from '@vue/test-utils';
 
+const documentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        name: 'Invoice',
+    },
+];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents', { sync: true }), {
         global: {
@@ -14,16 +22,14 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve([]),
+                            search: () => Promise.resolve([...documentTypesFixtures]),
                         };
                     },
                 },
-                documentV2Service: {
+                documentV2ApiService: {
                     getAvailableTypes: jest.fn().mockResolvedValue({
-                        data: {
-                            documentTypes: {
-                                invoice: { formats: ['pdf'] },
-                            },
+                        documentTypes: {
+                            invoice: { formats: ['pdf'] },
                         },
                     }),
                 },
@@ -93,9 +99,9 @@ describe('sw-bulk-edit-order-documents', () => {
 
         expect(wrapper.vm.documentTypes).toEqual([
             {
-                id: 'invoice',
+                id: 'invoice-id',
                 technicalName: 'invoice',
-                name: 'invoice',
+                name: 'Invoice',
             },
         ]);
     });

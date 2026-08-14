@@ -380,7 +380,15 @@
             "messageEmptySubline": "Manage documents here.",
             "notificationDeleteErrorMessage": "The document could not be deleted.",
             "error": {
-                "DOCUMENT__NUMBER_ALREADY_EXISTS": "Document number {number} has already been allocated."
+                "DOCUMENT__NUMBER_ALREADY_EXISTS": "Document number {number} has already been allocated.",
+                "createDocument": "Failed to create the document.",
+                "downloadDocument": "Failed to download the document.",
+                "downloadDocumentArchive": "Failed to download the document archive.",
+                "loadSendingDocument": "Failed to load the document to send.",
+                "uploadDocument": "Failed to upload the document.",
+                "attachMediaToDocumentUpload": "Failed to attach selected media to the document.",
+                "loadDocumentPreview": "Failed to load the document preview.",
+                "openDocument": "Failed to open the selected document."
             },
             "info": {
                 "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
@@ -638,12 +646,19 @@
                 "generateAndDownload": "Generate and download",
                 "generateAndSend": "Generate and send",
                 "placeholderComment": "Write a comment...",
-                "emptyStateTitle": "Select a document type to configure the document",
+                "emptyStateTitle": "Document type missing",
+                "emptyStateDescription": "Select a document type to configure the document",
                 "fileFormats": {
                     "pdf": "PDF",
                     "html": "HTML",
                     "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
                     "zugferdXml": "ZUGFeRD XML"
+                },
+                "error": {
+                    "loadDocumentTypes": "Failed to load available document types.",
+                    "loadSupportedDocumentFileFormats": "Failed to load available file formats per document type.",
+                    "loadDocumentNumber": "Failed to load a document number.",
+                    "loadUploadedDocument": "Failed to load uploaded document."
                 }
             },
             "uploadDocumentModal": {

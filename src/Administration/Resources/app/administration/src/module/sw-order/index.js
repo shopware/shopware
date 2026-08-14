@@ -3,12 +3,13 @@ import './acl';
 import './mixin/cart-notification.mixin';
 
 import defaultSearchConfiguration from './default-search-configuration';
+import DocumentV2Service from './service/documentV2.service';
 
 /**
  * @sw-package checkout
  */
 
-const { Module } = Shopware;
+const { Application, Module } = Shopware;
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-order-list', () => import('./page/sw-order-list'));
@@ -257,3 +258,7 @@ function orderCreateChildren() {
         },
     };
 }
+
+Application.addServiceProvider('documentV2Service', () => {
+    return new DocumentV2Service();
+});

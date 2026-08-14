@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Content\Media\MediaService;
@@ -60,6 +61,7 @@ final readonly class DocumentPersister
         RenderInput $input,
         RenderState $state,
         array $requestedFormats,
+        ?ReferencedDocument $resolvedReference,
         Context $context,
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
@@ -90,7 +92,7 @@ final readonly class DocumentPersister
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $input->order->getVersionId(),
                 'documentTypeId' => $this->getDocumentTypeId($generationRequest->documentType, $context),
-                'referencedDocumentId' => $generationRequest->referencedDocumentId,
+                'referencedDocumentId' => $resolvedReference?->id,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,

@@ -342,13 +342,7 @@
           "labelDatePicker": "Date",
           "labelTextarea": "Comment",
           "labelFileFormats": "File formats",
-          "placeholderFileFormats": "Select file formats...",
-          "fileFormats": {
-            "pdf": "PDF",
-            "html": "HTML",
-            "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
-            "zugferdXml": "ZUGFeRD XML"
-          }
+          "placeholderFileFormats": "Select file formats..."
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",

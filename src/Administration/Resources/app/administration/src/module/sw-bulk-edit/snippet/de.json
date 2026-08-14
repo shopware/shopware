@@ -342,13 +342,7 @@
           "labelDatePicker": "Datum",
           "labelTextarea": "Kommentar",
           "labelFileFormats": "Dateiformate",
-          "placeholderFileFormats": "Dateiformate auswählen ...",
-          "fileFormats": {
-            "pdf": "PDF",
-            "html": "HTML",
-            "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
-            "zugferdXml": "ZUGFeRD XML"
-          }
+          "placeholderFileFormats": "Dateiformate auswählen ..."
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",

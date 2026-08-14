@@ -4,8 +4,9 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,13 +29,14 @@ class MailAttachmentsBuilder
 {
     /**
      * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<DocumentCollection> $documentRepository
      */
     public function __construct(
         private readonly MediaService $mediaService,
         private readonly EntityRepository $mediaRepository,
         private readonly DocumentGenerator $documentGenerator,
         private readonly Connection $connection,
-        private readonly DocumentFileResolver $documentFileResolver,
+        private readonly EntityRepository $documentRepository
     ) {
     }
 
@@ -64,17 +65,22 @@ class MailAttachmentsBuilder
             );
         }
 
-        $documentIds = $extensions->getDocumentIds();
-
-        if (!empty($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $orderId) {
-            $latestDocuments = $this->getLatestDocumentsOfTypes($orderId, $eventConfig['documentTypeIds']);
-
-            $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
-        }
-
-        if ($documentIds !== []) {
-            $extensions->setDocumentIds($documentIds);
-            $attachments = $this->mappingAttachments($documentIds, $attachments, $context);
+        if (isset($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $eventConfig['documentTypeIds'] !== [] && $orderId) {
+            $attachments = $this->buildLegacyAttachments(
+                $eventConfig['documentTypeIds'],
+                $extensions,
+                $attachments,
+                $context,
+                $orderId
+            );
+        } else {
+            $attachments = $this->buildDocumentAttachments(
+                $eventConfig,
+                $extensions,
+                $attachments,
+                $context,
+                $orderId
+            );
         }
 
         if ($extensions->getMediaIds() === []) {
@@ -122,16 +128,53 @@ class MailAttachmentsBuilder
         return array_column($unique, 'doc_id');
     }
 
+    private function getLatestDocumentIdByTechnicalName(string $orderId, string $documentTypeTechnicalName): ?string
+    {
+        $documentId = $this->connection->fetchOne(
+            'SELECT LOWER(hex(`document`.`id`))
+            FROM `document`
+            INNER JOIN `document_type` ON `document_type`.`id` = `document`.`document_type_id`
+            WHERE `document`.`order_id` = :orderId
+            AND `document_type`.`technical_name` = :technicalName
+            ORDER BY `document`.`created_at` DESC
+            LIMIT 1',
+            [
+                'orderId' => Uuid::fromHexToBytes($orderId),
+                'technicalName' => $documentTypeTechnicalName,
+            ]
+        );
+
+        return $documentId === false ? null : $documentId;
+    }
+
     /**
-     * @param array<string> $documentIds
+     * Resolves the latest document per requested type via the legacy document (v1) media file and
+     * attaches it as-is - each legacy document only ever has a single generated file.
+     *
+     * @param array<string> $documentTypeIds
      * @param MailAttachments $attachments
      *
      * @return MailAttachments
      */
-    private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
-    {
+    private function buildLegacyAttachments(
+        array $documentTypeIds,
+        MailSendSubscriberConfig $extensions,
+        array $attachments,
+        Context $context,
+        string $orderId
+    ): array {
+        $latestDocumentIds = $this->getLatestDocumentsOfTypes($orderId, $documentTypeIds);
+
+        $documentIds = array_unique(array_merge($extensions->getDocumentIds(), $latestDocumentIds));
+
+        if ($documentIds === []) {
+            return $attachments;
+        }
+
+        $extensions->setDocumentIds($documentIds);
+
         foreach ($documentIds as $documentId) {
-            $attachments = array_merge($attachments, $this->buildDocumentAttachments($documentId, $context));
+            $attachments = array_merge($attachments, $this->buildLegacyAttachment($documentId, $context));
         }
 
         return $attachments;
@@ -140,47 +183,7 @@ class MailAttachmentsBuilder
     /**
      * @return MailAttachments
      */
-    private function buildDocumentAttachments(string $documentId, Context $context): array
-    {
-        if (!Feature::isActive('DOCUMENT_GENERATION_REWORK')) {
-            return $this->buildLegacyDocumentAttachment($documentId, $context);
-        }
-
-        $document = $this->documentFileResolver->loadDocument($documentId, $context);
-
-        if ($document === null) {
-            return [];
-        }
-
-        $attachments = [];
-
-        // Attach every format the document was generated in
-        foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-            $media = $documentFile->getMedia();
-
-            $content = $context->scope(
-                Context::SYSTEM_SCOPE,
-                fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),
-            );
-
-            $fileExtension = $media->getFileExtension() ?? $documentFile->getDocumentFormat();
-
-            $attachments[] = [
-                'id' => $documentFile->getId(),
-                'documentId' => $documentId,
-                'content' => $content,
-                'fileName' => ($media->getFileName() ?? $documentId) . '.' . $fileExtension,
-                'mimeType' => $media->getMimeType(),
-            ];
-        }
-
-        return $attachments;
-    }
-
-    /**
-     * @return MailAttachments
-     */
-    private function buildLegacyDocumentAttachment(string $documentId, Context $context): array
+    private function buildLegacyAttachment(string $documentId, Context $context): array
     {
         $document = $this->documentGenerator->readDocument($documentId, $context, fileType: null);
 
@@ -195,6 +198,99 @@ class MailAttachmentsBuilder
             'fileName' => $document->getName(),
             'mimeType' => $document->getContentType(),
         ]];
+    }
+
+    /**
+     * Resolves the latest V2 generated document for the requested type
+     * and attaches the requested formats (or all formats if none are specified)
+     *
+     * @param array<string, mixed> $eventConfig
+     * @param MailAttachments $attachments
+     *
+     * @return MailAttachments
+     */
+    private function buildDocumentAttachments(
+        array $eventConfig,
+        MailSendSubscriberConfig $extensions,
+        array $attachments,
+        Context $context,
+        ?string $orderId
+    ): array {
+        $documentIds = $extensions->getDocumentIds();
+
+        // Document IDs the caller already resolved always attach every generated format
+        foreach ($documentIds as $documentId) {
+            $attachments = array_merge($attachments, $this->mapDocumentFilesByFormat($documentId, null, $context));
+        }
+
+        if ($orderId && ($eventConfig['documentType'] ?? '') !== '') {
+            $resolvedDocumentId = $this->getLatestDocumentIdByTechnicalName($orderId, $eventConfig['documentType']);
+
+            if ($resolvedDocumentId !== null && !\in_array($resolvedDocumentId, $documentIds, true)) {
+                $fileFormats = $eventConfig['fileFormats'] ?? [];
+                $requestedFormats = \is_array($fileFormats) && $fileFormats !== [] ? $fileFormats : null;
+
+                $attachments = array_merge($attachments, $this->mapDocumentFilesByFormat($resolvedDocumentId, $requestedFormats, $context));
+                $documentIds[] = $resolvedDocumentId;
+            }
+        }
+
+        if ($documentIds !== []) {
+            $extensions->setDocumentIds($documentIds);
+        }
+
+        return $attachments;
+    }
+
+    /**
+     * @param array<string>|null $requestedFormats null attaches every format the document was generated in
+     *
+     * @return MailAttachments
+     */
+    private function mapDocumentFilesByFormat(string $documentId, ?array $requestedFormats, Context $context): array
+    {
+        $criteria = (new Criteria([$documentId]))->addAssociation('documentFiles.media');
+        $criteria->setTitle('send-mail::load-document-files');
+
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+
+        if (!$document instanceof DocumentEntity) {
+            return [];
+        }
+
+        $documentFiles = $document->getDocumentFiles();
+
+        if ($documentFiles === null || $documentFiles->count() === 0) {
+            // Document generated before document_v2 - it only has the legacy media file, not document_files.
+            return $this->buildLegacyAttachment($documentId, $context);
+        }
+
+        $attachments = [];
+
+        foreach ($documentFiles as $documentFile) {
+            if ($requestedFormats !== null && !\in_array($documentFile->getDocumentFormat(), $requestedFormats, true)) {
+                continue;
+            }
+
+            $media = $documentFile->getMedia();
+
+            $content = $context->scope(
+                Context::SYSTEM_SCOPE,
+                fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext)
+            );
+
+            $fileExtension = $media->getFileExtension() ?? $documentFile->getDocumentFormat();
+
+            $attachments[] = [
+                'id' => $documentFile->getId(),
+                'documentId' => $documentId,
+                'content' => $content,
+                'fileName' => ($media->getFileName() ?? $documentId) . '.' . $fileExtension,
+                'mimeType' => $media->getMimeType(),
+            ];
+        }
+
+        return $attachments;
     }
 
     /**

@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
-import { DocumentEvents } from 'src/core/service/api/document.api.service';
 
 const selectedOrderIds = [
     'order-id-1',
@@ -50,18 +49,12 @@ const syncServiceMock = {
     sync: jest.fn(() => Promise.resolve()),
 };
 
-const documentV2ServiceMock = {
-    listener: null,
-    setListener: jest.fn((callback) => {
-        documentV2ServiceMock.listener = callback;
-    }),
+const documentV2ApiServiceMock = {
     createDocument: jest.fn(() =>
         Promise.resolve({
-            data: {
-                documentId: 'document-id',
-                deepLinkCode: 'deep-link-code',
-                formats: ['pdf'],
-            },
+            documentId: 'document-id',
+            deepLinkCode: 'deep-link-code',
+            formats: ['pdf'],
         }),
     ),
 };
@@ -102,7 +95,7 @@ async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures
                     },
                     syncService: syncServiceMock,
                     repositoryFactory: repositoryFactoryMock,
-                    documentV2Service: documentV2ServiceMock,
+                    documentV2ApiService: documentV2ApiServiceMock,
                 },
             },
         },
@@ -546,7 +539,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     describe('DOCUMENT_GENERATION_REWORK', () => {
         beforeEach(() => {
             global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
-            documentV2ServiceMock.createDocument.mockClear();
+            documentV2ApiServiceMock.createDocument.mockClear();
         });
 
         it('calls documentV2Service.createDocument per order with the selected file formats', async () => {
@@ -576,7 +569,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             ]);
 
-            expect(documentV2ServiceMock.createDocument).toHaveBeenNthCalledWith(
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenNthCalledWith(
                 1,
                 'orderId',
                 'invoice',
@@ -588,7 +581,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 'documentDate',
                 'documentComment',
             );
-            expect(documentV2ServiceMock.createDocument).toHaveBeenNthCalledWith(
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenNthCalledWith(
                 2,
                 'orderId2',
                 'invoice',
@@ -606,17 +599,21 @@ describe('sw-bulk-edit-save-modal-process', () => {
             expect(wrapper.vm.document.invoice.isReached).toBe(100);
         });
 
-        it('collects failed items using the last document-failed event when createDocument resolves without a response', async () => {
-            documentV2ServiceMock.createDocument.mockImplementationOnce(() => {
-                documentV2ServiceMock.listener({
-                    action: DocumentEvents.DOCUMENT_FAILED,
-                    payload: {
-                        code: 'DOCUMENT_GENERATION_FAILED',
-                        detail: 'Document generation failed',
+        it('collects failed items using the error from a rejected createDocument call', async () => {
+            documentV2ApiServiceMock.createDocument.mockImplementationOnce(() => {
+                const error = new Error('Document generation failed');
+                error.response = {
+                    data: {
+                        errors: [
+                            {
+                                code: 'DOCUMENT_GENERATION_FAILED',
+                                detail: 'Document generation failed',
+                            },
+                        ],
                     },
-                });
+                };
 
-                return Promise.resolve(undefined);
+                return Promise.reject(error);
             });
 
             const result = await wrapper.vm.createDocument('invoice', [
@@ -653,7 +650,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             ]);
 
-            expect(documentV2ServiceMock.createDocument).toHaveBeenCalledWith(
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
                 'orderId',
                 'invoice',
                 undefined,
@@ -673,7 +670,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             ]);
 
-            expect(documentV2ServiceMock.createDocument).toHaveBeenCalledWith(
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
                 'orderId',
                 'credit_note',
                 ['pdf'],

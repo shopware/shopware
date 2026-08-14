@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 
 /**
+ * @phpstan-type AdditionalUserData array{firstName?: string, lastName?: string, email?: string, localeId?: string, admin?: bool}
+ *
  * @internal
  */
 #[Package('framework')]
@@ -30,7 +32,7 @@ class UserProvisioner
     }
 
     /**
-     * @param array{firstName?: string, lastName?: string, email?: string, localeId?: string, admin?: bool} $additionalData
+     * @param AdditionalUserData $additionalData
      */
     public function provision(string $username, ?string $password = null, array $additionalData = []): string
     {

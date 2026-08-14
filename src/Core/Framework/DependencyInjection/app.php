@@ -45,6 +45,7 @@ use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppLocaleProvider;
+use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
@@ -72,6 +73,9 @@ use Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Delta\DomainsDeltaProvider;
 use Shopware\Core\Framework\App\Delta\PermissionsDeltaProvider;
+use Shopware\Core\Framework\App\Feature\AppFeatureDefinitionRegistry;
+use Shopware\Core\Framework\App\Feature\AppFeatureLifecycleHandler;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
@@ -131,6 +135,7 @@ use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
+use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -360,6 +365,25 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1200]);
 
+    $services->set(AppFeatureLifecycleHandler::class)
+        ->args([
+            service(AppFeatureDefinitionRegistry::class),
+            service(AppFeatureStorage::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
+
+    $services->set(AppFeatureDefinitionRegistry::class)
+        ->args([
+            tagged_iterator('shopware.app_feature.definition'),
+        ]);
+
+    $services->set(AppFeatureStorage::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
+            service(AppFeatureDefinitionRegistry::class),
+        ]);
+
     $services->set(ScriptFileReader::class)
         ->args([
             service(SourceResolver::class),
@@ -446,6 +470,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppCookieCollectListener::class)
         ->args([
             service('app.repository'),
+            service('payment_method.repository'),
         ])
         ->tag('kernel.event_listener');
 
@@ -469,6 +494,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             param('kernel.shopware_version'),
             service(ClockInterface::class),
+            service('logger'),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -480,6 +506,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ManifestFactory::class),
             service(ClockInterface::class),
+            service(DeletedAppsGateway::class),
         ]);
 
     $services->set(AppFeatureValidator::class)
@@ -528,6 +555,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
         ]);
+
+    $services->set(DiscardUnconfirmedAppSecretsListener::class)
+        ->args([
+            service('app.repository'),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(AppLifecycle::class)
         ->args([
@@ -993,6 +1026,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('messenger.message_handler');
 
     $services->set(DeletedAppsGateway::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
+    $services->set(AppSecretResolver::class)
         ->args([
             service(Connection::class),
         ]);

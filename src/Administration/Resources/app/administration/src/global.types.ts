@@ -70,7 +70,8 @@ import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
-import type DocumentV2ApiService from './core/service/api/documentV2.api.service';
+import type DocumentV2ApiService from './module/sw-order/service/documentV2.api.service';
+import type DocumentV2Service from './module/sw-order/service/documentV2.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
 import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
@@ -95,6 +96,7 @@ import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-
 import type PrivilegesService from './app/service/privileges.service';
 import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
+import type SnackbarService from './app/service/snackbar.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -256,7 +258,8 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService;
         customFieldDataProviderService: $TSFixMe;
         customSnippetApiService: CustomSnippetApiService;
-        documentV2Service: DocumentV2ApiService;
+        documentV2ApiService: DocumentV2ApiService;
+        documentV2Service: DocumentV2Service;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;
@@ -287,6 +290,7 @@ declare global {
         searchRankingService: $TSFixMe;
         searchTypeService: $TSFixMe;
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        snackbarService: SnackbarService;
         shortcutService: $TSFixMe;
         snippetService: SnippetApiService;
         stateStyleDataProviderService: StateStyleService;

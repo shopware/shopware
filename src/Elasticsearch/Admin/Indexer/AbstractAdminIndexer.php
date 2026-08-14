@@ -60,9 +60,9 @@ abstract class AbstractAdminIndexer
     abstract public function getEntity(): string;
 
     /**
-     * @param array{ properties?: array<string, array<mixed>> } $mapping
+     * @param array{ properties?: array<string, array<mixed>>, dynamic_templates?: list<array<string, mixed>> } $mapping
      *
-     * @return array{ properties?: array<string, array<mixed>> }
+     * @return array{ properties?: array<string, array<mixed>>, dynamic_templates?: list<array<string, mixed>> }
      */
     public function mapping(array $mapping): array
     {
@@ -82,7 +82,7 @@ abstract class AbstractAdminIndexer
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array{id: string, text: string, textBoosted?: string, completion?: list<string>}>
+     * @return array<string, array{id: string, text: string, textBoosted?: string, completion?: list<string>, ...<string, mixed>}>
      */
     abstract public function fetch(array $ids): array;
 

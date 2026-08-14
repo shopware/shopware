@@ -11,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - Will be removed without replacement
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed without replacement
  */
 #[Package('framework')]
 readonly class CacheControlListener

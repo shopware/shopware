@@ -222,7 +222,7 @@ class ThumbnailService
     }
 
     /**
-     * @return list<array{id:string, mediaId:string, width:int, height:int}>
+     * @return list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}>
      */
     private function generateAndSave(MediaEntity $media, MediaFolderConfigurationEntity $config, Context $context, ?MediaThumbnailSizeCollection $sizes): array
     {
@@ -275,6 +275,8 @@ class ThumbnailService
         );
 
         $writtenPaths = [];
+        $fileSystem = $this->getFileSystem($media);
+
         try {
             $event = new MediaPathChangedEvent($context);
 
@@ -289,7 +291,6 @@ class ThumbnailService
                 $this->writeThumbnail($thumbnail, $media, $path, $config->getThumbnailQuality());
                 $writtenPaths[] = $path;
 
-                $fileSystem = $this->getFileSystem($media);
                 if ($imageSize === $thumbnailSize && $fileSystem->fileSize($media->getPath()) < $fileSystem->fileSize($path)) {
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
@@ -374,11 +375,12 @@ class ThumbnailService
                 $exif = @exif_read_data($stream);
 
                 if ($exif !== false) {
-                    if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
+                    $exifOrientation = $exif['Orientation'] ?? null;
+                    if ($exifOrientation === 8) {
                         $image = $this->thumbnailProcessor->rotate($image, 90);
-                    } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
+                    } elseif ($exifOrientation === 3) {
                         $image = $this->thumbnailProcessor->rotate($image, 180);
-                    } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
+                    } elseif ($exifOrientation === 6) {
                         $image = $this->thumbnailProcessor->rotate($image, -90);
                     }
                 }

@@ -12,7 +12,7 @@ export default {
     inject: {
         repositoryFactory: {},
         feature: {},
-        documentV2Service: {},
+        documentV2ApiService: {},
     },
 
     mixins: [
@@ -51,16 +51,19 @@ export default {
     methods: {
         async createdComponent() {
             try {
-                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
-                    const availableTypesResponse = await this.documentV2Service.getAvailableTypes();
-                    const supportedDocumentTypes = availableTypesResponse.data?.documentTypes ?? {};
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2ApiService) {
+                    const [
+                        availableTypesResponse,
+                        documentTypeCollection,
+                    ] = await Promise.all([
+                        this.documentV2ApiService.getAvailableTypes(),
+                        this.getDocumentTypes(),
+                    ]);
+                    const supportedDocumentTypes = availableTypesResponse.documentTypes ?? {};
 
-                    // TODO: map technicalName to name
-                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => ({
-                        id: technicalName,
-                        technicalName,
-                        translated: { name: technicalName },
-                    }));
+                    this.documentTypes = documentTypeCollection.filter(
+                        (documentType) => documentType.technicalName in supportedDocumentTypes,
+                    );
                     this.documentTypes.total = this.documentTypes.length;
                 } else {
                     this.documentTypes = await this.getDocumentTypes();

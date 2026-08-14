@@ -23,24 +23,35 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { globSync } from 'glob';
 import { convertComponent, type ConvertResult } from './convert-component';
+import { collectComponentRegistry, type InlineOverride, type RegistrationKind } from './component-registry';
 
 type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
+
+type ComponentClass = RegistrationKind | 'unregistered';
 
 type ComponentReport = {
     name: string;
     dir: string;
     outcome: Outcome;
+    registration: ComponentClass;
     reasons: string[];
 };
 
 type MigrationResult = {
     reports: ComponentReport[];
     stats: Record<'full' | 'partial' | 'skipped' | 'alreadyMigrated' | 'error', number>;
+    inlineOverrides: InlineOverride[];
 };
 
 const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const TEMPLATE_IMPORT = /import\s+\w+\s+from\s+['"]([^'"]+\.html\.twig)['"]/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
+const COMPONENT_CLASSES: ComponentClass[] = [
+    'register',
+    'extend',
+    'override',
+    'unregistered',
+];
 
 /**
  * Maps every twig template to the files importing it. Guards `--write` against deleting a template
@@ -96,6 +107,7 @@ async function runMigration(
     const write = options.write ?? false;
     const scanRoot = options.scanRoot ?? (targetDir.startsWith(ADMIN_SRC) ? ADMIN_SRC : targetDir);
     const twigImporters = collectTwigImporters(scanRoot);
+    const registry = collectComponentRegistry(scanRoot);
     const indexFiles = globSync('**/index.{js,ts}', {
         cwd: targetDir,
         absolute: true,
@@ -105,7 +117,9 @@ async function runMigration(
     const reports: ComponentReport[] = [];
     const stats: MigrationResult['stats'] = { full: 0, partial: 0, skipped: 0, alreadyMigrated: 0, error: 0 };
     const report = (name: string, dir: string, outcome: Outcome, reasons: string[] = []): void => {
-        reports.push({ name, dir, outcome, reasons });
+        const registration = registry.byDir.get(dir)?.kind ?? 'unregistered';
+
+        reports.push({ name, dir, outcome, registration, reasons });
     };
 
     for (const indexFile of indexFiles) {
@@ -194,18 +208,22 @@ async function runMigration(
         report(name, dir, result.outcome, result.reasons);
     }
 
-    return { reports, stats };
+    return { reports, stats, inlineOverrides: registry.inlineOverrides };
 }
 
 function printReport(result: MigrationResult, targetDir: string, write: boolean): void {
     const histogram = new Map<string, number>();
+    const classes = new Map<ComponentClass, number>();
 
     for (const entry of result.reports) {
         const reasons = entry.reasons.length > 0 ? `  ${entry.reasons.join(', ')}` : '';
 
         console.log(
-            `${entry.outcome.padEnd(17)} ${entry.name.padEnd(45)} ${path.relative(targetDir, entry.dir) || '.'}${reasons}`,
+            `${entry.outcome.padEnd(17)} ${entry.registration.padEnd(13)} ${entry.name.padEnd(45)} ` +
+                `${path.relative(targetDir, entry.dir) || '.'}${reasons}`,
         );
+
+        classes.set(entry.registration, (classes.get(entry.registration) ?? 0) + 1);
 
         if (entry.outcome === 'partial' || entry.outcome === 'skipped') {
             for (const reason of entry.reasons) {
@@ -227,11 +245,21 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean)
 
     const { stats } = result;
     const total = stats.full + stats.partial + stats.skipped + stats.alreadyMigrated + stats.error;
+    const split = COMPONENT_CLASSES.filter((componentClass) => classes.has(componentClass))
+        .map((componentClass) => `${classes.get(componentClass)} ${componentClass}`)
+        .join(' / ');
 
     console.log(
-        `\n${total} components: ${stats.full} full, ${stats.partial} partial, ${stats.skipped} skipped, ` +
-            `${stats.alreadyMigrated} already migrated, ${stats.error} errors${write ? '' : ' (dry run — nothing written)'}`,
+        `\n${total} components${split ? ` (${split})` : ''}: ${stats.full} full, ${stats.partial} partial, ` +
+            `${stats.skipped} skipped, ${stats.alreadyMigrated} already migrated, ${stats.error} errors` +
+            `${write ? '' : ' (dry run — nothing written)'}`,
     );
+
+    if (result.inlineOverrides.length > 0) {
+        console.log(
+            `${result.inlineOverrides.length} inline Component.override(...) configs found (reported only, not migratable)`,
+        );
+    }
 }
 
 function main(): void {

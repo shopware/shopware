@@ -11,6 +11,7 @@
     "codemod:twig-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/twig-feature-flag-removal/index.ts",
     "codemod:twig-remove-blocks": "ts-node --transpileOnly ./scripts/codemods/twig-block-removal/index.ts",
     "codemod:sfc-migration": "ts-node --transpileOnly ./scripts/codemods/sfc-migration/run-sfc-migration.ts",
+    "codemod:sfc-migration:analyze": "ts-node --transpileOnly ./scripts/codemods/sfc-migration/analyze-skips.ts",
     "convert-entity-schema": "ts-node --transpileOnly ./scripts/entitySchemaConverter/convert-schema.ts",
     "create-test": "node ./scripts/create-spec-file/index.mjs",
     "dev": "export VITE_MODE=development && ts-node -T build.ts",

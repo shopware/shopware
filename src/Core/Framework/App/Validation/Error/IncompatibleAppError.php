@@ -39,4 +39,9 @@ class IncompatibleAppError implements Error
     {
         return ['name' => $this->appName];
     }
+
+    public function isBlocking(): bool
+    {
+        return true;
+    }
 }

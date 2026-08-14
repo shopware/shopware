@@ -32,6 +32,8 @@ import {
     IDENTIFIER,
     arrowText,
     asFunction,
+    bindingName,
+    collectAssignedThisMemberNames,
     collectThisMemberNames,
     keyName,
     raw,
@@ -520,7 +522,115 @@ type ResolvedComposable = {
     descriptor: ComposableDescriptor;
     /** The members the component actually uses, in descriptor order. */
     entries: { member: string; sourceKey: string; binding: string }[];
+    /** `key: value` texts of the options object the composable is called with. */
+    args: string[];
 };
+
+/** The event names an `emits` array option declares, or null for any shape that is not one. */
+function emitsEventNames(node: t.Node): string[] | null {
+    if (node.type !== 'ArrayExpression') {
+        return null;
+    }
+
+    const names = node.elements.map((element) => (element?.type === 'StringLiteral' ? element.value : null));
+
+    return names.every((name): name is string => name !== null) ? names : null;
+}
+
+/**
+ * Refuses a component that does not supply what a mixin took from its host instance. All three
+ * dependencies reach the composable as call arguments, so each needs something the codemod can pass:
+ * the mixin's own `props` option, its `emits` list and its overridable methods are gone afterwards.
+ */
+function refuseUnmetDependencies(ctx: Ctx, descriptor: ComposableDescriptor, collected: Collected): void {
+    const events = Object.values(descriptor.emits ?? {});
+
+    if (events.length > 0 && collected.emitsNode && emitsEventNames(collected.emitsNode) === null) {
+        ctx.blockers.add(
+            `emits is not a plain list of event names, so the '${descriptor.id}' mixin's events cannot be merged`,
+        );
+    }
+
+    for (const prop of descriptor.propArgs ?? []) {
+        if (!collected.propNames.has(prop)) {
+            ctx.blockers.add(`component does not declare the '${prop}' prop the '${descriptor.id}' mixin reads`);
+        }
+    }
+
+    for (const callback of descriptor.callbackArgs ?? []) {
+        const kind = ctx.bindings.get(callback.name);
+
+        if (kind === undefined) {
+            if (!callback.optional) {
+                ctx.blockers.add(
+                    `component does not define '${callback.name}', which the '${descriptor.id}' composable calls`,
+                );
+            }
+
+            continue;
+        }
+
+        if (callback.kind === 'callback' && kind !== 'method') {
+            ctx.blockers.add(`'${callback.name}' is not a method, but the '${descriptor.id}' composable calls it`);
+        }
+    }
+}
+
+/**
+ * The options object a composable is called with. Every argument defers the read: the call sits above
+ * the member sections it points at, so an eager reference would hit their temporal dead zone.
+ */
+function composableArguments(ctx: Ctx, descriptor: ComposableDescriptor): string[] {
+    const args: string[] = [];
+
+    for (const [
+        callbackName,
+        event,
+    ] of Object.entries(descriptor.emits ?? {})) {
+        ctx.helpers.add('emit');
+        // The payload travels through untouched, so the descriptor does not have to know the arity of
+        // each event.
+        args.push(`${callbackName}: (...args) => emit('${event}', ...args)`);
+    }
+
+    for (const prop of descriptor.propArgs ?? []) {
+        ctx.helpers.add('props');
+        args.push(`${prop}: () => props.${prop}`);
+    }
+
+    for (const callback of descriptor.callbackArgs ?? []) {
+        const kind = ctx.bindings.get(callback.name);
+
+        if (kind !== undefined) {
+            args.push(`${callback.name}: ${instanceMemberText(ctx, callback.name, kind)}`);
+        }
+    }
+
+    return args;
+}
+
+/** How one of the component's own members reaches a composable: state by value, methods by call. */
+function instanceMemberText(ctx: Ctx, member: string, kind: MemberKind): string {
+    const binding = bindingName(ctx, member);
+
+    switch (kind) {
+        case 'prop':
+            ctx.helpers.add('props');
+            return `() => props.${member}`;
+        case 'data':
+        case 'computed':
+            return `() => ${binding}.value`;
+        case 'method':
+            return `(...args) => ${binding}(...args)`;
+        default:
+            return `() => ${binding}`;
+    }
+}
+
+/** True when the script or the template reads at least one member the descriptor answers. */
+function readsAnyMember(descriptor: ComposableDescriptor, readMembers: ReadonlySet<string>): boolean {
+    return Object.keys(descriptor.members).some((member) => readMembers.has(member));
+}
 
 /**
  * A setup binding name for a composable member. A name another declaration already claims — a
@@ -551,6 +661,8 @@ function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
  *
  * Only members the script or the template actually reads are bound. A member the template alone reads
  * still counts — the template cannot be rewritten, so its binding has to exist under that exact name.
+ * A descriptor nothing reads is dropped: its composable only provides members, so calling it for its
+ * side effects is not a thing the mixin did either, and its instance dependencies go unasked for.
  */
 function resolveMixins(
     ctx: Ctx,
@@ -563,9 +675,13 @@ function resolveMixins(
     }
 
     const ownMembers = collectOwnMemberNames(options);
-    const thisMembers = new Set<string>();
+    const readMembers = new Set<string>(ctx.templateIdentifiers);
+    const assignedMembers = new Set<string>();
 
-    collectThisMemberNames(options, thisMembers);
+    collectThisMemberNames(options, readMembers);
+    collectAssignedThisMemberNames(options, assignedMembers);
+
+    const active = collected.mixins.filter((descriptor) => readsAnyMember(descriptor, readMembers));
 
     for (const descriptor of collected.mixins) {
         const internal = descriptor.internallyReferencedMembers ?? [];
@@ -578,12 +694,24 @@ function resolveMixins(
             }
         }
 
-        // A leaf override would work under Vue's merge rules — the component's member simply wins —
-        // but after the migration the composable binding and the component's own binding would share
-        // one name, so the component keeps the Options API instead.
-        for (const member of Object.keys(descriptor.members)) {
+        for (const [
+            member,
+            spec,
+        ] of Object.entries(descriptor.members)) {
+            // A leaf override would work under Vue's merge rules — the component's member simply wins —
+            // but after the migration the composable binding and the component's own binding would
+            // share one name, so the component keeps the Options API instead.
             if (ownMembers.has(member) && !internal.includes(member)) {
                 ctx.blockers.add(`component redefines '${member}' from the '${descriptor.id}' mixin`);
+            }
+
+            // A destructured member is a `const`. Reactive state still takes `x.value = …`; anything
+            // else was a method or a plain value on the instance proxy, where the write has no
+            // equivalent — the mixin's own copy would keep being the one that runs.
+            if (spec.kind !== 'ref' && assignedMembers.has(member)) {
+                ctx.blockers.add(
+                    `'${member}' is assigned to, but the '${descriptor.id}' composable returns it as a constant`,
+                );
             }
         }
 
@@ -592,10 +720,14 @@ function resolveMixins(
                 continue;
             }
 
-            if (thisMembers.has(member) || ctx.templateIdentifiers.has(member)) {
+            if (readMembers.has(member)) {
                 ctx.blockers.add(`'${member}' is read but the '${descriptor.id}' composable does not provide it`);
             }
         }
+    }
+
+    for (const descriptor of active) {
+        refuseUnmetDependencies(ctx, descriptor, collected);
     }
 
     if (ctx.blockers.size > 0) {
@@ -608,14 +740,14 @@ function resolveMixins(
     ]);
     const resolved: ResolvedComposable[] = [];
 
-    for (const descriptor of collected.mixins) {
+    for (const descriptor of active) {
         const entries: ResolvedComposable['entries'] = [];
 
         for (const [
             member,
             spec,
         ] of Object.entries(descriptor.members)) {
-            if (!thisMembers.has(member) && !ctx.templateIdentifiers.has(member)) {
+            if (!readMembers.has(member)) {
                 continue;
             }
 
@@ -635,11 +767,7 @@ function resolveMixins(
             entries.push({ member, sourceKey: spec.sourceKey ?? member, binding });
         }
 
-        // A descriptor nothing reads is dropped: its composable only provides members, so calling it
-        // for its side effects is not a thing the mixin did either.
-        if (entries.length > 0) {
-            resolved.push({ descriptor, entries });
-        }
+        resolved.push({ descriptor, entries, args: composableArguments(ctx, descriptor) });
     }
 
     return resolved;
@@ -773,6 +901,7 @@ export {
     type ResolvedComposable,
     OPTION_HANDLERS,
     classifyOptions,
+    emitsEventNames,
     resolveMixins,
     buildWatchers,
 };

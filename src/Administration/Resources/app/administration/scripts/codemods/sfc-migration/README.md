@@ -92,7 +92,7 @@ same `ctx.bindings` map a component's own members use, so `this.<member>` rewrit
 Only members the script or the template actually reads are destructured.
 
 Conversion is all-or-nothing per component: one mixin without a descriptor keeps the whole component
-on the Options API, because a half-converted `mixins` array has no safe meaning. Four more cases keep
+on the Options API, because a half-converted `mixins` array has no safe meaning. Five more cases keep
 it there even though a descriptor exists, all of them places where the composable is not a drop-in for
 the mixin's `this` semantics:
 
@@ -102,9 +102,39 @@ the mixin's `this` semantics:
   stop taking effect;
 - the component reads a member the composable does not return (a computed it inlines) — unless the
   component declares its own member of that name, which shadowed the mixin's anyway;
+- the component assigns to a member the composable returns as anything but a ref, which was a write to
+  the instance proxy and has no equivalent against a `const`;
 - the template reads a member whose binding name another declaration already claims. A script-only
   read is fixed by renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but
   the template cannot be rewritten.
+
+### Instance dependencies
+
+A mixin that reaches into its host — `$emit`, a prop it read, a method it expected the host to define —
+declares that in its descriptor, and the composable takes all of it as one options object:
+
+```js
+const emit = defineEmits(['media-folder-change']);
+
+const { selectedItems } = useMediaGridListener({
+    onFolderChange: (...args) => emit('media-folder-change', ...args),
+    selectableItems: () => selectableItems.value,
+});
+```
+
+- `emits` names the events the mixin emitted. The codemod merges them into `defineEmits` and passes
+  `emit` through callbacks named after the intent, so the composable carries no event strings. A
+  component whose own `emits` option is not a plain list of names is refused — the object form's
+  validators cannot be merged into.
+- `propArgs` names the props the mixin read. They are passed as `() => props.<name>` getters so the
+  read stays reactive; a component that does not declare one is refused, because the prop came from the
+  mixin's own `props` option and nothing would supply it afterwards.
+- `callbackArgs` names the members the mixin expected the host to define. The codemod passes the
+  component's own member — state and props as a getter, a method as a forwarding call — and refuses a
+  component that defines none, unless the descriptor marks the argument optional.
+
+Every argument defers its read, because the composable call is assembled above the member sections it
+points at.
 
 ## What is skipped on purpose
 

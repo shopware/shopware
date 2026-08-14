@@ -325,6 +325,72 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_callback">
+        <div class="sw-mixin-callback">
+            <sw-media-media-item
+                v-for="item in selectableItems"
+                :key="item.id"
+                :selected="showItemSelected(item)"
+                v-on="mediaItemSelectionHandler"
+            />
+
+            <button class="sw-mixin-callback__reset" @click="onReset">Reset</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+import useMediaGridListener from 'src/app/composables/use-media-grid-listener';
+
+const props = defineProps({
+    items: {
+        type: Array,
+        required: true,
+    },
+});
+
+const emit = defineEmits(['media-folder-change']);
+
+const { selectedItems, mediaItemSelectionHandler, showItemSelected } = useMediaGridListener({
+    onFolderChange: (...args) => emit('media-folder-change', ...args),
+    selectableItems: () => selectableItems.value,
+});
+
+const onReset = function () {
+    selectedItems.value = [];
+};
+
+const selectableItems = computed(
+    // The member the mixin expected its host to provide.
+    function () {
+        return props.items;
+    },
+);
+
+swDefinePublic({
+    selectedItems,
+    mediaItemSelectionHandler,
+    showItemSelected,
+    selectableItems,
+    onReset,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-collision 1`] = `
 {
   "outcome": "full",
@@ -434,11 +500,164 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-emits 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_emits">
+        <div class="sw-mixin-emits">
+            <button class="sw-mixin-emits__delete" @click="openModalDelete">Delete</button>
+
+            <!-- The mixin owns the flag; the component never declares it. -->
+            <sw-media-modal-delete v-if="showModalDelete" @confirm="onConfirmDelete" />
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import useMediaSidebarModal from 'src/app/composables/use-media-sidebar-modal';
+
+const props = defineProps({
+    ids: {
+        type: Array,
+        required: true,
+    },
+});
+
+const emit = defineEmits(['media-sidebar-items-delete', 'media-sidebar-folder-items-dissolve', 'media-sidebar-items-move']);
+
+const { showModalDelete, openModalDelete, deleteSelectedItems } = useMediaSidebarModal({
+    onItemsDelete: (...args) => emit('media-sidebar-items-delete', ...args),
+    onFolderItemsDissolve: (...args) => emit('media-sidebar-folder-items-dissolve', ...args),
+    onItemsMove: (...args) => emit('media-sidebar-items-move', ...args),
+});
+
+const onConfirmDelete = function () {
+    deleteSelectedItems(props.ids);
+};
+
+swDefinePublic({
+    showModalDelete,
+    openModalDelete,
+    deleteSelectedItems,
+    onConfirmDelete,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-emits-declared 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_emits_declared">
+        <div class="sw-mixin-emits-declared">
+            <button class="sw-mixin-emits-declared__delete" @click="openModalDelete">Delete</button>
+
+            <sw-media-modal-delete v-if="showModalDelete" @confirm="onConfirmDelete" />
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import useMediaSidebarModal from 'src/app/composables/use-media-sidebar-modal';
+
+const props = defineProps({
+    ids: {
+        type: Array,
+        required: true,
+    },
+});
+
+const emit = defineEmits([
+    'media-sidebar-items-delete',
+    'selection-cleared',
+    'media-sidebar-folder-items-dissolve',
+    'media-sidebar-items-move',
+]);
+
+const { showModalDelete, openModalDelete, deleteSelectedItems } = useMediaSidebarModal({
+    onItemsDelete: (...args) => emit('media-sidebar-items-delete', ...args),
+    onFolderItemsDissolve: (...args) => emit('media-sidebar-folder-items-dissolve', ...args),
+    onItemsMove: (...args) => emit('media-sidebar-items-move', ...args),
+});
+
+const onConfirmDelete = function () {
+    deleteSelectedItems(props.ids);
+    emit('selection-cleared');
+};
+
+swDefinePublic({
+    showModalDelete,
+    openModalDelete,
+    deleteSelectedItems,
+    onConfirmDelete,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-emits-object 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "emits is not a plain list of event names, so the 'media-sidebar-modal' mixin's events cannot be merged",
+  ],
+  "sfc": null,
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-internal-override 1`] = `
 {
   "outcome": "skipped",
   "reasons": [
     "component redefines 'createNotification', which the 'notification' composable calls internally",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-member-assign 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "'handleMediaItemClicked' is assigned to, but the 'media-grid-listener' composable returns it as a constant",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-missing-callback 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "component does not define 'selectableItems', which the 'media-grid-listener' composable calls",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-missing-prop 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "component does not declare the 'item' prop the 'video-cover' mixin reads",
   ],
   "sfc": null,
 }
@@ -451,6 +670,56 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
     "component redefines 'createNotificationSuccess' from the 'notification' mixin",
   ],
   "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-prop-getter 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_prop_getter">
+        <div class="sw-mixin-prop-getter">
+            <button class="sw-mixin-prop-getter__select" :disabled="hasVideoCover" @click="onSelect">Set cover</button>
+
+            <sw-media-modal-cover v-if="showCoverSelectionModal" @change="onCoverSelectionChange" />
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import useVideoCover from 'src/app/composables/use-video-cover';
+
+const props = defineProps({
+    item: {
+        type: Object,
+        required: true,
+    },
+});
+
+const { showCoverSelectionModal, hasVideoCover, openCoverSelectionModal, onCoverSelectionChange } = useVideoCover({
+    item: () => props.item,
+});
+
+const onSelect = function () {
+    openCoverSelectionModal();
+};
+
+swDefinePublic({
+    showCoverSelectionModal,
+    hasVideoCover,
+    openCoverSelectionModal,
+    onCoverSelectionChange,
+    onSelect,
+});
+</script>
+",
 }
 `;
 

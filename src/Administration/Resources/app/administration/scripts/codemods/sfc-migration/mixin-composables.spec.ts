@@ -34,6 +34,20 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
                 expect(Object.keys(descriptor.members)).not.toContain(member);
             }
         });
+
+        // An instance dependency is something the composable asks the component for, so it is by
+        // definition not something the composable answers.
+        it.each(COMPOSABLE_DESCRIPTORS)('keeps the instance dependencies out of the member map for $id', (descriptor) => {
+            const dependencies = [
+                ...(descriptor.propArgs ?? []),
+                ...(descriptor.callbackArgs ?? []).map((callback) => callback.name),
+            ];
+
+            for (const dependency of dependencies) {
+                expect(Object.keys(descriptor.members)).not.toContain(dependency);
+                expect(descriptor.unmappedMembers ?? []).not.toContain(dependency);
+            }
+        });
     });
 
     it('skips a component whose mixins no composable covers', async () => {
@@ -113,6 +127,82 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         // swDefinePublic takes shorthand bindings only, so the renamed member stays private
         // instead of being published under the generated name.
         expect(result.sfc).not.toContain('salutation$1,');
+    });
+
+    describe('instance dependencies', () => {
+        it('declares the mixin events and hands emit over as intent-named callbacks', async () => {
+            const result = await convertFixture('sw-mixin-emits');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain(
+                "const emit = defineEmits(['media-sidebar-items-delete', 'media-sidebar-folder-items-dissolve', 'media-sidebar-items-move']);",
+            );
+            expect(result.sfc).toContain("onItemsDelete: (...args) => emit('media-sidebar-items-delete', ...args)");
+
+            // The flag the mixin owned is a ref the template reads.
+            expect(result.sfc).toContain('showModalDelete');
+        });
+
+        it('merges the mixin events into the component`s own emits list without repeating one', async () => {
+            const result = await convertFixture('sw-mixin-emits-declared');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain(
+                "const emit = defineEmits([\n    'media-sidebar-items-delete',\n    'selection-cleared',\n    'media-sidebar-folder-items-dissolve',\n    'media-sidebar-items-move',\n]);",
+            );
+        });
+
+        it('passes a declared prop as a getter', async () => {
+            const result = await convertFixture('sw-mixin-prop-getter');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain('useVideoCover({\n    item: () => props.item,\n});');
+            expect(result.sfc).toContain('const props = defineProps(');
+        });
+
+        it('passes the component`s own member as the callback the mixin expected', async () => {
+            const result = await convertFixture('sw-mixin-callback');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain('selectableItems: () => selectableItems.value');
+
+            // The callback points at a computed declared below the call, so it has to stay deferred.
+            expect(result.sfc?.indexOf('useMediaGridListener(')).toBeLessThan(
+                result.sfc?.indexOf('const selectableItems = computed(') as number,
+            );
+
+            // A ref-backed member still takes a write.
+            expect(result.sfc).toContain('selectedItems.value = [];');
+        });
+
+        it.each([
+            [
+                'sw-mixin-emits-object',
+                "emits is not a plain list of event names, so the 'media-sidebar-modal' mixin's events cannot be merged",
+            ],
+            [
+                'sw-mixin-missing-prop',
+                "component does not declare the 'item' prop the 'video-cover' mixin reads",
+            ],
+            [
+                'sw-mixin-missing-callback',
+                "component does not define 'selectableItems', which the 'media-grid-listener' composable calls",
+            ],
+            [
+                'sw-mixin-member-assign',
+                "'handleMediaItemClicked' is assigned to, but the 'media-grid-listener' composable returns it as a constant",
+            ],
+        ])('skips %s, whose instance dependency the codemod cannot wire', async (name, reason) => {
+            const result = await convertFixture(name);
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toContain(reason);
+            expect(result.sfc).toBeNull();
+        });
     });
 
     it('backs off from the legacy $t/$tc argument shapes and rewrites the portable ones', async () => {

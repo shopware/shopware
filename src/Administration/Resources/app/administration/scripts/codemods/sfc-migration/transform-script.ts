@@ -20,7 +20,7 @@ import type * as t from '@babel/types';
 import MagicString from 'magic-string';
 import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type TodoEntry } from './tables';
 import { type Ctx, arrowText, collectPatternNames, snip, unwrapOptions } from './ast';
-import { buildWatchers, classifyOptions, resolveMixins } from './option-handlers';
+import { type Collected, buildWatchers, classifyOptions, emitsEventNames, resolveMixins } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
 type ScriptResult = {
@@ -75,6 +75,36 @@ function collectTopLevelBindings(body: t.Statement[], exportDefault: t.Statement
     }
 
     return names;
+}
+
+function eventList(events: string[]): string {
+    return `[${events.map((event) => `'${event}'`).join(', ')}]`;
+}
+
+/**
+ * The `defineEmits` argument. A mixin's events have to be merged into the component's own list,
+ * because its composable emits them through the callbacks the codemod hands it. With no mixin event in
+ * play the `emits` option is spliced verbatim instead, which keeps the object form and its validators.
+ */
+function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], usesEmit: boolean): string | null {
+    if (mixinEvents.length > 0) {
+        // resolveMixins refuses a component whose `emits` option is not a plain list, so a declaration
+        // that reaches here always parses.
+        const declared = collected.emitsNode ? (emitsEventNames(collected.emitsNode) as string[]) : ctx.inferredEmits;
+
+        return eventList([
+            ...new Set([
+                ...declared,
+                ...mixinEvents,
+            ]),
+        ]);
+    }
+
+    if (collected.emitsNode) {
+        return snip(ctx, collected.emitsNode);
+    }
+
+    return ctx.inferredEmits.length > 0 || usesEmit ? eventList(ctx.inferredEmits) : null;
 }
 
 function transformScript(
@@ -222,11 +252,10 @@ function transformScript(
         ...(ctx.helpers.has('route') ? ['useRoute'] : []),
     ];
 
-    const emitsText = collected.emitsNode
-        ? snip(ctx, collected.emitsNode)
-        : ctx.inferredEmits.length > 0 || usesEmit
-          ? `[${ctx.inferredEmits.map((event) => `'${event}'`).join(', ')}]`
-          : null;
+    const mixinEvents = [
+        ...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {}))),
+    ];
+    const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
     const propsText = collected.propsNode ? snip(ctx, collected.propsNode) : usesProps ? '{}' : null;
 
     // One-line declarations are grouped into contiguous blocks so the output reads hand-written;
@@ -253,14 +282,14 @@ function transformScript(
         .join('\n');
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
     const composableBlock = composables
-        .map(({ descriptor, entries }) => {
+        .map(({ descriptor, entries, args }) => {
             const destructured = entries
                 .map((entry) =>
                     entry.binding === entry.sourceKey ? entry.sourceKey : `${entry.sourceKey}: ${entry.binding}`,
                 )
                 .join(', ');
 
-            return `const { ${destructured} } = ${descriptor.import.name}();`;
+            return `const { ${destructured} } = ${descriptor.import.name}(${args.length > 0 ? `{ ${args.join(', ')} }` : ''});`;
         })
         .join('\n');
     const dataBlock = collected.dataEntries

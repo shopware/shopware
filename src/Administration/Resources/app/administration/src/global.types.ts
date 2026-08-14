@@ -274,6 +274,7 @@ declare global {
         localeToLanguageService: $TSFixMe;
         loginService: LoginService;
         mediaDefaultFolderService: $TSFixMe;
+        mediaService: $TSFixMe;
         menuService: $TSFixMe;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;

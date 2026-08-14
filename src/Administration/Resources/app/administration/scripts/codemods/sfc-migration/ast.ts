@@ -272,6 +272,25 @@ function collectThisMemberNames(node: t.Node, names: Set<string>): void {
     visitChildren(node, (child) => collectThisMemberNames(child, names));
 }
 
+/**
+ * Every `this.<member>` name written to inside `node`, again ignoring what `this` binds at each site.
+ * Compound assignments and `++`/`--` count: all of them need the target to be assignable.
+ */
+function collectAssignedThisMemberNames(node: t.Node, names: Set<string>): void {
+    const target =
+        node.type === 'AssignmentExpression' ? node.left : node.type === 'UpdateExpression' ? node.argument : null;
+
+    if (target && isThisMember(target)) {
+        const name = memberName(target);
+
+        if (name) {
+            names.add(name);
+        }
+    }
+
+    visitChildren(node, (child) => collectAssignedThisMemberNames(child, names));
+}
+
 function memberName(node: t.MemberExpression): string | null {
     if (!node.computed && node.property.type === 'Identifier') {
         return node.property.name;
@@ -386,6 +405,7 @@ export {
     isThisMember,
     bindingName,
     collectThisMemberNames,
+    collectAssignedThisMemberNames,
     memberName,
     arrowText,
     unwrapExpression,

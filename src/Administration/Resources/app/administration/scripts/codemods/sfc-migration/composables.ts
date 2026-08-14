@@ -15,6 +15,11 @@
  * differently, which is also why a mixin without a descriptor keeps the whole component on the
  * Options API: a half-converted `mixins` array has no safe meaning.
  *
+ * A mixin that reaches into the instance — `$emit`, a prop it read, a method it expected the host to
+ * define — declares that as `emits`, `propArgs` and `callbackArgs`. The composable takes all three as
+ * one options object; the codemod fills it in from what the component declares and refuses the
+ * component when it declares none of it.
+ *
  * Composables are default exports, following src/app/composables/, so `import.name` is the local
  * binding of a default import rather than a named one.
  */
@@ -26,6 +31,17 @@ type ComposableMember = {
     kind: ComposableMemberKind;
     /** Property of the composable's return value, when it differs from the `this.<member>` key. */
     sourceKey?: string;
+};
+
+/** A callback is invoked for its effect, a getter is read for its value. */
+type ComposableCallbackKind = 'callback' | 'getter';
+
+type ComposableCallback = {
+    /** The member the mixin reached for on its host, which is also the options key. */
+    name: string;
+    kind: ComposableCallbackKind;
+    /** The composable has a default, so a component without the member converts regardless. */
+    optional?: boolean;
 };
 
 type ComposableDescriptor = {
@@ -46,6 +62,23 @@ type ComposableDescriptor = {
      * declares its own member of that name, which shadowed the mixin's to begin with.
      */
     unmappedMembers?: string[];
+    /**
+     * The events the mixin emitted, keyed by the callback the composable takes for each. The codemod
+     * merges the event names into `defineEmits` and hands `emit` over through those callbacks, so the
+     * composable names the intent instead of carrying event strings.
+     */
+    emits?: Record<string, string>;
+    /**
+     * Props the mixin read off the instance, passed as `() => props.<name>` getters. A component that
+     * does not declare one is refused: the prop came from the mixin's own `props` option, and nothing
+     * would supply it after the migration.
+     */
+    propArgs?: string[];
+    /**
+     * Members the mixin expected its host to define — the Options API's inversion of control. The
+     * codemod passes the component's own member into the options object.
+     */
+    callbackArgs?: ComposableCallback[];
 };
 
 /** Members that are plain methods on both sides — the common case. */
@@ -58,7 +91,151 @@ function methodMembers(names: string[]): Record<string, ComposableMember> {
     );
 }
 
+/** Members a mixin held as reactive state or a computed, which a composable returns as a ref. */
+function refMembers(names: string[]): Record<string, ComposableMember> {
+    return Object.fromEntries(
+        names.map((name) => [
+            name,
+            { kind: 'ref' as const },
+        ]),
+    );
+}
+
 const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
+    {
+        id: 'cms-state',
+        mixinNames: ['cms-state'],
+        import: { source: 'src/app/composables/use-cms-state', name: 'useCmsState' },
+        members: {
+            ...refMembers([
+                'cmsPageState',
+                'selectedBlock',
+                'selectedSection',
+                'currentDeviceView',
+                'isSystemDefaultLanguage',
+                'category',
+                'product',
+                'landingPage',
+                'contentEntity',
+                'inheritedSlotConfig',
+            ]),
+            ...methodMembers([
+                'getSlotConfigForLanguage',
+            ]),
+        },
+        // The store every other member reads, the entity chain behind contentEntity, and the lookup
+        // inheritedSlotConfig merges through.
+        internallyReferencedMembers: [
+            'cmsPageState',
+            'category',
+            'product',
+            'landingPage',
+            'contentEntity',
+            'getSlotConfigForLanguage',
+        ],
+    },
+    {
+        id: 'media-grid-listener',
+        mixinNames: ['media-grid-listener'],
+        import: { source: 'src/app/composables/use-media-grid-listener', name: 'useMediaGridListener' },
+        members: {
+            ...refMembers([
+                'selectedItems',
+                'listSelectionStartItem',
+                'mediaItemSelectionHandler',
+                'isListSelect',
+            ]),
+            ...methodMembers([
+                'isItemSelected',
+                'showItemSelected',
+                'clearSelection',
+                'navigateToFolder',
+                'showDetails',
+                'handleMediaItemClicked',
+                'handleMediaGridItemSelected',
+                'handleMediaGridItemUnselected',
+            ]),
+        },
+        internallyReferencedMembers: [
+            'selectedItems',
+            'listSelectionStartItem',
+            'isListSelect',
+            'isItemSelected',
+            'navigateToFolder',
+            'handleMediaItemClicked',
+            'handleMediaGridItemSelected',
+            'handleMediaGridItemUnselected',
+        ],
+        // The mixin's selection bookkeeping, which the composable keeps to itself. `showDetails` is the
+        // public equivalent of `_singleSelect`.
+        unmappedMembers: [
+            '_singleSelect',
+            '_startListSelect',
+            '_handleSelection',
+            '_removeItemFromSelection',
+            '_addItemToSelection',
+            '_handleShiftSelect',
+            '_findSelectionIndices',
+        ],
+        emits: {
+            onFolderChange: 'media-folder-change',
+        },
+        // The mixin's own `selectableItems` computed returned an empty list; a range selection only
+        // works against the host's.
+        callbackArgs: [
+            { name: 'selectableItems', kind: 'getter' },
+        ],
+    },
+    {
+        id: 'media-sidebar-modal',
+        mixinNames: ['media-sidebar-modal-mixin'],
+        import: { source: 'src/app/composables/use-media-sidebar-modal', name: 'useMediaSidebarModal' },
+        members: {
+            ...refMembers([
+                'showModalReplace',
+                'showModalDelete',
+                'showFolderSettings',
+                'showFolderDissolve',
+                'showModalMove',
+            ]),
+            ...methodMembers([
+                'openModalReplace',
+                'closeModalReplace',
+                'openModalDelete',
+                'closeModalDelete',
+                'openFolderSettings',
+                'closeFolderSettings',
+                'openFolderDissolve',
+                'closeFolderDissolve',
+                'openModalMove',
+                'closeModalMove',
+                'deleteSelectedItems',
+                'onFolderDissolved',
+                'onFolderMoved',
+            ]),
+        },
+        // The three handlers close their own modal before emitting; every open/close writes its flag.
+        internallyReferencedMembers: [
+            'showModalReplace',
+            'showModalDelete',
+            'showFolderSettings',
+            'showFolderDissolve',
+            'showModalMove',
+            'closeModalDelete',
+            'closeFolderDissolve',
+            'closeModalMove',
+        ],
+        // The mixin injected both for its own permission checks; the composable resolves them itself.
+        unmappedMembers: [
+            'acl',
+            'mediaService',
+        ],
+        emits: {
+            onItemsDelete: 'media-sidebar-items-delete',
+            onFolderItemsDissolve: 'media-sidebar-folder-items-dissolve',
+            onItemsMove: 'media-sidebar-items-move',
+        },
+    },
     {
         id: 'notification',
         mixinNames: ['notification'],
@@ -176,6 +353,43 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
             'userConfigRepository',
         ],
     },
+    {
+        id: 'video-cover',
+        mixinNames: ['video-cover'],
+        import: { source: 'src/app/composables/use-video-cover', name: 'useVideoCover' },
+        members: {
+            ...refMembers([
+                'showCoverSelectionModal',
+                'isVideoMedia',
+                'hasVideoCover',
+            ]),
+            ...methodMembers([
+                'openCoverSelectionModal',
+                'closeCoverSelectionModal',
+                'onCoverSelectionChange',
+                'persistCoverMedia',
+                'isImage',
+                'isVideo',
+                'removeVideoCover',
+                'getCoverMediaId',
+            ]),
+        },
+        internallyReferencedMembers: [
+            'showCoverSelectionModal',
+            'isVideoMedia',
+            'closeCoverSelectionModal',
+            'persistCoverMedia',
+            'isImage',
+            'isVideo',
+            'getCoverMediaId',
+        ],
+        // The mixin injected both for its own use; the composable resolves them itself.
+        unmappedMembers: [
+            'acl',
+            'mediaService',
+        ],
+        propArgs: ['item'],
+    },
 ];
 
 /** The descriptor covering a mixin registered under `name`, if one exists. */
@@ -184,6 +398,8 @@ function findComposableDescriptor(name: string): ComposableDescriptor | undefine
 }
 
 export {
+    type ComposableCallback,
+    type ComposableCallbackKind,
     type ComposableDescriptor,
     type ComposableMember,
     type ComposableMemberKind,

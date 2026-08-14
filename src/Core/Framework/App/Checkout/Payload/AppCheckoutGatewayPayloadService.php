@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Checkout\Payload;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
@@ -21,7 +21,7 @@ class AppCheckoutGatewayPayloadService
      */
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
-        private readonly Client $client,
+        private readonly ClientInterface $client,
         private readonly ExceptionLogger $logger,
     ) {
     }
@@ -35,7 +35,7 @@ class AppCheckoutGatewayPayloadService
         );
 
         try {
-            $response = $this->client->post($url, $optionRequest->jsonSerialize());
+            $response = $this->client->request('POST', $url, $optionRequest->jsonSerialize());
             $content = $response->getBody()->getContents();
 
             return new AppCheckoutGatewayResponse(\json_decode($content, true, flags: \JSON_THROW_ON_ERROR));

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ActionButton;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Log\LoggerInterface;
@@ -29,7 +29,7 @@ use Symfony\Component\Routing\RouterInterface;
 class Executor
 {
     public function __construct(
-        private readonly Client $guzzleClient,
+        private readonly ClientInterface $guzzleClient,
         private readonly LoggerInterface $logger,
         private readonly ActionButtonResponseFactory $actionButtonResponseFactory,
         private readonly ShopIdProvider $shopIdProvider,
@@ -88,7 +88,8 @@ class Executor
     private function executeHttpRequest(AppAction $action, Context $context, array $payload, string $appSecret): string
     {
         try {
-            $response = $this->guzzleClient->post(
+            $response = $this->guzzleClient->request(
+                'POST',
                 $action->getTargetUrl(),
                 [
                     AuthMiddleware::APP_REQUEST_CONTEXT => $context,

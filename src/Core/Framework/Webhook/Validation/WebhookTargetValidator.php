@@ -66,6 +66,7 @@ final readonly class WebhookTargetValidator
         private bool $allowUnencryptedTraffic,
         array $allowedIpAddresses = [],
         ?\Closure $dnsResolver = null,
+        private bool $allowPublicIpLiterals = false,
     ) {
         $this->allowedIpAddresses = array_values(array_filter(
             $allowedIpAddresses,
@@ -95,7 +96,9 @@ final readonly class WebhookTargetValidator
 
         $ipLiteral = trim($host, '[]');
         if (filter_var($ipLiteral, \FILTER_VALIDATE_IP) !== false) {
-            return $this->isAllowedIpAddress($ipLiteral) ? new WebhookTarget($host, $port, $ipLiteral) : null;
+            return ($this->allowPublicIpLiterals && $this->isPublicIpAddress($ipLiteral)) || $this->isAllowedIpAddress($ipLiteral)
+                ? new WebhookTarget($host, $port, $ipLiteral)
+                : null;
         }
 
         $records = ($this->dnsResolver)($host);

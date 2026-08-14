@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\TaxProvider\Payload;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
 use Shopware\Core\Framework\App\AppEntity;
@@ -19,7 +19,7 @@ class TaxProviderPayloadService
 {
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
-        private readonly Client $client,
+        private readonly ClientInterface $client,
     ) {
     }
 
@@ -32,7 +32,7 @@ class TaxProviderPayloadService
         $optionRequest = $this->helper->createRequestOptions($payload, $app, $context);
 
         try {
-            $response = $this->client->post($url, $optionRequest->jsonSerialize());
+            $response = $this->client->request('POST', $url, $optionRequest->jsonSerialize());
             $content = $response->getBody()->getContents();
 
             return TaxProviderResponse::create(\json_decode($content, true, 512, \JSON_THROW_ON_ERROR));

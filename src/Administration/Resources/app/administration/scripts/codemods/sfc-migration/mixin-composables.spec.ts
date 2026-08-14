@@ -48,6 +48,15 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
                 expect(descriptor.unmappedMembers ?? []).not.toContain(dependency);
             }
         });
+
+        // A prop the mixin declared reaches the component as a prop, so it is neither a member the
+        // composable returns nor one it leaves unanswered.
+        it.each(COMPOSABLE_DESCRIPTORS)('keeps the mixin-declared props out of the member map for $id', (descriptor) => {
+            for (const provided of descriptor.providedProps ?? []) {
+                expect(Object.keys(descriptor.members)).not.toContain(provided.name);
+                expect(descriptor.unmappedMembers ?? []).not.toContain(provided.name);
+            }
+        });
     });
 
     it('skips a component whose mixins no composable covers', async () => {
@@ -179,6 +188,25 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
             expect(result.sfc).toContain('selectedItems.value = [];');
         });
 
+        it('merges the props the mixin declared into the component`s own defineProps', async () => {
+            const result = await convertFixture('sw-mixin-provided-props');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+
+            // The component's own prop keeps its place, the mixin's four follow it.
+            expect(result.sfc).toContain('entity: {');
+            expect(result.sfc).toContain('condition: {');
+            expect(result.sfc).toContain('parentCondition: {');
+            expect(result.sfc).toContain('level: {');
+            expect(result.sfc).toContain('disabled: {');
+
+            // A merged prop is a prop: it feeds the composable's getters and rewrites like one.
+            expect(result.sfc).toContain('condition: () => props.condition,');
+            expect(result.sfc).toContain('props.condition.id');
+            expect(result.sfc).toContain('removeNodeFromTree(props.parentCondition, props.condition)');
+        });
+
         it('passes a method the mixin called as a forwarding call', async () => {
             const result = await convertFixture('sw-mixin-callback-method');
 
@@ -207,6 +235,10 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
             [
                 'sw-mixin-member-assign',
                 "'handleMediaItemClicked' is assigned to, but the 'media-grid-listener' composable returns it as a constant",
+            ],
+            [
+                'sw-mixin-props-spread',
+                "props are not a plain object literal, so the 'validation' mixin's props cannot be merged",
             ],
         ])('skips %s, whose instance dependency the codemod cannot wire', async (name, reason) => {
             const result = await convertFixture(name);

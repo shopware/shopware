@@ -18,7 +18,8 @@
  * A mixin that reaches into the instance — `$emit`, a prop it read, a method it expected the host to
  * define — declares that as `emits`, `propArgs` and `callbackArgs`. The composable takes all three as
  * one options object; the codemod fills it in from what the component declares and refuses the
- * component when it declares none of it.
+ * component when it declares none of it. What the mixin gave the instance instead of taking from it —
+ * its own `props` option — travels the other way, as `providedProps`.
  *
  * Composables are default exports, following src/app/composables/, so `import.name` is the local
  * binding of a default import rather than a named one.
@@ -31,6 +32,16 @@ type ComposableMember = {
     kind: ComposableMemberKind;
     /** Property of the composable's return value, when it differs from the `this.<member>` key. */
     sourceKey?: string;
+};
+
+/**
+ * A prop the mixin declared, which every component using it inherited. A composable cannot declare
+ * props, so the codemod merges these into the component's own `defineProps` literal instead.
+ */
+type ComposableProvidedProp = {
+    name: string;
+    /** Source text of the prop definition, e.g. `{ type: Object, required: true }`. */
+    definition: string;
 };
 
 /** A callback is invoked for its effect, a getter is read for its value. */
@@ -79,6 +90,12 @@ type ComposableDescriptor = {
      * codemod passes the component's own member into the options object.
      */
     callbackArgs?: ComposableCallback[];
+    /**
+     * The props the mixin declared itself. Unlike the instance dependencies above, every declared
+     * mixin contributes these whether its composable ends up being called or not — the Options API
+     * merged them into the component the same way.
+     */
+    providedProps?: ComposableProvidedProp[];
 };
 
 /** Members that are plain methods on both sides — the common case. */
@@ -333,8 +350,6 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
             'childAssociationField',
             'nextPosition',
         ],
-        // The fourth prop the mixin declared, which its own logic never read.
-        unmappedMembers: ['parentCondition'],
         propArgs: [
             'condition',
             'level',
@@ -342,6 +357,13 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
         ],
         callbackArgs: [
             { name: 'onAddPlaceholder', kind: 'callback' },
+        ],
+        // `parentCondition` is the fourth prop the mixin declared, which its own logic never read.
+        providedProps: [
+            { name: 'condition', definition: '{\ntype: Object,\nrequired: true,\n}' },
+            { name: 'parentCondition', definition: '{\ntype: Object,\nrequired: false,\ndefault: null,\n}' },
+            { name: 'level', definition: '{\ntype: Number,\nrequired: true,\n}' },
+            { name: 'disabled', definition: '{\ntype: Boolean,\nrequired: false,\ndefault: false,\n}' },
         ],
     },
     {
@@ -418,6 +440,12 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
         // `validate()` instead.
         unmappedMembers: ['isValid'],
         propArgs: ['validation'],
+        providedProps: [
+            {
+                name: 'validation',
+                definition: '{\ntype: [String, Array, Object, Boolean],\nrequired: false,\ndefault: null,\n}',
+            },
+        ],
     },
     {
         id: 'video-cover',
@@ -469,6 +497,7 @@ export {
     type ComposableDescriptor,
     type ComposableMember,
     type ComposableMemberKind,
+    type ComposableProvidedProp,
     COMPOSABLE_DESCRIPTORS,
     findComposableDescriptor,
 };

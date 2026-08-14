@@ -107,6 +107,25 @@ function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], us
     return ctx.inferredEmits.length > 0 || usesEmit ? eventList(ctx.inferredEmits) : null;
 }
 
+/**
+ * The `defineProps` argument, with the props the mixins declared merged into the component's own
+ * literal. `defineProps` is a compiler macro, so both have to end up in one literal — which is why
+ * resolveMixins refuses a component whose `props` option is not one.
+ */
+function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): string | null {
+    const provided = collected.providedProps.map(({ name, definition }) => `${name}: ${definition},`);
+    const ownText = collected.propsNode ? snip(ctx, collected.propsNode) : null;
+
+    if (provided.length === 0) {
+        return ownText ?? (usesProps ? '{}' : null);
+    }
+
+    const ownEntries = ownText ? ownText.trim().slice(1, -1).trim() : '';
+    const separator = ownEntries === '' || ownEntries.endsWith(',') ? '' : ',';
+
+    return `{\n${ownEntries}${separator}\n${provided.join('\n')}\n}`;
+}
+
 function transformScript(
     source: string,
     componentName: string,
@@ -256,7 +275,7 @@ function transformScript(
         ...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {}))),
     ];
     const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
-    const propsText = collected.propsNode ? snip(ctx, collected.propsNode) : usesProps ? '{}' : null;
+    const propsText = propsArgument(ctx, collected, usesProps);
 
     // One-line declarations are grouped into contiguous blocks so the output reads hand-written;
     // multi-line members keep a blank line between them.

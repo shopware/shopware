@@ -784,6 +784,95 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-props-spread 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "props are not a plain object literal, so the 'validation' mixin's props cannot be merged",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-provided-props 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_provided_props">
+        <div class="sw-mixin-provided-props" :class="containerRowClass">
+            <span class="sw-mixin-provided-props__label">{{ entity.name }}</span>
+
+            <button class="sw-mixin-provided-props__add" :disabled="disabled" @click="onAddPlaceholder">Add</button>
+
+            <button class="sw-mixin-provided-props__remove" :disabled="level === 0" @click="onRemove">Remove</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import useRuleContainer from 'src/app/composables/use-rule-container';
+
+const props = defineProps({
+    entity: {
+        type: Object,
+        required: true,
+    },
+    condition: {
+        type: Object,
+        required: true,
+    },
+    parentCondition: {
+        type: Object,
+        required: false,
+        default: null,
+    },
+    level: {
+        type: Number,
+        required: true,
+    },
+    disabled: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
+});
+
+const { containerRowClass, nextPosition, createCondition, removeNodeFromTree } = useRuleContainer({
+    condition: () => props.condition,
+    level: () => props.level,
+    disabled: () => props.disabled,
+    onAddPlaceholder: (...args) => onAddPlaceholder(...args),
+});
+
+const onAddPlaceholder = // The member the mixin watched for, reading two props the mixin declared itself.
+    function () {
+        createCondition({ type: null }, props.condition.id, nextPosition.value);
+    };
+
+const onRemove = function () {
+    removeNodeFromTree(props.parentCondition, props.condition);
+};
+
+swDefinePublic({
+    containerRowClass,
+    nextPosition,
+    createCondition,
+    removeNodeFromTree,
+    onAddPlaceholder,
+    onRemove,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-string-form 1`] = `
 {
   "outcome": "full",

@@ -41,14 +41,18 @@ import {
     todo,
     visitChildren,
 } from './ast';
-import { type ComposableDescriptor, findComposableDescriptor } from './composables';
+import { type ComposableDescriptor, type ComposableProvidedProp, findComposableDescriptor } from './composables';
 
 type NamedText = { name: string; text: () => string };
 
 /** Everything the classification pass collects for the later rewrite and assembly steps. */
 type Collected = {
     propsNode: t.ObjectExpression | t.ArrayExpression | null;
+    /** Whether the `props` option is an object literal a mixin's own props can be merged into. */
+    propsMergeable: boolean;
     propNames: Set<string>;
+    /** The props the resolved mixins declared, in descriptor order. */
+    providedProps: ComposableProvidedProp[];
     emitsNode: t.Node | null;
     inheritAttrs: string | null;
     injects: string[];
@@ -94,7 +98,9 @@ function memberAccess(base: string, segments: string[]): string {
 function createCollected(): Collected {
     return {
         propsNode: null,
+        propsMergeable: true,
         propNames: new Set(),
+        providedProps: [],
         emitsNode: null,
         inheritAttrs: null,
         injects: [],
@@ -244,6 +250,10 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
     },
 
     props: (prop, ctx, collected) => {
+        // Every shape below the object literal keeps its own declaration, but a mixin's props can no
+        // longer be merged into it.
+        collected.propsMergeable = false;
+
         if (prop.type !== 'ObjectProperty') {
             return false;
         }
@@ -252,6 +262,8 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
             collected.propsNode = prop.value;
 
             if (prop.value.type === 'ObjectExpression') {
+                collected.propsMergeable = prop.value.properties.every((entry) => entry.type !== 'SpreadElement');
+
                 for (const propEntry of prop.value.properties) {
                     const propName = propEntry.type === 'SpreadElement' ? null : keyName(propEntry);
 
@@ -577,6 +589,31 @@ function refuseUnmetDependencies(ctx: Ctx, descriptor: ComposableDescriptor, col
 }
 
 /**
+ * Registers the props the declared mixins brought along, so that `this.<prop>` rewrites to
+ * `props.<prop>` and the propArgs check above sees them. A component prop of the same name wins,
+ * mirroring Vue's option merge, and only what is left to merge can refuse the component.
+ */
+function resolveProvidedProps(ctx: Ctx, collected: Collected): void {
+    for (const descriptor of collected.mixins) {
+        for (const provided of descriptor.providedProps ?? []) {
+            if (collected.propNames.has(provided.name)) {
+                continue;
+            }
+
+            if (!collected.propsMergeable) {
+                ctx.blockers.add(
+                    `props are not a plain object literal, so the '${descriptor.id}' mixin's props cannot be merged`,
+                );
+            }
+
+            collected.propNames.add(provided.name);
+            collected.providedProps.push(provided);
+            ctx.bindings.set(provided.name, 'prop');
+        }
+    }
+}
+
+/**
  * The options object a composable is called with. Every argument defers the read: the call sits above
  * the member sections it points at, so an eager reference would hit their temporal dead zone.
  */
@@ -680,6 +717,7 @@ function resolveMixins(
 
     collectThisMemberNames(options, readMembers);
     collectAssignedThisMemberNames(options, assignedMembers);
+    resolveProvidedProps(ctx, collected);
 
     const active = collected.mixins.filter((descriptor) => readsAnyMember(descriptor, readMembers));
 

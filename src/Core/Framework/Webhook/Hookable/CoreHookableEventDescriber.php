@@ -20,7 +20,7 @@ class CoreHookableEventDescriber implements HookableEventDescriber
         return $this->getDescriptions();
     }
 
-    public function describeForValidation(Manifest $manifest): array
+    public function describePermittedFor(Manifest $manifest): array
     {
         return $this->getDescriptions();
     }

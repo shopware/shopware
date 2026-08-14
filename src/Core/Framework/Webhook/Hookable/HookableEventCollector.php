@@ -146,7 +146,7 @@ class HookableEventCollector implements ResetInterface
         foreach ($this->hookableEventDescribers as $describer) {
             $describerClass = $describer::class;
 
-            foreach ($describer->describeForValidation($manifest) as $eventDescription) {
+            foreach ($describer->describePermittedFor($manifest) as $eventDescription) {
                 if (isset($events[$eventDescription->eventName])) {
                     throw WebhookException::duplicateDescribedEvent(
                         $eventDescription->eventName,

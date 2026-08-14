@@ -95,7 +95,7 @@ class TestHookableEventDescriber implements HookableEventDescriber
         return [];
     }
 
-    public function describeForValidation(Manifest $manifest): array
+    public function describePermittedFor(Manifest $manifest): array
     {
         return [
             new HookableEventDescription('test.described.event', 'Test described event.', ['described:read']),

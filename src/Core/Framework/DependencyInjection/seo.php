@@ -29,6 +29,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\LandingPageStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Content\Seo\SeoUrlRoute\StoreApiSeoUrlUpdateListener;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTwigFactory;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
@@ -37,6 +38,7 @@ use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Content\Seo\Validation\SeoUrlWriteValidator;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CategoryUrlExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\EntitySeoUrlFunctionExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\RawUrlFunctionExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SeoUrlFunctionExtension;
@@ -149,6 +151,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.repository'),
             service(RequestCriteriaBuilder::class),
             service(DefinitionInstanceRegistry::class),
+            service(EntityRouteResolver::class),
         ])
         ->call('setContainer', [
             service('service_container'),
@@ -166,6 +169,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig.extension.routing'),
             service(SeoUrlPlaceholderHandlerInterface::class),
+        ])
+        ->tag('twig.extension');
+
+    $services->set(EntitySeoUrlFunctionExtension::class)
+        ->args([
+            service(EntityRouteResolver::class),
         ])
         ->tag('twig.extension');
 
@@ -239,7 +248,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlPersister::class),
             service(Connection::class),
             service('sales_channel.repository'),
+            tagged_iterator('shopware.entity.seo_url.route'),
         ]);
+
+    $services->set(StoreApiSeoUrlUpdateListener::class)
+        ->args([
+            service(SeoUrlUpdater::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(BuildBreadcrumbExtension::class)
         ->args([

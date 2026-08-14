@@ -5,6 +5,9 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @phpstan-import-type ValueGeneratorConfig from AbstractValueGenerator
+ */
 #[Package('framework')]
 class ValueGeneratorPatternRegistry
 {
@@ -27,7 +30,7 @@ class ValueGeneratorPatternRegistry
     }
 
     /**
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param ValueGeneratorConfig $config
      * @param array<int, string>|null $args
      */
     public function generatePattern(string $pattern, string $patternPart, array $config, ?array $args = null, ?bool $preview = false): string

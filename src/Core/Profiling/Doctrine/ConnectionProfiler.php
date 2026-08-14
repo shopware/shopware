@@ -122,8 +122,6 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
 
         $this->data = ['queries' => $this->collectQueries(), 'connections' => $this->connections];
         $this->groupedQueries = null;
-
-        $this->dataHolder->reset();
     }
 
     /**

@@ -32,6 +32,9 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
+        // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
+        preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
+
         // Intentional rename of the technical-term analyzer chain so the public
         // identifier matches how the chain is referenced everywhere else
         // (constants, `buildTextFieldConfig(technicalTerms: true)`, the
@@ -170,5 +173,14 @@ return [
 
         // parent method has no type. not really a break
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
+
+        // intended to be internal on release
+        preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
+        preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
+
+        // Store API schema migration allowlist symbols were added on trunk for
+        // an unreleased migration helper and removed again before release.
+        'REMOVED: Constant Shopware\\\\Core\\\\Framework\\\\Api\\\\(?:Context\\\\Exception\\\\InvalidContextSourceException|ApiException)::API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST',
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Api\ApiException::invalidStoreApiSchemaMigrationAllowlist() was removed', '/'),
     ],
 ];

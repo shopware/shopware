@@ -17,6 +17,7 @@ Each file in this directory is a single MCP tool -- an action that AI clients ca
 - Use `McpContextProvider` to get the authenticated `Context`
 - Write operations must accept a `bool $dryRun = true` parameter. The `executeWithDryRun` helper adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions from firing during preview, and rolls back the transaction afterward
 - Entity tools must validate entity existence with `$this->registry->has($entity)` before ACL checks to provide clear "entity not found" messages
+- Entity tools that accept criteria JSON must validate the built `Criteria` with `AclCriteriaValidator` before DAL access — the top-level `requirePrivilege()` check does not cover association reads (see `EntityReadTool`/`EntitySearchTool`/`EntityAggregateTool`)
 - Entity tools that return DAL data must inject `JsonEntityEncoder` and use it instead of `jsonSerialize()` to respect `includes`/`excludes`
 - Entity tools returning DAL data should use the `McpEntityIncludes` trait and call `applyDefaultIncludes()` to keep responses compact (see below)
 

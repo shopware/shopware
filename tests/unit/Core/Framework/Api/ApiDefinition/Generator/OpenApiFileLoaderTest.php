@@ -25,7 +25,9 @@ class OpenApiFileLoaderTest extends TestCase
         static::assertArrayHasKey('components', $spec);
         static::assertArrayHasKey('/_action/order_delivery/{orderDeliveryId}/state/{transition}', $spec['paths']);
         static::assertArrayHasKey('schemas', $spec['components']);
-        static::assertCount(3, $spec['components']['schemas']);
+        static::assertArrayHasKey('infoConfigResponse', $spec['components']['schemas']);
+        static::assertArrayHasKey('JsonOverrideEntity', $spec['components']['schemas']);
+        static::assertArrayHasKey('relationship', $spec['components']['schemas']);
     }
 
     public function testEmptyFileLoader(): void
@@ -55,5 +57,15 @@ class OpenApiFileLoaderTest extends TestCase
         $spec = $fsLoader->loadOpenapiSpecification();
 
         static::assertSame('Override', $spec['paths']['/_action/order_delivery/{orderDeliveryId}/state/{transition}']['post']['description']);
+    }
+
+    public function testMergingFilesUsesDeterministicNameOrder(): void
+    {
+        $paths = [__DIR__ . '/_fixtures/Api/ApiDefinition/Generator/Schema/DeterministicOrder'];
+        $fsLoader = new OpenApiFileLoader($paths);
+
+        $spec = $fsLoader->loadOpenapiSpecification();
+
+        static::assertSame('Sorted last', $spec['paths']['/deterministic']['get']['description']);
     }
 }

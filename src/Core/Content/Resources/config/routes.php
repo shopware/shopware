@@ -19,6 +19,7 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Cookie/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Category/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../LandingPage/SalesChannel/**/*Route.php', 'attribute');
+    $routes->import('../../LegalGuaranteeNotice/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Product/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../Cms/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../ContactForm/SalesChannel/**/*Route.php', 'attribute');

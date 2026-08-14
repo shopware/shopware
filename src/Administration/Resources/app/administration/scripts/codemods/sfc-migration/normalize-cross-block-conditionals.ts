@@ -11,8 +11,9 @@
  * chain is adjacent again and still renders nothing when an earlier branch already matched.
  */
 
-import { NodeTypes, parse } from '@vue/compiler-dom';
-import type { DirectiveNode, ElementNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
+import { NodeTypes } from '@vue/compiler-dom';
+import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
+import { elementChildren, isConvertedBlock, parseTemplate } from './template-ast';
 
 const ORPHANED_CONTINUATION = 'orphaned cross-block v-else (no preceding v-if)';
 const GUARD_COMMENT = '<!-- Keeps the conditional chain connected across sw-block. -->';
@@ -55,15 +56,6 @@ function getConditionDirective(node: ElementNode): ConditionDirective | undefine
         name: prop.name as ConditionDirective['name'],
         expression: prop.exp && 'content' in prop.exp ? String(prop.exp.content).trim() : '',
     };
-}
-
-/** Only the blocks this codemod emitted; a hand-written `<sw-block>` binds its name dynamically. */
-function isConvertedBlock(node: ElementNode): boolean {
-    return node.tag === 'sw-block' && node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name');
-}
-
-function elementChildren(node: ElementNode): ElementNode[] {
-    return node.children.filter((child): child is ElementNode => child.type === NodeTypes.ELEMENT);
 }
 
 /** The chain still open after the last sibling, read backwards; `null` when it is closed or broken. */
@@ -228,12 +220,9 @@ function walkSiblings(children: TemplateChildNode[], context: NormalizeContext):
  * preceding `v-if` at all — that one cannot be reconnected, only reported.
  */
 function normalizeCrossBlockConditionals(body: string): NormalizeResult {
-    let ast: RootNode;
+    const ast = parseTemplate(body);
 
-    try {
-        ast = parse(body, { comments: true });
-    } catch {
-        // Markup Vue cannot even parse is nothing this pass can repair; the validation gate reports it.
+    if (ast === null) {
         return { template: body, blockers: [] };
     }
 

@@ -24,6 +24,16 @@ describe('scripts/codemods/sfc-migration/analyze-skips', () => {
                 'template',
             ],
             [
+                'named slot inside a twig block (<sw-block> renders only its default slot)',
+                'named slot inside a twig block (`<sw-block>` renders only its default slot)',
+                'template',
+            ],
+            [
+                '{% parent %} needs override output (the codemod only writes base components)',
+                '`{% parent %}` needs override output',
+                'template',
+            ],
+            [
                 "binding 'router' collides with a generated helper",
                 'binding collides with a generated helper',
                 'script',

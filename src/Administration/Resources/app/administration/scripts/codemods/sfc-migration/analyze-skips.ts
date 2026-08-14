@@ -85,6 +85,16 @@ const SKIP_RULES: ReasonRule[] = [
         stage: 'template',
     },
     {
+        pattern: /^named slot inside a twig block/,
+        label: 'named slot inside a twig block (`<sw-block>` renders only its default slot)',
+        stage: 'template',
+    },
+    {
+        pattern: /^\{% parent %\} needs override output/,
+        label: '`{% parent %}` needs override output',
+        stage: 'template',
+    },
+    {
         pattern: /^script parse error: (.+)$/,
         label: (match) => `script parse error: ${sanitizeMessage(match[1])}`,
         stage: 'script',

@@ -28,6 +28,16 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-named-slot 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "named slot inside a twig block (<sw-block> renders only its default slot)",
+  ],
+  "sfc": null,
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-created-pattern 1`] = `
 {
   "outcome": "full",
@@ -580,11 +590,48 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-slot-in-child 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_slot_in_child">
+        <sw-modal v-if="active">
+            <template #modal-footer>
+                <button class="sw-slot-in-child__cancel">Cancel</button>
+            </template>
+        </sw-modal>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-super-demo 1`] = `
 {
   "outcome": "skipped",
   "reasons": [
     "this.$super",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-twig-parent 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "{% parent %} needs override output (the codemod only writes base components)",
   ],
   "sfc": null,
 }

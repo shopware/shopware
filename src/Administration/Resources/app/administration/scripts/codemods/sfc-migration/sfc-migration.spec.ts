@@ -5,9 +5,10 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { SLOT_IN_BLOCK } from './assert-block-slots';
 import { convertComponent, type ConvertResult } from './convert-component';
 import { runMigration, type MigrationResult } from './run-sfc-migration';
-import { transformTemplate } from './transform-template';
+import { TWIG_PARENT_BLOCKER, transformTemplate } from './transform-template';
 
 const FIXTURES = path.join(__dirname, '__fixtures__');
 
@@ -151,13 +152,34 @@ describe('scripts/codemods/sfc-migration', () => {
             );
         });
 
-        it('converts {% parent %} and {{ parent() }} to <sw-block-parent />', () => {
-            expect(transformTemplate('{% block a_b %}{{ parent() }}{% endblock %}').template).toBe(
-                '<sw-block name="a_b"><sw-block-parent /></sw-block>',
-            );
-            expect(transformTemplate('{% block a_b %}{% parent %}{% endblock %}').template).toBe(
-                '<sw-block name="a_b"><sw-block-parent /></sw-block>',
-            );
+        // Every authoring form has to be refused: the leftover-twig check only looks for `{%`/`{#`,
+        // so a surviving `{{ parent() }}` would compile as a live interpolation and fail at runtime.
+        it.each([
+            '{% block a_b %}{% parent %}{% endblock %}',
+            '{% block a_b %}{{ parent() }}{% endblock %}',
+            '{% block a_b %}{%- parent -%}{% endblock %}',
+        ])('refuses %s, which only base output cannot express', (twig) => {
+            expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER] });
+        });
+
+        it('skips a component whose twig block wraps a named slot', async () => {
+            const result = await convertFixture('sw-block-named-slot');
+
+            expect(result).toEqual({ outcome: 'skipped', reasons: [SLOT_IN_BLOCK], sfc: null });
+        });
+
+        it('skips a component whose twig uses {% parent %}', async () => {
+            const result = await convertFixture('sw-twig-parent');
+
+            expect(result).toEqual({ outcome: 'skipped', reasons: [TWIG_PARENT_BLOCKER], sfc: null });
+        });
+
+        it('keeps a named slot that belongs to a child component inside the block', async () => {
+            const result = await convertFixture('sw-slot-in-child');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain('#modal-footer');
         });
     });
 

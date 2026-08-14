@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Context;
@@ -14,14 +15,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppNameValidator extends AbstractManifestValidator
 {
+    public function __construct(private readonly SourceResolver $sourceResolver)
+    {
+    }
+
     /**
      * @return list<Error>
      */
     public function validate(Manifest $manifest, ?Context $context): array
     {
-        $appName = strtolower(substr($manifest->getPath(), (int) strrpos($manifest->getPath(), '/') + 1));
+        $directory = strtolower(basename($this->sourceResolver->filesystemForManifest($manifest)->location));
 
-        if ($appName === strtolower($manifest->getMetadata()->getName())) {
+        if ($directory === strtolower($manifest->getMetadata()->getName())) {
             return [];
         }
 

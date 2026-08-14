@@ -4,7 +4,9 @@
   "paths": {
     "/shop-settings": {
       "get": {
-        "tags": ["System & Context"],
+        "tags": [
+          "System & Context"
+        ],
         "summary": "Fetch shop settings",
         "description": "Returns the sales-channel-resolved subset of the system configuration that headless frontends (e.g. Composable Frontends) need to render the shop consistently with the administration settings. Only UI- and validation-relevant, non-sensitive values are exposed.",
         "operationId": "getShopSettings",
@@ -33,6 +35,7 @@
                       "type": "object",
                       "description": "Shop identity and meta defaults (core.basicInformation)",
                       "required": [
+                        "apiAlias",
                         "shopName",
                         "metaAuthor",
                         "metaRobots",
@@ -71,6 +74,7 @@
                       "type": "object",
                       "description": "Form field settings (core.basicInformation), used by the contact form and the online revocation request form",
                       "required": [
+                        "apiAlias",
                         "firstNameFieldRequired",
                         "lastNameFieldRequired",
                         "phoneNumberFieldRequired"
@@ -98,6 +102,7 @@
                       "type": "object",
                       "description": "Login, registration and address form settings (core.loginRegistration)",
                       "required": [
+                        "apiAlias",
                         "passwordMinLength",
                         "createCustomerAccountDefault",
                         "showSalutation",
@@ -216,6 +221,7 @@
                       "type": "object",
                       "description": "Cart and checkout settings (core.cart)",
                       "required": [
+                        "apiAlias",
                         "maxQuantity",
                         "lineItemAddLimit",
                         "showDeliveryTime",
@@ -283,6 +289,7 @@
                       "type": "object",
                       "description": "Product listing, search and review settings (core.listing)",
                       "required": [
+                        "apiAlias",
                         "productsPerPage",
                         "allowBuyInListing",
                         "showReview",
@@ -354,7 +361,11 @@
                     "newsletter": {
                       "type": "object",
                       "description": "Newsletter settings (core.newsletter)",
-                      "required": ["doubleOptIn", "doubleOptInRegistered"],
+                      "required": [
+                        "apiAlias",
+                        "doubleOptIn",
+                        "doubleOptInRegistered"
+                      ],
                       "properties": {
                         "apiAlias": {
                           "type": "string",

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\PostUpdateIndexer;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -103,6 +104,24 @@ class EntityIndexerRegistryTest extends TestCase
         $this->indexerMock2->expects($this->atLeastOnce())->method('iterate');
 
         $this->registry->index(false, $skip, $only);
+    }
+
+    public function testGetIndexersReturnsNormalIndexersAndOptions(): void
+    {
+        $normalIndexer = static::createStub(EntityIndexer::class);
+        $normalIndexer->method('getName')->willReturn('normal.indexer');
+        $normalIndexer->method('getOptions')->willReturn(['normal.option']);
+
+        $postUpdateIndexer = static::createStub(PostUpdateIndexer::class);
+        $postUpdateIndexer->method('getName')->willReturn('post-update.indexer');
+
+        $registry = new EntityIndexerRegistry(
+            [$normalIndexer, $postUpdateIndexer],
+            $this->messageBusMock,
+            $this->dispatcherMock,
+        );
+
+        static::assertSame(['normal.indexer' => ['normal.option']], $registry->getIndexers());
     }
 
     public function testRefreshMethod(): void

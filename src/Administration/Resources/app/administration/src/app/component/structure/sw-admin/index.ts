@@ -39,7 +39,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         * @private
+         *
+         * Generated override components, rendered once in a hidden container so their setup bodies run and
+         * register their override callbacks. Internal to the composition extension system.
          */
         overrideComponents() {
             return Component.getOverrideComponents();

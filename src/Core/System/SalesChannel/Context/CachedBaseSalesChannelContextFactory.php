@@ -24,6 +24,7 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
 
     public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext
     {
+        // ATS changes sales channel base data within one application instance; skip the cache so subsequent requests see the setup immediately.
         if (EnvironmentHelper::getVariable('ATS_RUNNING') === '1') {
             return $this->decorated->create($salesChannelId, $options);
         }

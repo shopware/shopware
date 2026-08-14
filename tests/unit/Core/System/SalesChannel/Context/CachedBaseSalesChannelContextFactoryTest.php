@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Context\AbstractBaseSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\AtsContextCacheTrace;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -33,7 +34,7 @@ class CachedBaseSalesChannelContextFactoryTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects($this->never())->method('get');
 
-        $factory = new CachedBaseSalesChannelContextFactory($decorated, $cache);
+        $factory = new CachedBaseSalesChannelContextFactory($decorated, $cache, static::createStub(AtsContextCacheTrace::class));
 
         static::assertSame($context, $factory->create('sales-channel-id', ['languageId' => 'language-id']));
     }

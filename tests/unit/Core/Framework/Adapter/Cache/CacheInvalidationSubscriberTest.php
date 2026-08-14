@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AtsContextCacheTrace;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
@@ -716,7 +717,8 @@ class CacheInvalidationSubscriberTest extends TestCase
         return new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
-            true
+            true,
+            static::createStub(AtsContextCacheTrace::class),
         );
     }
 }

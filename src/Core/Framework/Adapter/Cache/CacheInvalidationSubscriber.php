@@ -55,6 +55,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
+use Shopware\Core\System\SalesChannel\Context\AtsContextCacheTrace;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -80,6 +81,7 @@ class CacheInvalidationSubscriber
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly bool $productStreamIndexerEnabled,
+        private readonly AtsContextCacheTrace $atsContextCacheTrace,
     ) {
     }
 
@@ -381,7 +383,9 @@ class CacheInvalidationSubscriber
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
-        if ($event->getEventByEntityName(TaxDefinition::ENTITY_NAME)) {
+        $containsTaxWrite = $event->getEventByEntityName(TaxDefinition::ENTITY_NAME) !== null;
+
+        if ($containsTaxWrite) {
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
@@ -405,6 +409,7 @@ class CacheInvalidationSubscriber
 
         // immediately invalidates the context cache
         $this->cacheInvalidator->invalidate($keys, true);
+        $this->atsContextCacheTrace->contextInvalidation($containsTaxWrite);
     }
 
     public function invalidateManufacturerFilters(EntityWrittenContainerEvent $event): void

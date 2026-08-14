@@ -1,0 +1,6 @@
+monolog:
+    channels: [ats_context_cache_trace]
+    handlers:
+        ats_context_cache_trace:
+            type: null
+            channels: [ats_context_cache_trace]

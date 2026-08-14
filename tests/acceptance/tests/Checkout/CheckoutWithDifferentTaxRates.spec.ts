@@ -1,6 +1,6 @@
 import { test, formatPrice } from '@fixtures/AcceptanceTest';
 
-// Exercises the shared add-to-cart task in the checkout flow.
+// Exercises the shared add-to-cart task in the checkout flow and triggers the temporary context-cache trace.
 test(
     'As a customer, I want to perform a checkout process with 19% tax rate with 2 same products.',
     {

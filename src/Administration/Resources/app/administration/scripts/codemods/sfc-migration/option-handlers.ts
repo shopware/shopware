@@ -11,11 +11,35 @@
  * A handler returns `true` when it consumed the option (including recording its own TODO) and
  * `false` when the option's shape is not one it recognizes, which routes the option into the
  * generic TODO fallback.
+ *
+ * Two options cannot be finished inside the loop, because they depend on what the remaining options
+ * declare: `mixins` (resolveMixins) and `watch` (buildWatchers) each get a second pass that runs
+ * once classification is complete.
  */
 
 import type * as t from '@babel/types';
-import { LIFECYCLE_HOOKS, SKIP_OPTIONS, TODO_OPTIONS, type MemberKind } from './tables';
-import { type Ctx, type FnLike, IDENTIFIER, arrowText, asFunction, keyName, raw, snip, todo, visitChildren } from './ast';
+import {
+    GENERATED_HELPER_NAMES,
+    LIFECYCLE_HOOKS,
+    RESERVED_BINDING,
+    SKIP_OPTIONS,
+    TODO_OPTIONS,
+    type MemberKind,
+} from './tables';
+import {
+    type Ctx,
+    type FnLike,
+    IDENTIFIER,
+    arrowText,
+    asFunction,
+    collectThisMemberNames,
+    keyName,
+    raw,
+    snip,
+    todo,
+    visitChildren,
+} from './ast';
+import { type ComposableDescriptor, findComposableDescriptor } from './composables';
 
 type NamedText = { name: string; text: () => string };
 
@@ -34,6 +58,7 @@ type Collected = {
     rewriteFns: FnLike[];
     foreignNodes: t.Node[];
     createdFn: FnLike | null;
+    mixins: ComposableDescriptor[];
 };
 
 type OptionHandler = (prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, collected: Collected) => boolean;
@@ -79,6 +104,7 @@ function createCollected(): Collected {
         rewriteFns: [],
         foreignNodes: [],
         createdFn: null,
+        mixins: [],
     };
 }
 
@@ -150,6 +176,30 @@ function collectFnMember(
     } else {
         bucket.push({ name, text: () => `const ${name} = ${arrowText(ctx, fn)};` });
     }
+}
+
+/** The object literal a `data()` option returns directly, or null for any other shape. */
+function dataObject(prop: t.ObjectMethod | t.ObjectProperty): t.ObjectExpression | null {
+    const fn = asFunction(prop);
+
+    if (!fn) {
+        return null;
+    }
+
+    if (fn.body.type === 'ObjectExpression') {
+        return fn.body;
+    }
+
+    if (
+        fn.body.type === 'BlockStatement' &&
+        fn.body.body.length === 1 &&
+        fn.body.body[0].type === 'ReturnStatement' &&
+        fn.body.body[0].argument?.type === 'ObjectExpression'
+    ) {
+        return fn.body.body[0].argument;
+    }
+
+    return null;
 }
 
 function handleLifecycleHook(prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, collected: Collected): boolean {
@@ -272,16 +322,7 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
             return true;
         }
 
-        const returned =
-            fn && fn.body.type === 'BlockStatement'
-                ? fn.body.body.length === 1 &&
-                  fn.body.body[0].type === 'ReturnStatement' &&
-                  fn.body.body[0].argument?.type === 'ObjectExpression'
-                    ? fn.body.body[0].argument
-                    : null
-                : fn && fn.body.type === 'ObjectExpression'
-                  ? fn.body
-                  : null;
+        const returned = dataObject(prop);
 
         if (!returned) {
             todo(ctx, 'data() does not directly return an object literal', raw(ctx, prop));
@@ -355,6 +396,37 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
         return true;
     },
 
+    // Resolution only: the guards need every member name the component declares, which the
+    // classification loop has not seen yet. resolveMixins() runs them once it has.
+    mixins: (prop, ctx, collected) => {
+        if (prop.type !== 'ObjectProperty' || prop.value.type !== 'ArrayExpression') {
+            ctx.blockers.add('unsupported mixins declaration');
+            return true;
+        }
+
+        for (const element of prop.value.elements) {
+            const mixinName = element === null ? null : registeredMixinName(element);
+
+            if (mixinName === null) {
+                ctx.blockers.add(`unsupported mixins entry${element ? ` '${raw(ctx, element)}'` : ''}`);
+                continue;
+            }
+
+            const descriptor = findComposableDescriptor(mixinName);
+
+            if (descriptor === undefined) {
+                ctx.blockers.add(`no composable registered for mixin '${mixinName}'`);
+                continue;
+            }
+
+            if (!collected.mixins.includes(descriptor)) {
+                collected.mixins.push(descriptor);
+            }
+        }
+
+        return true;
+    },
+
     created: (prop, ctx, collected) => {
         collected.createdFn = asFunction(prop);
 
@@ -365,6 +437,213 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
         return true;
     },
 };
+
+/**
+ * The registered name of one `mixins` array entry, or null for a shape no descriptor can be looked
+ * up from. Both authoring forms resolve to the same lookup, because Shopware's vue adapter puts a
+ * bare string through `Mixin.getByName()` itself; the callee object is not checked, so the
+ * destructured `Mixin.getByName(...)` form is recognized next to `Shopware.Mixin.getByName(...)`.
+ */
+function registeredMixinName(element: t.Node): string | null {
+    if (element.type === 'StringLiteral') {
+        return element.value;
+    }
+
+    if (
+        element.type === 'CallExpression' &&
+        element.callee.type === 'MemberExpression' &&
+        !element.callee.computed &&
+        element.callee.property.type === 'Identifier' &&
+        element.callee.property.name === 'getByName' &&
+        element.arguments.length === 1 &&
+        element.arguments[0].type === 'StringLiteral'
+    ) {
+        return element.arguments[0].value;
+    }
+
+    return null;
+}
+
+/**
+ * Every name the component itself puts on the instance, read off the options AST rather than off
+ * `Collected`: an option entry the codemod dropped as unsupported is missing from `Collected` but
+ * still shadows a mixin's member at runtime, which is exactly what the override guard asks about.
+ */
+function collectOwnMemberNames(options: t.ObjectExpression): Set<string> {
+    const names = new Set<string>();
+
+    const addKeys = (node: t.Node): void => {
+        if (node.type === 'ObjectExpression') {
+            for (const member of node.properties) {
+                const name = member.type === 'SpreadElement' ? null : keyName(member);
+
+                if (name) {
+                    names.add(name);
+                }
+            }
+        }
+
+        if (node.type === 'ArrayExpression') {
+            for (const element of node.elements) {
+                if (element?.type === 'StringLiteral') {
+                    names.add(element.value);
+                }
+            }
+        }
+    };
+
+    for (const option of options.properties) {
+        if (option.type === 'SpreadElement') {
+            continue;
+        }
+
+        const optionName = keyName(option);
+
+        if (optionName === 'data') {
+            const returned = dataObject(option);
+
+            if (returned) {
+                addKeys(returned);
+            }
+        } else if (
+            (optionName === 'props' || optionName === 'computed' || optionName === 'methods' || optionName === 'inject') &&
+            option.type === 'ObjectProperty'
+        ) {
+            addKeys(option.value);
+        }
+    }
+
+    return names;
+}
+
+type ResolvedComposable = {
+    descriptor: ComposableDescriptor;
+    /** The members the component actually uses, in descriptor order. */
+    entries: { member: string; sourceKey: string; binding: string }[];
+};
+
+/**
+ * A setup binding name for a composable member. A name another declaration already claims — a
+ * module-level prelude binding, a generated helper, another mixin's member — is disambiguated with a
+ * `$n` suffix rather than downgrading the migration; `ctx.renamedBindings` carries the rename into
+ * the `this.<member>` rewrite.
+ */
+function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
+    if (!claimed.has(member) && !RESERVED_BINDING.test(member)) {
+        return member;
+    }
+
+    for (let suffix = 1; ; suffix += 1) {
+        const candidate = `${member}$${suffix}`;
+
+        if (!claimed.has(candidate)) {
+            return candidate;
+        }
+    }
+}
+
+/**
+ * Turns the resolved mixin descriptors into setup bindings, or refuses the component.
+ *
+ * Runs between classification and the rewrite pass: it needs the component's complete member set to
+ * check the guards, and the rewrite pass needs its bindings registered. Refusing comes first and as a
+ * whole, so a component that fails one guard never gets half of its mixins converted.
+ *
+ * Only members the script or the template actually reads are bound. A member the template alone reads
+ * still counts — the template cannot be rewritten, so its binding has to exist under that exact name.
+ */
+function resolveMixins(
+    ctx: Ctx,
+    collected: Collected,
+    options: t.ObjectExpression,
+    preludeBindings: ReadonlySet<string>,
+): ResolvedComposable[] {
+    if (collected.mixins.length === 0) {
+        return [];
+    }
+
+    const ownMembers = collectOwnMemberNames(options);
+    const thisMembers = new Set<string>();
+
+    collectThisMemberNames(options, thisMembers);
+
+    for (const descriptor of collected.mixins) {
+        const internal = descriptor.internallyReferencedMembers ?? [];
+
+        for (const member of internal) {
+            if (ownMembers.has(member)) {
+                ctx.blockers.add(
+                    `component redefines '${member}', which the '${descriptor.id}' composable calls internally`,
+                );
+            }
+        }
+
+        // A leaf override would work under Vue's merge rules — the component's member simply wins —
+        // but after the migration the composable binding and the component's own binding would share
+        // one name, so the component keeps the Options API instead.
+        for (const member of Object.keys(descriptor.members)) {
+            if (ownMembers.has(member) && !internal.includes(member)) {
+                ctx.blockers.add(`component redefines '${member}' from the '${descriptor.id}' mixin`);
+            }
+        }
+
+        for (const member of descriptor.unmappedMembers ?? []) {
+            if (ownMembers.has(member)) {
+                continue;
+            }
+
+            if (thisMembers.has(member) || ctx.templateIdentifiers.has(member)) {
+                ctx.blockers.add(`'${member}' is read but the '${descriptor.id}' composable does not provide it`);
+            }
+        }
+    }
+
+    if (ctx.blockers.size > 0) {
+        return [];
+    }
+
+    const claimed = new Set<string>([
+        ...preludeBindings,
+        ...GENERATED_HELPER_NAMES,
+    ]);
+    const resolved: ResolvedComposable[] = [];
+
+    for (const descriptor of collected.mixins) {
+        const entries: ResolvedComposable['entries'] = [];
+
+        for (const [
+            member,
+            spec,
+        ] of Object.entries(descriptor.members)) {
+            if (!thisMembers.has(member) && !ctx.templateIdentifiers.has(member)) {
+                continue;
+            }
+
+            const binding = freeBindingName(member, claimed);
+
+            if (binding !== member) {
+                if (ctx.templateIdentifiers.has(member)) {
+                    ctx.blockers.add(`'${member}' is read in the template and its binding name is already taken`);
+                    continue;
+                }
+
+                ctx.renamedBindings.set(member, binding);
+            }
+
+            claimed.add(binding);
+            ctx.bindings.set(member, spec.kind === 'ref' ? 'data' : 'method');
+            entries.push({ member, sourceKey: spec.sourceKey ?? member, binding });
+        }
+
+        // A descriptor nothing reads is dropped: its composable only provides members, so calling it
+        // for its side effects is not a thing the mixin did either.
+        if (entries.length > 0) {
+            resolved.push({ descriptor, entries });
+        }
+    }
+
+    return resolved;
+}
 
 /** Classifies every top-level option into the collected state, the TODO list, or the blockers. */
 function classifyOptions(ctx: Ctx, options: t.ObjectExpression): Collected {
@@ -488,4 +767,12 @@ function buildWatchers(ctx: Ctx, collected: Collected): (() => string)[] {
     return watchers;
 }
 
-export { type Collected, type OptionHandler, OPTION_HANDLERS, classifyOptions, buildWatchers };
+export {
+    type Collected,
+    type OptionHandler,
+    type ResolvedComposable,
+    OPTION_HANDLERS,
+    classifyOptions,
+    resolveMixins,
+    buildWatchers,
+};

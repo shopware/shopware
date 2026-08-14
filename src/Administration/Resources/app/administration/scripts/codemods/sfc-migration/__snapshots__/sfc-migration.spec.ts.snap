@@ -194,6 +194,93 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-legacy-i18n 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "legacy this.$t(key, locale) argument shape",
+    "legacy this.$tc(key, choice, values) argument order",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_legacy_i18n">
+        <div class="sw-legacy-i18n">
+            <h2>{{ title }} / {{ fallbackTitle }}</h2>
+            <p>{{ itemLabel }} / {{ namedItemLabel }} / {{ toggleLabel }}</p>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+
+const props = defineProps({
+    itemCount: {
+        type: Number,
+        required: true,
+    },
+
+    collapsed: {
+        type: Boolean,
+        required: true,
+    },
+});
+
+const title = computed(
+    // Both shapes mean the same to legacy \`$t\`/\`$tc\` and to Composition \`t()\`.
+    function () {
+        return t('sw-legacy-i18n.title', { name: 'demo' });
+    },
+);
+
+const itemLabel = computed(function () {
+    return t('sw-legacy-i18n.items', props.itemCount);
+});
+
+const toggleLabel = computed(
+    // A plural count does not have to be a literal to be portable.
+    function () {
+        return t('sw-legacy-i18n.toggle', props.collapsed ? 0 : 1);
+    },
+);
+
+const fallbackTitle = computed(
+    // Both shapes are read differently by Composition \`t()\`.
+    function () {
+        return this.$t('sw-legacy-i18n.title', Shopware.Context.app.fallbackLocale);
+    },
+);
+
+const namedItemLabel = computed(function () {
+    return this.$tc('sw-legacy-i18n.items', props.itemCount, { name: 'demo' });
+});
+
+// TODO(sfc-migration): legacy this.$t(key, locale) argument shape — original code:
+// this.$t('sw-legacy-i18n.title', Shopware.Context.app.fallbackLocale)
+
+// TODO(sfc-migration): legacy this.$tc(key, choice, values) argument order — original code:
+// this.$tc('sw-legacy-i18n.items', this.itemCount, { name: 'demo' })
+
+swDefinePublic({
+    title,
+    itemLabel,
+    toggleLabel,
+    fallbackTitle,
+    namedItemLabel,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-lifecycle-demo 1`] = `
 {
   "outcome": "full",
@@ -238,11 +325,202 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-collision 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+import { salutation } from './salutation.helper';
+
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_collision">
+        <p class="sw-mixin-collision">{{ shortLabel() }} / {{ fullLabel() }}</p>
+    </sw-block>
+</template>
+
+<script setup>
+import useSalutation from 'src/app/composables/use-salutation';
+
+const props = defineProps({
+    customer: {
+        type: Object,
+        required: true,
+    },
+});
+
+const { salutation: salutation$1 } = useSalutation();
+
+const shortLabel = // The module-level helper and the mixin member share a name, which only \`this.\` keeps apart
+    // here — the composable's binding has to be renamed to stay apart from the helper.
+    function () {
+        return salutation(props.customer);
+    };
+
+const fullLabel = function () {
+    return salutation$1(props.customer, 'no name');
+};
+
+swDefinePublic({
+    shortLabel,
+    fullLabel,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-composable 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_composable">
+        <div class="sw-mixin-composable">
+            <!-- \`salutation\` is used here only — the composable still has to be declared for it. -->
+            <p class="sw-mixin-composable__name">{{ salutation(customer, 'no name') }}</p>
+
+            <button class="sw-mixin-composable__greet" @click="onGreet">Greet</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import useNotification from 'src/app/composables/use-notification';
+import useSalutation from 'src/app/composables/use-salutation';
+
+defineProps({
+    customer: {
+        type: Object,
+        required: true,
+    },
+});
+
+const { createNotificationSuccess } = useNotification();
+const { salutation } = useSalutation();
+
+const onGreet = function () {
+    createNotificationSuccess({ message: 'greeted' });
+};
+
+swDefinePublic({
+    createNotificationSuccess,
+    salutation,
+    onGreet,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-demo 1`] = `
 {
   "outcome": "skipped",
   "reasons": [
-    "mixins",
+    "no composable registered for mixin 'listing'",
+    "unsupported mixins entry 'swListMixin'",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-internal-override 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "component redefines 'createNotification', which the 'notification' composable calls internally",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-override 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "component redefines 'createNotificationSuccess' from the 'notification' mixin",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-string-form 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_string_form">
+        <p class="sw-mixin-string-form">{{ formatName() }} / {{ formatRaw() }}</p>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import useSalutation from 'src/app/composables/use-salutation';
+
+const { salutation } = useSalutation();
+
+const formatName = function () {
+    return salutation(customer.value, 'no name');
+};
+
+const formatRaw = function () {
+    return salutationFilter.value(customer.value, '');
+};
+
+const salutationFilter = computed(
+    // The composable does not expose the mixin's \`salutationFilter\`, but this declaration
+    // shadowed the mixin's anyway, so nothing is lost by migrating.
+    function () {
+        return Shopware.Filter.getByName('salutation');
+    },
+);
+
+const customer = ref(null);
+
+swDefinePublic({
+    salutation,
+    customer,
+    salutationFilter,
+    formatName,
+    formatRaw,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-template-collision 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "'salutation' is read in the template and its binding name is already taken",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-unmapped 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "'salutationFilter' is read but the 'salutation' composable does not provide it",
   ],
   "sfc": null,
 }

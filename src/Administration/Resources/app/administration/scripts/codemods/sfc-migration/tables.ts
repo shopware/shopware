@@ -9,6 +9,9 @@
  * LIFECYCLE_HOOKS maps hook names. Anything no table claims becomes a `// TODO(sfc-migration)`
  * comment (partial migration) or a blocker (component skipped) — never a silent guess. Supporting
  * a new feature usually means adding one entry here plus a handler in option-handlers.ts.
+ *
+ * Mixins have their own table, composables.ts, because a mixin is matched by its registered name
+ * rather than by an option key.
  */
 
 type MemberKind = 'prop' | 'data' | 'computed' | 'method' | 'inject';
@@ -19,7 +22,6 @@ type TodoEntry = { reason: string; code?: string };
 
 // Options whose presence makes the whole component non-migratable.
 const SKIP_OPTIONS = new Set([
-    'mixins',
     'render',
     'renderError',
 ]);

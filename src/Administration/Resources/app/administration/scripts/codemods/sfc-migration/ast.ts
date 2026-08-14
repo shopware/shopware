@@ -18,6 +18,10 @@ type Ctx = {
     ms: MagicString;
     componentName: string;
     bindings: Map<string, MemberKind>;
+    /** Members whose setup binding is not named after the member (composable collision renames). */
+    renamedBindings: Map<string, string>;
+    /** Identifiers the converted template reads, so members only it uses still get a binding. */
+    templateIdentifiers: ReadonlySet<string>;
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
     inferredEmits: string[];
@@ -243,6 +247,31 @@ function isThisMember(node: t.Node): node is t.MemberExpression {
     return node.type === 'MemberExpression' && node.object.type === 'ThisExpression';
 }
 
+/**
+ * The setup binding a component member resolves to. Equal to the member name except where a
+ * composable member had to be renamed around a name another declaration already claims.
+ */
+function bindingName(ctx: Ctx, member: string): string {
+    return ctx.renamedBindings.get(member) ?? member;
+}
+
+/**
+ * Every `this.<member>` name read inside `node`, ignoring what `this` binds at each site. Callers use
+ * it to decide whether a member is referenced at all, where counting a reference that turns out to be
+ * foreign only costs an unused binding — missing one would drop the member.
+ */
+function collectThisMemberNames(node: t.Node, names: Set<string>): void {
+    if (isThisMember(node)) {
+        const name = memberName(node);
+
+        if (name) {
+            names.add(name);
+        }
+    }
+
+    visitChildren(node, (child) => collectThisMemberNames(child, names));
+}
+
 function memberName(node: t.MemberExpression): string | null {
     if (!node.computed && node.property.type === 'Identifier') {
         return node.property.name;
@@ -351,9 +380,12 @@ export {
     asFunction,
     visitChildren,
     walk,
+    collectPatternNames,
     functionScope,
     isShadowed,
     isThisMember,
+    bindingName,
+    collectThisMemberNames,
     memberName,
     arrowText,
     unwrapExpression,

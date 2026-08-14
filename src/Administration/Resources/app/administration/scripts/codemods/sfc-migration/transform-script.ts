@@ -19,8 +19,8 @@ import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
 import MagicString from 'magic-string';
 import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type TodoEntry } from './tables';
-import { type Ctx, arrowText, snip, unwrapOptions } from './ast';
-import { buildWatchers, classifyOptions } from './option-handlers';
+import { type Ctx, arrowText, collectPatternNames, snip, unwrapOptions } from './ast';
+import { buildWatchers, classifyOptions, resolveMixins } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
 type ScriptResult = {
@@ -45,16 +45,53 @@ function todoBlock(entry: TodoEntry): string {
     ].join('\n');
 }
 
+/**
+ * Names the module body binds outside the component options. The module `<script>` block shares its
+ * scope with `<script setup>`, so a generated binding of the same name would either be a duplicate
+ * declaration or quietly take over the references meant for the prelude's.
+ */
+function collectTopLevelBindings(body: t.Statement[], exportDefault: t.Statement): Set<string> {
+    const names = new Set<string>();
+
+    for (const statement of body) {
+        if (statement === exportDefault) {
+            continue;
+        }
+
+        const declaration =
+            statement.type === 'ExportNamedDeclaration' && statement.declaration ? statement.declaration : statement;
+
+        if (declaration.type === 'ImportDeclaration') {
+            for (const specifier of declaration.specifiers) {
+                names.add(specifier.local.name);
+            }
+        } else if (declaration.type === 'VariableDeclaration') {
+            for (const declarator of declaration.declarations) {
+                collectPatternNames(declarator.id, names);
+            }
+        } else if (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration') {
+            collectPatternNames(declaration.id, names);
+        }
+    }
+
+    return names;
+}
+
 function transformScript(
     source: string,
     componentName: string,
-    transformOptions: { templateImportRange: { start: number; end: number } },
+    transformOptions: {
+        templateImportRange: { start: number; end: number };
+        templateIdentifiers: ReadonlySet<string>;
+    },
 ): ScriptResult {
     const ctx: Ctx = {
         source,
         ms: new MagicString(source),
         componentName,
         bindings: new Map(),
+        renamedBindings: new Map(),
+        templateIdentifiers: transformOptions.templateIdentifiers,
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
@@ -91,6 +128,7 @@ function transformScript(
     }
 
     const collected = classifyOptions(ctx, options);
+    const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
     const watchers = buildWatchers(ctx, collected);
 
     // --- name safety checks --------------------------------------------------------------------
@@ -197,6 +235,7 @@ function transformScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
+        ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
     ]
         .filter(Boolean)
         .join('\n');
@@ -213,6 +252,17 @@ function transformScript(
         .map((helper) => HELPER_SETUP_LINES[helper])
         .join('\n');
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
+    const composableBlock = composables
+        .map(({ descriptor, entries }) => {
+            const destructured = entries
+                .map((entry) =>
+                    entry.binding === entry.sourceKey ? entry.sourceKey : `${entry.sourceKey}: ${entry.binding}`,
+                )
+                .join(', ');
+
+            return `const { ${destructured} } = ${descriptor.import.name}();`;
+        })
+        .join('\n');
     const dataBlock = collected.dataEntries
         .map((entry) => `const ${entry.name} = ref(${snip(ctx, entry.valueNode)});`)
         .join('\n');
@@ -233,6 +283,9 @@ function transformScript(
                 ? `const emit = defineEmits(${emitsText});`
                 : `defineEmits(${emitsText});`
             : null,
+        // After the macro bindings a composable call can be handed, before the member sections that
+        // read what it returns.
+        composableBlock || null,
         ...collected.methods.map((method) => method.text()),
         ...collected.computeds.map((computedEntry) => computedEntry.text()),
         dataBlock || null,
@@ -245,6 +298,12 @@ function transformScript(
 
     const publicNames = [
         ...collected.injects,
+        // The mixin's members were part of the instance surface an override could reach, so they stay
+        // public. A renamed one cannot: swDefinePublic only takes shorthand bindings, so exposing it
+        // would publish the generated name instead of the one the mixin had.
+        ...composables.flatMap(({ entries }) =>
+            entries.filter((entry) => entry.binding === entry.member).map((entry) => entry.binding),
+        ),
         ...collected.dataEntries.map((entry) => entry.name),
         ...ctx.templateRefs,
         ...collected.computeds.map((computedEntry) => computedEntry.name),

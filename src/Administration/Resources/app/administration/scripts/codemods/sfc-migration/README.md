@@ -83,12 +83,35 @@ Registrations are collected from the whole Administration `src/` whenever the ta
 so running the codemod on a single module still resolves names registered in a parent directory.
 For targets outside `src/` the scan root is the target itself.
 
+## Mixins
+
+A `mixins` entry is converted when `composables.ts` has a descriptor for the mixin's registered name
+(both `Mixin.getByName('x')` and the bare `mixins: ['x']` form resolve through it). The descriptor
+names the composable to import and the members it answers, and those members become entries in the
+same `ctx.bindings` map a component's own members use, so `this.<member>` rewrites need nothing extra.
+Only members the script or the template actually reads are destructured.
+
+Conversion is all-or-nothing per component: one mixin without a descriptor keeps the whole component
+on the Options API, because a half-converted `mixins` array has no safe meaning. Four more cases keep
+it there even though a descriptor exists, all of them places where the composable is not a drop-in for
+the mixin's `this` semantics:
+
+- the component redefines a member the mixin provides — its own version wins today, and after the
+  migration both would want the same binding name;
+- the component redefines a member the composable calls internally, where the override would silently
+  stop taking effect;
+- the component reads a member the composable does not return (a computed it inlines) — unless the
+  component declares its own member of that name, which shadowed the mixin's anyway;
+- the template reads a member whose binding name another declaration already claims. A script-only
+  read is fixed by renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but
+  the template cannot be rewritten.
+
 ## What is skipped on purpose
 
-`mixins`, `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,
+`Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,
 `render()` components, root-level option spreads, components whose `name` option differs from their
-component name, and components whose registered name neither the directory nor the template filename
-confirms.
+component name, components whose registered name neither the directory nor the template filename
+confirms, and mixins no composable covers (see above).
 
 Two more are refused because base output cannot express them, and because the markup they would
 produce compiles while rendering something different:
@@ -120,11 +143,13 @@ Each file answers exactly one question:
 | `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
 | `rewrite-this.ts` | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope |
 | `tables.ts` | What converts to what? All conversion tables — the extension surface |
+| `composables.ts` | Which mixin has a composable, and which `this.<member>` does it answer? One descriptor per mixin |
 | `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
 | `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
 | `sfc-migration.spec.ts` + `__fixtures__/` | What does one component convert into? A snapshot of every fixture through the full pipeline |
+| `mixin-composables.spec.ts` | Which mixin declarations resolve, and which cases keep the Options API? |
 | `run-sfc-migration.spec.ts` | What does the runner do to files? CLI exit codes, draft/replacement modes, name derivation, and existing-`.vue` behaviour |
-| `spec-helpers.ts` | Temp-tree helpers shared by the specs that build a throwaway component tree |
+| `spec-helpers.ts` | Helpers shared by the specs: throwaway component trees, and the one way a fixture reaches the pipeline |
 | `runtime-equivalence-*.ts` | Does a supported shape execute equivalently, or stay conservative? |
 
 ## Extending the codemod
@@ -137,5 +162,8 @@ The conversion rules are data tables plus one handler per option:
   `data`, `computed`, `watch`, …). Promoting a feature means moving its key out of the TODO/SKIP
   set and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`)
   and the assembly (`transform-script.ts`) stay untouched.
+- `composables.ts` — `COMPOSABLE_DESCRIPTORS`, one entry per mixin that has a composable. Supporting
+  another mixin means writing the composable and adding its descriptor; `resolveMixins()` and the
+  assembly stay untouched.
 - New conversions are covered by dropping a fixture folder into `__fixtures__/` —
   `sfc-migration.spec.ts` snapshots every fixture automatically and runs the full validation gate.

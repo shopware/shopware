@@ -22,6 +22,7 @@ import {
     type LocalScope,
     FUNCTION_TYPES,
     IDENTIFIER,
+    bindingName,
     functionScope,
     isShadowed,
     isThisMember,
@@ -31,6 +32,51 @@ import {
     todo,
     visitChildren,
 } from './ast';
+
+/**
+ * Second arguments of `$t` that mean the same to legacy `$t` and to Composition `t()`: an object of
+ * named values, a list, or a plural count. A count is only recognized where it provably is a number —
+ * anything whose type could be a string has to be treated as a locale.
+ */
+function isPortableI18nArgument(node: t.Node): boolean {
+    switch (node.type) {
+        case 'ObjectExpression':
+        case 'ArrayExpression':
+        case 'NumericLiteral':
+            return true;
+        case 'UnaryExpression':
+            return (node.operator === '-' || node.operator === '+') && isPortableI18nArgument(node.argument);
+        case 'ConditionalExpression':
+            return isPortableI18nArgument(node.consequent) && isPortableI18nArgument(node.alternate);
+        case 'TSAsExpression':
+        case 'TSNonNullExpression':
+            return isPortableI18nArgument(node.expression);
+        default:
+            return false;
+    }
+}
+
+/**
+ * The legacy vue-i18n call shapes Composition `t()` reads differently, described for a TODO comment.
+ *
+ * `INSTANCE_PROPS` maps `$t` and `$tc` onto `t` unconditionally, which is only right where the
+ * arguments mean the same in both APIs: `$t(key)`, `$t(key, values)`, `$t(key, list)`, `$t(key,
+ * plural)` and `$tc(key, choice)` all do. A locale as `$t`'s second argument does not — Composition
+ * `t()` takes a default message there and would render the locale itself — and neither does `$tc`'s
+ * third `values` argument, where Composition `t()` expects TranslateOptions and drops the
+ * interpolation. Both need the locale or the values moved, which is a call rewrite, not a rename.
+ */
+function legacyI18nShape(call: t.CallExpression, name: string): string | null {
+    if (name === '$t' && call.arguments.length >= 2 && !isPortableI18nArgument(call.arguments[1])) {
+        return 'legacy this.$t(key, locale) argument shape';
+    }
+
+    if (name === '$tc' && call.arguments.length >= 3) {
+        return 'legacy this.$tc(key, choice, values) argument order';
+    }
+
+    return null;
+}
 
 /**
  * Rewrites every component-bound `this.*` inside `node`. `thisIsComponent` is false inside nested
@@ -53,6 +99,23 @@ function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponent: boolean, scope: Lo
             }
         } else {
             todo(ctx, 'dynamic $emit event name', raw(ctx, node));
+        }
+    }
+
+    if (node.type === 'CallExpression' && thisIsComponent && isThisMember(node.callee)) {
+        const calleeName = memberName(node.callee);
+        const legacyShape = calleeName === null ? null : legacyI18nShape(node, calleeName);
+
+        if (legacyShape !== null) {
+            todo(ctx, legacyShape, raw(ctx, node));
+
+            // The callee is left as authored, so the draft shows the shape a human has to decide on.
+            // The arguments are ordinary component code and still rewrite.
+            for (const argument of node.arguments) {
+                rewriteThis(ctx, argument, thisIsComponent, scope);
+            }
+
+            return;
         }
     }
 
@@ -164,8 +227,10 @@ function rewriteThisMember(ctx: Ctx, node: t.MemberExpression, thisIsComponent: 
         return;
     }
 
+    const binding = bindingName(ctx, name);
+
     // Props resolve through the `props` object, so only that name can shadow them.
-    if (isShadowed(scope, kind === 'prop' ? 'props' : name)) {
+    if (isShadowed(scope, kind === 'prop' ? 'props' : binding)) {
         todo(ctx, `this.${name} is shadowed by a local binding`);
         return;
     }
@@ -174,9 +239,9 @@ function rewriteThisMember(ctx: Ctx, node: t.MemberExpression, thisIsComponent: 
         ctx.helpers.add('props');
         overwrite(ctx, node, `props.${name}`);
     } else if (kind === 'data' || kind === 'computed') {
-        overwrite(ctx, node, `${name}.value`);
+        overwrite(ctx, node, `${binding}.value`);
     } else {
-        overwrite(ctx, node, name);
+        overwrite(ctx, node, binding);
     }
 }
 

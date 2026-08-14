@@ -14,9 +14,20 @@
  * - partial: writes the .vue draft with TODO(sfc-migration) comments and keeps the original
  *            index.js + twig untouched next to it, so the component keeps running as-is.
  * - skipped: writes nothing; the report explains why.
+ * - error:   the conversion or one of the writes threw; the reason says what is on disk.
+ *
+ * Only a plain `Component.register` reaches the destructive path. An extend child renders against
+ * bindings its parent declares and an override template patches another component's markup, so
+ * neither survives being written as a self-contained base SFC — and a directory no registration
+ * resolves to could be either, so it gets a draft only.
  *
  * Every generated SFC must survive the real build transform and Vue's compiler (validate.ts)
- * before it is written — a non-compiling file is never produced, not even as a draft.
+ * before it is written — a non-compiling file is never produced, not even as a draft. That gate
+ * proves the output compiles, not that it behaves the same, so shapes that would compile into
+ * different behaviour are refused by the transforms themselves.
+ *
+ * Writes are guarded per component: a failure is reported and the run continues, so one unwritable
+ * file cannot cost the report for everything migrated before it.
  */
 
 import * as fs from 'fs';

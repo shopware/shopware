@@ -95,13 +95,13 @@ jobs:
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        # Codecov CLI via script instead of codecov-action; rationale in
+        # .github/actions/phpunit-upload/action.yaml. Skipped on fork PRs, where
+        # secrets are unavailable; anywhere else a missing token fails loudly.
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          files: build/artifacts/jest/cobertura-coverage.xml
-          flags: jest-admin
-          disable_search: true
+        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/jest/cobertura-coverage.xml jest-admin
 
   license-check:
     needs:

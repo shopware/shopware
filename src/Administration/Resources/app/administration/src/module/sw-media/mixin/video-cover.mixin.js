@@ -1,5 +1,7 @@
 /**
  * @sw-package discovery
+ *
+ * Duplicated in `src/module/sw-media/composables/use-video-cover`; change both together.
  */
 Shopware.Mixin.register('video-cover', {
     inject: [

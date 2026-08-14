@@ -1,25 +1,15 @@
 import { defineComponent } from 'vue';
 import '../store/cms-page.store';
 import type { CmsSlotConfig } from '../service/cms.service';
+import type { CmsContentEntity } from '../composables/use-cms-state';
 
 const { cloneDeep } = Shopware.Utils.object;
 
-type WithSlotConfig = {
-    slotConfig?: {
-        [slotId: string]: CmsSlotConfig;
-    };
-    translations?: Array<{
-        languageId: string;
-        slotConfig?: {
-            [slotId: string]: CmsSlotConfig;
-        };
-    }>;
-};
-
-type ContentEntity<T extends keyof EntitySchema.Entities> = Entity<T> & WithSlotConfig;
 /**
  * @private
  * @sw-package discovery
+ *
+ * Duplicated in `src/module/sw-cms/composables/use-cms-state`; change both together.
  */
 export default Shopware.Mixin.register(
     'cms-state',
@@ -59,7 +49,7 @@ export default Shopware.Mixin.register(
 
             category() {
                 try {
-                    return Shopware.Store.get('swCategoryDetail')?.category as ContentEntity<'category'>;
+                    return Shopware.Store.get('swCategoryDetail')?.category as CmsContentEntity<'category'>;
                 } catch {
                     return null;
                 }
@@ -67,7 +57,7 @@ export default Shopware.Mixin.register(
 
             product() {
                 try {
-                    return Shopware.Store.get('swProductDetail')?.product as ContentEntity<'product'>;
+                    return Shopware.Store.get('swProductDetail')?.product as CmsContentEntity<'product'>;
                 } catch {
                     return null;
                 }
@@ -75,7 +65,7 @@ export default Shopware.Mixin.register(
 
             landingPage() {
                 try {
-                    return Shopware.Store.get('swCategoryDetail')?.landingPage as ContentEntity<'landing_page'>;
+                    return Shopware.Store.get('swCategoryDetail')?.landingPage as CmsContentEntity<'landing_page'>;
                 } catch {
                     return null;
                 }

@@ -324,11 +324,13 @@ class SeoUrlPersister
             return;
         }
 
-        $this->connection->executeStatement(
-            'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-            ['ids' => $ids],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        RetryableQuery::retryable($this->connection, function () use ($ids): void {
+            $this->connection->executeStatement(
+                'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
+                ['ids' => $ids],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        });
     }
 
     /**

@@ -18,6 +18,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class NullableUnion extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?string $value = null,
         /**

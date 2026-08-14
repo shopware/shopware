@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ReadProductRequest extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Product ID

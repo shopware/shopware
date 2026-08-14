@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-13 14:36:46
+ * Last generated: 2026-08-14 09:51:53
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -83,8 +83,7 @@ final class Criteria extends AbstractDto
         /**
          * Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)
          */
-        #[Assert\Choice(choices: ['none', 'exact', 'next-pages'])]
-        public string $totalCountMode = 'none',
+        public TotalCountMode $totalCountMode = TotalCountMode::NONE,
         /**
          * @var array<string, list<string>>
          */

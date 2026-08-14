@@ -337,6 +337,8 @@
                 }
             },
             "TotalCountMode": {
+                "x-dto-namespace": "Shopware\\Core\\Framework\\Api\\Request\\StoreApi",
+                "x-dto-package": "framework",
                 "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
                 "type": "string",
                 "default": "none",

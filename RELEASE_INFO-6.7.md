@@ -98,7 +98,9 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 `POST /store-api/product/{productId}/cross-selling` now ignores a `fields` selection and always loads complete products. A `fields` selection returns `PartialEntity` instances, which the cross selling elements are not typed against, so such a request previously failed with a `500`. Use `includes` to reduce the size of the response instead. A field selection added by a subscriber of `ProductCrossSellingStreamCriteriaEvent` or `ProductCrossSellingIdsCriteriaEvent` is dropped as well.
 
-The new `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops a field selection added via `addFields()`. Use it in custom routes and services when the consumer of the result requires completely loaded entities.
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` gets two new methods for this: `resetFields()` drops an allowlist added via `addFields()`, `resetExcludedFields()` drops a denylist added via `excludeFields()`. Both are useful in custom routes and services, either when the consumer of the result requires completely loaded entities, or to switch a criteria between the two mutually exclusive selections.
+
+Note that `addFields()` and `excludeFields()` reduce the database read and therefore change which data is loaded, while `includes` and `excludes` only shape the API response of data that has been read anyway.
 
 ## Core
 

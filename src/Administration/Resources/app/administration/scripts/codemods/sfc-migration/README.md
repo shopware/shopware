@@ -64,7 +64,8 @@ Each file answers exactly one question:
 | `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, twig-importer scan, file writes, report |
 | `component-registry.ts` | Which dir belongs to which `Component.register`/`extend`/`override` call? One scan, feeds the classification |
 | `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
-| `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, `{% parent %}`) |
+| `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, `{% parent %}`, leftover-twig check) |
+| `normalize-cross-block-conditionals.ts` | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned |
 | `transform-script.ts` | In what order is the `<script setup>` assembled? Orchestrates parse → classify → rewrite → assemble |
 | `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
 | `rewrite-this.ts` | Where does each `this.x` reference go? The scope-aware rewrite pass |

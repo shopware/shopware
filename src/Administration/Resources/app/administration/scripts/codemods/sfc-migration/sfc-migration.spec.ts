@@ -93,11 +93,13 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual(["name 'sw-totally-different' does not match the directory name"]);
         });
 
-        it('lets the validation gate reject v-if/v-else chains crossing block boundaries', async () => {
+        it('reconnects a v-if/v-else chain that the block conversion split into siblings', async () => {
             const result = await convertFixture('sw-cross-velse');
 
-            expect(result.outcome).toBe('skipped');
-            expect(result.reasons).toEqual([expect.stringContaining('v-else')]);
+            expect(result.outcome).toBe('full');
+            expect(result.sfc).toContain(
+                '<template v-if="active"><!-- Keeps the conditional chain connected across sw-block. --></template>',
+            );
         });
 
         it('converts {% parent %} and {{ parent() }} to <sw-block-parent />', () => {

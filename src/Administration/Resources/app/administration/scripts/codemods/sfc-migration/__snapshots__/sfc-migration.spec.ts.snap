@@ -60,11 +60,29 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-cross-velse 1`] = `
 {
-  "outcome": "skipped",
-  "reasons": [
-    "validation: v-else/v-else-if has no adjacent v-if or v-else-if.",
-  ],
-  "sfc": null,
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_cross_velse_on">
+        <div v-if="active">On</div>
+    </sw-block>
+
+    <sw-block name="sw_cross_velse_off">
+        <template v-if="active"><!-- Keeps the conditional chain connected across sw-block. --></template>
+        <div v-else>Off</div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
 }
 `;
 

@@ -70,6 +70,11 @@ const SKIP_RULES: ReasonRule[] = [
     },
     { pattern: /^unsupported twig syntax:/, label: 'unsupported twig syntax: other', stage: 'template' },
     {
+        pattern: /^orphaned cross-block v-else \(no preceding v-if\)$/,
+        label: 'orphaned cross-block v-else (no preceding v-if)',
+        stage: 'template',
+    },
+    {
         pattern: /^script parse error: (.+)$/,
         label: (match) => `script parse error: ${sanitizeMessage(match[1])}`,
         stage: 'script',

@@ -6,10 +6,15 @@
  * Converts a TwigJS component template into native setup SFC template markup.
  *
  * The Administration's twig layer only ever uses `{% block %}`, `{% parent %}` and `{# comments #}`
- * (verified over all 994 templates), so this stays a handful of text replacements. Anything else is
- * reported as a blocker instead of being guessed at. The `:data` binding of `<sw-block>` is owned by
- * the Shopware setup transform and must never be authored here.
+ * (verified over all 994 templates), so the conversion itself is a handful of text replacements.
+ * Anything else is reported as a blocker instead of being guessed at. The `:data` binding of
+ * `<sw-block>` is owned by the Shopware setup transform and must never be authored here.
+ *
+ * Turning transparent twig blocks into real elements breaks `v-if` chains that span a block
+ * boundary, so the twig-free markup goes through `normalize-cross-block-conditionals.ts` last.
  */
+
+import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
 type TemplateResult = {
     template: string | null;
@@ -40,7 +45,7 @@ function transformTemplate(twig: string): TemplateResult {
         };
     }
 
-    return { template, blockers: [] };
+    return normalizeCrossBlockConditionals(template);
 }
 
 export { transformTemplate, type TemplateResult };

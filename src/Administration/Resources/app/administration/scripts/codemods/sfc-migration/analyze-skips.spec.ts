@@ -19,6 +19,11 @@ describe('scripts/codemods/sfc-migration/analyze-skips', () => {
                 'template',
             ],
             [
+                'orphaned cross-block v-else (no preceding v-if)',
+                'orphaned cross-block v-else (no preceding v-if)',
+                'template',
+            ],
+            [
                 "binding 'router' collides with a generated helper",
                 'binding collides with a generated helper',
                 'script',

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoClassRenderer;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoDefinition;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoGenerator;
 use Shopware\Core\Framework\Api\OpenApi\OpenApiDtoSchemaParser;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
@@ -39,6 +40,64 @@ class OpenApiDtoClassRendererTest extends TestCase
         static::assertStringContainsString('enum NewsletterStatus', $rendered);
         static::assertStringContainsString('case NOT_SET = \'notSet\';', $rendered);
         static::assertStringContainsString('case OPT_IN = \'optIn\';', $rendered);
+    }
+
+    public function testEnumValuesAreEscaped(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'components' => [
+                'schemas' => [
+                    'SpecialValue' => [
+                        'x-dto-namespace' => 'App\\DTO',
+                        'type' => 'string',
+                        'enum' => ['foo\'\\bar', 'foo-bar'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $rendered = $this->renderDefinition($this->definitionByName($definitions, 'SpecialValue'));
+
+        static::assertStringContainsString('case FOO__BAR = \'foo\\\'\\\\bar\';', $rendered);
+        static::assertStringContainsString('case FOO_BAR = \'foo-bar\';', $rendered);
+    }
+
+    public function testEnumCaseNameCollisionsThrowException(): void
+    {
+        $this->expectException(FrameworkException::class);
+
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'components' => [
+                'schemas' => [
+                    'CollidingValue' => [
+                        'x-dto-namespace' => 'App\\DTO',
+                        'type' => 'string',
+                        'enum' => ['foo-bar', 'foo_bar'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->renderDefinition($this->definitionByName($definitions, 'CollidingValue'));
+    }
+
+    public function testEnumValuesWithoutCaseNameThrowException(): void
+    {
+        $this->expectException(FrameworkException::class);
+
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'components' => [
+                'schemas' => [
+                    'InvalidValue' => [
+                        'x-dto-namespace' => 'App\\DTO',
+                        'type' => 'string',
+                        'enum' => [''],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->renderDefinition($this->definitionByName($definitions, 'InvalidValue'));
     }
 
     public function testOpenApiFixturesMatchGeneratedDtos(): void

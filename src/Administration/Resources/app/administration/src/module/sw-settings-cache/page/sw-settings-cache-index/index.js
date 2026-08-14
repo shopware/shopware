@@ -39,54 +39,6 @@ export default {
             },
             indexingMethod: 'skip',
             indexerSelection: [],
-            indexers: {
-                'category.indexer': [
-                    'category.child-count',
-                    'category.tree',
-                    'category.breadcrumb',
-                    'category.seo-url',
-                ],
-                'customer.indexer': [
-                    'customer.many-to-many-id-field',
-                ],
-                'landing_page.indexer': [
-                    'landing_page.many-to-many-id-field',
-                    'landing_page.seo-url',
-                ],
-                'media.indexer': [],
-                'media_folder.indexer': [
-                    'media_folder.child-count',
-                ],
-                'media_folder_configuration.indexer': [],
-                'payment_method.indexer': [],
-                'product.indexer': [
-                    'product.inheritance',
-                    'product.stock',
-                    'product.variant-listing',
-                    'product.child-count',
-                    'product.many-to-many-id-field',
-                    'product.category-denormalizer',
-                    'product.cheapest-price',
-                    'product.rating-average',
-                    'product.stream',
-                    'product.search-keyword',
-                    'product.seo-url',
-                ],
-                'product_stream.indexer': [],
-                'product_stream_mapping.indexer': [],
-                'promotion.indexer': [
-                    'promotion.exclusion',
-                    'promotion.redemption',
-                ],
-                'rule.indexer': [
-                    'rule.payload',
-                ],
-                'sales_channel.indexer': [
-                    'sales_channel.many-to-many',
-                ],
-                'flow.indexer': [],
-                'newsletter_recipient.indexer': [],
-            },
         };
     },
 
@@ -139,6 +91,22 @@ export default {
                     value: 'only',
                 },
             ];
+        },
+
+        indexers() {
+            return this.cacheInfo?.indexers ?? {};
+        },
+    },
+
+    watch: {
+        indexingMethod(value) {
+            if (value !== 'only') {
+                return;
+            }
+
+            this.indexerSelection = this.indexerSelection.filter((selection) =>
+                Object.prototype.hasOwnProperty.call(this.indexers, selection),
+            );
         },
     },
 
@@ -269,27 +237,15 @@ export default {
             }
         },
 
+        clearIndexerSelection() {
+            this.indexerSelection = [];
+        },
+
         createOnlySelection(only) {
-            for (const [
-                indexerName,
-                updaters,
-            ] of Object.entries(this.indexers)) {
+            for (const indexerName of Object.keys(this.indexers)) {
                 if (this.indexerSelection.indexOf(indexerName) > -1) {
                     only.push(indexerName);
                 }
-
-                const selectedUpdaters = [];
-                for (const updater of updaters) {
-                    if (this.indexerSelection.indexOf(updater) > -1) {
-                        selectedUpdaters.push(updater);
-                    }
-                }
-
-                if (selectedUpdaters.length > 0) {
-                    only.push(indexerName);
-                }
-
-                only.push(...selectedUpdaters);
             }
         },
     },

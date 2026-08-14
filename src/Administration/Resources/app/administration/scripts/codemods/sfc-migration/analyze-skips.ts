@@ -74,6 +74,11 @@ const SKIP_RULES: ReasonRule[] = [
     },
     { pattern: /^template file not found$/, label: 'template file not found', stage: 'precheck' },
     {
+        pattern: /^Component\.(extend|override)/,
+        label: (match) => `\`Component.${match[1]}\` registration`,
+        stage: 'precheck',
+    },
+    {
         pattern: /^unsupported twig syntax: \{[%#]-?\s*([\w-]+)/,
         label: (match) => `unsupported twig syntax: \`{% ${match[1]} %}\``,
         stage: 'template',
@@ -183,6 +188,11 @@ const TODO_RULES: ReasonRule[] = [
         pattern: /^unsupported (data\(\)|props) /,
         label: (match) => `unsupported ${match[1]} declaration/entry`,
         stage: 'option',
+    },
+    {
+        pattern: /^no registration resolves to this directory/,
+        label: 'no registration resolves to this directory (draft only)',
+        stage: 'precheck',
     },
     {
         pattern: /^module-level code outside the default export/,

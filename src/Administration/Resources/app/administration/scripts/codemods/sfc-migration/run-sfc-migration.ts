@@ -127,12 +127,34 @@ async function runMigration(
         const dirName = path.basename(dir);
         // The registration is the authority on the component's name; only directories nothing
         // registers fall back to their basename.
-        const name = registry.byDir.get(dir)?.name ?? dirName;
+        const registration = registry.byDir.get(dir);
+        const name = registration?.name ?? dirName;
         const jsSource = fs.readFileSync(indexFile, 'utf8');
 
         // Files without a default-exported component config (registries, barrels) are not
         // components — they are not even reported.
         if (!/export\s+default\s/.test(jsSource)) {
+            continue;
+        }
+
+        // How a component is registered decides whether its template stands on its own, so this
+        // outranks every file-layout reason below. An extend child renders against bindings its
+        // parent declares and an override template patches another component's markup — neither
+        // survives being written as a self-contained base SFC, and the template compiler accepts
+        // the undeclared references, so the validation gate cannot catch it either.
+        if (registration?.kind === 'extend') {
+            stats.skipped += 1;
+            report(name, dir, 'skipped', [
+                registration.parent
+                    ? `Component.extend child of '${registration.parent}' (inherits the parent template)`
+                    : 'Component.extend child (inherits the parent template)',
+            ]);
+            continue;
+        }
+
+        if (registration?.kind === 'override') {
+            stats.skipped += 1;
+            report(name, dir, 'skipped', ["Component.override registration (patches another component's template)"]);
             continue;
         }
 
@@ -202,12 +224,22 @@ async function runMigration(
             continue;
         }
 
-        stats[result.outcome] += 1;
+        // A directory no registration resolves to is also where an extend child hides when the
+        // registering file sits outside the scan root, so it never takes the destructive path.
+        // Expressed as an outcome downgrade rather than a condition on the write, so `full` keeps
+        // meaning "index.js is replaced and the twig is deleted".
+        const outcome = result.outcome === 'full' && registration === undefined ? 'partial' : result.outcome;
+
+        if (outcome !== result.outcome) {
+            result.reasons.push('no registration resolves to this directory — draft only, index.js and twig kept');
+        }
+
+        stats[outcome] += 1;
 
         if (write && result.sfc !== null) {
             fs.writeFileSync(vuePath, result.sfc);
 
-            if (result.outcome === 'full') {
+            if (outcome === 'full') {
                 fs.writeFileSync(indexFile, buildIndexShim(jsSource, name));
 
                 const externalImporters = [...(twigImporters.get(twigPath) ?? [])].filter(
@@ -222,7 +254,7 @@ async function runMigration(
             }
         }
 
-        report(name, dir, result.outcome, result.reasons);
+        report(name, dir, outcome, result.reasons);
     }
 
     return { reports, stats, inlineOverrides: registry.inlineOverrides };

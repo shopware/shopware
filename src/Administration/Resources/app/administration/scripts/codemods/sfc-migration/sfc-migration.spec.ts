@@ -199,13 +199,19 @@ describe('scripts/codemods/sfc-migration', () => {
             copyFixture('sw-simple-card');
             copyFixture('sw-partial-todos');
             copyFixture('sw-mixin-demo');
+            // Both would migrate on their own; they are here to prove the registration kind, not
+            // their contents, is what keeps them off the destructive path.
+            copyFixture('sw-slot-in-child');
+            copyFixture('sw-lifecycle-demo');
             // The module index registers components the way the real modules do; it carries no
             // component config itself, so it is never discovered as a component.
             fs.writeFileSync(
                 path.join(tmpDir, 'index.js'),
                 [
                     "Component.register('sw-simple-card', () => import('./sw-simple-card'));",
-                    "Shopware.Component.extend('sw-partial-todos', 'sw-simple-card', () => import('./sw-partial-todos'));",
+                    "Component.register('sw-partial-todos', () => import('./sw-partial-todos'));",
+                    "Shopware.Component.extend('sw-slot-in-child', 'sw-simple-card', () => import('./sw-slot-in-child'));",
+                    "Component.override('sw-lifecycle-demo', () => import('./sw-lifecycle-demo'));",
                     "Component.override('sw-simple-card', { template: '' });",
                     '',
                 ].join('\n'),
@@ -243,8 +249,40 @@ describe('scripts/codemods/sfc-migration', () => {
 
         it('classifies every reported component by its registration', () => {
             expect(registrationOf('sw-simple-card')).toBe('register');
-            expect(registrationOf('sw-partial-todos')).toBe('extend');
+            expect(registrationOf('sw-partial-todos')).toBe('register');
+            expect(registrationOf('sw-slot-in-child')).toBe('extend');
+            expect(registrationOf('sw-lifecycle-demo')).toBe('override');
             expect(registrationOf('sw-mixin-demo')).toBe('unregistered');
+        });
+
+        it.each([
+            [
+                'sw-slot-in-child',
+                "Component.extend child of 'sw-simple-card' (inherits the parent template)",
+            ],
+            [
+                'sw-lifecycle-demo',
+                "Component.override registration (patches another component's template)",
+            ],
+        ])('leaves %s untouched, because its template is not self-contained', (name, reason) => {
+            const dir = path.join(tmpDir, name);
+            const entry = result.reports.find((report) => report.name === name);
+
+            expect(entry?.outcome).toBe('skipped');
+            expect(entry?.reasons).toEqual([reason]);
+            expect(fs.existsSync(path.join(dir, `${name}.vue`))).toBe(false);
+            expect(fs.existsSync(path.join(dir, `${name}.html.twig`))).toBe(true);
+            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toBe(
+                fs.readFileSync(path.join(FIXTURES, name, 'index.js'), 'utf8'),
+            );
+        });
+
+        it('writes a draft only, for a component no registration resolves to', () => {
+            const entry = result.reports.find((report) => report.name === 'sw-mixin-demo');
+
+            // sw-mixin-demo is a hard skip for its own reasons; the downgrade is asserted through
+            // the registration column, which is what gates the destructive path.
+            expect(entry?.registration).toBe('unregistered');
         });
 
         it('carries the inline overrides through, which own no component directory', () => {
@@ -256,11 +294,12 @@ describe('scripts/codemods/sfc-migration', () => {
             const second = await runMigration(tmpDir, { write: true });
 
             // sw-simple-card's index.js is now a shim without a component config, so it is not
-            // discovered at all; the partial draft reports as already migrated.
+            // discovered at all; the partial draft reports as already migrated, and the three
+            // components nothing wrote are skipped again for the same reasons.
             expect(second.stats).toEqual({
                 full: 0,
                 partial: 0,
-                skipped: 1,
+                skipped: 3,
                 alreadyMigrated: 1,
                 error: 0,
             });

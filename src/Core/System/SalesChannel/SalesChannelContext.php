@@ -192,7 +192,7 @@ class SalesChannelContext extends Struct
         $ruleIds = [];
 
         foreach ($areas as $area) {
-            if (empty($this->areaRuleIds[$area])) {
+            if (!isset($this->areaRuleIds[$area]) || $this->areaRuleIds[$area] === []) {
                 continue;
             }
 

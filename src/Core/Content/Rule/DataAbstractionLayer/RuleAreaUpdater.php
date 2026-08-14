@@ -188,9 +188,12 @@ class RuleAreaUpdater implements EventSubscriberInterface
                     continue;
                 }
 
-                if (!empty($payload[$field->getPropertyName()])) {
-                    $ruleIds[] = Uuid::fromHexToBytes($payload[$field->getPropertyName()]);
+                $ruleId = $payload[$field->getPropertyName()] ?? null;
+                if (!\is_string($ruleId) || $ruleId === '') {
+                    continue;
                 }
+
+                $ruleIds[] = Uuid::fromHexToBytes($ruleId);
             }
         }
 

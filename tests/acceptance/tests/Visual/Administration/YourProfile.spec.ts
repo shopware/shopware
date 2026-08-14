@@ -19,7 +19,7 @@ test(
             await assertScreenshot(AdminYourProfile.page, 'Your-Profile-General-Tab.png');
         });
 
-        await test.step.skip('Creates a screenshot of the search preferences tab.', async () => {
+        await test.step('Creates a screenshot of the search preferences tab.', async () => {
             await AdminYourProfile.searchPreferencesTab.click();
             await setViewport(AdminYourProfile.page, {
                 waitForSelector: AdminYourProfile.deselectAllButton,

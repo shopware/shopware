@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class UnmetRequirementError extends Error
+class UnmetRequirementError implements Error
 {
     private const KEY = 'manifest-unmet-requirements';
 
     private readonly string $violations;
+
+    private readonly string $message;
 
     public function __construct(UnmetRequirement ...$violations)
     {
@@ -31,8 +33,11 @@ class UnmetRequirementError extends Error
         $this->violations = implode('; ', $violationDetails);
 
         $this->message = \sprintf('The app requirements are not met: %s', $this->violations);
+    }
 
-        parent::__construct($this->message);
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     public function getMessageKey(): string

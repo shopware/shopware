@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class SalesChannelContextItemRounding extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\NotNull]
         public int $decimals,

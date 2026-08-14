@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class CreateItemsRequest extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * @var list<string> List of tags

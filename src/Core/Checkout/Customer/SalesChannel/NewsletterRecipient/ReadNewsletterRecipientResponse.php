@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-13 12:40:10
+ * Last generated: 2026-08-14 11:56:32
  */
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel\NewsletterRecipient;
@@ -23,6 +23,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ReadNewsletterRecipientResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * The subscription status. Possible values are: notSet, optIn, optOut, direct, undefined.

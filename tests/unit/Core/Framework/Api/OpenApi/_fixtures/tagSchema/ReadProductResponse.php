@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ReadProductResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\Valid]
         public ?Product $product = null,

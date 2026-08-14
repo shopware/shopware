@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class DefaultValues extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\NotBlank]
         public string $query,

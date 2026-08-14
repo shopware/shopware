@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-14 09:51:53
+ * Last generated: 2026-08-14 11:56:12
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -23,6 +23,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class NoneFieldsCriteria extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Search result page

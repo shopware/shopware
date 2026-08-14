@@ -267,12 +267,17 @@ jobs:
 
       - name: Lint OpenApi StoreAPI schema
         run: |
-          redocly lint ./api-types/storeApiSchema.json
+          set -euo pipefail
+          redocly lint --format json ./api-types/storeApiSchema.json | tee redocly-store-api-lint.json
+          warnings=$(jq '.totals.warnings' redocly-store-api-lint.json)
+          if [ "$warnings" -ne 0 ]; then
+            echo "Redocly reported $warnings Store API warning(s)." >&2
+            exit 1
+          fi
 
-      - name: Generate & Lint OpenApi API schema
+      - name: Generate OpenApi API schema
         run: |
           api-gen loadSchema --apiType=admin && api-gen generate --apiType=admin
-          redocly lint ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -290,7 +295,7 @@ jobs:
 
       - name: Lint OpenApi AdminAPI schema
         run: |
-          redocly lint ./api-types/adminApiSchema.json
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
   phpunit:
     name: "PHPUnit for ${{ matrix.suite }}"

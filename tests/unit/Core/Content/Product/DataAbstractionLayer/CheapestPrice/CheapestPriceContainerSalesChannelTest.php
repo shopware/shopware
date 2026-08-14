@@ -61,7 +61,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             ],
         ]);
 
-        static::assertFalse($container->hasListPriceRange($context));
+        $cheapestPrice = $container->resolve($context);
+
+        static::assertNotNull($cheapestPrice);
+        static::assertFalse($cheapestPrice->hasListPriceRange());
     }
 
     public function testHasListPriceRangeDetectsDifferentListPrices(): void
@@ -106,7 +109,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             ],
         ]);
 
-        static::assertTrue($container->hasListPriceRange($context));
+        $cheapestPrice = $container->resolve($context);
+
+        static::assertNotNull($cheapestPrice);
+        static::assertTrue($cheapestPrice->hasListPriceRange());
     }
 
     public function testResolveReturnsPriceWithoutStoredSalesChannelIds(): void
@@ -176,7 +182,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             'variant2' => ['default' => $this->createVariantPrice(10.0)],
         ]);
 
-        static::assertTrue($container->hasListPriceRange($this->createSalesChannelContext()));
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext());
+
+        static::assertNotNull($cheapestPrice);
+        static::assertTrue($cheapestPrice->hasListPriceRange());
     }
 
     public function testHasListPriceRangeIgnoresZeroPercentListPrices(): void
@@ -186,7 +195,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             'variant2' => ['default' => $this->createVariantPrice(10.0)],
         ]);
 
-        static::assertFalse($container->hasListPriceRange($this->createSalesChannelContext()));
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext());
+
+        static::assertNotNull($cheapestPrice);
+        static::assertFalse($cheapestPrice->hasListPriceRange());
     }
 
     public function testHasDisplayableListPriceIgnoresZeroPercentListPrices(): void
@@ -196,7 +208,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             'variant2' => ['default' => $this->createVariantPrice(10.0)],
         ]);
 
-        static::assertFalse($container->hasDisplayableListPrice($this->createSalesChannelContext()));
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext());
+
+        static::assertNotNull($cheapestPrice);
+        static::assertFalse($cheapestPrice->hasDisplayableListPrice());
     }
 
     public function testHasDisplayableListPriceCountsPositiveListPrices(): void
@@ -206,7 +221,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             'variant2' => ['default' => $this->createVariantPrice(10.0)],
         ]);
 
-        static::assertTrue($container->hasDisplayableListPrice($this->createSalesChannelContext()));
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext());
+
+        static::assertNotNull($cheapestPrice);
+        static::assertTrue($cheapestPrice->hasDisplayableListPrice());
     }
 
     public function testResolvePrefersDisplayableListPriceWhenUnitPricesAreEqual(): void

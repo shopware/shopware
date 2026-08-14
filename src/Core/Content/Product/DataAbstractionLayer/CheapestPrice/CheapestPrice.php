@@ -12,6 +12,10 @@ class CheapestPrice extends Struct
 {
     protected bool $hasRange;
 
+    protected bool $hasListPriceRange = false;
+
+    protected bool $hasDisplayableListPrice = false;
+
     protected string $variantId;
 
     protected string $parentId;
@@ -69,6 +73,33 @@ class CheapestPrice extends Struct
     public function setHasRange(bool $hasRange): void
     {
         $this->hasRange = $hasRange;
+    }
+
+    /**
+     * True when the displayable list prices of the variants differ from each other,
+     * which makes the concrete list price of the cheapest variant unrepresentative.
+     */
+    public function hasListPriceRange(): bool
+    {
+        return $this->hasListPriceRange;
+    }
+
+    public function setHasListPriceRange(bool $hasListPriceRange): void
+    {
+        $this->hasListPriceRange = $hasListPriceRange;
+    }
+
+    /**
+     * True when at least one variant has a list price with a discount greater than zero percent.
+     */
+    public function hasDisplayableListPrice(): bool
+    {
+        return $this->hasDisplayableListPrice;
+    }
+
+    public function setHasDisplayableListPrice(bool $hasDisplayableListPrice): void
+    {
+        $this->hasDisplayableListPrice = $hasDisplayableListPrice;
     }
 
     public function getParentId(): string

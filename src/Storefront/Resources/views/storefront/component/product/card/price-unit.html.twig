@@ -15,7 +15,7 @@
 
     {% if displayParent %}
         {% set displayFromVariants = cheapest.hasRange %}
-        {% set displayFromListPriceVariants = product.cheapestPriceContainer and product.cheapestPriceContainer.hasListPriceRange(context.context) %}
+        {% set displayFromListPriceVariants = cheapest.hasListPriceRange %}
         {% set real = cheapest %}
     {% endif %}
 

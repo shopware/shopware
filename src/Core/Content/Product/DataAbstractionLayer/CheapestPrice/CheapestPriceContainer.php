@@ -56,8 +56,24 @@ class CheapestPriceContainer extends Struct
 
         $hasRange = (bool) $cheapest['is_ranged'];
 
+        $listPriceReference = $this->getDisplayableListPriceValue($cheapest, $context);
+        $hasListPriceRange = false;
+        $hasDisplayableListPrice = $listPriceReference !== null;
+
         // @codeCoverageIgnoreStart - This is covered randomly
         foreach ($prices as $price) {
+            // Evaluated before the null-price guard below, because a variant without a
+            // resolvable price still contributes to the list price range detection.
+            $currentListPrice = $this->getDisplayableListPriceValue($price, $context);
+
+            if ($currentListPrice !== $listPriceReference) {
+                $hasListPriceRange = true;
+            }
+
+            if ($currentListPrice !== null) {
+                $hasDisplayableListPrice = true;
+            }
+
             $current = $this->getPriceValue($price, $context);
 
             if ($current === null) {
@@ -80,6 +96,8 @@ class CheapestPriceContainer extends Struct
         $object->setVariantId($cheapest['variant_id']);
         $object->setParentId($cheapest['parent_id']);
         $object->setHasRange($hasRange);
+        $object->setHasListPriceRange($hasListPriceRange);
+        $object->setHasDisplayableListPrice($hasDisplayableListPrice);
         $object->setPurchase($cheapest['purchase_unit'] ? (float) $cheapest['purchase_unit'] : null);
         $object->setReference($cheapest['reference_unit'] ? (float) $cheapest['reference_unit'] : null);
         $object->setUnitId($cheapest['unit_id'] ?? null);
@@ -130,39 +148,6 @@ class CheapestPriceContainer extends Struct
         $object->setPrice(new PriceCollection($prices));
 
         return $object;
-    }
-
-    public function hasListPriceRange(Context $context): bool
-    {
-        $prices = $this->getResolvedPrices($context);
-        $reference = null;
-
-        foreach ($prices as $index => $price) {
-            $current = $this->getDisplayableListPriceValue($price, $context);
-
-            if ($index === 0) {
-                $reference = $current;
-
-                continue;
-            }
-
-            if ($current !== $reference) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function hasDisplayableListPrice(Context $context): bool
-    {
-        foreach ($this->getResolvedPrices($context) as $price) {
-            if ($this->getDisplayableListPriceValue($price, $context) !== null) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public function getApiAlias(): string

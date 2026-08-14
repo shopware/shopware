@@ -386,6 +386,14 @@
                             "hasRange": {
                                 "type": "boolean"
                             },
+                            "hasListPriceRange": {
+                                "description": "True when the variants have differing displayable list prices, which makes the list price of the cheapest variant unrepresentative for the product.",
+                                "type": "boolean"
+                            },
+                            "hasDisplayableListPrice": {
+                                "description": "True when at least one variant has a list price with a discount greater than zero percent.",
+                                "type": "boolean"
+                            },
                             "variantId": {
                                 "oneOf": [
                                     {

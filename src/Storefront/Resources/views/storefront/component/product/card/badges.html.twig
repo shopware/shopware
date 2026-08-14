@@ -12,7 +12,7 @@
 
             {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
             {% if displayParent %}
-                {% set showDiscountBadge = product.cheapestPriceContainer and product.cheapestPriceContainer.hasDisplayableListPrice(context.context) and not hasRange %}
+                {% set showDiscountBadge = product.calculatedCheapestPrice.hasDisplayableListPrice and not hasRange %}
             {% endif %}
 
             {% if showDiscountBadge %}

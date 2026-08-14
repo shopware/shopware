@@ -83,7 +83,7 @@ const IgnoredErrors = [
 const ErrorMessages = {
     [ResponseErrorCodes.ILLEGAL_FILE_NAME]: 'global.sw-media-upload.notification.illegalFilename.message',
     [ResponseErrorCodes.ILLEGAL_URL]: 'global.sw-media-upload.notification.illegalFileUrl.message',
-    [ResponseErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.fileTypeNotSupported.message',
+    [ResponseErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.illegalFileType.message',
     [ClientErrorCodes.REQUEST_TIMEOUT]: 'global.sw-media-upload.notification.transportError.message',
     [ClientErrorCodes.REQUEST_CANCELED]: 'global.sw-media-upload.notification.requestCanceled.message',
 } as const;
@@ -336,12 +336,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
         showErrorNotification(payload: UploadFailedPayload) {
             const messageSnippets = [];
+            let hasIgnoredError = false;
 
             if (!payload?.error?.response && ErrorMessages[payload.error?.code as keyof typeof ErrorMessages]) {
                 messageSnippets.push(ErrorMessages[payload.error.code as keyof typeof ErrorMessages]);
             } else {
                 payload?.error?.response?.data?.errors?.forEach((error) => {
                     if (IgnoredErrors.includes(error.code as (typeof IgnoredErrors)[number])) {
+                        hasIgnoredError = true;
                         return;
                     }
 
@@ -363,11 +365,23 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            messageSnippets.forEach((snippet) => {
+            if (messageSnippets.length === 0 && !hasIgnoredError) {
+                let message = payload?.error?.response?.data?.errors?.[0]?.detail;
+
+                if (typeof message !== 'string' || message.length === 0) {
+                    message = this.$t('global.sw-media-upload.notification.failure.message');
+                }
+
                 this.createNotificationError({
-                    message: this.$t(snippet, { fileName: payload.fileName }),
+                    message,
                 });
-            });
+            } else {
+                messageSnippets.forEach((snippet) => {
+                    this.createNotificationError({
+                        message: this.$t(snippet, { fileName: payload.fileName, name: payload.fileName }),
+                    });
+                });
+            }
         },
         getTransportErrorSnippet(error?: UploadError): string | null {
             const status = error?.response?.status ?? -1;

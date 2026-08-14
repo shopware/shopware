@@ -71,7 +71,16 @@ class SeoUrlPersister
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
+        $table = $this->seoUrlRepository->getDefinition()->getEntityName();
+
+        // Use INSERT ... ON DUPLICATE KEY UPDATE instead of REPLACE INTO: REPLACE is a DELETE + INSERT
+        // that takes exclusive next-key locks on both unique indexes of seo_url and rewrites every
+        // secondary index entry, which deadlocks under concurrent url generation (see NEXT-22174).
+        // Updating the colliding row in place keeps the same resulting rows with a much smaller lock footprint.
+        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
+        foreach (['foreign_key', 'path_info', 'seo_path_info', 'route_name', 'is_canonical', 'is_modified', 'is_deleted'] as $updateField) {
+            $insertQuery->addUpdateFieldOnDuplicateKey($table, $updateField);
+        }
 
         $updatedFks = [];
         $obsoleted = [];
@@ -145,12 +154,15 @@ class SeoUrlPersister
 
             $insert['created_at'] = $dateTime;
 
-            $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
+            $insertQuery->addInsert($table, $insert);
         }
 
         $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $languageId, $salesChannelId);
 
-        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
+        // This transaction only writes (all reads happen above), so it does not depend on
+        // repeatable reads. READ COMMITTED avoids the gap locks that made concurrent url
+        // generations deadlock on the seo_url table (see NEXT-22174).
+        RetryableTransaction::retryableReadCommitted($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
 
@@ -162,7 +174,7 @@ class SeoUrlPersister
         });
 
         // When a seoPathInfo is added that is already associated with a foreignKey, EX: Entity A,
-        // the existing row is seamlessly replaced due to the useReplace flag being set to true within the MultiInsertQueryQueue configuration above.
+        // the existing row is seamlessly taken over by the ON DUPLICATE KEY UPDATE part configured on the MultiInsertQueryQueue above.
         // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
         // thereby preserving the canonical SEO URL for Entity A.
         $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
@@ -360,6 +372,9 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
             ->where('foreign_key IN (:fks)')
+            // skip rows that already hold the target value to reduce write amplification
+            // and lock contention between concurrent url generations (see NEXT-22174)
+            ->andWhere('is_deleted != ' . ($deleted ? '1' : '0'))
             ->setParameter('fks', $ids, ArrayParameterType::BINARY);
 
         if ($salesChannelId) {

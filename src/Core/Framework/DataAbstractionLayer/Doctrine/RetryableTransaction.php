@@ -32,6 +32,35 @@ class RetryableTransaction
     }
 
     /**
+     * Same as retryable, but runs the transaction with READ COMMITTED isolation when possible.
+     *
+     * READ COMMITTED avoids the gap/next-key locks that REPEATABLE READ takes for
+     * UPDATE/DELETE scans over non-unique indexes, which drastically reduces deadlocks for
+     * write-only batch transactions (e.g. indexers) under concurrent load. Only use this for
+     * transactions that do not rely on repeatable reads inside the closure.
+     *
+     * The isolation level is only changed when this is the outermost transaction and the
+     * connection is not configured for statement-based binary logging (READ COMMITTED DML
+     * requires row capable binlog formats).
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(Connection): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function retryableReadCommitted(Connection $connection, \Closure $closure)
+    {
+        return self::retry(
+            $connection,
+            $closure,
+            0,
+            $connection->getTransactionNestingLevel(),
+            self::supportsReadCommitted($connection)
+        );
+    }
+
+    /**
      * Executes the given closure inside a DBAL transaction. In case of a deadlock (RetryableException) the transaction
      * is rolled back. There are no retries, and the original exception is re-thrown.
      *
@@ -75,10 +104,17 @@ class RetryableTransaction
      *
      * @return TReturn
      */
-    private static function retry(Connection $connection, \Closure $closure, int $counter, int $transactionNestingLevel)
+    private static function retry(Connection $connection, \Closure $closure, int $counter, int $transactionNestingLevel, bool $readCommitted = false)
     {
         ++$counter;
         try {
+            if ($readCommitted && $transactionNestingLevel === 0) {
+                // Applies to the next transaction only and is consumed by every attempt,
+                // so it has to be issued again before each retry. Not allowed while a
+                // transaction is open, hence the nesting level guard.
+                $connection->executeStatement('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+            }
+
             return $connection->transactional($closure);
         } catch (\Throwable $e) {
             if ($transactionNestingLevel > 0) {
@@ -109,8 +145,32 @@ class RetryableTransaction
             // Randomize sleep to prevent same execution delay for multiple statements
             usleep(random_int(10, 20));
 
-            return self::retry($connection, $closure, $counter, $transactionNestingLevel);
+            return self::retry($connection, $closure, $counter, $transactionNestingLevel, $readCommitted);
         }
+    }
+
+    /**
+     * READ COMMITTED DML is only replication-safe with row capable binlog formats. Statement-based
+     * binary logging rejects it at runtime (MySQL error 1665), so fall back to the default isolation
+     * level for connections that are explicitly configured with binlog_format=STATEMENT.
+     */
+    private static function supportsReadCommitted(Connection $connection): bool
+    {
+        /** @var \WeakMap<Connection, bool>|null $cache */
+        static $cache = null;
+        $cache ??= new \WeakMap();
+
+        if (!isset($cache[$connection])) {
+            try {
+                $row = $connection->fetchNumeric('SELECT @@log_bin, @@binlog_format');
+                $cache[$connection] = !($row && (bool) $row[0] && strtoupper((string) $row[1]) === 'STATEMENT');
+            } catch (\Throwable) {
+                // if the variables cannot be read, stay on the connection default
+                $cache[$connection] = false;
+            }
+        }
+
+        return $cache[$connection];
     }
 
     private static function deadlockRelatedException(\Throwable $e): bool

@@ -32,7 +32,7 @@
       "labelFileNameSuffix": "Dateinamen-Suffix",
       "placeholderFileNameSuffix": "Suffix eingeben ...",
       "placeholderFileNameInfix": "Infix eingeben ...",
-      "filenamePattern": "Dateinamen-Muster: <prefix><documentNumber><infix><suffix>.<fileExtension>",
+      "filenamePattern": "Dateinamen-Muster: <Präfix><Dokumentennummer><Infix><Suffix>.<Dateiendung>",
       "filenameInfixHeadline": "Dateinamen-Infix",
       "filenameInfixHelpText": "Füge jedem Dokumentformat ein Infix hinzu, um Namenskonflikte zwischen verschiedenen Versionen desselben Dokuments zu vermeiden.",
       "labelDisplayPrices": "Preise",

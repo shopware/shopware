@@ -425,6 +425,28 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
     });
 
+    it('should include fileTypes in the general form fields when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('fileTypes');
+    });
+
+    it('should exclude fileTypes from the general form fields when DOCUMENT_GENERATION_REWORK is active', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).not.toContain('fileTypes');
+    });
+
     it('should show errors on payment due date field if value is not valid', async () => {
         documentBaseConfigRepositoryMock.save.mockRejectedValueOnce({
             response: {

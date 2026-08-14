@@ -81,7 +81,7 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixesTest extends TestCa
         $migration->update($this->connection);
 
         static::assertSame(
-            '{"zugferd_embedded_pdf": "zugferd"}',
+            '{"zugferd_embedded_pdf": "_zugferd"}',
             $this->fetchFilenameInfixes($invoiceConfigId),
         );
         static::assertNull($this->fetchFilenameInfixes($deliveryNoteConfigId));

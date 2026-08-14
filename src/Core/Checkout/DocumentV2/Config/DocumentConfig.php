@@ -31,7 +31,7 @@ final readonly class DocumentConfig
 
         return ($this->filenamePrefix ?? '')
             . $documentNumber
-            . ($infix !== null && $infix !== '' ? '_' . $infix : '')
+            . ($infix ?? '')
             . ($this->filenameSuffix ?? '');
     }
 }

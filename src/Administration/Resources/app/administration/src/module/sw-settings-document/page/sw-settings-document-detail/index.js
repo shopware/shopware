@@ -430,7 +430,13 @@ export default {
 
     computed: {
         generalFormFields() {
-            return DOCUMENT_SETTINGS_GENERAL(this.$t);
+            const fields = DOCUMENT_SETTINGS_GENERAL(this.$t);
+
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return fields.filter((field) => field.name !== 'fileTypes');
+            }
+
+            return fields;
         },
 
         generalDisplayFields() {

@@ -25,7 +25,7 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixes extends MigrationS
         $connection->executeStatement(<<<'SQL'
             UPDATE `document_base_config` AS `config`
             INNER JOIN `document_type` AS `type` ON `type`.`id` = `config`.`document_type_id`
-            SET `config`.`filename_infixes` = '{"zugferd_embedded_pdf": "zugferd"}'
+            SET `config`.`filename_infixes` = '{"zugferd_embedded_pdf": "_zugferd"}'
             WHERE `type`.`technical_name` IN ('invoice', 'credit_note', 'storno')
               AND `config`.`filename_infixes` IS NULL
         SQL);

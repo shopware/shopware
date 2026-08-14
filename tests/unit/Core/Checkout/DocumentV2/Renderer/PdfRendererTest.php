@@ -75,7 +75,7 @@ class PdfRendererTest extends TestCase
         $state = new RenderState();
         $state->add($html);
 
-        $meta = $this->createMeta(filenamePrefix: 'invoice_', filenameInfixes: ['pdf' => 'custom']);
+        $meta = $this->createMeta(filenamePrefix: 'invoice_', filenameInfixes: ['pdf' => '_custom']);
 
         $result = $renderer->renderToString(
             $this->createInput($meta),

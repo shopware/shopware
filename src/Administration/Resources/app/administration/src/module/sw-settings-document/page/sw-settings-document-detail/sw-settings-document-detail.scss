@@ -32,7 +32,7 @@
     }
 
     &__settings_card-form {
-        > :nth-last-child(-n+3) {
+        > :nth-last-child(-n+2) {
             margin-bottom: 0;
 
             .mt-field {
@@ -63,7 +63,7 @@
         display: flex;
         align-items: center;
         gap: var(--scale-size-4);
-        margin: var(--scale-size-20) 0;
+        margin: var(--scale-size-32) 0;
     }
 
     &__filename_infix_fields {

@@ -134,13 +134,30 @@ function readsThisMember(optionsObj: ObjectLiteralExpression, name: string): boo
 
 /** Returns the descriptor for a single `mixins` array element, or a reason string. */
 function resolveMixinElement(element: Expression, sourceFile: SourceFile): ComposableDescriptor | string {
+    // String form (`mixins: ['notification']`). Shopware's vue adapter resolves it
+    // via `Mixin.getByName(mixin)`, so it is equivalent to the `getByName` call form.
+    if (Node.isStringLiteral(element)) {
+        return resolveMixinName(element.getLiteralValue());
+    }
+
     if (Node.isCallExpression(element)) {
         const name = extractGetByNameArgument(element);
-        if (name === undefined) {
-            return `mixins: unrecognised mixin call '${element.getText()}'`;
+        if (name !== undefined) {
+            return resolveMixinName(name);
         }
 
-        return findMixinDescriptorByName(name) ?? `mixins: no composable registered for mixin '${name}'`;
+        // Factory form `getByName('base')(<arg>)`: the base mixin drives resolution
+        // and `<arg>` is a factory parameter, not a mixin name. Report the base so
+        // the reason is not mistaken for the argument (e.g. a bare 'salutation').
+        const inner = element.getExpression();
+        if (Node.isCallExpression(inner)) {
+            const factoryName = extractGetByNameArgument(inner);
+            if (factoryName !== undefined) {
+                return `mixins: no composable registered for factory mixin '${factoryName}'`;
+            }
+        }
+
+        return `mixins: unrecognised mixin call '${element.getText()}'`;
     }
 
     if (Node.isIdentifier(element)) {
@@ -155,6 +172,11 @@ function resolveMixinElement(element: Expression, sourceFile: SourceFile): Compo
     }
 
     return `mixins: unsupported mixin element '${element.getText()}'`;
+}
+
+/** Resolves a mixin name to its descriptor, or an actionable backoff reason. */
+function resolveMixinName(name: string): ComposableDescriptor | string {
+    return findMixinDescriptorByName(name) ?? `mixins: no composable registered for mixin '${name}'`;
 }
 
 /** Extracts the string name from `*.getByName('name')`, or undefined. */

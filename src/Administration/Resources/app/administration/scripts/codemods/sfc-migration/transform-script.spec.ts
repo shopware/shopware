@@ -354,6 +354,56 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('string-form mixins: `mixins: [\'name\']` resolves like the getByName form', () => {
+        it('converts a string-form mixin to its composable', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: ['notification'],
+                    methods: {
+                        onSave() { this.createNotificationError({ message: 'x' }); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain("import { useNotification } from 'src/app/composables/use-notification';");
+            expect(result.script).toContain('const { createNotificationError } = useNotification();');
+        });
+
+        it('backs off with a single-quoted reason for an unregistered string-form mixin', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: ['listing'],
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers).toContain("mixins: no composable registered for mixin 'listing'");
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('factory mixin call: reports the base mixin, not the factory argument', () => {
+        it("names the base mixin in the backoff reason for getByName('base')('arg')", () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('discard-detail-page-changes')('salutation')],
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers).toContain(
+                "mixins: no composable registered for factory mixin 'discard-detail-page-changes'",
+            );
+            // The factory argument must not leak into the reason as if it were a mixin.
+            expect(result.blockers.some((b) => b.includes("mixin 'salutation'"))).toBe(false);
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('resolvable mixins: each registered mixin converts to its composable', () => {
         it('converts the salutation mixin to useSalutation', () => {
             const result = transformScript(

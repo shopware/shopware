@@ -3,9 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use AsyncAws\Core\Test\ResultMockFactory;
+use AsyncAws\S3\Result\HeadObjectOutput;
 use AsyncAws\S3\Result\PutObjectOutput;
 use AsyncAws\S3\S3Client;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
+use League\Flysystem\FileAttributes;
+use League\Flysystem\UnableToRetrieveMetadata;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
@@ -20,6 +23,41 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(AsyncAwsS3WriteBatchAdapter::class)]
 class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 {
+    public function testFileSizeDefaultsToZeroWhenHeadResponseHasNoContentLength(): void
+    {
+        $s3Client = $this->createMock(S3Client::class);
+        $s3Client
+            ->expects($this->once())
+            ->method('headObject')
+            ->with(['Bucket' => 'test', 'Key' => 'directory/test.txt'])
+            ->willReturn(ResultMockFactory::create(HeadObjectOutput::class));
+
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test');
+
+        static::assertSame(0, $adapter->fileSize('directory/test.txt')->fileSize());
+    }
+
+    public function testFileSizeRethrowsMetadataExceptionWhenHeadRequestFails(): void
+    {
+        $headException = new \RuntimeException();
+        $s3Client = $this->createMock(S3Client::class);
+        $s3Client
+            ->expects($this->once())
+            ->method('headObject')
+            ->willThrowException($headException);
+
+        $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test');
+
+        $this->expectExceptionObject(UnableToRetrieveMetadata::create(
+            'directory/test.txt',
+            FileAttributes::ATTRIBUTE_FILE_SIZE,
+            '',
+            $headException
+        ));
+
+        $adapter->fileSize('directory/test.txt');
+    }
+
     public function testS3(): void
     {
         $fs = new Filesystem();

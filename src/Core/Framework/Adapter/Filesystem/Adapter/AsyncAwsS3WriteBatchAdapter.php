@@ -6,6 +6,8 @@ use AsyncAws\Core\Result;
 use AsyncAws\S3\S3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
+use League\Flysystem\FileAttributes;
+use League\Flysystem\UnableToRetrieveMetadata;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -17,6 +19,22 @@ class AsyncAwsS3WriteBatchAdapter extends AsyncAwsS3Adapter implements WriteBatc
      * @var int<1, max>
      */
     public int $batchSize = 250;
+
+    public function fileSize(string $path): FileAttributes
+    {
+        try {
+            return parent::fileSize($path);
+        } catch (UnableToRetrieveMetadata $exception) {
+            // Fetch failures include a reason or a previous exception. An empty response from a successful HEAD request
+            // reaches AsyncAwsS3Adapter::fileSize()'s null check without either, which happens with empty objects behind
+            // some S3-compatible storage proxies. See https://github.com/shopware/shopware/issues/18497.
+            if ($exception->reason() !== '' || $exception->getPrevious() !== null) {
+                throw $exception;
+            }
+
+            return new FileAttributes($path, 0);
+        }
+    }
 
     public function writeBatch(CopyBatchInput ...$files): void
     {

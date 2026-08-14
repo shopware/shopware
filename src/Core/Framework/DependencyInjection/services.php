@@ -42,7 +42,6 @@ use Shopware\Core\Framework\Adapter\Twig\Filter\LeadingSpacesFilter;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntimeResetter;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -566,10 +565,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NamespaceHierarchyBuilder::class),
             service(TemplateScopeDetector::class),
         ])
-        ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(CachedEscaperRuntimeResetter::class)
-        ->public()
         ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(NamespaceHierarchyBuilder::class)

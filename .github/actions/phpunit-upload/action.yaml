@@ -16,23 +16,24 @@ inputs:
 runs:
   using: composite
   steps:
+    # The Codecov CLI is invoked directly instead of codecov/codecov-action:
+    # the runner downloads nested `uses:` actions from codeload.github.com
+    # while the caller step is prepared and does not retry a 404, so a
+    # transient codeload 404 failed jobs whose PHPUnit run was green. A `run:`
+    # step needs no action download; the script pins and verifies the CLI
+    # binary and retries both its download and the upload.
     - name: Upload coverage to Codecov
       if: ${{ inputs.coverage == 'true' && inputs.codecov-token != '' }}
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      shell: bash
       env:
         CODECOV_TOKEN: ${{ inputs.codecov-token }}
-      with:
-        files: coverage.xml
-        flags: ${{ inputs.coverage-flags }}
+        COVERAGE_FLAGS: ${{ inputs.coverage-flags }}
+      run: node .github/bin/js/codecov-upload.ts coverage coverage.xml "$COVERAGE_FLAGS"
 
     - name: Upload test results to Codecov
       # skip when no token: fork PRs (secrets unavailable) and callers that opt out of Test Analytics.
-      # files is explicit: the former test-results-action auto-discovery also picked up unrelated
-      # *_test.xml files (e.g. DI configs like services_test.xml).
       if: ${{ !cancelled() && inputs.codecov-token != '' }}
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      shell: bash
       env:
         CODECOV_TOKEN: ${{ inputs.codecov-token }}
-      with:
-        report_type: test_results
-        files: junit.xml
+      run: node .github/bin/js/codecov-upload.ts test-results junit.xml

@@ -80,6 +80,10 @@ The `sw-expect-packages` header is no longer evaluated on API endpoints that do 
 
 Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
+### Store API schema documents cart totals as a separate `CartPrice` component
+
+The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
+
 ## Core
 
 ### GARAN commercial guarantee label and EU legal guarantee notice

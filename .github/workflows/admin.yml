@@ -101,7 +101,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/jest/cobertura-coverage.xml jest-admin
+        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/jest/cobertura-coverage.xml jest-admin --disable-file-fixes
 
   license-check:
     needs:

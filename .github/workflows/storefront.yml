@@ -150,6 +150,14 @@ jobs:
         working-directory: src/Storefront/Resources/app/storefront
         run: npm run unit -- --silent
 
+      - name: Setup Node for the Codecov upload
+        # setup-shopware provisions Node 20, which cannot execute TypeScript
+        # directly. Placed after the tests so their runtime is unchanged.
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: lts/*
+
       - name: Upload coverage
         # Codecov CLI via script instead of codecov-action; rationale in
         # .github/actions/phpunit-upload/action.yaml. Skipped on fork PRs, where
@@ -157,7 +165,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/jest/cobertura-coverage.xml jest-storefront
+        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/jest/cobertura-coverage.xml jest-storefront --disable-file-fixes
 
   vitest:
     name: "Vitest Storefront Components"
@@ -190,6 +198,14 @@ jobs:
           npm run build:components
           npm run unit:components:coverage -- --coverage.reporter=cobertura --coverage.reportsDirectory=build/artifacts/vitest
 
+      - name: Setup Node for the Codecov upload
+        # setup-shopware provisions Node 20, which cannot execute TypeScript
+        # directly. Placed after the tests so their runtime is unchanged.
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: lts/*
+
       - name: Upload coverage
         # Codecov CLI via script instead of codecov-action; rationale in
         # .github/actions/phpunit-upload/action.yaml. Skipped on fork PRs, where
@@ -197,7 +213,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/vitest/cobertura-coverage.xml vitest-storefront-components
+        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/vitest/cobertura-coverage.xml vitest-storefront-components --disable-file-fixes
 
   license-check:
     needs:

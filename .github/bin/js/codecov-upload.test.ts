@@ -53,6 +53,20 @@ test('buildArgs appends -F only when coverage flags are given', () => {
     ]);
 });
 
+test('buildArgs appends --disable-file-fixes only on request', () => {
+    assert.deepEqual(buildArgs('coverage', 'coverage.xml', 'jest-admin', true), [
+        'upload-process',
+        '--disable-search',
+        '--fail-on-error',
+        '-f',
+        'coverage.xml',
+        '-F',
+        'jest-admin',
+        '--disable-file-fixes',
+    ]);
+    assert.ok(!buildArgs('coverage', 'coverage.xml', 'jest-admin').includes('--disable-file-fixes'));
+});
+
 test('buildArgs assembles a test-results upload', () => {
     assert.deepEqual(buildArgs('test-results', 'junit.xml'), [
         'do-upload',

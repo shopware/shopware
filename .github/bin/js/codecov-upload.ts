@@ -33,10 +33,16 @@ export const isUploadMode = (value: string): value is UploadMode => value === 'c
 // --disable-search: auto-discovery used to pick up unrelated *_test.xml files.
 // --fail-on-error: without it the CLI exits 0 on a rejected upload, silently
 // ungating the Codecov checks.
-export const buildArgs = (mode: UploadMode, file: string, flags = ''): string[] =>
-    mode === 'coverage'
+// --disable-file-fixes (opt-in): file fixes walk every file in the git index,
+// and jobs using setup-shopware `rm -rf vendor-bin` after checkout, so the CLI
+// crashes on the index-only paths. JS coverage lanes opt out; they gain
+// nothing from PHP file fixes.
+export const buildArgs = (mode: UploadMode, file: string, flags = '', disableFileFixes = false): string[] => [
+    ...(mode === 'coverage'
         ? ['upload-process', '--disable-search', '--fail-on-error', '-f', file, ...(flags === '' ? [] : ['-F', flags])]
-        : ['do-upload', '--report-type', 'test_results', '--disable-search', '--fail-on-error', '-f', file];
+        : ['do-upload', '--report-type', 'test_results', '--disable-search', '--fail-on-error', '-f', file]),
+    ...(disableFileFixes ? ['--disable-file-fixes'] : []),
+];
 
 export const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex');
 
@@ -132,10 +138,17 @@ const ensureCli = async (): Promise<string> => {
 };
 
 const main = async (): Promise<void> => {
-    const [mode, file, flags] = process.argv.slice(2);
+    const [mode, file, flags, fileFixesFlag] = process.argv.slice(2);
 
-    if (mode === undefined || file === undefined || !isUploadMode(mode)) {
-        process.stderr.write('usage: codecov-upload.ts <coverage|test-results> <file> [<coverage flags>]\n');
+    if (
+        mode === undefined
+        || file === undefined
+        || !isUploadMode(mode)
+        || (fileFixesFlag !== undefined && fileFixesFlag !== '--disable-file-fixes')
+    ) {
+        process.stderr.write(
+            'usage: codecov-upload.ts <coverage|test-results> <file> [<coverage flags>] [--disable-file-fixes]\n',
+        );
         process.exit(2);
     }
 
@@ -159,7 +172,7 @@ const main = async (): Promise<void> => {
         throw new Error('only Linux runners are supported (the pinned binary is linux/amd64).');
     }
 
-    const args = buildArgs(mode, file, flags ?? '');
+    const args = buildArgs(mode, file, flags ?? '', fileFixesFlag !== undefined);
     const cliPath = await ensureCli();
 
     await withRetries(

@@ -38,6 +38,6 @@ class AppNameError implements Error
 
     public function isBlocking(): bool
     {
-        return true;
+        return false;
     }
 }

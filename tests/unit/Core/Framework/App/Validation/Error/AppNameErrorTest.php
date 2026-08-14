@@ -25,6 +25,6 @@ class AppNameErrorTest extends TestCase
         );
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
-        static::assertTrue($error->isBlocking());
+        static::assertFalse($error->isBlocking());
     }
 }

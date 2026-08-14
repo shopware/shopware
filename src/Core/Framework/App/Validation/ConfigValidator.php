@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Validation;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -32,9 +32,11 @@ class ConfigValidator extends AbstractManifestValidator
     ) {
     }
 
-    public function validate(Manifest $manifest, ?Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, ?Context $context): array
     {
-        $errors = new ErrorCollection();
         $config = $this->getConfiguration($manifest);
 
         $invalids = [];
@@ -50,11 +52,11 @@ class ConfigValidator extends AbstractManifestValidator
             }
         }
 
-        if ($invalids !== []) {
-            $errors->add(new ConfigurationError($invalids, $manifest->getMetadata()->getName()));
+        if ($invalids === []) {
+            return [];
         }
 
-        return $errors;
+        return [new ConfigurationError($invalids, $manifest->getMetadata()->getName())];
     }
 
     /**

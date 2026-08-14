@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -44,7 +43,7 @@ class ManifestValidatorTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidManifest/manifest.xml');
 
-        $this->expectExceptionObject(new AppValidationException('invalidManifestName', new ErrorCollection()));
+        $this->expectExceptionObject(new AppValidationException('invalidManifestName', []));
         $this->manifestValidator->validate($manifest, Context::createDefaultContext());
     }
 }

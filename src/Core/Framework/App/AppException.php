@@ -17,7 +17,6 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -104,7 +103,10 @@ class AppException extends HttpException
         );
     }
 
-    public static function validationFailed(string $appName, ErrorCollection $errors): AppValidationException
+    /**
+     * @param list<Error> $errors
+     */
+    public static function validationFailed(string $appName, array $errors): AppValidationException
     {
         return new AppValidationException($appName, $errors);
     }

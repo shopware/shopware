@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class NotHookableError implements Error
 {
-    private const KEY = 'manifest-not-hookable';
-
     private readonly string $message;
 
     /**
@@ -29,11 +27,6 @@ class NotHookableError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
     }
 
     public function getErrorCode(): string

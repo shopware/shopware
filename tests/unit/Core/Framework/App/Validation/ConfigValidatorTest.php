@@ -41,7 +41,7 @@ class ConfigValidatorTest extends TestCase
         $errors = $validator->validate(ManifestFixture::empty(), null);
 
         static::assertCount(1, $errors);
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(ConfigurationError::class, $error);
         static::assertStringContainsString('test', $error->getMessage());
     }

@@ -28,7 +28,7 @@ class AppNameValidatorTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $violations = $this->appNameValidator->validate($manifest, null);
-        static::assertCount(0, $violations->getElements());
+        static::assertCount(0, $violations);
     }
 
     public function testValidateNonCaseSensitive(): void
@@ -37,7 +37,7 @@ class AppNameValidatorTest extends TestCase
         $manifest->getMetadata()->assign(['name' => 'TeSt']);
 
         $violations = $this->appNameValidator->validate($manifest, null);
-        static::assertCount(0, $violations->getElements());
+        static::assertCount(0, $violations);
     }
 
     public function testValidateReturnsErrors(): void
@@ -46,8 +46,8 @@ class AppNameValidatorTest extends TestCase
 
         $violations = $this->appNameValidator->validate($manifest, null);
 
-        static::assertCount(1, $violations->getElements());
-        static::assertInstanceOf(AppNameError::class, $violations->first());
-        static::assertStringContainsString('The technical app name "notSameAppNameAsFolder" in the "manifest.xml" and the folder name must be equal.', $violations->first()->getMessage());
+        static::assertCount(1, $violations);
+        static::assertInstanceOf(AppNameError::class, $violations[0]);
+        static::assertStringContainsString('The technical app name "notSameAppNameAsFolder" in the "manifest.xml" and the folder name must be equal.', $violations[0]->getMessage());
     }
 }

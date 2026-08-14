@@ -24,7 +24,6 @@ class ConfigurationErrorTest extends TestCase
             . '- sw-custom-two';
 
         static::assertSame($message, $error->getMessage());
-        static::assertSame('manifest-invalid-config', $error->getMessageKey());
         static::assertSame(AppException::INVALID_CONFIGURATION, $error->getErrorCode());
         static::assertSame(['appName' => 'MyApp', 'error' => $message], $error->getParameters());
         static::assertTrue($error->isBlocking());

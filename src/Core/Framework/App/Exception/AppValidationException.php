@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Exception;
 
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,16 +13,19 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class AppValidationException extends AppException
 {
+    /**
+     * @param list<Error> $errors
+     */
     public function __construct(
         string $appName,
-        private readonly ErrorCollection $errors
+        private readonly array $errors
     ) {
         $message = \sprintf(
             "The app \"%s\" is invalid:\n",
             $appName
         );
 
-        foreach ($errors->getElements() as $error) {
+        foreach ($errors as $error) {
             $message .= "\n" . $error->getMessage();
         }
 
@@ -33,7 +36,10 @@ class AppValidationException extends AppException
         );
     }
 
-    public function getValidationErrors(): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function getValidationErrors(): array
     {
         return $this->errors;
     }

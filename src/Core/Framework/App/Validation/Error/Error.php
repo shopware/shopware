@@ -12,8 +12,6 @@ interface Error
 {
     public function getMessage(): string;
 
-    public function getMessageKey(): string;
-
     public function getErrorCode(): string;
 
     /**

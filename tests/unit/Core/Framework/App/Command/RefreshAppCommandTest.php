@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -92,9 +91,9 @@ class RefreshAppCommandTest extends TestCase
         $this->manifestValidator
             ->expects($this->once())
             ->method('validate')
-            ->willThrowException(new AppValidationException('test', new ErrorCollection([
+            ->willThrowException(new AppValidationException('test', [
                 new MissingPermissionError(['product:read']),
-            ])));
+            ]));
         $this->appService->expects($this->never())->method('doRefreshApps');
         $this->appPrinter->expects($this->never())->method('printInstalledApps');
 

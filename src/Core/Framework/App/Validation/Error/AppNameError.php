@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppNameError implements Error
 {
-    private const KEY = 'invalid-app-name';
-
     private readonly string $message;
 
     public function __construct(string $appName)
@@ -26,11 +24,6 @@ class AppNameError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
     }
 
     public function getErrorCode(): string

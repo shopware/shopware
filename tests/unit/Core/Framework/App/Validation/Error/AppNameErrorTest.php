@@ -23,7 +23,6 @@ class AppNameErrorTest extends TestCase
             'The technical app name "MyApp" in the "manifest.xml" and the folder name must be equal.',
             $error->getMessage()
         );
-        static::assertSame('invalid-app-name', $error->getMessageKey());
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
         static::assertTrue($error->isBlocking());

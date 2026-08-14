@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MissingTranslationError implements Error
 {
-    private const KEY = 'manifest-missing-translation';
-
     private readonly string $message;
 
     /**
@@ -40,11 +38,6 @@ class MissingTranslationError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
     }
 
     public function getErrorCode(): string

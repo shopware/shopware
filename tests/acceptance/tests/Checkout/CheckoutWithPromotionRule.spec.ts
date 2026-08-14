@@ -2,8 +2,8 @@ import { test, formatPrice, type Product } from '@fixtures/AcceptanceTest';
 
 const promotionName = 'Newsletter Recipient Promotion';
 const productGrossPrice = 50;
-const discountPrice = 45.00;
-const discountValue = 5.00;
+const discountPrice = 45.0;
+const discountValue = 5.0;
 const discountPercentage = 10;
 
 test.describe('Newsletter recipient promotion', () => {
@@ -15,7 +15,11 @@ test.describe('Newsletter recipient promotion', () => {
         submittedOrderId = '';
         guestCustomerEmail = `${IdProvider.getIdPair().uuid}@test.com`;
         const ruleId = IdProvider.getIdPair().uuid;
-        const ruleConfig = { id: ruleId, name: `Test-Rule - ${ruleId}`, description: 'This rule applied for newsletter recipients' };
+        const ruleConfig = {
+            id: ruleId,
+            name: `Test-Rule - ${ruleId}`,
+            description: 'This rule applied for newsletter recipients',
+        };
         const ruleCondition = { type: 'customerIsNewsletterRecipient', value: { isNewsletterRecipient: true } };
         await TestDataService.createBasicRule(ruleConfig, ruleCondition);
 
@@ -32,15 +36,34 @@ test.describe('Newsletter recipient promotion', () => {
         await TestDataService.createPromotionWithConditionRule(promotionConfig);
 
         const productPrices = [
-            { currencyId: DefaultSalesChannel.salesChannel.currencyId, gross: productGrossPrice, linked: true, net: 42.016806722689 },
-            { currencyId: SalesChannelBaseConfig.defaultCurrencyId, gross: productGrossPrice, linked: true, net: 42.016806722689 },
+            {
+                currencyId: DefaultSalesChannel.salesChannel.currencyId,
+                gross: productGrossPrice,
+                linked: true,
+                net: 42.016806722689,
+            },
+            {
+                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                gross: productGrossPrice,
+                linked: true,
+                net: 42.016806722689,
+            },
         ];
         product = await TestDataService.createBasicProduct({ price: productPrices, purchasePrices: productPrices });
     });
 
-    ['Guest', 'Registered'].forEach((customerType) => {
-        test(`${customerType} customer newsletter recipient should have corresponding promotion applied automatically.`,
-            { tag: ['@Checkout', '@Storefront'] },
+    [
+        'Guest',
+        'Registered',
+    ].forEach((customerType) => {
+        test(
+            `${customerType} customer newsletter recipient should have corresponding promotion applied automatically.`,
+            {
+                tag: [
+                    '@Checkout',
+                    '@Storefront',
+                ],
+            },
             async ({
                 IdProvider,
                 DefaultSalesChannel,
@@ -57,20 +80,25 @@ test.describe('Newsletter recipient promotion', () => {
                 SelectPaymentMethod,
                 SelectShippingMethod,
             }) => {
-                const customer = customerType === 'Guest'
-                    ? { ...DefaultSalesChannel.customer, id: IdProvider.getIdPair().uuid, email: guestCustomerEmail }
-                    : DefaultSalesChannel.customer;
+                const customer =
+                    customerType === 'Guest'
+                        ? { ...DefaultSalesChannel.customer, id: IdProvider.getIdPair().uuid, email: guestCustomerEmail }
+                        : DefaultSalesChannel.customer;
 
                 if (customerType === 'Registered') {
                     await ShopCustomer.attemptsTo(Login(customer));
                 }
                 await TestDataService.createNewsletterRecipient(customer);
                 await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-                await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(formatPrice(productGrossPrice));
+                await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(
+                    formatPrice(productGrossPrice),
+                );
                 await ShopCustomer.attemptsTo(AddProductToCart(product));
 
                 const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product.productNumber);
-                await ShopCustomer.expects(offcanvasItem.productTotalPriceValue).toContainText(formatPrice(productGrossPrice));
+                await ShopCustomer.expects(offcanvasItem.productTotalPriceValue).toContainText(
+                    formatPrice(productGrossPrice),
+                );
 
                 const promoItem = await StorefrontOffCanvasCart.getLineItemByPromotionName(promotionName);
                 await ShopCustomer.expects(promoItem.promotionLabel).toContainText(promotionName);
@@ -82,7 +110,7 @@ test.describe('Newsletter recipient promotion', () => {
                     await StorefrontAccountLogin.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
                     await ShopCustomer.expects(StorefrontAccountLogin.registerEmailInput).toBeVisible();
                     await ShopCustomer.attemptsTo(Register({ email: customer.email, isGuest: true }));
-                } 
+                }
                 await StorefrontCheckoutConfirm.page.waitForURL('**/checkout/confirm', { waitUntil: 'commit' });
                 await ShopCustomer.expects(StorefrontCheckoutConfirm.headline).toBeVisible();
 
@@ -96,16 +124,20 @@ test.describe('Newsletter recipient promotion', () => {
                 const promotionLineItem = StorefrontCheckoutConfirm.getLineItemByPromotionName(promotionName);
                 await ShopCustomer.expects(promotionLineItem.promotionNameLabel).toContainText(promotionName);
                 await ShopCustomer.expects(promotionLineItem.promotionTotalPrice).toContainText(formatPrice(discountValue));
-                await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(formatPrice(discountPrice));
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toContainText(
+                    formatPrice(discountPrice),
+                );
 
                 await StorefrontCheckoutConfirm.termsAndConditionsCheckbox.check();
                 await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeChecked();
                 await StorefrontCheckoutConfirm.submitOrderButton.click();
                 await ShopCustomer.expects(StorefrontCheckoutFinish.headline).toBeVisible();
-                await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(formatPrice(discountPrice));
+                await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(
+                    formatPrice(discountPrice),
+                );
 
                 submittedOrderId = StorefrontCheckoutFinish.getOrderId();
-            }
+            },
         );
     });
 

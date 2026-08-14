@@ -31,10 +31,6 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-gcfj-64vw-6mp9', // axios v0 inherited proxy use, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-hcpx-6fm6-wx23', // axios v0 form serializer maxDepth bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-7q8q-rj6j-mhjq', // axios v0 nested option prototype pollution, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
-        'https://github.com/advisories/GHSA-rgw5-rvv9-x895', // brace-expansion DoS via unbounded intermediate arrays, high severity, transitive devDep, no fix in the pinned tree
-        'https://github.com/advisories/GHSA-7p8r-x3mc-p8w7', // fast-uri host confusion via backslash authority introducer, high severity, transitive devDep, no fix in the pinned tree
-        'https://github.com/advisories/GHSA-mwp4-54f8-5fhr', // ip-address leading-zero octet SSRF/trust-boundary bypass, high severity, transitive devDep, no fix in the pinned tree
-        'https://github.com/advisories/GHSA-4xrf-jv44-h6hh', // ip-address CIDR-suffix special-use bypass, moderate severity, transitive devDep, no fix in the pinned tree
-        'https://github.com/advisories/GHSA-22jq-vg5j-6vgg', // ip-address IPv4-mapped/NAT64 misclassification bypass, moderate severity, transitive devDep, no fix in the pinned tree
+        'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Puppeteer browser downloads, devDep only; fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
     ],
 });

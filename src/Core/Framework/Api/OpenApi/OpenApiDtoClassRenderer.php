@@ -363,7 +363,7 @@ final class OpenApiDtoClassRenderer
         return '';
     }
 
-    private function enumCaseName(string|int|float|bool $value, string $enumName): string
+    private function enumCaseName(string|int|float|bool|null $value, string $enumName): string
     {
         $caseName = strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $value));
         $caseName = (string) preg_replace('/[^A-Z0-9_]/', '_', $caseName);

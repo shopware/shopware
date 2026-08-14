@@ -163,7 +163,7 @@ class RetryableTransaction
         if (!isset($cache[$connection])) {
             try {
                 $row = $connection->fetchNumeric('SELECT @@log_bin, @@binlog_format');
-                $cache[$connection] = !($row && (bool) $row[0] && strtoupper((string) $row[1]) === 'STATEMENT');
+                $cache[$connection] = \is_array($row) && !((bool) $row[0] && strtoupper((string) $row[1]) === 'STATEMENT');
             } catch (\Throwable) {
                 // if the variables cannot be read, stay on the connection default
                 $cache[$connection] = false;

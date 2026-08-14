@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class MissingPermissionError extends Error
+class MissingPermissionError implements Error
 {
     private const KEY = 'manifest-missing-permission';
+
+    private readonly string $message;
 
     /**
      * @param list<string> $violations
@@ -21,12 +24,25 @@ class MissingPermissionError extends Error
             "The following permissions are missing:\n- %s",
             implode("\n- ", $violations)
         );
+    }
 
-        parent::__construct($this->message);
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     public function getMessageKey(): string
     {
         return self::KEY;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
     }
 }

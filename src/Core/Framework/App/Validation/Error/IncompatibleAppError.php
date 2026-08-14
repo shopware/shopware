@@ -9,15 +9,20 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class IncompatibleAppError extends Error
+class IncompatibleAppError implements Error
 {
     private const KEY = 'manifest-incompatible-app';
+
+    private readonly string $message;
 
     public function __construct(private readonly string $appName)
     {
         $this->message = \sprintf('App %s is not compatible with this Shopware version', $appName);
+    }
 
-        parent::__construct($this->message);
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     public function getMessageKey(): string

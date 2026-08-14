@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class NotHookableError extends Error
+class NotHookableError implements Error
 {
     private const KEY = 'manifest-not-hookable';
+
+    private readonly string $message;
 
     /**
      * @param list<string> $violations
@@ -21,12 +24,25 @@ class NotHookableError extends Error
             "The following webhooks are not hookable:\n- %s",
             implode("\n- ", $violations)
         );
+    }
 
-        parent::__construct($this->message);
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     public function getMessageKey(): string
     {
         return self::KEY;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
     }
 }

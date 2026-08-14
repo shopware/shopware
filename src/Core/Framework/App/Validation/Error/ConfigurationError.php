@@ -9,9 +9,11 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ConfigurationError extends Error
+class ConfigurationError implements Error
 {
     private const KEY = 'manifest-invalid-config';
+
+    private readonly string $message;
 
     /**
      * @param list<string> $violations
@@ -22,8 +24,11 @@ class ConfigurationError extends Error
             "The following custom components are not allowed to be used in app configuration:\n- %s",
             implode("\n- ", $violations)
         );
+    }
 
-        parent::__construct($this->message);
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     public function getMessageKey(): string
@@ -38,6 +43,6 @@ class ConfigurationError extends Error
 
     public function getParameters(): array
     {
-        return ['appName' => $this->appName, 'error' => $this->getMessage()];
+        return ['appName' => $this->appName, 'error' => $this->message];
     }
 }

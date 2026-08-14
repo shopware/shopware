@@ -105,6 +105,7 @@ jobs:
           test-testsuite: ${{ matrix.test.testsuite }}
       - name: Upload test results to Codecov
         uses: ./.github/actions/phpunit-upload
+        continue-on-error: true
         # !cancelled(): junit test results must upload even when the run failed.
         # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
         # failed), because then checkout never ran either and this local action cannot resolve.

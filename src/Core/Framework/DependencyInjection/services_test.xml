@@ -141,6 +141,11 @@
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
                         <argument type="service" id="Shopware\Core\Test\Integration\App\TestAppServer"/>
+                        <call method="after">
+                            <argument>allow_redirects</argument>
+                            <argument type="service" id="shopware.app_system.guzzle.security_middleware"/>
+                            <argument>app_system_http_security</argument>
+                        </call>
                         <call method="push">
                             <argument type="service" id="shopware.app_system.guzzle.middleware"/>
                         </call>
@@ -150,6 +155,12 @@
                     </service>
                 </argument>
             </argument>
+        </service>
+
+        <service id="shopware.app_system.trusted_url_resolver" class="Shopware\Core\Content\Media\File\TrustedUrlResolver">
+            <factory class="Shopware\Core\Framework\Test\App\StaticTrustedUrlResolverFactory" method="create"/>
+            <argument>%shopware.app_system.allowed_private_ip_addresses%</argument>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="shopware.webhook.guzzle" class="GuzzleHttp\Client">

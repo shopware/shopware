@@ -709,3 +709,7 @@ shopware:
         failure_strategy: disable_on_threshold
         allow_unencrypted_traffic: false
         allowed_private_ip_addresses: []
+
+    app_system:
+        allow_unencrypted_traffic: false
+        allowed_private_ip_addresses: []

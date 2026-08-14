@@ -745,6 +745,10 @@ The route is guarded by the existing `media:read` ACL privilege and returns a sm
 
 ## App System
 
+### App requests block private targets and unencrypted traffic by default
+
+App-system requests now block private and reserved network targets as well as unencrypted HTTP traffic by default, including redirect targets. Before upgrading, operators whose apps use HTTP endpoints must set `shopware.app_system.allow_unencrypted_traffic`; operators whose apps use private endpoints must add each required address to `shopware.app_system.allowed_private_ip_addresses`.
+
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 
 Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.

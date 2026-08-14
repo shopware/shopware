@@ -264,6 +264,42 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    public function testAppSystemNetworkPolicyDefaultsAreSecure(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), []);
+
+        static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyCanBeConfigured(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allow_unencrypted_traffic' => true,
+                    'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
+                ],
+            ],
+        ]);
+
+        static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyRejectsInvalidAllowedIpAddress(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['not-an-ip'],
+                ],
+            ],
+        ]);
+    }
+
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
     {
         $configuration = new Configuration();

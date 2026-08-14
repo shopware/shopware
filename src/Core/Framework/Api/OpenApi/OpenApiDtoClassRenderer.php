@@ -121,16 +121,7 @@ final class OpenApiDtoClassRenderer
         $lines[] = '{';
         $usedCaseNames = [];
         foreach ($definition->enumValues as $value) {
-            $caseName = strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $value));
-            $caseName = (string) preg_replace('/[^A-Z0-9_]/', '_', $caseName);
-            if ($caseName === '') {
-                throw FrameworkException::invalidArgumentException(
-                    \sprintf('Enum value in "%s" cannot be converted to a valid PHP case name.', $definition->name),
-                );
-            }
-            if (preg_match('/^[0-9]/', $caseName) === 1) {
-                $caseName = '_' . $caseName;
-            }
+            $caseName = $this->enumCaseName($value, $definition->name);
 
             if (isset($usedCaseNames[$caseName])) {
                 throw FrameworkException::invalidArgumentException(
@@ -358,6 +349,10 @@ final class OpenApiDtoClassRenderer
     private function renderDefault(OpenApiDtoProperty $property): string
     {
         if ($property->hasDefaultValue) {
+            if ($property->nativeEnum) {
+                return ' = ' . $property->phpType . '::' . $this->enumCaseName($property->defaultValue, $property->phpType);
+            }
+
             return ' = ' . $this->formatDefaultValue($property->defaultValue);
         }
 
@@ -366,6 +361,22 @@ final class OpenApiDtoClassRenderer
         }
 
         return '';
+    }
+
+    private function enumCaseName(string|int|float|bool $value, string $enumName): string
+    {
+        $caseName = strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $value));
+        $caseName = (string) preg_replace('/[^A-Z0-9_]/', '_', $caseName);
+        if ($caseName === '') {
+            throw FrameworkException::invalidArgumentException(
+                \sprintf('Enum value in "%s" cannot be converted to a valid PHP case name.', $enumName),
+            );
+        }
+        if (preg_match('/^[0-9]/', $caseName) === 1) {
+            $caseName = '_' . $caseName;
+        }
+
+        return $caseName;
     }
 
     private function formatDefaultValue(string|int|float|bool|null $value): string

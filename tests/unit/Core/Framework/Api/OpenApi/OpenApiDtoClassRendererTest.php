@@ -187,6 +187,34 @@ class OpenApiDtoClassRendererTest extends TestCase
         static::assertStringNotContainsString('#[Assert\Valid]', $response);
     }
 
+    public function testNativeEnumDefaultIsRenderedAsEnumCase(): void
+    {
+        $definitions = (new OpenApiDtoSchemaParser())->parse([
+            'components' => [
+                'schemas' => [
+                    'Criteria' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'totalCountMode' => [
+                                '$ref' => '#/components/schemas/TotalCountMode',
+                            ],
+                        ],
+                    ],
+                    'TotalCountMode' => [
+                        'x-dto-namespace' => 'App\\DTO',
+                        'type' => 'string',
+                        'enum' => ['none', 'exact'],
+                        'default' => 'none',
+                    ],
+                ],
+            ],
+        ]);
+
+        $rendered = $this->renderDefinition($this->definitionByName($definitions, 'Criteria'));
+
+        static::assertStringContainsString('public TotalCountMode $totalCountMode = TotalCountMode::NONE,', $rendered);
+    }
+
     public function testStringConstIsRenderedAsPropertyDefault(): void
     {
         $definitions = (new OpenApiDtoSchemaParser())->parse([

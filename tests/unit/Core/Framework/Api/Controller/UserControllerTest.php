@@ -94,6 +94,9 @@ class UserControllerTest extends TestCase
         $controller->updateMe($context, $request, static::createStub(ResponseFactoryInterface::class));
     }
 
+    /**
+     * @param EntityRepository<UserCollection>|null $userRepository
+     */
     private function createController(
         ?SsoService $ssoService = null,
         ?EntityRepository $userRepository = null,

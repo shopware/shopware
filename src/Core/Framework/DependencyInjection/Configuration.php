@@ -1672,18 +1672,6 @@ class Configuration implements ConfigurationInterface
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
                 ->end()
-                ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
-                ->arrayNode('allowed_private_ip_addresses')
-                    ->performNoDeepMerging()
-                    ->defaultValue([])
-                    ->scalarPrototype()
-                        ->cannotBeEmpty()
-                        ->validate()
-                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
-                            ->thenInvalid('"%s" is not a valid IP address.')
-                        ->end()
-                    ->end()
-                ->end()
             ->end();
 
         return $rootNode;

@@ -94,13 +94,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             null,
             true,
-            param('shopware.webhook.allowed_private_ip_addresses'),
+            param('shopware.app_system.allowed_private_ip_addresses'),
         ]);
 
     $services->set(WebhookTargetValidator::class)
         ->args([
-            param('shopware.webhook.allow_unencrypted_traffic'),
-            param('shopware.webhook.allowed_private_ip_addresses'),
+            param('shopware.app_system.allow_unencrypted_traffic'),
+            param('shopware.app_system.allowed_private_ip_addresses'),
             service('shopware.webhook.trusted_url_resolver'),
         ]);
 

@@ -312,18 +312,6 @@
                     ],
                     "default": "disable_on_threshold",
                     "description": "@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation"
-                },
-                "allow_unencrypted_traffic": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "allowed_private_ip_addresses": {
-                    "type": "array",
-                    "uniqueItems": true,
-                    "items": {
-                        "type": "string"
-                    },
-                    "default": []
                 }
             },
             "title": "Webhook"

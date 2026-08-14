@@ -35,10 +35,13 @@ becomes a TODO comment in a draft instead of a silent conversion.
 
 ## Extending the codemod
 
-The conversion rules are data tables in `transform-script.ts`:
+The conversion rules are data tables plus one handler per option:
 
-- `INSTANCE_PROPS` — one entry per `this.$xyz` rewrite (replacement + required helper/import).
-- `TODO_OPTIONS` / `SKIP_OPTIONS` — tier assignment for top-level options; promoting a feature
-  means moving the key and emitting its lines in `transformScript`.
+- `tables.ts` — `INSTANCE_PROPS` (one entry per `this.$xyz` rewrite: replacement + required
+  helper/import) and the `TODO_OPTIONS` / `SKIP_OPTIONS` tier assignment for top-level options.
+- `option-handlers.ts` — `OPTION_HANDLERS`, one small handler per supported option (`props`,
+  `data`, `computed`, `watch`, …). Promoting a feature means moving its key out of the TODO/SKIP
+  set and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`)
+  and the assembly (`transform-script.ts`) stay untouched.
 - New conversions are covered by dropping a fixture folder into `__fixtures__/` —
   `sfc-migration.spec.ts` snapshots every fixture automatically and runs the full validation gate.

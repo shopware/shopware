@@ -248,12 +248,11 @@ const userSettingsDescriptor: ComposableDescriptor = {
         mixinNames: ['user-settings'],
         // get/saveUserSettings call getUserSettingsEntity internally.
         internallyReferencedMembers: ['getUserSettingsEntity'],
-        // The mixin exposed `userConfigRepository` as an internal computed the
-        // composable inlines and does not provide. (`currentUser` is deliberately
-        // not listed: the name is generic enough that a component's own
-        // `currentUser` would otherwise force a false backoff — a stray read of the
-        // mixin's copy is handled by the generic unknown-`this` backoff instead.)
-        unmappedMembers: ['userConfigRepository'],
+        // Computeds the mixin exposed but the composable inlines and does not
+        // provide. Reading one backs off — unless the component declares its own
+        // member of that name (the shadow check in resolveComponentMixins), so a
+        // component with its own `currentUser` still migrates.
+        unmappedMembers: ['currentUser', 'userConfigRepository'],
     },
     import: { source: 'src/app/composables/use-user-settings', name: 'useUserSettings' },
     declarationStyle: 'destructure',

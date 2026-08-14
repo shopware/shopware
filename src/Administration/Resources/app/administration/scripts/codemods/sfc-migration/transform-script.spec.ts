@@ -487,6 +487,59 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.scriptType).toBe('options');
             expect(result.blockers.some((b) => b.includes("reads 'salutationFilter'"))).toBe(true);
         });
+
+        it('converts when the component declares its own member that shadows the unmapped one', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('salutation')],
+                    computed: {
+                        salutationFilter() { return () => 'x'; },
+                    },
+                    methods: {
+                        label(entity) { return this.salutationFilter(entity, 'fallback'); },
+                    },
+                });`,
+            );
+
+            // The component's own salutationFilter wins, so the composable not
+            // providing it is harmless — no backoff.
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers.some((b) => b.includes("reads 'salutationFilter'"))).toBe(false);
+        });
+
+        it('backs off when a user-settings component reads currentUser it does not declare', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('user-settings')],
+                    methods: {
+                        who() { return this.currentUser.id; },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers.some((b) => b.includes("reads 'currentUser'"))).toBe(true);
+        });
+
+        it('converts a user-settings component that declares its own currentUser', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('user-settings')],
+                    computed: {
+                        currentUser() { return { id: '1' }; },
+                    },
+                    methods: {
+                        who() { return this.currentUser.id; },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers.some((b) => b.includes("reads 'currentUser'"))).toBe(false);
+        });
     });
 
     // -------------------------------------------------------------------------

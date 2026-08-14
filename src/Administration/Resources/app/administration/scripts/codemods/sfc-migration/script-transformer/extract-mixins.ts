@@ -75,8 +75,13 @@ export function resolveComponentMixins(
 
         // Members the mixin exposes but the composable does not provide have no
         // setup binding after migration: a script read drops the member, a
-        // template read resolves to nothing. Back off if any is used.
+        // template read resolves to nothing. Back off if any is used — unless the
+        // component declares its own member of that name, which shadows the mixin's
+        // (Vue override semantics), so the missing composable binding is harmless.
         for (const member of trigger.unmappedMembers ?? []) {
+            if (ownMemberNames.has(member)) {
+                continue;
+            }
             if (readsThisMember(optionsObj, member) || templateReferences.has(member)) {
                 unresolved.push(
                     `mixins: reads '${member}' from the '${descriptor.id}' mixin, which the composable does not provide`,

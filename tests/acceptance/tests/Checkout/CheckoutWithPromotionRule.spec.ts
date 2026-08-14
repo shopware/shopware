@@ -89,6 +89,7 @@ test.describe('Newsletter recipient promotion', () => {
                     await ShopCustomer.attemptsTo(Login(customer));
                 }
                 await TestDataService.createNewsletterRecipient(customer);
+                // Guest has no customer context yet; promo applies only after checkout registration.
                 await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
                 await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(
                     formatPrice(productGrossPrice),
@@ -100,10 +101,14 @@ test.describe('Newsletter recipient promotion', () => {
                     formatPrice(productGrossPrice),
                 );
 
-                const promoItem = await StorefrontOffCanvasCart.getLineItemByPromotionName(promotionName);
-                await ShopCustomer.expects(promoItem.promotionLabel).toContainText(promotionName);
-                await ShopCustomer.expects(promoItem.promotionPrice).toContainText(formatPrice(discountValue));
-                await ShopCustomer.expects(StorefrontOffCanvasCart.subTotalPrice).toContainText(formatPrice(discountPrice));
+                if (customerType === 'Registered') {
+                    const promoItem = await StorefrontOffCanvasCart.getLineItemByPromotionName(promotionName);
+                    await ShopCustomer.expects(promoItem.promotionLabel).toContainText(promotionName);
+                    await ShopCustomer.expects(promoItem.promotionPrice).toContainText(formatPrice(discountValue));
+                    await ShopCustomer.expects(StorefrontOffCanvasCart.subTotalPrice).toContainText(
+                        formatPrice(discountPrice),
+                    );
+                }
 
                 await ShopCustomer.presses(StorefrontOffCanvasCart.goToCheckoutButton);
                 if (customerType === 'Guest') {

@@ -395,6 +395,34 @@ comes from the `createExtendableSetup()` destructure below the composable
 declaration, so a composable that invoked such a callback during setup itself
 would read it too early.
 
+### Mixin-Declared Props
+
+A mixin can also declare props of its own, which every component using it
+inherited. `providedProps` carries them over:
+
+```ts
+providedProps: [{ name: 'condition', definition: '{ type: Object, required: true }' }],
+```
+
+They are merged into the component's `defineProps` literal — a spread would not
+be statically analysable — and registered as prop names, so `this.condition`
+still rewrites to `props.condition`. A component prop of the same name wins,
+mirroring Vue's option merge. Unlike the instance dependencies above, these are
+contributed by every resolved mixin, used or not, because the Options API
+declared them the same way.
+
+### Mixin Names Behind A Constant
+
+Some components pass the mixin name as an imported constant rather than a string
+literal. The value lives in another module, which the transformer never reads, so
+the descriptor registers the export instead:
+
+```ts
+nameConstants: [{ source: 'src/app/mixin/rule-between-operator.mixin', exportName: 'RULE_BETWEEN_OPERATOR_MIXIN_NAME' }],
+```
+
+An unregistered constant stays an unresolved mixin and backs the component off.
+
 ## Why `createExtendableSetup()` Is Used
 
 Shopware plugins can override Administration components. After moving a

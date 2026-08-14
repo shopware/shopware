@@ -1,7 +1,7 @@
 import type { Expression, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import type { ComposableDescriptor } from './composable-registry';
-import { findMixinDescriptorByName } from './composable-registry';
+import { findMixinDescriptorByName, findMixinDescriptorByNameConstant } from './composable-registry';
 import { extractPropNamesFromText } from './extract-component-options';
 import { extractDataProps } from './extract-data';
 import { extractInjectProps } from './extract-inject';
@@ -151,6 +151,20 @@ function resolveMixinElement(element: Expression, sourceFile: SourceFile): Compo
             return resolveMixinName(name);
         }
 
+        // `getByName(MIXIN_NAME_CONSTANT)`: the value lives in another module, so
+        // it can only be resolved through a descriptor that registers the export.
+        const constantArgument = extractGetByNameIdentifierArgument(element);
+        if (constantArgument) {
+            const imported = resolveImportedIdentifier(constantArgument, sourceFile);
+            const descriptor = imported
+                ? findMixinDescriptorByNameConstant(imported.moduleSpecifier, imported.importedName)
+                : undefined;
+
+            if (descriptor) {
+                return descriptor;
+            }
+        }
+
         // Factory form `getByName('base')(<arg>)`: the base mixin drives resolution
         // and `<arg>` is a factory parameter, not a mixin name. Report the base so
         // the reason is not mistaken for the argument (e.g. a bare 'salutation').
@@ -186,32 +200,52 @@ function resolveMixinName(name: string): ComposableDescriptor | string {
 
 /** Extracts the string name from `*.getByName('name')`, or undefined. */
 function extractGetByNameArgument(call: import('ts-morph').CallExpression): string | undefined {
+    const argument = getByNameArgument(call);
+
+    return argument && Node.isStringLiteral(argument) ? argument.getLiteralValue() : undefined;
+}
+
+/** Extracts the identifier from `*.getByName(NAME)`, or undefined. */
+function extractGetByNameIdentifierArgument(
+    call: import('ts-morph').CallExpression,
+): import('ts-morph').Identifier | undefined {
+    const argument = getByNameArgument(call);
+
+    return argument && Node.isIdentifier(argument) ? argument : undefined;
+}
+
+function getByNameArgument(call: import('ts-morph').CallExpression): Expression | undefined {
     const expression = call.getExpression();
     if (!Node.isPropertyAccessExpression(expression) || expression.getName() !== 'getByName') {
         return undefined;
     }
 
-    const argument = call.getArguments()[0];
-    if (argument && Node.isStringLiteral(argument)) {
-        return argument.getLiteralValue();
-    }
-
-    return undefined;
+    return call.getArguments()[0]?.asKind(SyntaxKind.StringLiteral) ?? call.getArguments()[0]?.asKind(SyntaxKind.Identifier);
 }
 
 /** Resolves the module specifier an imported identifier was imported from. */
 function resolveImportedIdentifierModule(identifier: import('ts-morph').Identifier, sourceFile: SourceFile): string | undefined {
+    return resolveImportedIdentifier(identifier, sourceFile)?.moduleSpecifier;
+}
+
+/** Resolves an identifier to the module it was imported from and its exported name. */
+function resolveImportedIdentifier(
+    identifier: import('ts-morph').Identifier,
+    sourceFile: SourceFile,
+): { moduleSpecifier: string; importedName: string } | undefined {
     const name = identifier.getText();
 
     for (const importDeclaration of sourceFile.getImportDeclarations()) {
+        const moduleSpecifier = importDeclaration.getModuleSpecifierValue();
+
         if (importDeclaration.getDefaultImport()?.getText() === name) {
-            return importDeclaration.getModuleSpecifierValue();
+            return { moduleSpecifier, importedName: 'default' };
         }
 
         for (const namedImport of importDeclaration.getNamedImports()) {
             const localName = namedImport.getAliasNode()?.getText() ?? namedImport.getName();
             if (localName === name) {
-                return importDeclaration.getModuleSpecifierValue();
+                return { moduleSpecifier, importedName: namedImport.getName() };
             }
         }
     }

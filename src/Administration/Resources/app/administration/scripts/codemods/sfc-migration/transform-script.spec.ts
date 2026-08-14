@@ -806,6 +806,142 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('sw-extension-error mixin: converts without any instance dependency', () => {
+        it('imports the composable and rewrites showExtensionErrors', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('sw-extension-error')],
+                    methods: {
+                        onError(error) { this.showExtensionErrors(error); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain(
+                "import { useExtensionError } from 'src/module/sw-extension/composables/use-extension-error';",
+            );
+            expect(result.script).toContain('const { showExtensionErrors } = useExtensionError();');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('rule-between-operator mixin: passes the condition prop and the host callback', () => {
+        it('converts a condition component that declares condition and ensureValueExist', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('rule-between-operator')],
+                    props: { condition: { type: Object, required: true } },
+                    methods: {
+                        ensureValueExist() { if (!this.condition.value) { this.condition.value = {}; } },
+                    },
+                });`,
+                new Set([
+                    'isBetween',
+                    'betweenValue',
+                ]),
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const { isBetween, betweenValue } = useRuleBetweenOperator({');
+            expect(result.script).toContain('condition: () => props.condition,');
+            expect(result.script).toContain('ensureValueExist: (...args) => ensureValueExist(...args),');
+        });
+
+        it('resolves the mixin name passed as the registered exported constant', () => {
+            const result = transformScript(
+                `import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
+
+                Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)],
+                    props: { condition: { type: Object, required: true } },
+                    methods: {
+                        ensureValueExist() { this.condition.value = this.condition.value || {}; },
+                    },
+                });`,
+                new Set(['isBetween']),
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('useRuleBetweenOperator({');
+        });
+
+        it('backs off for a constant no descriptor registers', () => {
+            const result = transformScript(
+                `import { SOME_MIXIN_NAME } from 'src/app/mixin/other.mixin';
+
+                Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName(SOME_MIXIN_NAME)],
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers.some((b) => b.includes('unrecognised mixin call'))).toBe(true);
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('mixin-declared props: merges them into the component defineProps', () => {
+        it('adds the validation prop the mixin used to declare', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('validation')],
+                    props: { label: { type: String, required: false, default: '' } },
+                    methods: {
+                        check(value) { return this.validate(value); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain("label: { type: String, required: false, default: '' },");
+            expect(result.script).toContain('validation: { type: [String, Array, Object, Boolean], required: false, default: null },');
+            expect(result.script).toContain('validation: () => props.validation,');
+        });
+
+        it('emits a props object for a component that declared none', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('ruleContainer')],
+                    methods: {
+                        onAddPlaceholder() { this.insertNodeIntoTree(this.condition, this.nextPosition); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('condition: { type: Object, required: true },');
+            expect(result.script).toContain('level: { type: Number, required: true },');
+            expect(result.script).toContain('onAddPlaceholder: (...args) => onAddPlaceholder(...args),');
+            // The mixin props feed the rewrite, so `this.condition` resolves.
+            expect(result.script).toContain('insertNodeIntoTree(props.condition, nextPosition.value)');
+        });
+
+        it('keeps the component prop when it declares one of the same name', () => {
+            const result = transformScript(
+                `Shopware.Component.register('sw-demo', {
+                    template,
+                    mixins: [Shopware.Mixin.getByName('ruleContainer')],
+                    props: { condition: { type: Object, required: false, default: null } },
+                    methods: {
+                        onAddPlaceholder() { this.insertNodeIntoTree(this.condition, this.nextPosition); },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('condition: { type: Object, required: false, default: null },');
+            expect(result.script).not.toContain('condition: { type: Object, required: true },');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('render-component: detects render() as a hard blocker and marks as not-migratable', () => {
         let result: ReturnType<typeof transformScript>;
 

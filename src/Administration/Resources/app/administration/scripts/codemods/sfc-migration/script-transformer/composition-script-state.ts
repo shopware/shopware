@@ -43,7 +43,7 @@ import type {
     UsedComposables,
     WatchProp,
 } from './types';
-import type { ComposableDescriptor } from './composable-registry';
+import type { ComposableDescriptor, ComposableProvidedProp } from './composable-registry';
 import { GLOBAL_DESCRIPTORS } from './composable-registry';
 import { collectComponentMemberNames } from './extract-mixins';
 
@@ -125,10 +125,21 @@ export function collectCompositionScriptState(
     // no non-equivalent defineProps/defineEmits leaks; methods that depended on
     // the dropped members then surface as unresolved `this.<name>` follow-ups.
     const propsIssue = analyzePropsShape(optionsObj, moduleLocalNames);
-    const propsText = propsIssue && !propsIssue.backoff ? null : extractPropsText(optionsObj);
+    const ownPropsText = propsIssue && !propsIssue.backoff ? null : extractPropsText(optionsObj);
     if (propsIssue && !propsIssue.backoff) {
         pushManualMigration(manualMigrationReasons, todoComments, 'props', propsIssue.reason);
     }
+
+    // A mixin declared its props on every component that used it, so they are
+    // merged in regardless of whether the composable itself ends up being used.
+    // A component prop of the same name wins, mirroring Vue's option merge.
+    const ownPropNames = ownPropsText ? extractPropNamesFromText(optionsObj) : [];
+    const providedProps = collectProvidedProps(mixinDescriptors, new Set(ownPropNames));
+    const propsText = mergeProvidedProps(ownPropsText, providedProps);
+    const propNames = new Set([
+        ...ownPropNames,
+        ...providedProps.map(({ name }) => name),
+    ]);
 
     const emitsIssue = analyzeEmitsShape(optionsObj, moduleLocalNames);
     const emitsDefinition =
@@ -137,7 +148,7 @@ export function collectCompositionScriptState(
         pushManualMigration(manualMigrationReasons, todoComments, 'emits', emitsIssue.reason);
     }
 
-    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propsText, composableMembers);
+    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propNames, composableMembers);
     manualMigrationReasons.push(...supportedMembers.manualMigrationReasons);
     todoComments.push(...supportedMembers.todoComments);
 
@@ -148,7 +159,6 @@ export function collectCompositionScriptState(
         supportedMethodProps,
         supportedWatchProps,
         unsupportedWatchEntries,
-        propNames,
         dataNames,
         computedNames,
         methodNames,
@@ -296,7 +306,7 @@ function collectTemplateBindingCollisions(
 
 function collectSupportedCompositionMembers(
     optionsObj: ObjectLiteralExpression,
-    propsText: string | null,
+    propNames: Set<string>,
     composableMembers: Map<string, ComposableMemberRewrite>,
 ): SupportedCompositionMembers {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
@@ -353,8 +363,6 @@ function collectSupportedCompositionMembers(
         todoComments,
     );
     collectUnsupportedEntries(unsupportedMethodEntries, 'methods', 'method', manualMigrationReasons, todoComments);
-
-    const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
 
     // Dropping a member can turn a `this.<member>` reference inside another
     // member into an unresolved access, and removing duplicates can do the same.
@@ -890,6 +898,48 @@ function collectActiveGlobalComposables(usedComposables: UsedComposables): Activ
         memberKeys: Object.keys(descriptor.members),
         argumentEntries: [],
     }));
+}
+
+/** The mixin-declared props to add, first descriptor wins on a name clash. */
+function collectProvidedProps(
+    mixinDescriptors: ComposableDescriptor[],
+    ownPropNames: Set<string>,
+): ComposableProvidedProp[] {
+    const byName = new Map<string, ComposableProvidedProp>();
+
+    for (const descriptor of mixinDescriptors) {
+        for (const providedProp of descriptor.providedProps ?? []) {
+            if (ownPropNames.has(providedProp.name) || byName.has(providedProp.name)) {
+                continue;
+            }
+
+            byName.set(providedProp.name, providedProp);
+        }
+    }
+
+    return [...byName.values()];
+}
+
+/**
+ * Appends the mixin-declared props to the component's own `defineProps` object
+ * literal. `defineProps` is a compiler macro, so the entries have to end up in
+ * one literal — a spread would not be statically analysable.
+ */
+function mergeProvidedProps(propsText: string | null, providedProps: ComposableProvidedProp[]): string | null {
+    if (providedProps.length === 0) {
+        return propsText;
+    }
+
+    const entries = providedProps.map(({ name, definition }) => `    ${name}: ${definition},`).join('\n');
+    const inner = propsText === null ? '' : propsText.trim().slice(1, -1);
+    if (inner.trim() === '') {
+        return `{\n${entries}\n}`;
+    }
+
+    const body = inner.includes('\n') ? inner.replace(/^\r?\n/, '').trimEnd() : `    ${inner.trim()}`;
+    const separator = body.endsWith(',') ? '' : ',';
+
+    return `{\n${body}${separator}\n${entries}\n}`;
 }
 
 /**

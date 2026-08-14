@@ -35,6 +35,12 @@ export interface ComposableMemberBinding {
     sourceKey?: string;
 }
 
+/** A module export holding a mixin's registered name, for `getByName(CONSTANT)` calls. */
+export interface ComposableMixinNameConstant {
+    source: string;
+    exportName: string;
+}
+
 export type ComposableTrigger =
     // A global fires whenever any of its member keys is accessed via `this`.
     | { type: 'global' }
@@ -49,6 +55,7 @@ export type ComposableTrigger =
           mixinNames: readonly string[];
           unmappedMembers?: readonly string[];
           internallyReferencedMembers?: readonly string[];
+          nameConstants?: readonly ComposableMixinNameConstant[];
       };
 
 /** An event the mixin emitted on the host component via `this.$emit`. */
@@ -86,6 +93,17 @@ export interface ComposableInstanceDependencies {
     callbacks?: readonly ComposableCallbackDependency[];
 }
 
+/**
+ * A prop the mixin declared on every component that used it. The composable
+ * cannot declare props, so the codemod merges these into the component's own
+ * `defineProps` instead.
+ */
+export interface ComposableProvidedProp {
+    name: string;
+    /** Source text of the prop definition, e.g. `{ type: Object, required: true }`. */
+    definition: string;
+}
+
 export interface ComposableDescriptor {
     id: string;
     trigger: ComposableTrigger;
@@ -96,6 +114,7 @@ export interface ComposableDescriptor {
     /** key = the `this.<key>` access this descriptor answers. */
     members: Record<string, ComposableMemberBinding>;
     instanceDependencies?: ComposableInstanceDependencies;
+    providedProps?: readonly ComposableProvidedProp[];
 }
 
 // --- Globals -----------------------------------------------------------------
@@ -481,6 +500,111 @@ const mediaGridListenerDescriptor: ComposableDescriptor = {
     },
 };
 
+const extensionErrorDescriptor: ComposableDescriptor = {
+    id: 'sw-extension-error',
+    trigger: { type: 'mixin', mixinNames: ['sw-extension-error'] },
+    import: { source: 'src/module/sw-extension/composables/use-extension-error', name: 'useExtensionError' },
+    declarationStyle: 'destructure',
+    members: methodMembers(['showExtensionErrors']),
+};
+
+const ruleBetweenOperatorDescriptor: ComposableDescriptor = {
+    id: 'rule-between-operator',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['rule-between-operator'],
+        // Every consumer passes the name as this constant rather than a literal.
+        nameConstants: [
+            { source: 'src/app/mixin/rule-between-operator.mixin', exportName: 'RULE_BETWEEN_OPERATOR_MIXIN_NAME' },
+        ],
+    },
+    import: { source: 'src/app/composables/use-rule-between-operator', name: 'useRuleBetweenOperator' },
+    declarationStyle: 'destructure',
+    instanceDependencies: {
+        props: [{ option: 'condition', prop: 'condition' }],
+        callbacks: [{ option: 'ensureValueExist', member: 'ensureValueExist' }],
+    },
+    members: refMembers([
+        'isBetween',
+        'betweenValue',
+    ]),
+};
+
+const validationDescriptor: ComposableDescriptor = {
+    id: 'validation',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['validation'],
+        internallyReferencedMembers: ['validateRule'],
+        // `isValid` read the host's current value under whichever of
+        // currentValue/value/selections existed; the composable cannot resolve
+        // that name, so a component reading it must back off.
+        unmappedMembers: ['isValid'],
+    },
+    import: { source: 'src/app/composables/use-validation', name: 'useValidation' },
+    declarationStyle: 'destructure',
+    instanceDependencies: {
+        props: [{ option: 'validation', prop: 'validation' }],
+    },
+    providedProps: [
+        {
+            name: 'validation',
+            definition: '{ type: [String, Array, Object, Boolean], required: false, default: null }',
+        },
+    ],
+    members: {
+        validationService: { ident: ident('validationService'), kind: 'value', sourceKey: 'validationService' },
+        ...methodMembers([
+            'validate',
+            'validateRule',
+        ]),
+    },
+};
+
+const ruleContainerDescriptor: ComposableDescriptor = {
+    id: 'ruleContainer',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['ruleContainer'],
+        // nextPosition reads childAssociationField, and the placeholder watcher
+        // reads nextPosition, inside the composable.
+        internallyReferencedMembers: [
+            'childAssociationField',
+            'nextPosition',
+        ],
+    },
+    import: { source: 'src/app/composables/use-rule-container', name: 'useRuleContainer' },
+    declarationStyle: 'destructure',
+    instanceDependencies: {
+        props: [
+            { option: 'condition', prop: 'condition' },
+            { option: 'level', prop: 'level' },
+            { option: 'disabled', prop: 'disabled' },
+        ],
+        // The mixin watched nextPosition and called the host's onAddPlaceholder.
+        callbacks: [{ option: 'onAddPlaceholder', member: 'onAddPlaceholder' }],
+    },
+    providedProps: [
+        { name: 'condition', definition: '{ type: Object, required: true }' },
+        { name: 'parentCondition', definition: '{ type: Object, required: false, default: null }' },
+        { name: 'level', definition: '{ type: Number, required: true }' },
+        { name: 'disabled', definition: '{ type: Boolean, required: false, default: false }' },
+    ],
+    members: {
+        ...refMembers([
+            'conditionDataProviderService',
+            'childAssociationField',
+            'containerRowClass',
+            'nextPosition',
+        ]),
+        ...methodMembers([
+            'createCondition',
+            'insertNodeIntoTree',
+            'removeNodeFromTree',
+        ]),
+    },
+};
+
 export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     notificationDescriptor,
     placeholderDescriptor,
@@ -494,6 +618,10 @@ export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     mediaSidebarModalDescriptor,
     videoCoverDescriptor,
     mediaGridListenerDescriptor,
+    extensionErrorDescriptor,
+    ruleBetweenOperatorDescriptor,
+    validationDescriptor,
+    ruleContainerDescriptor,
 ];
 
 export const COMPOSABLE_REGISTRY: readonly ComposableDescriptor[] = [
@@ -515,5 +643,16 @@ export function globalThisKeys(): string[] {
 export function findMixinDescriptorByName(name: string): ComposableDescriptor | undefined {
     return MIXIN_DESCRIPTORS.find(
         (descriptor) => descriptor.trigger.type === 'mixin' && descriptor.trigger.mixinNames.includes(name),
+    );
+}
+
+/** The mixin descriptor whose name is exported as `<exportName>` from `<source>`. */
+export function findMixinDescriptorByNameConstant(source: string, exportName: string): ComposableDescriptor | undefined {
+    return MIXIN_DESCRIPTORS.find(
+        (descriptor) =>
+            descriptor.trigger.type === 'mixin' &&
+            (descriptor.trigger.nameConstants ?? []).some(
+                (constant) => constant.source === source && constant.exportName === exportName,
+            ),
     );
 }

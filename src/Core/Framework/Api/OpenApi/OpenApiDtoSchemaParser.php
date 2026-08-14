@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\OpenApi;
 
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -389,7 +390,7 @@ final class OpenApiDtoSchemaParser
 
                     $definitions[] = new OpenApiDtoDefinition(
                         $dtoName,
-                        [$bodyProperty, ...$parameters],
+                        $this->mergeProperties([$bodyProperty], $parameters),
                         $this->stringOrNull($operation['description'] ?? null),
                         $this->packageFromSchema($operation),
                         type: OpenApiDtoType::Request,
@@ -411,7 +412,7 @@ final class OpenApiDtoSchemaParser
                 }
 
                 $extracted = $this->extractFromSchema($resolvedRequestSchema, $dtoName, $registry, OpenApiDtoType::Request);
-                $properties = [...$extracted['properties'], ...$parameters];
+                $properties = $this->mergeProperties($extracted['properties'], $parameters);
 
                 if ($properties === []) {
                     continue;
@@ -551,7 +552,7 @@ final class OpenApiDtoSchemaParser
 
             $constraintSchema = $this->dereferenceSchema($schema, $registry);
             $type = $this->mapOpenApiTypeToPhp($schema, $registry);
-            $properties[] = new OpenApiDtoProperty(
+            $properties = $this->mergeProperties($properties, [new OpenApiDtoProperty(
                 name: $this->toPropertyName($name),
                 phpType: $type['phpType'],
                 required: ($parameter['required'] ?? null) === true,
@@ -568,7 +569,7 @@ final class OpenApiDtoSchemaParser
                 arrayItemMinLength: $this->arrayItemMinLength($constraintSchema),
                 unresolvedReference: $type['unresolved'],
                 nativeEnum: $this->isNativeEnumReference($schema, $registry),
-            );
+            )]);
         }
 
         return $properties;
@@ -667,11 +668,20 @@ final class OpenApiDtoSchemaParser
     {
         $dtoProperties = [];
         $nestedDefinitions = [];
+        $propertyNames = [];
 
         foreach ($properties as $propertyName => $propertySchema) {
             if (!\is_string($propertyName) || !\is_array($propertySchema)) {
                 continue;
             }
+
+            $normalizedPropertyName = $this->toPropertyName($propertyName);
+            if (isset($propertyNames[$normalizedPropertyName])) {
+                throw FrameworkException::invalidArgumentException(
+                    \sprintf('Schema properties "%s" and "%s" produce duplicate PHP property name "%s".', $propertyNames[$normalizedPropertyName], $propertyName, $normalizedPropertyName),
+                );
+            }
+            $propertyNames[$normalizedPropertyName] = $propertyName;
 
             $required = \in_array($propertyName, $requiredFields, true);
             if ($this->isInlineObject($propertySchema)) {
@@ -862,7 +872,7 @@ final class OpenApiDtoSchemaParser
                 ...$this->stringListAtKey($resolvedVariant, 'required'),
             ];
             $extracted = $this->extractPropertiesFromSchema($variantProperties, array_values(array_unique($variantRequired)), $variantDtoName, $registry, $this->packageFromSchema($resolvedVariant) ?? $this->packageFromSchema($requestSchema), OpenApiDtoType::Request);
-            $properties = [...$extracted['properties'], ...$parameters];
+            $properties = $this->mergeProperties($extracted['properties'], $parameters);
 
             if ($properties === []) {
                 continue;
@@ -1252,6 +1262,32 @@ final class OpenApiDtoSchemaParser
         $name = lcfirst($this->toPascalCase($value));
 
         return preg_match('/^[0-9]/', $name) === 1 ? '_' . $name : $name;
+    }
+
+    /**
+     * @param list<OpenApiDtoProperty> ...$propertyLists
+     *
+     * @return list<OpenApiDtoProperty>
+     */
+    private function mergeProperties(array ...$propertyLists): array
+    {
+        $properties = [];
+        $propertySources = [];
+
+        foreach ($propertyLists as $propertyList) {
+            foreach ($propertyList as $property) {
+                if (isset($propertySources[$property->name])) {
+                    throw FrameworkException::invalidArgumentException(
+                        \sprintf('Properties "%s" and "%s" produce duplicate PHP property name "%s".', $propertySources[$property->name], $property->name, $property->name),
+                    );
+                }
+
+                $propertySources[$property->name] = $property->name;
+                $properties[] = $property;
+            }
+        }
+
+        return $properties;
     }
 
     /**

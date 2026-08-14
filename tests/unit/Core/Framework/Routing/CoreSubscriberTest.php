@@ -42,8 +42,7 @@ class CoreSubscriberTest extends TestCase
         static::assertIsString($nonce);
         // URL-safe Base64 alphabet without padding: no '+', '/' or '=' that could be mistaken for a URL
         static::assertMatchesRegularExpression('/^[A-Za-z0-9\-_]+$/', $nonce);
-        // Random::getBase64UrlString(21) draws 16 random bytes (128 bit of entropy) and yields 21 characters
-        static::assertSame(21, \strlen($nonce));
+        static::assertSame(24, \strlen($nonce));
     }
 
     public function testNonSuccessfulResponseDoesNotGetTouched(): void

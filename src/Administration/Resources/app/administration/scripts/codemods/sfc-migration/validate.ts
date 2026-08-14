@@ -27,7 +27,7 @@ import * as prettierPluginPostcss from 'prettier/plugins/postcss';
 // import() the standalone API exists to avoid. prettier-plugin-multiline-arrays is left out for
 // the same reason (it requires prettier's dynamic-import entry at load time); the project's
 // prettier check only covers .js/.ts, so generated .vue files cannot drift against it.
-const PRETTIER_OPTIONS = {
+const PRETTIER_OPTIONS: Parameters<typeof format>[1] = {
     parser: 'vue',
     singleQuote: true,
     tabWidth: 4,
@@ -40,7 +40,7 @@ const PRETTIER_OPTIONS = {
         prettierPluginTypescript,
         prettierPluginPostcss,
     ],
-} as const;
+};
 
 // First line only: Vue compiler errors append multi-line code frames that would flood the report.
 function errorMessage(error: unknown): string {
@@ -52,7 +52,7 @@ function errorMessage(error: unknown): string {
  * assembled output and doubles as a syntax pre-check — invalid assembly throws here already.
  */
 async function formatSfc(sfc: string): Promise<string> {
-    return format(sfc, PRETTIER_OPTIONS as Parameters<typeof format>[1]);
+    return format(sfc, PRETTIER_OPTIONS);
 }
 
 /**

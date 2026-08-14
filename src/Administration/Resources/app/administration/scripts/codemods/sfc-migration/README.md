@@ -6,26 +6,26 @@ Converts Options API Administration components (`index.js` + `*.html.twig`) into
 
 ## Usage
 
-`--write` rewrites and deletes files in place, with no confirmation and no backup. Commit first —
-`git` is the only undo.
+`--write` creates validated Vue drafts and leaves the legacy entry point and Twig file untouched.
+Replacing an entry point is a separate, explicit operation; Twig files are retained for a later
+human-reviewed cleanup.
 
 ```bash
 # Dry run (default): prints a per-component report, writes nothing
 npm run codemod:sfc-migration -- src/app/component/base
 
-# Apply the migration
+# Write validated Vue drafts only
 npm run codemod:sfc-migration -- src/app/component/base --write
 
-# Aggregate a dry run into a markdown report (skip/TODO reasons with component counts),
-# written to <repo root>/SFC-CODEMOD-SKIP-ANALYSIS.md by default
-npm run codemod:sfc-migration:analyze -- src/ [--out <file>]
+# Replace eligible legacy entry points as a separate explicit step (Twig is retained)
+npm run codemod:sfc-migration -- src/app/component/base --write --replace-originals
 ```
 
 ## Outcomes
 
 | Outcome | Meaning | `--write` behavior |
 | --- | --- | --- |
-| `full` | Everything converted, output validated | Writes `<dir>/<component-name>.vue`, shrinks `index.js` to a re-export shim, deletes the twig (kept if another file still imports it) |
+| `full` | Everything converted, output validated | Writes `<dir>/<component-name>.vue`; with `--replace-originals`, an unambiguous plain registration may also replace `index.js` with a re-export shim. Twig is retained |
 | `partial` | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before |
 | `skipped` | Structural blocker | Writes nothing; the report names the reason |
 | `already-migrated` | A `.vue` with the component's name exists | Writes nothing; the reason says whether it is an earlier draft, a half-migration, or a file this codemod never wrote |
@@ -36,36 +36,37 @@ Every generated SFC must pass the real build transform (`build/vue-setup-transfo
 That gate proves the output *compiles*, not that it *behaves the same*, so shapes that would compile
 into different behaviour are refused separately (see below).
 
-A completed `full` migration is never rediscovered: its `index.js` is a re-export, which the
-discovery pass does not recognise as a component. Re-runs are idempotent either way.
+A component whose entry point was explicitly replaced is never rediscovered: its `index.js` is a
+re-export, which the discovery pass does not recognise as a component. Draft-only re-runs report
+the existing draft and leave it untouched.
 
 ### Write failures
 
 Each component's writes are guarded on their own. A failure reports that component as `error`,
-names what is on disk, and the run continues so the report still covers everything else. The order
-is `.vue` → `index.js` shim → twig deletion, and the `.vue` is removed again if the shim write
-fails, so a failed component is left exactly as it was rather than half-migrated.
+names what is on disk, and the run continues so the report still covers everything else. Files are
+staged in the target directory, completed before an atomic rename, and cleaned deterministically.
+The legacy entry point remains available until its replacement succeeds; Twig is never deleted.
 
 ## Registration classes
 
 Independent of the outcome, every component is classified by the `Component.*` call its directory is
-registered through (`component-registry.ts`). Both reports carry the class: the CLI run as a column
-per component plus a split summary line, the analysis markdown as a `By registration` summary table
-and per-class count columns in the skip and TODO tables.
+registered through (`component-registry.ts`). The CLI carries the class per component plus a split
+summary line. Scan failures are retained as structured diagnostics and do not stop later components
+from being reported.
 
 The class decides how far a component is migrated: only a plain `Component.register` takes the
 destructive path, because only its template stands on its own.
 
 | Class | Meaning | `--write` behaviour |
 | --- | --- | --- |
-| `register` | `Component.register('name', () => import('./dir'))` — the plain case | The full path, per the outcome above |
+| `register` | `Component.register('name', () => import('./dir'))` — the plain case | Writes a draft with `--write`; only the unambiguous full path may replace `index.js` with `--replace-originals` |
 | `extend` | `Component.extend('child', 'parent', () => import('./dir'))` — child of another component | Skipped; it renders against bindings its parent declares |
 | `override` | A directory registered through `Component.override('name', () => import('./dir'))` (none today, so the column is omitted) | Skipped; its template patches another component's markup |
-| `unregistered` | No registration resolves to the directory (helpers, dynamically registered or dead components) | Draft only — `index.js` and the twig are kept, since this is also where an extend child lands when the registering file sits outside the scan root |
+| `unregistered` | No registration resolves to the directory (helpers, dynamically registered or dead components) | Draft only — `index.js` and Twig are kept |
 
 Inline `Component.override('name', { … })` configs own no directory and never reach the component
-discovery. They are counted separately and reported as one info line (`72 inline
-Component.override(...) configs found`) — reporting only, the codemod cannot convert them.
+discovery. They are counted separately and reported as one info line — reporting only, the codemod
+cannot convert them.
 
 ## Component names
 
@@ -78,7 +79,7 @@ Two gates guard the derivation: a name the directory does not carry must be conf
 template filename (`sw-cms-block-text.html.twig`), and a name registered for more than one directory
 is never used. Either mismatch skips the component instead of guessing.
 
-Registrations are collected from the whole Administration `src/` whenever the target lies inside it,
+Registrations are collected from the whole Administration `src/` whenever the target is contained by it,
 so running the codemod on a single module still resolves names registered in a parent directory.
 For targets outside `src/` the scan root is the target itself.
 
@@ -98,8 +99,8 @@ produce compiles while rendering something different:
 
 These need structural decisions a codemod should not guess. Everything else that is not understood
 becomes a TODO comment in a draft instead of a silent conversion — including a `this.<member>` whose
-name a local binding shadows, and module-level code outside the default export, which would run once
-per component instance instead of once per module load.
+name a local binding shadows. Module-level code is retained in a normal script block so it still runs
+once per module load.
 
 ## Structure
 
@@ -107,8 +108,10 @@ Each file answers exactly one question:
 
 | File | Answers |
 | --- | --- |
-| `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, twig-importer scan, file writes, report |
-| `component-registry.ts` | Which dir belongs to which `Component.register`/`extend`/`override` call? One scan, feeds the component names and the classification |
+| `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, file writes, report |
+| `component-source-model.ts` | Which source files, registrations, options, and exact Twig binding belong together? One parsed source model |
+| `component-registry.ts` | Compatibility adapter for parsed registrations and the classification report |
+| `migration-writer.ts` | How are validated drafts and explicit replacements staged, renamed, and recovered? |
 | `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
 | `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates) |
 | `template-ast.ts` | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate |
@@ -120,9 +123,10 @@ Each file answers exactly one question:
 | `tables.ts` | What converts to what? All conversion tables — the extension surface |
 | `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
 | `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
-| `analyze-skips.ts` | Which features block the most components? Aggregates a dry run into a markdown report |
 | `sfc-migration.spec.ts` + `__fixtures__/` | Snapshot of every fixture through the full pipeline + a tmpdir integration test of `--write` |
-| `run-sfc-migration.spec.ts` | What does the runner do to files when a write fails? Rollback, twig-keep and existing-`.vue` behaviour |
+| `run-sfc-migration.spec.ts` | What does the runner do to files? Draft/replacement modes, Twig retention, and existing-`.vue` behaviour |
+| `run-sfc-migration.cli.spec.ts` | Do invalid flags and target errors return nonzero exit codes? |
+| `runtime-equivalence-*.ts` | Does a supported shape execute equivalently, or stay conservative? |
 
 ## Extending the codemod
 

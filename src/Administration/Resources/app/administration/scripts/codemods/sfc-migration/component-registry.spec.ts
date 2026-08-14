@@ -7,8 +7,6 @@ import * as os from 'os';
 import * as path from 'path';
 import { collectComponentRegistry } from './component-registry';
 
-const ADMIN_SRC = path.resolve(__dirname, '../../../src');
-
 describe('scripts/codemods/sfc-migration/component-registry', () => {
     let tmpDir: string;
 
@@ -150,11 +148,12 @@ describe('scripts/codemods/sfc-migration/component-registry', () => {
     });
 
     it('resolves src/ alias specifiers against the admin src root', () => {
+        writeComponentDir('app/component');
         writeFile('index.js', "Component.register('sw-aliased', () => import('src/app/component'));\n");
 
-        const registry = collectComponentRegistry(tmpDir);
+        const registry = collectComponentRegistry(tmpDir, { adminSrc: tmpDir });
 
-        expect(registry.byDir.get(path.join(ADMIN_SRC, 'app', 'component'))).toEqual({
+        expect(registry.byDir.get(path.join(tmpDir, 'app', 'component'))).toEqual({
             kind: 'register',
             name: 'sw-aliased',
         });

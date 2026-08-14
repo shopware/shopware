@@ -30,6 +30,8 @@ type FnLike = {
     params: t.Node[];
     body: t.BlockStatement | t.Expression;
     async: boolean;
+    generator: boolean;
+    leadingComments?: t.Comment[];
 };
 
 const IDENTIFIER = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
@@ -75,16 +77,29 @@ function keyName(prop: t.ObjectMethod | t.ObjectProperty): string | null {
  * `foo: () => {}` authoring style.
  */
 function asFunction(prop: t.ObjectMethod | t.ObjectProperty | t.SpreadElement): FnLike | null {
-    if (prop.type === 'ObjectMethod' && prop.kind === 'method' && !prop.generator) {
-        return { fnNode: prop, params: prop.params, body: prop.body, async: prop.async };
+    if (prop.type === 'ObjectMethod' && prop.kind === 'method') {
+        return {
+            fnNode: prop,
+            params: prop.params,
+            body: prop.body,
+            async: prop.async ?? false,
+            generator: prop.generator ?? false,
+            leadingComments: prop.leadingComments ?? undefined,
+        };
     }
 
     if (
         prop.type === 'ObjectProperty' &&
-        (prop.value.type === 'FunctionExpression' || prop.value.type === 'ArrowFunctionExpression') &&
-        !prop.value.generator
+        (prop.value.type === 'FunctionExpression' || prop.value.type === 'ArrowFunctionExpression')
     ) {
-        return { fnNode: prop.value, params: prop.value.params, body: prop.value.body, async: prop.value.async };
+        return {
+            fnNode: prop.value,
+            params: prop.value.params,
+            body: prop.value.body,
+            async: prop.value.async ?? false,
+            generator: prop.value.generator ?? false,
+            leadingComments: prop.leadingComments ?? prop.value.leadingComments ?? undefined,
+        };
     }
 
     return null;
@@ -234,8 +249,22 @@ function memberName(node: t.MemberExpression): string | null {
     return null;
 }
 
-/** Renders a member function as an arrow function, body and params verbatim. */
+/**
+ * Renders a collected function without changing its runtime form. In particular, arrows keep
+ * concise bodies and lexical `arguments`, named function expressions keep their local name, and
+ * generators/async functions retain their flags and TypeScript contracts.
+ */
 function arrowText(ctx: Ctx, fn: FnLike): string {
+    const leadingComments = fn.leadingComments
+        ?.map((comment) => ctx.source.slice(comment.start as number, comment.end as number))
+        .join('\n');
+    const commentPrefix = leadingComments ? `${leadingComments}\n` : '';
+
+    if (fn.fnNode.type === 'FunctionExpression' || fn.fnNode.type === 'ArrowFunctionExpression') {
+        return `${commentPrefix}${snip(ctx, fn.fnNode)}`;
+    }
+
+    const typeParameters = fn.fnNode.typeParameters ? snip(ctx, fn.fnNode.typeParameters) : '';
     const params =
         fn.params.length > 0
             ? snip(ctx, {
@@ -243,9 +272,11 @@ function arrowText(ctx: Ctx, fn: FnLike): string {
                   end: fn.params[fn.params.length - 1].end,
               } as t.Node)
             : '';
+    const returnType = fn.fnNode.returnType ? snip(ctx, fn.fnNode.returnType) : '';
     const asyncPrefix = fn.async ? 'async ' : '';
+    const generator = fn.generator ? '*' : '';
 
-    return `${asyncPrefix}(${params}) => ${snip(ctx, fn.body)}`;
+    return `${commentPrefix}${asyncPrefix}function${generator}${typeParameters}(${params})${returnType} ${snip(ctx, fn.body)}`;
 }
 
 /** Text of a block body's statements, without the surrounding braces. */

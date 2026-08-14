@@ -18,6 +18,7 @@ type ConvertInput = {
     componentName: string;
     vuePath: string;
     lang: 'js' | 'ts';
+    templateImportRange: { start: number; end: number };
 };
 
 type ConvertResult = {
@@ -33,14 +34,19 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
         return { outcome: 'skipped', reasons: template.blockers, sfc: null };
     }
 
-    const script = transformScript(input.jsSource, input.componentName);
+    const script = transformScript(input.jsSource, input.componentName, {
+        templateImportRange: input.templateImportRange,
+    });
 
     if (script.script === null) {
         return { outcome: 'skipped', reasons: script.blockers, sfc: null };
     }
 
     const langAttribute = input.lang === 'ts' ? ' lang="ts"' : '';
-    const rawSfc = `<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
+    const moduleBlock = script.moduleScript
+        ? `<script data-sfc-migration-module${langAttribute}>\n${script.moduleScript}\n</script>\n\n`
+        : '';
+    const rawSfc = `${moduleBlock}<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
 
     let formatted: string;
 

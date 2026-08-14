@@ -100,12 +100,22 @@ function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponent: boolean, scope: Lo
         return;
     }
 
+    // Every class field, private member, static block and ordinary class method has class-local
+    // `this`. Computed keys can be evaluated in the surrounding scope, but treating the complete
+    // class conservatively avoids rewriting a class field as a component binding. Unsupported
+    // class-local references become TODOs instead of silently changing the receiver.
+    if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
+        visitChildren(node, (child) => rewriteThis(ctx, child, false, scope));
+        return;
+    }
+
     // Nested non-arrow functions rebind `this`; arrows inherit the current binding.
     const rebindsThis =
         node.type === 'FunctionExpression' ||
         node.type === 'FunctionDeclaration' ||
         node.type === 'ObjectMethod' ||
-        node.type === 'ClassMethod';
+        node.type === 'ClassMethod' ||
+        node.type === 'ClassPrivateMethod';
     const childScope = FUNCTION_TYPES.has(node.type) ? functionScope(node, scope) : scope;
 
     visitChildren(node, (child) => rewriteThis(ctx, child, rebindsThis ? false : thisIsComponent, childScope));

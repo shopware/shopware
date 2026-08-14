@@ -15,7 +15,7 @@
 
 import type * as t from '@babel/types';
 import { LIFECYCLE_HOOKS, SKIP_OPTIONS, TODO_OPTIONS, type MemberKind } from './tables';
-import { type Ctx, type FnLike, IDENTIFIER, arrowText, asFunction, keyName, raw, snip, todo } from './ast';
+import { type Ctx, type FnLike, IDENTIFIER, arrowText, asFunction, keyName, raw, snip, todo, visitChildren } from './ast';
 
 type NamedText = { name: string; text: () => string };
 
@@ -37,6 +37,32 @@ type Collected = {
 };
 
 type OptionHandler = (prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, collected: Collected) => boolean;
+
+function containsThisAccess(node: t.Node): boolean {
+    if (node.type === 'ThisExpression') {
+        return true;
+    }
+
+    if (node.type === 'MemberExpression' && node.object.type === 'ThisExpression') {
+        return true;
+    }
+
+    let found = false;
+    visitChildren(node, (child) => {
+        if (!found && containsThisAccess(child)) {
+            found = true;
+        }
+    });
+
+    return found;
+}
+
+function memberAccess(base: string, segments: string[]): string {
+    return segments.reduce(
+        (value, segment) => (IDENTIFIER.test(segment) ? `${value}.${segment}` : `${value}[${JSON.stringify(segment)}]`),
+        base,
+    );
+}
 
 function createCollected(): Collected {
     return {
@@ -221,6 +247,12 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
         );
 
         if (names && names.every((injectName): injectName is string => injectName !== null)) {
+            // Vue's Options API unwraps injected refs on reads and forwards writes to `.value`.
+            // The generated binding cannot prove whether a provider returns a primitive, reactive
+            // object, or Ref, so keep the draft but make the result partial until the runtime
+            // representation is deliberately normalized and covered.
+            todo(ctx, 'array inject declaration requires runtime ref-unwrapping verification', raw(ctx, prop));
+
             for (const injectName of names) {
                 collected.injects.push(injectName);
                 ctx.bindings.set(injectName, 'inject');
@@ -234,6 +266,12 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
 
     data: (prop, ctx, collected) => {
         const fn = asFunction(prop);
+
+        if (fn && fn.params.length > 0) {
+            todo(ctx, 'parameterized data() requires an explicit vm mapping', raw(ctx, prop));
+            return true;
+        }
+
         const returned =
             fn && fn.body.type === 'BlockStatement'
                 ? fn.body.body.length === 1 &&
@@ -261,6 +299,10 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
             ) {
                 todo(ctx, 'unsupported data() entry', raw(ctx, entry));
                 continue;
+            }
+
+            if (containsThisAccess(entry.value)) {
+                todo(ctx, 'data() initializer reads component this and is not runtime-equivalent', raw(ctx, entry));
             }
 
             collected.dataEntries.push({ name: entryName, valueNode: entry.value });
@@ -368,18 +410,23 @@ function buildWatchers(ctx: Ctx, collected: Collected): (() => string)[] {
     for (const { key, prop } of collected.watchEntries) {
         const segments = key.split('.');
         const head = segments[0];
-        const rest = segments.slice(1).join('.');
+        const rest = segments.slice(1);
         const headKind = ctx.bindings.get(head);
         let sourceText: string | null = null;
 
         if (head === '$route') {
+            if (rest.length === 0) {
+                todo(ctx, `watch source '${key}' has exact $route semantics that need runtime verification`, raw(ctx, prop));
+                continue;
+            }
+
             ctx.helpers.add('route');
-            sourceText = rest ? `() => route.${rest}` : 'route';
+            sourceText = `() => ${memberAccess('route', rest)}`;
         } else if (headKind === 'prop') {
             ctx.helpers.add('props');
-            sourceText = `() => props.${key}`;
+            sourceText = `() => ${memberAccess('props', segments)}`;
         } else if (headKind === 'data' || headKind === 'computed') {
-            sourceText = rest ? `() => ${head}.value.${rest}` : head;
+            sourceText = rest.length > 0 ? `() => ${memberAccess(`${head}.value`, rest)}` : head;
         }
 
         if (!sourceText) {

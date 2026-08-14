@@ -327,7 +327,7 @@ Rejections surface in your editor as well as in the build: the `valid-shopware-s
 
 ### SFC migration codemod now emits native setup components
 
-The `codemod:sfc-migration` developer tool has been rewritten to output the native setup SFC format (`<script setup>` with `swDefinePublic`) instead of the previous `createExtendableSetup()` form, which the build toolchain no longer accepts. Usage is unchanged: `npm run codemod:sfc-migration -- <path>` previews, `--write` applies.
+The `codemod:sfc-migration` developer tool has been rewritten to output the native setup SFC format (`<script setup>` with `swDefinePublic`) instead of the previous `createExtendableSetup()` form, which the build toolchain no longer accepts. The default remains a read-only preview; `--write` creates validated Vue drafts only. Replacing an eligible legacy entry point requires the separate explicit `--replace-originals` option, and Twig templates are retained.
 
 What changed for users of the tool: every generated file must pass the build transform and Vue's compiler before it is written; components that convert only partially receive a `.vue` draft with `TODO(sfc-migration)` comments while their original `index.js` + `.html.twig` stay in place and keep working; components using `mixins` or `Component.extend()` are skipped and reported instead of receiving an Options API `<script>` fallback, which the build now rejects. See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md`.
 
@@ -2172,11 +2172,16 @@ Run it via:
 
 ```bash
 npm run codemod:sfc-migration -- <target-directory>        # dry-run preview
-npm run codemod:sfc-migration -- --write <target-directory> # write .vue files
+npm run codemod:sfc-migration -- <target-directory> --write # write validated .vue drafts only
+npm run codemod:sfc-migration -- <target-directory> --write --replace-originals # explicit replacement
 ```
 
 The codemod converts Options API to Composition API (`data` → `ref`, `computed`, `watch`, `methods`, lifecycle hooks), rewrites Twig block syntax to `<sw-block>` elements, and merges template + script into a single `.vue` file.
-Components with `render()` functions are skipped; components using `mixins` or `Shopware.Component.extend()` receive a backoff to plain `<script>` so they can be migrated manually.
+Every generated file is compiler-validated before it is written. Ordinary writes retain the legacy
+`index.js` and Twig files; only an unambiguous full `Component.register` conversion may replace its
+entry point with the separate `--replace-originals` option. Components with `render()` functions,
+`mixins`, or `Shopware.Component.extend()` are skipped and reported rather than receiving a plain
+Options API `<script>` fallback.
 
 See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md` for full usage, flags, and known limitations.
 

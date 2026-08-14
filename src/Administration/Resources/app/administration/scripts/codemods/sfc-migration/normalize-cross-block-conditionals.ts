@@ -13,6 +13,9 @@
 
 import { NodeTypes } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
+import { parseExpression } from '@babel/parser';
+import { VISITOR_KEYS } from '@babel/types';
+import type * as t from '@babel/types';
 import { elementChildren, isConvertedBlock, parseTemplate } from './template-ast';
 
 const ORPHANED_CONTINUATION = 'orphaned cross-block v-else (no preceding v-if)';
@@ -33,6 +36,7 @@ type NormalizeContext = {
     source: string;
     guards: { offset: number; markup: string }[];
     orphaned: boolean;
+    unsafe: boolean;
 };
 
 type NormalizeResult = {
@@ -109,6 +113,12 @@ function collectLeadingChain(
 }
 
 function insertGuardBefore(node: ElementNode, conditions: string[], context: NormalizeContext): void {
+    if (conditions.some((condition) => !isSideEffectFreeCondition(condition))) {
+        context.unsafe = true;
+
+        return;
+    }
+
     const offset = node.loc.start.offset;
     const linePrefix = context.source.slice(context.source.lastIndexOf('\n', offset - 1) + 1, offset);
     const indentation = /^\s*$/.test(linePrefix) ? linePrefix : '';
@@ -121,6 +131,56 @@ function insertGuardBefore(node: ElementNode, conditions: string[], context: Nor
         offset,
         markup: `<template v-if="${expression}">${GUARD_COMMENT}</template>\n${indentation}`,
     });
+}
+
+/**
+ * Guard insertion evaluates the preceding conditions again. Only expressions with no callable,
+ * assignment, update, allocation, or async evaluation may therefore cross a generated sw-block.
+ * Parse failures are conservative: a normal compiler validation pass can still accept the source,
+ * but this normalizer must not claim equivalent evaluation timing for syntax it cannot inspect.
+ */
+function isSideEffectFreeCondition(expression: string): boolean {
+    let parsed: t.Expression;
+
+    try {
+        parsed = parseExpression(expression, { plugins: ['typescript'] }) as t.Expression;
+    } catch {
+        return false;
+    }
+
+    const unsafe = new Set([
+        'CallExpression',
+        'OptionalCallExpression',
+        'AssignmentExpression',
+        'UpdateExpression',
+        'NewExpression',
+        'AwaitExpression',
+        'YieldExpression',
+        'TaggedTemplateExpression',
+        'SequenceExpression',
+    ]);
+
+    const walk = (node: t.Node): boolean => {
+        if (unsafe.has(node.type)) {
+            return false;
+        }
+
+        for (const key of VISITOR_KEYS[node.type] ?? []) {
+            const child = (node as unknown as Record<string, unknown>)[key];
+
+            if (Array.isArray(child)) {
+                if (child.some((entry) => entry && typeof (entry as t.Node).type === 'string' && !walk(entry as t.Node))) {
+                    return false;
+                }
+            } else if (child && typeof (child as t.Node).type === 'string' && !walk(child as t.Node)) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    return walk(parsed);
 }
 
 function walkElement(node: ElementNode, chain: ConditionChain | null, context: NormalizeContext): ConditionChain | null {
@@ -226,12 +286,19 @@ function normalizeCrossBlockConditionals(body: string): NormalizeResult {
         return { template: body, blockers: [] };
     }
 
-    const context: NormalizeContext = { source: body, guards: [], orphaned: false };
+    const context: NormalizeContext = { source: body, guards: [], orphaned: false, unsafe: false };
 
     walkSiblings(ast.children, context);
 
     if (context.orphaned) {
         return { template: null, blockers: [ORPHANED_CONTINUATION] };
+    }
+
+    if (context.unsafe) {
+        return {
+            template: null,
+            blockers: ['cross-block conditional contains a side-effecting expression'],
+        };
     }
 
     const template = context.guards

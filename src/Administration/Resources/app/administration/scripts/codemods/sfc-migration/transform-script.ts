@@ -19,12 +19,13 @@ import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
 import MagicString from 'magic-string';
 import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type TodoEntry } from './tables';
-import { type Ctx, arrowText, blockInner, raw, snip, todo, unwrapOptions } from './ast';
+import { type Ctx, arrowText, snip, unwrapOptions } from './ast';
 import { buildWatchers, classifyOptions } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
 type ScriptResult = {
     script: string | null;
+    moduleScript: string | null;
     todos: string[];
     blockers: string[];
 };
@@ -44,77 +45,11 @@ function todoBlock(entry: TodoEntry): string {
     ].join('\n');
 }
 
-const PURE_LITERALS = new Set([
-    'StringLiteral',
-    'NumericLiteral',
-    'BooleanLiteral',
-    'NullLiteral',
-    'RegExpLiteral',
-    'BigIntLiteral',
-]);
-
-/**
- * Initializers that evaluate to the same thing every time with no side effects, so running them
- * once per instance is indistinguishable from running them once at module load. Deliberately
- * narrow: object and array literals are excluded, because a fresh object per instance is
- * observable through its identity and through shared mutation even when its shape is constant.
- */
-function isPureInitializer(node: t.Node | null | undefined): boolean {
-    if (!node) {
-        return false;
-    }
-
-    if (PURE_LITERALS.has(node.type) || node.type === 'Identifier') {
-        return true;
-    }
-
-    switch (node.type) {
-        case 'TemplateLiteral':
-            return node.expressions.length === 0;
-        case 'MemberExpression':
-            return !node.optional && isPureInitializer(node.object) && (!node.computed || isPureInitializer(node.property));
-        case 'TSAsExpression':
-        case 'TSSatisfiesExpression':
-        case 'TSNonNullExpression':
-            return isPureInitializer(node.expression);
-        case 'UnaryExpression':
-            return (node.operator === '-' || node.operator === '+') && isPureInitializer(node.argument);
-        default:
-            return false;
-    }
-}
-
-/**
- * Top-level statements that keep their meaning when spliced into `<script setup>`, whose body runs
- * once per component instance rather than once per module load: imports (the compiler hoists them
- * back to module scope), type-only declarations (erased), and const bindings with a pure read as
- * their initializer.
- */
-function isHoistableTopLevel(statement: t.Statement): boolean {
-    if (statement.type === 'ImportDeclaration' || statement.type === 'EmptyStatement') {
-        return true;
-    }
-
-    if (
-        statement.type === 'TSTypeAliasDeclaration' ||
-        statement.type === 'TSInterfaceDeclaration' ||
-        statement.type === 'TSDeclareFunction'
-    ) {
-        return true;
-    }
-
-    if ('declare' in statement && statement.declare === true) {
-        return true;
-    }
-
-    if (statement.type === 'VariableDeclaration' && statement.kind === 'const') {
-        return statement.declarations.every((declarator) => isPureInitializer(declarator.init));
-    }
-
-    return false;
-}
-
-function transformScript(source: string, componentName: string): ScriptResult {
+function transformScript(
+    source: string,
+    componentName: string,
+    transformOptions: { templateImportRange: { start: number; end: number } },
+): ScriptResult {
     const ctx: Ctx = {
         source,
         ms: new MagicString(source),
@@ -132,7 +67,12 @@ function transformScript(source: string, componentName: string): ScriptResult {
     try {
         ast = parse(source, { sourceType: 'module', plugins: ['typescript'] });
     } catch (error) {
-        return { script: null, todos: [], blockers: [`script parse error: ${(error as Error).message}`] };
+        return {
+            script: null,
+            moduleScript: null,
+            todos: [],
+            blockers: [`script parse error: ${(error as Error).message}`],
+        };
     }
 
     const body = ast.program.body;
@@ -141,13 +81,13 @@ function transformScript(source: string, componentName: string): ScriptResult {
     );
 
     if (!exportDefault) {
-        return { script: null, todos: [], blockers: ['no default export'] };
+        return { script: null, moduleScript: null, todos: [], blockers: ['no default export'] };
     }
 
     const options = unwrapOptions(exportDefault.declaration);
 
     if (!options) {
-        return { script: null, todos: [], blockers: ['unsupported default export shape'] };
+        return { script: null, moduleScript: null, todos: [], blockers: ['unsupported default export shape'] };
     }
 
     const collected = classifyOptions(ctx, options);
@@ -179,7 +119,7 @@ function transformScript(source: string, componentName: string): ScriptResult {
     }
 
     if (ctx.blockers.size > 0) {
-        return { script: null, todos: [], blockers: [...ctx.blockers] };
+        return { script: null, moduleScript: null, todos: [], blockers: [...ctx.blockers] };
     }
 
     // --- rewrite pass ---------------------------------------------------------------------------
@@ -207,46 +147,23 @@ function transformScript(source: string, componentName: string): ScriptResult {
     }
 
     if (ctx.blockers.size > 0) {
-        return { script: null, todos: [], blockers: [...ctx.blockers] };
+        return { script: null, moduleScript: null, todos: [], blockers: [...ctx.blockers] };
     }
 
     // --- prelude (module-level code outside the component options) ------------------------------
 
-    const templateImport = body.find(
-        (statement): statement is t.ImportDeclaration =>
-            statement.type === 'ImportDeclaration' && statement.source.value.endsWith('.html.twig'),
+    const end = ctx.source.indexOf('\n', transformOptions.templateImportRange.end);
+    ctx.ms.remove(
+        transformOptions.templateImportRange.start,
+        end === -1 ? transformOptions.templateImportRange.end : end + 1,
     );
 
-    if (templateImport) {
-        const end = ctx.source.indexOf('\n', templateImport.end as number);
-        ctx.ms.remove(templateImport.start as number, end === -1 ? (templateImport.end as number) : end + 1);
-    }
-
-    // The prelude is spliced verbatim into `<script setup>`, whose body runs per component instance.
-    // The index.js shim keeps nothing but the re-export, so anything that is not provably inert
-    // there silently changes meaning once the original is deleted.
-    for (const statement of body) {
-        if (statement === exportDefault || isHoistableTopLevel(statement)) {
-            continue;
-        }
-
-        todo(
-            ctx,
-            statement.type === 'ExportNamedDeclaration' || statement.type === 'ExportAllDeclaration'
-                ? 'named export outside the default export is dropped by the index.js shim'
-                : 'module-level code outside the default export runs once per component instance',
-            raw(ctx, statement),
-        );
-    }
-
-    const preludeBefore = ctx.ms
-        .snip(0, exportDefault.start as number)
-        .toString()
-        .trim();
-    const preludeAfter = ctx.ms
-        .snip(exportDefault.end as number, source.length)
-        .toString()
-        .trim();
+    // Keep the module prelude in a normal `<script>` block. `<script setup>` runs once per
+    // component instance, so even a getter, regex, live import, or apparently pure member read can
+    // change identity or evaluation timing when moved there.
+    const moduleMagicString = ctx.ms.clone();
+    moduleMagicString.remove(exportDefault.start as number, exportDefault.end as number);
+    const moduleScript = moduleMagicString.toString().trim() || null;
 
     // --- assembly --------------------------------------------------------------------------------
 
@@ -303,8 +220,6 @@ function transformScript(source: string, componentName: string): ScriptResult {
 
     const sections: (string | null)[] = [
         importBlock || null,
-        preludeBefore || null,
-        preludeAfter || null,
         helperBlock || null,
         injectBlock || null,
         collected.inheritAttrs !== null ? `defineOptions({ inheritAttrs: ${collected.inheritAttrs} });` : null,
@@ -324,11 +239,7 @@ function transformScript(source: string, componentName: string): ScriptResult {
         refBlock || null,
         ...watchers.map((watcher) => watcher()),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
-        collected.createdFn
-            ? collected.createdFn.async
-                ? `void (async () => ${snip(ctx, collected.createdFn.body)})();`
-                : blockInner(ctx, collected.createdFn) || null
-            : null,
+        collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
         ...ctx.todos.map(todoBlock),
     ];
 
@@ -348,6 +259,7 @@ function transformScript(source: string, componentName: string): ScriptResult {
 
     return {
         script: sections.filter((section): section is string => Boolean(section)).join('\n\n'),
+        moduleScript,
         todos: ctx.todos.map((entry) => entry.reason),
         blockers: [],
     };

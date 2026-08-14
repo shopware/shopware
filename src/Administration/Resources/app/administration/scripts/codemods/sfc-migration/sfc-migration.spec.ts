@@ -5,6 +5,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { parse } from '@babel/parser';
 import { SLOT_IN_BLOCK } from './assert-block-slots';
 import { convertComponent, type ConvertResult } from './convert-component';
 import { runMigration, type MigrationResult } from './run-sfc-migration';
@@ -22,15 +23,50 @@ function fixturePaths(name: string): { indexPath: string; twigPath: string } {
     return { indexPath, twigPath: path.join(dir, `${name}.html.twig`) };
 }
 
+function manifest(root: string): Record<string, Buffer> {
+    const files: string[] = [];
+
+    const visit = (directory: string): void => {
+        fs.readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
+            const file = path.join(directory, entry.name);
+
+            if (entry.isDirectory()) {
+                visit(file);
+                return;
+            }
+
+            files.push(file);
+        });
+    };
+
+    visit(root);
+
+    return Object.fromEntries(
+        files.sort().map((file) => [
+            path.relative(root, file).split(path.sep).join('/'),
+            fs.readFileSync(file),
+        ]),
+    );
+}
+
 async function convertFixture(name: string): Promise<ConvertResult> {
     const { indexPath, twigPath } = fixturePaths(name);
+    const jsSource = fs.readFileSync(indexPath, 'utf8');
+    const templateImport = parse(jsSource, { sourceType: 'module', plugins: ['typescript'] }).program.body.find(
+        (statement) => statement.type === 'ImportDeclaration' && statement.source.value.endsWith('.html.twig'),
+    );
+
+    if (!templateImport) {
+        throw new Error(`Fixture ${name} has no Twig import`);
+    }
 
     return convertComponent({
-        jsSource: fs.readFileSync(indexPath, 'utf8'),
+        jsSource,
         twigSource: fs.readFileSync(twigPath, 'utf8'),
         componentName: name,
         vuePath: path.join(FIXTURES, name, `${name}.vue`),
         lang: indexPath.endsWith('.ts') ? 'ts' : 'js',
+        templateImportRange: { start: templateImport.start as number, end: templateImport.end as number },
     });
 }
 
@@ -49,11 +85,11 @@ describe('scripts/codemods/sfc-migration', () => {
     });
 
     describe('outcome expectations (guard the snapshots against silent regressions)', () => {
-        it('fully migrates a component without hard features', async () => {
+        it('keeps array injection conservative until its ref-unwrapping contract is proven', async () => {
             const result = await convertFixture('sw-simple-card');
 
-            expect(result.outcome).toBe('full');
-            expect(result.reasons).toEqual([]);
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toContain('array inject declaration requires runtime ref-unwrapping verification');
             expect(result.sfc).toContain('swDefinePublic({');
             expect(result.sfc).not.toContain('this.');
             expect(result.sfc).not.toContain('$dataScope');
@@ -103,15 +139,12 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.sfc).toContain('props.title');
         });
 
-        it('reports module-level code that would run once per component instance', async () => {
+        it('preserves module-level code in a normal script block', async () => {
             const result = await convertFixture('sw-module-level-code');
 
-            expect(result.outcome).toBe('partial');
-            expect(result.reasons).toEqual(
-                expect.arrayContaining([
-                    expect.stringContaining('module-level code outside the default export'),
-                ]),
-            );
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain('<script data-sfc-migration-module lang="ts">');
         });
 
         // The `const { X } = Shopware` prelude is by far the most common shape in src/; widening the
@@ -119,8 +152,8 @@ describe('scripts/codemods/sfc-migration', () => {
         it('keeps a pure Shopware-namespace prelude a full migration', async () => {
             const result = await convertFixture('sw-wrap-config');
 
-            expect(result.outcome).toBe('full');
-            expect(result.reasons).toEqual([]);
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toContain('array inject declaration requires runtime ref-unwrapping verification');
         });
 
         it('skips mixin components entirely', async () => {
@@ -181,11 +214,50 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual([]);
             expect(result.sfc).toContain('#modal-footer');
         });
+
+        it('preserves function contracts and special JSDoc when rendering setup functions', async () => {
+            const jsSource = `
+                    import template from './sw-function-contracts.html.twig';
+
+                    export default {
+                        template,
+                        methods: {
+                            /** @deprecated @experimental @internal @private */
+                            typed<T>(value: T): T {
+                                return value;
+                            },
+                        },
+                    };
+                `;
+            const templateImport = parse(jsSource, { sourceType: 'module', plugins: ['typescript'] }).program.body.find(
+                (statement) => statement.type === 'ImportDeclaration',
+            );
+
+            if (!templateImport) {
+                throw new Error('Contract fixture has no template import');
+            }
+
+            const result = await convertComponent({
+                componentName: 'sw-function-contracts',
+                jsSource,
+                twigSource: '{% block sw_function_contracts %}<div />{% endblock %}',
+                vuePath: 'sw-function-contracts.vue',
+                lang: 'ts',
+                templateImportRange: { start: templateImport.start as number, end: templateImport.end as number },
+            });
+
+            expect(result.outcome).toBe('full');
+            expect(result.sfc).toContain('@deprecated @experimental @internal @private');
+            expect(result.sfc).toMatch(
+                /const typed =\s+\/\*\* @deprecated @experimental @internal @private \*\/\s+function <T>\(value: T\): T/,
+            );
+        });
     });
 
     describe('runMigration with --write (integration on a temporary component tree)', () => {
         let tmpDir: string;
         let result: MigrationResult;
+        let beforeManifest: Record<string, Buffer>;
 
         const copyFixture = (name: string): void => {
             fs.cpSync(path.join(FIXTURES, name), path.join(tmpDir, name), { recursive: true });
@@ -217,6 +289,7 @@ describe('scripts/codemods/sfc-migration', () => {
                 ].join('\n'),
             );
 
+            beforeManifest = manifest(tmpDir);
             result = await runMigration(tmpDir, { write: true });
         });
 
@@ -224,14 +297,31 @@ describe('scripts/codemods/sfc-migration', () => {
             fs.rmSync(tmpDir, { recursive: true, force: true });
         });
 
-        it('swaps the files of a fully migrated component', () => {
-            const dir = path.join(tmpDir, 'sw-simple-card');
+        it('writes only a validated draft and retains every legacy byte', () => {
+            const afterManifest = manifest(tmpDir);
+            const newFiles = [
+                'sw-partial-todos/sw-partial-todos.vue',
+                'sw-simple-card/sw-simple-card.vue',
+            ];
 
-            expect(fs.existsSync(path.join(dir, 'sw-simple-card.vue'))).toBe(true);
-            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toBe(
-                "/**\n * @sw-package framework\n *\n * @private\n */\nexport { default } from './sw-simple-card.vue';\n",
+            expect(Object.keys(afterManifest)).toEqual(
+                [
+                    ...Object.keys(beforeManifest),
+                    ...newFiles,
+                ].sort(),
             );
-            expect(fs.existsSync(path.join(dir, 'sw-simple-card.html.twig'))).toBe(false);
+
+            Object.entries(beforeManifest).forEach(
+                ([
+                    file,
+                    bytes,
+                ]) => {
+                    expect(afterManifest[file]).toEqual(bytes);
+                },
+            );
+
+            expect(afterManifest['sw-simple-card/sw-simple-card.vue']).toBeInstanceOf(Buffer);
+            expect(afterManifest['sw-partial-todos/sw-partial-todos.vue']).toBeInstanceOf(Buffer);
         });
 
         it('writes a draft next to untouched originals for a partial migration', () => {
@@ -293,16 +383,56 @@ describe('scripts/codemods/sfc-migration', () => {
         it('is idempotent: a second run reports already-migrated and re-converts nothing', async () => {
             const second = await runMigration(tmpDir, { write: true });
 
-            // sw-simple-card's index.js is now a shim without a component config, so it is not
-            // discovered at all; the partial draft reports as already migrated, and the three
-            // components nothing wrote are skipped again for the same reasons.
+            // Both written drafts are now already-migrated; legacy sources remain discoverable and
+            // the self-contained skips remain skipped.
             expect(second.stats).toEqual({
                 full: 0,
                 partial: 0,
                 skipped: 3,
-                alreadyMigrated: 1,
+                alreadyMigrated: 2,
                 error: 0,
             });
+        });
+
+        it('requires an explicit replacement option for an unambiguous full registration', async () => {
+            const replacementRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sfc-migration-replace-'));
+
+            try {
+                fs.cpSync(path.join(FIXTURES, 'sw-created-pattern'), path.join(replacementRoot, 'sw-created-pattern'), {
+                    recursive: true,
+                });
+                fs.writeFileSync(
+                    path.join(replacementRoot, 'index.js'),
+                    "Component.register('sw-created-pattern', () => import('./sw-created-pattern'));\n",
+                );
+
+                const replacement = await runMigration(replacementRoot, { write: true, replaceOriginals: true });
+                const dir = path.join(replacementRoot, 'sw-created-pattern');
+                const afterManifest = manifest(replacementRoot);
+
+                expect(replacement.reports.find((entry) => entry.name === 'sw-created-pattern')).toMatchObject({
+                    outcome: 'full',
+                    registration: 'register',
+                });
+                expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain(
+                    "export { default } from './sw-created-pattern.vue';",
+                );
+                expect(fs.existsSync(path.join(dir, 'sw-created-pattern.vue'))).toBe(true);
+                expect(fs.existsSync(path.join(dir, 'sw-created-pattern.html.twig'))).toBe(true);
+                expect(Object.keys(afterManifest).sort()).toEqual(
+                    [
+                        'index.js',
+                        'sw-created-pattern/index.js',
+                        'sw-created-pattern/sw-created-pattern.html.twig',
+                        'sw-created-pattern/sw-created-pattern.vue',
+                    ].sort(),
+                );
+                expect(afterManifest['sw-created-pattern/sw-created-pattern.html.twig']).toEqual(
+                    fs.readFileSync(path.join(FIXTURES, 'sw-created-pattern', 'sw-created-pattern.html.twig')),
+                );
+            } finally {
+                fs.rmSync(replacementRoot, { recursive: true, force: true });
+            }
         });
     });
 
@@ -394,10 +524,8 @@ describe('scripts/codemods/sfc-migration', () => {
 
             expect(reportOf('sw-cms-block-demo')).toMatchObject({ outcome: 'full', registration: 'register' });
             expect(fs.existsSync(path.join(dir, 'sw-cms-block-demo.vue'))).toBe(true);
-            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain(
-                "export { default } from './sw-cms-block-demo.vue';",
-            );
-            expect(fs.existsSync(path.join(dir, 'sw-cms-block-demo.html.twig'))).toBe(false);
+            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain('export default {');
+            expect(fs.existsSync(path.join(dir, 'sw-cms-block-demo.html.twig'))).toBe(true);
         });
 
         it('migrates a page registered through its index module', () => {

@@ -20,6 +20,12 @@ import { join } from 'node:path';
 export const CODECOV_CLI_VERSION = 'v11.3.1';
 export const CODECOV_CLI_SHA256 = 'ca1d64196d2d34771084afe76ea657d581bf628e31d993ff8e52ea09cc88a56d';
 
+// Uploads only run from the canonical repository: mirrors must not ship
+// coverage of unpublished code to a third-party service.
+export const UPLOAD_REPOSITORY = 'shopware/shopware';
+
+export const isUploadRepository = (repository: string | undefined): boolean => repository === UPLOAD_REPOSITORY;
+
 export type UploadMode = 'coverage' | 'test-results';
 
 export const isUploadMode = (value: string): value is UploadMode => value === 'coverage' || value === 'test-results';
@@ -131,6 +137,14 @@ const main = async (): Promise<void> => {
     if (mode === undefined || file === undefined || !isUploadMode(mode)) {
         process.stderr.write('usage: codecov-upload.ts <coverage|test-results> <file> [<coverage flags>]\n');
         process.exit(2);
+    }
+
+    if (!isUploadRepository(process.env.GITHUB_REPOSITORY)) {
+        process.stderr.write(
+            `Skipping Codecov upload: '${process.env.GITHUB_REPOSITORY ?? ''}' is not ${UPLOAD_REPOSITORY}.\n`,
+        );
+
+        return;
     }
 
     if (!process.env.CODECOV_TOKEN) {

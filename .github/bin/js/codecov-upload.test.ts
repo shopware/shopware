@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildArgs, downloadVerified, isUploadMode, sha256, withRetries } from './codecov-upload.ts';
+import { buildArgs, downloadVerified, isUploadMode, isUploadRepository, sha256, withRetries } from './codecov-upload.ts';
 import type { RetryOptions } from './codecov-upload.ts';
 
 const noWait = async (): Promise<void> => {};
@@ -18,6 +18,12 @@ const bodySha = sha256(body);
 
 const responseWith = (status: number, data: Uint8Array = body): Response =>
     new Response(status === 404 ? 'not found' : Buffer.from(data), { status });
+
+test('isUploadRepository accepts only the canonical repository, keeping mirrors from uploading', () => {
+    assert.equal(isUploadRepository('shopware/shopware'), true);
+    assert.equal(isUploadRepository('shopware/shopware-mirror'), false);
+    assert.equal(isUploadRepository(undefined), false);
+});
 
 test('isUploadMode accepts exactly the two upload modes', () => {
     assert.equal(isUploadMode('coverage'), true);

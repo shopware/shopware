@@ -59,5 +59,4 @@ export const test = mergeTests(
     CreateRuleBillingCountry,
     CreateFlowForValidation,
     WaitForFlowValidationSideEffects,
-    AddPromotionWithConditionRule,
 );

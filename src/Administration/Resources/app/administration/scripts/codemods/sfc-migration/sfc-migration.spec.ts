@@ -5,7 +5,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { convertComponent, runMigration, type ConvertResult } from './run-sfc-migration';
+import { convertComponent, type ConvertResult } from './convert-component';
+import { runMigration } from './run-sfc-migration';
 import { transformTemplate } from './transform-template';
 
 const FIXTURES = path.join(__dirname, '__fixtures__');

@@ -22,25 +22,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { globSync } from 'glob';
-import { transformScript } from './transform-script';
-import { transformTemplate } from './transform-template';
-import { formatSfc, validateSfc } from './validate';
+import { convertComponent, type ConvertResult } from './convert-component';
 
 type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
-
-type ConvertInput = {
-    jsSource: string;
-    twigSource: string;
-    componentName: string;
-    vuePath: string;
-    lang: 'js' | 'ts';
-};
-
-type ConvertResult = {
-    outcome: 'full' | 'partial' | 'skipped';
-    reasons: string[];
-    sfc: string | null;
-};
 
 type ComponentReport = {
     name: string;
@@ -57,47 +41,6 @@ type MigrationResult = {
 const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const TEMPLATE_IMPORT = /import\s+\w+\s+from\s+['"]([^'"]+\.html\.twig)['"]/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
-
-/**
- * Converts one component. Pure apart from prettier config resolution — the integration spec and
- * the fixture snapshots run through exactly this function.
- */
-async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
-    const template = transformTemplate(input.twigSource);
-
-    if (template.template === null) {
-        return { outcome: 'skipped', reasons: template.blockers, sfc: null };
-    }
-
-    const script = transformScript(input.jsSource, input.componentName);
-
-    if (script.script === null) {
-        return { outcome: 'skipped', reasons: script.blockers, sfc: null };
-    }
-
-    const langAttribute = input.lang === 'ts' ? ' lang="ts"' : '';
-    const rawSfc = `<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
-
-    let formatted: string;
-
-    try {
-        formatted = await formatSfc(rawSfc);
-    } catch (error) {
-        return { outcome: 'skipped', reasons: [`prettier: ${(error as Error).message}`], sfc: null };
-    }
-
-    const validationError = validateSfc(formatted, input.vuePath);
-
-    if (validationError !== null) {
-        return { outcome: 'skipped', reasons: [`validation: ${validationError}`], sfc: null };
-    }
-
-    return {
-        outcome: script.todos.length > 0 ? 'partial' : 'full',
-        reasons: script.todos,
-        sfc: formatted,
-    };
-}
 
 /**
  * Maps every twig template to the files importing it. Guards `--write` against deleting a template
@@ -326,4 +269,4 @@ if (require.main === module) {
     main();
 }
 
-export { convertComponent, runMigration, type ConvertInput, type ConvertResult, type MigrationResult };
+export { runMigration, type MigrationResult };

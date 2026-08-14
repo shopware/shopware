@@ -228,7 +228,7 @@
                             size="16"
                             name="solid-info-circle"
                         />
-                        {{ $t('sw-settings-document.detail.filenamePattern') }}
+                        <span>{{ $t('sw-settings-document.detail.filenamePattern') }}</span>
                     </p>
                 </template>
 
@@ -238,55 +238,50 @@
                     gap="0px 30px"
                 >
                     {% block sw_settings_document_detail_content_field_file_name_prefix %}
-                    <div class="sw-settings-document-detail__field_file_name_prefix">
-                        <mt-text-field
-                            v-model="documentConfig.filenamePrefix"
-                            name="sw-field--documentConfig-filenamePrefix"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
-                            :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
-                        />
-                    </div>
+                    <mt-text-field
+                        v-model="documentConfig.filenamePrefix"
+                        name="sw-field--documentConfig-filenamePrefix"
+                        class="sw-settings-document-detail__field_file_name_prefix"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
+                    />
                     {% endblock %}
 
                     {% block sw_settings_document_detail_content_field_file_name_suffix %}
-                    <div class="sw-settings-document-detail__field_file_name_suffix">
-                        <mt-text-field
-                            v-model="documentConfig.filenameSuffix"
-                            name="sw-field--documentConfig-filenameSuffix"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
-                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
-                        />
-                    </div>
+                    <mt-text-field
+                        v-model="documentConfig.filenameSuffix"
+                        name="sw-field--documentConfig-filenameSuffix"
+                        class="sw-settings-document-detail__field_file_name_suffix"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
+                    />
                     {% endblock %}
                 </sw-container>
 
                 {% block sw_settings_document_detail_filename_field_infixes %}
                 <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && supportedFormats.length">
-                    <p class="sw-settings-document-detail__filename_infix_headline">
-                        <strong>{{ $t('sw-settings-document.detail.filenameInfixHeadline') }}</strong>
+                    <div class="sw-settings-document-detail__filename_infix_headline">
+                        <h3>{{ $t('sw-settings-document.detail.filenameInfixHeadline') }}</h3>
                         <sw-help-text :text="$t('sw-settings-document.detail.filenameInfixHelpText')" />
-                    </p>
+                    </div>
 
                     <sw-container
                         class="sw-settings-document-detail__filename_infix_fields"
                         columns="repeat(2, minmax(250px, 1fr))"
                         gap="0px 30px"
                     >
-                        <div
+                        <mt-text-field
                             v-for="format in supportedFormats"
                             :key="`filename-infix-${format}`"
+                            v-model="documentConfig.filenameInfixes[format]"
+                            :name="`sw-field--documentConfig-filenameInfixes-${format}`"
                             class="sw-settings-document-detail__field_file_name_infix"
-                        >
-                            <mt-text-field
-                                v-model="documentConfig.filenameInfixes[format]"
-                                :name="`sw-field--documentConfig-filenameInfixes-${format}`"
-                                :disabled="!acl.can('document.editor') || undefined"
-                                :label="formatLabels[format]"
-                                :placeholder="$t('sw-settings-document.detail.placeholderFileNameInfix')"
-                            />
-                        </div>
+                            :disabled="!acl.can('document.editor') || undefined"
+                            :label="formatLabels[format]"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameInfix')"
+                        />
                     </sw-container>
                 </template>
                 {% endblock %}

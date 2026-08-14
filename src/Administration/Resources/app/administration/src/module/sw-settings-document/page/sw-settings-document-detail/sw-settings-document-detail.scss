@@ -64,6 +64,10 @@
         align-items: center;
         gap: var(--scale-size-4);
         margin: var(--scale-size-32) 0;
+
+        h3 {
+            margin: 0;
+        }
     }
 
     &__filename_infix_fields {

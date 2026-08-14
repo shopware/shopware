@@ -448,11 +448,12 @@ export default {
         },
 
         formatLabels() {
-            return this.supportedFormats.reduce((labels, format) => {
-                labels[format] = this.$t(this.documentV2Service.getFileFormatSnippet(format));
-
-                return labels;
-            }, {});
+            return Object.fromEntries(
+                this.supportedFormats.map((format) => [
+                    format,
+                    this.$t(this.documentV2Service.getFileFormatSnippet(format)),
+                ]),
+            );
         },
 
         supportedFormats() {
@@ -614,7 +615,7 @@ export default {
                 ...this.documentConfig.config,
             };
 
-            this.documentConfig.filenameInfixes = { ...this.documentConfig.filenameInfixes };
+            this.documentConfig.filenameInfixes ??= {};
 
             await this.onChangeType(this.documentConfig.documentType);
 

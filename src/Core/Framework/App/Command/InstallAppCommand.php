@@ -4,13 +4,14 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppValidationRefusedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -33,8 +34,7 @@ class InstallAppCommand extends Command
     public function __construct(
         private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
-        private readonly AppPrinter $appPrinter,
-        private readonly ManifestValidator $manifestValidator
+        private readonly AppPrinter $appPrinter
     ) {
         parent::__construct();
     }
@@ -48,6 +48,13 @@ class InstallAppCommand extends Command
 
         if (\is_string($names)) {
             $names = [$names];
+        }
+
+        if ($input->getOption('no-validate')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-validate" option of the "app:install" command is deprecated and will be removed in v6.8.0. Validation findings that do not prevent an app from working no longer refuse an installation, so there is nothing left to skip.'
+            );
         }
 
         $manifests = $this->getMatchingManifests($names);
@@ -72,22 +79,6 @@ class InstallAppCommand extends Command
                 }
             }
 
-            if (!$input->getOption('no-validate')) {
-                $result = $this->manifestValidator->validate($manifest, $context);
-
-                if (!$result->isOk()) {
-                    $io->error(\sprintf(
-                        'App installation of %s failed due: %s',
-                        $name,
-                        AppException::validationFailed($manifest->getMetadata()->getName(), $result->errors)->getMessage()
-                    ));
-
-                    $success = self::FAILURE;
-
-                    continue;
-                }
-            }
-
             try {
                 $this->appLifecycle->install(
                     $manifest,
@@ -96,6 +87,12 @@ class InstallAppCommand extends Command
                 );
             } catch (AppAlreadyInstalledException) {
                 $io->info(\sprintf('App %s is already installed', $name));
+
+                continue;
+            } catch (AppValidationRefusedException $e) {
+                $io->error(\sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
+
+                $success = self::FAILURE;
 
                 continue;
             }
@@ -121,11 +118,12 @@ class InstallAppCommand extends Command
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
             )
+            /** @deprecated tag:v6.8.0 - findings that do not prevent an app working no longer refuse an install */
             ->addOption(
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip the optional manifest validation performed by this command. The required validators still run during the installation itself and can still refuse the app.'
+                '[DEPRECATED] Has no effect. Validation findings that do not prevent an app from working no longer refuse an installation.'
             );
     }
 

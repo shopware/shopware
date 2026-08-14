@@ -771,7 +771,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppLoader::class),
             service(AppLifecycle::class),
             service(AppPrinter::class),
-            service(ManifestValidator::class),
         ])
         ->tag('console.command');
 

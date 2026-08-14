@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
+use Shopware\Core\Framework\App\Exception\AppValidationRefusedException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -115,9 +116,9 @@ class AppException extends HttpException
      * The error decides how the refusal is reported, so a check that already had its own API error
      * code keeps reporting under it.
      */
-    public static function validationFailedFromError(Error $error): self
+    public static function validationFailedFromError(Error $error): AppValidationRefusedException
     {
-        return new self(
+        return new AppValidationRefusedException(
             Response::HTTP_BAD_REQUEST,
             $error->getErrorCode(),
             $error->getMessage(),

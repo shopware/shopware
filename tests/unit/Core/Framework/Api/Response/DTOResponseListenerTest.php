@@ -105,9 +105,13 @@ class DTOResponseListenerTest extends TestCase
     public function testPreservesSchemaStatusAndResponseMetadata(): void
     {
         $response = new #[JsonStreamable] class extends AbstractResponse {
+            public function __construct()
+            {
+                parent::__construct(statusCode: Response::HTTP_CREATED);
+            }
+
             public string $id = 'test';
         };
-        $response->setStatusCode(Response::HTTP_CREATED);
         $response->setHeader('X-Test', 'value');
         $response->addCookie(new Cookie('test', 'value'));
         $response->setHeader('Cache-Control', 'max-age=60, public');

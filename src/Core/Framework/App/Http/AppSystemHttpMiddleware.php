@@ -18,6 +18,11 @@ final class AppSystemHttpMiddleware
     public function __construct(
         private readonly TrustedUrlResolver $trustedUrlResolver,
         private readonly bool $allowUnencryptedTraffic,
+        private readonly bool $webhookMode = false,
+        /**
+         * @var list<string>
+         */
+        private readonly array $allowedPrivateIpAddresses = [],
     ) {
     }
 
@@ -34,6 +39,11 @@ final class AppSystemHttpMiddleware
 
             $uri = $request->getUri();
             if ($uri->getScheme() !== 'https' && (!$this->allowUnencryptedTraffic || $uri->getScheme() !== 'http')) {
+                throw AppException::appSystemRequestNotAllowed('App system request target is not allowed.');
+            }
+
+            $host = trim($uri->getHost(), '[]');
+            if ($this->webhookMode && filter_var($host, \FILTER_VALIDATE_IP) !== false && !\in_array($host, $this->allowedPrivateIpAddresses, true)) {
                 throw AppException::appSystemRequestNotAllowed('App system request target is not allowed.');
             }
 

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -77,6 +78,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'connect_timeout' => 10,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
+                    ->call('after', [
+                        'allow_redirects',
+                        service('shopware.webhook.guzzle.security_middleware'),
+                        'app_system_http_security',
+                    ])
                     ->call('push', [
                         service('shopware.app_system.guzzle.middleware'),
                     ]),
@@ -87,12 +93,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.webhook.guzzle'),
             service(SymfonyClockInterface::class),
-            service(WebhookTargetValidator::class),
         ]);
 
     $services->set('shopware.webhook.trusted_url_resolver', TrustedUrlResolver::class)
         ->args([
             null,
+            true,
+            param('shopware.app_system.allowed_private_ip_addresses'),
+        ]);
+
+    $services->set('shopware.webhook.guzzle.security_middleware', AppSystemHttpMiddleware::class)
+        ->args([
+            service('shopware.webhook.trusted_url_resolver'),
+            param('shopware.app_system.allow_unencrypted_traffic'),
             true,
             param('shopware.app_system.allowed_private_ip_addresses'),
         ]);

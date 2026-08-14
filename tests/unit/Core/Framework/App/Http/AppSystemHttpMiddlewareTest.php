@@ -33,6 +33,45 @@ class AppSystemHttpMiddlewareTest extends TestCase
         static::assertSame(['example.com:443:93.184.216.34'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
     }
 
+    public function testAllowsPublicIpLiteralInAppMode(): void
+    {
+        $history = [];
+        $client = $this->createClient($history, static fn (): array => [], webhookMode: false);
+
+        $client->post('https://93.184.216.34/webhook');
+
+        static::assertSame(['93.184.216.34:443:93.184.216.34'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
+    }
+
+    public function testRejectsPublicIpLiteralInWebhookModeBeforeTransport(): void
+    {
+        $history = [];
+        $client = $this->createClient($history, static fn (): array => [], webhookMode: true);
+
+        $this->expectExceptionObject(AppException::appSystemRequestNotAllowed('App system request target is not allowed.'));
+
+        try {
+            $client->post('https://93.184.216.34/webhook');
+        } finally {
+            static::assertCount(0, $history);
+        }
+    }
+
+    public function testAllowsExactAllowlistedPrivateIpLiteralInWebhookMode(): void
+    {
+        $history = [];
+        $client = $this->createClient(
+            $history,
+            static fn (): array => [],
+            webhookMode: true,
+            allowedPrivateIpAddresses: ['10.0.0.10'],
+        );
+
+        $client->post('https://10.0.0.10/webhook');
+
+        static::assertSame(['10.0.0.10:443:10.0.0.10'], $history[0]['options']['curl'][\CURLOPT_RESOLVE]);
+    }
+
     public function testUsesNativeRedirectTransformationAndPinsRedirectTarget(): void
     {
         $history = [];
@@ -163,15 +202,30 @@ class AppSystemHttpMiddlewareTest extends TestCase
      * @param list<Response> $responses
      * @param \Closure(string): list<string> $dnsResolver
      * @param list<array{request: RequestInterface, options: array<string, mixed>}> $history
+     * @param list<string> $allowedPrivateIpAddresses
      *
      * @param-out list<array{request: RequestInterface, options: array<string, mixed>}> $history
      */
-    private function createClient(array &$history, \Closure $dnsResolver, array $responses = [new Response(200)]): Client
-    {
+    private function createClient(
+        array &$history,
+        \Closure $dnsResolver,
+        array $responses = [new Response(200)],
+        bool $webhookMode = false,
+        array $allowedPrivateIpAddresses = [],
+    ): Client {
         /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
         $history = [];
         $stack = HandlerStack::create(new MockHandler($responses));
-        $stack->after('allow_redirects', new AppSystemHttpMiddleware(new TrustedUrlResolver($dnsResolver), false), 'app_system_http_security');
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(
+                new TrustedUrlResolver($dnsResolver, allowedPrivateIps: $allowedPrivateIpAddresses),
+                false,
+                $webhookMode,
+                $allowedPrivateIpAddresses,
+            ),
+            'app_system_http_security',
+        );
         $stack->after('app_system_http_security', static function (callable $handler) use (&$history): callable {
             return static function (RequestInterface $request, array $options) use (&$history, $handler): PromiseInterface {
                 $history[] = ['request' => $request, 'options' => $options];

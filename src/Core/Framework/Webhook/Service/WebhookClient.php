@@ -7,14 +7,11 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Uri;
-use GuzzleHttp\Psr7\UriResolver;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
-use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -26,12 +23,9 @@ final readonly class WebhookClient
 
     public const REQUEST_TIMEOUT = 20;
 
-    private const MAX_REDIRECTS = 5;
-
     public function __construct(
         private ClientInterface $guzzle,
         private ClockInterface $clock,
-        private WebhookTargetValidator $targetValidator,
     ) {
     }
 
@@ -40,8 +34,8 @@ final readonly class WebhookClient
         $start = $this->clock->now()->getTimestamp();
 
         try {
-            $response = $this->sendWithRedirects($request->request, $request->options);
-        } catch (TransferException|WebhookException $e) {
+            $response = $this->sendResponse($request->request, $request->options);
+        } catch (TransferException|AppException $e) {
             return $this->createFailureResult($e, $this->clock->now()->getTimestamp() - $start);
         }
 
@@ -78,7 +72,7 @@ final readonly class WebhookClient
             $requestFactories[$key] = function () use ($wr, $key, &$startTimes) {
                 $startTimes[$key] = $this->clock->now()->getTimestamp();
 
-                return $this->sendAsyncWithRedirects($wr->request, $wr->options);
+                return $this->sendAsync($wr->request, $wr->options);
             };
         }
 
@@ -108,83 +102,22 @@ final readonly class WebhookClient
     /**
      * @param array<string, mixed> $options
      */
-    private function sendWithRedirects(RequestInterface $request, array $options): ResponseInterface
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function sendAsync(RequestInterface $request, array $options): PromiseInterface
     {
-        return $this->sendAsyncWithRedirects($request, $options)->wait();
+        $options['allow_redirects'] = ['max' => 5, 'strict' => true];
+
+        return $this->guzzle->sendAsync($request, $options);
     }
 
     /**
      * @param array<string, mixed> $options
      */
-    private function sendAsyncWithRedirects(RequestInterface $request, array $options, int $redirects = 0): PromiseInterface
+    private function sendResponse(RequestInterface $request, array $options): ResponseInterface
     {
-        [$request, $options] = $this->prepareRequest($request, $options, $redirects > 0);
-
-        return $this->guzzle->sendAsync($request, $options)->then(function (ResponseInterface $response) use ($request, $options, $redirects): ResponseInterface|PromiseInterface {
-            if (!$this->isRedirectResponse($response)) {
-                return $response;
-            }
-
-            if ($redirects >= self::MAX_REDIRECTS) {
-                throw WebhookException::maximumRedirectsExceeded();
-            }
-
-            $location = $response->getHeaderLine('Location');
-            if ($location === '') {
-                return $response;
-            }
-
-            return $this->sendAsyncWithRedirects($this->createRedirectRequest($request, $location), $options, $redirects + 1);
-        });
-    }
-
-    /**
-     * @param array<string, mixed> $options
-     *
-     * @return array{RequestInterface, array<string, mixed>}
-     */
-    private function prepareRequest(RequestInterface $request, array $options, bool $redirect): array
-    {
-        $target = $this->targetValidator->validate((string) $request->getUri());
-        if ($target === null) {
-            throw $redirect ? WebhookException::redirectTargetNotAllowed() : WebhookException::targetNotAllowed();
-        }
-
-        // Guzzle redirects are disabled so every redirect target can be validated and pinned before following it.
-        $options['allow_redirects'] = false;
-
-        $curlOptions = $options['curl'] ?? [];
-        if (!\is_array($curlOptions)) {
-            $curlOptions = [];
-        }
-
-        $resolvePins = $curlOptions[\CURLOPT_RESOLVE] ?? [];
-        if (!\is_array($resolvePins)) {
-            $resolvePins = [];
-        }
-
-        $resolvePins[] = \sprintf('%s:%d:%s', $target->host, $target->port, $this->formatCurlResolveAddress($target->ip));
-        $curlOptions[\CURLOPT_RESOLVE] = $resolvePins;
-        $options['curl'] = $curlOptions;
-
-        return [$request, $options];
-    }
-
-    private function isRedirectResponse(ResponseInterface $response): bool
-    {
-        return \in_array($response->getStatusCode(), [301, 302, 303, 307, 308], true);
-    }
-
-    private function formatCurlResolveAddress(string $ip): string
-    {
-        return str_contains($ip, ':') ? \sprintf('[%s]', $ip) : $ip;
-    }
-
-    private function createRedirectRequest(RequestInterface $request, string $location): RequestInterface
-    {
-        $uri = UriResolver::resolve($request->getUri(), new Uri($location));
-
-        return $request->withUri($uri);
+        return $this->sendAsync($request, $options)->wait();
     }
 
     /**

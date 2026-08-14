@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ReadProductRequest extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Regex(pattern: '~^[0-9a-f]{32}$~')]

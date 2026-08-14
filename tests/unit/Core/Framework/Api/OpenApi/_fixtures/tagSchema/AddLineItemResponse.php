@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class AddLineItemResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\NotBlank]
         public string $token,

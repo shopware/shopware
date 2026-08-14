@@ -4,7 +4,7 @@
  * This file is auto-generated.
  * Do not edit manually.
  *
- * Last generated: 2026-08-13 14:36:46
+ * Last generated: 2026-08-14 11:56:12
  */
 
 namespace Shopware\Core\Framework\Api\Request\StoreApi;
@@ -20,6 +20,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class RangeFilterParameters extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?float $gte = null,
         public ?float $gt = null,

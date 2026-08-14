@@ -18,6 +18,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class Media extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?string $url = null,
         public ?string $alt = null,

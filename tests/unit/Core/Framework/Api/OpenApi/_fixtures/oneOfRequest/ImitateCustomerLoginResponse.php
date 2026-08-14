@@ -20,6 +20,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class ImitateCustomerLoginResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Redirect URL if any

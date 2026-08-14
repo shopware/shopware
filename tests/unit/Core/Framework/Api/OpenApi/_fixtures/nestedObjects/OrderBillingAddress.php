@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class OrderBillingAddress extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         #[Assert\NotBlank]
         public string $street,

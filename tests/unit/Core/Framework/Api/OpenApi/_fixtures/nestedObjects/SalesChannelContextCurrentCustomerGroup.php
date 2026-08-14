@@ -20,6 +20,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class SalesChannelContextCurrentCustomerGroup extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Name of the group

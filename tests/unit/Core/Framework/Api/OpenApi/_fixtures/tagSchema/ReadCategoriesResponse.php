@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ReadCategoriesResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * @var list<Category>

@@ -18,6 +18,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class SimpleProduct extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?string $id = null,
         public ?string $name = null,

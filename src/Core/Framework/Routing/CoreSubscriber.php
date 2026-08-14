@@ -40,7 +40,9 @@ readonly class CoreSubscriber implements EventSubscriberInterface
 
     public function initializeCspNonce(RequestEvent $event): void
     {
-        $nonce = base64_encode(random_bytes(8));
+        // Use 128 bit of entropy (as required by the CSP spec) and the URL-safe Base64 alphabet
+        // without padding, so the nonce never contains '+', '/' or '=' and cannot be mistaken for a URL.
+        $nonce = rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_CSP_NONCE, $nonce);
     }
 

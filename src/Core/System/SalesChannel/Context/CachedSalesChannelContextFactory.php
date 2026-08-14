@@ -20,6 +20,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $decorated,
         private readonly CacheInterface $cache,
+        private readonly SalesChannelContextCacheVersion $cacheVersion,
     ) {
     }
 
@@ -38,7 +39,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
         ksort($options);
 
-        $key = implode('-', [$name, Hasher::hash($options)]);
+        $key = implode('-', [$name, $this->cacheVersion->get(), Hasher::hash($options)]);
 
         $fresh = null;
 

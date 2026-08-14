@@ -58,6 +58,7 @@ use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextCacheVersion;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -197,6 +198,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheInvalidator::class),
             service(Connection::class),
             param('shopware.product_stream.indexing'),
+            service(SalesChannelContextCacheVersion::class),
         ])
         ->tag('kernel.event_listener', ['event' => CategoryIndexerEvent::class, 'method' => 'invalidateCategoryRouteByCategoryIds', 'priority' => 2000])
         ->tag('kernel.event_listener', ['event' => LandingPageIndexerEvent::class, 'method' => 'invalidateIndexedLandingPages', 'priority' => 2000])

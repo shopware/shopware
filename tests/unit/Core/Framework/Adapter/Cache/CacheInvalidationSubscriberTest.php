@@ -28,10 +28,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextCacheVersion;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
@@ -73,8 +76,10 @@ class CacheInvalidationSubscriberTest extends TestCase
                 ],
                 true
             );
+        $cacheVersion = $this->createMock(SalesChannelContextCacheVersion::class);
+        $cacheVersion->expects($this->once())->method('invalidate');
 
-        $subscriber = $this->createSubscriber();
+        $subscriber = $this->createSubscriber($cacheVersion);
 
         $subscriber->invalidateContext(new EntityWrittenContainerEvent(
             Context::createDefaultContext(),
@@ -711,12 +716,42 @@ class CacheInvalidationSubscriberTest extends TestCase
         );
     }
 
-    private function createSubscriber(): CacheInvalidationSubscriber
+    public function testInvalidatesContextCacheVersionWhenTaxChanges(): void
+    {
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSalesChannelContextFactory::ALL_TAG], true);
+        $cacheVersion = $this->createMock(SalesChannelContextCacheVersion::class);
+        $cacheVersion->expects($this->once())->method('invalidate');
+
+        $this->createSubscriber($cacheVersion)->invalidateContext(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    TaxDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            TaxDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_INSERT,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    private function createSubscriber(?SalesChannelContextCacheVersion $cacheVersion = null): CacheInvalidationSubscriber
     {
         return new CacheInvalidationSubscriber(
             $this->cacheInvalidator,
             $this->connection,
-            true
+            true,
+            $cacheVersion ?? static::createStub(SalesChannelContextCacheVersion::class),
         );
     }
 }

@@ -224,6 +224,7 @@ export default {
         },
 
         createOnlySelection(only) {
+            // eslint-disable-next-line no-restricted-syntax
             for (const indexerName of Object.keys(this.indexers)) {
                 if (this.indexerSelection.indexOf(indexerName) > -1) {
                     only.push(indexerName);

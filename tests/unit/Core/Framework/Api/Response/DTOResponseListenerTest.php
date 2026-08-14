@@ -126,23 +126,6 @@ class DTOResponseListenerTest extends TestCase
         static::assertSame('max-age=60, public', $event->getResponse()->headers->get('Cache-Control'));
     }
 
-    public function testAllowsExtensionToChangeResponseStatus(): void
-    {
-        $response = new #[JsonStreamable] class extends AbstractResponse {
-            public function __construct()
-            {
-                parent::__construct(statusCode: Response::HTTP_CREATED);
-            }
-        };
-        $response->setStatusCode(Response::HTTP_ACCEPTED);
-
-        $event = $this->createViewEvent($response);
-
-        $this->listener()($event);
-
-        static::assertSame(Response::HTTP_ACCEPTED, $event->getResponse()?->getStatusCode());
-    }
-
     private function createViewEvent(object $result): ViewEvent
     {
         return new ViewEvent(

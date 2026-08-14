@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -92,9 +93,31 @@ class DeleteThumbnailsCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
 
         $display = $commandTester->getDisplay();
-        static::assertMatchesRegularExpression('/Referenced\s+1\b/', $display);
-        static::assertMatchesRegularExpression('/Orphaned\s+2\b/', $display);
+        static::assertMatchesRegularExpression('/Deleted\s+3\b/', $display);
         static::assertStringContainsString('Successfully deleted all thumbnails records and thumbnails files.', $display);
+    }
+
+    public function testExecuteFailsWhenForceAndOrphansAreCombined(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllKeyValue');
+
+        $command = new DeleteThumbnailsCommand(
+            $connection,
+            static::createStub(EntityRepository::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
+            false
+        );
+
+        $commandTester = new CommandTester($command);
+
+        static::assertSame(Command::INVALID, $commandTester->execute([
+            '--force' => true,
+            '--orphans' => true,
+        ]));
+
+        static::assertStringContainsStringIgnoringLineEndings('The options --force and --orphans cannot be combined', $commandTester->getDisplay());
     }
 
     public function testExecuteWithOrphansOptionOnlyDeletesOrphanedFiles(): void

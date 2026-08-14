@@ -378,7 +378,7 @@ class ThumbnailServiceTest extends TestCase
                 static::assertInstanceOf(MediaThumbnailSizeCollection::class, $staticVars['toBeCreatedSizes']);
                 static::assertCount(1, $staticVars['toBeCreatedSizes']->getElements());
 
-                return [['id' => 'new-media-thumbnail-id']];
+                return [['id' => Uuid::randomHex()]];
             });
 
         $thumbnailService = $this->createThumbnailService(connection: $connection);

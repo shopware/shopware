@@ -106,9 +106,9 @@ The `media:generate-thumbnails` command now accepts a `--force` (`-f`) option th
 
 Note that regenerated thumbnails are written to the same physical path, so their URLs do not change: browsers and CDNs may keep serving the previously cached files until their cache expires or is invalidated manually.
 
-The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) option that deletes all thumbnail records and files even when remote thumbnails are disabled — previously the command refused to run in that case. The command now removes the whole physical thumbnail directory, which also cleans up orphaned files without a database record (e.g. left behind after their media was uploaded again), and prints a summary of deleted and orphaned files. Note that the storefront is missing thumbnails until they are regenerated; prefer `media:generate-thumbnails --force` to replace them without such a gap.
+The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) option that deletes all thumbnail records and files even when remote thumbnails are disabled — previously the command refused to run in that case. The command now removes the whole physical thumbnail directory, which also cleans up orphaned files without a database record (e.g. left behind after their media was uploaded again), and prints the number of deleted files. Note that the storefront is missing thumbnails until they are regenerated; prefer `media:generate-thumbnails --force` to replace them without such a gap.
 
-A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration.
+A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
 
 `ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
 

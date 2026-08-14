@@ -63,9 +63,16 @@ class DeleteThumbnailsCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $orphansOnly = $input->getOption('orphans') && !$input->getOption('force');
+        $force = (bool) $input->getOption('force');
+        $orphansOnly = (bool) $input->getOption('orphans');
 
-        if (!$this->remoteThumbnailsEnable && !$input->getOption('force') && !$orphansOnly) {
+        if ($force && $orphansOnly) {
+            $io->error('The options --force and --orphans cannot be combined: --force deletes all thumbnail files including orphaned ones, while --orphans only deletes orphaned files.');
+
+            return self::INVALID;
+        }
+
+        if (!$this->remoteThumbnailsEnable && !$force && !$orphansOnly) {
             $io->comment('Deleting thumbnails is only supported when remote thumbnail is enabled. Use the --force option to delete them anyway, --orphans to only delete files without a database record, or "media:generate-thumbnails --force" to regenerate them in place.');
 
             return self::FAILURE;
@@ -73,24 +80,31 @@ class DeleteThumbnailsCommand extends Command
 
         $thumbnails = $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(`id`)) as id, `path` FROM `media_thumbnail`');
 
-        $orphaned = $this->findOrphanedThumbnailFiles(array_values(array_filter($thumbnails)));
-
         if ($orphansOnly) {
-            $this->deleteOrphanedThumbnailFiles($io, $orphaned, \count($thumbnails));
+            $deletedCount = $this->deleteOrphanedThumbnailFiles(array_values(array_filter($thumbnails)));
+
+            $io->table(
+                ['Action', 'Number of thumbnail files'],
+                [
+                    ['Deleted (orphaned)', $deletedCount],
+                    ['Kept (referenced)', \count($thumbnails)],
+                ]
+            );
 
             $io->success('Successfully deleted all orphaned thumbnail files.');
 
             return self::SUCCESS;
         }
 
+        $fileCount = $this->countThumbnailFiles();
+
         $this->deleteThumbnails(array_keys($thumbnails));
         $this->deleteThumbnailFiles();
 
         $io->table(
-            ['Deleted', 'Number of thumbnail files'],
+            ['Action', 'Number of thumbnail files'],
             [
-                ['Referenced', \count($thumbnails)],
-                ['Orphaned', \count($orphaned)],
+                ['Deleted', $fileCount],
             ]
         );
 
@@ -113,44 +127,40 @@ class DeleteThumbnailsCommand extends Command
 
     /**
      * Orphaned files have no database record anymore, e.g. because they were left behind under an
-     * outdated cache buster path after their media was uploaded again.
+     * outdated cache buster path after their media was uploaded again. Files are deleted while
+     * iterating, so the tree is walked once and never materialized in memory.
      *
      * @param list<string> $recordPaths
-     *
-     * @return list<array{FilesystemOperator, string}>
      */
-    private function findOrphanedThumbnailFiles(array $recordPaths): array
+    private function deleteOrphanedThumbnailFiles(array $recordPaths): int
     {
         $recordPaths = array_flip($recordPaths);
 
-        $orphaned = [];
+        $deleted = 0;
         foreach ([$this->filesystemPublic, $this->filesystemPrivate] as $filesystem) {
             foreach ($filesystem->listContents('thumbnail', true) as $item) {
                 if ($item->isFile() && !isset($recordPaths[$item->path()])) {
-                    $orphaned[] = [$filesystem, $item->path()];
+                    $filesystem->delete($item->path());
+                    ++$deleted;
                 }
             }
         }
 
-        return $orphaned;
+        return $deleted;
     }
 
-    /**
-     * @param list<array{FilesystemOperator, string}> $orphaned
-     */
-    private function deleteOrphanedThumbnailFiles(SymfonyStyle $io, array $orphaned, int $keptCount): void
+    private function countThumbnailFiles(): int
     {
-        foreach ($orphaned as [$filesystem, $path]) {
-            $filesystem->delete($path);
+        $count = 0;
+        foreach ([$this->filesystemPublic, $this->filesystemPrivate] as $filesystem) {
+            foreach ($filesystem->listContents('thumbnail', true) as $item) {
+                if ($item->isFile()) {
+                    ++$count;
+                }
+            }
         }
 
-        $io->table(
-            ['Action', 'Number of thumbnail files'],
-            [
-                ['Deleted (orphaned)', \count($orphaned)],
-                ['Kept (referenced)', $keptCount],
-            ]
-        );
+        return $count;
     }
 
     /**

@@ -204,17 +204,32 @@ class ThumbnailService
 
         $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $toBeDeletedThumbnails->getIds()));
 
-        $update = RetryableTransaction::transactional($this->connection, function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
-            return $context->state(function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
+        $toBeDeletedPaths = [];
+        foreach ($toBeDeletedThumbnails as $thumbnail) {
+            $path = $thumbnail->getPath();
+            if (!MediaUploadService::isExternalUrl($path)) {
+                $toBeDeletedPaths[] = $path;
+            }
+        }
+
+        /**
+         * The physical files are deleted after the transaction has been committed, so a failed
+         * regeneration rolls back to the previous thumbnails instead of leaving records without files.
+         */
+        $update = RetryableTransaction::transactional($this->connection, function () use ($delete, $media, $config, $context, $toBeCreatedSizes, $toBeDeletedPaths): array {
+            return $context->state(function () use ($delete, $media, $config, $context, $toBeCreatedSizes, $toBeDeletedPaths): array {
                 $this->thumbnailRepository->delete($delete, $context);
 
-                $updated = $this->generateAndSave($media, $config, $context, $toBeCreatedSizes);
+                $updated = $this->generateAndSave($media, $config, $context, $toBeCreatedSizes, $toBeDeletedPaths);
 
                 $this->indexer->handle(new MediaIndexingMessage([$media->getId()]));
 
                 return $updated;
-            }, EntityIndexerRegistry::DISABLE_INDEXING, MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
+            }, EntityIndexerRegistry::DISABLE_INDEXING, MediaDeletionSubscriber::SKIP_FILE_DELETE);
         });
+
+        /** @var list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}> $update */
+        $this->deleteStaleThumbnailFiles($media, $toBeDeletedPaths, $update);
 
         return \count($update);
     }
@@ -229,9 +244,53 @@ class ThumbnailService
     }
 
     /**
+     * Deletes files of replaced thumbnails whose path is no longer referenced. Regenerated
+     * thumbnails of an unchanged size overwrite their previous file in place, so only paths
+     * of dropped sizes remain to be cleaned up.
+     *
+     * @param list<string> $oldPaths
+     * @param list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}> $updated
+     */
+    private function deleteStaleThumbnailFiles(MediaEntity $media, array $oldPaths, array $updated): void
+    {
+        if ($oldPaths === []) {
+            return;
+        }
+
+        $ids = \array_column($updated, 'id');
+
+        $newPaths = [];
+        if ($ids !== []) {
+            $newPaths = $this->connection->fetchFirstColumn(
+                <<<'SQL'
+                SELECT `path`
+                FROM `media_thumbnail`
+                WHERE `id` IN (:ids)
+                SQL,
+                ['ids' => Uuid::fromHexToBytesList($ids)],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        }
+
+        $fileSystem = $this->getFileSystem($media);
+        foreach (\array_diff($oldPaths, $newPaths) as $stalePath) {
+            try {
+                $fileSystem->delete($stalePath);
+            } catch (\Throwable $e) {
+                $this->logger->error('Could not delete stale thumbnail file {path}', [
+                    'path' => $stalePath,
+                    'exception' => $e,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @param list<string> $preservePaths Paths of previous thumbnails which are overwritten in place and must survive a failed generation
+     *
      * @return list<array{id:string, mediaId:string, mediaThumbnailSizeId:string, width:int, height:int}>
      */
-    private function generateAndSave(MediaEntity $media, MediaFolderConfigurationEntity $config, Context $context, ?MediaThumbnailSizeCollection $sizes): array
+    private function generateAndSave(MediaEntity $media, MediaFolderConfigurationEntity $config, Context $context, ?MediaThumbnailSizeCollection $sizes, array $preservePaths = []): array
     {
         if ($sizes === null || $sizes->count() === 0) {
             return [];
@@ -323,6 +382,10 @@ class ThumbnailService
         } catch (\Throwable $e) {
             $fileSystem = $this->getFileSystem($media);
             foreach ($writtenPaths as $writtenPath) {
+                if (\in_array($writtenPath, $preservePaths, true)) {
+                    continue;
+                }
+
                 try {
                     $fileSystem->delete($writtenPath);
                 } catch (\Throwable) {

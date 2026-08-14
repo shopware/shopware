@@ -60,6 +60,16 @@ function todo(ctx: Ctx, reason: string, code?: string): void {
     }
 }
 
+/**
+ * A TODO about the emitted code as a whole rather than about one site in it: the conversion is
+ * complete, what it means is what the checks ask the reader to confirm.
+ */
+function todoReview(ctx: Ctx, reason: string, checks: string[]): void {
+    if (!ctx.todos.some((entry) => entry.reason === reason)) {
+        ctx.todos.push({ reason, checks });
+    }
+}
+
 function keyName(prop: t.ObjectMethod | t.ObjectProperty): string | null {
     if (prop.computed) {
         return null;
@@ -395,6 +405,7 @@ export {
     raw,
     overwrite,
     todo,
+    todoReview,
     keyName,
     asFunction,
     visitChildren,

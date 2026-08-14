@@ -554,7 +554,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 {
   "outcome": "skipped",
   "reasons": [
-    "no composable registered for mixin 'listing'",
+    "no composable registered for mixin 'sw-form-field'",
     "unsupported mixins entry 'swListMixin'",
   ],
   "sfc": null,
@@ -689,6 +689,170 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "outcome": "skipped",
   "reasons": [
     "component redefines 'createNotification', which the 'notification' composable calls internally",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-listing-no-get-list 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "component does not define 'getList', which the 'listing' composable calls",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-listing-scaffold 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "array inject declaration requires runtime ref-unwrapping verification",
+    "'listing' scaffold needs a manual review",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+const { Criteria } = Shopware.Data;
+</script>
+
+<template>
+    <sw-block name="sw_mixin_listing_scaffold">
+        <div class="sw-mixin-listing-scaffold">
+            <sw-entity-listing
+                :items="items"
+                :is-loading="isLoading"
+                :criteria-limit="limit"
+                :sort-by="currentSortBy"
+                :sort-direction="sortDirection"
+                @page-change="onPageChange"
+                @column-sort="onSortColumn"
+                @saved="onSaved"
+            />
+
+            <sw-filter-panel :filters="filters" :active-filter-number="selectionCount" @filter-toggle="onSwitchFilter" />
+
+            <sw-pagination :page="page" :limit="limit" :total="total" @page-change="onPageChange" />
+
+            <button class="sw-mixin-listing-scaffold__refresh" @click="onRefresh">Refresh</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+// TODO(sfc-migration): 'listing' scaffold needs a manual review
+// - getList() is passed to useListing() and still resolves everything it reads and writes
+// - the initial load runs on mounted now, one hook later than the mixin loaded it
+// - route parameter handling, which the composable owns from here on
+// - these were routed into the composable options instead of staying state: limit, sortBy, searchConfigEntity
+
+import { ref, computed, inject } from 'vue';
+import useListing from 'src/app/composables/use-listing';
+
+const repositoryFactory = inject('repositoryFactory');
+
+const {
+    page,
+    limit,
+    total,
+    sortBy,
+    sortDirection,
+    naturalSorting,
+    entitySearchable,
+    selectionCount,
+    currentSortBy,
+    onPageChange,
+    onSwitchFilter,
+    onSortColumn,
+    onRefresh,
+} = useListing({
+    filters: () => filters.value,
+    getList: (...args) => getList(...args),
+    limit: 10,
+    sortBy: 'createdAt',
+    searchConfigEntity: 'product',
+});
+
+const getList = // The member the mixin called but never implemented.
+    async function () {
+        isLoading.value = true;
+
+        const result = await repository.value.search(listCriteria.value, Shopware.Context.api);
+
+        items.value = result;
+        total.value = result.total;
+        isLoading.value = false;
+    };
+
+const onSaved = function () {
+    getList();
+};
+
+const repository = computed(function () {
+    return repositoryFactory.create('product');
+});
+
+const listCriteria = computed(function () {
+    const criteria = new Criteria(page.value, limit.value);
+
+    criteria.addSorting(Criteria.sort(sortBy.value, sortDirection.value, naturalSorting.value));
+
+    return criteria;
+});
+
+const filters = computed(
+    // The mixin's own computed defaulted to an empty list and invited this override.
+    function () {
+        return [
+            {
+                name: 'active-filter',
+                active: entitySearchable.value,
+            },
+        ];
+    },
+);
+
+const items = ref(null);
+const isLoading = ref(false);
+
+// TODO(sfc-migration): array inject declaration requires runtime ref-unwrapping verification — original code:
+// inject: ['repositoryFactory']
+
+swDefinePublic({
+    repositoryFactory,
+    page,
+    limit,
+    total,
+    sortBy,
+    sortDirection,
+    naturalSorting,
+    entitySearchable,
+    selectionCount,
+    currentSortBy,
+    onPageChange,
+    onSwitchFilter,
+    onSortColumn,
+    onRefresh,
+    items,
+    isLoading,
+    repository,
+    listCriteria,
+    filters,
+    getList,
+    onSaved,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-listing-wrapped-get-list 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "'getList' is declared in a shape that cannot be handed to the 'listing' composable",
   ],
   "sfc": null,
 }

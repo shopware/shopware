@@ -18,7 +18,12 @@ type MemberKind = 'prop' | 'data' | 'computed' | 'method' | 'inject';
 
 type HelperName = 't' | 'router' | 'route' | 'emit' | 'props' | 'slots' | 'attrs' | 'nextTick';
 
-type TodoEntry = { reason: string; code?: string };
+type TodoEntry = {
+    reason: string;
+    code?: string;
+    /** Review points of a TODO that asks the reader to check emitted code instead of writing missing code. */
+    checks?: string[];
+};
 
 // Options whose presence makes the whole component non-migratable.
 const SKIP_OPTIONS = new Set([

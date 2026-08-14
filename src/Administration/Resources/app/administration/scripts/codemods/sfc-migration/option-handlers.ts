@@ -39,9 +39,16 @@ import {
     raw,
     snip,
     todo,
+    todoReview,
     visitChildren,
 } from './ast';
-import { type ComposableDescriptor, type ComposableProvidedProp, findComposableDescriptor } from './composables';
+import {
+    type ComposableDescriptor,
+    type ComposableProvidedProp,
+    type ComposableScaffold,
+    composableCallbacks,
+    findComposableDescriptor,
+} from './composables';
 
 type NamedText = { name: string; text: () => string };
 
@@ -536,6 +543,8 @@ type ResolvedComposable = {
     entries: { member: string; sourceKey: string; binding: string }[];
     /** `key: value` texts of the options object the composable is called with. */
     args: string[];
+    /** `data()` entries routed into that options object, rendered after the rewrite pass. */
+    config: { key: string; valueNode: t.Node }[];
 };
 
 /** The event names an `emits` array option declares, or null for any shape that is not one. */
@@ -554,7 +563,12 @@ function emitsEventNames(node: t.Node): string[] | null {
  * dependencies reach the composable as call arguments, so each needs something the codemod can pass:
  * the mixin's own `props` option, its `emits` list and its overridable methods are gone afterwards.
  */
-function refuseUnmetDependencies(ctx: Ctx, descriptor: ComposableDescriptor, collected: Collected): void {
+function refuseUnmetDependencies(
+    ctx: Ctx,
+    descriptor: ComposableDescriptor,
+    collected: Collected,
+    ownMembers: ReadonlySet<string>,
+): void {
     const events = Object.values(descriptor.emits ?? {});
 
     if (events.length > 0 && collected.emitsNode && emitsEventNames(collected.emitsNode) === null) {
@@ -569,11 +583,17 @@ function refuseUnmetDependencies(ctx: Ctx, descriptor: ComposableDescriptor, col
         }
     }
 
-    for (const callback of descriptor.callbackArgs ?? []) {
+    for (const callback of composableCallbacks(descriptor)) {
         const kind = ctx.bindings.get(callback.name);
 
         if (kind === undefined) {
-            if (!callback.optional) {
+            // Declared, but classification dropped it — a decorated method, an unsupported key. The
+            // member exists at runtime, so the composable cannot be left without it either.
+            if (ownMembers.has(callback.name)) {
+                ctx.blockers.add(
+                    `'${callback.name}' is declared in a shape that cannot be handed to the '${descriptor.id}' composable`,
+                );
+            } else if (!callback.optional) {
                 ctx.blockers.add(
                     `component does not define '${callback.name}', which the '${descriptor.id}' composable calls`,
                 );
@@ -614,6 +634,42 @@ function resolveProvidedProps(ctx: Ctx, collected: Collected): void {
 }
 
 /**
+ * Moves the `data()` entries a scaffolded mixin only takes as configuration out of the component and
+ * into its composable's options object. Such an entry initialized the mixin's own state through Vue's
+ * option merge, so it was never a member of its own: it stops being a local ref, its binding comes from
+ * the composable instead, and it no longer counts as the component redefining a mixin member.
+ */
+function routeScaffoldConfig(
+    collected: Collected,
+    ownMembers: Set<string>,
+): Map<ComposableDescriptor, ResolvedComposable['config']> {
+    const routed = new Map<ComposableDescriptor, ResolvedComposable['config']>();
+    const routedNames = new Set<string>();
+
+    for (const descriptor of collected.mixins) {
+        const config: ResolvedComposable['config'] = [];
+
+        for (const key of descriptor.scaffold?.configKeys ?? []) {
+            const dataEntry = collected.dataEntries.find((entry) => entry.name === key);
+
+            if (!dataEntry) {
+                continue;
+            }
+
+            config.push({ key, valueNode: dataEntry.valueNode });
+            routedNames.add(key);
+            ownMembers.delete(key);
+        }
+
+        routed.set(descriptor, config);
+    }
+
+    collected.dataEntries = collected.dataEntries.filter((entry) => !routedNames.has(entry.name));
+
+    return routed;
+}
+
+/**
  * The options object a composable is called with. Every argument defers the read: the call sits above
  * the member sections it points at, so an eager reference would hit their temporal dead zone.
  */
@@ -635,7 +691,7 @@ function composableArguments(ctx: Ctx, descriptor: ComposableDescriptor): string
         args.push(`${prop}: () => props.${prop}`);
     }
 
-    for (const callback of descriptor.callbackArgs ?? []) {
+    for (const callback of composableCallbacks(descriptor)) {
         const kind = ctx.bindings.get(callback.name);
 
         if (kind !== undefined) {
@@ -699,7 +755,8 @@ function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
  * Only members the script or the template actually reads are bound. A member the template alone reads
  * still counts — the template cannot be rewritten, so its binding has to exist under that exact name.
  * A descriptor nothing reads is dropped: its composable only provides members, so calling it for its
- * side effects is not a thing the mixin did either, and its instance dependencies go unasked for.
+ * side effects is not a thing the mixin did either, and its instance dependencies go unasked for. A
+ * scaffold is the exception, because its side effects are the point: it owns the lifecycle.
  */
 function resolveMixins(
     ctx: Ctx,
@@ -719,7 +776,10 @@ function resolveMixins(
     collectAssignedThisMemberNames(options, assignedMembers);
     resolveProvidedProps(ctx, collected);
 
-    const active = collected.mixins.filter((descriptor) => readsAnyMember(descriptor, readMembers));
+    const routedConfig = routeScaffoldConfig(collected, ownMembers);
+    const active = collected.mixins.filter(
+        (descriptor) => descriptor.scaffold !== undefined || readsAnyMember(descriptor, readMembers),
+    );
 
     for (const descriptor of collected.mixins) {
         const internal = descriptor.internallyReferencedMembers ?? [];
@@ -765,7 +825,7 @@ function resolveMixins(
     }
 
     for (const descriptor of active) {
-        refuseUnmetDependencies(ctx, descriptor, collected);
+        refuseUnmetDependencies(ctx, descriptor, collected, ownMembers);
     }
 
     if (ctx.blockers.size > 0) {
@@ -805,10 +865,32 @@ function resolveMixins(
             entries.push({ member, sourceKey: spec.sourceKey ?? member, binding });
         }
 
-        resolved.push({ descriptor, entries, args: composableArguments(ctx, descriptor) });
+        const config = routedConfig.get(descriptor) ?? [];
+
+        if (descriptor.scaffold) {
+            noteScaffoldReview(ctx, descriptor.id, descriptor.scaffold, config);
+        }
+
+        resolved.push({ descriptor, entries, args: composableArguments(ctx, descriptor), config });
     }
 
     return resolved;
+}
+
+/**
+ * Keeps a scaffolded component a draft. Wiring up an abstract controller is mechanical, but whether the
+ * result still behaves the same is not something the codemod can answer, so it says so in the output
+ * and the outcome follows from there being a TODO at all.
+ */
+function noteScaffoldReview(ctx: Ctx, id: string, scaffold: ComposableScaffold, config: ResolvedComposable['config']): void {
+    const routedKeys = config.map(({ key }) => key);
+
+    todoReview(ctx, `'${id}' scaffold needs a manual review`, [
+        ...scaffold.checks,
+        ...(routedKeys.length > 0
+            ? [`these were routed into the composable options instead of staying state: ${routedKeys.join(', ')}`]
+            : []),
+    ]);
 }
 
 /** Classifies every top-level option into the collected state, the TODO list, or the blockers. */

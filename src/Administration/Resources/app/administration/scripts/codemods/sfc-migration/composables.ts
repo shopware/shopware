@@ -55,6 +55,25 @@ type ComposableCallback = {
     optional?: boolean;
 };
 
+/**
+ * A mixin that was an abstract controller rather than a helper: it owned reactive state and lifecycle
+ * and drove a member the component implemented. Such a composable can be wired up mechanically, but
+ * not proven equivalent, so its output is always a draft for a human to finish.
+ */
+type ComposableScaffold = {
+    /** The member the mixin called on its host, which the composable takes as a callback instead. */
+    iocMember: string;
+    /**
+     * State keys a component set in its own `data()` purely to configure the mixin. They reach the
+     * composable through its options object instead of staying local refs.
+     */
+    configKeys: string[];
+    /** What the reviewer of the draft has to check, listed in the summary TODO. */
+    checks: string[];
+    /** Never `full`: the codemod cannot decide the questions above. */
+    forcesPartial: true;
+};
+
 type ComposableDescriptor = {
     id: string;
     /** Matches `Mixin.getByName('x')` and the bare string form `mixins: ['x']` alike. */
@@ -96,6 +115,11 @@ type ComposableDescriptor = {
      * merged them into the component the same way.
      */
     providedProps?: ComposableProvidedProp[];
+    /**
+     * Present for a mixin the codemod can only scaffold. Its composable is called even when the
+     * component reads none of its members, because it is the one running the lifecycle.
+     */
+    scaffold?: ComposableScaffold;
 };
 
 /** Members that are plain methods on both sides — the common case. */
@@ -150,6 +174,116 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
             'contentEntity',
             'getSlotConfigForLanguage',
         ],
+    },
+    {
+        id: 'listing',
+        mixinNames: ['listing'],
+        import: { source: 'src/app/composables/use-listing', name: 'useListing' },
+        members: {
+            ...refMembers([
+                'page',
+                'limit',
+                'total',
+                'sortBy',
+                'sortDirection',
+                'naturalSorting',
+                'selection',
+                'term',
+                'disableRouteParams',
+                'searchConfigEntity',
+                'entitySearchable',
+                'freshSearchTerm',
+                'previousRouteName',
+                'storeKey',
+                'filterCriteria',
+                'maxPage',
+                'routeName',
+                'selectionArray',
+                'selectionCount',
+                'searchRankingFields',
+                'currentSortBy',
+            ]),
+            ...methodMembers([
+                'updateData',
+                'updateRoute',
+                'resetListing',
+                'getMainListingParams',
+                'updateSelection',
+                'onPageChange',
+                'onSearch',
+                'onSwitchFilter',
+                'onSort',
+                'onSortColumn',
+                'onRefresh',
+                'isValidTerm',
+                'addQueryScores',
+                'parseBooleanQueryParams',
+                'updateCriteria',
+            ]),
+        },
+        // The whole listing state, which the route watcher, the lifecycle hook and every on* handler
+        // read back, plus the four methods they route through.
+        internallyReferencedMembers: [
+            'page',
+            'limit',
+            'total',
+            'sortBy',
+            'sortDirection',
+            'naturalSorting',
+            'selection',
+            'term',
+            'disableRouteParams',
+            'searchConfigEntity',
+            'entitySearchable',
+            'freshSearchTerm',
+            'previousRouteName',
+            'storeKey',
+            'filterCriteria',
+            'selectionArray',
+            'updateData',
+            'updateRoute',
+            'resetListing',
+            'isValidTerm',
+            'parseBooleanQueryParams',
+        ],
+        // The two services the mixin injected, which the composable resolves itself, and the `filters`
+        // computed it defaulted to an empty list — a component that reads one without declaring it
+        // would read nothing after the migration.
+        unmappedMembers: [
+            'feature',
+            'searchRankingService',
+            'filters',
+        ],
+        // `filters` was the mixin's own computed and the component's override at once, so it arrives as
+        // an optional getter: a component without filters keeps the mixin's empty list.
+        callbackArgs: [
+            { name: 'filters', kind: 'getter', optional: true },
+        ],
+        scaffold: {
+            iocMember: 'getList',
+            configKeys: [
+                'page',
+                'limit',
+                'total',
+                'sortBy',
+                'sortDirection',
+                'naturalSorting',
+                'selection',
+                'term',
+                'disableRouteParams',
+                'searchConfigEntity',
+                'entitySearchable',
+                'freshSearchTerm',
+                'storeKey',
+                'filterCriteria',
+            ],
+            checks: [
+                'getList() is passed to useListing() and still resolves everything it reads and writes',
+                'the initial load runs on mounted now, one hook later than the mixin loaded it',
+                'route parameter handling, which the composable owns from here on',
+            ],
+            forcesPartial: true,
+        },
     },
     {
         id: 'media-grid-listener',
@@ -491,6 +625,17 @@ function findComposableDescriptor(name: string): ComposableDescriptor | undefine
     return COMPOSABLE_DESCRIPTORS.find((descriptor) => descriptor.mixinNames.includes(name));
 }
 
+/**
+ * Every member a composable takes from its host. A scaffold's inverted member is one of them: the
+ * mixin called it on the instance, so the component has to define it and the composable is handed it.
+ */
+function composableCallbacks(descriptor: ComposableDescriptor): ComposableCallback[] {
+    return [
+        ...(descriptor.callbackArgs ?? []),
+        ...(descriptor.scaffold ? [{ name: descriptor.scaffold.iocMember, kind: 'callback' as const }] : []),
+    ];
+}
+
 export {
     type ComposableCallback,
     type ComposableCallbackKind,
@@ -498,6 +643,8 @@ export {
     type ComposableMember,
     type ComposableMemberKind,
     type ComposableProvidedProp,
+    type ComposableScaffold,
     COMPOSABLE_DESCRIPTORS,
+    composableCallbacks,
     findComposableDescriptor,
 };

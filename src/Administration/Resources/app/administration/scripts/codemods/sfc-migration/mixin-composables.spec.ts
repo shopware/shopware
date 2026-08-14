@@ -9,7 +9,7 @@
  * sfc-migration.spec.ts; these assertions name the behaviour each fixture exists for.
  */
 
-import { COMPOSABLE_DESCRIPTORS } from './composables';
+import { COMPOSABLE_DESCRIPTORS, composableCallbacks } from './composables';
 import { convertFixture } from './spec-helpers';
 
 describe('scripts/codemods/sfc-migration mixin composables', () => {
@@ -40,12 +40,24 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         it.each(COMPOSABLE_DESCRIPTORS)('keeps the instance dependencies out of the member map for $id', (descriptor) => {
             const dependencies = [
                 ...(descriptor.propArgs ?? []),
-                ...(descriptor.callbackArgs ?? []).map((callback) => callback.name),
+                ...composableCallbacks(descriptor).map((callback) => callback.name),
             ];
 
             for (const dependency of dependencies) {
                 expect(Object.keys(descriptor.members)).not.toContain(dependency);
-                expect(descriptor.unmappedMembers ?? []).not.toContain(dependency);
+            }
+
+            // A prop cannot double as a member the composable dropped, while a callback can: the
+            // mixin's own version of an overridable member is exactly what it leaves out.
+            for (const prop of descriptor.propArgs ?? []) {
+                expect(descriptor.unmappedMembers ?? []).not.toContain(prop);
+            }
+        });
+
+        // The state keys a scaffold takes as configuration are the mixin's own, which it returns.
+        it.each(COMPOSABLE_DESCRIPTORS)('lists only real members as scaffold config keys for $id', (descriptor) => {
+            for (const key of descriptor.scaffold?.configKeys ?? []) {
+                expect(Object.keys(descriptor.members)).toContain(key);
             }
         });
 
@@ -65,7 +77,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         expect(result).toEqual({
             outcome: 'skipped',
             reasons: [
-                "no composable registered for mixin 'listing'",
+                "no composable registered for mixin 'sw-form-field'",
                 "unsupported mixins entry 'swListMixin'",
             ],
             sfc: null,
@@ -241,6 +253,58 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
                 "props are not a plain object literal, so the 'validation' mixin's props cannot be merged",
             ],
         ])('skips %s, whose instance dependency the codemod cannot wire', async (name, reason) => {
+            const result = await convertFixture(name);
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toContain(reason);
+            expect(result.sfc).toBeNull();
+        });
+    });
+
+    describe('scaffold tier', () => {
+        it('wires a listing component up to useListing and leaves it as a draft', async () => {
+            const result = await convertFixture('sw-mixin-listing-scaffold');
+
+            // A scaffold is never finished work, however clean the output looks.
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toContain("'listing' scaffold needs a manual review");
+
+            // The review checklist leads the draft.
+            expect(result.sfc).toContain("// TODO(sfc-migration): 'listing' scaffold needs a manual review");
+            expect(result.sfc).toContain('// - the initial load runs on mounted now');
+            expect(result.sfc).toContain('// - these were routed into the composable options');
+
+            // The component's own getList is what the composable drives, under its own name, so the
+            // component's call sites and its public surface both keep working.
+            expect(result.sfc).toContain('getList: (...args) => getList(...args)');
+            expect(result.sfc).toMatch(/const getList =[\s\S]*?async function \(\) \{/);
+            expect(result.sfc).toContain('const onSaved = function () {\n    getList();\n};');
+            expect(result.sfc).toContain('getList,');
+
+            // Listing state the component only configured is handed over instead of declared.
+            expect(result.sfc).toContain('limit: 10');
+            expect(result.sfc).toContain("sortBy: 'createdAt'");
+            expect(result.sfc).toContain("searchConfigEntity: 'product'");
+            expect(result.sfc).not.toContain('const limit = ref(10);');
+
+            // What is left of the mixin's state is read through the destructured refs.
+            expect(result.sfc).toContain('new Criteria(page.value, limit.value)');
+            expect(result.sfc).toContain('total.value = result.total;');
+
+            // The component's `filters` override reaches the composable as the getter it takes.
+            expect(result.sfc).toContain('filters: () => filters.value');
+        });
+
+        it.each([
+            [
+                'sw-mixin-listing-no-get-list',
+                "component does not define 'getList', which the 'listing' composable calls",
+            ],
+            [
+                'sw-mixin-listing-wrapped-get-list',
+                "'getList' is declared in a shape that cannot be handed to the 'listing' composable",
+            ],
+        ])('skips %s, which has no getList the codemod can hand over', async (name, reason) => {
             const result = await convertFixture(name);
 
             expect(result.outcome).toBe('skipped');

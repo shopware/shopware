@@ -5,7 +5,7 @@ export default {
     template,
 
     mixins: [
-        Shopware.Mixin.getByName('listing'),
+        Shopware.Mixin.getByName('sw-form-field'),
         swListMixin,
     ],
 

@@ -33,6 +33,13 @@ type ScriptResult = {
 function todoBlock(entry: TodoEntry): string {
     const header = `// TODO(sfc-migration): ${entry.reason}`;
 
+    if (entry.checks) {
+        return [
+            header,
+            ...entry.checks.map((check) => `// - ${check}`),
+        ].join('\n');
+    }
+
     if (!entry.code) {
         return header;
     }
@@ -229,6 +236,12 @@ function transformScript(
         rewriteThis(ctx, entry.valueNode, true, null);
     }
 
+    for (const composable of composables) {
+        for (const entry of composable.config) {
+            rewriteThis(ctx, entry.valueNode, true, null);
+        }
+    }
+
     for (const node of collected.foreignNodes) {
         rewriteThis(ctx, node, false, null);
     }
@@ -301,14 +314,20 @@ function transformScript(
         .join('\n');
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
     const composableBlock = composables
-        .map(({ descriptor, entries, args }) => {
+        .map(({ descriptor, entries, args, config }) => {
+            const callArgs = [
+                ...args,
+                ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`),
+            ];
+            const call = `${descriptor.import.name}(${callArgs.length > 0 ? `{ ${callArgs.join(', ')} }` : ''});`;
             const destructured = entries
                 .map((entry) =>
                     entry.binding === entry.sourceKey ? entry.sourceKey : `${entry.sourceKey}: ${entry.binding}`,
                 )
                 .join(', ');
 
-            return `const { ${destructured} } = ${descriptor.import.name}(${args.length > 0 ? `{ ${args.join(', ')} }` : ''});`;
+            // A scaffold runs the lifecycle, so its call stands on its own when nothing is read from it.
+            return entries.length > 0 ? `const { ${destructured} } = ${call}` : call;
         })
         .join('\n');
     const dataBlock = collected.dataEntries
@@ -316,7 +335,13 @@ function transformScript(
         .join('\n');
     const refBlock = [...ctx.templateRefs].map((refName) => `const ${refName} = ref(null);`).join('\n');
 
+    // A review TODO is about the whole draft, so it leads the file instead of trailing the code its
+    // checks are about.
+    const reviewTodos = ctx.todos.filter((entry) => entry.checks !== undefined);
+    const siteTodos = ctx.todos.filter((entry) => entry.checks === undefined);
+
     const sections: (string | null)[] = [
+        ...reviewTodos.map(todoBlock),
         importBlock || null,
         helperBlock || null,
         injectBlock || null,
@@ -341,7 +366,7 @@ function transformScript(
         ...watchers.map((watcher) => watcher()),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
-        ...ctx.todos.map(todoBlock),
+        ...siteTodos.map(todoBlock),
     ];
 
     const publicNames = [

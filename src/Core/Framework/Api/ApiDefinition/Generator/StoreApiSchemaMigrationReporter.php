@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use OpenApi\Annotations\Components;
+use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiException;
@@ -9,15 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @phpstan-type StoreApiSchemaMigrationAllowlist array{
- *     phpGeneratedStoreApiSchemas: list<string>
- * }
  */
 #[Package('framework')]
 class StoreApiSchemaMigrationReporter
@@ -30,7 +26,6 @@ class StoreApiSchemaMigrationReporter
     public function __construct(
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         private readonly iterable $scopeProviders,
-        private readonly Filesystem $filesystem = new Filesystem(),
     ) {
     }
 
@@ -40,10 +35,11 @@ class StoreApiSchemaMigrationReporter
     public function report(array $definitions, string $scope = CoreStoreApiSchemaMigrationScopeProvider::SCOPE): StoreApiSchemaMigrationReport
     {
         $scopeProvider = $this->getScopeProvider($scope);
-        $jsonSchemaNames = $this->getJsonSchemaNames($scopeProvider->getSchemaPaths());
-        $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($scopeProvider->getSchemaPaths());
-        $phpGeneratedSchemaNames = $this->getPhpGeneratedSchemaNames($definitions, $scopeProvider, $jsonSchemaNames, $referencedJsonSchemaNames);
-        $allowlist = $this->loadAllowlist($scopeProvider->getAllowlistPath());
+        $jsonSpec = $this->loadOpenApiSpecification($scopeProvider->getSchemaPaths());
+        $jsonSchemaNames = $this->getJsonSchemaNames($jsonSpec);
+        $generatedSchemas = $this->getGeneratedSchemas($definitions, $scopeProvider, $jsonSchemaNames);
+        $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($jsonSpec, $generatedSchemas['componentSchemas']);
+        $phpGeneratedSchemaNames = $this->getPhpGeneratedSchemaNames($generatedSchemas['definitionSchemas'], $jsonSchemaNames, $referencedJsonSchemaNames);
 
         $jsonOverridesPhpGenerated = array_intersect($jsonSchemaNames, $phpGeneratedSchemaNames);
         $phpGeneratedOnly = array_diff($phpGeneratedSchemaNames, $jsonSchemaNames);
@@ -51,11 +47,7 @@ class StoreApiSchemaMigrationReporter
         return new StoreApiSchemaMigrationReport(
             jsonOverridesPhpGenerated: $this->sortList($jsonOverridesPhpGenerated),
             phpGeneratedOnly: $this->sortList($phpGeneratedOnly),
-            phpGeneratedOnlyAllowed: $this->sortList(array_intersect($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
-            phpGeneratedOnlyWithoutAllowlist: $this->sortList(array_diff($phpGeneratedOnly, $allowlist['phpGeneratedStoreApiSchemas'])),
             jsonWithoutPhpGenerated: $this->sortList(array_diff($jsonSchemaNames, $phpGeneratedSchemaNames)),
-            allowlistWithoutPhpGeneratedOnlySchema: $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedOnly)),
-            allowlistWithoutPhpGeneratedSchema: $this->sortList(array_diff($allowlist['phpGeneratedStoreApiSchemas'], $phpGeneratedSchemaNames)),
         );
     }
 
@@ -73,19 +65,49 @@ class StoreApiSchemaMigrationReporter
     }
 
     /**
-     * @param array<string, EntityDefinition> $definitions
+     * @param array<string, array<string, mixed>> $definitionSchemas
      * @param list<string> $jsonSchemaNames
      * @param list<string> $referencedJsonSchemaNames
      *
      * @return list<string>
      */
     private function getPhpGeneratedSchemaNames(
-        array $definitions,
-        StoreApiSchemaMigrationScopeProviderInterface $scopeProvider,
+        array $definitionSchemas,
         array $jsonSchemaNames,
         array $referencedJsonSchemaNames
     ): array {
         $schemaNames = [];
+
+        foreach ($definitionSchemas as $schemaName => $schema) {
+            if (\in_array($schemaName, $jsonSchemaNames, true)) {
+                continue;
+            }
+
+            if (!array_intersect(array_keys($schema), $referencedJsonSchemaNames)) {
+                continue;
+            }
+
+            array_push($schemaNames, ...array_keys($schema));
+        }
+
+        return $this->sortList($schemaNames);
+    }
+
+    /**
+     * @param array<string, EntityDefinition> $definitions
+     * @param list<string> $jsonSchemaNames
+     *
+     * @return array{
+     *     definitionSchemas: array<string, array<string, mixed>>,
+     *     componentSchemas: array<string, mixed>
+     * }
+     */
+    private function getGeneratedSchemas(
+        array $definitions,
+        StoreApiSchemaMigrationScopeProviderInterface $scopeProvider,
+        array $jsonSchemaNames
+    ): array {
+        $definitionSchemas = [];
 
         ksort($definitions);
 
@@ -97,41 +119,58 @@ class StoreApiSchemaMigrationReporter
             $schemaName = $this->definitionSchemaBuilder->getSchemaName($definition);
 
             if (\in_array($schemaName, $jsonSchemaNames, true)) {
+                $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    true,
+                );
+
                 continue;
             }
 
-            if (!\in_array($schemaName, $referencedJsonSchemaNames, true)) {
-                continue;
-            }
-
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
+            $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getSchemaByDefinition(
                 $definition,
                 $this->getResourceUri($definition),
                 true,
                 $this->shouldIncludeReferenceOnly($definition),
                 DefinitionService::TYPE_JSON_API,
             );
-
-            array_push($schemaNames, ...array_keys($schema));
         }
 
-        return $this->sortList($schemaNames);
+        $openApi = new OpenApi([
+            'openapi' => '3.2.0',
+        ]);
+        $openApi->components = new Components([]);
+
+        foreach ($definitionSchemas as $schema) {
+            $openApi->components->merge(array_values($schema));
+        }
+
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $componentSchemas = $data['components']['schemas'] ?? [];
+        if (!\is_array($componentSchemas)) {
+            $componentSchemas = [];
+        }
+
+        return [
+            'definitionSchemas' => $definitionSchemas,
+            'componentSchemas' => $componentSchemas,
+        ];
     }
 
     /**
-     * @param list<string> $schemaPaths
+     * @param array<string, mixed> $jsonSpec
+     * @param array<string, mixed> $generatedComponentSchemas
      *
      * @return list<string>
      */
-    private function getReferencedJsonSchemaNames(array $schemaPaths): array
+    private function getReferencedJsonSchemaNames(array $jsonSpec, array $generatedComponentSchemas): array
     {
-        $loader = new OpenApiFileLoader($schemaPaths);
-        $jsonSpec = $loader->loadOpenapiSpecification();
-
         $componentSchemas = $jsonSpec['components']['schemas'] ?? [];
         if (!\is_array($componentSchemas)) {
             $componentSchemas = [];
         }
+        $componentSchemas = array_replace_recursive($componentSchemas, $generatedComponentSchemas);
 
         $referencedSchemaNames = [];
         $queue = [];
@@ -172,15 +211,12 @@ class StoreApiSchemaMigrationReporter
     }
 
     /**
-     * @param list<string> $schemaPaths
+     * @param array<string, mixed> $jsonSpec
      *
      * @return list<string>
      */
-    private function getJsonSchemaNames(array $schemaPaths): array
+    private function getJsonSchemaNames(array $jsonSpec): array
     {
-        $loader = new OpenApiFileLoader($schemaPaths);
-        $jsonSpec = $loader->loadOpenapiSpecification();
-
         if (!isset($jsonSpec['components']['schemas'])) {
             return [];
         }
@@ -201,58 +237,15 @@ class StoreApiSchemaMigrationReporter
     }
 
     /**
-     * @return StoreApiSchemaMigrationAllowlist
-     */
-    private function loadAllowlist(string $allowlistPath): array
-    {
-        if (!$this->filesystem->exists($allowlistPath)) {
-            return [
-                'phpGeneratedStoreApiSchemas' => [],
-            ];
-        }
-
-        try {
-            $contents = $this->filesystem->readFile($allowlistPath);
-        } catch (IOExceptionInterface) {
-            throw ApiException::schemaDefinitionNotReadable($allowlistPath);
-        }
-
-        try {
-            $data = json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw ApiException::invalidStoreApiSchemaMigrationAllowlist($allowlistPath, 'JSON could not be decoded.', $exception);
-        }
-
-        if (!\is_array($data)) {
-            throw ApiException::invalidStoreApiSchemaMigrationAllowlist($allowlistPath, 'The root value must be an object.');
-        }
-
-        return [
-            'phpGeneratedStoreApiSchemas' => $this->readAllowlistSchemaNames($data, 'phpGeneratedStoreApiSchemas', $allowlistPath),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $data
+     * @param list<string> $schemaPaths
      *
-     * @return list<string>
+     * @return array<string, mixed>
      */
-    private function readAllowlistSchemaNames(array $data, string $key, string $allowlistPath): array
+    private function loadOpenApiSpecification(array $schemaPaths): array
     {
-        if (!isset($data[$key]) || !\is_array($data[$key])) {
-            throw ApiException::invalidStoreApiSchemaMigrationAllowlist($allowlistPath, \sprintf('The "%s" list is missing.', $key));
-        }
+        $loader = new OpenApiFileLoader($schemaPaths);
 
-        $schemaNames = [];
-        foreach ($data[$key] as $schemaName) {
-            if (!\is_string($schemaName)) {
-                throw ApiException::invalidStoreApiSchemaMigrationAllowlist($allowlistPath, \sprintf('The "%s" list must contain only schema names.', $key));
-            }
-
-            $schemaNames[] = $schemaName;
-        }
-
-        return $this->sortList($schemaNames);
+        return $loader->loadOpenapiSpecification();
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition, StoreApiSchemaMigrationScopeProviderInterface $scopeProvider): bool

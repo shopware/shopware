@@ -124,7 +124,10 @@ async function runMigration(
 
     for (const indexFile of indexFiles) {
         const dir = path.dirname(indexFile);
-        const name = path.basename(dir);
+        const dirName = path.basename(dir);
+        // The registration is the authority on the component's name; only directories nothing
+        // registers fall back to their basename.
+        const name = registry.byDir.get(dir)?.name ?? dirName;
         const jsSource = fs.readFileSync(indexFile, 'utf8');
 
         // Files without a default-exported component config (registries, barrels) are not
@@ -149,7 +152,21 @@ async function runMigration(
 
         if (!KEBAB_NAME.test(name)) {
             stats.skipped += 1;
-            report(name, dir, 'skipped', ['directory name is not multi-segment kebab-case']);
+            report(name, dir, 'skipped', ['component name is not multi-segment kebab-case']);
+            continue;
+        }
+
+        if (registry.duplicateNames.has(name)) {
+            stats.skipped += 1;
+            report(name, dir, 'skipped', ['component name registered more than once']);
+            continue;
+        }
+
+        // A name the directory does not carry is only trustworthy with a second source agreeing:
+        // the template filename, which by convention equals the registered name.
+        if (name !== dirName && path.basename(templateImport[1], '.html.twig') !== name) {
+            stats.skipped += 1;
+            report(name, dir, 'skipped', ['template filename does not match the registered component name']);
             continue;
         }
 

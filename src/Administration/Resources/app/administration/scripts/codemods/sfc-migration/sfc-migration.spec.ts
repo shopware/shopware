@@ -195,4 +195,136 @@ describe('scripts/codemods/sfc-migration', () => {
             });
         });
     });
+
+    describe('runMigration name derivation (component names come from the registration)', () => {
+        let tmpDir: string;
+        let result: MigrationResult;
+
+        const writeFile = (relativePath: string, contents: string): void => {
+            const file = path.join(tmpDir, relativePath);
+
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, contents);
+        };
+
+        // One component: an `index.js` importing a twig next to it, and that twig.
+        const writeComponent = (dir: string, twigName: string): void => {
+            writeFile(
+                `${dir}/index.js`,
+                [
+                    `import template from './${twigName}.html.twig';`,
+                    '',
+                    '/**',
+                    ' * @sw-package framework',
+                    ' */',
+                    'export default {',
+                    '    template,',
+                    '',
+                    '    data() {',
+                    '        return { message: `Hello` };',
+                    '    },',
+                    '};',
+                    '',
+                ].join('\n'),
+            );
+            writeFile(
+                `${dir}/${twigName}.html.twig`,
+                `{% block ${twigName.replace(/-/g, '_')} %}\n    <p>{{ message }}</p>\n{% endblock %}\n`,
+            );
+        };
+
+        const reportOf = (name: string): MigrationResult['reports'][number] | undefined =>
+            result.reports.find((entry) => entry.name === name);
+
+        beforeAll(async () => {
+            tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sfc-migration-registry-'));
+
+            // CMS block layout: the registering module index sits one level above the component.
+            writeFile(
+                'blocks/demo/index.js',
+                "Shopware.Component.register('sw-cms-block-demo', () => import('./component'));\n",
+            );
+            writeComponent('blocks/demo/component', 'sw-cms-block-demo');
+
+            // Page layout: the registration spells the index module out.
+            writeFile('sw-login/index.js', "Component.register('sw-login', () => import('./page/index'));\n");
+            writeComponent('sw-login/page', 'sw-login');
+
+            // A registered name no second source confirms: the template is named differently.
+            writeFile(
+                'blocks/mismatch/index.js',
+                "Component.register('sw-cms-block-mismatch', () => import('./component'));\n",
+            );
+            writeComponent('blocks/mismatch/component', 'sw-cms-block-other');
+
+            // The same name registered for two directories.
+            writeFile(
+                'duplicates/index.js',
+                [
+                    "Component.register('sw-duplicate-demo', () => import('./first'));",
+                    "Component.register('sw-duplicate-demo', () => import('./second'));",
+                    '',
+                ].join('\n'),
+            );
+            writeComponent('duplicates/first', 'sw-duplicate-demo');
+            writeComponent('duplicates/second', 'sw-duplicate-demo');
+
+            // Nothing registers this directory, so its basename stays the only name source.
+            writeComponent('orphan/preview', 'sw-orphan-preview');
+
+            result = await runMigration(tmpDir, { write: true });
+        });
+
+        afterAll(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('migrates a CMS-block-like component under its registered name', () => {
+            const dir = path.join(tmpDir, 'blocks', 'demo', 'component');
+
+            expect(reportOf('sw-cms-block-demo')).toMatchObject({ outcome: 'full', registration: 'register' });
+            expect(fs.existsSync(path.join(dir, 'sw-cms-block-demo.vue'))).toBe(true);
+            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain(
+                "export { default } from './sw-cms-block-demo.vue';",
+            );
+            expect(fs.existsSync(path.join(dir, 'sw-cms-block-demo.html.twig'))).toBe(false);
+        });
+
+        it('migrates a page registered through its index module', () => {
+            expect(reportOf('sw-login')).toMatchObject({ outcome: 'full', registration: 'register' });
+            expect(fs.existsSync(path.join(tmpDir, 'sw-login', 'page', 'sw-login.vue'))).toBe(true);
+        });
+
+        it('skips a registered name the template filename does not confirm', () => {
+            expect(reportOf('sw-cms-block-mismatch')).toMatchObject({
+                outcome: 'skipped',
+                reasons: ['template filename does not match the registered component name'],
+            });
+            expect(fs.existsSync(path.join(tmpDir, 'blocks', 'mismatch', 'component', 'sw-cms-block-mismatch.vue'))).toBe(
+                false,
+            );
+        });
+
+        it('skips every directory sharing a registered name', () => {
+            const duplicates = result.reports.filter((entry) => entry.name === 'sw-duplicate-demo');
+
+            expect(duplicates).toHaveLength(2);
+            expect(duplicates.map((entry) => entry.outcome)).toEqual([
+                'skipped',
+                'skipped',
+            ]);
+            expect(duplicates.map((entry) => entry.reasons)).toEqual([
+                ['component name registered more than once'],
+                ['component name registered more than once'],
+            ]);
+        });
+
+        it('keeps skipping an unregistered directory whose basename is not kebab-case', () => {
+            expect(reportOf('preview')).toMatchObject({
+                outcome: 'skipped',
+                registration: 'unregistered',
+                reasons: ['component name is not multi-segment kebab-case'],
+            });
+        });
+    });
 });

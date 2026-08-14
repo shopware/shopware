@@ -58,8 +58,18 @@ const SKIP_RULES: ReasonRule[] = [
         stage: 'precheck',
     },
     {
-        pattern: /^directory name is not multi-segment kebab-case$/,
-        label: 'directory name is not multi-segment kebab-case',
+        pattern: /^(component|directory) name is not multi-segment kebab-case$/,
+        label: 'component name is not multi-segment kebab-case',
+        stage: 'precheck',
+    },
+    {
+        pattern: /^template filename does not match the registered component name$/,
+        label: 'template filename does not match the registered component name',
+        stage: 'precheck',
+    },
+    {
+        pattern: /^component name registered more than once$/,
+        label: 'component name registered more than once',
         stage: 'precheck',
     },
     { pattern: /^template file not found$/, label: 'template file not found', stage: 'precheck' },

@@ -22,7 +22,7 @@ npm run codemod:sfc-migration:analyze -- src/ [--out <file>]
 
 | Outcome | Meaning | `--write` behavior |
 | --- | --- | --- |
-| `full` | Everything converted, output validated | Writes `<dir>/<dir-name>.vue`, shrinks `index.js` to a re-export shim, deletes the twig (kept if another file still imports it) |
+| `full` | Everything converted, output validated | Writes `<dir>/<component-name>.vue`, shrinks `index.js` to a re-export shim, deletes the twig (kept if another file still imports it) |
 | `partial` | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before |
 | `skipped` | Structural blocker | Writes nothing; the report names the reason |
 | `already-migrated` | A `.vue` with the component's name exists | Writes nothing (re-runs are idempotent) |
@@ -48,12 +48,28 @@ Inline `Component.override('name', { … })` configs own no directory and never 
 discovery. They are counted separately and reported as one info line (`72 inline
 Component.override(...) configs found`) — reporting only, the codemod cannot convert them.
 
+## Component names
+
+The name a component is generated under comes from its registration, not from its directory — that
+is what unlocks the CMS blocks/elements (`blocks/text/text/component` registers `sw-cms-block-text`)
+and the `page/index` pages. Directories no registration resolves to keep their basename. The name
+becomes the `.vue` filename, from which the build transform derives the runtime component name.
+
+Two gates guard the derivation: a name the directory does not carry must be confirmed by the
+template filename (`sw-cms-block-text.html.twig`), and a name registered for more than one directory
+is never used. Either mismatch skips the component instead of guessing.
+
+Registrations are collected from the whole Administration `src/` whenever the target lies inside it,
+so running the codemod on a single module still resolves names registered in a parent directory.
+For targets outside `src/` the scan root is the target itself.
+
 ## What is skipped on purpose
 
 `mixins`, `Component.extend` children, `this.$super`/`this.$parent`, `render()` components,
-root-level option spreads, and components whose `name` option differs from their directory name.
-These need structural decisions a codemod should not guess. Everything else that is not understood
-becomes a TODO comment in a draft instead of a silent conversion.
+root-level option spreads, components whose `name` option differs from their component name, and
+components whose registered name neither the directory nor the template filename confirms. These
+need structural decisions a codemod should not guess. Everything else that is not understood becomes
+a TODO comment in a draft instead of a silent conversion.
 
 ## Structure
 
@@ -62,7 +78,7 @@ Each file answers exactly one question:
 | File | Answers |
 | --- | --- |
 | `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, twig-importer scan, file writes, report |
-| `component-registry.ts` | Which dir belongs to which `Component.register`/`extend`/`override` call? One scan, feeds the classification |
+| `component-registry.ts` | Which dir belongs to which `Component.register`/`extend`/`override` call? One scan, feeds the component names and the classification |
 | `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
 | `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, `{% parent %}`, leftover-twig check) |
 | `normalize-cross-block-conditionals.ts` | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned |

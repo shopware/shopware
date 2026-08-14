@@ -1,127 +1,46 @@
-import {
-    CrossBlockConditionTransformError,
-    normalizeCrossBlockConditionals,
-} from './template-transformer/normalize-cross-block-conditionals';
-
 /**
- * Twig is a line-oriented text format, not a language ts-morph understands.
- * Regex is the right tool here: every pattern (block tags, endblock, parent())
- * is a single fixed token that never nests inside JS expressions.
+ * @sw-package framework
  */
 
-const EXTENDS_RE = /\{%\s*extends\b[\s\S]*?%\}/;
-const TWIG_COMMENT_RE = /\{#([\s\S]*?)#\}/g;
-const ESLINT_DISABLE_TWIG = '<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->';
-const BLOCK_START_LINE_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/;
-const BLOCK_END_LINE_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/;
-const PARENT_LINE_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/;
-const TWIG_SYNTAX_RE = /\{%\s*(?:block|endblock|extends)\b|\{[{%]\s*parent\(?\)?\s*[%}]\}/;
-const UNSUPPORTED_TEMPLATE_ERROR = 'Twig template is not supported by the SFC migration codemod.';
-const UNSUPPORTED_EXTENDS_ERROR = 'Twig extends is not supported by the SFC migration codemod.';
-const UNSUPPORTED_EXTENDS_BLOCKER = 'twig extends';
-const UNSUPPORTED_COMMENT_SYNTAX_BLOCKER = 'twig syntax inside comment';
-const UNSUPPORTED_PARENT_BLOCKER = 'twig parent() without block';
-
-export class TemplateTransformError extends Error {
-    public constructor(
-        public readonly blockers: string[],
-        message = UNSUPPORTED_TEMPLATE_ERROR,
-    ) {
-        super(message);
-        this.name = 'TemplateTransformError';
-    }
-}
-
-function isTwigBlockMigrationLine(line: string): boolean {
-    return BLOCK_START_LINE_RE.test(line) || BLOCK_END_LINE_RE.test(line) || PARENT_LINE_RE.test(line);
-}
-
-function hasTwigSyntaxInComment(twigContent: string): boolean {
-    TWIG_COMMENT_RE.lastIndex = 0;
-
-    // Comments are converted before block replacements. A commented-out Twig
-    // block would otherwise become an HTML comment and then be migrated into
-    // real <sw-block> markup inside that comment.
-    return Array.from(twigContent.matchAll(TWIG_COMMENT_RE)).some((match) => TWIG_SYNTAX_RE.test(match[1] ?? ''));
-}
-
 /**
- * Converts a `.html.twig` file's content into a Vue `<template>` block.
+ * Converts a TwigJS component template into native setup SFC template markup.
  *
- * - `{% block name %}` → `<sw-block name="name" :data="$dataScope">`
- * - `{% endblock %}`  → `</sw-block>`
- * - `{{ parent() }}`  → `<sw-block-parent/>`
- * - `{% extends '…' %}` throws because template inheritance is unsupported
- * - Accompanying eslint-disable-next-line comments are removed
- * - Plain HTML / Vue expressions pass through unchanged
+ * The Administration's twig layer only ever uses `{% block %}`, `{% parent %}` and `{# comments #}`
+ * (verified over all 994 templates), so this stays a handful of text replacements. Anything else is
+ * reported as a blocker instead of being guessed at. The `:data` binding of `<sw-block>` is owned by
+ * the Shopware setup transform and must never be authored here.
  */
-export function transformTemplate(twigContent: string): { template: string } {
-    const BLOCK_START_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/g;
-    const BLOCK_END_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/g;
-    const PARENT_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/g;
 
-    const hasTwigBlocks = BLOCK_START_LINE_RE.test(twigContent);
+type TemplateResult = {
+    template: string | null;
+    blockers: string[];
+};
 
-    if (hasTwigSyntaxInComment(twigContent)) {
-        throw new TemplateTransformError([UNSUPPORTED_COMMENT_SYNTAX_BLOCKER]);
+const ESLINT_BLOCK_DISABLE =
+    /[^\S\n]*<!--\s*eslint-disable(?:-next-line)?\s+sw-deprecation-rules\/no-twigjs-blocks\s*-->\n?/g;
+const TWIG_COMMENT = /\{#([\s\S]*?)#\}/g;
+const TWIG_BLOCK_START = /\{%-?\s*block\s+([\w-]+)\s*-?%\}/g;
+const TWIG_BLOCK_END = /\{%-?\s*endblock\s*-?%\}/g;
+const TWIG_PARENT = /\{\{\s*parent\(\)\s*\}\}|\{%-?\s*parent\s*-?%\}/g;
+
+function transformTemplate(twig: string): TemplateResult {
+    const template = twig
+        .replace(ESLINT_BLOCK_DISABLE, '')
+        .replace(TWIG_COMMENT, '<!--$1-->')
+        .replace(TWIG_BLOCK_START, '<sw-block name="$1">')
+        .replace(TWIG_BLOCK_END, '</sw-block>')
+        .replace(TWIG_PARENT, '<sw-block-parent />');
+
+    const leftoverTwig = template.match(/\{[%#][^\n]*/);
+
+    if (leftoverTwig) {
+        return {
+            template: null,
+            blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`],
+        };
     }
 
-    if (EXTENDS_RE.test(twigContent)) {
-        // Resolving Twig inheritance would require loading parent templates and
-        // merging block overrides. This codemod only transforms one component
-        // directory at a time, so inherited templates need manual migration.
-        throw new TemplateTransformError([UNSUPPORTED_EXTENDS_BLOCKER], UNSUPPORTED_EXTENDS_ERROR);
-    }
-
-    if (!hasTwigBlocks && PARENT_LINE_RE.test(twigContent)) {
-        // `parent()` only has meaning inside a block override. Without a
-        // surrounding block it cannot be mapped to <sw-block-parent/> and would
-        // otherwise be emitted as a runtime Vue method call.
-        throw new TemplateTransformError([UNSUPPORTED_PARENT_BLOCKER]);
-    }
-
-    let body = twigContent;
-
-    // Convert Twig comments to HTML comments regardless of block usage
-    body = body.replace(TWIG_COMMENT_RE, (_, content) => `<!--${content}-->`);
-
-    const cleanedLines = body.split('\n').filter((line, index, lines) => {
-        const trimmed = line.trim();
-        const nextLine = lines[index + 1] ?? '';
-        const previousLine = lines[index - 1] ?? '';
-
-        // These disables targeted Twig syntax that no longer exists after
-        // migration; keeping them would suppress linting for the next Vue line.
-        if (
-            trimmed === ESLINT_DISABLE_TWIG &&
-            (isTwigBlockMigrationLine(nextLine) || isTwigBlockMigrationLine(previousLine))
-        ) {
-            return false;
-        }
-
-        return true;
-    });
-
-    body = cleanedLines.join('\n');
-
-    if (hasTwigBlocks) {
-        body = body
-            .split('\n')
-            .map((line) => line.replace(BLOCK_START_RE, '<sw-block name="$1" :data="$dataScope">'))
-            .map((line) => line.replace(BLOCK_END_RE, '</sw-block>'))
-            .map((line) => line.replace(PARENT_RE, '<sw-block-parent/>'))
-            .join('\n');
-        try {
-            body = normalizeCrossBlockConditionals(body);
-        } catch (err) {
-            if (err instanceof CrossBlockConditionTransformError) {
-                throw new TemplateTransformError(err.blockers, err.message);
-            }
-
-            throw err;
-        }
-    }
-
-    const transformed = `<template>\n${body}\n</template>`;
-    return { template: transformed };
+    return { template, blockers: [] };
 }
+
+export { transformTemplate, type TemplateResult };

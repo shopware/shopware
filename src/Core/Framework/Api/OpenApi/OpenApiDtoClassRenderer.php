@@ -119,13 +119,27 @@ final class OpenApiDtoClassRenderer
         }
         $lines[] = 'enum ' . $this->shortClassName($definition->name) . ': ' . ($definition->enumType ?? 'string');
         $lines[] = '{';
+        $usedCaseNames = [];
         foreach ($definition->enumValues as $value) {
             $caseName = strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', (string) $value));
             $caseName = (string) preg_replace('/[^A-Z0-9_]/', '_', $caseName);
+            if ($caseName === '') {
+                throw FrameworkException::invalidArgumentException(
+                    \sprintf('Enum value in "%s" cannot be converted to a valid PHP case name.', $definition->name),
+                );
+            }
             if (preg_match('/^[0-9]/', $caseName) === 1) {
                 $caseName = '_' . $caseName;
             }
-            $formattedValue = \is_int($value) ? (string) $value : '\'' . $value . '\'';
+
+            if (isset($usedCaseNames[$caseName])) {
+                throw FrameworkException::invalidArgumentException(
+                    \sprintf('Enum values in "%s" produce duplicate PHP case name "%s".', $definition->name, $caseName),
+                );
+            }
+            $usedCaseNames[$caseName] = true;
+
+            $formattedValue = \is_int($value) ? (string) $value : '\'' . $this->escapePhpSingleQuoted((string) $value) . '\'';
             $lines[] = '    case ' . $caseName . ' = ' . $formattedValue . ';';
         }
         $lines[] = '}';

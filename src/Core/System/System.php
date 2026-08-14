@@ -5,7 +5,6 @@ namespace Shopware\Core\System;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
-use Shopware\Core\System\DependencyInjection\CompilerPass\DisableSalesChannelContextCacheCompilerPass;
 use Shopware\Core\System\DependencyInjection\CompilerPass\NumberRangeIncrementerCompilerPass;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -60,7 +59,6 @@ class System extends Bundle
 
         $container->addCompilerPass(new SalesChannelEntityCompilerPass());
         $container->addCompilerPass(new NumberRangeIncrementerCompilerPass());
-        $container->addCompilerPass(new DisableSalesChannelContextCacheCompilerPass());
     }
 
     public function boot(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -30,6 +31,10 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
     public function create(string $token, string $salesChannelId, array $options = []): SalesChannelContext
     {
+        if (EnvironmentHelper::getVariable('ATS_RUNNING') === '1') {
+            return $this->decorated->create($token, $salesChannelId, $options);
+        }
+
         $name = self::buildName($salesChannelId);
 
         if (!$this->isCacheable($options)) {

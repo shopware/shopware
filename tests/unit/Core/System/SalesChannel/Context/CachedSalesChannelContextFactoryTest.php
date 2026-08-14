@@ -5,9 +5,12 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -19,6 +22,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 #[CoversClass(CachedSalesChannelContextFactory::class)]
 class CachedSalesChannelContextFactoryTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testCustomerSpecificOptionsAreNotCached(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -69,5 +74,23 @@ class CachedSalesChannelContextFactoryTest extends TestCase
         static::assertNotSame($context, $second, 'a cache hit is unserialized into a fresh instance');
         static::assertSame('other-token', $second->getToken());
         static::assertSame($context->getSalesChannelId(), $second->getSalesChannelId());
+    }
+
+    public function testBypassesCacheWhenAtsIsRunning(): void
+    {
+        $this->setEnvVars(['ATS_RUNNING' => '1']);
+        $context = static::createStub(SalesChannelContext::class);
+        $decorated = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $decorated->expects($this->once())
+            ->method('create')
+            ->with('token', 'sales-channel-id', ['languageId' => 'language-id'])
+            ->willReturn($context);
+
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->expects($this->never())->method('get');
+
+        $factory = new CachedSalesChannelContextFactory($decorated, $cache);
+
+        static::assertSame($context, $factory->create('token', 'sales-channel-id', ['languageId' => 'language-id']));
     }
 }

@@ -24,6 +24,7 @@ async function createWrapper(query = {}) {
                     'sw-help-center-v2': true,
                     'sw-meteor-navigation': true,
                     'sw-tabs': true,
+                    'mt-tabs': true,
                     'sw-app-topbar-button': true,
                     'sw-app-topbar-sidebar': true,
                 },

@@ -465,28 +465,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         ).toBeUndefined();
     });
 
-    // @deprecated tag:v6.8.0 - Skipped under the major flag: mt-checkbox does not render the
-    // `.mt-field--checkbox__container input` structure this selector needs (same pre-existing failure
-    // as sw-bulk-edit-custom-fields.spec.js). onCustomFieldsChange itself is unconditional and not
-    // removed; re-enable once that shared mt-checkbox rendering issue is fixed.
-    it.deprecated('v6.8.0.0')('should call onCustomFieldsChange when a customField is changed', async () => {
+    it('should call onCustomFieldsChange when a customField is changed', async () => {
         wrapper = await createWrapper();
 
         const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');
+        const customFields = { customFieldName: 'custom field value' };
 
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-bulk-edit__custom-fields').vm.$emit('change', customFields);
+        await flushPromises();
 
-        await wrapper
-            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change.mt-field--checkbox__container input')
-            .setValue('checked');
-
-        await wrapper.vm.$nextTick();
-
-        expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
+        expect(spyOnCustomFieldsChange).toHaveBeenCalledWith(customFields);
         wrapper.vm.onCustomFieldsChange.mockRestore();
-        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName');
+        expect(wrapper.vm.bulkEditData.customFields.value).toEqual(customFields);
     });
 
     it('should call onChangeDocument when a document field changed is changed', async () => {

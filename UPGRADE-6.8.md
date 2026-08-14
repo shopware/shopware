@@ -1153,6 +1153,10 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 # Administration
 
+## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
+
+The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
 <details>
 
 ### Block removals

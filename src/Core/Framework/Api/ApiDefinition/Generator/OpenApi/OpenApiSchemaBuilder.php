@@ -60,6 +60,12 @@ class OpenApiSchemaBuilder
      */
     private function createServers(string $api): array
     {
+        if ($api === DefinitionService::STORE_API) {
+            return [
+                new Server(['url' => self::API[$api]['url']]),
+            ];
+        }
+
         $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
 
         return [

@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,6 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(OpenApiSchemaBuilder::class)]
 class OpenApiSchemaBuilderTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testEnrichAddsDefaultErrorResponsesForStoreApi(): void
     {
         $openApi = new OpenApi([]);
@@ -71,6 +74,30 @@ class OpenApiSchemaBuilderTest extends TestCase
 
         static::assertSame([['oAuth' => ['write']]], $openApi->security);
         static::assertSame('Shopware Admin API', $openApi->info->title);
+    }
+
+    public function testStoreApiServerUsesRelativeUrl(): void
+    {
+        $this->setEnvVars(['APP_URL' => 'http://localhost:8000']);
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::STORE_API);
+
+        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertSame('/store-api', $schema['servers'][0]['url']);
+    }
+
+    public function testAdminApiServerUsesConfiguredAppUrl(): void
+    {
+        $this->setEnvVars(['APP_URL' => 'https://shop.example']);
+        $openApi = new OpenApi([]);
+
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::API);
+
+        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertSame('https://shop.example/api', $schema['servers'][0]['url']);
     }
 
     public function testEnrichAddsRelationshipSchemasForAdminApi(): void

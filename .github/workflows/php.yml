@@ -268,9 +268,11 @@ jobs:
       - name: Lint OpenApi StoreAPI schema
         run: |
           set -euo pipefail
-          redocly lint --format json ./api-types/storeApiSchema.json | tee redocly-store-api-lint.json
+          redocly lint ./api-types/storeApiSchema.json
+          redocly lint --format json ./api-types/storeApiSchema.json > redocly-store-api-lint.json 2> /dev/null
           warnings=$(jq '.totals.warnings' redocly-store-api-lint.json)
           if [ "$warnings" -ne 0 ]; then
+            echo "Store API Redocly warnings are treated as errors in CI." >&2
             echo "Redocly reported $warnings Store API warning(s)." >&2
             exit 1
           fi

@@ -324,17 +324,6 @@ This affects every write path, not just Settings > Shop > SEO:
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
-### A template that produces no path no longer deletes the existing SEO URL
-
-`SeoUrlGenerator` used to drop an entity whose template rendered an empty path or could not be rendered at all — the latter being the common case, because the SEO Twig environment runs with strict variables, so a template referencing a field that is not set throws. Dropping the entity excluded it from the set handed to `SeoUrlPersister`, which then flagged its SEO URL as `is_deleted = 1`, and `SeoResolver` only resolves rows with `is_deleted = 0`. A template that rendered nothing for some or all entities therefore turned their storefront URLs into 404s, silently.
-
-Such entities are now yielded with an `error` set and an empty `seoPathInfo`, which is the mechanism the persister already used for entities that have no URL in a given sales channel: the foreign key counts as processed, no new row is written, and the existing canonical URL is kept. `skipInvalid` still means "do not fail the batch"; it no longer means "delete the URL".
-
-This affects every regeneration path, not just template changes — the product, category and landing page indexers included. Two consequences for extensions:
-
-- `SeoUrlGenerator::generate()` now yields entities carrying an `error` where it previously yielded nothing. Consumers that iterate the result must check `error` before using `seoPathInfo`, which is an empty string in that case.
-- `POST /api/_action/seo-url-template/preview` returns those entities as well, so a preview can now contain entries with an empty `seoPathInfo` and a populated `error` instead of simply omitting them.
-
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

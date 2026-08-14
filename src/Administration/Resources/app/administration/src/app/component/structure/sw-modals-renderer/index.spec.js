@@ -16,6 +16,7 @@ describe('src/app/component/structure/sw-modals-renderer', () => {
             global: {
                 stubs: {
                     'sw-modal': {
+                        name: 'SwModalStub',
                         props: ['zIndex'],
                         template: '<div class="sw-modal-stub"><slot /></div>',
                     },
@@ -39,6 +40,6 @@ describe('src/app/component/structure/sw-modals-renderer', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.findComponent({ name: 'sw-modal' }).props('zIndex')).toBe(2000);
+        expect(wrapper.findComponent({ name: 'SwModalStub' }).props('zIndex')).toBe(2000);
     });
 });

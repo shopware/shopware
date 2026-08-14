@@ -88,6 +88,10 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(wrapper.get('.sw-modal').element.style.zIndex).toBe('2000');
     });
 
+    it('should not apply an inline z-index when no custom value is provided', async () => {
+        expect(wrapper.get('.sw-modal').element.style.zIndex).toBe('');
+    });
+
     it('should have has--header class if showHeader option is true', async () => {
         await wrapper.setProps({
             showHeader: true,

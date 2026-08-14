@@ -74,6 +74,7 @@ class CleanupVersionTaskHandlerTest extends TestCase
             static::assertTrue($date <= $event->getCleanupTime());
             $event->addProtectedVersionId('invalid-version-id');
             $event->addProtectedVersionId($ids->get('protected-version'));
+            $event->addProtectedVersionId($ids->get('protected-version'));
         });
 
         $this->handler->run();

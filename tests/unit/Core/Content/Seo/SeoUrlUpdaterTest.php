@@ -57,17 +57,18 @@ class SeoUrlUpdaterTest extends TestCase
 
     public function testUpdateWithoutDomain(): void
     {
-        $seoUrlUpdater = $this->createSeoUrlUpdater();
+        $seoUrlUpdater = $this->createSeoUrlUpdater([], [], [new ProductPageSeoUrlRoute(new ProductDefinition())]);
 
         $this->connection->method('fetchAllAssociative')->willReturn([]);
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $seoUrlUpdater->update('test', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     public function testUpdateWithoutDefaultTemplates(): void
     {
-        $seoUrlUpdater = $this->createSeoUrlUpdater();
+        $seoUrlUpdater = $this->createSeoUrlUpdater([], [], [new ProductPageSeoUrlRoute(new ProductDefinition())]);
 
         $this->connection->method('fetchAllAssociative')->willReturn([
             [
@@ -77,10 +78,11 @@ class SeoUrlUpdaterTest extends TestCase
         ]);
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
         $this->expectExceptionObject(new \RuntimeException('Default templates not configured'));
-        $seoUrlUpdater->update('test', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     public function testUpdateWithoutRoute(): void
@@ -100,6 +102,7 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
         $this->expectExceptionObject(SeoException::seoUrlRouteNotFound('test'));
 
@@ -133,6 +136,7 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
         $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);

@@ -16,7 +16,7 @@ final class DisableSalesChannelContextCacheCompilerPass implements CompilerPassI
 {
     public function process(ContainerBuilder $container): void
     {
-        if ($container->resolveEnvPlaceholders($container->getParameter('shopware.ats_running'), true) !== true) {
+        if (getenv('ATS_RUNNING') !== '1') {
             return;
         }
 

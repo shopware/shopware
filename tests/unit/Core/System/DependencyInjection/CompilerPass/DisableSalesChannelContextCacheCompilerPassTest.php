@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\DependencyInjection\CompilerPass\DisableSalesChannelContextCacheCompilerPass;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
@@ -18,9 +19,12 @@ use Symfony\Component\DependencyInjection\Definition;
 #[CoversClass(DisableSalesChannelContextCacheCompilerPass::class)]
 class DisableSalesChannelContextCacheCompilerPassTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testRemovesSalesChannelContextCacheDecoratorsWhenAtsIsRunning(): void
     {
-        $container = $this->createContainer(atsRunning: true);
+        $this->setEnvVars(['ATS_RUNNING' => '1']);
+        $container = $this->createContainer();
 
         (new DisableSalesChannelContextCacheCompilerPass())->process($container);
 
@@ -30,7 +34,8 @@ class DisableSalesChannelContextCacheCompilerPassTest extends TestCase
 
     public function testKeepsSalesChannelContextCacheDecoratorsOutsideAts(): void
     {
-        $container = $this->createContainer(atsRunning: false);
+        $this->setEnvVars(['ATS_RUNNING' => null]);
+        $container = $this->createContainer();
 
         (new DisableSalesChannelContextCacheCompilerPass())->process($container);
 
@@ -38,10 +43,9 @@ class DisableSalesChannelContextCacheCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition(CachedSalesChannelContextFactory::class));
     }
 
-    private function createContainer(bool $atsRunning): ContainerBuilder
+    private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
-        $container->setParameter('shopware.ats_running', $atsRunning);
         $container->setDefinition(CachedBaseSalesChannelContextFactory::class, new Definition());
         $container->setDefinition(CachedSalesChannelContextFactory::class, new Definition());
 

@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class LegacyImpersonationPayload extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Generated customer impersonation token (legacy UUID token).

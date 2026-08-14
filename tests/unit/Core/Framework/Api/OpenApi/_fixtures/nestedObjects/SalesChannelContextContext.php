@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class SalesChannelContextContext extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?string $versionId = null,
         public ?string $currencyId = null,

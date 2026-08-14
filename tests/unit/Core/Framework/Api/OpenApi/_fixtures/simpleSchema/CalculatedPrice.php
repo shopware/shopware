@@ -18,6 +18,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class CalculatedPrice extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?float $unitPrice = null,
         public ?float $totalPrice = null,

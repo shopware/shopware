@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class JwtImpersonationPayload extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Generated customer impersonation JWT token.

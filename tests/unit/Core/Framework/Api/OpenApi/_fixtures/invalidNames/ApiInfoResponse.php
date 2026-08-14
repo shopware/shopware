@@ -20,6 +20,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class ApiInfoResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?string $version = null,
     ) {

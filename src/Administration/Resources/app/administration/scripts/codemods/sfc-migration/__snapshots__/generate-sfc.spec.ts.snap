@@ -123,6 +123,113 @@ const {
 </script>"
 `;
 
+exports[`scripts/codemods/sfc-migration/generate-sfc listing-mixin-component: scaffolded listing page — useListing() owns the state and calls back into getList matches the complete scaffolded SFC output snapshot 1`] = `
+"<template>
+<sw-block name="sw_listing_demo" :data="$dataScope">
+    <div class="sw-listing-demo">
+        <sw-search-bar :search-term="term" @search="onSearch" />
+
+        <sw-data-grid
+            :items="products"
+            :is-loading="isLoading"
+            @column-sort="onSortColumn"
+            @delete-item="onDeleteProduct"
+        />
+
+        <sw-pagination
+            :page="page"
+            :limit="limit"
+            :total="total"
+            @page-change="onPageChange"
+        />
+    </div>
+</sw-block>
+
+</template>
+
+<script setup>
+// TODO: verify the 'listing' migration: the 'listing' mixin was scaffolded, not fully migrated: check that getList() reads and writes the composable's state, that the listing fields moved to useListing() options are configuration and not local state, and that moving the initial load from created() to onMounted() did not change behaviour
+
+const { Criteria } = Shopware.Data;
+
+const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject } from 'vue';
+import { useListing } from 'src/app/composables/use-listing';
+
+const { page, limit, total, sortBy, sortDirection, term, onPageChange, onSearch, onSortColumn } = useListing({
+    getList: (...args) => getList(...args),
+    filters: () => filters.value,
+    sortBy: 'name',
+    searchConfigEntity: 'product',
+    storeKey: 'grid.filter.product',
+    filterCriteria: [],
+});
+
+const {
+    repositoryFactory,
+    products,
+    isLoading,
+    productRepository,
+    filters,
+    getList,
+    onDeleteProduct,
+} = createExtendableSetup(
+    {
+        name: 'sw-listing-demo',
+        props,
+    },
+    () => {
+        const repositoryFactory = inject('repositoryFactory');
+
+        const products = ref(null);
+        const isLoading = ref(false);
+
+        const productRepository = computed(() => {
+            return repositoryFactory.create('product');
+        });
+        const filters = computed(() => {
+            return [
+                { name: 'term', active: false },
+            ];
+        });
+
+        const getList = async () => {
+            isLoading.value = true;
+
+                        const criteria = new Criteria(page.value, limit.value);
+                        criteria.setTerm(term.value);
+                        criteria.addSorting(Criteria.sort(sortBy.value, sortDirection.value));
+
+                        const items = await productRepository.value.search(criteria);
+
+                        total.value = items.total;
+                        products.value = items;
+                        isLoading.value = false;
+        };
+        const onDeleteProduct = (id) => {
+            return productRepository.value.delete(id).then(() => {
+                getList();
+            });
+        };
+
+        return {
+            public: {
+                repositoryFactory,
+                products,
+                isLoading,
+                productRepository,
+                filters,
+                getList,
+                onDeleteProduct,
+            },
+        };
+    },
+);
+</script>"
+`;
+
 exports[`scripts/codemods/sfc-migration/generate-sfc mixin-component: partially migrated SFC — template converted, script kept as Options API without createExtendableSetup matches the complete partially-migrated SFC output snapshot 1`] = `
 "<template>
 <div class="sw-mixin-list"></div>

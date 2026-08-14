@@ -78,6 +78,11 @@ export interface ComposableCallbackDependency {
     option: string;
     /** The component member the generated callback reads. */
     member: string;
+    /**
+     * Drop the entry when the component defines no such member, instead of
+     * backing off. For overridables the mixin declared a default for.
+     */
+    optional?: boolean;
 }
 
 /**
@@ -115,6 +120,26 @@ export interface ComposableDescriptor {
     members: Record<string, ComposableMemberBinding>;
     instanceDependencies?: ComposableInstanceDependencies;
     providedProps?: readonly ComposableProvidedProp[];
+    /**
+     * Mixin `data()` fields a component was allowed to re-declare in its own
+     * `data()` purely to configure the mixin — Vue merged both declarations into
+     * one property. The composable owns that state, so the component's
+     * initializer is handed to it as an option instead of becoming a second,
+     * disconnected ref. A component that declares one of these as anything but a
+     * static `data()` entry backs off.
+     */
+    configKeys?: readonly string[];
+    /**
+     * Declare the composable even when no member is read. Set it for a composable
+     * that drives the component through a callback: dropping it would drop the
+     * whole listing lifecycle, not just an unused import.
+     */
+    alwaysActive?: boolean;
+    /**
+     * What a human has to check on the generated component. Set it for a mixin
+     * the codemod can only scaffold; the result is marked partially-migrated.
+     */
+    manualVerification?: string;
 }
 
 // --- Globals -----------------------------------------------------------------
@@ -605,6 +630,103 @@ const ruleContainerDescriptor: ComposableDescriptor = {
     },
 };
 
+const listingDescriptor: ComposableDescriptor = {
+    id: 'listing',
+    trigger: {
+        type: 'mixin',
+        mixinNames: ['listing'],
+        // The route handling, the initial load and `addQueryScores` call these
+        // themselves, so a component override would not reach the composable.
+        internallyReferencedMembers: [
+            'updateData',
+            'updateRoute',
+            'resetListing',
+            'parseBooleanQueryParams',
+            'isValidTerm',
+            'selectionArray',
+        ],
+        // The mixin injected both for its own use. The composable resolves the
+        // search ranking service itself and never needed `feature`, so a
+        // component that inherited either through the mixin must back off.
+        unmappedMembers: [
+            'searchRankingService',
+            'feature',
+        ],
+    },
+    import: { source: 'src/app/composables/use-listing', name: 'useListing' },
+    declarationStyle: 'destructure',
+    alwaysActive: true,
+    manualVerification:
+        "the 'listing' mixin was scaffolded, not fully migrated: check that getList() reads and writes the composable's state, that the listing fields moved to useListing() options are configuration and not local state, and that moving the initial load from created() to onMounted() did not change behaviour",
+    instanceDependencies: {
+        // The mixin called an abstract `getList()` the component implemented, and
+        // read a `filters` computed it invited the component to override.
+        callbacks: [
+            { option: 'getList', member: 'getList' },
+            { option: 'filters', member: 'filters', optional: true },
+        ],
+    },
+    configKeys: [
+        'page',
+        'limit',
+        'total',
+        'sortBy',
+        'sortDirection',
+        'naturalSorting',
+        'selection',
+        'term',
+        'disableRouteParams',
+        'searchConfigEntity',
+        'entitySearchable',
+        'freshSearchTerm',
+        'storeKey',
+        'filterCriteria',
+    ],
+    members: {
+        ...refMembers([
+            'page',
+            'limit',
+            'total',
+            'sortBy',
+            'sortDirection',
+            'naturalSorting',
+            'selection',
+            'term',
+            'disableRouteParams',
+            'searchConfigEntity',
+            'entitySearchable',
+            'freshSearchTerm',
+            'previousRouteName',
+            'storeKey',
+            'filterCriteria',
+            'maxPage',
+            'routeName',
+            'selectionArray',
+            'selectionCount',
+            'filters',
+            'searchRankingFields',
+            'currentSortBy',
+        ]),
+        ...methodMembers([
+            'updateData',
+            'updateRoute',
+            'resetListing',
+            'getMainListingParams',
+            'updateSelection',
+            'onPageChange',
+            'onSearch',
+            'onSwitchFilter',
+            'onSort',
+            'onSortColumn',
+            'onRefresh',
+            'isValidTerm',
+            'addQueryScores',
+            'parseBooleanQueryParams',
+            'updateCriteria',
+        ]),
+    },
+};
+
 export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     notificationDescriptor,
     placeholderDescriptor,
@@ -622,12 +744,18 @@ export const MIXIN_DESCRIPTORS: readonly ComposableDescriptor[] = [
     ruleBetweenOperatorDescriptor,
     validationDescriptor,
     ruleContainerDescriptor,
+    listingDescriptor,
 ];
 
 export const COMPOSABLE_REGISTRY: readonly ComposableDescriptor[] = [
     ...GLOBAL_DESCRIPTORS,
     ...MIXIN_DESCRIPTORS,
 ];
+
+/** Every member the given descriptors treat as configuration rather than as component state. */
+export function collectConfigKeys(descriptors: readonly ComposableDescriptor[]): Set<string> {
+    return new Set(descriptors.flatMap((descriptor) => descriptor.configKeys ?? []));
+}
 
 /** The global descriptor that answers a given `this.<key>` access, if any. */
 export function findGlobalDescriptorByThisKey(key: string): ComposableDescriptor | undefined {

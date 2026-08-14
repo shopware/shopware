@@ -1,7 +1,7 @@
 import type { Expression, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
 import type { ComposableDescriptor } from './composable-registry';
-import { findMixinDescriptorByName, findMixinDescriptorByNameConstant } from './composable-registry';
+import { collectConfigKeys, findMixinDescriptorByName, findMixinDescriptorByNameConstant } from './composable-registry';
 import { extractPropNamesFromText } from './extract-component-options';
 import { extractDataProps } from './extract-data';
 import { extractInjectProps } from './extract-inject';
@@ -56,12 +56,14 @@ export function resolveComponentMixins(
         }
     }
 
-    const ownMemberNames = collectComponentMemberNames(optionsObj);
+    const ownMemberNames = collectComponentMemberNames(optionsObj, collectConfigKeys(descriptors));
     for (const descriptor of descriptors) {
         const trigger = descriptor.trigger;
         if (trigger.type !== 'mixin') {
             continue;
         }
+
+        unresolved.push(...collectConfigKeyIssues(descriptor, optionsObj));
 
         // Overriding a leaf member is fine — the component's version wins and the
         // composable member is simply dropped. Only a member the composable calls
@@ -93,8 +95,53 @@ export function resolveComponentMixins(
     return { hasMixins: true, descriptors, unresolved };
 }
 
-/** Names the component binds via its own `methods`, `computed`, `props`, `data`, or `inject`. */
-export function collectComponentMemberNames(optionsObj: ObjectLiteralExpression): Set<string> {
+/**
+ * A config key's `data()` entry only sets the initial value of state the
+ * composable owns. Declaring it anywhere else, or from an initializer that reads
+ * the instance, cannot be expressed as a plain option, so the component backs off.
+ */
+function collectConfigKeyIssues(descriptor: ComposableDescriptor, optionsObj: ObjectLiteralExpression): string[] {
+    const configKeys = descriptor.configKeys ?? [];
+    if (configKeys.length === 0) {
+        return [];
+    }
+
+    const dataProps = extractDataProps(optionsObj).dataProps;
+    const dataPropsByName = new Map(dataProps.map((prop) => [prop.name, prop]));
+    const nonDataMemberNames = collectComponentMemberNames(optionsObj, new Set(dataPropsByName.keys()));
+
+    return configKeys.flatMap((key) => {
+        if (nonDataMemberNames.has(key)) {
+            return [
+                `mixins: component declares '${key}' from the '${descriptor.id}' mixin outside of data(), which the composable cannot take as configuration`,
+            ];
+        }
+
+        const dataProp = dataPropsByName.get(key);
+        if (dataProp && readsInstance(dataProp.valueText)) {
+            return [
+                `mixins: the '${key}' data entry configuring the '${descriptor.id}' mixin reads the component instance`,
+            ];
+        }
+
+        return [];
+    });
+}
+
+/** Whether an expression reads `this`, and therefore cannot be emitted as a composable option. */
+function readsInstance(valueText: string): boolean {
+    return /\bthis\b/u.test(valueText);
+}
+
+/**
+ * Names the component binds via its own `methods`, `computed`, `props`, `data`, or
+ * `inject`. `excludedDataNames` drops `data()` entries that are not component state
+ * — config keys, whose value is handed to a composable instead.
+ */
+export function collectComponentMemberNames(
+    optionsObj: ObjectLiteralExpression,
+    excludedDataNames: Set<string> = new Set(),
+): Set<string> {
     const names = new Set<string>();
 
     for (const option of [
@@ -124,7 +171,9 @@ export function collectComponentMemberNames(optionsObj: ObjectLiteralExpression)
     // one of them shadows is overridden just like a method would be. Mirror the
     // override set used when the composable members are emitted.
     extractPropNamesFromText(optionsObj).forEach((name) => names.add(name));
-    extractDataProps(optionsObj).dataProps.forEach((prop) => names.add(prop.name));
+    extractDataProps(optionsObj)
+        .dataProps.filter((prop) => !excludedDataNames.has(prop.name))
+        .forEach((prop) => names.add(prop.name));
     extractInjectProps(optionsObj).injectProps.forEach((prop) => names.add(prop.localName));
 
     return names;

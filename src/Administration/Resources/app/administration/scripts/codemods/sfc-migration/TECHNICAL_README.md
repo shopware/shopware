@@ -67,6 +67,7 @@ Examples:
 | --- | --- |
 | Normal Options API component | `fully-migrated` |
 | Component with a registered mixin | `fully-migrated`, the mixin becomes a composable |
+| Component with a scaffold-only mixin (`listing`) | `partially-migrated`, `<script setup>` plus a verification TODO |
 | Component with an unregistered mixin | `partially-migrated`, script stays Options API |
 | Component using `Shopware.Component.extend()` | `partially-migrated`, script stays Options API |
 | Component with `render()` | `not-migratable` |
@@ -389,6 +390,9 @@ const { clearSelection } = useMediaGridListener({
 | `props` | `() => props.<prop>` | The component does not declare the prop. |
 | `callbacks` | A getter for the component member. | The generated setup has no binding for that member. |
 
+A callback marked `optional: true` is dropped instead of backing off, for a member
+the mixin declared a default for and only invited the component to override.
+
 Callback and prop values are getters so the read happens when the composable
 calls them, not while the declaration is emitted. The callback member's binding
 comes from the `createExtendableSetup()` destructure below the composable
@@ -422,6 +426,60 @@ nameConstants: [{ source: 'src/app/mixin/rule-between-operator.mixin', exportNam
 ```
 
 An unregistered constant stays an unresolved mixin and backs the component off.
+
+### Scaffolded Mixins
+
+A mixin like `listing` is not a helper. It owns state, lifecycle and route
+handling, and drives an abstract `getList()` that each component implements. The
+composable can own everything except that inversion of control, so the codemod
+produces a reviewed draft rather than a finished component. Three descriptor
+fields describe that shape:
+
+```ts
+alwaysActive: true,
+configKeys: ['page', 'limit', 'sortBy', ...],
+manualVerification: 'the listing mixin was scaffolded, not fully migrated: …',
+instanceDependencies: {
+    callbacks: [
+        { option: 'getList', member: 'getList' },
+        { option: 'filters', member: 'filters', optional: true },
+    ],
+},
+```
+
+which generates:
+
+```js
+const { page, limit, total, sortBy, sortDirection, term, onPageChange } = useListing({
+    getList: (...args) => getList(...args),
+    sortBy: 'name',
+    searchConfigEntity: 'product',
+});
+```
+
+| Field | Effect |
+| --- | --- |
+| `alwaysActive` | Declares the composable even when no member is read. Dropping it would drop the whole listing lifecycle, not just an unused import. |
+| `configKeys` | Mixin `data()` fields a component was allowed to re-declare in its own `data()` purely to set their initial value. |
+| `manualVerification` | Emits a leading TODO and keeps the result `partially-migrated`. |
+
+Config keys exist because Vue merged the mixin's `data()` and the component's
+`data()` into one property. The composable owns that state, so the component's
+initializer has to reach it as an option — leaving it as a local `ref` would
+create a second, disconnected copy that the composable's watchers never see. The
+entry is therefore removed from the generated `data` refs, does not shadow the
+composable member, and is emitted as an option instead.
+
+Two shapes back the component off rather than guess: a config key declared as
+anything but a `data()` entry (a prop, computed, method or inject), and a
+`data()` initializer that reads `this` — a composable option is evaluated before
+any setup binding exists.
+
+The `getList` callback is passed as `(...args) => getList(...args)` so the read
+stays deferred: the component's `getList` is declared in the
+`createExtendableSetup()` destructure below the composable call. `useListing`
+therefore runs its first load in `onMounted`, not during setup. That timing
+change is the main thing the verification TODO asks a human to check.
 
 ## Why `createExtendableSetup()` Is Used
 

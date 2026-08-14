@@ -1,0 +1,19 @@
+{% block sw_listing_demo %}
+    <div class="sw-listing-demo">
+        <sw-search-bar :search-term="term" @search="onSearch" />
+
+        <sw-data-grid
+            :items="products"
+            :is-loading="isLoading"
+            @column-sort="onSortColumn"
+            @delete-item="onDeleteProduct"
+        />
+
+        <sw-pagination
+            :page="page"
+            :limit="limit"
+            :total="total"
+            @page-change="onPageChange"
+        />
+    </div>
+{% endblock %}

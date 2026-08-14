@@ -207,6 +207,12 @@ function createDestructureDeclarationTemplate(
             });
             const args = isIdentifierTemplate(argumentsSnippet) ? argumentsSnippet.render(resolve) : argumentsSnippet;
 
+            // An always-active composable can be declared without any member
+            // being read; it still has to run for its lifecycle and watchers.
+            if (parts.length === 0) {
+                return `${descriptor.import.name}(${args});`;
+            }
+
             return `const { ${parts.join(', ')} } = ${descriptor.import.name}(${args});`;
         },
     };

@@ -375,12 +375,96 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             const result = transformScript(
                 `Shopware.Component.register('sw-demo', {
                     template,
-                    mixins: ['listing'],
+                    mixins: ['form-field'],
                 });`,
             );
 
             expect(result.status).toBe('partially-migratable');
-            expect(result.blockers).toContain("mixins: no composable registered for mixin 'listing'");
+            expect(result.blockers).toContain("mixins: no composable registered for mixin 'form-field'");
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('listing mixin: scaffolded via config keys, an IoC callback, and a verification marker', () => {
+        function listingComponent(body: string): string {
+            return `Shopware.Component.register('sw-listing-demo', {
+                template,
+                mixins: [Shopware.Mixin.getByName('listing')],
+                ${body}
+            });`;
+        }
+
+        it('keeps the result partial and names the checks the codemod cannot make', () => {
+            const result = transformScript(listingComponent(`methods: { getList() { this.total = 0; } }`));
+
+            expect(result.scriptType).toBe('setup');
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers).toEqual([
+                expect.stringContaining("the 'listing' mixin was scaffolded"),
+            ]);
+        });
+
+        it('declares useListing even when the component reads none of its members', () => {
+            const result = transformScript(listingComponent(`methods: { getList() { return 1; } }`));
+
+            expect(result.script).toContain('useListing({');
+            expect(result.script).not.toContain('} = useListing(');
+        });
+
+        it('omits the optional filters callback when the component does not override it', () => {
+            const result = transformScript(listingComponent(`methods: { getList() { this.total = 0; } }`));
+
+            expect(result.script).toContain('getList: (...args) => getList(...args),');
+            expect(result.script).not.toContain('filters:');
+        });
+
+        it('backs off when the component defines no getList', () => {
+            const result = transformScript(listingComponent(`data() { return { items: [] }; }`));
+
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain(
+                "mixins: the 'listing' composable needs the component member 'getList', which the generated setup does not declare",
+            );
+        });
+
+        it('backs off when a listing field is declared outside data()', () => {
+            const result = transformScript(
+                listingComponent(`props: { storeKey: { type: String, required: true } }, methods: { getList() {} }`),
+            );
+
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain(
+                "mixins: component declares 'storeKey' from the 'listing' mixin outside of data(), which the composable cannot take as configuration",
+            );
+        });
+
+        it('backs off when a listing field is initialized from the instance', () => {
+            const result = transformScript(
+                listingComponent(`data() { return { limit: this.defaultLimit }; }, methods: { getList() {} }`),
+            );
+
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain(
+                "mixins: the 'limit' data entry configuring the 'listing' mixin reads the component instance",
+            );
+        });
+
+        it('backs off when the component overrides a member useListing calls itself', () => {
+            const result = transformScript(listingComponent(`methods: { getList() {}, updateRoute() {} }`));
+
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain("mixins: component redefines 'updateRoute' from the 'listing' mixin");
+        });
+
+        it('backs off when the component reads a member the mixin only injected', () => {
+            const result = transformScript(
+                listingComponent(`methods: { getList() { this.searchRankingService.isValidTerm('x'); } }`),
+            );
+
+            expect(result.scriptType).toBe('options');
+            expect(result.blockers).toContain(
+                "mixins: reads 'searchRankingService' from the 'listing' mixin, which the composable does not provide",
+            );
         });
     });
 

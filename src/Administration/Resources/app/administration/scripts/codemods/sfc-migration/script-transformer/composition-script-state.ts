@@ -44,7 +44,7 @@ import type {
     WatchProp,
 } from './types';
 import type { ComposableDescriptor, ComposableProvidedProp } from './composable-registry';
-import { GLOBAL_DESCRIPTORS } from './composable-registry';
+import { collectConfigKeys, GLOBAL_DESCRIPTORS } from './composable-registry';
 import { collectComponentMemberNames } from './extract-mixins';
 
 export interface CompositionScriptState {
@@ -107,11 +107,17 @@ export function collectCompositionScriptState(
     mixinDescriptors: ComposableDescriptor[] = [],
     templateReferences: Set<string> = new Set(),
 ): CompositionScriptState {
+    // A config key's `data()` entry initializes composable state instead of
+    // declaring component state, so it neither shadows the composable member nor
+    // becomes a local ref.
+    const configKeyNames = collectConfigKeys(mixinDescriptors);
+    const configValues = collectConfigValues(optionsObj, configKeyNames);
+
     // All names the component declares, including members later dropped as
     // unsupported. A same-name component member shadows the composable member
     // (Vue override semantics), so a dropped override must not silently fall back
     // to the composable's version.
-    const ownMemberNames = collectComponentMemberNames(optionsObj);
+    const ownMemberNames = collectComponentMemberNames(optionsObj, configKeyNames);
     const composableMembers = buildComposableMemberMap(mixinDescriptors, ownMemberNames);
     let lifecycleHooks = extractLifecycleHooks(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
@@ -148,7 +154,7 @@ export function collectCompositionScriptState(
         pushManualMigration(manualMigrationReasons, todoComments, 'emits', emitsIssue.reason);
     }
 
-    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propNames, composableMembers);
+    const supportedMembers = collectSupportedCompositionMembers(optionsObj, propNames, composableMembers, configKeyNames);
     manualMigrationReasons.push(...supportedMembers.manualMigrationReasons);
     todoComments.push(...supportedMembers.todoComments);
 
@@ -180,10 +186,22 @@ export function collectCompositionScriptState(
             ownMemberNames,
             templateReferences,
             ctx,
+            configValues,
             backoffReasons,
         ),
     ];
     const templateRefNames = collectThisRefNames(allSnippets);
+
+    // Reporting a scaffold as fully migrated would hide the wiring a human still
+    // has to check.
+    for (const { descriptor } of activeComposables) {
+        if (descriptor.manualVerification) {
+            manualMigrationReasons.push(descriptor.manualVerification);
+            todoComments.push(
+                `// TODO: verify the '${descriptor.id}' migration: ${sanitizeTodoCommentText(descriptor.manualVerification)}`,
+            );
+        }
+    }
 
     if (hasDirectThisPropertyUsage(allSnippets, '$store')) {
         manualMigrationReasons.push('$store usage requires manual migration to the appropriate Pinia store or composable');
@@ -308,9 +326,11 @@ function collectSupportedCompositionMembers(
     optionsObj: ObjectLiteralExpression,
     propNames: Set<string>,
     composableMembers: Map<string, ComposableMemberRewrite>,
+    configKeyNames: Set<string>,
 ): SupportedCompositionMembers {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
-    const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
+    const { dataProps: allDataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
+    const dataProps = allDataProps.filter(({ name }) => !configKeyNames.has(name));
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
     const { watchProps, unsupportedEntries } = extractWatchProps(optionsObj);
     const unsupportedWatchEntries = [...unsupportedEntries];
@@ -951,6 +971,34 @@ function mergeProvidedProps(propsText: string | null, providedProps: ComposableP
 function resolveInstanceDependencies(
     descriptor: ComposableDescriptor,
     ctx: RewriteContext,
+    configValues: Map<string, string>,
+    backoffReasons: string[],
+): ComposableArgument[] {
+    const argumentEntries: ComposableArgument[] = [
+        ...resolveDeclaredDependencies(descriptor, ctx, backoffReasons),
+        ...(descriptor.configKeys ?? [])
+            .filter((key) => configValues.has(key))
+            .map((key) => ({ option: key, valueSnippet: configValues.get(key) as string })),
+    ];
+
+    return argumentEntries;
+}
+
+/** The `data()` entries that configure a composable rather than declaring component state. */
+function collectConfigValues(optionsObj: ObjectLiteralExpression, configKeyNames: Set<string>): Map<string, string> {
+    return new Map(
+        extractDataProps(optionsObj)
+            .dataProps.filter(({ name }) => configKeyNames.has(name))
+            .map(({ name, valueText }) => [
+                name,
+                valueText,
+            ]),
+    );
+}
+
+function resolveDeclaredDependencies(
+    descriptor: ComposableDescriptor,
+    ctx: RewriteContext,
     backoffReasons: string[],
 ): ComposableArgument[] {
     const dependencies = descriptor.instanceDependencies;
@@ -978,12 +1026,14 @@ function resolveInstanceDependencies(
         argumentEntries.push({ option, valueSnippet: `() => ${buildPropertyAccess('props', prop)}` });
     }
 
-    for (const { option, member } of dependencies.callbacks ?? []) {
+    for (const { option, member, optional } of dependencies.callbacks ?? []) {
         const valueSnippet = buildCallbackSnippet(member, ctx);
         if (valueSnippet === null) {
-            backoffReasons.push(
-                `mixins: the '${descriptor.id}' composable needs the component member '${member}', which the generated setup does not declare`,
-            );
+            if (!optional) {
+                backoffReasons.push(
+                    `mixins: the '${descriptor.id}' composable needs the component member '${member}', which the generated setup does not declare`,
+                );
+            }
             continue;
         }
 
@@ -1054,6 +1104,7 @@ function collectActiveMixinComposables(
     ownMemberNames: Set<string>,
     templateReferences: Set<string>,
     ctx: RewriteContext,
+    configValues: Map<string, string>,
     backoffReasons: string[],
 ): ActiveComposable[] {
     // A member counts as used when accessed via `this` in the script or read as
@@ -1068,10 +1119,10 @@ function collectActiveMixinComposables(
                     (hasDirectThisPropertyUsage(snippets, key) || templateReferences.has(key)),
             ),
         }))
-        .filter((active) => active.memberKeys.length > 0)
+        .filter((active) => active.memberKeys.length > 0 || active.descriptor.alwaysActive)
         .map((active) => ({
             ...active,
-            argumentEntries: resolveInstanceDependencies(active.descriptor, ctx, backoffReasons),
+            argumentEntries: resolveInstanceDependencies(active.descriptor, ctx, configValues, backoffReasons),
         }));
 }
 

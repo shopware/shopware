@@ -176,6 +176,66 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
+    describe('listing-mixin-component: scaffolded listing page — useListing() owns the state and calls back into getList', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                readFixture('listing-mixin-component.html.twig'),
+                readFixture('listing-mixin-component.index.js'),
+            );
+        });
+
+        it('reports status partially-migrated with the listing verification as its only blocker', () => {
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toEqual([
+                expect.stringContaining("the 'listing' mixin was scaffolded"),
+            ]);
+        });
+
+        it('produces a <script setup> block instead of the Options API backoff', () => {
+            expect(result.sfc).toContain('<script setup>');
+        });
+
+        it('leads with a TODO naming the checks the codemod cannot make', () => {
+            expect(result.sfc).toContain("// TODO: verify the 'listing' migration:");
+        });
+
+        it('hands the component getList and its own filters to useListing', () => {
+            expect(result.sfc).toContain("import { useListing } from 'src/app/composables/use-listing';");
+            expect(result.sfc).toContain('getList: (...args) => getList(...args),');
+            expect(result.sfc).toContain('filters: () => filters.value,');
+        });
+
+        it('routes the listing fields the component set in data() into the useListing options', () => {
+            expect(result.sfc).toContain("sortBy: 'name',");
+            expect(result.sfc).toContain("searchConfigEntity: 'product',");
+            expect(result.sfc).toContain("storeKey: 'grid.filter.product',");
+            expect(result.sfc).toContain('filterCriteria: [],');
+            // The composable owns that state, so no second ref is declared for it.
+            expect(result.sfc).not.toContain("const sortBy = ref('name');");
+        });
+
+        it('destructures the listing state under the names the template already uses', () => {
+            expect(result.sfc).toMatch(/const \{[^}]*\bpage\b[^}]*\blimit\b[^}]*\btotal\b[^}]*\} = useListing\(/);
+        });
+
+        it('rewrites the listing fields getList reads and writes to the composable refs', () => {
+            expect(result.sfc).toContain('new Criteria(page.value, limit.value)');
+            expect(result.sfc).toContain('total.value = items.total;');
+            expect(result.sfc).not.toContain('this.total');
+        });
+
+        it('rewrites the component calling its own getList', () => {
+            expect(result.sfc).toContain('getList();');
+            expect(result.sfc).not.toContain('this.getList');
+        });
+
+        it('matches the complete scaffolded SFC output snapshot', () => {
+            expect(result.sfc).toMatchSnapshot();
+        });
+    });
+
     describe('manual-follow-up partials: generated setup scripts stay wrapped in <script setup>', () => {
         it('keeps <script setup> for partially-migratable setup output', () => {
             const result = mergeComponentFiles(

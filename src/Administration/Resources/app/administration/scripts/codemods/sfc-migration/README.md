@@ -79,7 +79,7 @@ Each component is classified into one of three states:
 | Status               | Meaning                                                                                           | Output                                         |
 | -------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | `fully-migrated`     | Full `<script setup>` with `createExtendableSetup`                                                | `.vue` file written                            |
-| `partially-migrated` | Soft blocker found (mixins, `Shopware.Component.extend()`) — Options API kept in plain `<script>` | `.vue` file written, manual follow-up required |
+| `partially-migrated` | Either `<script setup>` with TODOs for the parts that need a human, or — for a soft blocker such as an unregistered mixin or `Shopware.Component.extend()` — the Options API kept in a plain `<script>` | `.vue` file written, manual follow-up required |
 | `not-migratable`     | Hard blocker found (`render()`) — cannot be automatically converted                               | No file written                                |
 
 ## Programmatic API

@@ -89,6 +89,21 @@ describe('scripts/codemods/sfc-migration/analyze-skips', () => {
                 'this-rewrite',
             ],
             [
+                'this.perPage is shadowed by a local binding',
+                '`this.<member>` shadowed by a local binding',
+                'this-rewrite',
+            ],
+            [
+                'this.$route is shadowed by a local binding',
+                '`this.<member>` shadowed by a local binding',
+                'this-rewrite',
+            ],
+            [
+                "template ref 'modalContent' is shadowed by a local binding",
+                'template ref shadowed by a local binding',
+                'this-rewrite',
+            ],
+            [
                 '`this.repository` inside a nested function keeps its own `this`',
                 '`this` inside a nested function (own `this`)',
                 'this-rewrite',

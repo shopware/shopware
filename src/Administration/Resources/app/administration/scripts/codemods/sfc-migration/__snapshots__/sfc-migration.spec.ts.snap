@@ -303,6 +303,136 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-shadowed-locals 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "this.currentPage is shadowed by a local binding",
+    "this.perPage is shadowed by a local binding",
+    "this.iconSvgData is shadowed by a local binding",
+    "this.$route is shadowed by a local binding",
+    "this.focussed is shadowed by a local binding",
+    "this.hidden is shadowed by a local binding",
+    "template ref 'modalContent' is shadowed by a local binding",
+  ],
+  "sfc": "<template>
+    <sw-block name="sw_shadowed_locals">
+        <div ref="modalContent" class="sw-shadowed-locals">
+            <h2>{{ heading }}</h2>
+            <p>{{ countItems() }} / {{ displayedPages.length }}</p>
+            <button @click="setFocus(true)">{{ currentLocation().name }}</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+const props = defineProps({
+    title: {
+        type: String,
+        required: true,
+    },
+});
+
+const onPageSizeChange = (perPage) => {
+    this.perPage = Number(perPage);
+};
+
+const loadIcon = () => {
+    return Promise.resolve({}).then((iconSvgData) => {
+        this.iconSvgData = iconSvgData.default;
+    });
+};
+
+const currentLocation = () => {
+    const route = { name: this.$route.name };
+
+    return route;
+};
+
+const setFocus = (focussed) => {
+    this.focussed = focussed;
+};
+
+const countItems = () => {
+    const total = [].map((items) => items.length);
+
+    return items.value.length + total.length;
+};
+
+const toggle = () => {
+    if (props.title) {
+        const hidden = true;
+
+        return hidden;
+    }
+
+    return this.hidden;
+};
+
+const openModal = (modalContent) => {
+    this.$refs.modalContent.focus();
+
+    return modalContent;
+};
+
+const displayedPages = computed(() => {
+    const currentPage = this.currentPage;
+
+    return [currentPage];
+});
+
+const heading = computed(() => {
+    const title = 'fallback';
+
+    return props.title || title;
+});
+
+const perPage = ref(25);
+const currentPage = ref(1);
+const iconSvgData = ref(null);
+const focussed = ref(false);
+const hidden = ref(false);
+const items = ref([]);
+
+// TODO(sfc-migration): this.currentPage is shadowed by a local binding
+
+// TODO(sfc-migration): this.perPage is shadowed by a local binding
+
+// TODO(sfc-migration): this.iconSvgData is shadowed by a local binding
+
+// TODO(sfc-migration): this.$route is shadowed by a local binding
+
+// TODO(sfc-migration): this.focussed is shadowed by a local binding
+
+// TODO(sfc-migration): this.hidden is shadowed by a local binding
+
+// TODO(sfc-migration): template ref 'modalContent' is shadowed by a local binding — original code:
+// this.$refs.modalContent
+
+swDefinePublic({
+    perPage,
+    currentPage,
+    iconSvgData,
+    focussed,
+    hidden,
+    items,
+    displayedPages,
+    heading,
+    onPageSizeChange,
+    loadIcon,
+    currentLocation,
+    setFocus,
+    countItems,
+    toggle,
+    openModal,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-simple-card 1`] = `
 {
   "outcome": "full",

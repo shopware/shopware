@@ -126,12 +126,14 @@ function transformScript(source: string, componentName: string): ScriptResult {
         rewriteMemberFn(ctx, fn);
     }
 
+    // Data initializers and foreign nodes are spliced in at the top level, so no function frame
+    // encloses them.
     for (const entry of collected.dataEntries) {
-        rewriteThis(ctx, entry.valueNode, true);
+        rewriteThis(ctx, entry.valueNode, true, null);
     }
 
     for (const node of collected.foreignNodes) {
-        rewriteThis(ctx, node, false);
+        rewriteThis(ctx, node, false, null);
     }
 
     if (ctx.blockers.size > 0) {

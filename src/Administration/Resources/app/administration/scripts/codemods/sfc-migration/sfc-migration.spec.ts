@@ -73,6 +73,35 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.sfc).toContain('TODO(sfc-migration)');
         });
 
+        it('leaves a this.<member> shadowed by a local binding unrewritten', async () => {
+            const result = await convertFixture('sw-shadowed-locals');
+
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toEqual(
+                expect.arrayContaining([
+                    'this.currentPage is shadowed by a local binding',
+                    'this.perPage is shadowed by a local binding',
+                    'this.iconSvgData is shadowed by a local binding',
+                    'this.$route is shadowed by a local binding',
+                    "template ref 'modalContent' is shadowed by a local binding",
+                ]),
+            );
+
+            // The shadowed references keep their original text instead of resolving to the local.
+            expect(result.sfc).toContain('this.perPage = Number(perPage)');
+            expect(result.sfc).not.toContain('perPage.value = Number(perPage)');
+            expect(result.sfc).toContain('const currentPage = this.currentPage');
+            expect(result.sfc).not.toContain('const currentPage = currentPage.value');
+
+            // A shadowed template ref must not be declared either — nothing would ever assign it.
+            expect(result.sfc).not.toContain('const modalContent = ref(null)');
+
+            // A binding in a sibling nested function does not shadow, and a local named after a
+            // prop cannot shadow `props.<name>`.
+            expect(result.sfc).toContain('items.value');
+            expect(result.sfc).toContain('props.title');
+        });
+
         it('skips mixin components entirely', async () => {
             const result = await convertFixture('sw-mixin-demo');
 

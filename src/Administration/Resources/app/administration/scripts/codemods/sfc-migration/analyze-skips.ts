@@ -126,6 +126,11 @@ const TODO_RULES: ReasonRule[] = [
     { pattern: /^unknown option '(.+)'$/, label: (match) => `unknown option \`${match[1]}\``, stage: 'option' },
     { pattern: /^unmapped this\.(\$\w+)$/, label: (match) => `unmapped \`this.${match[1]}\``, stage: 'this-rewrite' },
     { pattern: /^unmapped this\./, label: 'unmapped `this.<member>` (no matching binding)', stage: 'this-rewrite' },
+    {
+        pattern: /^this\.[\w$]+ is shadowed by a local binding$/,
+        label: '`this.<member>` shadowed by a local binding',
+        stage: 'this-rewrite',
+    },
     { pattern: /inside a nested function/, label: '`this` inside a nested function (own `this`)', stage: 'this-rewrite' },
     { pattern: /^bare `this` usage$/, label: 'bare `this` usage', stage: 'this-rewrite' },
     { pattern: /^dynamic `this\[\.\.\.\]` access$/, label: 'dynamic `this[...]` access', stage: 'this-rewrite' },
@@ -134,6 +139,11 @@ const TODO_RULES: ReasonRule[] = [
     {
         pattern: /^template ref '.+' collides with an existing binding$/,
         label: 'template ref collides with an existing binding',
+        stage: 'this-rewrite',
+    },
+    {
+        pattern: /^template ref '.+' is shadowed by a local binding$/,
+        label: 'template ref shadowed by a local binding',
         stage: 'this-rewrite',
     },
     {

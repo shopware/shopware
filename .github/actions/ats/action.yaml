@@ -112,6 +112,7 @@ runs:
         echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
         echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
         echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+        echo "ATS_RUNNING=1" >> $GITHUB_ENV
 
     - name: Setup Shopware
       uses: shopware/setup-shopware@main

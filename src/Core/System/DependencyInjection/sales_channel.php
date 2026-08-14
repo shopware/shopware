@@ -58,7 +58,6 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextCacheVersion;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -279,12 +278,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedBaseSalesChannelContextFactory::class . '.inner'),
             service('cache.object'),
-            service(SalesChannelContextCacheVersion::class),
-        ]);
-
-    $services->set(SalesChannelContextCacheVersion::class)
-        ->args([
-            service('cache.object'),
         ]);
 
     $services->set(CachedSalesChannelContextFactory::class)
@@ -293,7 +286,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedSalesChannelContextFactory::class . '.inner'),
             service('cache.object'),
-            service(SalesChannelContextCacheVersion::class),
         ]);
 
     $services->set(SalesChannelContextService::class)

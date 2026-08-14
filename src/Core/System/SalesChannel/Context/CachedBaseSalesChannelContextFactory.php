@@ -18,7 +18,6 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
     public function __construct(
         private readonly AbstractBaseSalesChannelContextFactory $decorated,
         private readonly CacheInterface $cache,
-        private readonly SalesChannelContextCacheVersion $cacheVersion,
     ) {
     }
 
@@ -46,7 +45,7 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
             SalesChannelContextService::COUNTRY_STATE_ID => true,
         ]);
 
-        $key = implode('-', [$name, $this->cacheVersion->get(), Hasher::hash($keys)]);
+        $key = implode('-', [$name, Hasher::hash($keys)]);
 
         $fresh = null;
 

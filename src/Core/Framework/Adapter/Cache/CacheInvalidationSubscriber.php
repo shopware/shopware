@@ -57,7 +57,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesC
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextCacheVersion;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\Salutation\SalutationDefinition;
@@ -81,7 +80,6 @@ class CacheInvalidationSubscriber
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly bool $productStreamIndexerEnabled,
-        private readonly SalesChannelContextCacheVersion $salesChannelContextCacheVersion,
     ) {
     }
 
@@ -404,8 +402,6 @@ class CacheInvalidationSubscriber
         if ($keys === []) {
             return;
         }
-
-        $this->salesChannelContextCacheVersion->invalidate();
 
         // immediately invalidates the context cache
         $this->cacheInvalidator->invalidate($keys, true);

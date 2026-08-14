@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextCacheVersion;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Clock\NativeClock;
@@ -59,7 +58,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             false,
-            true,
+            true
             $this->backtraceCollector,
             new NativeClock(),
         );
@@ -68,7 +67,6 @@ class CacheInvalidationSubscriberTest extends TestCase
             $cacheInvalidator,
             static::getContainer()->get(Connection::class),
             true,
-            static::getContainer()->get(SalesChannelContextCacheVersion::class),
         );
     }
 

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ResponseHook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -42,7 +43,7 @@ readonly class CoreSubscriber implements EventSubscriberInterface
     {
         // Use 128 bit of entropy (as required by the CSP spec) and the URL-safe Base64 alphabet
         // without padding, so the nonce never contains '+', '/' or '=' and cannot be mistaken for a URL.
-        $nonce = rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
+        $nonce = rtrim(strtr(base64_encode(Random::getBytes(16)), '+/', '-_'), '=');
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_CSP_NONCE, $nonce);
     }
 

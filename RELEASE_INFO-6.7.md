@@ -4,10 +4,6 @@
 
 ## API
 
-### Cache information includes registered indexers
-
-`GET /api/_action/cache_info` now returns an `indexers` map containing the registered normal-refresh indexers and their optional child updaters. Administration clients can use this metadata when offering cache-index refresh controls; post-update-only indexers are excluded.
-
 ## Core
 
 ### Backward compatible invalid locales

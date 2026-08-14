@@ -245,6 +245,9 @@ export default Component.wrapComponentConfig({
         },
 
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
+            this.selectedFileFormat = null;
+            this.removeCustomDocument();
+
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';

@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ApiInfoRequest extends AbstractRequest
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Type of the api

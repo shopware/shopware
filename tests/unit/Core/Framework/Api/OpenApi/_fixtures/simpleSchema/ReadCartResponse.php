@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ReadCartResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Context token identifying the cart

@@ -20,6 +20,9 @@ use Symfony\Component\JsonStreamer\Attribute\JsonStreamable;
 #[JsonStreamable]
 final class ReadProductResponse extends AbstractResponse
 {
+    /**
+     * @internal
+     */
     public function __construct(
         public ?string $id = null,
         public ?string $name = null,

@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class ErrorResponse extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * @var list<Error>

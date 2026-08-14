@@ -21,6 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[JsonStreamable]
 final class NavigationType extends AbstractDto
 {
+    /**
+     * @internal
+     */
     public function __construct(
         /**
          * Type of the navigation entry

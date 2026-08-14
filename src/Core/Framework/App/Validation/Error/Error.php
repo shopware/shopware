@@ -20,4 +20,10 @@ interface Error
      * @return array<string, mixed>
      */
     public function getParameters(): array;
+
+    /**
+     * Whether this error refuses an installation. Advisory errors are reported but let the install
+     * proceed, so that one manifest can target several Shopware versions.
+     */
+    public function isBlocking(): bool;
 }

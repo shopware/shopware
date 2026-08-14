@@ -33,5 +33,6 @@ class UnmetRequirementErrorTest extends TestCase
             ['violations' => 'App "MyApp" - Requirement "https": Use HTTPS; App "MyApp" - Requirement "public-access": Expose the app server'],
             $error->getParameters()
         );
+        static::assertFalse($error->isBlocking());
     }
 }

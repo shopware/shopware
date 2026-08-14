@@ -23,5 +23,6 @@ class IncompatibleAppErrorTest extends TestCase
         static::assertSame('manifest-incompatible-app', $error->getMessageKey());
         static::assertSame(AppException::NOT_COMPATIBLE, $error->getErrorCode());
         static::assertSame(['name' => 'MyApp'], $error->getParameters());
+        static::assertTrue($error->isBlocking());
     }
 }

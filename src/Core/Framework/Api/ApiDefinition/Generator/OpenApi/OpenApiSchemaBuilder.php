@@ -60,17 +60,28 @@ class OpenApiSchemaBuilder
      */
     private function createServers(string $api): array
     {
-        if ($api === DefinitionService::STORE_API) {
+        $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
+
+        if ($this->shouldUseRelativeServerUrl($url)) {
             return [
                 new Server(['url' => self::API[$api]['url']]),
             ];
         }
 
-        $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
-
         return [
             new Server(['url' => rtrim($url, '/') . self::API[$api]['url']]),
         ];
+    }
+
+    private function shouldUseRelativeServerUrl(string $url): bool
+    {
+        if (EnvironmentHelper::getVariable('APP_ENV', 'prod') !== 'prod') {
+            return false;
+        }
+
+        $host = parse_url($url, \PHP_URL_HOST);
+
+        return \is_string($host) && \in_array($host, ['localhost', '127.0.0.1', '::1'], true);
     }
 
     private function createInfo(string $api, string $version): Info

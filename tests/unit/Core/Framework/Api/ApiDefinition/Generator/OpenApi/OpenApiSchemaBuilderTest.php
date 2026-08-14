@@ -6,6 +6,7 @@ use OpenApi\Annotations\Components;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
@@ -76,28 +77,65 @@ class OpenApiSchemaBuilderTest extends TestCase
         static::assertSame('Shopware Admin API', $openApi->info->title);
     }
 
-    public function testStoreApiServerUsesRelativeUrl(): void
+    #[DataProvider('serverUrlProvider')]
+    public function testServerUrl(string $api, string $appUrl, string $appEnv, string $expectedUrl): void
     {
-        $this->setEnvVars(['APP_URL' => 'http://localhost:8000']);
+        $this->setEnvVars([
+            'APP_ENV' => $appEnv,
+            'APP_URL' => $appUrl,
+        ]);
         $openApi = new OpenApi([]);
 
-        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::STORE_API);
+        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, $api);
 
         $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR);
 
-        static::assertSame('/store-api', $schema['servers'][0]['url']);
+        static::assertSame($expectedUrl, $schema['servers'][0]['url']);
     }
 
-    public function testAdminApiServerUsesConfiguredAppUrl(): void
+    public static function serverUrlProvider(): \Generator
     {
-        $this->setEnvVars(['APP_URL' => 'https://shop.example']);
-        $openApi = new OpenApi([]);
+        yield 'store api uses relative url for localhost in production' => [
+            DefinitionService::STORE_API,
+            'http://localhost:8000',
+            'prod',
+            '/store-api',
+        ];
 
-        (new OpenApiSchemaBuilder('6.7.0.0'))->enrich($openApi, DefinitionService::API);
+        yield 'admin api uses relative url for localhost in production' => [
+            DefinitionService::API,
+            'http://localhost:8000',
+            'prod',
+            '/api',
+        ];
 
-        $schema = json_decode($openApi->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        yield 'store api uses configured app url for public url in production' => [
+            DefinitionService::STORE_API,
+            'https://shop.example',
+            'prod',
+            'https://shop.example/store-api',
+        ];
 
-        static::assertSame('https://shop.example/api', $schema['servers'][0]['url']);
+        yield 'admin api uses configured app url for public url in production' => [
+            DefinitionService::API,
+            'https://shop.example',
+            'prod',
+            'https://shop.example/api',
+        ];
+
+        yield 'store api uses configured localhost app url outside production' => [
+            DefinitionService::STORE_API,
+            'http://localhost:8000',
+            'dev',
+            'http://localhost:8000/store-api',
+        ];
+
+        yield 'admin api uses configured localhost app url outside production' => [
+            DefinitionService::API,
+            'http://localhost:8000',
+            'dev',
+            'http://localhost:8000/api',
+        ];
     }
 
     public function testEnrichAddsRelationshipSchemasForAdminApi(): void

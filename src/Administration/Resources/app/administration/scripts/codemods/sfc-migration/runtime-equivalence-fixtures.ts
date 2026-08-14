@@ -6,25 +6,27 @@
  * Small, self-contained source pairs for the SFC migration runtime oracle.
  *
  * These are deliberately strings rather than files: the oracle must never need to write into the
- * Administration or Commercial trees. The Twig input proves the normal conversion path, while the
- * observer template is used only when mounting generated setup code so the test can observe state
- * without depending on a real block registry.
+ * Administration or Commercial trees.
  */
 
 type RuntimeFixture = {
     name: string;
     jsSource: string;
     twigSource: string;
-    observerTemplate: string;
 };
 
 function twigBlock(name: string, content = '<div />'): string {
     return `{% block ${name} %}${content}{% endblock %}`;
 }
 
-const FUNCTION_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-function-shapes',
-    jsSource: `
+/** By default a fixture's Twig is one block named after the component, holding an empty div. */
+function runtimeFixture(name: string, jsSource: string, twigSource = twigBlock(name.replace(/-/g, '_'))): RuntimeFixture {
+    return { name, jsSource, twigSource };
+}
+
+const FUNCTION_FIXTURE = runtimeFixture(
+    'sw-runtime-function-shapes',
+    `
         export default {
             data() {
                 return { asyncValue: null };
@@ -47,39 +49,33 @@ const FUNCTION_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_function_shapes'),
-    observerTemplate: '<div />',
-};
+);
 
-const PARAMETERIZED_DATA_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-data-parameter',
-    jsSource: `
+const PARAMETERIZED_DATA_FIXTURE = runtimeFixture(
+    'sw-runtime-data-parameter',
+    `
         export default {
             data(vm) {
                 return { count: vm.initial };
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_data_parameter'),
-    observerTemplate: '<div />',
-};
+);
 
-const SIBLING_DATA_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-data-sibling',
-    jsSource: `
+const SIBLING_DATA_FIXTURE = runtimeFixture(
+    'sw-runtime-data-sibling',
+    `
         export default {
             data() {
                 return { first: this.second, second: 2 };
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_data_sibling'),
-    observerTemplate: '<div />',
-};
+);
 
-const DATA_DEPENDENCY_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-data-dependencies',
-    jsSource: `
+const DATA_DEPENDENCY_FIXTURE = runtimeFixture(
+    'sw-runtime-data-dependencies',
+    `
         export default {
             props: ['seed'],
             inject: ['service'],
@@ -98,13 +94,11 @@ const DATA_DEPENDENCY_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_data_dependencies'),
-    observerTemplate: '<div />',
-};
+);
 
-const PROP_INJECT_DATA_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-data-prop-inject',
-    jsSource: `
+const PROP_INJECT_DATA_FIXTURE = runtimeFixture(
+    'sw-runtime-data-prop-inject',
+    `
         export default {
             props: ['seed'],
             inject: ['service'],
@@ -116,13 +110,11 @@ const PROP_INJECT_DATA_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_data_prop_inject'),
-    observerTemplate: '<div />',
-};
+);
 
-const INJECTION_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-injection',
-    jsSource: `
+const INJECTION_FIXTURE = runtimeFixture(
+    'sw-runtime-injection',
+    `
         export default {
             inject: ['provided'],
             methods: {
@@ -135,14 +127,11 @@ const INJECTION_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_injection'),
-    observerTemplate: '<div />',
-};
+);
 
-const SAFE_WATCH_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-safe-watches',
-    jsSource:
-        `
+const SAFE_WATCH_FIXTURE = runtimeFixture(
+    'sw-runtime-safe-watches',
+    `
         export default {
             props: ['foo-bar'],
             data() {
@@ -162,13 +151,11 @@ const SAFE_WATCH_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_safe_watches'),
-    observerTemplate: '<div />',
-};
+);
 
-const ROUTE_WATCH_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-route-watches',
-    jsSource: `
+const ROUTE_WATCH_FIXTURE = runtimeFixture(
+    'sw-runtime-route-watches',
+    `
         export default {
             data() {
                 return { log: [] };
@@ -183,13 +170,11 @@ const ROUTE_WATCH_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_route_watches'),
-    observerTemplate: '<div />',
-};
+);
 
-const CLASS_THIS_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-class-this',
-    jsSource: `
+const CLASS_THIS_FIXTURE = runtimeFixture(
+    'sw-runtime-class-this',
+    `
         export default {
             data() {
                 return { count: 7 };
@@ -211,13 +196,11 @@ const CLASS_THIS_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_class_this'),
-    observerTemplate: '<div />',
-};
+);
 
-const MODULE_IDENTITY_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-module-identity',
-    jsSource: `
+const MODULE_IDENTITY_FIXTURE = runtimeFixture(
+    'sw-runtime-module-identity',
+    `
         const shared = {};
 
         export default {
@@ -231,13 +214,11 @@ const MODULE_IDENTITY_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_module_identity'),
-    observerTemplate: '<div />',
-};
+);
 
-const MODULE_BINDING_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-module-bindings',
-    jsSource: `
+const MODULE_BINDING_FIXTURE = runtimeFixture(
+    'sw-runtime-module-bindings',
+    `
         const pattern = /shared/;
         let live = 0;
         const holder = {
@@ -255,13 +236,11 @@ const MODULE_BINDING_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_module_bindings'),
-    observerTemplate: '<div />',
-};
+);
 
-const CROSS_BLOCK_SIDE_EFFECT_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-cross-block-effects',
-    jsSource: `
+const CROSS_BLOCK_SIDE_EFFECT_FIXTURE = runtimeFixture(
+    'sw-runtime-cross-block-effects',
+    `
         export default {
             data() {
                 return { calls: 0 };
@@ -274,29 +253,26 @@ const CROSS_BLOCK_SIDE_EFFECT_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: [
+    [
         twigBlock('sw_runtime_cross_block_first', '<div v-if="consume()">first</div>'),
         twigBlock('sw_runtime_cross_block_second', '<div v-else>second</div>'),
     ].join('\n'),
-    observerTemplate: '<div />',
-};
+);
 
-const CREATED_ONCE_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-created-once',
-    jsSource: `
+const CREATED_ONCE_FIXTURE = runtimeFixture(
+    'sw-runtime-created-once',
+    `
         export default {
             created() {
                 globalThis.__runtimeEquivalenceProbe.push('created');
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_created_once'),
-    observerTemplate: '<div />',
-};
+);
 
-const CREATED_ASYNC_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-created-async',
-    jsSource: `
+const CREATED_ASYNC_FIXTURE = runtimeFixture(
+    'sw-runtime-created-async',
+    `
         export default {
             async created() {
                 await Promise.resolve();
@@ -304,13 +280,11 @@ const CREATED_ASYNC_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_created_async'),
-    observerTemplate: '<div />',
-};
+);
 
-const CREATED_EARLY_RETURN_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-created-early-return',
-    jsSource: `
+const CREATED_EARLY_RETURN_FIXTURE = runtimeFixture(
+    'sw-runtime-created-early-return',
+    `
         export default {
             props: ['skip'],
             created() {
@@ -322,13 +296,11 @@ const CREATED_EARLY_RETURN_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_created_early_return'),
-    observerTemplate: '<div />',
-};
+);
 
-const CREATED_LOCAL_COLLISION_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-created-local-collision',
-    jsSource: `
+const CREATED_LOCAL_COLLISION_FIXTURE = runtimeFixture(
+    'sw-runtime-created-local-collision',
+    `
         export default {
             data() {
                 return { ready: false };
@@ -341,26 +313,22 @@ const CREATED_LOCAL_COLLISION_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_created_local_collision'),
-    observerTemplate: '<div />',
-};
+);
 
-const CREATED_THROW_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-created-throw',
-    jsSource: `
+const CREATED_THROW_FIXTURE = runtimeFixture(
+    'sw-runtime-created-throw',
+    `
         export default {
             created() {
                 throw new Error('runtime-equivalence-created-throw');
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_created_throw'),
-    observerTemplate: '<div />',
-};
+);
 
-const CREATED_REJECT_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-created-reject',
-    jsSource: `
+const CREATED_REJECT_FIXTURE = runtimeFixture(
+    'sw-runtime-created-reject',
+    `
         export default {
             async created() {
                 await Promise.resolve();
@@ -368,22 +336,19 @@ const CREATED_REJECT_FIXTURE: RuntimeFixture = {
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_created_reject'),
-    observerTemplate: '<div />',
-};
+);
 
-const DATA_SCOPE_FIXTURE: RuntimeFixture = {
-    name: 'sw-runtime-data-scope',
-    jsSource: `
+const DATA_SCOPE_FIXTURE = runtimeFixture(
+    'sw-runtime-data-scope',
+    `
         export default {
             data() {
                 return { label: 'scope' };
             },
         };
     `,
-    twigSource: twigBlock('sw_runtime_data_scope', '<span />'),
-    observerTemplate: '<div />',
-};
+    twigBlock('sw_runtime_data_scope', '<span />'),
+);
 
 export {
     type RuntimeFixture,

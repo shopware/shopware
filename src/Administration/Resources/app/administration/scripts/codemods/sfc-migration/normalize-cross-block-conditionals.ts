@@ -14,12 +14,23 @@
 import { NodeTypes } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import { parseExpression } from '@babel/parser';
-import { VISITOR_KEYS } from '@babel/types';
 import type * as t from '@babel/types';
+import { walk } from './ast';
 import { elementChildren, isConvertedBlock, parseTemplate } from './template-ast';
 
 const ORPHANED_CONTINUATION = 'orphaned cross-block v-else (no preceding v-if)';
 const GUARD_COMMENT = '<!-- Keeps the conditional chain connected across sw-block. -->';
+const SIDE_EFFECTING_EXPRESSIONS = new Set([
+    'CallExpression',
+    'OptionalCallExpression',
+    'AssignmentExpression',
+    'UpdateExpression',
+    'NewExpression',
+    'AwaitExpression',
+    'YieldExpression',
+    'TaggedTemplateExpression',
+    'SequenceExpression',
+]);
 
 type ConditionDirective = {
     name: 'if' | 'else-if' | 'else';
@@ -148,39 +159,15 @@ function isSideEffectFreeCondition(expression: string): boolean {
         return false;
     }
 
-    const unsafe = new Set([
-        'CallExpression',
-        'OptionalCallExpression',
-        'AssignmentExpression',
-        'UpdateExpression',
-        'NewExpression',
-        'AwaitExpression',
-        'YieldExpression',
-        'TaggedTemplateExpression',
-        'SequenceExpression',
-    ]);
+    let safe = true;
 
-    const walk = (node: t.Node): boolean => {
-        if (unsafe.has(node.type)) {
-            return false;
+    walk(parsed, (node) => {
+        if (SIDE_EFFECTING_EXPRESSIONS.has(node.type)) {
+            safe = false;
         }
+    });
 
-        for (const key of VISITOR_KEYS[node.type] ?? []) {
-            const child = (node as unknown as Record<string, unknown>)[key];
-
-            if (Array.isArray(child)) {
-                if (child.some((entry) => entry && typeof (entry as t.Node).type === 'string' && !walk(entry as t.Node))) {
-                    return false;
-                }
-            } else if (child && typeof (child as t.Node).type === 'string' && !walk(child as t.Node)) {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    return walk(parsed);
+    return safe;
 }
 
 function walkElement(node: ElementNode, chain: ConditionChain | null, context: NormalizeContext): ConditionChain | null {

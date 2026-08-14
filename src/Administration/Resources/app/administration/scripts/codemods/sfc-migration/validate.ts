@@ -47,10 +47,7 @@ function errorMessage(error: unknown): string {
     return (error instanceof Error ? error.message : String(error)).split('\n')[0].trim();
 }
 
-/**
- * Formats a generated SFC with the project's prettier style. Prettier owns all indentation of the
- * assembled output and doubles as a syntax pre-check — invalid assembly throws here already.
- */
+/** Prettier owns all indentation of the assembled output and doubles as a syntax pre-check. */
 async function formatSfc(sfc: string): Promise<string> {
     return format(sfc, PRETTIER_OPTIONS);
 }

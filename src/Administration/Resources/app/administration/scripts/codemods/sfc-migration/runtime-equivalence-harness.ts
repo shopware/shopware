@@ -100,6 +100,13 @@ function resetOverrides(): void {
     });
 }
 
+/**
+ * Both sides are mounted against this instead of the fixture's own markup, so a block-registry
+ * difference cannot hide a script mismatch. Tests needing the generated markup pass
+ * `useConvertedTemplate`.
+ */
+const OBSERVER_TEMPLATE = '<div />';
+
 function replaceTemplate(sfc: string, observerTemplate: string): string {
     const templateStart = sfc.indexOf('<template>');
     const templateEnd = sfc.indexOf('</template>', templateStart);
@@ -148,7 +155,7 @@ function evaluateModule(source: string): Record<string, unknown> {
     return moduleRecord.exports;
 }
 
-function compileOptionsComponent(fixture: RuntimeFixture, template: string): Vue.Component {
+function compileOptionsComponent(fixture: RuntimeFixture): Vue.Component {
     const module = evaluateModule(fixture.jsSource);
     const options = module.default;
 
@@ -158,7 +165,7 @@ function compileOptionsComponent(fixture: RuntimeFixture, template: string): Vue
 
     return Vue.defineComponent({
         ...(options as Record<string, unknown>),
-        template,
+        template: OBSERVER_TEMPLATE,
     });
 }
 
@@ -234,7 +241,7 @@ async function convertFixture(fixture: RuntimeFixture): Promise<ConvertResult> {
 }
 
 function mountOriginal(fixture: RuntimeFixture, options: RuntimeMountOptions = {}): VueWrapper {
-    return mountComponent(compileOptionsComponent(fixture, fixture.observerTemplate), options, false);
+    return mountComponent(compileOptionsComponent(fixture), options, false);
 }
 
 function mountComponent(component: Vue.Component, options: RuntimeMountOptions, useConvertedTemplate: boolean): VueWrapper {
@@ -252,14 +259,14 @@ function mountGenerated(fixture: RuntimeFixture, result: ConvertResult, options:
     const component = compileGeneratedComponent(
         result.sfc,
         `${fixture.name}.vue`,
-        options.useConvertedTemplate ? undefined : fixture.observerTemplate,
+        options.useConvertedTemplate ? undefined : OBSERVER_TEMPLATE,
     );
 
     return mountComponent(component, options, options.useConvertedTemplate ?? false);
 }
 
 function mountOriginalPair(fixture: RuntimeFixture, options: RuntimeMountOptions = {}): [VueWrapper, VueWrapper] {
-    const component = compileOptionsComponent(fixture, fixture.observerTemplate);
+    const component = compileOptionsComponent(fixture);
 
     return [
         mountComponent(component, options, false),
@@ -279,7 +286,7 @@ function mountGeneratedPair(
     const component = compileGeneratedComponent(
         result.sfc,
         `${fixture.name}.vue`,
-        options.useConvertedTemplate ? undefined : fixture.observerTemplate,
+        options.useConvertedTemplate ? undefined : OBSERVER_TEMPLATE,
     );
 
     return [

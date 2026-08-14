@@ -3,7 +3,6 @@
  */
 
 import * as fs from 'fs';
-import * as os from 'os';
 import * as path from 'path';
 import {
     getMigrationTemporaryPath,
@@ -12,6 +11,7 @@ import {
     type FileOps,
     type MigrationWriteInput,
 } from './migration-writer';
+import { makeRoot, manifest } from './spec-helpers';
 
 const ORIGINAL_INDEX = Buffer.from("export default { name: 'sw-example' };\n");
 const REPLACEMENT_INDEX = Buffer.from("export { default } from './sw-example.vue';\n");
@@ -35,7 +35,7 @@ type FaultOptions = {
 };
 
 function createFixture(): Fixture {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sfc-writer-'));
+    const root = makeRoot('sfc-writer-');
     const component = path.join(root, 'component');
     const indexPath = path.join(component, 'index.js');
     const vuePath = path.join(component, 'sw-example.vue');
@@ -60,54 +60,13 @@ function createInput(fixture: Fixture, mode: MigrationWriteInput['mode'] = 'draf
     };
 }
 
-function manifest(root: string): Record<string, Buffer> {
-    const files: string[] = [];
-
-    const visit = (directory: string): void => {
-        fs.readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
-            const filePath = path.join(directory, entry.name);
-
-            if (entry.isDirectory()) {
-                visit(filePath);
-                return;
-            }
-
-            files.push(filePath);
-        });
-    };
-
-    visit(root);
-
-    return Object.fromEntries(
-        files.sort().map((filePath) => [
-            path.relative(root, filePath).split(path.sep).join('/'),
-            fs.readFileSync(filePath),
-        ]),
-    );
-}
-
-function expectedManifest(
-    fixture: Fixture,
-    options: { vue?: Buffer; index?: Buffer; temporary?: Buffer } = {},
-): Record<string, Buffer> {
-    const expected: Record<string, Buffer> = {
+function expectedManifest(options: { vue?: Buffer; index?: Buffer; temporary?: Buffer } = {}): Record<string, Buffer> {
+    return {
         'component/index.js': options.index ?? ORIGINAL_INDEX,
         'component/sw-example.html.twig': TWIG,
+        ...(options.vue ? { 'component/sw-example.vue': options.vue } : {}),
+        ...(options.temporary ? { 'component/.sw-example.vue.sfc-migration.tmp': options.temporary } : {}),
     };
-
-    if (options.vue) {
-        expected['component/sw-example.vue'] = options.vue;
-    }
-
-    if (options.temporary) {
-        expected['component/.sw-example.vue.sfc-migration.tmp'] = options.temporary;
-    }
-
-    // Keep the fixture argument in the helper signature so every expected manifest is tied to the
-    // exact temp tree under test, even though the relative manifest keys are stable.
-    expect(fixture.root).toBeTruthy();
-
-    return expected;
 }
 
 function fileKind(filePath: string): 'vue' | 'index' | 'other' {
@@ -215,7 +174,7 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
         const result = writeMigration(createInput(fixture));
 
         expect(result).toMatchObject({ state: 'draft-written', recovery: 'none', changed: true });
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ vue: GENERATED_VUE }));
         expect(fs.existsSync(getMigrationTemporaryPath(fixture.vuePath))).toBe(false);
         expect(before['component/index.js']).toEqual(ORIGINAL_INDEX);
         expect(before['component/sw-example.html.twig']).toEqual(TWIG);
@@ -229,7 +188,7 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
         );
 
         expect(result).toMatchObject({ state: 'replaced', recovery: 'replaced', changed: true });
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE, index: REPLACEMENT_INDEX }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ vue: GENERATED_VUE, index: REPLACEMENT_INDEX }));
         expect(events.indexOf('close:vue')).toBeLessThan(events.indexOf('rename:vue'));
         expect(events.indexOf('close:index')).toBeLessThan(events.indexOf('rename:index'));
     });
@@ -246,7 +205,7 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
         const replaced = writeMigration(createInput(fixture, 'replace-originals'));
 
         expect(replaced).toMatchObject({ state: 'replaced', recovery: 'replaced', changed: true });
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE, index: REPLACEMENT_INDEX }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ vue: GENERATED_VUE, index: REPLACEMENT_INDEX }));
     });
 
     it('treats an already replaced component as an idempotent rerun', () => {
@@ -264,7 +223,7 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
         const result = writeMigration(createInput(fixture, 'replace-originals'));
 
         expect(result).toMatchObject({ state: 'replaced', recovery: 'replaced', changed: true });
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE, index: REPLACEMENT_INDEX }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ vue: GENERATED_VUE, index: REPLACEMENT_INDEX }));
     });
 
     it.each([
@@ -296,48 +255,45 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
         expect(manifest(fixture.root)).toEqual(before);
     });
 
-    it('keeps all visible files unchanged after a Vue prefix-write failure', () => {
+    it.each([
+        [
+            'prefix-write',
+            { writeFailure: 'vue' } as FaultOptions,
+            'vue-write',
+        ],
+        [
+            'rename',
+            { renameFailure: 'vue' } as FaultOptions,
+            'vue-rename',
+        ],
+    ])('keeps all visible files unchanged after a Vue %s failure', (_label, faults, stage) => {
         const before = manifest(fixture.root);
-        const result = writeMigration(createInput(fixture), createFaultyFileOps({ writeFailure: 'vue' }));
+        const result = writeMigration(createInput(fixture), createFaultyFileOps(faults));
 
         expect(result).toMatchObject({ state: 'error', recovery: 'retry-safe', changed: false });
-        expect(result.error?.stage).toBe('vue-write');
+        expect(result.error?.stage).toBe(stage);
         expect(result.temporaryPaths).toEqual([]);
         expect(manifest(fixture.root)).toEqual(before);
     });
 
-    it('keeps all visible files unchanged after a Vue rename failure', () => {
-        const before = manifest(fixture.root);
-        const result = writeMigration(createInput(fixture), createFaultyFileOps({ renameFailure: 'vue' }));
-
-        expect(result).toMatchObject({ state: 'error', recovery: 'retry-safe', changed: false });
-        expect(result.error?.stage).toBe('vue-rename');
-        expect(result.temporaryPaths).toEqual([]);
-        expect(manifest(fixture.root)).toEqual(before);
-    });
-
-    it('retains the original index and reports replacement-ready after an index prefix-write failure', () => {
-        const result = writeMigration(
-            createInput(fixture, 'replace-originals'),
-            createFaultyFileOps({ writeFailure: 'index' }),
-        );
+    it.each([
+        [
+            'prefix-write',
+            { writeFailure: 'index' } as FaultOptions,
+            'index-write',
+        ],
+        [
+            'rename',
+            { renameFailure: 'index' } as FaultOptions,
+            'index-rename',
+        ],
+    ])('retains the original index and reports replacement-ready after an index %s failure', (_label, faults, stage) => {
+        const result = writeMigration(createInput(fixture, 'replace-originals'), createFaultyFileOps(faults));
 
         expect(result).toMatchObject({ state: 'error', recovery: 'replacement-ready', changed: true });
-        expect(result.error?.stage).toBe('index-write');
+        expect(result.error?.stage).toBe(stage);
         expect(result.temporaryPaths).toEqual([]);
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE }));
-    });
-
-    it('retains the original index and reports replacement-ready after an index rename failure', () => {
-        const result = writeMigration(
-            createInput(fixture, 'replace-originals'),
-            createFaultyFileOps({ renameFailure: 'index' }),
-        );
-
-        expect(result).toMatchObject({ state: 'error', recovery: 'replacement-ready', changed: true });
-        expect(result.error?.stage).toBe('index-rename');
-        expect(result.temporaryPaths).toEqual([]);
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ vue: GENERATED_VUE }));
     });
 
     it('reports a pending temp file when cleanup itself fails', () => {
@@ -350,7 +306,7 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
         expect(result.error?.stage).toBe('vue-write');
         expect(result.cleanupFailures).toEqual([expect.stringContaining('remove')]);
         expect(result.temporaryPaths).toEqual([getMigrationTemporaryPath(fixture.vuePath)]);
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { temporary: GENERATED_VUE.subarray(0, 3) }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ temporary: GENERATED_VUE.subarray(0, 3) }));
     });
 
     it('leaves the tree unchanged when Vue temp creation is denied', () => {
@@ -370,6 +326,6 @@ describe('scripts/codemods/sfc-migration/migration-writer', () => {
 
         expect(result).toMatchObject({ state: 'error', recovery: 'replacement-ready', changed: true });
         expect(result.error?.stage).toBe('index-write');
-        expect(manifest(fixture.root)).toEqual(expectedManifest(fixture, { vue: GENERATED_VUE }));
+        expect(manifest(fixture.root)).toEqual(expectedManifest({ vue: GENERATED_VUE }));
     });
 });

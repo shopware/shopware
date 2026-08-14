@@ -123,6 +123,12 @@ function visitChildren(node: t.Node, visit: (child: t.Node) => void): void {
     }
 }
 
+/** Depth-first visit of `node` and every descendant. */
+function walk(node: t.Node, visit: (node: t.Node) => void): void {
+    visit(node);
+    visitChildren(node, (child) => walk(child, visit));
+}
+
 /** One function's own bindings, chained to its enclosing functions. Block scopes are not modelled. */
 type LocalScope = { names: Set<string>; parent: LocalScope | null };
 
@@ -279,43 +285,53 @@ function arrowText(ctx: Ctx, fn: FnLike): string {
     return `${commentPrefix}${asyncPrefix}function${generator}${typeParameters}(${params})${returnType} ${snip(ctx, fn.body)}`;
 }
 
-/** Text of a block body's statements, without the surrounding braces. */
-function blockInner(ctx: Ctx, fn: FnLike): string {
-    if (fn.body.type !== 'BlockStatement') {
-        return `${snip(ctx, fn.body)};`;
+const OPTIONS_WRAPPERS = new Set([
+    'wrapComponentConfig',
+    'defineComponent',
+]);
+
+/** Strips the type-only and grouping wrappers an expression may be authored behind. */
+function unwrapExpression(node: t.Node): t.Node {
+    if (
+        node.type === 'TSAsExpression' ||
+        node.type === 'TSSatisfiesExpression' ||
+        node.type === 'TSNonNullExpression' ||
+        node.type === 'TypeCastExpression' ||
+        node.type === 'ParenthesizedExpression'
+    ) {
+        return unwrapExpression(node.expression);
     }
 
-    return ctx.ms
-        .snip((fn.body.start as number) + 1, (fn.body.end as number) - 1)
-        .toString()
-        .trim();
+    return node;
+}
+
+function calleeName(callee: t.Node): string | null {
+    if (callee.type === 'Identifier') {
+        return callee.name;
+    }
+
+    if (callee.type === 'MemberExpression' && !callee.computed && callee.property.type === 'Identifier') {
+        return callee.property.name;
+    }
+
+    return null;
 }
 
 /** Resolves the component options object from the default export's declaration. */
 function unwrapOptions(declaration: t.Node): t.ObjectExpression | null {
-    if (declaration.type === 'ObjectExpression') {
-        return declaration;
+    const expression = unwrapExpression(declaration);
+
+    if (expression.type === 'ObjectExpression') {
+        return expression;
     }
 
-    if (declaration.type === 'TSAsExpression' || declaration.type === 'TSSatisfiesExpression') {
-        return unwrapOptions(declaration.expression);
-    }
-
-    if (declaration.type === 'CallExpression' && declaration.arguments.length >= 1) {
-        const callee = declaration.callee;
-        const calleeName =
-            callee.type === 'Identifier'
-                ? callee.name
-                : callee.type === 'MemberExpression' && callee.property.type === 'Identifier'
-                  ? callee.property.name
-                  : null;
-
-        if (
-            (calleeName === 'wrapComponentConfig' || calleeName === 'defineComponent') &&
-            declaration.arguments[0].type === 'ObjectExpression'
-        ) {
-            return declaration.arguments[0];
-        }
+    if (
+        expression.type === 'CallExpression' &&
+        expression.arguments.length > 0 &&
+        OPTIONS_WRAPPERS.has(calleeName(expression.callee) ?? '') &&
+        expression.arguments[0].type === 'ObjectExpression'
+    ) {
+        return expression.arguments[0];
     }
 
     return null;
@@ -334,11 +350,12 @@ export {
     keyName,
     asFunction,
     visitChildren,
+    walk,
     functionScope,
     isShadowed,
     isThisMember,
     memberName,
     arrowText,
-    blockInner,
+    unwrapExpression,
     unwrapOptions,
 };

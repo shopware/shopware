@@ -3,16 +3,10 @@
  */
 
 /**
- * Converts a TwigJS component template into native setup SFC template markup.
- *
  * The Administration's twig layer only ever uses `{% block %}`, `{% parent %}` and `{# comments #}`
- * (verified over all 994 templates), so the conversion itself is a handful of text replacements.
- * Anything else is reported as a blocker instead of being guessed at. The `:data` binding of
- * `<sw-block>` is owned by the Shopware setup transform and must never be authored here.
- *
- * Two constructs are refused rather than converted, because base output cannot express them:
- * `{% parent %}`, which is only meaningful in an override, and a `{% block %}` wrapping a named
- * slot, whose content `<sw-block>` would drop (assert-block-slots.ts).
+ * (verified over all 994 templates), so the conversion is a handful of text replacements; anything
+ * else is reported as a blocker instead of being guessed at. The `:data` binding of `<sw-block>` is
+ * owned by the Shopware setup transform and must never be authored here.
  *
  * Turning transparent twig blocks into real elements breaks `v-if` chains that span a block
  * boundary, so the twig-free markup goes through `normalize-cross-block-conditionals.ts` last.

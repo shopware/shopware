@@ -3,18 +3,20 @@
  */
 
 /**
- * The source model is the single structural read of the JavaScript/TypeScript files used by the
- * SFC migration codemod. Discovery is deliberately conservative: a source file that cannot be
- * read or parsed is retained as a diagnostic, while comments, strings, tests, and fixtures never
- * become registrations.
+ * The single structural read of the JavaScript/TypeScript files the SFC migration codemod works on.
+ * Discovery is deliberately conservative: a source file that cannot be read or parsed is retained as
+ * a diagnostic, while comments, strings, tests, and fixtures never become registrations.
+ *
+ * Only what later stages actually consume is retained. ASTs are dropped once a file is analysed, so
+ * scanning the whole Administration tree does not keep thousands of them alive.
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse, type ParserPlugin } from '@babel/parser';
-import { VISITOR_KEYS } from '@babel/types';
 import type * as t from '@babel/types';
 import { globSync } from 'glob';
+import { keyName, unwrapExpression, unwrapOptions, walk } from './ast';
 
 type SourceRange = {
     start: number;
@@ -34,16 +36,8 @@ type SourceDiagnostic = {
         | 'template-binding-ambiguous'
         | 'template-path-outside-component'
         | 'template-file-not-found';
-    detail?: string;
     message: string;
     range?: SourceRange;
-};
-
-type ParsedSourceFile = {
-    file: string;
-    source: string;
-    ast: t.File | null;
-    diagnostics: SourceDiagnostic[];
 };
 
 type RegistrationKind = 'register' | 'extend' | 'override';
@@ -59,30 +53,32 @@ type RegistrationReference = {
     inline: boolean;
 };
 
+type InlineOverride = {
+    file: string;
+    name: string;
+};
+
+/** Where a component's Twig template lives, and the import statement that has to be removed. */
 type TemplateBinding = {
-    localName: string;
-    specifier: string;
     twigPath: string;
-    importNode: t.ImportDeclaration;
-    importSpecifier: t.ImportDefaultSpecifier;
-    optionNode: t.ObjectProperty;
+    importRange: SourceRange;
 };
 
 type ComponentSource = {
     file: string;
-    parsed: ParsedSourceFile;
-    exportDefault: t.ExportDefaultDeclaration;
-    options: t.ObjectExpression | null;
+    source: string;
     template: TemplateBinding | null;
-    registrations: RegistrationReference[];
     diagnostics: SourceDiagnostic[];
 };
 
 type ComponentSourceIndex = {
-    files: Map<string, ParsedSourceFile>;
+    /** Every scanned file, mapped to its own scan diagnostics. */
+    files: Map<string, SourceDiagnostic[]>;
     components: Map<string, ComponentSource>;
     registrationsByFile: Map<string, RegistrationReference[]>;
     registrationsByDir: Map<string, RegistrationReference[]>;
+    duplicateNames: Set<string>;
+    inlineOverrides: InlineOverride[];
     diagnostics: SourceDiagnostic[];
 };
 
@@ -129,87 +125,16 @@ function isExcludedSourceFile(file: string, scanRoot: string): boolean {
     return parts.some((part) => EXCLUDED_DIRECTORY_NAMES.has(part)) || SPEC_OR_TEST_FILE.test(basename);
 }
 
-function childNodes(node: t.Node): t.Node[] {
-    const children: t.Node[] = [];
-
-    for (const key of VISITOR_KEYS[node.type] ?? []) {
-        const value = (node as unknown as Record<string, unknown>)[key];
-
-        if (Array.isArray(value)) {
-            children.push(
-                ...value.filter((child): child is t.Node => Boolean(child) && typeof child === 'object' && 'type' in child),
-            );
-        } else if (value && typeof value === 'object' && 'type' in value) {
-            children.push(value as t.Node);
-        }
-    }
-
-    return children;
+/**
+ * Only a registration call or a default export can make a file interesting, and both leave a literal
+ * token behind. Checking for it costs a substring scan and skips parsing the vast majority of files.
+ */
+function mayHoldComponentSource(source: string): boolean {
+    return source.includes('Component.') || source.includes('export default');
 }
 
-function walk(node: t.Node, visit: (node: t.Node) => void): void {
-    visit(node);
-
-    for (const child of childNodes(node)) {
-        walk(child, visit);
-    }
-}
-
-function unwrapExpression(node: t.Node): t.Node {
-    if (
-        node.type === 'TSAsExpression' ||
-        node.type === 'TSSatisfiesExpression' ||
-        node.type === 'TSNonNullExpression' ||
-        node.type === 'TypeCastExpression' ||
-        node.type === 'ParenthesizedExpression'
-    ) {
-        return unwrapExpression(node.expression);
-    }
-
-    return node;
-}
-
-function unwrapOptions(node: t.Node): t.ObjectExpression | null {
-    const expression = unwrapExpression(node);
-
-    if (expression.type === 'ObjectExpression') {
-        return expression;
-    }
-
-    if (expression.type === 'CallExpression' && expression.arguments.length > 0) {
-        const callee = expression.callee;
-        const calleeName =
-            callee.type === 'Identifier'
-                ? callee.name
-                : callee.type === 'MemberExpression' && !callee.computed && callee.property.type === 'Identifier'
-                  ? callee.property.name
-                  : null;
-
-        if (
-            (calleeName === 'wrapComponentConfig' || calleeName === 'defineComponent') &&
-            expression.arguments[0].type === 'ObjectExpression'
-        ) {
-            return expression.arguments[0];
-        }
-    }
-
-    return null;
-}
-
-function propertyName(property: t.ObjectProperty): string | null {
-    if (property.computed) {
-        return null;
-    }
-
-    if (property.key.type === 'Identifier') {
-        return property.key.name;
-    }
-
-    if (property.key.type === 'StringLiteral') {
-        return property.key.value;
-    }
-
-    return null;
+function rangeOf(node: t.Node): SourceRange {
+    return { start: node.start as number, end: node.end as number };
 }
 
 function registrationKind(callee: t.Node): RegistrationKind | null {
@@ -229,24 +154,21 @@ function registrationKind(callee: t.Node): RegistrationKind | null {
         return kind;
     }
 
-    if (
-        object.type === 'MemberExpression' &&
+    return object.type === 'MemberExpression' &&
         !object.computed &&
         object.object.type === 'Identifier' &&
         object.object.name === 'Shopware' &&
         object.property.type === 'Identifier' &&
         object.property.name === 'Component'
-    ) {
-        return kind;
-    }
-
-    return null;
+        ? kind
+        : null;
 }
 
 function stringValue(node: t.Node | undefined): string | null {
     return node?.type === 'StringLiteral' ? node.value : null;
 }
 
+/** The module specifier of `import('x')`, `() => import('x')` and their type-wrapped forms. */
 function importSpecifier(node: t.Node | undefined): string | null {
     const expression = node ? unwrapExpression(node) : null;
 
@@ -281,13 +203,12 @@ function resolveModuleDir(
         return { outsideRoot: false };
     }
 
-    const candidates = [
+    const moduleFile = [
         path.join(resolved, 'index.js'),
         path.join(resolved, 'index.ts'),
         `${resolved}.js`,
         `${resolved}.ts`,
-    ];
-    const moduleFile = candidates.find((candidate) => fs.existsSync(candidate));
+    ].find((candidate) => fs.existsSync(candidate));
 
     if (!moduleFile) {
         return { outsideRoot: false };
@@ -300,16 +221,28 @@ function resolveModuleDir(
 
 function findTemplateBinding(
     file: string,
-    options: t.ObjectExpression | null,
-    ast: t.File | null,
+    options: t.ObjectExpression,
+    ast: t.File,
 ): { binding: TemplateBinding | null; diagnostics: SourceDiagnostic[] } {
-    if (!options) {
-        return { binding: null, diagnostics: [] };
-    }
+    const refuse = (
+        code: SourceDiagnostic['code'],
+        message: string,
+        range: SourceRange,
+    ): { binding: null; diagnostics: SourceDiagnostic[] } => ({
+        binding: null,
+        diagnostics: [
+            {
+                file,
+                stage: 'template-binding',
+                code,
+                message,
+                range,
+            },
+        ],
+    });
 
     const templateOptions = options.properties.filter(
-        (property): property is t.ObjectProperty =>
-            property.type === 'ObjectProperty' && propertyName(property) === 'template',
+        (property): property is t.ObjectProperty => property.type === 'ObjectProperty' && keyName(property) === 'template',
     );
 
     if (templateOptions.length === 0) {
@@ -317,175 +250,94 @@ function findTemplateBinding(
     }
 
     if (templateOptions.length > 1) {
-        return {
-            binding: null,
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code: 'template-binding-ambiguous',
-                    message: 'multiple template options found',
-                    range: {
-                        start: templateOptions[0].start as number,
-                        end: templateOptions[templateOptions.length - 1].end as number,
-                    },
-                },
-            ],
-        };
+        return refuse('template-binding-ambiguous', 'multiple template options found', {
+            start: templateOptions[0].start as number,
+            end: templateOptions[templateOptions.length - 1].end as number,
+        });
     }
 
-    const optionNode = templateOptions[0];
-    const value = unwrapExpression(optionNode.value);
+    const optionRange = rangeOf(templateOptions[0]);
+    const value = unwrapExpression(templateOptions[0].value);
 
     if (value.type !== 'Identifier') {
-        return {
-            binding: null,
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code: 'template-binding-missing',
-                    message: 'template option is not a statically resolvable import binding',
-                    range: { start: optionNode.start as number, end: optionNode.end as number },
-                },
-            ],
-        };
+        return refuse(
+            'template-binding-missing',
+            'template option is not a statically resolvable import binding',
+            optionRange,
+        );
     }
 
-    if (!ast) {
-        return { binding: null, diagnostics: [] };
+    const twigImports = ast.program.body.filter(
+        (statement): statement is t.ImportDeclaration =>
+            statement.type === 'ImportDeclaration' && statement.source.value.endsWith('.html.twig'),
+    );
+    const bound = twigImports.filter((statement) =>
+        statement.specifiers.some((specifier) => specifier.local.name === value.name),
+    );
+    const defaultBound = bound.filter((statement) =>
+        statement.specifiers.some(
+            (specifier) => specifier.type === 'ImportDefaultSpecifier' && specifier.local.name === value.name,
+        ),
+    );
+
+    if (defaultBound.length === 0) {
+        return bound.length > 0
+            ? refuse(
+                  'template-binding-not-default',
+                  `template binding '${value.name}' is not a default Twig import`,
+                  optionRange,
+              )
+            : refuse(
+                  'template-binding-missing',
+                  `template binding '${value.name}' has no unique default Twig import`,
+                  optionRange,
+              );
     }
 
-    const matchingImports = ast.program.body.flatMap((statement) => {
-        if (statement.type !== 'ImportDeclaration' || !statement.source.value.endsWith('.html.twig')) {
-            return [];
-        }
-
-        return statement.specifiers
-            .filter((specifier): specifier is t.ImportDefaultSpecifier => specifier.type === 'ImportDefaultSpecifier')
-            .filter((specifier) => specifier.local.name === value.name)
-            .map((specifier) => ({ statement, specifier }));
-    });
-    const nonDefaultMatches = ast.program.body.flatMap((statement) => {
-        if (statement.type !== 'ImportDeclaration' || !statement.source.value.endsWith('.html.twig')) {
-            return [];
-        }
-
-        return statement.specifiers.filter((specifier) => specifier.local.name === value.name);
-    });
-
-    if (matchingImports.length === 0) {
-        const code = nonDefaultMatches.length > 0 ? 'template-binding-not-default' : 'template-binding-missing';
-
-        return {
-            binding: null,
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code,
-                    message:
-                        code === 'template-binding-not-default'
-                            ? `template binding '${value.name}' is not a default Twig import`
-                            : `template binding '${value.name}' has no unique default Twig import`,
-                    range: { start: optionNode.start as number, end: optionNode.end as number },
-                },
-            ],
-        };
-    }
-
-    const [{ statement, specifier }] = matchingImports;
+    const [statement] = defaultBound;
     const specifierText = statement.source.value;
+    const importRange = rangeOf(statement);
 
     if (!specifierText.startsWith('.')) {
-        return {
-            binding: null,
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code: 'template-path-outside-component',
-                    message: `template import '${specifierText}' is not a relative component template`,
-                    range: { start: statement.start as number, end: statement.end as number },
-                },
-            ],
-        };
+        return refuse(
+            'template-path-outside-component',
+            `template import '${specifierText}' is not a relative component template`,
+            importRange,
+        );
     }
 
-    if (matchingImports.length > 1) {
-        return {
-            binding: null,
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code: 'template-binding-ambiguous',
-                    message: `template binding '${value.name}' resolves to multiple default Twig imports`,
-                    range: { start: optionNode.start as number, end: optionNode.end as number },
-                },
-            ],
-        };
+    if (defaultBound.length > 1) {
+        return refuse(
+            'template-binding-ambiguous',
+            `template binding '${value.name}' resolves to multiple default Twig imports`,
+            optionRange,
+        );
     }
 
     const twigPath = path.resolve(path.dirname(file), specifierText);
-    const componentDir = path.dirname(file);
 
-    if (!isContained(componentDir, twigPath)) {
-        return {
-            binding: null,
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code: 'template-path-outside-component',
-                    message: `template import '${specifierText}' escapes the component directory`,
-                    range: { start: statement.start as number, end: statement.end as number },
-                },
-            ],
-        };
-    }
-
-    if (!fs.existsSync(twigPath)) {
-        return {
-            binding: {
-                localName: value.name,
-                specifier: specifierText,
-                twigPath,
-                importNode: statement,
-                importSpecifier: specifier,
-                optionNode,
-            },
-            diagnostics: [
-                {
-                    file,
-                    stage: 'template-binding',
-                    code: 'template-file-not-found',
-                    message: `template file not found: ${twigPath}`,
-                    range: { start: statement.start as number, end: statement.end as number },
-                },
-            ],
-        };
+    if (!isContained(path.dirname(file), twigPath)) {
+        return refuse(
+            'template-path-outside-component',
+            `template import '${specifierText}' escapes the component directory`,
+            importRange,
+        );
     }
 
     return {
-        binding: {
-            localName: value.name,
-            specifier: specifierText,
-            twigPath,
-            importNode: statement,
-            importSpecifier: specifier,
-            optionNode,
-        },
-        diagnostics: [],
+        binding: { twigPath, importRange },
+        diagnostics: fs.existsSync(twigPath)
+            ? []
+            : [
+                  {
+                      file,
+                      stage: 'template-binding',
+                      code: 'template-file-not-found',
+                      message: `template file not found: ${twigPath}`,
+                      range: importRange,
+                  },
+              ],
     };
-}
-
-function findDefaultExport(ast: t.File): t.ExportDefaultDeclaration | null {
-    return (
-        ast.program.body.find(
-            (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
-        ) ?? null
-    );
 }
 
 function extractRegistrations(
@@ -515,8 +367,7 @@ function extractRegistrations(
         }
 
         const parent = kind === 'extend' ? (stringValue(node.arguments[1]) ?? undefined) : undefined;
-        const loaderIndex = kind === 'extend' ? 2 : 1;
-        const loader = node.arguments[loaderIndex];
+        const loader = node.arguments[kind === 'extend' ? 2 : 1];
         const specifier = importSpecifier(loader);
         const inline = kind === 'override' && loader?.type === 'ObjectExpression';
 
@@ -530,7 +381,7 @@ function extractRegistrations(
             ...(parent ? { parent } : {}),
             ...(specifier ? { specifier } : {}),
             file,
-            range: { start: node.start as number, end: node.end as number },
+            range: rangeOf(node),
             inline,
         };
 
@@ -556,58 +407,66 @@ function extractRegistrations(
     return { registrations, diagnostics };
 }
 
-function analyzeSourceFile(
-    parsed: ParsedSourceFile,
-    scanRoot: string,
-    adminSrc: string,
-): { component: ComponentSource | null; registrations: RegistrationReference[]; diagnostics: SourceDiagnostic[] } {
-    if (!parsed.ast) {
-        return { component: null, registrations: [], diagnostics: [] };
-    }
+/** Reads and parses one file, mapping every failure to a diagnostic rather than an exception. */
+function parseSourceFile(
+    file: string,
+    readFile: (file: string) => string,
+): { source: string; ast: t.File | null; diagnostics: SourceDiagnostic[] } {
+    let source: string;
 
-    const extracted = extractRegistrations(parsed.ast, parsed.file, scanRoot, adminSrc);
-    const exportDefault = findDefaultExport(parsed.ast);
-
-    if (!exportDefault) {
+    try {
+        source = readFile(file);
+    } catch (error) {
         return {
-            component: null,
-            registrations: extracted.registrations,
-            diagnostics: extracted.diagnostics,
+            source: '',
+            ast: null,
+            diagnostics: [
+                {
+                    file,
+                    stage: 'scan',
+                    code: 'read-failed',
+                    message: `could not read source: ${error instanceof Error ? error.message : String(error)}`,
+                },
+            ],
         };
     }
 
-    const options = unwrapOptions(exportDefault.declaration);
+    if (!mayHoldComponentSource(source)) {
+        return { source, ast: null, diagnostics: [] };
+    }
 
-    const template = findTemplateBinding(parsed.file, options, parsed.ast);
-    const diagnostics = [
-        ...extracted.diagnostics,
-        ...template.diagnostics,
-    ];
-
-    return {
-        component: {
-            file: parsed.file,
-            parsed,
-            exportDefault,
-            options,
-            template: template.binding,
-            registrations: extracted.registrations,
-            diagnostics,
-        },
-        registrations: extracted.registrations,
-        diagnostics,
-    };
+    try {
+        return { source, ast: parse(source, { sourceType: 'module', plugins: SOURCE_PLUGINS }), diagnostics: [] };
+    } catch (error) {
+        return {
+            source,
+            ast: null,
+            diagnostics: [
+                {
+                    file,
+                    stage: 'scan',
+                    code: 'parse-failed',
+                    message: `could not parse source: ${error instanceof Error ? error.message : String(error)}`,
+                },
+            ],
+        };
+    }
 }
 
 function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceIndexOptions = {}): ComponentSourceIndex {
     const absoluteScanRoot = path.resolve(scanRoot);
     const adminSrc = path.resolve(options.adminSrc ?? DEFAULT_ADMIN_SRC);
     const readFile = options.readFile ?? ((file: string): string => fs.readFileSync(file, 'utf8'));
-    const files = new Map<string, ParsedSourceFile>();
-    const components = new Map<string, ComponentSource>();
-    const registrationsByFile = new Map<string, RegistrationReference[]>();
-    const registrationsByDir = new Map<string, RegistrationReference[]>();
-    const diagnostics: SourceDiagnostic[] = [];
+    const index: ComponentSourceIndex = {
+        files: new Map(),
+        components: new Map(),
+        registrationsByFile: new Map(),
+        registrationsByDir: new Map(),
+        duplicateNames: new Set(),
+        inlineOverrides: [],
+        diagnostics: [],
+    };
+    const dirsByName = new Map<string, Set<string>>();
     const sourceFiles = globSync('**/*.{js,ts}', {
         cwd: absoluteScanRoot,
         absolute: true,
@@ -619,76 +478,68 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         .sort();
 
     for (const file of sourceFiles) {
-        let source = '';
-        let ast: t.File | null = null;
-        const fileDiagnostics: SourceDiagnostic[] = [];
+        const parsed = parseSourceFile(file, readFile);
 
-        try {
-            source = readFile(file);
-        } catch (error) {
-            fileDiagnostics.push({
+        index.files.set(file, parsed.diagnostics);
+        index.diagnostics.push(...parsed.diagnostics);
+
+        if (!parsed.ast) {
+            index.registrationsByFile.set(file, []);
+            continue;
+        }
+
+        const extracted = extractRegistrations(parsed.ast, file, absoluteScanRoot, adminSrc);
+        const exportDefault = parsed.ast.program.body.find(
+            (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
+        );
+        // Files without a default export are registries or barrels, not components.
+        const componentOptions = exportDefault ? unwrapOptions(exportDefault.declaration) : null;
+        const template = componentOptions
+            ? findTemplateBinding(file, componentOptions, parsed.ast)
+            : { binding: null, diagnostics: [] };
+        const diagnostics = [
+            ...extracted.diagnostics,
+            ...template.diagnostics,
+        ];
+
+        index.diagnostics.push(...diagnostics);
+        index.registrationsByFile.set(file, extracted.registrations);
+
+        if (exportDefault) {
+            index.components.set(file, {
                 file,
-                stage: 'scan',
-                code: 'read-failed',
-                message: `could not read source: ${error instanceof Error ? error.message : String(error)}`,
+                source: parsed.source,
+                template: template.binding,
+                diagnostics,
             });
         }
 
-        if (fileDiagnostics.length === 0) {
-            try {
-                ast = parse(source, { sourceType: 'module', plugins: SOURCE_PLUGINS });
-            } catch (error) {
-                fileDiagnostics.push({
-                    file,
-                    stage: 'scan',
-                    code: 'parse-failed',
-                    message: `could not parse source: ${error instanceof Error ? error.message : String(error)}`,
-                });
+        for (const registration of extracted.registrations) {
+            if (registration.inline && registration.kind === 'override') {
+                index.inlineOverrides.push({ file: registration.file, name: registration.name });
             }
-        }
 
-        const parsed: ParsedSourceFile = {
-            file,
-            source,
-            ast,
-            diagnostics: fileDiagnostics,
-        };
-
-        files.set(file, parsed);
-        diagnostics.push(...parsed.diagnostics);
-
-        const analyzed = analyzeSourceFile(parsed, absoluteScanRoot, adminSrc);
-        const analyzedDiagnostics = analyzed.diagnostics;
-
-        if (analyzed.component) {
-            analyzed.component.diagnostics = analyzedDiagnostics;
-        }
-
-        diagnostics.push(...analyzedDiagnostics);
-        registrationsByFile.set(file, analyzed.registrations);
-
-        if (analyzed.component) {
-            components.set(file, analyzed.component);
-        }
-
-        for (const registration of analyzed.registrations) {
             if (!registration.resolvedDir) {
                 continue;
             }
 
-            const registrations = registrationsByDir.get(registration.resolvedDir) ?? [];
-
-            registrations.push(registration);
-            registrationsByDir.set(registration.resolvedDir, registrations);
+            index.registrationsByDir.set(registration.resolvedDir, [
+                ...(index.registrationsByDir.get(registration.resolvedDir) ?? []),
+                registration,
+            ]);
+            dirsByName.set(
+                registration.name,
+                (dirsByName.get(registration.name) ?? new Set()).add(registration.resolvedDir),
+            );
         }
     }
 
     for (const [
         dir,
         registrations,
-    ] of registrationsByDir) {
+    ] of index.registrationsByDir) {
         if (registrations.length > 1) {
-            diagnostics.push({
+            index.diagnostics.push({
                 file: registrations[0].file,
                 stage: 'registration',
                 code: 'registration-ambiguous',
@@ -698,7 +549,16 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         }
     }
 
-    return { files, components, registrationsByFile, registrationsByDir, diagnostics };
+    for (const [
+        name,
+        dirs,
+    ] of dirsByName) {
+        if (dirs.size > 1) {
+            index.duplicateNames.add(name);
+        }
+    }
+
+    return index;
 }
 
 export {
@@ -707,7 +567,7 @@ export {
     type ComponentSource,
     type ComponentSourceIndex,
     type ComponentSourceIndexOptions,
-    type ParsedSourceFile,
+    type InlineOverride,
     type RegistrationKind,
     type RegistrationReference,
     type SourceDiagnostic,

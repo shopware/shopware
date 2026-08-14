@@ -4,37 +4,25 @@
 
 /**
  * SFC migration codemod: converts Options API components (`index.js` + `*.html.twig`) into native
- * setup SFCs (`<component-name>.vue` with `swDefinePublic`).
+ * setup SFCs (`<component-name>.vue` with `swDefinePublic`). See README.md for the CLI contract and
+ * the per-outcome write rules.
  *
- * Usage: npm run codemod:sfc-migration -- <path> [--write] [--replace-originals]
- *
- * Dry-run is the default. With `--write`, per component outcome:
- * - full:    writes the validated .vue draft; only with --replace-originals does an unambiguous
- *            plain registration also replace index.js. Twig is retained.
- * - partial: writes the .vue draft with TODO(sfc-migration) comments and keeps the original
- *            index.js + twig untouched next to it, so the component keeps running as-is.
- * - skipped: writes nothing; the report explains why.
- * - error:   the conversion or one of the writes threw; the reason says what is on disk.
- *
- * Only a plain `Component.register` reaches the explicit replacement path. An extend child renders against
- * bindings its parent declares and an override template patches another component's markup, so
- * neither survives being written as a self-contained base SFC — and a directory no registration
+ * Only a plain `Component.register` reaches the explicit replacement path. An extend child renders
+ * against bindings its parent declares and an override template patches another component's markup,
+ * so neither survives being written as a self-contained base SFC — and a directory no registration
  * resolves to could be either, so it gets a draft only.
- *
- * Every generated SFC must survive the real build transform and Vue's compiler (validate.ts)
- * before it is written — a non-compiling file is never produced, not even as a draft. That gate
- * proves the output compiles, not that it behaves the same, so shapes that would compile into
- * different behaviour are refused by the transforms themselves.
- *
- * Writes are guarded per component: a failure is reported and the run continues, so one unwritable
- * file cannot cost the report for everything migrated before it.
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { convertComponent, type ConvertResult } from './convert-component';
-import { collectComponentRegistry, type InlineOverride, type RegistrationKind } from './component-registry';
-import { isContained, type SourceDiagnostic } from './component-source-model';
+import {
+    collectComponentSourceIndex,
+    isContained,
+    type InlineOverride,
+    type RegistrationKind,
+    type SourceDiagnostic,
+} from './component-source-model';
 import { writeMigration } from './migration-writer';
 
 type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
@@ -68,6 +56,11 @@ const errorText = (error: unknown): string => (error instanceof Error ? error.me
 
 const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
+const SCAN_ERROR_CODES = [
+    'read-failed',
+    'parse-failed',
+    'registration-path-outside-root',
+];
 const COMPONENT_CLASSES: ComponentClass[] = [
     'register',
     'extend',
@@ -136,13 +129,12 @@ function writeComponent(input: {
         return { ok: false, reasons: [`write failed at preflight: ${errorText(error)} (originals unchanged)`] };
     }
 
-    const replacementIndex = buildIndexShim(input.jsSource, input.name);
     const migration = writeMigration({
         vuePath: input.vuePath,
         indexPath: input.indexFile,
         vueBytes: Buffer.from(input.sfc),
         originalIndexBytes,
-        replacementIndexBytes: Buffer.from(replacementIndex),
+        replacementIndexBytes: Buffer.from(buildIndexShim(input.jsSource, input.name)),
         mode: input.full && input.replaceOriginals ? 'replace-originals' : 'draft',
     });
 
@@ -169,34 +161,33 @@ async function runMigration(
     const write = options.write ?? false;
     const replaceOriginals = options.replaceOriginals ?? false;
     const scanRoot = options.scanRoot ?? (isContained(ADMIN_SRC, targetDir) ? ADMIN_SRC : targetDir);
-    const registry = collectComponentRegistry(scanRoot);
-    const indexFiles = [...registry.sourceIndex.files.keys()]
+    const index = collectComponentSourceIndex(scanRoot);
+    const indexFiles = [...index.files.keys()]
         .filter(
             (file) =>
                 isContained(targetDir, file) && (path.basename(file) === 'index.js' || path.basename(file) === 'index.ts'),
         )
         .sort();
+    const targetFiles = new Set(indexFiles);
 
     const result: MigrationResult = {
         reports: [],
-        stats: { full: 0, partial: 0, skipped: 0, alreadyMigrated: 0, error: 0 },
-        inlineOverrides: registry.inlineOverrides,
-        diagnostics: registry.diagnostics,
+        stats: {
+            full: 0,
+            partial: 0,
+            skipped: 0,
+            alreadyMigrated: 0,
+            error: index.diagnostics.filter(
+                (diagnostic) => !targetFiles.has(diagnostic.file) && SCAN_ERROR_CODES.includes(diagnostic.code),
+            ).length,
+        },
+        inlineOverrides: index.inlineOverrides,
+        diagnostics: index.diagnostics,
     };
-    const targetFiles = new Set(indexFiles);
-    result.stats.error += registry.diagnostics.filter(
-        (diagnostic) =>
-            !targetFiles.has(diagnostic.file) &&
-            [
-                'read-failed',
-                'parse-failed',
-                'registration-path-outside-root',
-            ].includes(diagnostic.code),
-    ).length;
     // Counting here rather than at each call site makes "one report row is one stat" structural,
     // which matters once an outcome can still change after the conversion (a failing write).
     const report = (name: string, dir: string, outcome: Outcome, reasons: string[] = []): void => {
-        const registrations = registry.registrationsByDir.get(dir) ?? [];
+        const registrations = index.registrationsByDir.get(dir) ?? [];
         const registration: ComponentClass =
             registrations.length > 1 ? 'ambiguous' : (registrations[0]?.kind ?? 'unregistered');
 
@@ -207,31 +198,26 @@ async function runMigration(
     for (const indexFile of indexFiles) {
         const dir = path.dirname(indexFile);
         const dirName = path.basename(dir);
-        const registrations = registry.registrationsByDir.get(dir) ?? [];
+        const registrations = index.registrationsByDir.get(dir) ?? [];
         const registration = registrations.length === 1 ? registrations[0] : undefined;
         const name = registration?.name ?? dirName;
-        const sourceFile = registry.sourceIndex.files.get(indexFile);
-        const component = registry.sourceIndex.components.get(indexFile);
+        const scanDiagnostics = index.files.get(indexFile);
+        const component = index.components.get(indexFile);
 
         // Reads and stats can throw too (permissions, dangling symlinks). One unreadable component
         // must not cost the report for every component processed after it.
         try {
-            if (!sourceFile || sourceFile.diagnostics.some((diagnostic) => diagnostic.code === 'read-failed')) {
-                report(
-                    name,
-                    dir,
-                    'error',
-                    sourceFile?.diagnostics.map((diagnostic) => diagnostic.message) ?? ['source file not found'],
-                );
+            if (!scanDiagnostics) {
+                report(name, dir, 'error', ['source file not found']);
                 continue;
             }
 
-            if (sourceFile.diagnostics.some((diagnostic) => diagnostic.code === 'parse-failed')) {
+            if (scanDiagnostics.length > 0) {
                 report(
                     name,
                     dir,
                     'error',
-                    sourceFile.diagnostics.map((diagnostic) => diagnostic.message),
+                    scanDiagnostics.map((diagnostic) => diagnostic.message),
                 );
                 continue;
             }
@@ -241,13 +227,9 @@ async function runMigration(
                 continue;
             }
 
-            const jsSource = component.parsed.source;
-
             // How a component is registered decides whether its template stands on its own, so this
-            // outranks every file-layout reason below. An extend child renders against bindings its
-            // parent declares and an override template patches another component's markup — neither
-            // survives being written as a self-contained base SFC, and the template compiler accepts
-            // the undeclared references, so the validation gate cannot catch it either.
+            // outranks every file-layout reason below. The template compiler accepts the undeclared
+            // references either kind leaves behind, so the validation gate cannot catch it either.
             if (registration?.kind === 'extend') {
                 report(name, dir, 'skipped', [
                     registration.parent
@@ -269,7 +251,6 @@ async function runMigration(
                 continue;
             }
 
-            const templateBinding = component.template;
             const templateDiagnostics = component.diagnostics.filter((diagnostic) =>
                 diagnostic.code.startsWith('template-'),
             );
@@ -284,7 +265,7 @@ async function runMigration(
                 continue;
             }
 
-            if (!templateBinding) {
+            if (!component.template) {
                 report(name, dir, 'skipped', ['no template import (render function or inherited template)']);
                 continue;
             }
@@ -294,19 +275,17 @@ async function runMigration(
                 continue;
             }
 
-            if (registry.duplicateNames.has(name)) {
+            if (index.duplicateNames.has(name)) {
                 report(name, dir, 'skipped', ['component name registered more than once']);
                 continue;
             }
 
             // A name the directory does not carry is only trustworthy with a second source agreeing:
             // the template filename, which by convention equals the registered name.
-            if (name !== dirName && path.basename(templateBinding.twigPath, '.html.twig') !== name) {
+            if (name !== dirName && path.basename(component.template.twigPath, '.html.twig') !== name) {
                 report(name, dir, 'skipped', ['template filename does not match the registered component name']);
                 continue;
             }
-
-            const twigPath = templateBinding.twigPath;
 
             const vuePath = path.join(dir, `${name}.vue`);
 
@@ -319,18 +298,15 @@ async function runMigration(
 
             try {
                 converted = await convertComponent({
-                    jsSource,
-                    twigSource: fs.readFileSync(twigPath, 'utf8'),
+                    jsSource: component.source,
+                    twigSource: fs.readFileSync(component.template.twigPath, 'utf8'),
                     componentName: name,
                     vuePath,
                     lang: indexFile.endsWith('.ts') ? 'ts' : 'js',
-                    templateImportRange: {
-                        start: templateBinding.importNode.start as number,
-                        end: templateBinding.importNode.end as number,
-                    },
+                    templateImportRange: component.template.importRange,
                 });
             } catch (error) {
-                report(name, dir, 'error', [(error as Error).message]);
+                report(name, dir, 'error', [errorText(error)]);
                 continue;
             }
 
@@ -354,7 +330,7 @@ async function runMigration(
                 replaceOriginals: replaceOriginals && registration?.kind === 'register',
                 vuePath,
                 indexFile,
-                jsSource,
+                jsSource: component.source,
                 name,
             });
 
@@ -407,26 +383,21 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
     const split = COMPONENT_CLASSES.filter((componentClass) => classes.has(componentClass))
         .map((componentClass) => `${classes.get(componentClass)} ${componentClass}`)
         .join(' / ');
+    const mode = write
+        ? replaceOriginals
+            ? ' (drafts written; eligible entry points replaced; Twig retained)'
+            : ' (validated Vue drafts written; legacy sources retained)'
+        : ' (dry run — nothing written)';
 
     console.log(
         `\n${total} components${split ? ` (${split})` : ''}: ${stats.full} full, ${stats.partial} partial, ` +
-            `${stats.skipped} skipped, ${stats.alreadyMigrated} already migrated, ${stats.error} errors` +
-            `${
-                write
-                    ? replaceOriginals
-                        ? ' (drafts written; eligible entry points replaced; Twig retained)'
-                        : ' (validated Vue drafts written; legacy sources retained)'
-                    : ' (dry run — nothing written)'
-            }`,
+            `${stats.skipped} skipped, ${stats.alreadyMigrated} already migrated, ${stats.error} errors${mode}`,
     );
 
     if ((result.diagnostics ?? []).length > 0) {
         console.log('\nScan diagnostics:');
         result.diagnostics?.forEach((diagnostic) =>
-            console.log(
-                `  ${diagnostic.stage}/${diagnostic.code}: ${diagnostic.file}: ${diagnostic.message}` +
-                    (diagnostic.detail ? ` (${diagnostic.detail})` : ''),
-            ),
+            console.log(`  ${diagnostic.stage}/${diagnostic.code}: ${diagnostic.file}: ${diagnostic.message}`),
         );
     }
 
@@ -439,16 +410,17 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
 
 function main(): void {
     const args = process.argv.slice(2);
-    const write = args.filter((arg) => arg === '--write').length === 1;
-    const replaceOriginals = args.filter((arg) => arg === '--replace-originals').length === 1;
+    const occurrences = (flag: string): number => args.filter((arg) => arg === flag).length;
+    const write = occurrences('--write') === 1;
+    const replaceOriginals = occurrences('--replace-originals') === 1;
     const positional = args.filter((arg) => !arg.startsWith('--'));
     const unknownFlags = args.filter((arg) => arg.startsWith('--') && arg !== '--write' && arg !== '--replace-originals');
 
     if (
         positional.length !== 1 ||
         unknownFlags.length > 0 ||
-        args.filter((arg) => arg === '--write').length > 1 ||
-        args.filter((arg) => arg === '--replace-originals').length > 1 ||
+        occurrences('--write') > 1 ||
+        occurrences('--replace-originals') > 1 ||
         (replaceOriginals && !write)
     ) {
         console.error(

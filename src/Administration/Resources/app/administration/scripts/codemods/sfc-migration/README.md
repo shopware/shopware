@@ -50,7 +50,7 @@ The legacy entry point remains available until its replacement succeeds; Twig is
 ## Registration classes
 
 Independent of the outcome, every component is classified by the `Component.*` call its directory is
-registered through (`component-registry.ts`). The CLI carries the class per component plus a split
+registered through (`component-source-model.ts`). The CLI carries the class per component plus a split
 summary line. Scan failures are retained as structured diagnostics and do not stop later components
 from being reported.
 
@@ -109,8 +109,7 @@ Each file answers exactly one question:
 | File | Answers |
 | --- | --- |
 | `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, file writes, report |
-| `component-source-model.ts` | Which source files, registrations, options, and exact Twig binding belong together? One parsed source model |
-| `component-registry.ts` | Compatibility adapter for parsed registrations and the classification report |
+| `component-source-model.ts` | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree |
 | `migration-writer.ts` | How are validated drafts and explicit replacements staged, renamed, and recovered? |
 | `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
 | `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates) |
@@ -123,9 +122,9 @@ Each file answers exactly one question:
 | `tables.ts` | What converts to what? All conversion tables — the extension surface |
 | `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
 | `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
-| `sfc-migration.spec.ts` + `__fixtures__/` | Snapshot of every fixture through the full pipeline + a tmpdir integration test of `--write` |
-| `run-sfc-migration.spec.ts` | What does the runner do to files? Draft/replacement modes, Twig retention, and existing-`.vue` behaviour |
-| `run-sfc-migration.cli.spec.ts` | Do invalid flags and target errors return nonzero exit codes? |
+| `sfc-migration.spec.ts` + `__fixtures__/` | What does one component convert into? A snapshot of every fixture through the full pipeline |
+| `run-sfc-migration.spec.ts` | What does the runner do to files? CLI exit codes, draft/replacement modes, name derivation, and existing-`.vue` behaviour |
+| `spec-helpers.ts` | Temp-tree helpers shared by the specs that build a throwaway component tree |
 | `runtime-equivalence-*.ts` | Does a supported shape execute equivalently, or stay conservative? |
 
 ## Extending the codemod

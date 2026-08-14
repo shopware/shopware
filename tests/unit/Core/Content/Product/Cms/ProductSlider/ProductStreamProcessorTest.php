@@ -34,8 +34,8 @@ use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -60,7 +60,7 @@ class ProductStreamProcessorTest extends TestCase
 
     private LoggerInterface&MockObject $logger;
 
-    private SystemConfigService&MockObject $systemConfigService;
+    private StaticSystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
@@ -69,7 +69,7 @@ class ProductStreamProcessorTest extends TestCase
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
+        $this->systemConfigService = new StaticSystemConfigService();
         $this->config = new FieldConfigCollection();
     }
 
@@ -165,12 +165,11 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($config);
 
         $this->configureProductStreamBuilder(enrichCriteriaCalls: $this->once());
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
         $this->logger->expects($this->never())->method('warning');
 
-        $this->systemConfigService->expects($this->once())
-            ->method('getBool')
-            ->with('core.listing.hideCloseoutProductsWhenOutOfStock', $resolverContext->getSalesChannelContext()->getSalesChannelId())
-            ->willReturn(true);
+        $this->enableHideCloseout($resolverContext->getSalesChannelContext()->getSalesChannelId());
 
         $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
@@ -198,12 +197,11 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($config);
 
         $this->configureProductStreamBuilder(enrichCriteriaCalls: $this->once());
+        $this->productRepository->expects($this->never())->method('search');
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
         $this->logger->expects($this->never())->method('warning');
 
-        $this->systemConfigService->expects($this->once())
-            ->method('getBool')
-            ->with('core.listing.hideCloseoutProductsWhenOutOfStock', $resolverContext->getSalesChannelContext()->getSalesChannelId())
-            ->willReturn(false);
+        // $this->systemConfigService is left at its empty default: hide closeout off.
 
         $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
         static::assertInstanceOf(CriteriaCollection::class, $collection);
@@ -389,13 +387,13 @@ class ProductStreamProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
 
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         $this->productRepository->expects($this->once())
             ->method('search')->willReturn($searchResult);
 
-        $this->systemConfigService->expects($this->once())
-            ->method('getBool')
-            ->with('core.listing.hideCloseoutProductsWhenOutOfStock', $resolverContext->getSalesChannelContext()->getSalesChannelId())
-            ->willReturn(true);
+        $this->enableHideCloseout($resolverContext->getSalesChannelContext()->getSalesChannelId());
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
@@ -423,13 +421,13 @@ class ProductStreamProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
 
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+
         $this->productRepository->expects($this->once())
             ->method('search')->willReturn($searchResult);
 
-        $this->systemConfigService->expects($this->once())
-            ->method('getBool')
-            ->with('core.listing.hideCloseoutProductsWhenOutOfStock', $resolverContext->getSalesChannelContext()->getSalesChannelId())
-            ->willReturn(false);
+        // $this->systemConfigService is left at its empty default: hide closeout off.
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
@@ -542,6 +540,17 @@ class ProductStreamProcessorTest extends TestCase
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertSame($products, $slider->getProducts());
+    }
+
+    /**
+     * Scoped to the sales channel so a processor that looked the setting up
+     * globally, or under a different key, would still read `false` here.
+     */
+    private function enableHideCloseout(string $salesChannelId): void
+    {
+        $this->systemConfigService = new StaticSystemConfigService([
+            $salesChannelId => ['core.listing.hideCloseoutProductsWhenOutOfStock' => true],
+        ]);
     }
 
     private function getProcessor(): ProductStreamProcessor

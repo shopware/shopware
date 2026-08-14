@@ -279,6 +279,12 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Stream-backed CMS product sliders honour `hideCloseoutProductsWhenOutOfStock`
+
+Product sliders sourced from a product stream now apply the `core.listing.hideCloseoutProductsWhenOutOfStock` setting, mirroring the manual-products slider. The closeout filter is added to the stream criteria (before the slider limit is applied, so hidden products do not consume slider slots), with an additional post-search filter to catch display-parent/main-variant remapping.
+
+The `@internal` constructor of `Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor` takes two additional arguments: `SystemConfigService` and `AbstractProductCloseoutFilterFactory`. Plugins that extend the service and call `parent::__construct(...)` must pass the new arguments; when declaring the service in XML, add `<argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>` and `<argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>` after the existing ones.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
@@ -2097,12 +2103,6 @@ Elasticsearch product search now uses a custom BM25 similarity with `b=0` (no fi
 Long-form text fields (`description`, `metaDescription`) retain the standard BM25 normalization (`b=0.75`) via the `sw_length_norm` similarity, since document length is a meaningful relevance signal for prose content.
 
 Both similarities are configurable via `elasticsearch.similarity` in `elasticsearch.yaml`. This change requires a full reindex (`bin/console es:index`).
-
-### Stream-backed CMS product sliders honour `hideCloseoutProductsWhenOutOfStock`
-
-Product sliders sourced from a product stream now apply the `core.listing.hideCloseoutProductsWhenOutOfStock` setting, mirroring the manual-products slider. The closeout filter is added to the stream criteria (before the slider limit is applied, so hidden products do not consume slider slots), with an additional post-search filter to catch display-parent/main-variant remapping.
-
-The `@internal` constructor of `Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor` takes two additional arguments: `SystemConfigService` and `AbstractProductCloseoutFilterFactory`. Plugins that extend the service and call `parent::__construct(...)` must pass the new arguments; when declaring the service in XML, add `<argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>` and `<argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>` after the existing ones.
 
 ### Product `display_group` values use SHA-256
 

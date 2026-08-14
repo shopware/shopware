@@ -510,19 +510,27 @@ Recovery also survives an uninstall. An app that adopted a secret the shop never
 
 Manifest validation used to run only in the `app:install`, `app:refresh` and `app:validate` commands. It now also runs inside the installation itself, so apps installed from the store or the administration, and services, are validated the same way as apps installed from the CLI.
 
-In particular, webhooks that subscribe to a non-hookable event, or whose event requires a permission the manifest does not request, now prevent the installation instead of being silently accepted. Such a refusal reports `FRAMEWORK__APP_VALIDATION_FAILED` with HTTP status `400`.
+Not every finding refuses an installation. A manifest may be written for several Shopware versions at once, so a finding that only means part of the app will not work is reported and the app still installs. These findings refuse an installation:
 
-Validators are services tagged `shopware.app_manifest.validator`, which is the set the commands report. A validator that must also be able to refuse an installation is additionally tagged `shopware.app_manifest.validator.enforced`:
+- the app is not compatible with the running Shopware version, reported as `FRAMEWORK__APP_NOT_COMPATIBLE`
+- `config.xml` renders a custom administration component that is not allowed, reported as `FRAMEWORK__APP_INVALID_CONFIGURATION`
+- a webhook subscribes to an event whose required permission the manifest does not request, reported as `FRAMEWORK__APP_VALIDATION_FAILED`
+- a webhook subscribes to an event the app is not permitted to receive, reported as `FRAMEWORK__APP_VALIDATION_FAILED`
+
+All of them report HTTP status `400`.
+
+These are reported but still install: a webhook on an event this Shopware version does not have, a missing translation, an unmet `<requirement>`, and a folder name that does not match the app's technical name. Run `bin/console app:validate` to see them.
+
+A webhook whose event requires a permission the manifest does not request already never fired, because delivery checks the app's privileges. Requesting the permission in `<permissions>` fixes both.
+
+Validators are services tagged `shopware.app_manifest.validator`. Whether a finding refuses an installation is decided by the finding itself, so the tag is all a validator needs:
 
 ```php
 $services->set(MyManifestValidator::class)
-    ->tag('shopware.app_manifest.validator')
-    ->tag('shopware.app_manifest.validator.enforced');
+    ->tag('shopware.app_manifest.validator');
 ```
 
-Without the second tag a validator only reports its findings in `app:validate` and never refuses an installation.
-
-`--no-validate` on `app:install` and `app:refresh` skips only the reporting set. The enforced validators still run during the installation.
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8. On `app:install` it no longer has any effect, because findings that do not prevent an app from working no longer refuse an installation. On `app:refresh` it still skips the report shown before the refresh runs.
 
 ### Apps can register custom fields on media folders
 

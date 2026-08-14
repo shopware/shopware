@@ -43,6 +43,16 @@ type MigrationResult = {
     inlineOverrides: InlineOverride[];
 };
 
+const STAT_KEY: Record<Outcome, keyof MigrationResult['stats']> = {
+    full: 'full',
+    partial: 'partial',
+    skipped: 'skipped',
+    'already-migrated': 'alreadyMigrated',
+    error: 'error',
+};
+
+const errorText = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const TEMPLATE_IMPORT = /import\s+\w+\s+from\s+['"]([^'"]+\.html\.twig)['"]/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
@@ -100,6 +110,92 @@ function buildIndexShim(originalSource: string, componentName: string): string {
     return `${docblock}\nexport { default } from './${componentName}.vue';\n`;
 }
 
+/**
+ * Tells apart the three things an existing `<name>.vue` can mean, none of which is "this component
+ * finished migrating" — a completed migration leaves an index.js re-export the discovery pass does
+ * not recognise as a component, so it is never rediscovered.
+ */
+function describeExistingSfc(vuePath: string, name: string): string {
+    const existing = fs.readFileSync(vuePath, 'utf8');
+
+    if (existing.includes('TODO(sfc-migration)')) {
+        return `draft from a previous run: ${name}.vue still has TODO(sfc-migration) markers`;
+    }
+
+    if (existing.includes('swDefinePublic(')) {
+        return `half-migrated: ${name}.vue exists but index.js still holds the component config`;
+    }
+
+    return `a ${name}.vue that this codemod did not generate already exists`;
+}
+
+/**
+ * Performs the file mutations of one component and reports what ended up on disk. Nothing escapes:
+ * a failing write must not abandon the run, because everything migrated after it would go
+ * unreported and the filesystem would be the only record.
+ *
+ * The order — `.vue`, then the index.js shim, then the twig — is the only safe one: nothing is
+ * destroyed before its replacement exists. The `.vue` is rolled back when the shim write fails, so
+ * a permission error leaves the component exactly as it was rather than half-migrated, which the
+ * `already-migrated` precheck would otherwise make permanent. A failing twig deletion is not rolled
+ * back: that state is a working migration with a stale file, and undoing it would be worse.
+ */
+function writeComponent(input: {
+    sfc: string;
+    full: boolean;
+    vuePath: string;
+    indexFile: string;
+    jsSource: string;
+    twigPath: string;
+    name: string;
+    externalImporters: string[];
+}): { ok: boolean; reasons: string[] } {
+    try {
+        fs.writeFileSync(input.vuePath, input.sfc);
+    } catch (error) {
+        return { ok: false, reasons: [`write failed at .vue write: ${errorText(error)} (on disk: nothing changed)`] };
+    }
+
+    if (!input.full) {
+        return { ok: true, reasons: [] };
+    }
+
+    try {
+        fs.writeFileSync(input.indexFile, buildIndexShim(input.jsSource, input.name));
+    } catch (error) {
+        let rolledBack = `on disk: nothing changed — ${input.name}.vue removed again`;
+
+        try {
+            fs.rmSync(input.vuePath);
+        } catch (rollbackError) {
+            rolledBack = `on disk: ${input.name}.vue written and could not be removed: ${errorText(rollbackError)}`;
+        }
+
+        return { ok: false, reasons: [`write failed at index.js shim: ${errorText(error)} (${rolledBack})`] };
+    }
+
+    if (input.externalImporters.length > 0) {
+        return {
+            ok: true,
+            reasons: [`twig kept: still imported by ${input.externalImporters.length} other file(s)`],
+        };
+    }
+
+    try {
+        fs.rmSync(input.twigPath);
+    } catch (error) {
+        return {
+            ok: false,
+            reasons: [
+                `twig deletion failed: ${errorText(error)}`,
+                `the .vue and the index.js shim are written — only ${input.name}.html.twig is left over`,
+            ],
+        };
+    }
+
+    return { ok: true, reasons: [] };
+}
+
 async function runMigration(
     targetDir: string,
     options: { write?: boolean; scanRoot?: string } = {},
@@ -114,12 +210,18 @@ async function runMigration(
         ignore: '**/node_modules/**',
     }).sort();
 
-    const reports: ComponentReport[] = [];
-    const stats: MigrationResult['stats'] = { full: 0, partial: 0, skipped: 0, alreadyMigrated: 0, error: 0 };
+    const result: MigrationResult = {
+        reports: [],
+        stats: { full: 0, partial: 0, skipped: 0, alreadyMigrated: 0, error: 0 },
+        inlineOverrides: registry.inlineOverrides,
+    };
+    // Counting here rather than at each call site makes "one report row is one stat" structural,
+    // which matters once an outcome can still change after the conversion (a failing write).
     const report = (name: string, dir: string, outcome: Outcome, reasons: string[] = []): void => {
         const registration = registry.byDir.get(dir)?.kind ?? 'unregistered';
 
-        reports.push({ name, dir, outcome, registration, reasons });
+        result.reports.push({ name, dir, outcome, registration, reasons });
+        result.stats[STAT_KEY[outcome]] += 1;
     };
 
     for (const indexFile of indexFiles) {
@@ -129,135 +231,131 @@ async function runMigration(
         // registers fall back to their basename.
         const registration = registry.byDir.get(dir);
         const name = registration?.name ?? dirName;
-        const jsSource = fs.readFileSync(indexFile, 'utf8');
 
-        // Files without a default-exported component config (registries, barrels) are not
-        // components — they are not even reported.
-        if (!/export\s+default\s/.test(jsSource)) {
-            continue;
-        }
-
-        // How a component is registered decides whether its template stands on its own, so this
-        // outranks every file-layout reason below. An extend child renders against bindings its
-        // parent declares and an override template patches another component's markup — neither
-        // survives being written as a self-contained base SFC, and the template compiler accepts
-        // the undeclared references, so the validation gate cannot catch it either.
-        if (registration?.kind === 'extend') {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', [
-                registration.parent
-                    ? `Component.extend child of '${registration.parent}' (inherits the parent template)`
-                    : 'Component.extend child (inherits the parent template)',
-            ]);
-            continue;
-        }
-
-        if (registration?.kind === 'override') {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ["Component.override registration (patches another component's template)"]);
-            continue;
-        }
-
-        const templateImport = jsSource.match(TEMPLATE_IMPORT);
-
-        if (!templateImport) {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ['no template import (render function or inherited template)']);
-            continue;
-        }
-
-        if (!templateImport[1].startsWith('./')) {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ['template imported from outside the component directory']);
-            continue;
-        }
-
-        if (!KEBAB_NAME.test(name)) {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ['component name is not multi-segment kebab-case']);
-            continue;
-        }
-
-        if (registry.duplicateNames.has(name)) {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ['component name registered more than once']);
-            continue;
-        }
-
-        // A name the directory does not carry is only trustworthy with a second source agreeing:
-        // the template filename, which by convention equals the registered name.
-        if (name !== dirName && path.basename(templateImport[1], '.html.twig') !== name) {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ['template filename does not match the registered component name']);
-            continue;
-        }
-
-        const twigPath = path.resolve(dir, templateImport[1]);
-
-        if (!fs.existsSync(twigPath)) {
-            stats.skipped += 1;
-            report(name, dir, 'skipped', ['template file not found']);
-            continue;
-        }
-
-        const vuePath = path.join(dir, `${name}.vue`);
-
-        if (fs.existsSync(vuePath)) {
-            stats.alreadyMigrated += 1;
-            report(name, dir, 'already-migrated');
-            continue;
-        }
-
-        let result: ConvertResult;
-
+        // Reads and stats can throw too (permissions, dangling symlinks). One unreadable component
+        // must not cost the report for every component processed after it.
         try {
-            result = await convertComponent({
-                jsSource,
-                twigSource: fs.readFileSync(twigPath, 'utf8'),
-                componentName: name,
-                vuePath,
-                lang: indexFile.endsWith('.ts') ? 'ts' : 'js',
-            });
-        } catch (error) {
-            stats.error += 1;
-            report(name, dir, 'error', [(error as Error).message]);
-            continue;
-        }
+            const jsSource = fs.readFileSync(indexFile, 'utf8');
 
-        // A directory no registration resolves to is also where an extend child hides when the
-        // registering file sits outside the scan root, so it never takes the destructive path.
-        // Expressed as an outcome downgrade rather than a condition on the write, so `full` keeps
-        // meaning "index.js is replaced and the twig is deleted".
-        const outcome = result.outcome === 'full' && registration === undefined ? 'partial' : result.outcome;
-
-        if (outcome !== result.outcome) {
-            result.reasons.push('no registration resolves to this directory — draft only, index.js and twig kept');
-        }
-
-        stats[outcome] += 1;
-
-        if (write && result.sfc !== null) {
-            fs.writeFileSync(vuePath, result.sfc);
-
-            if (outcome === 'full') {
-                fs.writeFileSync(indexFile, buildIndexShim(jsSource, name));
-
-                const externalImporters = [...(twigImporters.get(twigPath) ?? [])].filter(
-                    (importer) => importer !== indexFile,
-                );
-
-                if (externalImporters.length === 0) {
-                    fs.rmSync(twigPath);
-                } else {
-                    result.reasons.push(`twig kept: still imported by ${externalImporters.length} other file(s)`);
-                }
+            // Files without a default-exported component config (registries, barrels) are not
+            // components — they are not even reported.
+            if (!/export\s+default\s/.test(jsSource)) {
+                continue;
             }
-        }
 
-        report(name, dir, outcome, result.reasons);
+            // How a component is registered decides whether its template stands on its own, so this
+            // outranks every file-layout reason below. An extend child renders against bindings its
+            // parent declares and an override template patches another component's markup — neither
+            // survives being written as a self-contained base SFC, and the template compiler accepts
+            // the undeclared references, so the validation gate cannot catch it either.
+            if (registration?.kind === 'extend') {
+                report(name, dir, 'skipped', [
+                    registration.parent
+                        ? `Component.extend child of '${registration.parent}' (inherits the parent template)`
+                        : 'Component.extend child (inherits the parent template)',
+                ]);
+                continue;
+            }
+
+            if (registration?.kind === 'override') {
+                report(name, dir, 'skipped', ["Component.override registration (patches another component's template)"]);
+                continue;
+            }
+
+            const templateImport = jsSource.match(TEMPLATE_IMPORT);
+
+            if (!templateImport) {
+                report(name, dir, 'skipped', ['no template import (render function or inherited template)']);
+                continue;
+            }
+
+            if (!templateImport[1].startsWith('./')) {
+                report(name, dir, 'skipped', ['template imported from outside the component directory']);
+                continue;
+            }
+
+            if (!KEBAB_NAME.test(name)) {
+                report(name, dir, 'skipped', ['component name is not multi-segment kebab-case']);
+                continue;
+            }
+
+            if (registry.duplicateNames.has(name)) {
+                report(name, dir, 'skipped', ['component name registered more than once']);
+                continue;
+            }
+
+            // A name the directory does not carry is only trustworthy with a second source agreeing:
+            // the template filename, which by convention equals the registered name.
+            if (name !== dirName && path.basename(templateImport[1], '.html.twig') !== name) {
+                report(name, dir, 'skipped', ['template filename does not match the registered component name']);
+                continue;
+            }
+
+            const twigPath = path.resolve(dir, templateImport[1]);
+
+            if (!fs.existsSync(twigPath)) {
+                report(name, dir, 'skipped', ['template file not found']);
+                continue;
+            }
+
+            const vuePath = path.join(dir, `${name}.vue`);
+
+            if (fs.existsSync(vuePath)) {
+                report(name, dir, 'already-migrated', [describeExistingSfc(vuePath, name)]);
+                continue;
+            }
+
+            let converted: ConvertResult;
+
+            try {
+                converted = await convertComponent({
+                    jsSource,
+                    twigSource: fs.readFileSync(twigPath, 'utf8'),
+                    componentName: name,
+                    vuePath,
+                    lang: indexFile.endsWith('.ts') ? 'ts' : 'js',
+                });
+            } catch (error) {
+                report(name, dir, 'error', [(error as Error).message]);
+                continue;
+            }
+
+            // A directory no registration resolves to is also where an extend child hides when the
+            // registering file sits outside the scan root, so it never takes the destructive path.
+            // Expressed as an outcome downgrade rather than a condition on the write, so `full` keeps
+            // meaning "index.js is replaced and the twig is deleted".
+            const outcome = converted.outcome === 'full' && registration === undefined ? 'partial' : converted.outcome;
+
+            if (outcome !== converted.outcome) {
+                converted.reasons.push('no registration resolves to this directory — draft only, index.js and twig kept');
+            }
+
+            if (!write || converted.sfc === null) {
+                report(name, dir, outcome, converted.reasons);
+                continue;
+            }
+
+            const written = writeComponent({
+                sfc: converted.sfc,
+                full: outcome === 'full',
+                vuePath,
+                indexFile,
+                jsSource,
+                twigPath,
+                name,
+                externalImporters: [...(twigImporters.get(twigPath) ?? [])].filter((importer) => importer !== indexFile),
+            });
+
+            report(name, dir, written.ok ? outcome : 'error', [
+                ...converted.reasons,
+                ...written.reasons,
+            ]);
+        } catch (error) {
+            report(name, dir, 'error', [`unexpected failure: ${errorText(error)}`]);
+        }
     }
 
-    return { reports, stats, inlineOverrides: registry.inlineOverrides };
+    return result;
 }
 
 function printReport(result: MigrationResult, targetDir: string, write: boolean): void {

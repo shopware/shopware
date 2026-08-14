@@ -35,7 +35,3 @@
         - echo -e "\e[0Ksection_start:$(date +%s):npminstallstorefront[collapsed=true]\r\e[0Knpm install storefront"
         - 'npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci'
         - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
-      e2e:
-        - echo -e "\e[0Ksection_start:$(date +%s):npminstalle2e[collapsed=true]\r\e[0Knpm install e2e"
-        - 'npm --prefix tests/e2e ci'
-        - echo -e "\e[0Ksection_end:`date +%s`:npminstalle2e\r\e[0K"

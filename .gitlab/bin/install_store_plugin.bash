@@ -102,5 +102,4 @@ do
     activate_plugin "${destination}"
 done
 
-APP_ENV=e2e console cache:clear
 APP_ENV=prod console cache:clear

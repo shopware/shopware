@@ -5,7 +5,6 @@
 stages:
     - build
     - test
-    - E2E
     - visual
     - deploy
 
@@ -18,12 +17,7 @@ variables:
     DATABASE_URL: 'mysql://root:root@database:3306/root'
     APP_SECRET: 'def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48'
     APP_URL: http://localhost:8000
-    # cypress
-    CYPRESS_baseUrl: http://localhost:8000
-    CYPRESS_localUsage: 1
-    CYPRESS_shopwareRoot: $CI_PROJECT_DIR
     SHOPWARE_HTTP_CACHE_ENABLED: 0
-    CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
     # things themes might want to override
     THEME_NAME:
         value: ${CI_PROJECT_TITLE}
@@ -46,9 +40,6 @@ variables:
     MYSQL8_CMD:
         value: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
         description: 'mysql 8 needs a special auth option to work with shopware/platform'
-    BROWSER:
-        value: chrome
-        description: 'Browser to use for cypress tests. Possible values: "chrome", "firefox", "electron"'
     PLUGIN_DEPENDENCIES:
         value: '[]'
         description: 'Plugin dependencies. Defined in json. Example: [{ "name": "SwagPayPal", "url": "gitlab.shopware.com/shopware/6/services/paypal", "branch": "master" }]'
@@ -241,61 +232,6 @@ template filled:
     script:
         - echo "run './bin/init $CI_PROJECT_TITLE'"
         - exit 1
-
-cypress:
-    image: shopware/development:8.2-node-20.10-composer-2
-    stage: E2E
-    tags:
-      - shopware-amd64
-    needs:
-        - build zip
-    rules:
-        - exists:
-            - Resources/app/storefront/test/e2e/cypress.json
-            - src/Resources/app/storefront/test/e2e/cypress.json
-    variables:
-        GIT_STRATEGY: none
-        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
-        APP_ENV: e2e
-    before_script:
-        - *base_env_vars
-        - mv "$THEME_NAME.zip" /tmp/theme.zip
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
-        - mkdir -p custom/apps || true
-        - unzip -q /tmp/theme.zip -d custom/apps
-        - *base_install
-        - *theme_install
-        - *install_dependencies
-        - composer init:js
-        - composer build:js
-        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
-        - bin/console e2e:dump-db
-        - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
-        - npm ci --no-audit --prefer-offline
-    script:
-        - >
-          if [[ -z "$CYPRESS_SPEC" ]]; then
-              echo "Running non visual tests"
-              APP_ENV=e2e ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
-          else
-              echo "Running specs: $CYPRESS_SPEC"
-              APP_ENV=e2e ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$CYPRESS_SPEC"
-          fi
-    after_script:
-        - *base_env_vars
-        - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
-        - mkdir $CI_PROJECT_DIR/var/log/e2e || true
-        - mkdir -p cypress/mochareports || true
-        - npx mochawesome-merge cypress/results/mocha/*.json > cypress/mochareports/report.json
-        - npx marge cypress/mochareports/*.json -f report -o mochareports
-        - mv cypress/results/single-reports/*.xml $CI_PROJECT_DIR/var/log/e2e/ || true
-        - mv mochareports/ $CI_PROJECT_DIR/var/log/e2e/ || true
-    artifacts:
-        when: always
-        paths:
-            - var/log/*
-        reports:
-            junit: var/log/e2e/*.xml
 
 upload zip to store:
     stage: deploy

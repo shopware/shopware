@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
@@ -16,7 +17,7 @@ final class DisableSalesChannelContextCacheCompilerPass implements CompilerPassI
 {
     public function process(ContainerBuilder $container): void
     {
-        if (getenv('ATS_RUNNING') !== '1') {
+        if (EnvironmentHelper::getVariable('ATS_RUNNING') !== '1') { // @phpstan-ignore shopware.envHelperCompilerPass (The compiler pass reads the ATS-only build marker.)
             return;
         }
 

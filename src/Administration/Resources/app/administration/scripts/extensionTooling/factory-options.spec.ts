@@ -161,7 +161,11 @@ describe('extension-tooling eslint factory host options', () => {
             ruleSeverity(blocks, 'shopware/admin-extension/vue-component-type-unsafety', 'no-unused-vars'),
         ).toBeUndefined();
         expect(
-            ruleSeverity(blocks, 'shopware/admin-extension/vue-component-type-unsafety', '@typescript-eslint/no-unused-vars'),
+            ruleSeverity(
+                blocks,
+                'shopware/admin-extension/vue-component-type-unsafety',
+                '@typescript-eslint/no-unused-vars',
+            ),
         ).toBeUndefined();
     });
 

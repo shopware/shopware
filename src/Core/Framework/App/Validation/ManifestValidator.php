@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Validation;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Result;
 
 /**
  * @internal only for use by the app-system
@@ -20,28 +21,16 @@ class ManifestValidator
     {
     }
 
-    public function validate(Manifest $manifest, Context $context): void
+    /**
+     * @return Result<list<Error>>
+     */
+    public function validate(Manifest $manifest, Context $context): Result
     {
         $errors = [];
         foreach ($this->validators as $validator) {
             $errors = [...$errors, ...$validator->validate($manifest, $context)];
         }
 
-        if ($errors === []) {
-            return;
-        }
-
-        throw AppException::validationFailed($manifest->getMetadata()->getName(), $errors);
-    }
-
-    public function throwOnFirstError(Manifest $manifest, Context $context): void
-    {
-        foreach ($this->validators as $validator) {
-            $error = $validator->validate($manifest, $context)[0] ?? null;
-
-            if ($error !== null) {
-                throw AppException::validationFailedFromError($error);
-            }
-        }
+        return $errors === [] ? Result::ok() : Result::failed($errors);
     }
 }

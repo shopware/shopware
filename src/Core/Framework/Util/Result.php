@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The payload is whatever the caller wants to carry on failure — a list, a collection.
  *
- * @template T
+ * @template-covariant T
  */
 #[Package('framework')]
 final readonly class Result

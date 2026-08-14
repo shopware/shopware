@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
@@ -74,10 +73,14 @@ class InstallAppCommand extends Command
             }
 
             if (!$input->getOption('no-validate')) {
-                try {
-                    $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException $e) {
-                    $io->error(\sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
+                $result = $this->manifestValidator->validate($manifest, $context);
+
+                if (!$result->isOk()) {
+                    $io->error(\sprintf(
+                        'App installation of %s failed due: %s',
+                        $name,
+                        AppException::validationFailed($manifest->getMetadata()->getName(), $result->errors)->getMessage()
+                    ));
 
                     $success = self::FAILURE;
 

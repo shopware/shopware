@@ -31,11 +31,11 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Util\Result;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -115,7 +115,7 @@ class AppManagerTest extends TestCase
         $refusal = AppException::validationFailedFromError(new IncompatibleAppError('test'));
 
         $manifestValidator = static::createStub(ManifestValidator::class);
-        $manifestValidator->method('throwOnFirstError')->willThrowException($refusal);
+        $manifestValidator->method('validate')->willReturn(Result::failed([new IncompatibleAppError('test')]));
         $this->manifestValidator = $manifestValidator;
 
         $this->expectNoLifecycleCollaboratorCalls();
@@ -133,7 +133,7 @@ class AppManagerTest extends TestCase
         $refusal = AppException::validationFailedFromError(new IncompatibleAppError('test'));
 
         $manifestValidator = static::createStub(ManifestValidator::class);
-        $manifestValidator->method('throwOnFirstError')->willThrowException($refusal);
+        $manifestValidator->method('validate')->willReturn(Result::failed([new IncompatibleAppError('test')]));
         $this->manifestValidator = $manifestValidator;
 
         $this->expectNoLifecycleCollaboratorCalls();
@@ -318,7 +318,7 @@ class AppManagerTest extends TestCase
         $this->manifestFactory->expects($this->never())->method('createFromApp');
 
         $manifestValidator = $this->createMock(ManifestValidator::class);
-        $manifestValidator->expects($this->never())->method('throwOnFirstError');
+        $manifestValidator->expects($this->never())->method('validate');
         $this->manifestValidator = $manifestValidator;
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
@@ -366,11 +366,10 @@ class AppManagerTest extends TestCase
         );
     }
 
-    public function testInstallValidatesInterruptedReinstallRequirementsBeforeRecovery(): void
+    public function testInstallValidatesInterruptedReinstallBeforeRecovery(): void
     {
         $context = Context::createDefaultContext();
         $manifest = ManifestFixture::empty()->withSetup();
-        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
         $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
         $pendingApp->setAppSecret('deleted-app-secret');
         $pendingApp->setUnconfirmedAppSecrets(['pending-secret']);
@@ -384,10 +383,10 @@ class AppManagerTest extends TestCase
             ->with('test')
             ->willReturn('deleted-app-secret');
 
-        $refusal = AppException::requirementsNotMet($violation);
+        $refusal = AppException::validationFailedFromError(new IncompatibleAppError('test'));
 
         $manifestValidator = static::createStub(ManifestValidator::class);
-        $manifestValidator->method('throwOnFirstError')->willThrowException($refusal);
+        $manifestValidator->method('validate')->willReturn(Result::failed([new IncompatibleAppError('test')]));
         $this->manifestValidator = $manifestValidator;
 
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');

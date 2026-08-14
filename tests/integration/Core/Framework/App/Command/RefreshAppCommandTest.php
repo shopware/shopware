@@ -316,13 +316,13 @@ class RefreshAppCommandTest extends TestCase
         // header app list
         static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
 
-        // `validationFailure` only trips optional validators, so --no-validate installs it ...
+        // `validationFailure` only trips advisory validators, so it installs ...
         static::assertMatchesRegularExpression('/.*validationFailure\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
 
-        // ... while `validationFailures` trips the required HookableValidator, which AppManager
-        // enforces regardless of --no-validate.
+        // ... while `validationFailures` is missing permissions its webhooks require, which AppManager
+        // refuses regardless of --no-validate.
         static::assertStringContainsString('Incomplete installations', $display);
-        static::assertStringContainsString('The following webhooks are not hookable:', $display);
+        static::assertStringContainsString('The following permissions are missing:', $display);
     }
 
     public function testRefreshWithLimitation(): void

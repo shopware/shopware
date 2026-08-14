@@ -68,12 +68,6 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
-### Linear-time rule, price and listing hot-path helpers
-
-Several storefront/cart hot-path helpers no longer scale quadratically with the number of active rules, product prices and listing filters:
-`RuleCollection::getIdsByArea()`, `SalesChannelContext::getRuleIdsByAreas()` and `RuleAreaUpdater` now deduplicate via keyed sets instead of `array_unique(array_merge(...))` inside loops; `ProductPriceCalculator::filterRulePrices()` indexes the available price rule ids once instead of re-scanning the whole price collection for every active rule id; and `AggregationListingProcessor` merges filter aggregations a single time and computes the filtered base collection once outside the loop.
-This is a backwards-compatible optimization: the produced results (ordering, deduplication, calculated prices, aggregations) are unchanged, so no adjustments are required.
-
 ## Administration
 
 ## Storefront

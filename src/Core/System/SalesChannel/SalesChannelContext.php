@@ -189,9 +189,6 @@ class SalesChannelContext extends Struct
      */
     public function getRuleIdsByAreas(array $areas): array
     {
-        // Collect into a keyed set to deduplicate in O(1) per id instead of re-scanning the
-        // accumulator with array_unique(array_merge(...)) for every area. This runs on the
-        // cache-key generation hot path (EntityCacheKeyGenerator, CacheHeadersService).
         $ruleIds = [];
 
         foreach ($areas as $area) {

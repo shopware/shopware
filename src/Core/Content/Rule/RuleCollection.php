@@ -48,8 +48,6 @@ class RuleCollection extends EntityCollection
      */
     public function getIdsByArea(): array
     {
-        // Use the rule id as an array key to deduplicate in O(1) per insert instead of
-        // re-scanning the accumulator with array_unique(array_merge(...)) on every rule.
         $idsByArea = [];
 
         foreach ($this->getElements() as $rule) {

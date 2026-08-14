@@ -132,8 +132,6 @@ class RuleAreaUpdater implements EventSubscriberInterface
         );
 
         foreach ($areas as $id => $associations) {
-            // Use the area name as an array key to deduplicate in O(1) per insert instead of
-            // re-scanning with array_unique(array_merge(...)) for every matching association.
             $ruleAreas = [];
 
             foreach ($associations as $propertyName => $match) {

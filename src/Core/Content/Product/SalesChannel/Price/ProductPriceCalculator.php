@@ -31,9 +31,9 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     private ?UnitCollection $units = null;
 
     /**
-     * @internal
-     *
      * @param EntityRepository<UnitCollection> $unitRepository
+     *
+     * @internal
      */
     public function __construct(
         private readonly EntityRepository $unitRepository,
@@ -305,9 +305,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
      */
     private function filterRulePrices(EntityCollection $rules, SalesChannelContext $context): ?EntityCollection
     {
-        // Index the available rule ids once (O(prices)) instead of re-scanning the whole price
-        // collection for every active rule id (O(ruleIds * prices)). This runs for every product
-        // whose price is calculated, e.g. for every product on a listing page.
+        if ($context->getRuleIds() === []) {
+            return null;
+        }
+
         $availableRuleIds = [];
         foreach ($rules as $price) {
             $priceRuleId = $price->get('ruleId');
@@ -317,7 +318,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
 
         foreach ($context->getRuleIds() as $ruleId) {
-            if (!isset($availableRuleIds[$ruleId])) {
+            if (!\array_key_exists($ruleId, $availableRuleIds)) {
                 continue;
             }
 

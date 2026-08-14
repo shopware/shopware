@@ -101,8 +101,6 @@ class AggregationListingProcessor extends AbstractListingProcessor
         $aggregations = [];
 
         if (RequestParamHelper::get($request, 'reduce-aggregations') === null) {
-            // Collect per-filter aggregation lists and merge once to avoid the O(n^2)
-            // re-allocation of array_merge() against a growing accumulator inside the loop.
             foreach ($filters as $filter) {
                 $aggregations[] = $filter->getAggregations();
             }
@@ -110,8 +108,6 @@ class AggregationListingProcessor extends AbstractListingProcessor
             return array_merge(...$aggregations);
         }
 
-        // filtered() does not depend on the current $filter and blacklist() returns a new
-        // collection without mutating the base, so compute the base set once outside the loop.
         $base = $filters->filtered();
 
         foreach ($filters as $filter) {

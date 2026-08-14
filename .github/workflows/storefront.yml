@@ -165,7 +165,9 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/jest/cobertura-coverage.xml jest-storefront --disable-file-fixes
+        # jest resolves PROJECT_ROOT from INIT_CWD, so coverage lands inside the
+        # app directory here (unlike admin, where npm runs from the repo root).
+        run: node .github/bin/js/codecov-upload.ts coverage src/Storefront/Resources/app/storefront/build/artifacts/jest/cobertura-coverage.xml jest-storefront --disable-file-fixes
 
   vitest:
     name: "Vitest Storefront Components"
@@ -213,7 +215,9 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: node .github/bin/js/codecov-upload.ts coverage build/artifacts/vitest/cobertura-coverage.xml vitest-storefront-components --disable-file-fixes
+        # the vitest step's reportsDirectory is relative to its working
+        # directory, so coverage lands inside the app directory.
+        run: node .github/bin/js/codecov-upload.ts coverage src/Storefront/Resources/app/storefront/build/artifacts/vitest/cobertura-coverage.xml vitest-storefront-components --disable-file-fixes
 
   license-check:
     needs:

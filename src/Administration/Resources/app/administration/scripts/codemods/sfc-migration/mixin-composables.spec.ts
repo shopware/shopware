@@ -179,7 +179,19 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
             expect(result.sfc).toContain('selectedItems.value = [];');
         });
 
+        it('passes a method the mixin called as a forwarding call', async () => {
+            const result = await convertFixture('sw-mixin-callback-method');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+            expect(result.sfc).toContain('ensureValueExist: (...args) => ensureValueExist(...args)');
+        });
+
         it.each([
+            [
+                'sw-mixin-callback-not-method',
+                "'ensureValueExist' is not a method, but the 'rule-between-operator' composable calls it",
+            ],
             [
                 'sw-mixin-emits-object',
                 "emits is not a plain list of event names, so the 'media-sidebar-modal' mixin's events cannot be merged",

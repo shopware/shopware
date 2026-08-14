@@ -391,6 +391,67 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback-method 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_callback_method">
+        <div class="sw-mixin-callback-method">
+            <mt-datepicker v-if="isBetween" v-model:value="betweenValue.from" />
+            <mt-datepicker v-if="isBetween" v-model:value="betweenValue.to" />
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import useRuleBetweenOperator from 'src/app/composables/use-rule-between-operator';
+
+const props = defineProps({
+    condition: {
+        type: Object,
+        required: true,
+    },
+});
+
+const { isBetween, betweenValue } = useRuleBetweenOperator({
+    condition: () => props.condition,
+    ensureValueExist: (...args) => ensureValueExist(...args),
+});
+
+const ensureValueExist = // The method the mixin called on its host before writing the pair back.
+    function () {
+        if (!props.condition.value) {
+            props.condition.value = {};
+        }
+    };
+
+swDefinePublic({
+    isBetween,
+    betweenValue,
+    ensureValueExist,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback-not-method 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "'ensureValueExist' is not a method, but the 'rule-between-operator' composable calls it",
+  ],
+  "sfc": null,
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-collision 1`] = `
 {
   "outcome": "full",

@@ -297,6 +297,54 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
         ],
     },
     {
+        id: 'rule-between-operator',
+        mixinNames: ['rule-between-operator'],
+        import: { source: 'src/app/composables/use-rule-between-operator', name: 'useRuleBetweenOperator' },
+        members: refMembers([
+            'isBetween',
+            'betweenValue',
+        ]),
+        propArgs: ['condition'],
+        // The mixin created the condition's value through the host before writing the pair back.
+        callbackArgs: [
+            { name: 'ensureValueExist', kind: 'callback' },
+        ],
+    },
+    {
+        id: 'rule-container',
+        mixinNames: ['ruleContainer'],
+        import: { source: 'src/app/composables/use-rule-container', name: 'useRuleContainer' },
+        members: {
+            ...refMembers([
+                'conditionDataProviderService',
+                'childAssociationField',
+                'containerRowClass',
+                'nextPosition',
+            ]),
+            ...methodMembers([
+                'createCondition',
+                'insertNodeIntoTree',
+                'removeNodeFromTree',
+            ]),
+        },
+        // nextPosition counts the children under the provided association field, and the watcher reads
+        // it back before asking for a placeholder.
+        internallyReferencedMembers: [
+            'childAssociationField',
+            'nextPosition',
+        ],
+        // The fourth prop the mixin declared, which its own logic never read.
+        unmappedMembers: ['parentCondition'],
+        propArgs: [
+            'condition',
+            'level',
+            'disabled',
+        ],
+        callbackArgs: [
+            { name: 'onAddPlaceholder', kind: 'callback' },
+        ],
+    },
+    {
         id: 'salutation',
         mixinNames: ['salutation'],
         import: { source: 'src/app/composables/use-salutation', name: 'useSalutation' },
@@ -352,6 +400,24 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
             'currentUser',
             'userConfigRepository',
         ],
+    },
+    {
+        id: 'validation',
+        mixinNames: ['validation'],
+        import: { source: 'src/app/composables/use-validation', name: 'useValidation' },
+        members: {
+            validationService: { kind: 'value' },
+            ...methodMembers([
+                'validate',
+                'validateRule',
+            ]),
+        },
+        internallyReferencedMembers: ['validateRule'],
+        // The mixin's computed read the host's current value under whichever of `currentValue`, `value`
+        // or `selections` existed, a name the composable cannot know; its callers pass the value to
+        // `validate()` instead.
+        unmappedMembers: ['isValid'],
+        propArgs: ['validation'],
     },
     {
         id: 'video-cover',

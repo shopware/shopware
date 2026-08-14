@@ -79,11 +79,11 @@ export default {
         },
 
         cover() {
-            if (!this.product?.media) {
+            if (this.productMedia.length === 0) {
                 return null;
             }
             const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find((media) => media.id === coverId);
+            return this.productMedia.find((media) => media.id === coverId);
         },
 
         isStoreLoading() {

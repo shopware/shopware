@@ -468,7 +468,7 @@ final class OpenApiDtoClassRenderer
     {
         $matches = [];
         foreach ($externalNamespaces as $fqcn => $namespace) {
-            if ((string) substr($fqcn, (int) strrpos($fqcn, '\\') + 1) !== $type) {
+            if (substr($fqcn, (int) strrpos($fqcn, '\\') + 1) !== $type) {
                 continue;
             }
 

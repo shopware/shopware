@@ -44,7 +44,7 @@ class OpenApiDtoSchemaParserTest extends TestCase
                     ],
                 ],
             ],
-        ], ['SuccessResponse']);
+        ], ['SuccessResponse'], 'App\\Api');
 
         static::assertCount(1, $definitions);
         static::assertSame(OpenApiDtoType::Response, $definitions[0]->type);

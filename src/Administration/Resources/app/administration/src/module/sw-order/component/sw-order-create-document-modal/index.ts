@@ -276,6 +276,7 @@ export default Component.wrapComponentConfig({
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
+                this.referencedDocumentNumber = null;
 
                 return;
             }
@@ -283,6 +284,8 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+
+            this.referencedDocumentNumber = null;
 
             try {
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);

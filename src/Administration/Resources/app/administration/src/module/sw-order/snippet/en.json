@@ -665,6 +665,7 @@
         "title": "Upload document",
         "labelFileFormat": "File format",
         "placeholderFileFormat": "Select a file format...",
+        "helpTextFileFormat": "Select the format of the file you want to upload.",
         "labelDocumentUpload": "Document upload",
         "buttonUploadFile": "Upload file",
         "openAction": "Upload document",

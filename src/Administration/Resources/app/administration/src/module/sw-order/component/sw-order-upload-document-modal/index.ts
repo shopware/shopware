@@ -6,9 +6,8 @@ import type { AvailableDocumentTypesResponse } from '../../../../core/service/ap
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { isEmpty } = Utils.types;
 
 const FILE_SIZE_LIMIT = 52428800; // 50 MB
 
@@ -64,7 +63,6 @@ export default Component.wrapComponentConfig({
         supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
         selectedDocumentFile: Entity<'media'> | null;
         selectedFileFormat: string | null;
-        showMediaModal: boolean;
     } {
         return {
             documentConfig: this.documentV2Service.createEmptyDocumentConfig(),
@@ -80,7 +78,6 @@ export default Component.wrapComponentConfig({
             supportedDocumentTypes: {},
             selectedDocumentFile: null,
             selectedFileFormat: null,
-            showMediaModal: false,
         };
     },
 
@@ -245,6 +242,9 @@ export default Component.wrapComponentConfig({
         },
 
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
+            this.selectedFileFormat = null;
+            this.removeCustomDocument();
+
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
@@ -324,22 +324,6 @@ export default Component.wrapComponentConfig({
 
         onCancel(): void {
             this.$emit('page-leave');
-        },
-
-        openMediaModal(): void {
-            this.showMediaModal = true;
-        },
-
-        closeMediaModal(): void {
-            this.showMediaModal = false;
-        },
-
-        onAddMediaFromLibrary(media: Entity<'media'>[]): void {
-            if (isEmpty(media)) {
-                return;
-            }
-
-            this.validateFile(media[0]);
         },
 
         successfulUploadFromUrl(res: { targetId: string }): void {

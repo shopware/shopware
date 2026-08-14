@@ -25,6 +25,7 @@
             :placeholder="$t('sw-order.components.uploadDocumentModal.placeholderFileFormat')"
             :options="fileFormatOptions"
             :disabled="!currentDocumentType || isModalLoading"
+            :help-text="$t('sw-order.components.uploadDocumentModal.helpTextFileFormat')"
             required
         />
     </div>
@@ -82,20 +83,11 @@
                     default-folder="document"
                     :upload-tag="order.id"
                     @media-upload-add-file="onAddDocument"
-                    @media-upload-sidebar-open="openMediaModal"
                     @media-upload-remove-image="removeCustomDocument"
                 />
             </div>
         </div>
     </div>
-
-    <sw-media-modal-v2
-        v-if="showMediaModal"
-        :allow-multi-select="false"
-        :file-accept="fileAcceptTypes"
-        @media-modal-selection-change="onAddMediaFromLibrary"
-        @modal-close="closeMediaModal"
-    />
 
     <template #modal-footer>
         <mt-button

@@ -81,6 +81,45 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
         ],
     },
     {
+        id: 'notification-translation',
+        mixinNames: ['notification-translation'],
+        import: {
+            source: 'src/app/composables/use-notification-translation',
+            name: 'useNotificationTranslation',
+        },
+        members: methodMembers([
+            'getTranslatedTitle',
+            'getTranslatedMessage',
+        ]),
+    },
+    {
+        id: 'placeholder',
+        mixinNames: ['placeholder'],
+        import: { source: 'src/app/composables/use-placeholder', name: 'usePlaceholder' },
+        members: methodMembers([
+            'placeholder',
+        ]),
+    },
+    {
+        id: 'position',
+        mixinNames: ['position'],
+        import: { source: 'src/app/composables/use-position', name: 'usePosition' },
+        members: methodMembers([
+            'getNewPosition',
+            'lowerPositionValue',
+            'raisePositionValue',
+            'changePosition',
+            'getSiblingIndex',
+            'getSibling',
+            'renumberPositions',
+        ]),
+        // lower/raisePositionValue swap through changePosition, getSibling through getSiblingIndex.
+        internallyReferencedMembers: [
+            'changePosition',
+            'getSiblingIndex',
+        ],
+    },
+    {
         id: 'salutation',
         mixinNames: ['salutation'],
         import: { source: 'src/app/composables/use-salutation', name: 'useSalutation' },
@@ -89,6 +128,52 @@ const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
         ]),
         unmappedMembers: [
             'salutationFilter',
+        ],
+    },
+    {
+        id: 'sw-inline-snippet',
+        mixinNames: ['sw-inline-snippet'],
+        import: { source: 'src/app/composables/use-inline-snippet', name: 'useInlineSnippet' },
+        members: methodMembers([
+            'getInlineSnippet',
+        ]),
+        unmappedMembers: [
+            'swInlineSnippetLocale',
+            'swInlineSnippetFallbackLocale',
+        ],
+    },
+    {
+        id: 'translate-with-fallback',
+        mixinNames: ['translate-with-fallback'],
+        import: {
+            source: 'src/app/composables/use-translate-with-fallback',
+            name: 'useTranslateWithFallback',
+        },
+        members: methodMembers([
+            'tWithFallback',
+        ]),
+    },
+    {
+        id: 'user-settings',
+        mixinNames: ['user-settings'],
+        import: { source: 'src/app/composables/use-user-settings', name: 'useUserSettings' },
+        members: methodMembers([
+            'getUserSettingsEntity',
+            'getUserSettings',
+            'saveUserSettings',
+            'userGridSettingsCriteria',
+        ]),
+        // get/saveUserSettings read through getUserSettingsEntity, which builds its own criteria.
+        internallyReferencedMembers: [
+            'getUserSettingsEntity',
+            'userGridSettingsCriteria',
+        ],
+        // The mixin's own computeds, plus the `acl` it injected for the component; the composable
+        // resolves all three itself and returns none of them.
+        unmappedMembers: [
+            'acl',
+            'currentUser',
+            'userConfigRepository',
         ],
     },
 ];

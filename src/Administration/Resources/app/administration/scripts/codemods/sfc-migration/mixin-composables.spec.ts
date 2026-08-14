@@ -9,9 +9,33 @@
  * sfc-migration.spec.ts; these assertions name the behaviour each fixture exists for.
  */
 
+import { COMPOSABLE_DESCRIPTORS } from './composables';
 import { convertFixture } from './spec-helpers';
 
 describe('scripts/codemods/sfc-migration mixin composables', () => {
+    describe('descriptor registry', () => {
+        it('registers every mixin name only once', () => {
+            const names = COMPOSABLE_DESCRIPTORS.flatMap((descriptor) => descriptor.mixinNames);
+
+            expect(names).toHaveLength(new Set(names).size);
+        });
+
+        // An internally referenced member the composable does not return could never be overridden in
+        // a way the guard needs to catch, so listing one is a typo rather than a policy.
+        it.each(COMPOSABLE_DESCRIPTORS)('lists only real members as internally referenced for $id', (descriptor) => {
+            for (const member of descriptor.internallyReferencedMembers ?? []) {
+                expect(Object.keys(descriptor.members)).toContain(member);
+            }
+        });
+
+        // The two lists are opposites: unmapped means the composable has no binding for the member.
+        it.each(COMPOSABLE_DESCRIPTORS)('keeps the unmapped members out of the member map for $id', (descriptor) => {
+            for (const member of descriptor.unmappedMembers ?? []) {
+                expect(Object.keys(descriptor.members)).not.toContain(member);
+            }
+        });
+    });
+
     it('skips a component whose mixins no composable covers', async () => {
         const result = await convertFixture('sw-mixin-demo');
 
@@ -104,6 +128,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         expect(result.sfc).toContain("t('sw-legacy-i18n.title', { name: 'demo' })");
         expect(result.sfc).toContain("t('sw-legacy-i18n.items', props.itemCount)");
+        expect(result.sfc).toContain("t('sw-legacy-i18n.toggle', props.collapsed ? 0 : 1)");
 
         // The refused calls keep their `this.` callee, but their arguments still rewrite.
         expect(result.sfc).toContain("this.$t('sw-legacy-i18n.title', Shopware.Context.app.fallbackLocale)");

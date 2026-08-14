@@ -20,10 +20,7 @@ abstract class AbstractResponse extends AbstractDto
      */
     private array $cookies = [];
 
-    public function __construct(
-        private int $statusCode = Response::HTTP_OK,
-    ) {
-    }
+    private int $statusCode = Response::HTTP_OK;
 
     public function setStatusCode(int $statusCode): void
     {

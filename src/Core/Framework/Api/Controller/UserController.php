@@ -72,7 +72,7 @@ class UserController extends AbstractController
             throw ApiException::userNotLoggedIn();
         }
 
-        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
         if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
             throw ApiException::missingPrivileges(['user:update']);

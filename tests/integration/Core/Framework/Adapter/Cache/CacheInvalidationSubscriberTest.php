@@ -58,7 +58,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             false,
-            true
+            true,
             $this->backtraceCollector,
             new NativeClock(),
         );

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
@@ -31,8 +30,6 @@ class System extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
-
-        $container->setParameter('shopware.ats_running', EnvironmentHelper::getVariable('ATS_RUNNING') === '1');
 
         $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
 

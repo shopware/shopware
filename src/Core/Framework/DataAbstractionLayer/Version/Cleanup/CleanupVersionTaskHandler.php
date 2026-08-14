@@ -17,7 +17,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @codeCoverageIgnore
+ *
  * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CleanupVersionTaskHandlerTest
  */
 #[Package('framework')]

@@ -27,7 +27,6 @@ class UnmetRequirementErrorTest extends TestCase
             'The app requirements are not met: App "MyApp" - Requirement "https": Use HTTPS; App "MyApp" - Requirement "public-access": Expose the app server',
             $error->getMessage()
         );
-        static::assertSame('manifest-unmet-requirements', $error->getMessageKey());
         static::assertSame(AppException::APP_REQUIREMENTS_NOT_MET, $error->getErrorCode());
         static::assertSame(
             ['violations' => 'App "MyApp" - Requirement "https": Use HTTPS; App "MyApp" - Requirement "public-access": Expose the app server'],

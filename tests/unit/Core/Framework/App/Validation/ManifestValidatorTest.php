@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Validation\AbstractManifestValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -24,10 +23,10 @@ class ManifestValidatorTest extends TestCase
     public function testValidateReportsEveryError(): void
     {
         $incompatible = static::createStub(AbstractManifestValidator::class);
-        $incompatible->method('validate')->willReturn(new ErrorCollection([new IncompatibleAppError('test')]));
+        $incompatible->method('validate')->willReturn([new IncompatibleAppError('test')]);
 
         $badName = static::createStub(AbstractManifestValidator::class);
-        $badName->method('validate')->willReturn(new ErrorCollection([new AppNameError('test')]));
+        $badName->method('validate')->willReturn([new AppNameError('test')]);
 
         $validator = new ManifestValidator([$incompatible, $badName]);
 
@@ -43,7 +42,7 @@ class ManifestValidatorTest extends TestCase
     public function testThrowOnFirstErrorStopsAtTheFirstFailureAndKeepsItsErrorCode(): void
     {
         $incompatible = static::createStub(AbstractManifestValidator::class);
-        $incompatible->method('validate')->willReturn(new ErrorCollection([new IncompatibleAppError('test')]));
+        $incompatible->method('validate')->willReturn([new IncompatibleAppError('test')]);
 
         $later = $this->createMock(AbstractManifestValidator::class);
         $later->expects($this->never())->method('validate');
@@ -64,7 +63,7 @@ class ManifestValidatorTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         $valid = static::createStub(AbstractManifestValidator::class);
-        $valid->method('validate')->willReturn(new ErrorCollection());
+        $valid->method('validate')->willReturn([]);
 
         (new ManifestValidator([$valid]))
             ->throwOnFirstError(ManifestFixture::empty(), Context::createDefaultContext());

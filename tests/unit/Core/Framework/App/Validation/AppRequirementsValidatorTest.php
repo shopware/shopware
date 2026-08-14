@@ -72,7 +72,7 @@ class AppRequirementsValidatorTest extends TestCase
         $errors = $validator->validate($manifest, null);
 
         static::assertCount(1, $errors);
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(UnmetRequirementError::class, $error);
         static::assertSame(
             'The app requirements are not met: App "test-app" - Requirement "test-requirement": Fix the test requirement',
@@ -176,7 +176,7 @@ class AppRequirementsValidatorTest extends TestCase
         $errors = $validator->validate($manifest, null);
 
         static::assertCount(1, $errors);
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(UnmetRequirementError::class, $error);
         static::assertSame(
             'The app requirements are not met: App "multi-app" - Requirement "requirement-2": Fix requirement 2',
@@ -228,9 +228,9 @@ class AppRequirementsValidatorTest extends TestCase
 
         $errors = $validator->validate($manifest, null);
 
-        // every violation is reported through a single error, because ErrorCollection keys by message key
+        // every violation is reported through a single error
         static::assertCount(1, $errors);
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(UnmetRequirementError::class, $error);
         static::assertSame(
             'The app requirements are not met: App "violation-app" - Requirement "requirement-1": Fix requirement 1; App "violation-app" - Requirement "requirement-2": Fix requirement 2',

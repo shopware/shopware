@@ -20,7 +20,6 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Privileges\Privileges;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\Context;
@@ -327,9 +326,9 @@ class ServiceLifecycleTest extends TestCase
             ->with('/app-root/manifest.xml')
             ->willReturn($this->createManifest());
 
-        $exception = AppException::validationFailed('MyCoolService', new ErrorCollection([
+        $exception = AppException::validationFailed('MyCoolService', [
             new NotHookableError(['hook: tax.written']),
-        ]));
+        ]);
 
         $this->appManager->expects($this->once())
             ->method('install')
@@ -631,9 +630,9 @@ class ServiceLifecycleTest extends TestCase
             ->with('/app-root/manifest.xml')
             ->willReturn($this->createManifest());
 
-        $exception = AppException::validationFailed('MyCoolService', new ErrorCollection([
+        $exception = AppException::validationFailed('MyCoolService', [
             new NotHookableError(['hook: tax.written']),
-        ]));
+        ]);
 
         $this->appManager->expects($this->once())
             ->method('update')

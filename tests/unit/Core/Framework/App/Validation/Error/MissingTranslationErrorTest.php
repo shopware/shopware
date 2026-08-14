@@ -24,7 +24,6 @@ class MissingTranslationErrorTest extends TestCase
             "Missing translations for \"Metadata\":\n- label: de-DE\n- description: de-DE, nl-NL",
             $error->getMessage()
         );
-        static::assertSame('manifest-missing-translation', $error->getMessageKey());
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
         static::assertFalse($error->isBlocking());

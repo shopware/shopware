@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class IncompatibleAppError implements Error
 {
-    private const KEY = 'manifest-incompatible-app';
-
     private readonly string $message;
 
     public function __construct(private readonly string $appName)
@@ -23,11 +21,6 @@ class IncompatibleAppError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
     }
 
     public function getErrorCode(): string

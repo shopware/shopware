@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Validation;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
 use Shopware\Core\Framework\App\Validation\Requirements\Requirement;
 use Shopware\Core\Framework\Context;
@@ -31,14 +31,15 @@ class AppRequirementsValidator extends AbstractManifestValidator
      * In dev/test, validation is skipped so local development and CI are not blocked
      * by infrastructure checks (HTTPS, public reachability, etc.).
      */
-    public function validate(Manifest $manifest, ?Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, ?Context $context): array
     {
-        $errors = new ErrorCollection();
-
         $this->logUnknownRequirements($manifest);
 
         if ($this->environment !== 'prod') {
-            return $errors;
+            return [];
         }
 
         $violations = [];
@@ -53,11 +54,11 @@ class AppRequirementsValidator extends AbstractManifestValidator
             }
         }
 
-        if ($violations !== []) {
-            $errors->add(new UnmetRequirementError(...$violations));
+        if ($violations === []) {
+            return [];
         }
 
-        return $errors;
+        return [new UnmetRequirementError(...$violations)];
     }
 
     private function logUnknownRequirements(Manifest $manifest): void

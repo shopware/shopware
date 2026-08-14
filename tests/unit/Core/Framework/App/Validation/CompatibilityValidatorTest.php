@@ -34,9 +34,8 @@ class CompatibilityValidatorTest extends TestCase
         $errors = (new CompatibilityValidator('6.5.0.0'))->validate($manifest, null);
 
         static::assertCount(1, $errors);
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(IncompatibleAppError::class, $error);
         static::assertSame('App test is not compatible with this Shopware version', $error->getMessage());
-        static::assertSame('manifest-incompatible-app', $error->getMessageKey());
     }
 }

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -23,12 +22,12 @@ class ManifestValidator
 
     public function validate(Manifest $manifest, Context $context): void
     {
-        $errors = new ErrorCollection();
+        $errors = [];
         foreach ($this->validators as $validator) {
-            $errors->addErrors($validator->validate($manifest, $context));
+            $errors = [...$errors, ...$validator->validate($manifest, $context)];
         }
 
-        if ($errors->count() === 0) {
+        if ($errors === []) {
             return;
         }
 
@@ -38,7 +37,7 @@ class ManifestValidator
     public function throwOnFirstError(Manifest $manifest, Context $context): void
     {
         foreach ($this->validators as $validator) {
-            $error = $validator->validate($manifest, $context)->first();
+            $error = $validator->validate($manifest, $context)[0] ?? null;
 
             if ($error !== null) {
                 throw AppException::validationFailedFromError($error);

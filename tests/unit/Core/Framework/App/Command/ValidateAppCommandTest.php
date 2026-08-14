@@ -8,7 +8,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Log\Package;
@@ -60,9 +59,9 @@ class ValidateAppCommandTest extends TestCase
         $this->manifestValidator
             ->expects($this->once())
             ->method('validate')
-            ->willThrowException(new AppValidationException('ValidApp', new ErrorCollection([
+            ->willThrowException(new AppValidationException('ValidApp', [
                 new MissingPermissionError(['product:read']),
-            ])));
+            ]));
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute([]));
         static::assertStringContainsString('The app "ValidApp" is invalid', $this->commandTester->getDisplay());

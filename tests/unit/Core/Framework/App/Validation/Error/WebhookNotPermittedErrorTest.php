@@ -23,7 +23,6 @@ class WebhookNotPermittedErrorTest extends TestCase
             "This app is not permitted to subscribe to the following webhooks:\n- hook1: some.event\n- hook2: other.event",
             $error->getMessage()
         );
-        static::assertSame('manifest-webhook-not-permitted', $error->getMessageKey());
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
     }

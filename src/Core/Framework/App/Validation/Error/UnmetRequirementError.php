@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class UnmetRequirementError implements Error
 {
-    private const KEY = 'manifest-unmet-requirements';
-
     private readonly string $violations;
 
     private readonly string $message;
@@ -38,11 +36,6 @@ class UnmetRequirementError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
     }
 
     public function getErrorCode(): string

@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class WebhookNotPermittedError implements Error
 {
-    private const KEY = 'manifest-webhook-not-permitted';
-
     private readonly string $message;
 
     /**
@@ -29,11 +27,6 @@ class WebhookNotPermittedError implements Error
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getMessageKey(): string
-    {
-        return self::KEY;
     }
 
     public function getErrorCode(): string

@@ -23,7 +23,6 @@ class MissingPermissionErrorTest extends TestCase
             "The following permissions are missing:\n- product:read\n- order:read",
             $error->getMessage()
         );
-        static::assertSame('manifest-missing-permission', $error->getMessageKey());
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
         static::assertTrue($error->isBlocking());

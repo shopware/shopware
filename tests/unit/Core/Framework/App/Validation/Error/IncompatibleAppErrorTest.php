@@ -20,7 +20,6 @@ class IncompatibleAppErrorTest extends TestCase
         $error = new IncompatibleAppError('MyApp');
 
         static::assertSame('App MyApp is not compatible with this Shopware version', $error->getMessage());
-        static::assertSame('manifest-incompatible-app', $error->getMessageKey());
         static::assertSame(AppException::NOT_COMPATIBLE, $error->getErrorCode());
         static::assertSame(['name' => 'MyApp'], $error->getParameters());
         static::assertTrue($error->isBlocking());

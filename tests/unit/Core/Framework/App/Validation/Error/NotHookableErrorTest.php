@@ -23,7 +23,6 @@ class NotHookableErrorTest extends TestCase
             "The following webhooks are not hookable:\n- hook1: some.event\n- hook2: other.event",
             $error->getMessage()
         );
-        static::assertSame('manifest-not-hookable', $error->getMessageKey());
         static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
         static::assertSame([], $error->getParameters());
     }

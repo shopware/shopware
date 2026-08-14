@@ -33,6 +33,23 @@ root-level option spreads, and components whose `name` option differs from their
 These need structural decisions a codemod should not guess. Everything else that is not understood
 becomes a TODO comment in a draft instead of a silent conversion.
 
+## Structure
+
+Each file answers exactly one question:
+
+| File | Answers |
+| --- | --- |
+| `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, twig-importer scan, file writes, report |
+| `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
+| `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, `{% parent %}`) |
+| `transform-script.ts` | In what order is the `<script setup>` assembled? Orchestrates parse → classify → rewrite → assemble |
+| `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
+| `rewrite-this.ts` | Where does each `this.x` reference go? The scope-aware rewrite pass |
+| `tables.ts` | What converts to what? All conversion tables — the extension surface |
+| `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
+| `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
+| `sfc-migration.spec.ts` + `__fixtures__/` | Snapshot of every fixture through the full pipeline + a tmpdir integration test of `--write` |
+
 ## Extending the codemod
 
 The conversion rules are data tables plus one handler per option:

@@ -294,6 +294,14 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Search score of grouped variants no longer multiplied by the variant count
+
+The `_score` of a search result that is grouped by a field other than the primary key — product variants grouped by `displayGroup`, as the product listing and the product search do — was aggregated over all matching entities of a group. A product with three variants therefore scored three times as high as a comparable single product, exceeding the range defined by the configured search ranking scores.
+
+Such a query is now always ranked per entity and the best-scoring entity of each group is selected, which is what the `core.listing.findBestVariant` setting already did for the product search. A group is scored like its best matching entity, and the id returned for a group is that entity instead of an arbitrary member.
+
+This affects the SQL-based search only; Elasticsearch-backed search always collapsed groups this way and is unchanged. Products with variants get lower scores than before and can rank differently against single products. Extensions that assert on absolute `_score` values, that use a score threshold, or that rely on which id represents a group should re-check their expectations.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

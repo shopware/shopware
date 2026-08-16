@@ -91,22 +91,34 @@ names the composable to import and the members it answers, and those members bec
 same `ctx.bindings` map a component's own members use, so `this.<member>` rewrites need nothing extra.
 Only members the script or the template actually reads are destructured.
 
+A descriptor is data, not code. Its fields:
+
+| Field | Answers |
+| --- | --- |
+| `id`, `mixinNames` | Which registered mixin names does this cover, and what is it called in a message? |
+| `import` | Which composable replaces it? (a default export, so `name` is the local binding) |
+| `members` | Which `this.<member>` does it answer, and as what — `ref` (`.value` on rewrite), `value` or `method`? |
+| `internallyReferencedMembers` | Which of those does the composable call itself, so an override could no longer reach it? |
+| `unmappedMembers` | Which members did the mixin put on `this` that the composable does not return? |
+| `emits`, `propArgs`, `callbackArgs`, `providedProps` | What did the mixin take from — and give to — its host instance? (see below) |
+| `scaffold` | Was it a controller rather than a helper, so its output is a draft? (see below) |
+
 Conversion is all-or-nothing per component: one mixin without a descriptor keeps the whole component
 on the Options API, because a half-converted `mixins` array has no safe meaning. Five more cases keep
 it there even though a descriptor exists, all of them places where the composable is not a drop-in for
 the mixin's `this` semantics:
 
-- the component redefines a member the mixin provides — its own version wins today, and after the
-  migration both would want the same binding name;
-- the component redefines a member the composable calls internally, where the override would silently
-  stop taking effect;
-- the component reads a member the composable does not return (a computed it inlines) — unless the
-  component declares its own member of that name, which shadowed the mixin's anyway;
-- the component assigns to a member the composable returns as anything but a ref, which was a write to
-  the instance proxy and has no equivalent against a `const`;
-- the template reads a member whose binding name another declaration already claims. A script-only
-  read is fixed by renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but
-  the template cannot be rewritten.
+- `component redefines 'x' from the 'y' mixin` — its own version wins today, and after the migration
+  both would want the same binding name;
+- `component redefines 'x', which the 'y' composable calls internally`, where the override would
+  silently stop taking effect;
+- `'x' is read but the 'y' composable does not provide it` — a computed the composable inlines, unless
+  the component declares its own member of that name, which shadowed the mixin's anyway;
+- `'x' is assigned to, but the 'y' composable returns it as a constant`, which was a write to the
+  instance proxy and has no equivalent against a `const`;
+- `'x' is read in the template and its binding name is already taken`. A script-only read is fixed by
+  renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but the template
+  cannot be rewritten.
 
 ### Instance dependencies
 
@@ -131,10 +143,54 @@ const { selectedItems } = useMediaGridListener({
   mixin's own `props` option and nothing would supply it afterwards.
 - `callbackArgs` names the members the mixin expected the host to define. The codemod passes the
   component's own member — state and props as a getter, a method as a forwarding call — and refuses a
-  component that defines none, unless the descriptor marks the argument optional.
+  component that defines none, unless the descriptor marks the argument optional
+  (`component does not define 'getList', which the 'listing' composable calls`, or
+  `'getList' is declared in a shape that cannot be handed to the 'listing' composable` when
+  classification dropped it).
 
 Every argument defers its read, because the composable call is assembled above the member sections it
 points at.
+
+Travelling the other way, `providedProps` names the props the mixin *declared*, which every component
+using it inherited. A composable cannot declare props, so the codemod merges them into the component's
+own `defineProps` literal — a component prop of the same name wins, mirroring Vue's option merge, and a
+`props` option that is not a plain object literal is refused. Unlike the dependencies above, these are
+merged for every declared mixin, whether its composable ends up being called or not.
+
+### Scaffolds
+
+Some mixins were abstract controllers rather than helpers: they owned the state a component worked
+against — their own, or a prop they wrote to — plus a lifecycle, and drove a member the component was
+expected to implement. Wiring one up is mechanical, but proving the result still behaves the same is
+not, so a descriptor with a `scaffold` field always produces a `partial` draft, never a `full`
+migration. Its `checks` lead the draft as one summary TODO block, which is also what makes the outcome
+`partial`:
+
+```js
+// TODO(sfc-migration): 'listing' scaffold needs a manual review
+// - getList() is passed to useListing() and still resolves everything it reads and writes
+// - the initial load runs on mounted now, one hook later than the mixin loaded it
+// - route parameter handling, which the composable owns from here on
+// - these were routed into the composable options instead of staying state: limit, sortBy
+```
+
+- `iocMember` is the member the mixin called on its host. It is handed over as a callback like any
+  other, and it is what marks the mixin as owning a lifecycle: such a composable is called even when
+  the component reads nothing back from it. A scaffold without one is dropped like any other descriptor
+  nothing reads.
+- `configKeys` are state keys a component set in its own `data()` purely to configure the mixin. They
+  move into the composable's options object instead of staying local refs, and stop counting as the
+  component redefining a mixin member.
+
+Two mixins are scaffolded today. `listing` owns its state and drives `getList`. `cms-element` owns no
+state of its own: it writes to the `element` prop, which is the slot the `cmsPage` store shares with
+the rest of the CMS editor, so the codemod emits `useCmsElementDeprecated` — faithful to that
+in-place mutation, and deprecated in its name because `useCmsElement` routes the same writes through
+the store. The codemod never emits the clean one; that migration is a human's call.
+
+`cms-element` also declared `cms-state` as its own mixin, so a component naming only `cms-element` read
+the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
+both descriptors share one member list.
 
 ## What is skipped on purpose
 
@@ -194,6 +250,12 @@ The conversion rules are data tables plus one handler per option:
   and the assembly (`transform-script.ts`) stay untouched.
 - `composables.ts` — `COMPOSABLE_DESCRIPTORS`, one entry per mixin that has a composable. Supporting
   another mixin means writing the composable and adding its descriptor; `resolveMixins()` and the
-  assembly stay untouched.
+  assembly stay untouched. A new descriptor needs, in this order: the composable under
+  `src/app/composables/` (a default export, `@private`, with a cross-reference comment on the mixin,
+  which stays in place); the descriptor itself, its member kinds read off the mixin's `computed`,
+  `methods` and `data`, everything the mixin called on itself in `internallyReferencedMembers`, and
+  everything it kept to itself in `unmappedMembers`; a fixture per new behaviour and per new refusal;
+  and a named assertion in `mixin-composables.spec.ts`. The registry invariants there hold the
+  descriptor to its own shape, so a typo in a member name fails as a test rather than as output.
 - New conversions are covered by dropping a fixture folder into `__fixtures__/` —
   `sfc-migration.spec.ts` snapshots every fixture automatically and runs the full validation gate.

@@ -125,6 +125,10 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
             "'salutationFilter' is read but the 'salutation' composable does not provide it",
         ],
         [
+            'sw-mixin-cms-element-service',
+            "'cmsService' is read but the 'cms-element' composable does not provide it",
+        ],
+        [
             'sw-mixin-template-collision',
             "'salutation' is read in the template and its binding name is already taken",
         ],
@@ -293,6 +297,31 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
             // The component's `filters` override reaches the composable as the getter it takes.
             expect(result.sfc).toContain('filters: () => filters.value');
+        });
+
+        it('wires a cms element component up to the deprecated composable and leaves it as a draft', async () => {
+            const result = await convertFixture('sw-mixin-cms-element-scaffold');
+
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toEqual(["'cms-element' scaffold needs a manual review"]);
+
+            expect(result.sfc).toContain("// TODO(sfc-migration): 'cms-element' scaffold needs a manual review");
+            expect(result.sfc).toContain('// - the config writes still reach the element object itself');
+
+            // The props the mixin declared are merged in, and the two the composable reads are handed
+            // back to it as getters.
+            expect(result.sfc).toContain('element: {');
+            expect(result.sfc).toContain('defaultConfig: {');
+            expect(result.sfc).toContain('disabled: {');
+            expect(result.sfc).toContain('useCmsElementDeprecated({\n    element: () => props.element,');
+            expect(result.sfc).toContain('defaultConfig: () => props.defaultConfig,');
+
+            // The in-place write the CMS editor depends on stays exactly that.
+            expect(result.sfc).toContain('props.element.config.content.value = content;');
+
+            // A component that names only `cms-element` reads the cms state through it.
+            expect(result.sfc).toContain('cmsPageState,');
+            expect(result.sfc).toContain('() => cmsPageState.value.currentDemoEntity,');
         });
 
         it.each([

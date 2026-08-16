@@ -56,18 +56,23 @@ type ComposableCallback = {
 };
 
 /**
- * A mixin that was an abstract controller rather than a helper: it owned reactive state and lifecycle
- * and drove a member the component implemented. Such a composable can be wired up mechanically, but
- * not proven equivalent, so its output is always a draft for a human to finish.
+ * A mixin that was an abstract controller rather than a helper: it owned the state a component worked
+ * against — its own, or a prop it wrote to — and often a lifecycle and a member the component
+ * implemented. Such a composable can be wired up mechanically, but not proven equivalent, so its output
+ * is always a draft for a human to finish.
  */
 type ComposableScaffold = {
-    /** The member the mixin called on its host, which the composable takes as a callback instead. */
-    iocMember: string;
+    /**
+     * The member the mixin called on its host, which the composable takes as a callback instead. A
+     * mixin that drove one also owned the lifecycle that called it, which is why its composable runs
+     * whether or not the component reads anything back from it.
+     */
+    iocMember?: string;
     /**
      * State keys a component set in its own `data()` purely to configure the mixin. They reach the
      * composable through its options object instead of staying local refs.
      */
-    configKeys: string[];
+    configKeys?: string[];
     /** What the reviewer of the draft has to check, listed in the summary TODO. */
     checks: string[];
     /** Never `full`: the codemod cannot decide the questions above. */
@@ -142,38 +147,103 @@ function refMembers(names: string[]): Record<string, ComposableMember> {
     );
 }
 
+/**
+ * The CMS editor state, which reaches a component through either of two mixins: `cms-state` itself, or
+ * `cms-element`, which declared it as its own mixin. A component that names only `cms-element` still
+ * read these members off its instance, so the composable behind it returns them too and its descriptor
+ * repeats them here.
+ */
+const CMS_STATE_MEMBERS: Record<string, ComposableMember> = {
+    ...refMembers([
+        'cmsPageState',
+        'selectedBlock',
+        'selectedSection',
+        'currentDeviceView',
+        'isSystemDefaultLanguage',
+        'category',
+        'product',
+        'landingPage',
+        'contentEntity',
+        'inheritedSlotConfig',
+    ]),
+    ...methodMembers([
+        'getSlotConfigForLanguage',
+    ]),
+};
+
+/**
+ * The store every other CMS state member reads, the entity chain behind contentEntity, and the lookup
+ * inheritedSlotConfig merges through.
+ */
+const CMS_STATE_INTERNAL_MEMBERS = [
+    'cmsPageState',
+    'category',
+    'product',
+    'landingPage',
+    'contentEntity',
+    'getSlotConfigForLanguage',
+];
+
 const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
+    {
+        id: 'cms-element',
+        mixinNames: ['cms-element'],
+        import: {
+            source: 'src/app/composables/use-cms-element-deprecated',
+            name: 'useCmsElementDeprecated',
+        },
+        members: {
+            ...CMS_STATE_MEMBERS,
+            ...refMembers([
+                'cmsElements',
+            ]),
+            ...methodMembers([
+                'initElementConfig',
+                'initBaseConfig',
+                'applyContentOverride',
+                'initElementData',
+                'getDemoValue',
+            ]),
+        },
+        // initElementConfig runs the other two, both config steps look the element type up in the
+        // registry, and the override reads the inherited config of the content entity.
+        internallyReferencedMembers: [
+            ...CMS_STATE_INTERNAL_MEMBERS,
+            'inheritedSlotConfig',
+            'cmsElements',
+            'initBaseConfig',
+            'applyContentOverride',
+        ],
+        // The service the mixin injected, which the composable resolves itself.
+        unmappedMembers: [
+            'cmsService',
+        ],
+        propArgs: [
+            'element',
+            'defaultConfig',
+        ],
+        // `disabled` is the third prop the mixin declared, which its own logic never read.
+        providedProps: [
+            { name: 'element', definition: '{\ntype: Object,\nrequired: true,\n}' },
+            { name: 'defaultConfig', definition: '{\ntype: Object,\nrequired: false,\ndefault: null,\n}' },
+            { name: 'disabled', definition: '{\ntype: Boolean,\nrequired: false,\ndefault: false,\n}' },
+        ],
+        scaffold: {
+            checks: [
+                'the config writes still reach the element object itself, which is the slot the cmsPage store shares with the rest of the editor',
+                'the cmsElements registry and getDemoValue resolve the cms service the same way the injection did',
+                'the defaults are merged at the point in the lifecycle the component expects them',
+                'useCmsElementDeprecated is a stopover: useCmsElement routes the same writes through the cmsPage store',
+            ],
+            forcesPartial: true,
+        },
+    },
     {
         id: 'cms-state',
         mixinNames: ['cms-state'],
         import: { source: 'src/app/composables/use-cms-state', name: 'useCmsState' },
-        members: {
-            ...refMembers([
-                'cmsPageState',
-                'selectedBlock',
-                'selectedSection',
-                'currentDeviceView',
-                'isSystemDefaultLanguage',
-                'category',
-                'product',
-                'landingPage',
-                'contentEntity',
-                'inheritedSlotConfig',
-            ]),
-            ...methodMembers([
-                'getSlotConfigForLanguage',
-            ]),
-        },
-        // The store every other member reads, the entity chain behind contentEntity, and the lookup
-        // inheritedSlotConfig merges through.
-        internallyReferencedMembers: [
-            'cmsPageState',
-            'category',
-            'product',
-            'landingPage',
-            'contentEntity',
-            'getSlotConfigForLanguage',
-        ],
+        members: CMS_STATE_MEMBERS,
+        internallyReferencedMembers: CMS_STATE_INTERNAL_MEMBERS,
     },
     {
         id: 'listing',
@@ -630,10 +700,22 @@ function findComposableDescriptor(name: string): ComposableDescriptor | undefine
  * mixin called it on the instance, so the component has to define it and the composable is handed it.
  */
 function composableCallbacks(descriptor: ComposableDescriptor): ComposableCallback[] {
+    const iocMember = descriptor.scaffold?.iocMember;
+
     return [
         ...(descriptor.callbackArgs ?? []),
-        ...(descriptor.scaffold ? [{ name: descriptor.scaffold.iocMember, kind: 'callback' as const }] : []),
+        ...(iocMember ? [{ name: iocMember, kind: 'callback' as const }] : []),
     ];
+}
+
+/**
+ * A scaffold the codemod calls even when the component reads nothing from it. Driving a member of its
+ * host is what made a mixin a controller: something of its own — a lifecycle hook, a watcher — did the
+ * calling, and that keeps running after the migration. A scaffold that only provides members is dropped
+ * like any other descriptor nothing reads.
+ */
+function scaffoldRunsUnread(descriptor: ComposableDescriptor): boolean {
+    return descriptor.scaffold?.iocMember !== undefined;
 }
 
 export {
@@ -647,4 +729,5 @@ export {
     COMPOSABLE_DESCRIPTORS,
     composableCallbacks,
     findComposableDescriptor,
+    scaffoldRunsUnread,
 };

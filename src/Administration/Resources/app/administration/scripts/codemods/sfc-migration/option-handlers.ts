@@ -48,6 +48,7 @@ import {
     type ComposableScaffold,
     composableCallbacks,
     findComposableDescriptor,
+    scaffoldRunsUnread,
 } from './composables';
 
 type NamedText = { name: string; text: () => string };
@@ -756,7 +757,8 @@ function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
  * still counts — the template cannot be rewritten, so its binding has to exist under that exact name.
  * A descriptor nothing reads is dropped: its composable only provides members, so calling it for its
  * side effects is not a thing the mixin did either, and its instance dependencies go unasked for. A
- * scaffold is the exception, because its side effects are the point: it owns the lifecycle.
+ * scaffold that drove a member of its host is the exception, because its side effects are the point:
+ * it owns the lifecycle that called it.
  */
 function resolveMixins(
     ctx: Ctx,
@@ -774,11 +776,18 @@ function resolveMixins(
 
     collectThisMemberNames(options, readMembers);
     collectAssignedThisMemberNames(options, assignedMembers);
+
+    // A watch entry names its source as a string instead of reaching for it through `this`, but the
+    // watcher reads that member all the same and needs a binding for it.
+    for (const { key } of collected.watchEntries) {
+        readMembers.add(key.split('.')[0]);
+    }
+
     resolveProvidedProps(ctx, collected);
 
     const routedConfig = routeScaffoldConfig(collected, ownMembers);
     const active = collected.mixins.filter(
-        (descriptor) => descriptor.scaffold !== undefined || readsAnyMember(descriptor, readMembers),
+        (descriptor) => scaffoldRunsUnread(descriptor) || readsAnyMember(descriptor, readMembers),
     );
 
     for (const descriptor of collected.mixins) {

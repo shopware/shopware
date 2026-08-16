@@ -452,6 +452,127 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-cms-element-scaffold 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "'cms-element' scaffold needs a manual review",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_mixin_cms_element_scaffold">
+        <div class="sw-mixin-cms-element-scaffold" :class="{ 'is--disabled': disabled }">
+            <p class="sw-mixin-cms-element-scaffold__demo">{{ demoValue }}</p>
+
+            <input
+                class="sw-mixin-cms-element-scaffold__input"
+                :value="contentValue"
+                @input="onInput($event.target.value)"
+            />
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+// TODO(sfc-migration): 'cms-element' scaffold needs a manual review
+// - the config writes still reach the element object itself, which is the slot the cmsPage store shares with the rest of the editor
+// - the cmsElements registry and getDemoValue resolve the cms service the same way the injection did
+// - the defaults are merged at the point in the lifecycle the component expects them
+// - useCmsElementDeprecated is a stopover: useCmsElement routes the same writes through the cmsPage store
+
+import { ref, computed, watch } from 'vue';
+import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';
+
+const props = defineProps({
+    element: {
+        type: Object,
+        required: true,
+    },
+    defaultConfig: {
+        type: Object,
+        required: false,
+        default: null,
+    },
+    disabled: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
+});
+
+const emit = defineEmits(['element-update']);
+
+const { cmsPageState, initElementConfig, initElementData, getDemoValue } = useCmsElementDeprecated({
+    element: () => props.element,
+    defaultConfig: () => props.defaultConfig,
+});
+
+const createdComponent = function () {
+    initElementConfig('text');
+    initElementData('text');
+    updateDemoValue();
+};
+
+const updateDemoValue = function () {
+    if (props.element.config.content.source === 'mapped') {
+        demoValue.value = getDemoValue(props.element.config.content.value);
+    }
+};
+
+const onInput = // The element is the slot the cmsPage store owns, and the editor writes to it in place.
+    function (content) {
+        props.element.config.content.value = content;
+        emit('element-update', props.element);
+    };
+
+const contentValue = computed(function () {
+    return props.element.config.content.value;
+});
+
+const demoValue = ref('');
+
+watch(
+    () => cmsPageState.value.currentDemoEntity,
+    function () {
+        updateDemoValue();
+    },
+);
+
+void (function () {
+    createdComponent();
+})();
+
+swDefinePublic({
+    cmsPageState,
+    initElementConfig,
+    initElementData,
+    getDemoValue,
+    demoValue,
+    contentValue,
+    createdComponent,
+    updateDemoValue,
+    onInput,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-cms-element-service 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "'cmsService' is read but the 'cms-element' composable does not provide it",
+  ],
+  "sfc": null,
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-collision 1`] = `
 {
   "outcome": "full",

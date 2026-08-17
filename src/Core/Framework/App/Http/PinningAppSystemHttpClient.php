@@ -32,7 +32,7 @@ final class PinningAppSystemHttpClient extends Client
     /**
      * @param list<mixed> $args
      */
-    public function __call(string $method, array $args): mixed
+    public function __call($method, $args)
     {
         $isAsync = str_ends_with($method, 'Async');
         $method = Utils::asciiToUpper($isAsync ? substr($method, 0, -5) : $method);

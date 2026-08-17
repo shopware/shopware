@@ -291,9 +291,8 @@ class ContentElement extends Struct
      *
      * attributedSpecifications (admin/editor bookkeeping) is deliberately never emitted here: this is
      * the shape the Store API serializes directly, and attribution must not leak into it.
-     * ContentElementFieldSerializer::serializeContentElement() re-serializes on top of this output to
-     * add attribution back for storage and admin responses, recursing into slot children so nested
-     * bound elements keep theirs too.
+     * The storage side carries attribution instead: a stored element emits it inline, recursing into
+     * slot children so nested bound elements keep theirs too.
      *
      * An empty `properties` map is emitted as `[]`: PHP cannot carry an empty map as `{}` through a
      * shared serializer without breaking the array-typed write path, so `[]` is the single canonical shape.

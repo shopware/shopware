@@ -36,7 +36,7 @@ Renders an externally supplied, **unsaved** draft layout against **real** entity
 
 | Field                                                | Required | Notes                                                                                                                        |
 |------------------------------------------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
-| `layout`                                             | yes      | Raw element-tree array; decoded through the same path as a stored layout (`ContentElementFieldSerializer::decodeElement()`). |
+| `layout`                                             | yes      | Raw element-tree array; decoded through the same path as a stored layout (`Layout/Codec/StoredElementCodec::decode()`). |
 | `entityType`                                         | yes      | One of the `content-system-entity-types.json` values; selected by exact match, never as a URL segment.                       |
 | `entityId`                                           | yes      | Id of the entity to hydrate against; the entity must exist.                                                                  |
 | `salesChannelId`                                     | yes      | Sales channel whose context is synthesized for rendering.                                                                    |

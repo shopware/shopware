@@ -5,20 +5,20 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Field;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
@@ -46,9 +46,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
-use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -433,26 +431,36 @@ class StoredElementListFieldSerializerTest extends TestCase
         yield 'array with non-array element' => [['not-an-array'], 'layout[0]', 'array', 'string'];
     }
 
-    #[TestDox('returns Type and All constraints without Required flag')]
-    public function testBuildConstraintsWithoutRequiredFlagReturnsExpectedStructure(): void
+    /**
+     * The constraint pass and the codec are one expression of the stored wire shape, so this asserts the
+     * descriptor is handed through as it stands rather than restating its shape here — a restated copy would
+     * pass while the two drifted. What the descriptor itself admits and refuses is StoredTreeConstraintsTest's,
+     * and its agreement with decode is StoredTreeShapeConformanceTest's.
+     */
+    #[TestDox('hands through the codec constraint descriptor unwrapped when the field is not required')]
+    public function testBuildConstraintsReturnsTheCodecDescriptor(): void
     {
         $constraints = $this->serializer()->buildConstraints($this->createField());
 
-        static::assertCount(2, $constraints);
-        static::assertInstanceOf(Type::class, $constraints[0]);
-        static::assertSame('array', $constraints[0]->type);
-        static::assertInstanceOf(All::class, $constraints[1]);
+        static::assertEquals($this->treeConstraints()->build(), $constraints);
     }
 
-    #[TestDox('appends NotBlank constraint when field has Required flag')]
+    #[TestDox('appends NotBlank to the codec constraint descriptor when the field has the Required flag')]
     public function testBuildConstraintsWithRequiredFlagAddsNotBlank(): void
     {
         $constraints = $this->serializer()->buildConstraints($this->createRequiredField());
 
-        static::assertCount(3, $constraints);
-        static::assertInstanceOf(Type::class, $constraints[0]);
-        static::assertInstanceOf(All::class, $constraints[1]);
-        static::assertInstanceOf(NotBlank::class, $constraints[2]);
+        static::assertEquals([...$this->treeConstraints()->build(), new NotBlank()], $constraints);
+    }
+
+    #[TestDox('rejects a null root element, which the retired per-field graph admitted')]
+    public function testBuildConstraintsRejectANullRootElement(): void
+    {
+        $validator = Validation::createValidatorBuilder()->getValidator();
+
+        $violations = $validator->validate([null], $this->serializer()->buildConstraints($this->createField()));
+
+        static::assertGreaterThanOrEqual(1, $violations->count());
     }
 
     #[TestDox('throws exception when buildConstraints receives wrong field type')]
@@ -466,6 +474,80 @@ class StoredElementListFieldSerializerTest extends TestCase
         );
 
         $this->serializer()->buildConstraints($invalidField);
+    }
+
+    /**
+     * The cached-constraint seam, reached the only way production reaches it: `encode()` validates through
+     * `AbstractFieldSerializer::validateIfNeeded()`, which asks `getCachedConstraints()` for the descriptor.
+     * The inherited implementation memoizes it per field instance for the life of the process, which would
+     * freeze the style part of the descriptor against the registry as it stood on the first validated write.
+     * The override defeats that cache, so an option the registry has since dropped is rejected on the very
+     * next write instead of staying admissible until the process restarts.
+     *
+     * Both writes must go through the SAME field instance. The inherited cache keys on the property name and
+     * the field's object id, so two instances miss the cache and this passes whether or not the override
+     * exists, pinning nothing.
+     */
+    #[TestDox('validates each write against the style option registry as it stands, not as it stood on the first write')]
+    public function testEncodeValidatesAgainstTheCurrentStyleOptionRegistryPerWrite(): void
+    {
+        $options = [
+            'display' => new StyleOptionSpecification(
+                'display',
+                new StyleOptionValueType(StyleOptionValueType::TYPE_BOOLEAN, null, null, null, null),
+                false,
+                null,
+                'test',
+            ),
+        ];
+
+        $serializer = $this->serializerWithMutableStyleOptions($options);
+
+        // One field instance for both writes: the inherited cache is keyed by property name plus object id, so
+        // a second field would miss the cache and pass even with the override removed.
+        $field = $this->createField();
+        $payload = [['id' => 'elem-1', 'component' => 'text', 'properties' => [], 'style' => ['display' => true]]];
+
+        iterator_to_array(
+            $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
+        );
+
+        $options = [];
+
+        try {
+            iterator_to_array(
+                $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
+            );
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/elements/0/style/display', $exception->getViolations()->get(0)->getPropertyPath());
+
+            return;
+        }
+
+        static::fail('The second write reused the descriptor built for the first, so the dropped style option stayed admissible.');
+    }
+
+    /**
+     * A serializer whose descriptor reads whatever `$options` holds at call time, so a test can change the
+     * registered option set between two writes the way an app install, update or activation does at runtime.
+     *
+     * @param array<string, StyleOptionSpecification> $options
+     */
+    private function serializerWithMutableStyleOptions(array &$options): StoredElementListFieldSerializer
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturnCallback(function () use (&$options): array {
+            return $options;
+        });
+
+        return new StoredElementListFieldSerializer(
+            Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->codec(),
+            new ViolationConstraintMapper(),
+            $this->boundary($this->passthroughSeeder()),
+            new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver()),
+        );
     }
 
     /**
@@ -488,10 +570,10 @@ class StoredElementListFieldSerializerTest extends TestCase
         return new StoredElementListFieldSerializer(
             $validator,
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->elementSerializer(),
             $this->codec(),
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
+            $this->treeConstraints(),
         );
     }
 
@@ -507,10 +589,10 @@ class StoredElementListFieldSerializerTest extends TestCase
         return new StoredElementListFieldSerializer(
             $passthroughValidator,
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->elementSerializer(),
             $this->codec(),
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
+            $this->treeConstraints(),
         );
     }
 
@@ -525,10 +607,10 @@ class StoredElementListFieldSerializerTest extends TestCase
         return new StoredElementListFieldSerializer(
             static::createStub(ValidatorInterface::class),
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->elementSerializer(),
             $this->codec(),
             new ViolationConstraintMapper(),
             $this->boundary(new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider())),
+            $this->treeConstraints(),
         );
     }
 
@@ -571,10 +653,10 @@ class StoredElementListFieldSerializerTest extends TestCase
         return new StoredElementListFieldSerializer(
             static::createStub(ValidatorInterface::class),
             static::createStub(DefinitionInstanceRegistry::class),
-            $this->elementSerializer(),
             $this->codec(),
             new ViolationConstraintMapper(),
             $boundary,
+            $this->treeConstraints(),
         );
     }
 
@@ -633,16 +715,15 @@ class StoredElementListFieldSerializerTest extends TestCase
     }
 
     /**
-     * buildConstraints must return at least one valid constraint so that new All([...]) does not throw.
-     *
-     * @return ContentElementFieldSerializer&Stub
+     * The descriptor the serializer hands through. An empty option set keeps these assertions about the
+     * serializer's own contract; what the style part of the descriptor accepts is StoredTreeConstraintsTest's.
      */
-    private function elementSerializer(): ContentElementFieldSerializer
+    private function treeConstraints(): StoredTreeConstraints
     {
-        $elementSerializer = static::createStub(ContentElementFieldSerializer::class);
-        $elementSerializer->method('buildConstraints')->willReturn([new Type('array')]);
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([]);
 
-        return $elementSerializer;
+        return new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver());
     }
 
     private function existence(): EntityExistence

@@ -12,7 +12,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
@@ -133,6 +139,87 @@ class StoredElementCodecTest extends TestCase
             ],
             $this->codec()->encode($element)
         );
+    }
+
+    /**
+     * @param array<string, mixed> $requirement
+     */
+    #[DataProvider('dataRequirementKeyProvider')]
+    #[TestDox('decode takes $_dataName')]
+    public function testDecodeResolvesTheDataRequirementKey(array $requirement, string $expected): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['dataRequirements' => ['products' => $requirement]]));
+
+        // The map key always stays the outer one; only the requirement's own key falls back to it.
+        static::assertSame(['products'], array_keys($element->dataRequirements));
+        static::assertSame($expected, $element->dataRequirements['products']->key);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function dataRequirementKeyProvider(): iterable
+    {
+        $config = ['entity' => 'product', 'property' => 'productId'];
+
+        yield 'the map key when the entry carries no inner key' => [
+            ['source' => 'entity', 'config' => $config],
+            'products',
+        ];
+
+        yield 'the map key when the inner key is an explicit null' => [
+            ['key' => null, 'source' => 'entity', 'config' => $config],
+            'products',
+        ];
+
+        yield 'the inner key when the entry carries both' => [
+            ['key' => 'featured', 'source' => 'entity', 'config' => $config],
+            'featured',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     * @param class-string<DistributionConfig> $expected
+     */
+    #[DataProvider('distributionStrategyProvider')]
+    #[TestDox('decode builds the config of $_dataName')]
+    public function testDecodeDispatchesEveryDistributionStrategy(array $provider, string $expected): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['providesContext' => ['product' => $provider]]));
+
+        static::assertInstanceOf($expected, $element->contextDefinitions->getAllProviders()['product']->distributionConfig);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, class-string<DistributionConfig>}>
+     */
+    public static function distributionStrategyProvider(): iterable
+    {
+        yield 'a broadcast provider' => [
+            ['type' => 'collection', 'distribution' => 'broadcast'],
+            BroadcastDistributionConfig::class,
+        ];
+
+        yield 'an indexed provider' => [
+            ['type' => 'collection', 'distribution' => 'indexed'],
+            IndexedDistributionConfig::class,
+        ];
+
+        yield 'an iterator provider' => [
+            ['type' => 'collection', 'distribution' => 'iterator'],
+            IteratorDistributionConfig::class,
+        ];
+
+        yield 'a keyed provider' => [
+            ['type' => 'single', 'distribution' => 'keyed', 'keyProperty' => 'sku'],
+            KeyedDistributionConfig::class,
+        ];
+
+        yield 'a sliced provider' => [
+            ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 4],
+            SlicedDistributionConfig::class,
+        ];
     }
 
     #[TestDox('decode rejects a top-level key the element wire shape does not carry')]

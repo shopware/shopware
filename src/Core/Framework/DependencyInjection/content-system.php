@@ -57,6 +57,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\Enti
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
@@ -69,12 +70,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\DataRequirementsFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
@@ -171,66 +166,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener');
 
     // Field Serializers
-    $services->set(DataRequirementsFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(DataLoaderConfigSerializerProvider::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ContextProvidersFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ContextConsumersFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ElementSlotsFieldSerializer::class)
-        ->lazy()
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(ContentElementFieldSerializer::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ElementStyleFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(ContentSystemStyleOptionRegistry::class),
-            service(StyleOptionConstraintDeriver::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ContentElementFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(DataRequirementsFieldSerializer::class),
-            service(ContextProvidersFieldSerializer::class),
-            service(ContextConsumersFieldSerializer::class),
-            service(ElementSlotsFieldSerializer::class),
-            service(ElementStyleFieldSerializer::class),
-        ])
-        ->tag('shopware.field_serializer');
-
     $services->set(StoredElementListFieldSerializer::class)
         ->args([
             service(ValidatorInterface::class),
             service(DefinitionInstanceRegistry::class),
-            service(ContentElementFieldSerializer::class),
             service(StoredTreeCodec::class),
             service(ViolationConstraintMapper::class),
             service(LayoutWriteBoundary::class),
+            service(StoredTreeConstraints::class),
         ])
         ->tag('shopware.field_serializer');
 
@@ -243,6 +186,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StoredTreeCodec::class)
         ->args([
             service(StoredElementCodec::class),
+        ]);
+
+    // The write-time constraint descriptor over that same wire shape
+    $services->set(StoredTreeConstraints::class)
+        ->args([
+            service(ContentSystemStyleOptionRegistry::class),
+            service(StyleOptionConstraintDeriver::class),
         ]);
 
     // One-way conversion from the stored element model onto the older one, for the two rendering seams that still

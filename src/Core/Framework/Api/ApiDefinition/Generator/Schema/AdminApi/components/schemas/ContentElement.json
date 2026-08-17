@@ -7,7 +7,7 @@
             "ContentElement": {
                 "title": "Content element",
                 "type": "object",
-                "description": "A single node in a content layout tree. The same shape is accepted on input (the request `layout` and the attach `element`) and returned on output (the response `layout` and `orphaned`), serialized by `ContentElementFieldSerializer`. Nodes nest recursively through `slots`. On input, only `id` and `component` are mandatory; the remaining members default to empty. Optional members are omitted entirely from a response when empty rather than serialized as an empty container.",
+                "description": "A single node in a content layout tree. The same shape is accepted on input (the request `layout` and the attach `element`) and returned on output (the response `layout` and `orphaned`), serialized by `StoredElementCodec`. Nodes nest recursively through `slots`. On input, only `id` and `component` are mandatory; the remaining members default to empty. Optional members are omitted entirely from a response when empty rather than serialized as an empty container.",
                 "required": ["id", "component"],
                 "properties": {
                     "id": {

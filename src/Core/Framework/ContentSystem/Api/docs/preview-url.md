@@ -6,7 +6,7 @@ The preview-URL action that mints a short-lived, openable URL for a draft layout
 
 Stores the **same envelope** as the entity preview action behind a short-lived token and returns a URL that renders it, so a draft can be opened or embedded (for example in an editor iframe) without re-posting the layout. Served by `Api/ContentPreviewController::previewUrl`. Route name: `api.action.content_system.preview.entity.url`. Requires the `content_layout:read` privilege.
 
-Before anything is stored, the draft is admitted through the same `Api/ContentPreviewPageBuilder::build()` the entity preview action runs, and the built page is discarded, so the two POST routes cannot drift apart. A draft that gate refuses is a 400 and never becomes a token; the one class of malformed draft it empties instead is under [Errors](#errors). Minting pays one full build.
+Before anything is stored, the draft is admitted through the same `Api/ContentPreviewPageBuilder::build()` the entity preview action runs, and the built page is discarded, so the two POST routes cannot drift apart. A draft that gate refuses is a 400 and never becomes a token. Minting pays one full build.
 
 The payload is held by `Api/ContentPreviewPayloadStore` under a 32-character token in the application cache for five minutes (`expiresAfter(300)`), never in the database. The returned URL points at the Storefront render route `GET /content-system/preview/{token}` (`frontend.content-system.preview`), which loads the payload back, builds the page through the same `ContentPreviewPageBuilder`, and serves the full-format `ContentPage` as an embeddable page (its `frame-ancestors` CSP is derived from the request `Referer`). An expired or unknown token renders a `404`.
 
@@ -38,4 +38,4 @@ The mint runs the one build gate, so its failure surface is the entity preview a
 
 Entity resolution and hydration run at mint time as well as when the URL is opened, so `unknownEntityType` and hydration faults surface here too.
 
-One class of malformed draft the gate does not refuse: a nested container that is not an array. `Layout/Field/ContentElementFieldSerializer::decodeElement()` empties a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list, so such a draft is emptied and then passes. A scalar `style` therefore escapes the unknown-style-option check entirely — nothing is left to check by the time it runs. `Layout/Codec/StoredElementCodec` rejects that same input, so preview and write disagree on it today. The disagreement is interim, not accepted: it ends when the draft decode moves onto that codec, a later change on this branch.
+The gate is the write's own decoder, `Layout/Codec/StoredElementCodec`, so preview and write refuse the same drafts: a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as it is on write, rather than being emptied and then passing.

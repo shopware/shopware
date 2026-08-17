@@ -7,8 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Request payload for the content-layout preview action. Validates the envelope only:
- * the layout stays a raw array so ContentElementFieldSerializer::decodeElement() remains
- * the single decode path.
+ * the layout stays a raw array so the draft decoder remains the single decode path.
  *
  * @internal
  *

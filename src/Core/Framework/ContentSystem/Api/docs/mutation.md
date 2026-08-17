@@ -20,7 +20,7 @@ Because each response already carries the diagnostics, a caller editing through 
 
 ## Request
 
-Every action shares one envelope and adds its own operation fields. Shared fields: `layout` (raw element-tree array, decoded through the same `ContentElementFieldSerializer::decodeElement()` path as a stored layout; defaults to an empty tree), `rootSource` (optional).
+Every action shares one envelope and adds its own operation fields. Shared fields: `layout` (raw element-tree array, decoded through the same `Layout/Codec/StoredElementCodec::decode()` path as a stored layout; defaults to an empty tree), `rootSource` (optional).
 
 | Endpoint            | Operation fields                                                                                                                                                                                    |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

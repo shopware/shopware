@@ -418,7 +418,9 @@ final class StoredTreeConstraints
     /**
      * A breakpoint-aware option takes a per-breakpoint map keyed by {@see Breakpoint::values()}; a flat option
      * takes a single scalar. The scalar type constraint rejects an array, so a flat option sent as a breakpoint
-     * map is rejected here just as a breakpoint-aware option sent as a bare scalar is.
+     * map is rejected here. The mirror case is not symmetric: on the write path the style normalizer runs first
+     * and broadcasts a bare scalar across every breakpoint, so a breakpoint-aware option reaches this descriptor
+     * already in its canonical map form.
      *
      * @return list<Constraint>
      */

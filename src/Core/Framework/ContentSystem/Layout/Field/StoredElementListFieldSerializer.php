@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
@@ -22,9 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -40,10 +39,10 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private readonly ContentElementFieldSerializer $contentElementSerializer,
         private readonly StoredTreeCodec $treeCodec,
         private readonly ViolationConstraintMapper $violationMapper,
-        private readonly LayoutWriteBoundary $writeBoundary
+        private readonly LayoutWriteBoundary $writeBoundary,
+        private readonly StoredTreeConstraints $treeConstraints
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -161,6 +160,11 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
+     * The write's constraint pass, over the same wire shape {@see StoredTreeCodec} decodes: the descriptor is
+     * {@see StoredTreeConstraints}'s, so what the constraint pass admits and what the codec can decode are one
+     * expression rather than two that drift. The descriptor already covers the whole forest including its own
+     * `All()`, so nothing wraps it here; only the field's own `Required` flag is the DAL's to add.
+     *
      * @return list<Constraint>
      */
     public function buildConstraints(Field $field): array
@@ -169,14 +173,7 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldType(StoredElementListField::class, $field::class);
         }
 
-        $contentElementField = new ContentElementField('', '');
-
-        $constraints = [
-            new Type('array'),
-            new All(
-                $this->contentElementSerializer->buildConstraints($contentElementField)
-            ),
-        ];
+        $constraints = $this->treeConstraints->build();
 
         if ($field->is(Required::class)) {
             $constraints[] = new NotBlank();

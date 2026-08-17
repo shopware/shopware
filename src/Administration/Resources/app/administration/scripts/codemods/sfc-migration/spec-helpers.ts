@@ -75,22 +75,29 @@ function templateImportRange(jsSource: string): { start: number; end: number } {
     return { start: templateImport.start as number, end: templateImport.end as number };
 }
 
-async function convertFixture(name: string): Promise<ConvertResult> {
+/** The authored script of a fixture, exactly as the pipeline reads it. */
+function fixtureScript(name: string): { source: string; lang: 'js' | 'ts' } {
     const dir = path.join(FIXTURES, name);
     const indexPath = [
         path.join(dir, 'index.js'),
         path.join(dir, 'index.ts'),
     ].find((file) => fs.existsSync(file)) as string;
-    const jsSource = fs.readFileSync(indexPath, 'utf8');
+
+    return { source: fs.readFileSync(indexPath, 'utf8'), lang: indexPath.endsWith('.ts') ? 'ts' : 'js' };
+}
+
+async function convertFixture(name: string): Promise<ConvertResult> {
+    const dir = path.join(FIXTURES, name);
+    const { source: jsSource, lang } = fixtureScript(name);
 
     return convertComponent({
         jsSource,
         twigSource: fs.readFileSync(path.join(dir, `${name}.html.twig`), 'utf8'),
         componentName: name,
         vuePath: path.join(dir, `${name}.vue`),
-        lang: indexPath.endsWith('.ts') ? 'ts' : 'js',
+        lang,
         templateImportRange: templateImportRange(jsSource),
     });
 }
 
-export { FIXTURES, convertFixture, fixtureNames, makeRoot, manifest, templateImportRange, writeFile };
+export { FIXTURES, convertFixture, fixtureNames, fixtureScript, makeRoot, manifest, templateImportRange, writeFile };

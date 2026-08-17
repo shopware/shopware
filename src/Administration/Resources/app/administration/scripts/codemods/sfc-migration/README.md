@@ -269,7 +269,10 @@ The conversion rules are data tables plus one handler per option:
 - `option-handlers.ts` — `OPTION_HANDLERS`, one small handler per supported option (`props`,
   `data`, `computed`, `watch`, …). Promoting a feature means moving its key out of the TODO/SKIP
   set and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`)
-  and the assembly (`transform-script.ts`) stay untouched.
+  and the assembly (`transform-script.ts`) stay untouched. A handler that creates instance members
+  also has to teach `collectOwnMemberNames()` about them, or the mixin override guard stops seeing
+  what it compares against — the ownership-superset invariant in `mixin-composables.spec.ts` fails
+  when it does not.
 - `composables/` — `COMPOSABLE_DESCRIPTORS`, assembled in `composables/descriptors/index.ts` from one
   file per mixin that has a composable. Supporting another mixin means writing the composable and adding
   its descriptor; `resolveMixins()` and the assembly stay untouched. A new descriptor needs, in this order:

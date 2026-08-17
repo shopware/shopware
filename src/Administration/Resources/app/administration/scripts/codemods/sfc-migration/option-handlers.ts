@@ -1060,6 +1060,7 @@ export {
     type ResolvedComposable,
     OPTION_HANDLERS,
     classifyOptions,
+    collectOwnMemberNames,
     emitsEventNames,
     resolveMixins,
     buildWatchers,

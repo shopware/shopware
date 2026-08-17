@@ -11,8 +11,39 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { parse } from '@babel/parser';
+import type * as t from '@babel/types';
+import MagicString from 'magic-string';
+import { type Ctx, unwrapOptions } from './ast';
 import { COMPOSABLE_DESCRIPTORS, composableCallbacks } from './composables';
-import { convertFixture } from './spec-helpers';
+import { classifyOptions, collectOwnMemberNames } from './option-handlers';
+import { convertFixture, fixtureNames, fixtureScript } from './spec-helpers';
+
+/** The options object of a fixture's default export, resolved the way transform-script does. */
+function fixtureOptions(name: string): t.ObjectExpression | null {
+    const body = parse(fixtureScript(name).source, { sourceType: 'module', plugins: ['typescript'] }).program.body;
+    const exportDefault = body.find(
+        (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
+    );
+
+    return exportDefault ? unwrapOptions(exportDefault.declaration) : null;
+}
+
+function classificationCtx(source: string, componentName: string): Ctx {
+    return {
+        source,
+        ms: new MagicString(source),
+        componentName,
+        bindings: new Map(),
+        renamedBindings: new Map(),
+        templateIdentifiers: new Set(),
+        templateRefs: new Set(),
+        helpers: new Set(),
+        inferredEmits: [],
+        todos: [],
+        blockers: new Set(),
+    };
+}
 
 const DESCRIPTOR_FILE_IDS = fs
     .readdirSync(path.join(__dirname, 'composables', 'descriptors'))
@@ -125,6 +156,36 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         expect(result.reasons).toEqual([]);
         expect(result.sfc).toContain('const { salutation } = useSalutation();');
         expect(result.sfc).toContain('const salutationFilter = computed(');
+    });
+
+    // Which names a component puts on the instance is answered twice: `collectOwnMemberNames()` for
+    // the override guard, `classifyOptions()` for the convertible subset. A member-creating option
+    // only the second one knows about lets the guard miss an override, which converts to something
+    // that compiles and behaves differently — so the guard's names stay a superset of the classified
+    // ones.
+    it('keeps the override guard`s member names a superset of the classified members', () => {
+        const unseen = fixtureNames().flatMap((name) => {
+            const options = fixtureOptions(name);
+
+            if (!options) {
+                return [];
+            }
+
+            const collected = classifyOptions(classificationCtx(fixtureScript(name).source, name), options);
+            const ownMembers = collectOwnMemberNames(options);
+
+            return [
+                ...collected.propNames,
+                ...collected.dataEntries.map((entry) => entry.name),
+                ...collected.computeds.map((computed) => computed.name),
+                ...collected.methods.map((method) => method.name),
+                ...collected.injects,
+            ]
+                .filter((member) => !ownMembers.has(member))
+                .map((member) => `${name}: ${member}`);
+        });
+
+        expect(unseen).toEqual([]);
     });
 
     it.each([

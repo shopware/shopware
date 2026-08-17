@@ -22,6 +22,11 @@ class DocumentBaseConfigEntity extends Entity
 
     protected ?string $filenameSuffix = null;
 
+    /**
+     * @var array<string, string>|null
+     */
+    protected ?array $filenameInfixes = null;
+
     protected string $documentNumber;
 
     protected bool $global = false;
@@ -200,6 +205,22 @@ class DocumentBaseConfigEntity extends Entity
     public function setFilenameSuffix(?string $filenameSuffix): void
     {
         $this->filenameSuffix = $filenameSuffix;
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getFilenameInfixes(): ?array
+    {
+        return $this->filenameInfixes;
+    }
+
+    /**
+     * @param array<string, string>|null $filenameInfixes
+     */
+    public function setFilenameInfixes(?array $filenameInfixes): void
+    {
+        $this->filenameInfixes = $filenameInfixes;
     }
 
     /**

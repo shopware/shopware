@@ -2,6 +2,14 @@
 
 ## Critical Fixes
 
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### An oversized sales channel criteria is rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — to the first 99 criteria nodes it walks. A criteria with more nested associations than that kept the remaining nodes unrestricted. Such a criteria is now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces a criteria of that size; integrations that build one must split it into several requests.
+
 ### Media import URL checks apply to the address that is connected to
 
 Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
@@ -9,6 +17,16 @@ Media imports send the request to the address the URL check resolved, and check 
 ### Custom entity and field names are validated before the schema is built
 
 Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores and `$` — the characters that are valid in an unquoted SQL identifier. A manifest using any other character (whitespace, or punctuation such as `-`) is rejected with a clear error.
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
+
+## Core
+
+### Document rendering supports decorated Twig environments
+
+The document renderer now type-hints the base `Twig\Environment` instead of Shopware's `TwigEnvironment`, so a decorated `twig` service no longer breaks document generation. The sales channel business timezone override applies only when Shopware's `TwigEnvironment` is in use. With a decorator that does not extend it, documents render in Twig's default timezone.
 
 ## Administration
 

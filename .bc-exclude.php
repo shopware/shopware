@@ -178,9 +178,5 @@ return [
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
 
-        // Store API schema migration allowlist symbols were added on trunk for
-        // an unreleased migration helper and removed again before release.
-        'REMOVED: Constant Shopware\\\\Core\\\\Framework\\\\Api\\\\(?:Context\\\\Exception\\\\InvalidContextSourceException|ApiException)::API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST',
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Api\ApiException::invalidStoreApiSchemaMigrationAllowlist() was removed', '/'),
     ],
 ];

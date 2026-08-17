@@ -224,4 +224,28 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         // Check if new mediaItem has new url
         expect(wrapper.vm.product.media[1].media.url).toBe('http://shopware.test/media1-new-url.jpg');
     });
+
+    describe('when the product has not been loaded yet', () => {
+        let loadedProduct;
+
+        beforeEach(() => {
+            loadedProduct = Shopware.Store.get('swProductDetail').product;
+            Shopware.Store.get('swProductDetail').product = {};
+        });
+
+        afterEach(() => {
+            Shopware.Store.get('swProductDetail').product = loadedProduct;
+        });
+
+        it('should render without a media association', async () => {
+            global.activeAclRoles = ['product.editor'];
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.cover).toBeNull();
+            expect(wrapper.vm.productMedia).toEqual([]);
+            expect(wrapper.find('.sw-product-media-form').exists()).toBeTruthy();
+            expect(wrapper.find('.sw-product-media-form__cover-image.is--placeholder').exists()).toBeTruthy();
+        });
+    });
 });

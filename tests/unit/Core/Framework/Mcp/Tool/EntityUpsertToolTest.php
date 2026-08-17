@@ -175,7 +175,7 @@ class EntityUpsertToolTest extends TestCase
         $events->method('getEvents')->willReturn(new NestedEventCollection([$writtenEvent]));
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willReturn($events);
+        $repository->expects($this->once())->method('upsert')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
@@ -193,7 +193,7 @@ class EntityUpsertToolTest extends TestCase
         $connection->expects($this->once())->method('rollBack');
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willThrowException(new \RuntimeException('Constraint violation'));
+        $repository->expects($this->once())->method('upsert')->willThrowException(new \RuntimeException('Constraint violation'));
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
@@ -212,7 +212,7 @@ class EntityUpsertToolTest extends TestCase
         $events->method('getEvents')->willReturn(new NestedEventCollection());
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willReturn($events);
+        $repository->expects($this->once())->method('upsert')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '{"name": "Test"}', false));

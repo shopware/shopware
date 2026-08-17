@@ -141,8 +141,11 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
     it('renames a composable member around a module-level binding of the same name', async () => {
         const result = await convertFixture('sw-mixin-collision');
 
-        expect(result.outcome).toBe('full');
-        expect(result.reasons).toEqual([]);
+        // The generated name is the codemod's, not the developer's, so the draft asks for a look.
+        expect(result.outcome).toBe('partial');
+        expect(result.reasons).toEqual([
+            "'salutation' was renamed to 'salutation$1' — its name is already taken by another binding",
+        ]);
         expect(result.sfc).toContain('const { salutation: salutation$1 } = useSalutation();');
 
         // The module-level helper keeps every bare reference; only `this.salutation` moves.
@@ -152,6 +155,20 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         // swDefinePublic takes shorthand bindings only, so the renamed member stays private
         // instead of being published under the generated name.
         expect(result.sfc).not.toContain('salutation$1,');
+    });
+
+    // The rename is a local decision about one declaration, so the TODO sits with it instead of in
+    // the file's trailing TODO list.
+    it('flags the rename directly above the destructure it applies to', async () => {
+        const result = await convertFixture('sw-mixin-collision');
+
+        expect(result.sfc).toContain(
+            [
+                "// TODO(sfc-migration) VERIFY: 'salutation' was renamed to 'salutation$1' — its name is already taken by another binding",
+                '// The draft runs as emitted; a renamed member stays out of swDefinePublic, so rename it and its uses to have it public or prettier',
+                'const { salutation: salutation$1 } = useSalutation();',
+            ].join('\n'),
+        );
     });
 
     describe('instance dependencies', () => {

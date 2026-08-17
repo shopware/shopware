@@ -30,6 +30,11 @@ type TodoEntry = {
     explanation?: string;
     /** Review points of a TODO that asks the reader to check emitted code instead of writing missing code. */
     checks?: string[];
+    /**
+     * Emitted above the single declaration it is about, by whichever section writes that
+     * declaration — the file-wide TODO groups leave it out.
+     */
+    anchored?: boolean;
 };
 
 // Options whose presence makes the whole component non-migratable.

@@ -25,6 +25,7 @@ import {
     SKIP_OPTIONS,
     TODO_OPTIONS,
     type MemberKind,
+    type TodoEntry,
 } from './tables';
 import {
     type Ctx,
@@ -39,6 +40,7 @@ import {
     raw,
     snip,
     todo,
+    todoAtDeclaration,
     todoReview,
     visitChildren,
 } from './ast';
@@ -540,8 +542,11 @@ function collectOwnMemberNames(options: t.ObjectExpression): Set<string> {
 
 type ResolvedComposable = {
     descriptor: ComposableDescriptor;
-    /** The members the component actually uses, in descriptor order. */
-    entries: { member: string; sourceKey: string; binding: string }[];
+    /**
+     * The members the component actually uses, in descriptor order. A renamed one carries the TODO
+     * that asks the reader to review the generated name, to be emitted above the destructure.
+     */
+    entries: { member: string; sourceKey: string; binding: string; renameTodo?: TodoEntry }[];
     /** `key: value` texts of the options object the composable is called with. */
     args: string[];
     /** `data()` entries routed into that options object, rendered after the rewrite pass. */
@@ -747,6 +752,19 @@ function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
 }
 
 /**
+ * Leaves a generated binding name up for review. The rename is what keeps the component migratable,
+ * but a generated name is nobody's choice and it costs the member its place in `swDefinePublic`, so
+ * the draft says so where the name is introduced.
+ */
+function noteBindingRename(ctx: Ctx, member: string, binding: string): TodoEntry {
+    return todoAtDeclaration(
+        ctx,
+        `'${member}' was renamed to '${binding}' — its name is already taken by another binding`,
+        'The draft runs as emitted; a renamed member stays out of swDefinePublic, so rename it and its uses to have it public or prettier',
+    );
+}
+
+/**
  * Turns the resolved mixin descriptors into setup bindings, or refuses the component.
  *
  * Runs between classification and the rewrite pass: it needs the component's complete member set to
@@ -859,6 +877,7 @@ function resolveMixins(
             }
 
             const binding = freeBindingName(member, claimed);
+            let renameTodo: TodoEntry | undefined;
 
             if (binding !== member) {
                 if (ctx.templateIdentifiers.has(member)) {
@@ -867,11 +886,12 @@ function resolveMixins(
                 }
 
                 ctx.renamedBindings.set(member, binding);
+                renameTodo = noteBindingRename(ctx, member, binding);
             }
 
             claimed.add(binding);
             ctx.bindings.set(member, spec.kind === 'ref' ? 'data' : 'method');
-            entries.push({ member, sourceKey: spec.sourceKey ?? member, binding });
+            entries.push({ member, sourceKey: spec.sourceKey ?? member, binding, renameTodo });
         }
 
         const config = routedConfig.get(descriptor) ?? [];

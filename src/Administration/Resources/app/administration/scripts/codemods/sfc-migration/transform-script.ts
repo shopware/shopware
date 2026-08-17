@@ -331,7 +331,12 @@ function transformScript(
                 .join(', ');
 
             // A scaffold runs the lifecycle, so its call stands on its own when nothing is read from it.
-            return entries.length > 0 ? `const { ${destructured} } = ${call}` : call;
+            const declaration = entries.length > 0 ? `const { ${destructured} } = ${call}` : call;
+
+            return [
+                ...entries.flatMap((entry) => (entry.renameTodo ? [todoBlock(entry.renameTodo)] : [])),
+                declaration,
+            ].join('\n');
         })
         .join('\n');
     const dataBlock = collected.dataEntries
@@ -340,9 +345,10 @@ function transformScript(
     const refBlock = [...ctx.templateRefs].map((refName) => `const ${refName} = ref(null);`).join('\n');
 
     // A review TODO is about the whole draft, so it leads the file instead of trailing the code its
-    // checks are about.
-    const reviewTodos = ctx.todos.filter((entry) => entry.checks !== undefined);
-    const siteTodos = ctx.todos.filter((entry) => entry.checks === undefined);
+    // checks are about. An anchored one was already emitted above the declaration it names.
+    const fileTodos = ctx.todos.filter((entry) => !entry.anchored);
+    const reviewTodos = fileTodos.filter((entry) => entry.checks !== undefined);
+    const siteTodos = fileTodos.filter((entry) => entry.checks === undefined);
 
     const sections: (string | null)[] = [
         ...reviewTodos.map(todoBlock),

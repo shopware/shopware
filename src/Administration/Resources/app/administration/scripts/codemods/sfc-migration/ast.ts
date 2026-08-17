@@ -77,6 +77,18 @@ function todoReview(ctx: Ctx, reason: string, explanation: string, checks: strin
     pushTodo(ctx, { reason, explanation, checks, mode: 'VERIFY' });
 }
 
+/**
+ * A VERIFY TODO about one declaration the caller emits itself. It is returned rather than only
+ * recorded, because the section that writes that declaration is the one that renders the block.
+ */
+function todoAtDeclaration(ctx: Ctx, reason: string, explanation: string): TodoEntry {
+    const entry: TodoEntry = { reason, explanation, mode: 'VERIFY', anchored: true };
+
+    pushTodo(ctx, entry);
+
+    return entry;
+}
+
 function keyName(prop: t.ObjectMethod | t.ObjectProperty): string | null {
     if (prop.computed) {
         return null;
@@ -414,6 +426,7 @@ export {
     todo,
     todoFix,
     todoReview,
+    todoAtDeclaration,
     keyName,
     asFunction,
     visitChildren,

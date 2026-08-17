@@ -131,6 +131,16 @@ the mixin's `this` semantics:
   renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but the template
   cannot be rewritten.
 
+A rename is emitted, not refused, but the generated name is the codemod's own and it costs the member
+its `swDefinePublic` entry. So the draft carries a `VERIFY` TODO directly above the destructure, and
+the outcome is `partial` until a reader has picked a name:
+
+```js
+// TODO(sfc-migration) VERIFY: 'salutation' was renamed to 'salutation$1' — its name is already taken by another binding
+// The draft runs as emitted; a renamed member stays out of swDefinePublic, so rename it and its uses to have it public or prettier
+const { salutation: salutation$1 } = useSalutation();
+```
+
 ### Instance dependencies
 
 A mixin that reaches into its host — `$emit`, a prop it read, a method it expected the host to define —

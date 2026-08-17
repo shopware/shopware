@@ -578,8 +578,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-collision 1`] = `
 {
-  "outcome": "full",
-  "reasons": [],
+  "outcome": "partial",
+  "reasons": [
+    "'salutation' was renamed to 'salutation$1' — its name is already taken by another binding",
+  ],
   "sfc": "<script data-sfc-migration-module>
 import { salutation } from './salutation.helper';
 
@@ -604,6 +606,8 @@ const props = defineProps({
     },
 });
 
+// TODO(sfc-migration) VERIFY: 'salutation' was renamed to 'salutation$1' — its name is already taken by another binding
+// The draft runs as emitted; a renamed member stays out of swDefinePublic, so rename it and its uses to have it public or prettier
 const { salutation: salutation$1 } = useSalutation();
 
 const shortLabel = // The module-level helper and the mixin member share a name, which only \`this.\` keeps apart

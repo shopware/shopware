@@ -94,13 +94,6 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 ### Store API schema documents cart totals as a separate `CartPrice` component
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
-### Cross selling always returns completely loaded products
-
-`POST /store-api/product/{productId}/cross-selling` now ignores a `fields` selection and always loads complete products. A `fields` selection returns `PartialEntity` instances, which the cross selling elements are not typed against, so such a request previously failed with a `500`. Use `includes` to reduce the size of the response instead. A field selection added by a subscriber of `ProductCrossSellingStreamCriteriaEvent` or `ProductCrossSellingIdsCriteriaEvent` is dropped as well.
-
-`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria` gets two new methods for this: `resetFields()` drops an allowlist added via `addFields()`, `resetExcludedFields()` drops a denylist added via `excludeFields()`. Both are useful in custom routes and services, either when the consumer of the result requires completely loaded entities, or to switch a criteria between the two mutually exclusive selections.
-
-Note that `addFields()` and `excludeFields()` reduce the database read and therefore change which data is loaded, while `includes` and `excludes` only shape the API response of data that has been read anyway.
 
 ## Core
 
@@ -122,6 +115,11 @@ The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) 
 A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
 
 `ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
+### New `Criteria::resetFields()` and `Criteria::resetExcludedFields()`
+
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
+
+They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 

@@ -156,6 +156,10 @@ Added new experimental Store API route `GET /store-api/snippet` (not part of the
 ### Number range admin action endpoints now require ACL privileges
 
 Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
 
 * `GET /api/_action/number-range/reserve/{type}/{salesChannelId}` requires `number_range:read`. Without `preview=1` this endpoint permanently advances the number range state, so it was possible for any authenticated backend account to consume invoice, order, delivery-note and credit-note numbers and create gaps in the sequence.
 * `GET /api/_action/number-range/{numberRangeId}/preview-pattern` and the deprecated `GET /api/_action/number-range/preview-pattern/{type}` require `number_range:read`.

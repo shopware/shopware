@@ -54,20 +54,27 @@ function overwrite(ctx: Ctx, node: t.Node, text: string): void {
     ctx.ms.overwrite(node.start as number, node.end as number, text);
 }
 
-function todo(ctx: Ctx, reason: string, code?: string): void {
-    if (!ctx.todos.some((entry) => entry.reason === reason && entry.code === code)) {
-        ctx.todos.push({ reason, code });
+function pushTodo(ctx: Ctx, entry: TodoEntry): void {
+    if (!ctx.todos.some((existing) => existing.reason === entry.reason && existing.code === entry.code)) {
+        ctx.todos.push(entry);
     }
+}
+
+function todo(ctx: Ctx, reason: string, code?: string): void {
+    pushTodo(ctx, { reason, code });
+}
+
+/** A TODO about code the reader has to write, because the draft does not run as it stands. */
+function todoFix(ctx: Ctx, reason: string, explanation: string, code?: string): void {
+    pushTodo(ctx, { reason, explanation, code, mode: 'FIX' });
 }
 
 /**
  * A TODO about the emitted code as a whole rather than about one site in it: the conversion is
  * complete, what it means is what the checks ask the reader to confirm.
  */
-function todoReview(ctx: Ctx, reason: string, checks: string[]): void {
-    if (!ctx.todos.some((entry) => entry.reason === reason)) {
-        ctx.todos.push({ reason, checks });
-    }
+function todoReview(ctx: Ctx, reason: string, explanation: string, checks: string[]): void {
+    pushTodo(ctx, { reason, explanation, checks, mode: 'VERIFY' });
 }
 
 function keyName(prop: t.ObjectMethod | t.ObjectProperty): string | null {
@@ -405,6 +412,7 @@ export {
     raw,
     overwrite,
     todo,
+    todoFix,
     todoReview,
     keyName,
     asFunction,

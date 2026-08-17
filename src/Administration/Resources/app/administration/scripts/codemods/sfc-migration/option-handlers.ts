@@ -877,7 +877,7 @@ function resolveMixins(
         const config = routedConfig.get(descriptor) ?? [];
 
         if (descriptor.scaffold) {
-            noteScaffoldReview(ctx, descriptor.id, descriptor.scaffold, config);
+            noteScaffoldReview(ctx, descriptor, descriptor.scaffold, config);
         }
 
         resolved.push({ descriptor, entries, args: composableArguments(ctx, descriptor), config });
@@ -891,15 +891,25 @@ function resolveMixins(
  * result still behaves the same is not something the codemod can answer, so it says so in the output
  * and the outcome follows from there being a TODO at all.
  */
-function noteScaffoldReview(ctx: Ctx, id: string, scaffold: ComposableScaffold, config: ResolvedComposable['config']): void {
+function noteScaffoldReview(
+    ctx: Ctx,
+    descriptor: ComposableDescriptor,
+    scaffold: ComposableScaffold,
+    config: ResolvedComposable['config'],
+): void {
     const routedKeys = config.map(({ key }) => key);
 
-    todoReview(ctx, `'${id}' scaffold needs a manual review`, [
-        ...scaffold.checks,
-        ...(routedKeys.length > 0
-            ? [`these were routed into the composable options instead of staying state: ${routedKeys.join(', ')}`]
-            : []),
-    ]);
+    todoReview(
+        ctx,
+        `${descriptor.import.name}() replaces the '${descriptor.id}' mixin`,
+        'Nothing is missing from the draft; what the codemod cannot decide is whether it behaves the same — check:',
+        [
+            ...scaffold.checks,
+            ...(routedKeys.length > 0
+                ? [`these were routed into the composable options instead of staying state: ${routedKeys.join(', ')}`]
+                : []),
+        ],
+    );
 }
 
 /** Classifies every top-level option into the collected state, the TODO list, or the blockers. */

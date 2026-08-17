@@ -31,23 +31,27 @@ type ScriptResult = {
 };
 
 function todoBlock(entry: TodoEntry): string {
-    const header = `// TODO(sfc-migration): ${entry.reason}`;
+    const lines = [
+        `// TODO(sfc-migration)${entry.mode ? ` ${entry.mode}` : ''}: ${entry.reason}`,
+        ...(entry.explanation ? [`// ${entry.explanation}`] : []),
+    ];
 
     if (entry.checks) {
         return [
-            header,
+            ...lines,
             ...entry.checks.map((check) => `// - ${check}`),
         ].join('\n');
     }
 
     if (!entry.code) {
-        return header;
+        return lines.join('\n');
     }
 
     const codeLines = entry.code.split('\n').map((line) => `// ${line}`);
 
     return [
-        `${header} — original code:`,
+        ...lines.slice(0, -1),
+        `${lines[lines.length - 1]} — original code:`,
         ...codeLines,
     ].join('\n');
 }

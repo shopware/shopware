@@ -271,10 +271,11 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
             // A scaffold is never finished work, however clean the output looks.
             expect(result.outcome).toBe('partial');
-            expect(result.reasons).toContain("'listing' scaffold needs a manual review");
+            expect(result.reasons).toContain("useListing() replaces the 'listing' mixin");
 
-            // The review checklist leads the draft.
-            expect(result.sfc).toContain("// TODO(sfc-migration): 'listing' scaffold needs a manual review");
+            // The review checklist leads the draft, and says that it is a review rather than a repair.
+            expect(result.sfc).toContain("// TODO(sfc-migration) VERIFY: useListing() replaces the 'listing' mixin");
+            expect(result.sfc).toContain('// Nothing is missing from the draft;');
             expect(result.sfc).toContain('// - the initial load runs on mounted now');
             expect(result.sfc).toContain('// - these were routed into the composable options');
 
@@ -303,9 +304,11 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
             const result = await convertFixture('sw-mixin-cms-element-scaffold');
 
             expect(result.outcome).toBe('partial');
-            expect(result.reasons).toEqual(["'cms-element' scaffold needs a manual review"]);
+            expect(result.reasons).toEqual(["useCmsElementDeprecated() replaces the 'cms-element' mixin"]);
 
-            expect(result.sfc).toContain("// TODO(sfc-migration): 'cms-element' scaffold needs a manual review");
+            expect(result.sfc).toContain(
+                "// TODO(sfc-migration) VERIFY: useCmsElementDeprecated() replaces the 'cms-element' mixin",
+            );
             expect(result.sfc).toContain('// - the config writes still reach the element object itself');
 
             // The props the mixin declared are merged in, and the two the composable reads are handed
@@ -348,14 +351,20 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         expect(result.outcome).toBe('partial');
         expect(result.reasons).toEqual(
             expect.arrayContaining([
-                'legacy this.$t(key, locale) argument shape',
-                'legacy this.$tc(key, choice, values) argument order',
+                'this.$t(key, locale) is left as authored and does not run in setup',
+                'this.$tc(key, choice, values) is left as authored and does not run in setup',
             ]),
         );
 
         expect(result.sfc).toContain("t('sw-legacy-i18n.title', { name: 'demo' })");
         expect(result.sfc).toContain("t('sw-legacy-i18n.items', props.itemCount)");
         expect(result.sfc).toContain("t('sw-legacy-i18n.toggle', props.collapsed ? 0 : 1)");
+
+        // The TODO says that the call has to be written by hand, not just reviewed.
+        expect(result.sfc).toContain(
+            '// TODO(sfc-migration) FIX: this.$t(key, locale) is left as authored and does not run in setup',
+        );
+        expect(result.sfc).toContain('// Composition t() would read the locale as a default message');
 
         // The refused calls keep their `this.` callee, but their arguments still rewrite.
         expect(result.sfc).toContain("this.$t('sw-legacy-i18n.title', Shopware.Context.app.fallbackLocale)");

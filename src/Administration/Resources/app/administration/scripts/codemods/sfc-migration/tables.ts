@@ -21,6 +21,13 @@ type HelperName = 't' | 'router' | 'route' | 'emit' | 'props' | 'slots' | 'attrs
 type TodoEntry = {
     reason: string;
     code?: string;
+    /**
+     * Tells the reader of a draft what the TODO asks of them: `FIX` means the emitted code does not
+     * run as it stands, `VERIFY` means it does and only its equivalence is unproven.
+     */
+    mode?: 'FIX' | 'VERIFY';
+    /** Why the mode applies — what the reader has to write, or what the codemod could not prove. */
+    explanation?: string;
     /** Review points of a TODO that asks the reader to check emitted code instead of writing missing code. */
     checks?: string[];
 };

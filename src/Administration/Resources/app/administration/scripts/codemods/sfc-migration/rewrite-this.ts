@@ -30,6 +30,7 @@ import {
     overwrite,
     raw,
     todo,
+    todoFix,
     visitChildren,
 } from './ast';
 
@@ -66,13 +67,20 @@ function isPortableI18nArgument(node: t.Node): boolean {
  * third `values` argument, where Composition `t()` expects TranslateOptions and drops the
  * interpolation. Both need the locale or the values moved, which is a call rewrite, not a rename.
  */
-function legacyI18nShape(call: t.CallExpression, name: string): string | null {
+function legacyI18nShape(call: t.CallExpression, name: string): { reason: string; explanation: string } | null {
     if (name === '$t' && call.arguments.length >= 2 && !isPortableI18nArgument(call.arguments[1])) {
-        return 'legacy this.$t(key, locale) argument shape';
+        return {
+            reason: 'this.$t(key, locale) is left as authored and does not run in setup',
+            explanation:
+                'Composition t() would read the locale as a default message; rewrite the call as t(key, values, { locale })',
+        };
     }
 
     if (name === '$tc' && call.arguments.length >= 3) {
-        return 'legacy this.$tc(key, choice, values) argument order';
+        return {
+            reason: 'this.$tc(key, choice, values) is left as authored and does not run in setup',
+            explanation: 'Composition t() expects options in the third argument; rewrite the call as t(key, values, choice)',
+        };
     }
 
     return null;
@@ -107,7 +115,7 @@ function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponent: boolean, scope: Lo
         const legacyShape = calleeName === null ? null : legacyI18nShape(node, calleeName);
 
         if (legacyShape !== null) {
-            todo(ctx, legacyShape, raw(ctx, node));
+            todoFix(ctx, legacyShape.reason, legacyShape.explanation, raw(ctx, node));
 
             // The callee is left as authored, so the draft shows the shape a human has to decide on.
             // The arguments are ordinary component code and still rewrite.

@@ -198,8 +198,8 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 {
   "outcome": "partial",
   "reasons": [
-    "legacy this.$t(key, locale) argument shape",
-    "legacy this.$tc(key, choice, values) argument order",
+    "this.$t(key, locale) is left as authored and does not run in setup",
+    "this.$tc(key, choice, values) is left as authored and does not run in setup",
   ],
   "sfc": "<script data-sfc-migration-module>
 /**
@@ -263,10 +263,12 @@ const namedItemLabel = computed(function () {
     return this.$tc('sw-legacy-i18n.items', props.itemCount, { name: 'demo' });
 });
 
-// TODO(sfc-migration): legacy this.$t(key, locale) argument shape — original code:
+// TODO(sfc-migration) FIX: this.$t(key, locale) is left as authored and does not run in setup
+// Composition t() would read the locale as a default message; rewrite the call as t(key, values, { locale }) — original code:
 // this.$t('sw-legacy-i18n.title', Shopware.Context.app.fallbackLocale)
 
-// TODO(sfc-migration): legacy this.$tc(key, choice, values) argument order — original code:
+// TODO(sfc-migration) FIX: this.$tc(key, choice, values) is left as authored and does not run in setup
+// Composition t() expects options in the third argument; rewrite the call as t(key, values, choice) — original code:
 // this.$tc('sw-legacy-i18n.items', this.itemCount, { name: 'demo' })
 
 swDefinePublic({
@@ -456,7 +458,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 {
   "outcome": "partial",
   "reasons": [
-    "'cms-element' scaffold needs a manual review",
+    "useCmsElementDeprecated() replaces the 'cms-element' mixin",
   ],
   "sfc": "<script data-sfc-migration-module>
 /**
@@ -479,7 +481,8 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-// TODO(sfc-migration): 'cms-element' scaffold needs a manual review
+// TODO(sfc-migration) VERIFY: useCmsElementDeprecated() replaces the 'cms-element' mixin
+// Nothing is missing from the draft; what the codemod cannot decide is whether it behaves the same — check:
 // - the config writes still reach the element object itself, which is the slot the cmsPage store shares with the rest of the editor
 // - the cmsElements registry and getDemoValue resolve the cms service the same way the injection did
 // - the defaults are merged at the point in the lifecycle the component expects them
@@ -830,7 +833,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "outcome": "partial",
   "reasons": [
     "array inject declaration requires runtime ref-unwrapping verification",
-    "'listing' scaffold needs a manual review",
+    "useListing() replaces the 'listing' mixin",
   ],
   "sfc": "<script data-sfc-migration-module>
 /**
@@ -863,7 +866,8 @@ const { Criteria } = Shopware.Data;
 </template>
 
 <script setup>
-// TODO(sfc-migration): 'listing' scaffold needs a manual review
+// TODO(sfc-migration) VERIFY: useListing() replaces the 'listing' mixin
+// Nothing is missing from the draft; what the codemod cannot decide is whether it behaves the same — check:
 // - getList() is passed to useListing() and still resolves everything it reads and writes
 // - the initial load runs on mounted now, one hook later than the mixin loaded it
 // - route parameter handling, which the composable owns from here on

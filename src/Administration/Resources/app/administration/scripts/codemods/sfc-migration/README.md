@@ -40,6 +40,17 @@ A component whose entry point was explicitly replaced is never rediscovered: its
 re-export, which the discovery pass does not recognise as a component. Draft-only re-runs report
 the existing draft and leave it untouched.
 
+### TODO modes
+
+A `TODO(sfc-migration)` in a draft says which of two things it asks of its reader, so neither has to be
+guessed from the wording:
+
+| Marker | Meaning |
+| --- | --- |
+| `TODO(sfc-migration) FIX:` | The emitted code does not run as it stands — the reader writes what the codemod refused to guess. The comment names what is left as authored and what to replace it with |
+| `TODO(sfc-migration) VERIFY:` | The conversion is complete and runs; what it cannot prove is that it behaves the same. The comment says why, and lists what to check |
+| `TODO(sfc-migration):` | Not classified into either mode yet |
+
 ### Write failures
 
 Each component's writes are guarded on their own. A failure reports that component as `error`,
@@ -163,11 +174,12 @@ Some mixins were abstract controllers rather than helpers: they owned the state 
 against — their own, or a prop they wrote to — plus a lifecycle, and drove a member the component was
 expected to implement. Wiring one up is mechanical, but proving the result still behaves the same is
 not, so a descriptor with a `scaffold` field always produces a `partial` draft, never a `full`
-migration. Its `checks` lead the draft as one summary TODO block, which is also what makes the outcome
-`partial`:
+migration. Its `checks` lead the draft as one summary TODO block in `VERIFY` mode, which is also what
+makes the outcome `partial`:
 
 ```js
-// TODO(sfc-migration): 'listing' scaffold needs a manual review
+// TODO(sfc-migration) VERIFY: useListing() replaces the 'listing' mixin
+// Nothing is missing from the draft; what the codemod cannot decide is whether it behaves the same — check:
 // - getList() is passed to useListing() and still resolves everything it reads and writes
 // - the initial load runs on mounted now, one hook later than the mixin loaded it
 // - route parameter handling, which the composable owns from here on

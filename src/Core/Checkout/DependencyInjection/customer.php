@@ -83,6 +83,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidat
 use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
+use Shopware\Core\Checkout\Customer\Validation\EuVatIdPatternProvider;
 use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
@@ -200,9 +201,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('validator.constraint_validator');
 
+    $services->set(EuVatIdPatternProvider::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
     $services->set(CustomerVatIdentificationValidator::class)
         ->args([
             service(Connection::class),
+            service(EuVatIdPatternProvider::class),
         ])
         ->tag('validator.constraint_validator');
 

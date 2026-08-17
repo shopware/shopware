@@ -29,16 +29,21 @@ class CustomerVatIdentification extends Constraint
     protected bool $shouldCheck = false;
 
     /**
-     * @param array{countryId?: string, shouldCheck?: bool}|null $options
+     * Also accept a VAT ID that matches the pattern of any other EU member state, not only the one of `$countryId`.
+     */
+    protected bool $anyEuCountry = false;
+
+    /**
+     * @param array{countryId?: string, shouldCheck?: bool, anyEuCountry?: bool}|null $options
      *
-     * The `$shouldCheck` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
+     * The `$shouldCheck`, `$anyEuCountry` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *
      * @internal
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'countryId', newType: 'string', description: 'The parameter loses its null default, becomes required and a promoted property.')]
-    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.')
+    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.', bool $anyEuCountry = false)
     {
         if ($options !== null || $countryId === null) {
             Feature::triggerDeprecationOrThrow(
@@ -57,6 +62,7 @@ class CustomerVatIdentification extends Constraint
             $this->countryId = $countryId;
             $this->shouldCheck = $shouldCheck;
             $this->message = $message;
+            $this->anyEuCountry = $anyEuCountry;
         } else {
             if ($countryId === null) {
                 if (!\is_string($options['countryId'] ?? null)) {
@@ -65,6 +71,10 @@ class CustomerVatIdentification extends Constraint
 
                 if (isset($options['shouldCheck']) && !\is_bool($options['shouldCheck'])) {
                     throw CustomerException::invalidOption('shouldCheck', 'bool', self::class);
+                }
+
+                if (isset($options['anyEuCountry']) && !\is_bool($options['anyEuCountry'])) {
+                    throw CustomerException::invalidOption('anyEuCountry', 'bool', self::class);
                 }
             }
 
@@ -80,6 +90,11 @@ class CustomerVatIdentification extends Constraint
     public function getShouldCheck(): bool
     {
         return $this->shouldCheck;
+    }
+
+    public function getAnyEuCountry(): bool
+    {
+        return $this->anyEuCountry;
     }
 
     public function getMessage(): string

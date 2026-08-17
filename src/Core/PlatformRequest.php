@@ -90,7 +90,6 @@ final class PlatformRequest
         self::ATTRIBUTE_CAPTCHA,
         self::ATTRIBUTE_ROUTE_SCOPE,
         self::ATTRIBUTE_ENTITY,
-        self::ATTRIBUTE_OPENAPI,
         self::ATTRIBUTE_NO_STORE,
         self::ATTRIBUTE_HTTP_CACHE,
         self::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED,

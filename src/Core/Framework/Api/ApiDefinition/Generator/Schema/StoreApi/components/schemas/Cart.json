@@ -16,7 +16,7 @@
                         "type": "string"
                     },
                     "price": {
-                        "$ref": "#/components/schemas/CalculatedPrice"
+                        "$ref": "#/components/schemas/CartPrice"
                     },
                     "lineItems": {
                         "description": "All items within the cart",

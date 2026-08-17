@@ -2,7 +2,7 @@ import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type { DocumentConfig } from '../../service/documentV2.service';
 import { DOCUMENT_TYPES, FILE_FORMAT_MIME_TYPES } from '../../service/documentV2.service';
-import type { AvailableDocumentTypesResponse } from '../../service/documentV2.api.service';
+import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
 
@@ -245,6 +245,9 @@ export default Component.wrapComponentConfig({
         },
 
         async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
+            this.selectedFileFormat = null;
+            this.removeCustomDocument();
+
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';

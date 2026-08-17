@@ -1,6 +1,6 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { AvailableDocumentTypesResponse } from '../../service/documentV2.api.service';
+import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
 import type { DocumentConfig } from '../../service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
@@ -276,6 +276,7 @@ export default Component.wrapComponentConfig({
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
+                this.referencedDocumentNumber = null;
 
                 return;
             }
@@ -283,6 +284,8 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+
+            this.referencedDocumentNumber = null;
 
             try {
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);

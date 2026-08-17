@@ -25,6 +25,7 @@
             :placeholder="$t('sw-order.components.uploadDocumentModal.placeholderFileFormat')"
             :options="fileFormatOptions"
             :disabled="!currentDocumentType || isModalLoading"
+            :help-text="$t('sw-order.components.uploadDocumentModal.helpTextFileFormat')"
             required
         />
     </div>

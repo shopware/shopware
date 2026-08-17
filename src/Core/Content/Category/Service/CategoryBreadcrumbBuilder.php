@@ -10,6 +10,7 @@ use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Util\CategoryBreadcrumbHelper;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -141,39 +142,7 @@ class CategoryBreadcrumbBuilder
      */
     public function build(CategoryEntity $category, ?SalesChannelEntity $salesChannel = null, ?string $navigationCategoryId = null): ?array
     {
-        $categoryBreadcrumb = $category->getPlainBreadcrumb();
-
-        // If the current SalesChannel is null ( which refers to the default template SalesChannel) or
-        // this category has no root, we return the full breadcrumb
-        if ($salesChannel === null && $navigationCategoryId === null) {
-            return $categoryBreadcrumb;
-        }
-
-        $entryPoints = [
-            $navigationCategoryId,
-        ];
-
-        if ($salesChannel !== null) {
-            $entryPoints[] = $salesChannel->getNavigationCategoryId();
-            $entryPoints[] = $salesChannel->getServiceCategoryId();
-            $entryPoints[] = $salesChannel->getFooterCategoryId();
-        }
-
-        $entryPoints = array_filter($entryPoints);
-
-        $keys = array_keys($categoryBreadcrumb);
-
-        foreach ($entryPoints as $entryPoint) {
-            // Check where this category is located in relation to the navigation entry point of the sales channel
-            $pos = array_search($entryPoint, $keys, true);
-
-            if ($pos !== false) {
-                // Remove all breadcrumbs preceding the navigation category
-                return \array_slice($categoryBreadcrumb, $pos + 1);
-            }
-        }
-
-        return $categoryBreadcrumb;
+        return CategoryBreadcrumbHelper::build($category, $salesChannel, $navigationCategoryId);
     }
 
     private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): SalesChannelProductEntity
@@ -277,7 +246,7 @@ class CategoryBreadcrumbBuilder
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
         $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
-        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME, $salesChannel->getTypeId());
         $query->setParameter('routeName', $routeName);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));

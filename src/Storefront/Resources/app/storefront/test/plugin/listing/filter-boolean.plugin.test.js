@@ -5,9 +5,9 @@ describe('FilterBoolean tests', () => {
 
     beforeEach(() => {
         document.body.innerHTML = `
-        <div class="filter-boolean filter-panel-item" role="listitem" data-filter-boolean="true">
+        <div class="filter-boolean filter-panel-item" role="listitem" aria-busy="true" data-filter-boolean="true">
             <div class="form-check">
-                <input type="checkbox" class="filter-boolean-input form-check-input" id="shipping-free" name="shipping-free">
+                <input type="checkbox" class="filter-boolean-input form-check-input" id="shipping-free" name="shipping-free" disabled data-filter-loading>
                     <label for="shipping-free" class="filter-boolean-label custom-control-label">
                         <span class="filter-boolean-alt-text visually-hidden">Add filter: Free shipping</span>
                         <span aria-hidden="true">Free shipping</span>
@@ -41,6 +41,15 @@ describe('FilterBoolean tests', () => {
 
     test('filter boolean plugin exists', () => {
         expect(typeof filterBooleanPlugin).toBe('object');
+    });
+
+    test('enables the filter after its event handler is registered', () => {
+        const filterElement = document.querySelector('[data-filter-boolean="true"]');
+        const input = document.querySelector('.filter-boolean-input');
+
+        expect(filterElement.getAttribute('aria-busy')).toBeNull();
+        expect(input.getAttribute('disabled')).toBeNull();
+        expect(input.getAttribute('data-filter-loading')).toBeNull();
     });
 
     test('should return correct values depending on checkbox state', () => {

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -35,11 +36,14 @@ class CachedDomainLoaderInvalidator implements EventSubscriberInterface
 
     public function invalidate(EntityWrittenContainerEvent $event): void
     {
-        if ($event->getEventByEntityName(SalesChannelDefinition::ENTITY_NAME)) {
-            $this->logger->invalidate([
-                CachedDomainLoader::CACHE_KEY,
-                CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
-            ], true);
+        if (!$event->getEventByEntityName(SalesChannelDefinition::ENTITY_NAME)
+            && !$event->getEventByEntityName(ThemeSalesChannelDefinition::ENTITY_NAME)) {
+            return;
         }
+
+        $this->logger->invalidate([
+            CachedDomainLoader::CACHE_KEY,
+            CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
+        ], true);
     }
 }

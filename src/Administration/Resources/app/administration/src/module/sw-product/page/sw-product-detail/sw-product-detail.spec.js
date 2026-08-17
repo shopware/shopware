@@ -259,6 +259,48 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
+    it('should flag the product as loading before awaiting the measurement units', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        let resolveSearch;
+        Shopware.Service('userConfigService').search.mockReturnValue(
+            new Promise((resolve) => {
+                resolveSearch = resolve;
+            }),
+        );
+
+        Shopware.Store.get('swProductDetail').$reset();
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
+
+        wrapper = await createWrapper();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(true);
+
+        resolveSearch({ data: {} });
+        await flushPromises();
+    });
+
+    it('should not keep the product loading when the measurement units cannot be loaded', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        Shopware.Service('userConfigService').search.mockImplementation((keys) => {
+            if (keys.includes('measurement.preferenceUnits')) {
+                return Promise.reject(new Error('Request failed'));
+            }
+
+            return Promise.resolve({ data: {} });
+        });
+
+        Shopware.Store.get('swProductDetail').$reset();
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
+    });
+
     it('should redirect to product listing when product no longer exists', async () => {
         await wrapper.unmount();
 
@@ -662,6 +704,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.previousWeightUnit).toBe('g');
         expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('cm');
         expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('g');
+    });
+
+    it('should initialize with default units when the preferences cannot be loaded', async () => {
+        Shopware.Service('userConfigService').search.mockRejectedValue(new Error('Request failed'));
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('mm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('kg');
     });
 
     it('should save preferences only when units have changed', async () => {

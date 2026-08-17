@@ -83,42 +83,8 @@
                         "readOnly": true
                     },
                     "price": {
-                        "required": [
-                            "netPrice",
-                            "totalPrice",
-                            "positionPrice",
-                            "rawTotal",
-                            "taxStatus"
-                        ],
-                        "properties": {
-                            "netPrice": {
-                                "type": "number",
-                                "format": "float"
-                            },
-                            "totalPrice": {
-                                "type": "number",
-                                "format": "float"
-                            },
-                            "calculatedTaxes": {
-                                "type": "object"
-                            },
-                            "taxRules": {
-                                "type": "object"
-                            },
-                            "positionPrice": {
-                                "type": "number",
-                                "format": "float"
-                            },
-                            "rawTotal": {
-                                "type": "number",
-                                "format": "float"
-                            },
-                            "taxStatus": {
-                                "type": "string"
-                            }
-                        },
                         "type": "object",
-                        "$ref": "#/components/schemas/CalculatedPrice"
+                        "$ref": "#/components/schemas/CartPrice"
                     },
                     "amountTotal": {
                         "description": "Gross price of the order.",

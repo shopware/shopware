@@ -123,8 +123,8 @@
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
                 },
-                "webhook": {
-                    "$ref": "#/definitions/webhook"
+                "app_system": {
+                    "$ref": "#/definitions/app_system"
                 }
             },
             "title": "Shopware"
@@ -1242,14 +1242,14 @@
             },
             "title": "Media"
         },
-        "webhook": {
+        "app_system": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
                 "allow_unencrypted_traffic": {
                     "type": "boolean"
                 },
-                "allowed_ip_addresses": {
+                "allowed_private_ip_addresses": {
                     "type": "array",
                     "uniqueItems": true,
                     "items": {
@@ -1257,7 +1257,7 @@
                     }
                 }
             },
-            "title": "Webhook"
+            "title": "App System"
         },
         "sitemap": {
             "type": "object",

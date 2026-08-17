@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 #[Package('framework')]
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
@@ -20,7 +18,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $decorated,
-        private readonly CacheInterface $cache,
+        private readonly InvalidationRaceAwareCache $cache,
         private readonly AtsContextCacheTrace $atsContextCacheTrace,
     ) {
     }
@@ -46,12 +44,12 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         ksort($options);
 
         $key = implode('-', [$name, Hasher::hash($options)]);
+        $tags = [$name, self::ALL_TAG];
         $cacheMiss = false;
         $fresh = null;
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($key, $name, $token, $salesChannelId, $options, &$cacheMiss, &$fresh) {
+        $value = $this->cache->get($key, $tags, function () use ($key, $token, $salesChannelId, $options, &$cacheMiss, &$fresh): string {
             $cacheMiss = true;
-            $item->tag([$name, self::ALL_TAG]);
 
             $this->atsContextCacheTrace->cacheBuildStarted('full', $key);
 

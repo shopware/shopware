@@ -32,13 +32,17 @@
                         "description": "Locale of the resolved snippet set, e.g. `de-DE`."
                     },
                     "fallbackLocale": {
-                        "type": "string",
-                        "nullable": true,
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Fallback locale prefix used while resolving, e.g. `de`. Null if it equals the locale."
                     },
                     "snippetSetId": {
-                        "type": "string",
-                        "nullable": true,
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "pattern": "^[0-9a-f]{32}$",
                         "description": "Id of the snippet set the database overrides were taken from."
                     },

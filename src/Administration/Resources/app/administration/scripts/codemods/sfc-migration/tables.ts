@@ -10,7 +10,7 @@
  * comment (partial migration) or a blocker (component skipped) — never a silent guess. Supporting
  * a new feature usually means adding one entry here plus a handler in option-handlers.ts.
  *
- * Mixins have their own table, composables.ts, because a mixin is matched by its registered name
+ * Mixins have their own table, composables/, because a mixin is matched by its registered name
  * rather than by an option key.
  */
 

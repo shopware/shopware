@@ -1,0 +1,20 @@
+/**
+ * @sw-package framework
+ */
+
+import { type ComposableDescriptor, methodMembers } from '../types';
+
+const NOTIFICATION_TRANSLATION_DESCRIPTOR: ComposableDescriptor = {
+    id: 'notification-translation',
+    mixinNames: ['notification-translation'],
+    import: {
+        source: 'src/app/composables/use-notification-translation',
+        name: 'useNotificationTranslation',
+    },
+    members: methodMembers([
+        'getTranslatedTitle',
+        'getTranslatedMessage',
+    ]),
+};
+
+export { NOTIFICATION_TRANSLATION_DESCRIPTOR };

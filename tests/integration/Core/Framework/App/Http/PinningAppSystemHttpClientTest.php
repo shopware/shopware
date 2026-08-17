@@ -7,6 +7,7 @@ use GuzzleHttp\ClientInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Http\PinningAppSystemHttpClient;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 #[Package('framework')]
 class PinningAppSystemHttpClientTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testReplacesTheAppSystemClientService(): void
     {
         $client = static::getContainer()->get('shopware.app_system.guzzle');

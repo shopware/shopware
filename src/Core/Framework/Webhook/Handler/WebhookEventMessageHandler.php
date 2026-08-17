@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Handler;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\CurlVersion;
@@ -44,7 +44,7 @@ final class WebhookEventMessageHandler
      * @internal
      */
     public function __construct(
-        private readonly Client $client,
+        private readonly ClientInterface $client,
         private readonly EntityRepository $webhookEventLogRepository,
         private readonly RelatedWebhooks $relatedWebhooks,
         private readonly WebhookSigningSecretResolver $signingSecretResolver,

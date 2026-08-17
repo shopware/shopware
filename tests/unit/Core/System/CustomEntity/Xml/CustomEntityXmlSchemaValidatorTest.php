@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Entities;
@@ -21,7 +22,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
     {
         $schema = new CustomEntityXmlSchema(__DIR__, null);
 
-        $validator = new CustomEntityXmlSchemaValidator();
+        $validator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('No entities found in parsed xml file');
@@ -45,12 +46,45 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
         ]);
         $schema = new CustomEntityXmlSchema(__DIR__, $entities);
 
-        $validator = new CustomEntityXmlSchemaValidator();
+        $validator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $this->expectException($exceptionClass);
         $this->expectExceptionMessage($expectedMessage);
 
         $validator->validate($schema);
+    }
+
+    #[DataProvider('validFieldNameProvider')]
+    public function testValidateAllowsValidFieldNames(string $fieldName): void
+    {
+        $dom = new \DOMDocument();
+        $dom->loadXML(\sprintf(
+            '<entity name="ce_test"><fields><string name="%s" store-api-aware="true"/></fields></entity>',
+            $fieldName
+        ));
+
+        \assert($dom->documentElement instanceof \DOMElement);
+
+        $entities = Entities::fromArray([
+            'entities' => [Entity::fromXml($dom->documentElement)],
+        ]);
+
+        static::expectNotToPerformAssertions();
+
+        (new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator()))->validate(new CustomEntityXmlSchema(__DIR__, $entities));
+    }
+
+    /**
+     * @return \Generator<string, array{0: string}>
+     */
+    public static function validFieldNameProvider(): \Generator
+    {
+        yield 'snake_case' => ['top_seller_restrict'];
+        yield 'camelCase' => ['topSeller'];
+        yield 'leading underscore' => ['_internal'];
+        yield 'with digits' => ['field2'];
+        yield 'leading digit' => ['2fa_counter'];
+        yield 'dollar sign' => ['price$usd'];
     }
 
     /**
@@ -61,7 +95,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
         return [
             'custom-fields-aware-but-no-label' => [
                 <<<'XML'
-                <entity custom-fields-aware="true">
+                <entity name="ce_test" custom-fields-aware="true">
                     <fields>
                         <string name="id"/>
                         <string name="name" translatable="true" />
@@ -73,7 +107,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
             ],
             'custom-fields-aware-non-existent-label-prop' => [
                 <<<'XML'
-                <entity custom-fields-aware="true" label-property="label">
+                <entity name="ce_test" custom-fields-aware="true" label-property="label">
                     <fields>
                         <string name="id"/>
                         <string name="name" translatable="true" />
@@ -85,7 +119,7 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
             ],
             'custom-fields-aware-non-string-label-prop' => [
                 <<<'XML'
-                <entity custom-fields-aware="true" label-property="name">
+                <entity name="ce_test" custom-fields-aware="true" label-property="name">
                     <fields>
                         <string name="id"/>
                         <int name="name" translatable="true" />
@@ -94,6 +128,39 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
                 XML,
                 CustomEntityException::class,
                 'Entity label_property "name" must be a string field',
+            ],
+            'whitespace-in-field-name' => [
+                <<<'XML'
+                <entity name="ce_test">
+                    <fields>
+                        <int name="foo bar" store-api-aware="true"/>
+                    </fields>
+                </entity>
+                XML,
+                CustomEntityException::class,
+                'Field name "foo bar" of custom entity "ce_test" is invalid.',
+            ],
+            'backtick-in-entity-name' => [
+                <<<'XML'
+                <entity name="ce_test`x">
+                    <fields>
+                        <string name="title" store-api-aware="true"/>
+                    </fields>
+                </entity>
+                XML,
+                CustomEntityException::class,
+                'Custom entity name "ce_test`x" is invalid.',
+            ],
+            'field-name-with-invalid-character' => [
+                <<<'XML'
+                <entity name="ce_test">
+                    <fields>
+                        <string name="my-field" store-api-aware="true"/>
+                    </fields>
+                </entity>
+                XML,
+                CustomEntityException::class,
+                'Field name "my-field" of custom entity "ce_test" is invalid.',
             ],
             'cascade-delete-to-core-table' => [
                 <<<'XML'

@@ -18,7 +18,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator"/>
+
         <service id="Shopware\Core\System\CustomEntity\Schema\SchemaUpdater">
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater" public="true">
@@ -38,7 +41,9 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
+        <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator">
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator"/>
+        </service>
         <service id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>
     </services>
 </container>

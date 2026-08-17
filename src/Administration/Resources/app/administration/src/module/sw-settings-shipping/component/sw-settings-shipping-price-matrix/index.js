@@ -312,17 +312,19 @@ export default {
                 refPrice.quantityEnd = refPrice.quantityStart;
             }
             newShippingPrice.calculation = refPrice.calculation;
-
-            // If the calculation type is "quantity" always increase by one, otherwise use end as start
-            if (this.priceGroup.calculation === 1) {
-                newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
-            } else {
-                newShippingPrice.quantityStart = refPrice.quantityEnd;
-            }
-
+            newShippingPrice.quantityStart = this.getFollowingQuantityStart(refPrice.quantityEnd);
             newShippingPrice.quantityEnd = null;
 
             this.shippingMethod.prices.push(newShippingPrice);
+        },
+
+        getFollowingQuantityStart(quantityEnd) {
+            // If the calculation type is "quantity" always increase by one, otherwise use end as start
+            if (this.priceGroup.calculation === 1) {
+                return quantityEnd + 1 > 1 ? quantityEnd + 1 : 2;
+            }
+
+            return quantityEnd;
         },
 
         onSaveMainRule(ruleId) {
@@ -491,12 +493,18 @@ export default {
         },
 
         onQuantityEndChange(price) {
-            // when not last price
-            if (this.priceGroup.prices.indexOf(price) + 1 !== this.priceGroup.prices.length) {
+            const priceIndex = this.priceGroup.prices.indexOf(price);
+
+            if (priceIndex + 1 === this.priceGroup.prices.length) {
+                this.onAddNewShippingPrice();
                 return;
             }
 
-            this.onAddNewShippingPrice();
+            if (price.quantityEnd === null || price.quantityEnd === undefined) {
+                return;
+            }
+
+            this.priceGroup.prices[priceIndex + 1].quantityStart = this.getFollowingQuantityStart(price.quantityEnd);
         },
 
         updateShowAllPrices() {

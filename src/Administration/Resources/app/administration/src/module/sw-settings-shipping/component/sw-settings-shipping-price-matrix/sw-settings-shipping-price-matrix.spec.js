@@ -6,7 +6,7 @@ Shopware.State.registerModule('swShippingDetail', state);
 /**
  * @sw-package checkout
  */
-const createWrapper = async () => {
+const createWrapper = async (priceGroupOverride = {}) => {
     return mount(
         await wrapTestComponent('sw-settings-shipping-price-matrix', {
             sync: true,
@@ -75,6 +75,7 @@ const createWrapper = async () => {
                             ],
                         },
                     ],
+                    ...priceGroupOverride,
                 },
             },
         },
@@ -169,6 +170,93 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(wrapper.vm.showAllPrices).toBeFalsy();
         wrapper.vm.onAddNewShippingPrice();
         expect(wrapper.vm.showAllPrices).toBeTruthy();
+        expect(wrapper.vm.shippingMethod.prices).toHaveLength(length + 1);
+    });
+
+    it.each([
+        [
+            'cart price',
+            2,
+            60,
+        ],
+        [
+            'product quantity',
+            1,
+            61,
+        ],
+    ])('should move the start of the following price when the %s end changes', async (name, calculation, expected) => {
+        const wrapper = await createWrapper({
+            calculation,
+            prices: [
+                {
+                    id: 'priceId1',
+                    quantityStart: 0,
+                    quantityEnd: 40,
+                    calculation,
+                },
+                {
+                    id: 'priceId2',
+                    quantityStart: 40,
+                    quantityEnd: null,
+                    calculation,
+                },
+            ],
+        });
+
+        const [
+            firstPrice,
+            secondPrice,
+        ] = wrapper.vm.priceGroup.prices;
+
+        firstPrice.quantityEnd = 60;
+        wrapper.vm.onQuantityEndChange(firstPrice);
+
+        expect(secondPrice.quantityStart).toBe(expected);
+    });
+
+    it('should not move the start of the following price when its end is emptied', async () => {
+        const wrapper = await createWrapper({
+            calculation: 2,
+            prices: [
+                {
+                    id: 'priceId1',
+                    quantityStart: 0,
+                    quantityEnd: 40,
+                    calculation: 2,
+                },
+                {
+                    id: 'priceId2',
+                    quantityStart: 40,
+                    quantityEnd: null,
+                    calculation: 2,
+                },
+            ],
+        });
+
+        const [
+            firstPrice,
+            secondPrice,
+        ] = wrapper.vm.priceGroup.prices;
+
+        firstPrice.quantityEnd = null;
+        wrapper.vm.onQuantityEndChange(firstPrice);
+
+        expect(secondPrice.quantityStart).toBe(40);
+    });
+
+    it('should add a new price when the end of the last price changes', async () => {
+        const wrapper = await createWrapper();
+
+        if (!wrapper.vm.shippingMethod.hasOwnProperty('prices')) {
+            wrapper.vm.shippingMethod.prices = [];
+        }
+
+        const length = wrapper.vm.shippingMethod.prices.length;
+        const lastPrice = wrapper.vm.priceGroup.prices[wrapper.vm.priceGroup.prices.length - 1];
+
+        lastPrice.quantityEnd = 60;
+        wrapper.vm.onQuantityEndChange(lastPrice);
+
         expect(wrapper.vm.shippingMethod.prices).toHaveLength(length + 1);
     });
 });

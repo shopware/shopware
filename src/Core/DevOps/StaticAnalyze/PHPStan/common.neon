@@ -68,6 +68,10 @@ parameters:
         allowedUnitTestClassNamespaces:
             - Shopware\Tests\Unit\
             - Shopware\Tests\Migration\
+        # per-suite rollout of CoversPackageMatchRule: each test suite is aligned with
+        # the packages of its covered classes in its own pull request and enabled here
+        coversPackageMatchNamespaces:
+            - Shopware\Tests\Unit\Core\Checkout\
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -79,4 +83,5 @@ parametersSchema:
         allowedNonDomainExceptions: list(string),
         allowedStorefrontRouteNamespaces: list(string),
         allowedUnitTestClassNamespaces: list(string),
+        coversPackageMatchNamespaces: list(string),
 ])

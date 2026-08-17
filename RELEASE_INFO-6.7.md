@@ -294,12 +294,6 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
-### Stream-backed CMS product sliders honour `hideCloseoutProductsWhenOutOfStock`
-
-Product sliders sourced from a product stream now apply the `core.listing.hideCloseoutProductsWhenOutOfStock` setting, mirroring the manual-products slider. The closeout filter is added to the stream criteria (before the slider limit is applied, so hidden products do not consume slider slots), with an additional post-search filter to catch display-parent/main-variant remapping.
-
-The `@internal` constructor of `Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor` takes two additional arguments: `SystemConfigService` and `AbstractProductCloseoutFilterFactory`. Plugins that extend the service and call `parent::__construct(...)` must pass the new arguments; when declaring the service in XML, add `<argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>` and `<argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>` after the existing ones.
-
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

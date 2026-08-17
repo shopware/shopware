@@ -127,13 +127,10 @@ export default {
         },
 
         initializeLegacyState() {
-            if (this.sequence?.config?.documentType) {
-                this.documentTypesSelected = [this.sequence.config];
-            } else {
-                this.documentTypesSelected = this.sequence?.config?.documentTypes || [];
-            }
-
-            this.documentTypesSelected = this.documentTypesSelected.map((type) => {
+            // Every stored config was migrated to the 'documentTypes' array shape (see
+            // Migration1636362839FlowBuilderGenerateMultipleDoc); a flat 'documentType' key only
+            // occurs on a v2 config so we dont try to translate here
+            this.documentTypesSelected = (this.sequence?.config?.documentTypes || []).map((type) => {
                 return type.documentType;
             });
         },

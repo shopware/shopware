@@ -1,5 +1,7 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
+const CORS_ERROR_PATTERN = /cors|cross-origin|access-control-allow-origin/i;
+
 test(
     'Storefront loads correctly from a second sales channel domain without CORS errors',
     {
@@ -22,29 +24,34 @@ test(
         await TestDataService.createSalesChannelDomain({ url: secondDomainUrl });
         await TestDataService.clearCaches();
 
-        const consoleMessages: { type: string; text: string }[] = [];
-        page.on('console', (msg) => {
-            consoleMessages.push({ type: msg.type(), text: msg.text() });
+        // `page` in this suite is actually the already-authenticated Administration page
+        // (`AdminPage`), not a neutral tab, and `ShopCustomer` drives its own separate
+        // storefront page/context - so the storefront checks below use `ShopCustomer.page`,
+        // not `page`.
+        const storefrontPage = ShopCustomer.page;
+        const storefrontConsoleMessages: { type: string; text: string }[] = [];
+        storefrontPage.on('console', (msg) => {
+            storefrontConsoleMessages.push({ type: msg.type(), text: msg.text() });
         });
 
         await test.step('Load storefront from the second sales channel domain', async () => {
             await ShopCustomer.goesTo(secondDomainUrl);
-            await expect(page).toHaveURL(new RegExp(`^${secondDomainUrl}`));
+            await expect(storefrontPage).toHaveURL(new RegExp(`^${secondDomainUrl}`));
         });
 
         await test.step('No CORS errors are logged', async () => {
-            const corsErrors = consoleMessages.filter(
-                (msg) => msg.type === 'error' && /cors|cross-origin|access-control-allow-origin/i.test(msg.text),
+            const corsErrors = storefrontConsoleMessages.filter(
+                (msg) => msg.type === 'error' && CORS_ERROR_PATTERN.test(msg.text),
             );
 
             expect(corsErrors).toHaveLength(0);
         });
 
         await test.step('Assets are referenced from the second domain', async () => {
-            const shopwareScripts = await page.locator('script[src*="shopware.js"]').all();
+            const shopwareScripts = await storefrontPage.locator('script[src*="shopware.js"]').all();
             expect(shopwareScripts.length).toBeGreaterThan(0);
 
-            const pageHost = new URL(page.url()).host;
+            const pageHost = new URL(storefrontPage.url()).host;
 
             for (const script of shopwareScripts) {
                 await expect(script).toHaveAttribute('src', /.+/);
@@ -57,18 +64,21 @@ test(
         });
 
         await test.step('Storefront is functional on the second domain', async () => {
-            await expect(page).toHaveTitle(/.+/);
-            await expect(page.locator('body')).toBeVisible();
+            await expect(storefrontPage).toHaveTitle(/.+/);
+            await expect(storefrontPage.locator('body')).toBeVisible();
         });
 
         await test.step('Administration is reachable from the second domain', async () => {
-            consoleMessages.length = 0;
+            const adminConsoleMessages: { type: string; text: string }[] = [];
+            page.on('console', (msg) => {
+                adminConsoleMessages.push({ type: msg.type(), text: msg.text() });
+            });
 
             await page.goto(new URL('admin/', secondDomainUrl).toString(), { waitUntil: 'domcontentloaded' });
             await expect(page.locator('.sw-login')).toBeVisible();
 
-            const corsErrors = consoleMessages.filter(
-                (msg) => msg.type === 'error' && /cors|cross-origin|access-control-allow-origin/i.test(msg.text),
+            const corsErrors = adminConsoleMessages.filter(
+                (msg) => msg.type === 'error' && CORS_ERROR_PATTERN.test(msg.text),
             );
 
             expect(corsErrors).toHaveLength(0);

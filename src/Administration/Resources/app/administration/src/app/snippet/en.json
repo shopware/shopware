@@ -1806,6 +1806,7 @@
     "title": "A new look for your Administration",
     "nextButton": "Next",
     "finishButton": "Got it",
+    "seenSaveError": "Your preference could not be saved. This dialog may appear again.",
     "pages": {
       "adminNavigation": {
         "headline": "A clearer, more streamlined navigation",

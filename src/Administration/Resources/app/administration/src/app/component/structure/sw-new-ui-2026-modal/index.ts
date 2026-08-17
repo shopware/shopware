@@ -279,7 +279,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.hasRecordedSeen = true;
 
             this.markModalSeen().catch(() => {
-                // Losing the flag only means the modal is offered again, so it stays quiet.
+                this.createNotificationError({
+                    message: this.$t('sw-new-ui-2026-modal.seenSaveError'),
+                });
             });
         },
 

@@ -136,15 +136,23 @@ describe('src/app/component/structure/sw-new-ui-2026-modal - visibility', () => 
         expect(upsert).toHaveBeenCalledTimes(1);
     });
 
-    it('keeps quiet when the flag cannot be recorded', async () => {
+    it('notifies the user when the flag cannot be recorded', async () => {
         (Shopware.Service('userConfigService').upsert as jest.Mock).mockRejectedValue(new Error('nope'));
 
         wrapper = await createWrapper();
         await flushPromises();
 
+        const createNotificationError = jest.spyOn(
+            wrapper.vm as unknown as { createNotificationError: (config: unknown) => void },
+            'createNotificationError',
+        );
+
         await wrapper.get('.mt-modal__close-button').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.mt-modal').exists()).toBe(false);
+        expect(createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-new-ui-2026-modal.seenSaveError',
+        });
     });
 });

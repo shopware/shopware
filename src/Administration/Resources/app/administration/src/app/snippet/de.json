@@ -1806,6 +1806,7 @@
     "title": "Ein neuer Look für Deine Administration",
     "nextButton": "Weiter",
     "finishButton": "Fertig",
+    "seenSaveError": "Deine Auswahl konnte nicht gespeichert werden. Dieser Dialog wird Dir möglicherweise erneut angezeigt.",
     "pages": {
       "adminNavigation": {
         "headline": "Eine klarere, übersichtlichere Navigation",

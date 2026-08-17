@@ -1,11 +1,11 @@
 /**
  * @sw-package framework
  */
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 
 const HttpClient = Shopware.Classes._private.HttpFactory;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default function initializeHttpClient(): AxiosInstance {
-    return HttpClient(Shopware.Context.api) as unknown as AxiosInstance;
+export default function initializeHttpClient(): HttpClient {
+    return HttpClient(Shopware.Context.api);
 }

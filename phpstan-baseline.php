@@ -928,12 +928,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/SalesChannel/Api/StructEncoder.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
     'count' => 2,
     'path' => __DIR__ . '/src/Core/System/SalesChannel/Context/CartRestorer.php',
 ];

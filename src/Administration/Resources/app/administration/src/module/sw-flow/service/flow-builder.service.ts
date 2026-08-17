@@ -654,18 +654,22 @@ export default class FlowBuilderService {
             );
 
             if (!fileFormatLabels.length) {
-                return documentTypeName;
+                return Shopware.Helper.SanitizerHelper.sanitize(documentTypeName);
             }
 
             const formatsLabel = this.convertTagString(fileFormatLabels);
 
-            return `${documentTypeName} <span class="sw-flow-sequence-action__file-formats">(${formatsLabel})</span>`;
+            return Shopware.Helper.SanitizerHelper.sanitize(
+                `${documentTypeName} <span class="sw-flow-sequence-action__file-formats">(${formatsLabel})</span>`,
+            );
         }
 
         const documentTypesConfig = config.documentType ? [config] : config.documentTypes;
 
         const documentType = documentTypesConfig?.map((type) => {
-            return data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
+            const name = data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
+
+            return Shopware.Helper.SanitizerHelper.sanitize(name);
         });
 
         if (!documentType) {

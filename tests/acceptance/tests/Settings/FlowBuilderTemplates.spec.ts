@@ -17,6 +17,7 @@ test(
         AdminFlowBuilderDetail,
         IdProvider,
         AdminApiContext,
+        InstanceMeta
     }) => {
         test.skip(InstanceMeta.isSaaS, 'Test is skipped in SaaS due to search issue with Advanced Search. See https://github.com/shopware/shopware/issues/19378 ');
         

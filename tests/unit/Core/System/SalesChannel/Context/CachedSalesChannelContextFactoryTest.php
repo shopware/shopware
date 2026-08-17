@@ -39,7 +39,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->expects($this->never())->method('get');
 
-        $factory = new CachedSalesChannelContextFactory($inner, $cache);
+        $factory = new CachedSalesChannelContextFactory($inner, $cache, static::createStub(AtsContextCacheTrace::class));
 
         static::assertSame($context, $factory->create('token', 'sales-channel-id', $options));
     }
@@ -64,7 +64,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
                 return $storedValue ??= $callback(static::createStub(ItemInterface::class));
             });
 
-        $factory = new CachedSalesChannelContextFactory($inner, $cache);
+        $factory = new CachedSalesChannelContextFactory($inner, $cache, static::createStub(AtsContextCacheTrace::class));
 
         $first = $factory->create('token', 'sales-channel-id', $options);
 

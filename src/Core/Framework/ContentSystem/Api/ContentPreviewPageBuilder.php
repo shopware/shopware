@@ -63,19 +63,18 @@ class ContentPreviewPageBuilder
             $salesChannelContext,
         );
 
-        // The draft decodes into the storage model; the check and the render path both still speak the older
-        // element model, so the tree is lowered once here and handed to both.
+        // The draft decodes into the storage model, which is what the check reads. Only the render path still
+        // speaks the older element model, so the lowering happens on that side alone.
         $stored = $this->decoder->decode($payload->layout);
-        $elements = $this->lowering->lowerTree($stored);
 
-        $violations = $this->layoutValidator->check($elements);
+        $violations = $this->layoutValidator->check($stored);
         if ($violations->count() > 0) {
             throw ContentSystemException::elementTypesInvalid($violations);
         }
 
         $renderableLayout = RenderableLayout::create(
             LayoutReference::create(Uuid::randomHex(), 'preview', null),
-            $elements,
+            $this->lowering->lowerTree($stored),
         );
 
         $contentPage = $this->contentPipeline->load(

@@ -18,9 +18,8 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -104,7 +103,7 @@ class ContentDiagnoseControllerTest extends TestCase
     {
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
-            fqcn: ContentElement::class,
+            fqcn: StoredElement::class,
             contextType: ContextType::Single,
             providerElementId: null,
             distribution: DistributionStrategy::Broadcast,
@@ -218,7 +217,6 @@ class ContentDiagnoseControllerTest extends TestCase
             $decoder,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $diagnostics,
-            new ContentElementLowering(),
         );
     }
 

@@ -6,7 +6,6 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -35,7 +34,6 @@ class PersistedLayoutMutator
         private readonly EntityRepository $contentLayoutRepository,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ContentElementLowering $lowering,
     ) {
     }
 
@@ -116,8 +114,7 @@ class PersistedLayoutMutator
      * Re-resolves the mutated tree against the layout's single root source (the loaded entity carries it), so the
      * echoed report matches what the content_layout write gate enforced on commit. resolve() returns a list (never
      * null — [] for none/header/footer), so the binding-scope checks always run; the intrinsic-only path no longer
-     * applies to a stored layout. The tree is lowered here because the diagnostics pass still speaks the older
-     * element model.
+     * applies to a stored layout.
      *
      * resolve() is never handed an unregistered id here even when the stored source was de-registered: mutate()
      * commits the tree via update() first, and that write runs ContentLayoutWriteValidator, which re-checks
@@ -129,6 +126,6 @@ class PersistedLayoutMutator
     {
         $rootContext = $this->rootSourceRegistry->resolve($rootSource, $context);
 
-        return $this->diagnostics->analyze($this->lowering->lowerTree($tree->roots), $rootContext);
+        return $this->diagnostics->analyze($tree->roots, $rootContext);
     }
 }

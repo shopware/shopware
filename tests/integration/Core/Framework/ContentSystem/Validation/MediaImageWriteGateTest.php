@@ -8,8 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -134,14 +134,14 @@ class MediaImageWriteGateTest extends TestCase
         ];
     }
 
-    private function boundImage(string $id, ?string $mediaId): ContentElement
+    private function boundImage(string $id, ?string $mediaId): StoredElement
     {
-        return new ContentElement(
-            $id,
-            'Sw:Media:Image',
-            ['media' => new DataRequirement('media', 'entity', new EntityLoaderConfig('media', 'mediaId', []))],
-            $mediaId === null ? [] : ['mediaId' => $mediaId],
-        );
+        // A null mediaId drops the key entirely, matching the layout() payload above, so this is the absent-key
+        // case rather than an authored explicit null. Both read as "no value" for the gate.
+        return StoredElementBuilder::create('Sw:Media:Image', $id)
+            ->withDataRequirement('media', 'entity', new EntityLoaderConfig('media', 'mediaId', []))
+            ->withProperties($mediaId === null ? [] : ['mediaId' => $mediaId])
+            ->build();
     }
 
     private function diagnostics(): LayoutDiagnostics

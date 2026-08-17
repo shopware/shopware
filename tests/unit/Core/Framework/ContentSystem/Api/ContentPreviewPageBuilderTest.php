@@ -36,17 +36,28 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewPageBuilder::class)]
 class ContentPreviewPageBuilderTest extends TestCase
 {
-    #[TestDox('renders the decoded layout through the pipeline in full mode and returns the page and synthesized context')]
-    public function testBuildRendersDecodedLayoutThroughThePipeline(): void
+    #[TestDox('checks the decoded stored tree while rendering its lowered counterpart through the pipeline in full mode, returning the page and synthesized context')]
+    public function testBuildChecksStoredTreeAndRendersLoweredLayoutThroughThePipeline(): void
     {
         $specification = $this->specification();
         $salesChannelContext = Generator::generateSalesChannelContext();
         $contentPage = new ContentPage('preview-layout', [], 'preview', null);
+        $stored = [new StoredElement('e1', 'Sw:Content:Heading')];
+
+        // The two halves of the split: the check reads the stored tree as decoded, the render path gets the
+        // lowered one. Each expectation fails if the builder feeds the other model to its side.
+        $checker = static::createMock(DraftLayoutChecker::class);
+        $checker->expects($this->once())
+            ->method('check')
+            ->with(static::identicalTo($stored))
+            ->willReturn(new ConstraintViolationList());
 
         $pipeline = static::createMock(ContentPipeline::class);
         $pipeline->expects($this->once())
             ->method('load')
             ->with(
+                // RenderableLayout::$elements is typed list<ContentElement>, so reaching this callback at all
+                // is the render half's proof that the lowered tree, not the stored one, was handed over.
                 static::callback(static function (RenderableLayout $layout): bool {
                     static::assertCount(1, $layout->elements);
                     static::assertSame('e1', $layout->elements[0]->getId());
@@ -65,9 +76,9 @@ class ContentPreviewPageBuilderTest extends TestCase
         $builder = new ContentPreviewPageBuilder(
             $this->contextService($salesChannelContext),
             $this->resolverReturning($specification),
-            $this->decoderReturning([new StoredElement('e1', 'Sw:Content:Heading')]),
+            $this->decoderReturning($stored),
             new ContentElementLowering(),
-            $this->checker(new ConstraintViolationList()),
+            $checker,
             $pipeline,
         );
 

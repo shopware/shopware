@@ -15,6 +15,12 @@ use Shopware\Core\Framework\Log\Package;
  * deliberately outside this pass: both belong to the write alone, and a tree that is only being previewed or
  * diagnosed must not come back carrying values only a save may mint.
  *
+ * The draft decoder runs this pass after its decode loop rather than inside it, which is safe only because the
+ * walk cannot raise a client-defect exception: it rebuilds through {@see StoredElement::withStyle()} and
+ * {@see StoredElement::withSlots()}, which carry the wiring maps across untouched, so the constructor's
+ * numeric-key check can only see keys the codec already accepted. A step added here that renamed or synthesised
+ * a slot key would break that, and no test would say so.
+ *
  * @internal
  */
 #[Package('framework')]

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
@@ -24,8 +25,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -46,8 +45,8 @@ use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoader
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -59,7 +58,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces no binding error when root-ambient context satisfies a required reference')]
     public function testRootAmbientSatisfiesRequired(): void
     {
-        $tree = [new ContentElement('root-1', 'Sw:Block')];
+        $tree = [new StoredElement('root-1', 'Sw:Block')];
 
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
@@ -78,7 +77,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('treats a required primitive carrying an authored value and no default as resolvable')]
     public function testRequiredPrimitiveWithAuthoredValueResolves(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block', [], ['headline' => 'Authored headline'])];
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('headline', 'Authored headline')->build()];
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
             ->analyze($tree, [])->report;
@@ -89,7 +88,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('resolves a required reference via valid applied wiring, producing no unresolved_required binding error and keeping the element well-formed')]
     public function testValidAppliedWiringResolvesRequiredReferenceAndStaysWellFormed(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -114,7 +113,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('emits no unfilled_required_input, and stays resolvable, when the stored-wired input property carries a value')]
     public function testStoredRequiredReferenceWithFilledInputIsResolvable(string $storedValue): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->withProperty('productId', $storedValue)
             ->build();
@@ -138,7 +137,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('accepts an unsatisfied required reference in the well-formedness subset, emits no binding errors and exposes the analysed element in the resolutions map')]
     public function testWellFormednessSubsetIgnoresBinding(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
 
         $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, null);
@@ -151,10 +150,10 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
     public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
     {
-        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
+        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
             ->withConsumer('product', ContextType::Single, required: true)
             ->build();
-        $root = ContentElementBuilder::create('Sw:Block', 'root-1')
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
             ->withConsumer('product', ContextType::Single, redistribute: true)
             ->withSlot('content', [$level2])
             ->build();
@@ -176,10 +175,10 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
     public function testAppliedWiringBacksDeclaredProviderAndSatisfiesDescendantChain(): void
     {
-        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
             ->withConsumer('product', ContextType::Single, required: true)
             ->build();
-        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->withSlot('content', [$child])
@@ -209,7 +208,7 @@ class LayoutDiagnosticsTest extends TestCase
         // and the sole matching parent context wins the pick instead. This isolates the "origin !== Stored"
         // guard: the stored requirement is genuinely present, so if that guard were removed, execution would
         // reach the unfilled-input check below and gate on the empty "productId", turning bindingErrors() non-empty.
-        $element = ContentElementBuilder::create('Sw:Block', 'root-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'root-1')
             ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -239,7 +238,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('emits no unfilled_required_input for an optional reference that stored wiring resolves, even when its input property is empty')]
     public function testOptionalStoredReferenceDoesNotGateOnUnfilledInput(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -261,7 +260,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('does not gate a required reference whose loader declares only a defaulted propertyReference key (the navigation shape)')]
     public function testDefaultedPropertyReferenceKeyNeverGates(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('tree', 'navigation_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -283,7 +282,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('emits no unfilled_required_input when a required propertyReference config value is not a string')]
     public function testNonStringConfiguredPropertyReferenceDoesNotGate(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -322,16 +321,16 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('Default headline', $replaced->roots[0]->property('headline')?->jsonSerialize());
         static::assertSame(
             [],
-            $this->diagnostics($specs)->analyze((new ContentElementLowering())->lowerTree($replaced->roots), [])->report->bindingErrors()
+            $this->diagnostics($specs)->analyze($replaced->roots, [])->report->bindingErrors()
         );
     }
 
     #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
     public function testOrphanedProviderWarning(): void
     {
-        $root = ContentElementBuilder::create('Sw:Block', 'root-1')
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
             ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('content', [new ContentElement('child-1', 'Sw:Block')])
+            ->withSlot('content', [new StoredElement('child-1', 'Sw:Block')])
             ->build();
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$root], null)->report;
@@ -344,7 +343,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports a required reference whose only candidates are incomplete loaders as unresolved_required, not ambiguous_required')]
     public function testIncompleteLoaderCandidatesAreUnresolvedNotAmbiguous(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
 
         // Each loader's specification requires a "property" config key its empty template does not fill, so the
         // derived residual is non-empty and both candidates are incomplete.
@@ -374,7 +373,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('keys the violation on the reference property and names the configured key when the wired property is not declared on the type')]
     public function testUnfilledInputKeysOnReferenceWhenConfiguredPropertyUndeclared(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -398,7 +397,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces a broken_required_chain binding error for a required acceptsContext with no provider')]
     public function testBrokenRequiredChain(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withConsumer('product', ContextType::Single, required: true)
             ->build();
 
@@ -410,14 +409,14 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('flags a deep required consumer reached only through a non-redistributing intermediate as broken_required_chain at that consumer, leaving the intermediate satisfied')]
     public function testNonRedistributingIntermediateBreaksDeepRequiredChain(): void
     {
-        $level3 = ContentElementBuilder::create('Sw:Block', 'level-3')
+        $level3 = StoredElementBuilder::create('Sw:Block', 'level-3')
             ->withConsumer('product', ContextType::Single, required: true)
             ->build();
-        $level2 = ContentElementBuilder::create('Sw:Block', 'level-2')
+        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
             ->withConsumer('product', ContextType::Single, required: true)
             ->withSlot('content', [$level3])
             ->build();
-        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('content', [$level2])
             ->build();
@@ -442,10 +441,10 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('flags a descendant requiring a declared provider whose own property does not resolve on the providing element as broken_required_chain')]
     public function testUnbackedDeclaredProviderBreaksDescendantChain(): void
     {
-        $child = ContentElementBuilder::create('Sw:Block', 'child-1')
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
             ->withConsumer('product', ContextType::Single, required: true)
             ->build();
-        $root = ContentElementBuilder::create('Sw:Provider', 'root-1')
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('content', [$child])
             ->build();
@@ -463,7 +462,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports a duplicate element id across roots as an intrinsic error')]
     public function testDuplicateElementId(): void
     {
-        $tree = [new ContentElement('dup', 'Sw:Block'), new ContentElement('dup', 'Sw:Block')];
+        $tree = [new StoredElement('dup', 'Sw:Block'), new StoredElement('dup', 'Sw:Block')];
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze($tree, null)->report;
 
@@ -474,7 +473,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports an unregistered component as an intrinsic error')]
     public function testUnregisteredComponent(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Missing')];
+        $tree = [new StoredElement('el-1', 'Sw:Missing')];
 
         $report = $this->diagnostics([])->analyze($tree, null)->report;
 
@@ -485,7 +484,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports a style option the registry does not know as an intrinsic error keyed on the option name')]
     public function testUnknownStyleOptionIsIntrinsicError(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block', style: new ElementStyle(['gone-option' => ['xs' => 'x']]))];
+        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['gone-option' => ['xs' => 'x']]))];
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
@@ -503,7 +502,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports no style violation for an option the registry knows')]
     public function testRegisteredStyleOptionProducesNoViolation(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
+        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
@@ -517,7 +516,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]
     public function testInvalidConfigForUnknownEntity(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -537,7 +536,7 @@ class LayoutDiagnosticsTest extends TestCase
         // The reference property IS declared here (unlike the unknown-entity case), so the
         // mismatch check would run if the config resolved. It does not: resolveType throws a client-defect,
         // so the single intrinsic error must be InvalidConfig and never MismatchedReferenceType.
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -556,7 +555,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces an unresolved_required binding error for a required reference with no candidate')]
     public function testUnresolvedRequired(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
             ->analyze($tree, [])->report;
@@ -567,7 +566,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('produces an ambiguous_required binding error carrying candidates when two complete loaders match')]
     public function testAmbiguousRequired(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
 
         $map = new ContentSystemDataLoaderMap(
             [
@@ -594,7 +593,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
     public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -611,17 +610,33 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    /**
-     * @param array<string, mixed> $properties
-     */
-    #[DataProvider('producesUnresolvedRequiredPrimitiveProvider')]
-    #[TestDox('produces an unresolved_required binding error for a required primitive without a default and no usable value')]
-    public function testRequiredPrimitiveWithoutValueIsUnresolved(array $properties): void
+    #[TestDox('produces an unresolved_required binding error for a required primitive whose key is absent from the stored property map')]
+    public function testRequiredPrimitiveWithAbsentKeyIsUnresolved(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block', [], $properties)];
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->build();
+
+        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
+        static::assertNull($element->property('headline'));
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
-            ->analyze($tree, [])->report;
+            ->analyze([$element], [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required primitive authored as an explicit null, which is a present stored value')]
+    public function testRequiredPrimitiveAuthoredAsNullIsUnresolved(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('headline', null)->build();
+
+        // Pins the state this case turns on: the key is PRESENT and its stored value's variant is null, which is
+        // the state a single-term `property($key) === null` satisfaction test would silently credit as resolved.
+        $stored = $element->property('headline');
+        static::assertNotNull($stored);
+        static::assertTrue($stored->isNull());
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze([$element], [])->report;
 
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
@@ -629,7 +644,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('reports a required primitive carrying a type default but no authored value as unresolved_required')]
     public function testRequiredPrimitiveWithDefaultButNoValueIsUnresolved(): void
     {
-        $tree = [new ContentElement('el-1', 'Sw:Block')];
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
 
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true, default: 'Default headline')->build()])
             ->analyze($tree, [])->report;
@@ -637,29 +652,35 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
-    /**
-     * @param array<string, mixed> $properties
-     */
-    #[DataProvider('unfilledRequiredInputProvider')]
-    #[TestDox('emits one unfilled_required_input keyed on the input property, naming both keys, when stored wiring binds a required reference to a value-less property')]
-    public function testStoredRequiredReferenceWithUnfilledInputGates(array $properties): void
+    #[TestDox('emits one unfilled_required_input keyed on the input property when the wired input key is absent from the stored property map')]
+    public function testStoredRequiredReferenceWithAbsentInputKeyGates(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->withProperties($properties)
-            ->build();
+        $element = $this->mediaLoaderWiredElement([]);
 
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-                ->reference('product', SalesChannelProductEntity::class, required: true)
-                ->primitive('productId', 'string')
-                ->build()],
-            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
-                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            ])),
-            $this->encodingSerializers(['property' => 'productId']),
-            $this->storedLoaderProvider(SalesChannelProductEntity::class),
-        )->analyze([$element], [])->report;
+        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
+        static::assertNull($element->property('productId'));
+
+        $report = $this->analyzeMediaLoaderWiring($element);
+
+        static::assertFalse($report->isResolvable());
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    #[TestDox('emits one unfilled_required_input keyed on the input property when the wired input is authored as an explicit null, which is a present stored value')]
+    public function testStoredRequiredReferenceWithAuthoredNullInputGates(): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => null]);
+
+        // Pins the state this case turns on: the key is PRESENT and its stored value's variant is null, which is
+        // the state a single-term `property($key) !== null` early return would silently credit as filled.
+        $stored = $element->property('productId');
+        static::assertNotNull($stored);
+        static::assertTrue($stored->isNull());
+
+        $report = $this->analyzeMediaLoaderWiring($element);
 
         static::assertFalse($report->isResolvable());
         $error = $this->onlyBindingError($report->bindingErrors());
@@ -671,7 +692,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('emits one unfilled_required_input per unfilled required propertyReference key for a multi-reference loader')]
     public function testMultiReferenceLoaderEmitsOneViolationPerUnfilledInput(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'pair_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -701,7 +722,7 @@ class LayoutDiagnosticsTest extends TestCase
     #[TestDox('propagates a non-client-defect exception during config resolution instead of converting it to invalid_config')]
     public function testInternalFaultPropagates(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -716,15 +737,6 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function unfilledRequiredInputProvider(): iterable
-    {
-        yield 'no stored value' => [[]];
-        yield 'stored explicit null counts as no value' => [['productId' => null]];
-    }
-
-    /**
      * @return iterable<string, array{string}>
      */
     public static function filledInputValueProvider(): iterable
@@ -734,12 +746,32 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>}>
+     * An element whose required `product` reference is wired to the media loader, whose one required
+     * propertyReference config key targets `productId`.
+     *
+     * @param array<string, mixed> $properties
      */
-    public static function producesUnresolvedRequiredPrimitiveProvider(): iterable
+    private function mediaLoaderWiredElement(array $properties): StoredElement
     {
-        yield 'no stored value' => [[]];
-        yield 'stored explicit null counts as no value' => [['headline' => null]];
+        return StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperties($properties)
+            ->build();
+    }
+
+    private function analyzeMediaLoaderWiring(StoredElement $element): DiagnosticsReport
+    {
+        return $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
     }
 
     /**

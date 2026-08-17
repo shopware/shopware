@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
@@ -18,7 +17,6 @@ class MutationPipeline
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ContentElementLowering $lowering,
     ) {
     }
 
@@ -31,9 +29,7 @@ class MutationPipeline
         $mutated = $mutation->apply($tree);
         $affected = $mutation->affected();
 
-        // The diagnostics pass still speaks the older element model, so the mutated tree is lowered on the way
-        // out; the operations themselves never leave the storage model.
-        $analysis = $this->diagnostics->analyze($this->lowering->lowerTree($mutated->roots), $rootContext);
+        $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext);
 
         // This MutationResult assembly is intentionally duplicated in PersistedLayoutMutator::mutate(): sharing it
         // would couple Mutation/ to a Diagnostics/LayoutAnalysis-shaped helper or require a banned static helper,

@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -46,7 +46,7 @@ class LayoutDiagnostics
     }
 
     /**
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
      */
     public function analyze(array $tree, ?array $rootContext): LayoutAnalysis
@@ -69,9 +69,9 @@ class LayoutDiagnostics
                 $violations[] = $violation;
             }
 
-            $available = $this->availableContextResolver->resolve($element->getId(), $tree, $rootContext ?? []);
-            $elementResolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->getId(), $available));
-            $resolutions[$element->getId()] = $elementResolutions;
+            $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? []);
+            $elementResolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->id, $available));
+            $resolutions[$element->id] = $elementResolutions;
 
             if ($rootContext === null) {
                 continue;
@@ -86,7 +86,7 @@ class LayoutDiagnostics
     }
 
     /**
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      *
      * @return list<Violation>
      */
@@ -94,7 +94,7 @@ class LayoutDiagnostics
     {
         $counts = [];
         foreach ($elements as $element) {
-            $counts[$element->getId()] = ($counts[$element->getId()] ?? 0) + 1;
+            $counts[$element->id] = ($counts[$element->id] ?? 0) + 1;
         }
 
         $violations = [];
@@ -119,20 +119,20 @@ class LayoutDiagnostics
      *
      * @return list<Violation>
      */
-    private function intrinsicElementViolations(ContentElement $element, array $styleOptions): array
+    private function intrinsicElementViolations(StoredElement $element, array $styleOptions): array
     {
         $violations = [];
 
-        if (!$this->registry->has($element->getComponent())) {
+        if (!$this->registry->has($element->component)) {
             $violations[] = new Violation(
                 ViolationCode::UnregisteredComponent,
-                $element->getId(),
+                $element->id,
                 null,
-                \sprintf('Component "%s" is not a registered element type.', $element->getComponent()),
+                \sprintf('Component "%s" is not a registered element type.', $element->component),
             );
         }
 
-        foreach ($element->getDataRequirements() as $key => $requirement) {
+        foreach ($element->dataRequirements as $key => $requirement) {
             $violation = $this->storedRequirementViolation($element, (string) $key, $requirement);
 
             if ($violation !== null) {
@@ -160,18 +160,18 @@ class LayoutDiagnostics
      *
      * @return list<Violation>
      */
-    private function unknownStyleOptionViolations(ContentElement $element, array $styleOptions): array
+    private function unknownStyleOptionViolations(StoredElement $element, array $styleOptions): array
     {
         $violations = [];
 
-        foreach (array_keys($element->getStyle()->toArray()) as $name) {
+        foreach (array_keys($element->style->toArray()) as $name) {
             if (\array_key_exists($name, $styleOptions)) {
                 continue;
             }
 
             $violations[] = new Violation(
                 ViolationCode::UnknownStyleOption,
-                $element->getId(),
+                $element->id,
                 $name,
                 \sprintf('Style option "%s" is not a registered style option.', $name),
             );
@@ -186,7 +186,7 @@ class LayoutDiagnostics
      * is MismatchedReferenceType; a config that resolves and fits yields no violation (the resolver reports
      * it as a Stored resolution instead).
      */
-    private function storedRequirementViolation(ContentElement $element, string $key, DataRequirement $requirement): ?Violation
+    private function storedRequirementViolation(StoredElement $element, string $key, DataRequirement $requirement): ?Violation
     {
         try {
             $produced = $this->rootContextMapper->resolveType($requirement);
@@ -195,10 +195,10 @@ class LayoutDiagnostics
                 throw $exception;
             }
 
-            return new Violation(ViolationCode::InvalidConfig, $element->getId(), $key, $exception->getMessage());
+            return new Violation(ViolationCode::InvalidConfig, $element->id, $key, $exception->getMessage());
         }
 
-        $declaredFqcn = $this->declaredReferenceFqcn($element->getComponent(), $key);
+        $declaredFqcn = $this->declaredReferenceFqcn($element->component, $key);
 
         if ($declaredFqcn === null || is_a($produced, $declaredFqcn, true)) {
             return null;
@@ -206,7 +206,7 @@ class LayoutDiagnostics
 
         return new Violation(
             ViolationCode::MismatchedReferenceType,
-            $element->getId(),
+            $element->id,
             $key,
             \sprintf('Stored wiring for "%s" produces "%s", which is not assignable to declared type "%s".', $key, $produced, $declaredFqcn),
         );
@@ -243,17 +243,17 @@ class LayoutDiagnostics
      *
      * @return list<Violation>
      */
-    private function orphanedProviderViolations(ContentElement $element): array
+    private function orphanedProviderViolations(StoredElement $element): array
     {
-        $providers = $element->getProvidesContext();
+        $providers = $element->contextDefinitions->getAllProviders();
 
         if ($providers === []) {
             return [];
         }
 
         $consumedKeys = [];
-        foreach ($this->flatten([...$element->allSlotElements()]) as $descendant) {
-            foreach ($descendant->getAcceptsContext() as $consumerKey => $consumer) {
+        foreach ($this->flatten($this->directChildren($element)) as $descendant) {
+            foreach ($descendant->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
                 $consumedKeys[$consumerKey] = true;
             }
         }
@@ -266,7 +266,7 @@ class LayoutDiagnostics
 
             $violations[] = new Violation(
                 ViolationCode::OrphanedProvider,
-                $element->getId(),
+                $element->id,
                 (string) $providerKey,
                 \sprintf('Provider "%s" has no consumer in scope.', $providerKey),
             );
@@ -281,7 +281,7 @@ class LayoutDiagnostics
      *
      * @return list<Violation>
      */
-    private function bindingViolations(ContentElement $element, array $resolutions, array $available): array
+    private function bindingViolations(StoredElement $element, array $resolutions, array $available): array
     {
         $violations = [];
 
@@ -300,17 +300,17 @@ class LayoutDiagnostics
         return [...$violations, ...$this->brokenChainViolations($element, $available)];
     }
 
-    private function propertyBindingViolation(ContentElement $element, PropertyResolution $resolution): ?Violation
+    private function propertyBindingViolation(StoredElement $element, PropertyResolution $resolution): ?Violation
     {
         if ($resolution->kind === PropertyKind::Primitive) {
             // Satisfied iff a value is stored on the element: serving applies no type default, so only a stored
             // value renders. The type default is a creation-time seed (scaffold + the write-boundary seeder),
             // not a render-time fallback, and so is not consulted here. A stored explicit null counts as no value
             // (it renders empty), so a required primitive authored as null is reported unresolved.
-            if ($resolution->required && $element->getProperty($resolution->key) === null) {
+            if ($resolution->required && !$this->hasStoredValue($element, $resolution->key)) {
                 return new Violation(
                     ViolationCode::UnresolvedRequired,
-                    $element->getId(),
+                    $element->id,
                     $resolution->key,
                     \sprintf('Required property "%s" has no value.', $resolution->key),
                 );
@@ -328,7 +328,7 @@ class LayoutDiagnostics
 
             return new Violation(
                 $code,
-                $element->getId(),
+                $element->id,
                 $resolution->key,
                 \sprintf('Required property "%s" is not deterministically resolvable.', $resolution->key),
                 $resolution->candidates,
@@ -338,7 +338,7 @@ class LayoutDiagnostics
         if ($resolution->candidates === []) {
             return new Violation(
                 ViolationCode::UnresolvedOptional,
-                $element->getId(),
+                $element->id,
                 $resolution->key,
                 \sprintf('Optional property "%s" has no source.', $resolution->key),
             );
@@ -357,7 +357,7 @@ class LayoutDiagnostics
      *
      * @return list<Violation>
      */
-    private function unfilledRequiredInputViolations(ContentElement $element, PropertyResolution $resolution): array
+    private function unfilledRequiredInputViolations(StoredElement $element, PropertyResolution $resolution): array
     {
         if ($resolution->kind !== PropertyKind::Reference || !$resolution->required) {
             return [];
@@ -373,7 +373,7 @@ class LayoutDiagnostics
         // this key and its registered loader resolved the produced type (Resolution/ElementResolver::resolveReference),
         // so the requirement is present and its loader, hence its config specification, is registered here. The
         // `?? null` keeps that invariant explicit and narrows the offset for static analysis.
-        $requirement = $element->getDataRequirements()[$resolution->key] ?? null;
+        $requirement = $element->dataRequirements[$resolution->key] ?? null;
 
         if ($requirement === null) {
             return [];
@@ -417,16 +417,16 @@ class LayoutDiagnostics
      * pre-fill state before the value is set and saved; a typo'd key is indistinguishable and reads the same
      * way. A stored explicit null counts as no value, mirroring the strict primitive rule above.
      */
-    private function unfilledInputViolation(ContentElement $element, string $referenceKey, string $configuredProperty): ?Violation
+    private function unfilledInputViolation(StoredElement $element, string $referenceKey, string $configuredProperty): ?Violation
     {
-        if ($element->getProperty($configuredProperty) !== null) {
+        if ($this->hasStoredValue($element, $configuredProperty)) {
             return null;
         }
 
-        if ($this->isDeclaredPrimitiveProperty($element->getComponent(), $configuredProperty)) {
+        if ($this->isDeclaredPrimitiveProperty($element->component, $configuredProperty)) {
             return new Violation(
                 ViolationCode::UnfilledRequiredInput,
-                $element->getId(),
+                $element->id,
                 $configuredProperty,
                 \sprintf('Required property "%s" is wired from "%s", which has no value.', $referenceKey, $configuredProperty),
             );
@@ -434,10 +434,24 @@ class LayoutDiagnostics
 
         return new Violation(
             ViolationCode::UnfilledRequiredInput,
-            $element->getId(),
+            $element->id,
             $referenceKey,
             \sprintf('Required property "%s" is wired from "%s", which has no value.', $referenceKey, $configuredProperty),
         );
+    }
+
+    /**
+     * The one statement of "the element holds a value for this key", called from both satisfaction rules above.
+     * {@see StoredElement::property()} separates the two empty cases the older model conflated: `null` means the
+     * key is absent, while an authored explicit null comes back as a present stored value answering true to
+     * `isNull()`. Both are "no value" for satisfaction, so a value counts only when the key is present AND its
+     * variant is not null — a single-term `property($key) === null` test would silently credit an authored null.
+     */
+    private function hasStoredValue(StoredElement $element, string $key): bool
+    {
+        $value = $element->property($key);
+
+        return $value !== null && !$value->isNull();
     }
 
     private function isDeclaredPrimitiveProperty(string $component, string $key): bool
@@ -484,7 +498,7 @@ class LayoutDiagnostics
      *
      * @return list<Violation>
      */
-    private function brokenChainViolations(ContentElement $element, array $available): array
+    private function brokenChainViolations(StoredElement $element, array $available): array
     {
         $availableKeys = [];
         foreach ($available as $provided) {
@@ -492,14 +506,14 @@ class LayoutDiagnostics
         }
 
         $violations = [];
-        foreach ($element->getAcceptsContext() as $consumerKey => $consumer) {
+        foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
             if (!$consumer->required || isset($availableKeys[$consumerKey])) {
                 continue;
             }
 
             $violations[] = new Violation(
                 ViolationCode::BrokenRequiredChain,
-                $element->getId(),
+                $element->id,
                 (string) $consumerKey,
                 \sprintf('Required context "%s" is provided by no ancestor or bound source.', $consumerKey),
             );
@@ -509,9 +523,9 @@ class LayoutDiagnostics
     }
 
     /**
-     * @param array<ContentElement> $tree
+     * @param array<StoredElement> $tree
      *
-     * @return list<ContentElement>
+     * @return list<StoredElement>
      */
     private function flatten(array $tree): array
     {
@@ -520,11 +534,22 @@ class LayoutDiagnostics
         foreach ($tree as $element) {
             $elements[] = $element;
 
-            foreach ($this->flatten([...$element->allSlotElements()]) as $descendant) {
+            foreach ($this->flatten($this->directChildren($element)) as $descendant) {
                 $elements[] = $descendant;
             }
         }
 
         return $elements;
+    }
+
+    /**
+     * Every direct child across all slots, in slot order. The storage model keys its children by slot rather
+     * than exposing a flat walk, so the flattening the checks share starts here.
+     *
+     * @return list<StoredElement>
+     */
+    private function directChildren(StoredElement $element): array
+    {
+        return array_merge([], ...array_values($element->slots));
     }
 }

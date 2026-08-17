@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Log\Package;
 
@@ -19,33 +19,46 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(LayoutGate::class)]
 class LayoutGateTest extends TestCase
 {
-    #[TestDox('analyses well-formedness with no bound source (null root context)')]
-    public function testWellFormednessUsesNullRootContext(): void
+    #[TestDox('hands the stored tree to the diagnostics pass unconverted, with no bound source (null root context)')]
+    public function testWellFormednessPassesStoredTreeWithNullRootContext(): void
     {
         $report = new DiagnosticsReport([]);
+        $tree = $this->tree();
 
         $diagnostics = static::createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())->method('analyze')
-            ->with([], null)
+            ->with(static::identicalTo($tree), null)
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $gate = new LayoutGate(new ContentElementLowering(), $diagnostics);
+        $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $gate->wellFormedness([]));
+        static::assertSame($report, $gate->wellFormedness($tree));
     }
 
-    #[TestDox('analyses resolvability against the bound source root context')]
-    public function testResolvabilityUsesProvidedRootContext(): void
+    #[TestDox('hands the stored tree to the diagnostics pass unconverted, against the bound source root context')]
+    public function testResolvabilityPassesStoredTreeWithProvidedRootContext(): void
     {
         $report = new DiagnosticsReport([]);
+        $tree = $this->tree();
+        $rootContext = [];
 
         $diagnostics = static::createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())->method('analyze')
-            ->with([], [])
+            ->with(static::identicalTo($tree), static::identicalTo($rootContext))
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $gate = new LayoutGate(new ContentElementLowering(), $diagnostics);
+        $gate = new LayoutGate($diagnostics);
 
-        static::assertSame($report, $gate->resolvability([], []));
+        static::assertSame($report, $gate->resolvability($tree, $rootContext));
+    }
+
+    /**
+     * A non-empty tree, so the identity expectations above cannot pass vacuously on an empty array.
+     *
+     * @return list<StoredElement>
+     */
+    private function tree(): array
+    {
+        return [new StoredElement('el-1', 'Sw:Block')];
     }
 }

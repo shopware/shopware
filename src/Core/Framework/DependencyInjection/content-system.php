@@ -245,8 +245,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
         ]);
 
-    // One-way conversion from the stored element model onto the older one, for the three seams that still read it:
-    // serving (RenderableLayout), persisted mutation (PersistedLayoutMutator), write validation (LayoutGate)
+    // One-way conversion from the stored element model onto the older one, for the two rendering seams that still
+    // read it: serving (RenderableLayout) and the draft preview render (ContentPreviewPageBuilder)
     $services->set(ContentElementLowering::class);
 
     // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
@@ -630,7 +630,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LayoutGate::class)
         ->args([
-            service(ContentElementLowering::class),
             service(LayoutDiagnostics::class),
         ]);
 
@@ -684,7 +683,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DraftLayoutDecoder::class),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
-            service(ContentElementLowering::class),
         ]);
 
     $services->set(ContentPreviewPageBuilder::class)
@@ -715,7 +713,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MutationPipeline::class)
         ->args([
             service(LayoutDiagnostics::class),
-            service(ContentElementLowering::class),
         ]);
 
     // Layout Mutation Actions (Admin API)
@@ -738,7 +735,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('content_layout.repository'),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
-            service(ContentElementLowering::class),
         ]);
 
     // Persisted Layout Mutation Actions (Admin API)

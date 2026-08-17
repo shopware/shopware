@@ -30,8 +30,8 @@ use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoader
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\LoaderConfigSpecificationFixture;
 
 /**
@@ -188,7 +188,7 @@ class ElementResolverTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -220,7 +220,7 @@ class ElementResolverTest extends TestCase
             distribution: DistributionStrategy::Broadcast,
         )];
 
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -238,7 +238,7 @@ class ElementResolverTest extends TestCase
     #[TestDox('yields no Stored resolution when applied wiring resolution throws a client-defect exception')]
     public function testClientDefectDuringAppliedWiringYieldsNoStoredResolution(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
@@ -255,7 +255,7 @@ class ElementResolverTest extends TestCase
     #[TestDox('propagates a non-client-defect exception raised while resolving applied wiring\'s produced type')]
     public function testNonClientDefectDuringAppliedWiringPropagates(): void
     {
-        $element = ContentElementBuilder::create('Sw:Block', 'el-1')
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -33,7 +32,6 @@ class ContentDiagnoseController
         private readonly DraftLayoutDecoder $decoder,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
-        private readonly ContentElementLowering $lowering,
     ) {
     }
 
@@ -47,8 +45,7 @@ class ContentDiagnoseController
 
         $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
 
-        // The draft decodes into the storage model; the diagnostics pass still speaks the older element model.
-        $analysis = $this->diagnostics->analyze($this->lowering->lowerTree($tree), $rootContext);
+        $analysis = $this->diagnostics->analyze($tree, $rootContext);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 

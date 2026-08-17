@@ -13,7 +13,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -60,7 +59,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $orphaning = $this->orphaningMutation('detached-child');
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->lowering());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, null, $orphaning, Context::createDefaultContext());
 
@@ -74,7 +73,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, self::VERSION));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->lowering());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -99,10 +98,19 @@ class PersistedLayoutMutatorTest extends TestCase
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with(static::anything(), static::identicalTo($rootContext))
+            // The mutated stored roots go in unconverted: block-a is the removed element, so a tree still carrying
+            // it (or carrying anything but stored elements) fails here rather than passing on an anything() match.
+            ->with(
+                static::callback(static function (array $tree): bool {
+                    static::assertSame(['block-b'], array_map(static fn (StoredElement $element): string => $element->id, $tree));
+
+                    return true;
+                }),
+                static::identicalTo($rootContext),
+            )
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics, $this->lowering());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics);
 
         $result = $mutator->mutate($id, null, new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -115,7 +123,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $id = $this->ids->get('layout');
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->lowering());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
 
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), Context::createDefaultContext());
 
@@ -170,7 +178,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
         $repository->method('update')->willThrowException($writeException);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->lowering());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
 
         $this->expectExceptionObject($writeException);
 
@@ -207,7 +215,7 @@ class PersistedLayoutMutatorTest extends TestCase
         ContentSystemException $expected,
     ): void {
         $repository = $this->staticRepository($entity);
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->lowering());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
 
         try {
             $mutator->mutate($layoutId, $token, new RemoveElement('block-a'), Context::createDefaultContext());
@@ -269,11 +277,6 @@ class PersistedLayoutMutatorTest extends TestCase
     private function lockFactory(): LockFactory
     {
         return new LockFactory(new InMemoryStore());
-    }
-
-    private function lowering(): ContentElementLowering
-    {
-        return new ContentElementLowering();
     }
 
     private function registry(): RootSourceRegistry

@@ -12,13 +12,12 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -42,7 +41,7 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('returns the bound source root-ambient context for a top-level element, or empty when the source exposes none (header/footer)')]
     public function testTopLevelReceivesRootAmbient(): void
     {
-        $root = new ContentElement('root-1', 'Sw:Block');
+        $root = new StoredElement('root-1', 'Sw:Block');
 
         $rootContext = $this->rootAmbientProductContext();
 
@@ -53,13 +52,13 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('resolves ancestor provider context with the FQCN from the provider type spec for a nested element')]
     public function testNestedReceivesAncestorProvider(): void
     {
-        $child = new ContentElement('child-1', 'Sw:Block');
-        $root = new ContentElement(
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
             'root-1',
             'Sw:Provider',
             [],
             [],
-            ['content' => new SlotContent([$child])],
+            ['content' => [$child]],
             new ContextDefinitions(
                 ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
                 [],
@@ -78,8 +77,8 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('excludes a top-level sibling root-ambient context from a nested element')]
     public function testNestedDoesNotReceiveRootAmbient(): void
     {
-        $child = new ContentElement('child-1', 'Sw:Block');
-        $root = new ContentElement('root-1', 'Sw:Block', [], [], ['content' => new SlotContent([$child])]);
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement('root-1', 'Sw:Block', [], [], ['content' => [$child]]);
 
         $rootContext = $this->rootAmbientProductContext();
 
@@ -89,14 +88,14 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('exposes a backed ancestor provider to its direct child but not past a non-redistributing intermediate')]
     public function testProviderContextStopsAtNonRedistributingIntermediate(): void
     {
-        $grandchild = new ContentElement('grandchild-1', 'Sw:Block');
-        $child = new ContentElement('child-1', 'Sw:Block', [], [], ['content' => new SlotContent([$grandchild])]);
-        $root = new ContentElement(
+        $grandchild = new StoredElement('grandchild-1', 'Sw:Block');
+        $child = new StoredElement('child-1', 'Sw:Block', [], [], ['content' => [$grandchild]]);
+        $root = new StoredElement(
             'root-1',
             'Sw:Provider',
             [],
             [],
-            ['content' => new SlotContent([$child])],
+            ['content' => [$child]],
             new ContextDefinitions(
                 ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
                 [],
@@ -112,13 +111,13 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('re-exposes incoming root-ambient context through a redistributing intermediate with the inflowing type')]
     public function testRedistributeReExposesIncomingRootAmbient(): void
     {
-        $child = new ContentElement('child-1', 'Sw:Block');
-        $root = new ContentElement(
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
             'root-1',
             'Sw:Block',
             [],
             [],
-            ['content' => new SlotContent([$child])],
+            ['content' => [$child]],
             new ContextDefinitions(
                 [],
                 ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)],
@@ -138,13 +137,13 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('remaps the re-exposed key to the consumer alias while keeping the inflowing type')]
     public function testRedistributeConsumerAliasRemapsExposedKey(): void
     {
-        $child = new ContentElement('child-1', 'Sw:Block');
-        $root = new ContentElement(
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
             'root-1',
             'Sw:Block',
             [],
             [],
-            ['content' => new SlotContent([$child])],
+            ['content' => [$child]],
             new ContextDefinitions(
                 [],
                 ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true, consumerAlias: 'item')],
@@ -163,13 +162,13 @@ class AvailableContextResolverTest extends TestCase
     {
         // F1 regression guard: a redistribute consumer re-exposes only a key that actually flows into the
         // element, so unconditional re-exposure cannot re-open the over-permissive availability leak.
-        $child = new ContentElement('child-1', 'Sw:Block');
-        $root = new ContentElement(
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
             'root-1',
             'Sw:Block',
             [],
             [],
-            ['content' => new SlotContent([$child])],
+            ['content' => [$child]],
             new ContextDefinitions(
                 [],
                 ['category' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)],
@@ -182,13 +181,13 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('does not re-expose incoming context through a consumer that does not redistribute')]
     public function testNonRedistributingConsumerDoesNotReExposeIncomingContext(): void
     {
-        $child = new ContentElement('child-1', 'Sw:Block');
-        $root = new ContentElement(
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
             'root-1',
             'Sw:Block',
             [],
             [],
-            ['content' => new SlotContent([$child])],
+            ['content' => [$child]],
             new ContextDefinitions(
                 [],
                 ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: false)],
@@ -201,21 +200,21 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('accumulates redistributed context across multiple intermediates down to a deep descendant')]
     public function testRedistributeChainsAcrossMultipleLevels(): void
     {
-        $deep = new ContentElement('deep-1', 'Sw:Block');
-        $level2 = new ContentElement(
+        $deep = new StoredElement('deep-1', 'Sw:Block');
+        $level2 = new StoredElement(
             'level-2',
             'Sw:Block',
             [],
             [],
-            ['content' => new SlotContent([$deep])],
+            ['content' => [$deep]],
             new ContextDefinitions([], ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)]),
         );
-        $root = new ContentElement(
+        $root = new StoredElement(
             'root-1',
             'Sw:Block',
             [],
             [],
-            ['content' => new SlotContent([$level2])],
+            ['content' => [$level2]],
             new ContextDefinitions([], ['product' => new ContextConsumer(ContextType::Single, required: false, redistribute: true)]),
         );
 
@@ -229,7 +228,7 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('returns an empty set for an unknown element id')]
     public function testUnknownElementYieldsEmpty(): void
     {
-        $root = new ContentElement('root-1', 'Sw:Block');
+        $root = new StoredElement('root-1', 'Sw:Block');
 
         static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
     }

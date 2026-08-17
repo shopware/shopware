@@ -9,8 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -94,8 +92,8 @@ class MutationPipelineTest extends TestCase
         static::assertSame(['legacy'], $result->droppedWiring);
     }
 
-    #[TestDox('lowers the mutated tree and forwards it with the root context to the diagnostics pass')]
-    public function testRunForwardsLoweredTreeAndRootContextToDiagnostics(): void
+    #[TestDox('forwards the mutated stored roots unconverted, with the root context, to the diagnostics pass')]
+    public function testRunForwardsMutatedStoredRootsAndRootContextToDiagnostics(): void
     {
         $mutated = new StoredTree([new StoredElement('new-1', 'Sw:Card')]);
         $rootContext = [new ProvidedContext('product', 'Some\\Entity', ContextType::Single, null, DistributionStrategy::Broadcast)];
@@ -103,13 +101,7 @@ class MutationPipelineTest extends TestCase
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with(static::callback(static function (array $tree): bool {
-                static::assertCount(1, $tree);
-                static::assertInstanceOf(ContentElement::class, $tree[0]);
-                static::assertSame('new-1', $tree[0]->getId());
-
-                return true;
-            }), $rootContext)
+            ->with(static::identicalTo($mutated->roots), static::identicalTo($rootContext))
             ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
 
         $this->pipeline($diagnostics)->run($this->mutation($mutated, ['new-1']), $this->inputTree(), $rootContext);
@@ -117,7 +109,7 @@ class MutationPipelineTest extends TestCase
 
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
     {
-        return new MutationPipeline($diagnostics, new ContentElementLowering());
+        return new MutationPipeline($diagnostics);
     }
 
     private function inputTree(): StoredTree

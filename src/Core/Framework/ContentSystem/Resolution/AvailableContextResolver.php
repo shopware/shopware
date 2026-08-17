@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 
@@ -34,7 +34,7 @@ class AvailableContextResolver
     }
 
     /**
-     * @param list<ContentElement> $tree the layout's root elements
+     * @param list<StoredElement> $tree the layout's root elements
      * @param list<ProvidedContext> $rootContext root-ambient context for top-level elements (broadcast Single)
      *
      * @return list<ProvidedContext>
@@ -70,12 +70,12 @@ class AvailableContextResolver
      *
      * @return list<ProvidedContext>
      */
-    private function expose(ContentElement $element, array $incoming): array
+    private function expose(StoredElement $element, array $incoming): array
     {
         $exposed = [];
 
-        foreach ($element->getProvidesContext() as $contextKey => $provider) {
-            $fqcn = $this->resolveProvidedFqcn($element->getComponent(), (string) $contextKey);
+        foreach ($element->contextDefinitions->getAllProviders() as $contextKey => $provider) {
+            $fqcn = $this->resolveProvidedFqcn($element->component, (string) $contextKey);
 
             if ($fqcn === null) {
                 continue;
@@ -89,12 +89,12 @@ class AvailableContextResolver
                 contextKey: (string) $contextKey,
                 fqcn: $fqcn,
                 contextType: $provider->type,
-                providerElementId: $element->getId(),
+                providerElementId: $element->id,
                 distribution: $provider->distributionConfig->getStrategy(),
             );
         }
 
-        foreach ($element->getAcceptsContext() as $contextKey => $consumer) {
+        foreach ($element->contextDefinitions->getAllConsumers() as $contextKey => $consumer) {
             if (!$consumer->redistribute) {
                 continue;
             }
@@ -109,7 +109,7 @@ class AvailableContextResolver
                 contextKey: $consumer->consumerAlias ?? (string) $contextKey,
                 fqcn: $match->fqcn,
                 contextType: $consumer->type,
-                providerElementId: $element->getId(),
+                providerElementId: $element->id,
                 distribution: DistributionStrategy::Broadcast,
             );
         }
@@ -124,9 +124,9 @@ class AvailableContextResolver
      *
      * @param list<ProvidedContext> $incoming
      */
-    private function providerResolves(ContentElement $element, string $key, array $incoming): bool
+    private function providerResolves(StoredElement $element, string $key, array $incoming): bool
     {
-        $resolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->getId(), $incoming));
+        $resolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->id, $incoming));
 
         foreach ($resolutions as $resolution) {
             if ($resolution->key !== $key) {
@@ -154,14 +154,14 @@ class AvailableContextResolver
     }
 
     /**
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      *
-     * @return array{ancestors: list<ContentElement>, topLevel: bool}|null the ancestor path (root..parent), or null if not found
+     * @return array{ancestors: list<StoredElement>, topLevel: bool}|null the ancestor path (root..parent), or null if not found
      */
     private function locate(array $tree, string $targetElementId): ?array
     {
         foreach ($tree as $root) {
-            if ($root->getId() === $targetElementId) {
+            if ($root->id === $targetElementId) {
                 return ['ancestors' => [], 'topLevel' => true];
             }
 
@@ -176,21 +176,23 @@ class AvailableContextResolver
     }
 
     /**
-     * @param list<ContentElement> $path elements from the root down to and including $element
+     * @param list<StoredElement> $path elements from the root down to and including $element
      *
-     * @return list<ContentElement>|null the ancestor path to the target, or null if the target is not below $element
+     * @return list<StoredElement>|null the ancestor path to the target, or null if the target is not below $element
      */
-    private function search(ContentElement $element, array $path, string $targetElementId): ?array
+    private function search(StoredElement $element, array $path, string $targetElementId): ?array
     {
-        foreach ($element->allSlotElements() as $child) {
-            if ($child->getId() === $targetElementId) {
-                return $path;
-            }
+        foreach ($element->slots as $children) {
+            foreach ($children as $child) {
+                if ($child->id === $targetElementId) {
+                    return $path;
+                }
 
-            $deeper = $this->search($child, [...$path, $child], $targetElementId);
+                $deeper = $this->search($child, [...$path, $child], $targetElementId);
 
-            if ($deeper !== null) {
-                return $deeper;
+                if ($deeper !== null) {
+                    return $deeper;
+                }
             }
         }
 

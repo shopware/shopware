@@ -142,13 +142,15 @@ describe('scripts/codemods/sfc-migration', () => {
         });
 
         it('preserves function contracts and special JSDoc when rendering setup functions', async () => {
+            const specialJsDoc =
+                '@deprecated tag:v6.8.0 @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES @internal @private';
             const jsSource = `
                     import template from './sw-function-contracts.html.twig';
 
                     export default {
                         template,
                         methods: {
-                            /** @deprecated @experimental @internal @private */
+                            /** ${specialJsDoc} */
                             typed<T>(value: T): T {
                                 return value;
                             },
@@ -165,9 +167,9 @@ describe('scripts/codemods/sfc-migration', () => {
             });
 
             expect(result.outcome).toBe('full');
-            expect(result.sfc).toContain('@deprecated @experimental @internal @private');
+            expect(result.sfc).toContain(specialJsDoc);
             expect(result.sfc).toMatch(
-                /const typed =\s+\/\*\* @deprecated @experimental @internal @private \*\/\s+function <T>\(value: T\): T/,
+                new RegExp(`const typed =\\s+/\\*\\* ${specialJsDoc} \\*/\\s+function <T>\\(value: T\\): T`),
             );
         });
     });

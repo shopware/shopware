@@ -8,6 +8,10 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 
 ## API
 
+### Added Store API snippet endpoint
+
+Added new Store API route `GET /store-api/snippet`, which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.
+
 ### Added new shop setting endpoint
 
 Added new Store API route `GET /store-api/shop-settings`, which exposes the UI- and validation-relevant, non-sensitive subset of the system configuration (grouped into `general`, `loginRegistration`, `cart`, `listing` and `newsletter`) resolved for the current sales channel, so headless frontends (e.g. Composable Frontends) can render the shop consistently with the administration settings.

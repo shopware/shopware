@@ -5,6 +5,9 @@ namespace Shopware\Core\System\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
 use Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand;
@@ -13,6 +16,7 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
@@ -173,6 +177,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(SnippetRoute::class)
+        ->public()
+        ->args([
+            service(Translator::class),
+            service(LanguageLocaleCodeProvider::class),
+            service(Connection::class),
+            service(CacheTagCollector::class),
+        ]);
 
     $services->set(SnippetFileHandler::class)
         ->args([

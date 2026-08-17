@@ -55,62 +55,6 @@ type ContextSettings = {
     firstMigrationDate?: string | null;
 };
 
-function isBeforeRelease(value: unknown): boolean {
-    if (typeof value !== 'string' || value === '') {
-        return false;
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return false;
-    }
-
-    return date < new Date(NEW_NAVIGATION_RELEASE_DATE);
-}
-
-// The date of its very first migration identifies a shop that ran the old navigation.
-function isExistingShop(): boolean {
-    const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
-
-    return isBeforeRelease(settings?.firstMigrationDate);
-}
-
-// An old shop can still have brand new admin users, and those never saw it either.
-function isExistingUser(): boolean {
-    const currentUser = Shopware.Store.get('session').currentUser as Record<string, unknown> | null;
-
-    return isBeforeRelease(currentUser?.createdAt);
-}
-
-async function hasSeenModal(): Promise<boolean> {
-    const response = await Shopware.Service('userConfigService').search([NEW_UI_2026_SEEN_CONFIG_KEY]);
-    const value = response?.data?.[NEW_UI_2026_SEEN_CONFIG_KEY] as { seen?: unknown } | undefined;
-
-    return value?.seen === true;
-}
-
-/**
- * @private
- */
-export async function markModalSeen(): Promise<void> {
-    await Shopware.Service('userConfigService').upsert({
-        [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true },
-    });
-}
-
-function isIntendedAudience(): boolean {
-    if (Shopware.Store.get('context').app.firstRunWizard === true) {
-        return false;
-    }
-
-    if (!isExistingShop()) {
-        return false;
-    }
-
-    return isExistingUser();
-}
-
 /**
  * @private
  */
@@ -235,24 +179,85 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        void this.resolveVisibility();
+        this.createdComponent();
     },
 
     beforeUnmount() {
-        this.clearHintHandoff();
+        this.beforeUnmountComponent();
     },
 
     methods: {
+        createdComponent() {
+            void this.resolveVisibility();
+        },
+
+        beforeUnmountComponent() {
+            this.clearHintHandoff();
+        },
+
         async resolveVisibility() {
-            if (!isIntendedAudience()) {
+            if (!this.isIntendedAudience()) {
                 return;
             }
 
-            if (!IGNORE_SEEN_FLAG && (await hasSeenModal())) {
+            if (!IGNORE_SEEN_FLAG && (await this.hasSeenModal())) {
                 return;
             }
 
             this.isOpen = true;
+        },
+
+        isIntendedAudience(): boolean {
+            if (Shopware.Store.get('context').app.firstRunWizard === true) {
+                return false;
+            }
+
+            if (!this.isExistingShop()) {
+                return false;
+            }
+
+            return this.isExistingUser();
+        },
+
+        // The date of its very first migration identifies a shop that ran the old navigation.
+        isExistingShop(): boolean {
+            const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
+
+            return this.isBeforeRelease(settings?.firstMigrationDate);
+        },
+
+        // An old shop can still have brand new admin users, and those never saw it either.
+        isExistingUser(): boolean {
+            const currentUser = Shopware.Store.get('session').currentUser as Record<string, unknown> | null;
+
+            return this.isBeforeRelease(currentUser?.createdAt);
+        },
+
+        isBeforeRelease(value: unknown): boolean {
+            if (typeof value !== 'string' || value === '') {
+                return false;
+            }
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return false;
+            }
+
+            return date < new Date(NEW_NAVIGATION_RELEASE_DATE);
+        },
+
+        async hasSeenModal(): Promise<boolean> {
+            const response = await Shopware.Service('userConfigService').search([NEW_UI_2026_SEEN_CONFIG_KEY]);
+            const value = response?.data?.[NEW_UI_2026_SEEN_CONFIG_KEY] as { seen?: unknown } | undefined;
+
+            return value?.seen === true;
+        },
+
+        async markModalSeen(): Promise<void> {
+            await Shopware.Service('userConfigService').upsert({
+                [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true },
+            });
         },
 
         onModalChange(isOpen: boolean) {
@@ -273,7 +278,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.hasRecordedSeen = true;
 
-            markModalSeen().catch(() => {
+            this.markModalSeen().catch(() => {
                 // Losing the flag only means the modal is offered again, so it stays quiet.
             });
         },

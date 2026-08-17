@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
 
@@ -26,6 +27,7 @@ class LayoutGate
      * @internal
      */
     public function __construct(
+        private readonly ContentElementLowering $lowering,
         private readonly LayoutDiagnostics $diagnostics,
     ) {
     }
@@ -33,21 +35,21 @@ class LayoutGate
     /**
      * Structural validity and validity of present wiring only — the persistence gate.
      *
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      */
     public function wellFormedness(array $tree): DiagnosticsReport
     {
-        return $this->diagnostics->analyze($tree, null)->report;
+        return $this->diagnostics->analyze($this->lowering->lowerTree($tree), null)->report;
     }
 
     /**
      * Full resolvability for a bound source's root context — the serving gate.
      *
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      * @param list<ProvidedContext> $providedRootContext
      */
     public function resolvability(array $tree, array $providedRootContext): DiagnosticsReport
     {
-        return $this->diagnostics->analyze($tree, $providedRootContext)->report;
+        return $this->diagnostics->analyze($this->lowering->lowerTree($tree), $providedRootContext)->report;
     }
 }

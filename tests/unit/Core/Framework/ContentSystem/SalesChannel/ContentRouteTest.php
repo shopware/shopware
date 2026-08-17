@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -172,7 +173,7 @@ class ContentRouteTest extends TestCase
         $entity->setId($id);
         $entity->setName($name);
         $entity->setVersion('1.0');
-        $entity->setLayout([ContentElementBuilder::create('root')->build()]);
+        $entity->setLayout([StoredElementBuilder::create('root')->build()]);
 
         return $entity;
     }

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Context;
@@ -126,7 +127,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         // assert the stable violation code (the wire contract), not the human-readable message text
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
-        static::assertSame(TestElementTypeLoader::RESOLVABLE, $this->reload($layoutId)->getLayout()[0]->getComponent());
+        static::assertSame(TestElementTypeLoader::RESOLVABLE, $this->reload($layoutId)->getLayout()[0]->component);
     }
 
     #[TestDox('persists a replace that detaches slot content and returns the orphans for re-attachment')]
@@ -143,7 +144,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         ]);
 
         static::assertSame(['kid'], array_column($body['orphaned'], 'id'));
-        static::assertSame([], $this->reload($layoutId)->getLayout()[0]->getSlots());
+        static::assertSame([], $this->reload($layoutId)->getLayout()[0]->slots);
     }
 
     #[TestDox('attaches a returned orphan subtree to a stored layout with a server-minted id')]
@@ -415,9 +416,9 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         // the reload asserts the exact persisted wiring, not just that some entry exists under 'media'
         $stored = $this->reload($layoutId)->getLayout()[0];
-        static::assertSame(['media' => 'core:Sw:Media:Image'], $stored->getAttributedSpecifications());
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $stored->attributedSpecifications);
 
-        $requirement = $stored->getDataRequirements()['media'];
+        $requirement = $stored->dataRequirements['media'];
         static::assertSame('entity', $requirement->source);
         static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
         static::assertSame('media', $requirement->config->entity);
@@ -453,10 +454,13 @@ class ContentLayoutMutationControllerTest extends TestCase
         // the reload asserts the fill-applied wiring and attribution survived persistence: the write-boundary
         // AttributionReconciler keeps the attribution because the element's media wiring still matches the default's binding for that key.
         $stored = $this->reload($layoutId)->getLayout()[0];
-        static::assertSame(['media' => 'core:Sw:Media:Image'], $stored->getAttributedSpecifications());
-        static::assertSame('a-media-id', $stored->getProperty('mediaId'));
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $stored->attributedSpecifications);
 
-        $requirement = $stored->getDataRequirements()['media'];
+        $mediaId = $stored->property('mediaId');
+        static::assertNotNull($mediaId);
+        static::assertSame('a-media-id', $mediaId->asString());
+
+        $requirement = $stored->dataRequirements['media'];
         static::assertSame('entity', $requirement->source);
         static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
         static::assertSame('media', $requirement->config->entity);
@@ -565,7 +569,7 @@ class ContentLayoutMutationControllerTest extends TestCase
      */
     private function layoutIds(string $layoutId): array
     {
-        return array_map(static fn (object $element): string => $element->getId(), $this->reload($layoutId)->getLayout());
+        return array_map(static fn (StoredElement $element): string => $element->id, $this->reload($layoutId)->getLayout());
     }
 
     private function bindCategory(string $layoutId): void

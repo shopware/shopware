@@ -250,7 +250,7 @@ class AppBindingPoisonRowResilienceTest extends TestCase
 
         static::assertSame(
             ['media' => self::CORE_MEDIA_BINDING_ID],
-            $this->reload($layoutId)->getLayout()[0]->getAttributedSpecifications()
+            $this->reload($layoutId)->getLayout()[0]->attributedSpecifications
         );
     }
 
@@ -270,9 +270,9 @@ class AppBindingPoisonRowResilienceTest extends TestCase
         ]], $context);
 
         $reconciled = $this->reload($layoutId)->getLayout()[0];
-        static::assertSame([], $reconciled->getAttributedSpecifications());
+        static::assertSame([], $reconciled->attributedSpecifications);
 
-        $requirement = $reconciled->getDataRequirements()['media'];
+        $requirement = $reconciled->dataRequirements['media'];
         static::assertInstanceOf(EntityLoaderConfig::class, $requirement->config);
         static::assertSame('media', $requirement->config->entity);
         static::assertSame('mediaId', $requirement->config->property);

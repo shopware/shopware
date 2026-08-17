@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class ContentElementListField extends ListField
+class StoredElementListField extends ListField
 {
     public function __construct(
         string $storageName,
@@ -20,6 +20,6 @@ class ContentElementListField extends ListField
 
     protected function getSerializerClass(): string
     {
-        return ContentElementListFieldSerializer::class;
+        return StoredElementListFieldSerializer::class;
     }
 }

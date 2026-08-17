@@ -6,7 +6,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -132,7 +132,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * @return list<ContentElement>|null null when the tree could not be decoded (an invalid_config violation was recorded)
+     * @return list<StoredElement>|null null when the tree could not be decoded (an invalid_config violation was recorded)
      */
     private function decodeTree(mixed $value, ConstraintViolationList $violations): ?array
     {

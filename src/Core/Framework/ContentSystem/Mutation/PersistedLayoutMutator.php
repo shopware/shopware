@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
@@ -34,6 +35,7 @@ class PersistedLayoutMutator
         private readonly LockFactory $lockFactory,
         private readonly EntityRepository $contentLayoutRepository,
         private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly ContentElementLowering $lowering,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
     ) {
@@ -58,7 +60,9 @@ class PersistedLayoutMutator
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
-            $mutated = $mutation->apply($layout->getLayout());
+            // The mutation operations still take and return the older element model, so the loaded stored tree is
+            // lowered on the way in; what comes back out is serialized to the storage wire shape for the write.
+            $mutated = $mutation->apply($this->lowering->lowerTree($layout->getLayout()));
             $affected = $mutation->affected();
 
             $this->contentLayoutRepository->update([[

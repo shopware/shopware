@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Field;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Context;
@@ -45,7 +45,7 @@ class ElementStylePersistenceTest extends TestCase
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
-        static::assertSame($style, $this->readElement($id, $context)->getStyle()->toArray());
+        static::assertSame($style, $this->readElement($id, $context)->style->toArray());
     }
 
     #[TestDox('persists a flat option as a bare scalar beside a breakpoint-aware option and reads both back unchanged')]
@@ -59,7 +59,7 @@ class ElementStylePersistenceTest extends TestCase
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
-        static::assertSame($style, $this->readElement($id, $context)->getStyle()->toArray());
+        static::assertSame($style, $this->readElement($id, $context)->style->toArray());
     }
 
     #[TestDox('reads back an empty style for an element written without one')]
@@ -70,7 +70,7 @@ class ElementStylePersistenceTest extends TestCase
 
         $this->repository()->create([$this->layout($id, null)], $context);
 
-        static::assertTrue($this->readElement($id, $context)->getStyle()->isEmpty());
+        static::assertTrue($this->readElement($id, $context)->style->isEmpty());
     }
 
     #[TestDox('rejects a write whose style references an option not in the registry')]
@@ -101,7 +101,7 @@ class ElementStylePersistenceTest extends TestCase
         }
     }
 
-    private function readElement(string $layoutId, Context $context): ContentElement
+    private function readElement(string $layoutId, Context $context): StoredElement
     {
         $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $layout);

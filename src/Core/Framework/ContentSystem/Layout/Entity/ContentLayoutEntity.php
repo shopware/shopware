@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Entity;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutCollection;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +23,7 @@ class ContentLayoutEntity extends Entity
     protected string $version;
 
     /**
-     * @var list<ContentElement>
+     * @var list<StoredElement>
      */
     protected array $layout;
 
@@ -58,7 +58,7 @@ class ContentLayoutEntity extends Entity
     }
 
     /**
-     * @return list<ContentElement>
+     * @return list<StoredElement>
      */
     public function getLayout(): array
     {
@@ -66,7 +66,7 @@ class ContentLayoutEntity extends Entity
     }
 
     /**
-     * @param list<ContentElement> $layout
+     * @param list<StoredElement> $layout
      */
     public function setLayout(array $layout): void
     {

@@ -4,9 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -52,11 +52,14 @@ class ContentLayoutDefaultSeedingTest extends TestCase
 
         $tree = $layout->getLayout();
         static::assertCount(1, $tree);
-        static::assertSame('Seeded headline', $tree[0]->getProperty('headline'));
+
+        $headline = $tree[0]->property('headline');
+        static::assertNotNull($headline);
+        static::assertSame('Seeded headline', $headline->asString());
 
         // Pass [] (a bound source contributing no root context), not null: a null root context skips the
         // binding-scope checks, so isResolvable() would hold trivially. [] runs them against the seeded primitive.
-        static::assertTrue($this->diagnostics()->analyze($tree, [])->report->isResolvable());
+        static::assertTrue($this->gate()->resolvability($tree, [])->isResolvable());
     }
 
     /**
@@ -70,11 +73,11 @@ class ContentLayoutDefaultSeedingTest extends TestCase
         return $repository;
     }
 
-    private function diagnostics(): LayoutDiagnostics
+    private function gate(): LayoutGate
     {
-        $diagnostics = $this->getContainer()->get(LayoutDiagnostics::class);
-        static::assertInstanceOf(LayoutDiagnostics::class, $diagnostics);
+        $gate = $this->getContainer()->get(LayoutGate::class);
+        static::assertInstanceOf(LayoutGate::class, $gate);
 
-        return $diagnostics;
+        return $gate;
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\DefaultSeedingVisitor;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -16,9 +16,10 @@ use Shopware\Core\Framework\Log\Package;
  * slot's children; an existing value is never overwritten and an unregistered component is left untouched (the write
  * gate reports that separately).
  *
- * Handles both shapes the layout field serializer carries: hydrated {@see ContentElement} objects (seeded in place)
- * and raw element arrays (Admin / Sync JSON, which the serializer does not recurse). Shares the per-type rule with
- * the layout mutations via {@see PrimitiveDefaultProvider}.
+ * Handles both shapes the layout field serializer carries: {@see StoredElement} objects and raw element arrays
+ * (Admin / Sync JSON). A stored element is immutable, so seeding it rebuilds the subtree through its `with*()`
+ * methods and hands back a new forest rather than filling the one it was given. Shares the per-type rule with the
+ * layout mutations via {@see PrimitiveDefaultProvider}.
  *
  * @internal
  *
@@ -27,13 +28,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class LayoutDefaultSeeder
 {
-    private readonly DefaultSeedingVisitor $seedingVisitor;
-
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly PrimitiveDefaultProvider $primitiveDefaultProvider,
     ) {
-        $this->seedingVisitor = new DefaultSeedingVisitor($registry, $primitiveDefaultProvider);
     }
 
     /**
@@ -54,10 +52,8 @@ class LayoutDefaultSeeder
 
     private function seedNode(mixed $node): mixed
     {
-        if ($node instanceof ContentElement) {
-            $node->traverse($this->seedingVisitor);
-
-            return $node;
+        if ($node instanceof StoredElement) {
+            return $this->seedElement($node);
         }
 
         if (\is_array($node)) {
@@ -65,6 +61,31 @@ class LayoutDefaultSeeder
         }
 
         return $node;
+    }
+
+    /**
+     * Rebuilds the element with the missing defaults filled in and every slot child seeded the same way. A key
+     * the element already carries keeps its value, an authored null included: the key being present is what
+     * decides, so seeding never replaces something the author put there.
+     */
+    private function seedElement(StoredElement $element): StoredElement
+    {
+        $properties = $element->properties();
+
+        foreach ($this->defaultsFor($element->component) as $key => $default) {
+            if (\array_key_exists($key, $properties)) {
+                continue;
+            }
+
+            $properties[$key] = StoredValue::fromDecoded($default);
+        }
+
+        $slots = [];
+        foreach ($element->slots as $name => $children) {
+            $slots[$name] = array_map($this->seedElement(...), $children);
+        }
+
+        return $element->withProperties($properties)->withSlots($slots);
     }
 
     /**

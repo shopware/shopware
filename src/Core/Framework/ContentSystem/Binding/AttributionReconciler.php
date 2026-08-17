@@ -7,13 +7,12 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Re-derives each element's {@see ContentElement::getAttributedSpecifications()} at the DAL write boundary.
+ * Re-derives each element's {@see StoredElement::$attributedSpecifications} at the DAL write boundary.
  * A dropped attribution (diverged wiring, missing specification, or missing binding) is never an error.
  *
  * Honesty comparison correctness depends on every config serializer honoring its round-trip contract
@@ -66,7 +65,7 @@ class AttributionReconciler
 
     private function reconcileNode(mixed $node): mixed
     {
-        if ($node instanceof ContentElement) {
+        if ($node instanceof StoredElement) {
             return $this->reconcileElement($node);
         }
 
@@ -77,45 +76,34 @@ class AttributionReconciler
         return $node;
     }
 
-    private function reconcileElement(ContentElement $element): ContentElement
+    private function reconcileElement(StoredElement $element): StoredElement
     {
-        if ($element->getSlots() === [] && $element->getAttributedSpecifications() === []) {
+        if ($element->slots === [] && $element->attributedSpecifications === []) {
             return $element;
         }
 
         $slots = [];
-        foreach ($element->getSlots() as $name => $slotContent) {
-            $children = [];
-            foreach ($slotContent as $child) {
-                $children[] = $this->reconcileElement($child);
-            }
-            $slots[$name] = new SlotContent($children);
+        foreach ($element->slots as $name => $children) {
+            $slots[$name] = array_map($this->reconcileElement(...), $children);
         }
 
-        return new ContentElement(
-            $element->getId(),
-            $element->getComponent(),
-            $element->getDataRequirements(),
-            $element->getProperties(),
-            $slots,
-            $element->getContextDefinitions(),
-            $element->getStyle(),
-            $this->reconcileElementAttributions($element),
-        );
+        return $element
+            ->withSlots($slots)
+            ->withAttributedSpecifications($this->reconcileElementAttributions($element));
     }
 
     /**
      * @return array<string, string>
      */
-    private function reconcileElementAttributions(ContentElement $element): array
+    private function reconcileElementAttributions(StoredElement $element): array
     {
-        $attributions = $element->getAttributedSpecifications();
+        $attributions = $element->attributedSpecifications;
 
         if ($attributions === []) {
             return [];
         }
 
-        $dataRequirements = $element->getDataRequirements();
+        $dataRequirements = $element->dataRequirements;
         $filtered = [];
 
         foreach ($attributions as $key => $specificationId) {

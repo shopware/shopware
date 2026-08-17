@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -788,5 +790,26 @@ class ContentSystemException extends HttpException
             null,
             $exception->getErrorCode(),
         );
+    }
+
+    // The layout column's write rejection, built the same way as the assignment-mismatch violation above and
+    // wrapped for the DAL: the layout field serializer decodes the payload at the write boundary, and a defect
+    // the decode raises is the caller's input being refused, not an internal fault. $defect is that decode
+    // failure, whose message and error code the violation carries; $fieldKey is the written field, $value the
+    // payload it rejected, and $writePath the command's path the DAL reports the violation under.
+    public static function layoutWriteRejection(self $defect, string $fieldKey, mixed $value, string $writePath): WriteConstraintViolationException
+    {
+        $violation = new ConstraintViolation(
+            $defect->getMessage(),
+            $defect->getMessage(),
+            [],
+            null,
+            '/' . $fieldKey,
+            $value,
+            null,
+            $defect->getErrorCode(),
+        );
+
+        return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
     }
 }

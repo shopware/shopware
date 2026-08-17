@@ -55,6 +55,9 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
@@ -65,12 +68,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\DataRequirementsFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
@@ -217,15 +220,31 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.field_serializer');
 
-    $services->set(ContentElementListFieldSerializer::class)
+    $services->set(StoredElementListFieldSerializer::class)
         ->args([
             service(ValidatorInterface::class),
             service(DefinitionInstanceRegistry::class),
             service(ContentElementFieldSerializer::class),
+            service(StoredTreeCodec::class),
             service(LayoutDefaultSeeder::class),
             service(AttributionReconciler::class),
         ])
         ->tag('shopware.field_serializer');
+
+    // Both directions of the stored forest's wire shape
+    $services->set(StoredElementCodec::class)
+        ->args([
+            service(DataLoaderConfigSerializerProvider::class),
+        ]);
+
+    $services->set(StoredTreeCodec::class)
+        ->args([
+            service(StoredElementCodec::class),
+        ]);
+
+    // One-way conversion from the stored element model onto the older one, for the three seams that still read it:
+    // serving (RenderableLayout), persisted mutation (PersistedLayoutMutator), write validation (LayoutGate)
+    $services->set(ContentElementLowering::class);
 
     // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
     $services->set(PrimitiveDefaultProvider::class);
@@ -585,6 +604,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LayoutGate::class)
         ->args([
+            service(ContentElementLowering::class),
             service(LayoutDiagnostics::class),
         ]);
 
@@ -593,7 +613,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(LayoutTreeDecoder::class)
         ->args([
             service(ContentLayoutDefinition::class),
-            service(ContentElementListFieldSerializer::class),
+            service(StoredElementListFieldSerializer::class),
         ]);
 
     // Shared read of a layout's immutable root source (in-flight write batch first, then committed row)
@@ -693,6 +713,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service('content_layout.repository'),
             service(ContentElementFieldSerializer::class),
+            service(ContentElementLowering::class),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
         ]);

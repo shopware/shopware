@@ -11,7 +11,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
@@ -241,7 +241,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         ?LayoutRootSourceReader $reader = null,
         ?LayoutTreeDecoder $decoder = null,
     ): ContentLayoutWriteValidator {
-        $decoder ??= $this->decoderReturning([new ContentElement('el-1', 'Sw:Block')]);
+        $decoder ??= $this->decoderReturning([new StoredElement('el-1', 'Sw:Block')]);
 
         return new ContentLayoutWriteValidator(
             $gate ?? $this->cleanGate(),
@@ -291,7 +291,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     }
 
     /**
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      */
     private function decoderReturning(array $tree): LayoutTreeDecoder
     {

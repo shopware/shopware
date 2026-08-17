@@ -9,10 +9,13 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListField;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -26,7 +29,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -38,13 +44,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ContentElementListFieldSerializer::class)]
-class ContentElementListFieldSerializerTest extends TestCase
+#[CoversClass(StoredElementListFieldSerializer::class)]
+class StoredElementListFieldSerializerTest extends TestCase
 {
     #[TestDox('seeds the type primitive defaults into a raw layout payload before encode')]
     public function testNormalizeSeedsPrimitiveDefaultsIntoRawPayload(): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
         $data = ['elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
 
         $result = $this->serializerWithRealSeeder()->normalize($field, $data, $this->parameters());
@@ -52,111 +58,99 @@ class ContentElementListFieldSerializerTest extends TestCase
         static::assertSame([['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['headline' => 'Hi']]], $result['elements']);
     }
 
-    #[TestDox('wraps a single ContentElement value into a list and seeds the type primitive defaults onto it')]
-    public function testNormalizeWrapsSingleContentElementIntoListAndSeedsPrimitiveDefaults(): void
+    #[TestDox('wraps a single StoredElement value into a list and seeds the type primitive defaults onto it')]
+    public function testNormalizeWrapsSingleStoredElementIntoListAndSeedsPrimitiveDefaults(): void
     {
-        $field = $this->createContentElementListField();
-        $element = new ContentElement('el', 'Sw:Block');
+        $field = $this->createField();
+        $element = StoredElementBuilder::create('Sw:Block', 'el')->build();
 
         $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => $element], $this->parameters());
 
-        static::assertSame([$element], $result['elements']);
-        static::assertSame('Hi', $element->getProperty('headline'));
+        static::assertIsArray($result['elements']);
+        static::assertCount(1, $result['elements']);
+
+        $seeded = $result['elements'][0];
+        static::assertInstanceOf(StoredElement::class, $seeded);
+        static::assertSame('Hi', $seeded->property('headline')?->jsonSerialize());
     }
 
     #[TestDox('leaves a non-list layout value untouched')]
     public function testNormalizeLeavesNonListValueUntouched(): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
 
         $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => 'not-a-list'], $this->parameters());
 
         static::assertSame(['elements' => 'not-a-list'], $result);
     }
 
-    #[TestDox('encodes single ContentElement wrapped to array as JSON string')]
-    public function testEncodeWithSingleContentElementWrapsAndEncodesAsJson(): void
+    #[TestDox('encodes a single StoredElement wrapped to a list as a JSON string')]
+    public function testEncodeWithSingleStoredElementWrapsAndEncodesAsJson(): void
     {
-        $field = $this->createContentElementListField();
-        $element = new ContentElement('elem-1', 'text');
-
-        $elementSerializer = $this->elementSerializer();
-        $elementSerializer
-            ->method('serializeContentElement')
-            ->willReturn(['id' => 'elem-1', 'component' => 'text', 'properties' => []]);
+        $field = $this->createField();
+        $element = StoredElementBuilder::create('text', 'elem-1')->build();
 
         $kvPair = new KeyValuePair('elements', $element, false);
 
         $result = iterator_to_array(
-            $this->serializerWithPassthroughValidator($elementSerializer)->encode($field, $this->existence(), $kvPair, $this->parameters())
+            $this->serializerWithPassthroughValidator()->encode($field, $this->existence(), $kvPair, $this->parameters())
         );
 
-        static::assertArrayHasKey('elements', $result);
-        static::assertIsString($result['elements']);
-
-        $decoded = json_decode($result['elements'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($decoded);
-        static::assertCount(1, $decoded);
-        static::assertSame('elem-1', $decoded[0]['id']);
-        static::assertSame('text', $decoded[0]['component']);
-    }
-
-    #[TestDox('encodes ContentElement array to JSON string')]
-    public function testEncodeWithContentElementArrayYieldsJson(): void
-    {
-        $field = $this->createContentElementListField();
-        $element1 = new ContentElement('elem-1', 'text');
-        $element2 = new ContentElement('elem-2', 'image');
-
-        $elementSerializer = $this->elementSerializer();
-        $elementSerializer
-            ->method('serializeContentElement')
-            ->willReturnOnConsecutiveCalls(
-                ['id' => 'elem-1', 'component' => 'text', 'properties' => []],
-                ['id' => 'elem-2', 'component' => 'image', 'properties' => []]
-            );
-
-        $kvPair = new KeyValuePair('elements', [$element1, $element2], false);
-
-        $result = iterator_to_array(
-            $this->serializerWithPassthroughValidator($elementSerializer)->encode($field, $this->existence(), $kvPair, $this->parameters())
+        static::assertSame(
+            [['id' => 'elem-1', 'component' => 'text', 'properties' => []]],
+            $this->decodeJson($result['elements'])
         );
-
-        static::assertArrayHasKey('elements', $result);
-        static::assertIsString($result['elements']);
-
-        $decoded = json_decode($result['elements'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($decoded);
-        static::assertCount(2, $decoded);
-        static::assertSame('elem-1', $decoded[0]['id']);
-        static::assertSame('elem-2', $decoded[1]['id']);
     }
 
-    #[TestDox('encodes plain array passthrough to JSON string')]
-    public function testEncodeWithPlainArrayPassthroughYieldsJson(): void
+    #[TestDox('encodes a StoredElement list as a JSON string')]
+    public function testEncodeWithStoredElementListYieldsJson(): void
     {
-        $field = $this->createContentElementListField();
-        $arrayValue = [
-            ['id' => 'elem-1', 'component' => 'text', 'properties' => []],
+        $field = $this->createField();
+        $elements = [
+            StoredElementBuilder::create('text', 'elem-1')->build(),
+            StoredElementBuilder::create('image', 'elem-2')->build(),
         ];
 
-        $kvPair = new KeyValuePair('elements', $arrayValue, false);
+        $kvPair = new KeyValuePair('elements', $elements, false);
+
+        $result = iterator_to_array(
+            $this->serializerWithPassthroughValidator()->encode($field, $this->existence(), $kvPair, $this->parameters())
+        );
+
+        static::assertSame(
+            [
+                ['id' => 'elem-1', 'component' => 'text', 'properties' => []],
+                ['id' => 'elem-2', 'component' => 'image', 'properties' => []],
+            ],
+            $this->decodeJson($result['elements'])
+        );
+    }
+
+    #[TestDox('decodes a raw array payload through the codec so storage holds the canonical shape')]
+    public function testEncodeWithRawArrayYieldsTheCanonicalShape(): void
+    {
+        $field = $this->createField();
+
+        // "slots" carrying an empty list and "style" carrying nothing are both dropped by the canonical shape,
+        // which is what distinguishes a codec round trip from passing the raw payload through verbatim.
+        $kvPair = new KeyValuePair('elements', [
+            ['id' => 'elem-1', 'component' => 'text', 'properties' => ['headline' => 'Hi'], 'style' => []],
+        ], false);
 
         $result = iterator_to_array(
             $this->serializer()->encode($field, $this->existence(), $kvPair, $this->parameters())
         );
 
-        static::assertArrayHasKey('elements', $result);
-        static::assertIsString($result['elements']);
-
-        $decoded = json_decode($result['elements'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame($arrayValue, $decoded);
+        static::assertSame(
+            [['id' => 'elem-1', 'component' => 'text', 'properties' => ['headline' => 'Hi']]],
+            $this->decodeJson($result['elements'])
+        );
     }
 
     #[TestDox('encodes null value as null')]
     public function testEncodeWithNullYieldsNull(): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
         $kvPair = new KeyValuePair('elements', null, false);
 
         $result = iterator_to_array(
@@ -185,10 +179,10 @@ class ContentElementListFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('throws exception when encode receives non-array non-null non-ContentElement value')]
+    #[TestDox('throws exception when encode receives non-array non-null non-element value')]
     public function testEncodeThrowsOnInvalidValueType(): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
         $kvPair = new KeyValuePair('elements', 'invalid-string', false);
 
         $this->expectExceptionObject(
@@ -200,71 +194,114 @@ class ContentElementListFieldSerializerTest extends TestCase
         );
     }
 
-    #[TestDox('decodes JSON string to ContentElement array')]
-    public function testDecodeWithJsonStringReturnsContentElementArray(): void
+    /**
+     * @param array<array-key, mixed> $payload
+     */
+    #[DataProvider('numericWiringKeyProvider')]
+    #[TestDox('rejects $_dataName at the write boundary as a constraint violation rather than an unhandled error')]
+    public function testEncodeRemapsANumericWiringKeyToAConstraintViolation(array $payload): void
     {
-        $field = $this->createContentElementListField();
-        $elementSerializer = $this->elementSerializer();
-        $elementSerializer->method('decodeElement')->willReturn(new ContentElement('elem-1', 'text'));
+        $field = $this->createField();
+        $kvPair = new KeyValuePair('elements', [$payload], false);
+
+        try {
+            iterator_to_array(
+                $this->serializerWithPassthroughValidator()->encode($field, $this->existence(), $kvPair, $this->parameters())
+            );
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertCount(1, $exception->getViolations());
+            static::assertSame('/elements', $exception->getViolations()->get(0)->getPropertyPath());
+            static::assertSame(
+                ContentSystemException::INVALID_MAP_KEY,
+                $exception->getViolations()->get(0)->getCode()
+            );
+
+            return;
+        }
+
+        static::fail('Encoding a numeric wiring key did not raise a WriteConstraintViolationException.');
+    }
+
+    /**
+     * @return iterable<string, array{array<array-key, mixed>}>
+     */
+    public static function numericWiringKeyProvider(): iterable
+    {
+        yield 'a numeric property key' => [
+            ['id' => 'elem-1', 'component' => 'text', 'properties' => [12 => 'x']],
+        ];
+
+        yield 'a numeric data requirement key' => [
+            [
+                'id' => 'elem-1',
+                'component' => 'text',
+                'dataRequirements' => [7 => ['source' => 'entity', 'config' => []]],
+            ],
+        ];
+
+        yield 'a numeric slot key' => [
+            [
+                'id' => 'elem-1',
+                'component' => 'text',
+                'slots' => [3 => [['id' => 'child-1', 'component' => 'text']]],
+            ],
+        ];
+    }
+
+    #[TestDox('decodes a JSON string to a stored element list')]
+    public function testDecodeWithJsonStringReturnsStoredElementList(): void
+    {
+        $field = $this->createField();
 
         $json = json_encode([
             ['id' => 'elem-1', 'component' => 'text', 'properties' => []],
             ['id' => 'elem-2', 'component' => 'image', 'properties' => []],
         ], \JSON_THROW_ON_ERROR);
 
-        $result = $this->serializer($elementSerializer)->decode($field, $json);
+        $result = $this->serializer()->decode($field, $json);
 
         static::assertIsArray($result);
-        static::assertCount(2, $result);
-        static::assertContainsOnlyInstancesOf(ContentElement::class, $result);
+        static::assertContainsOnlyInstancesOf(StoredElement::class, $result);
+        static::assertSame(['elem-1', 'elem-2'], array_map(static fn (StoredElement $e): string => $e->id, $result));
     }
 
-    #[TestDox('decodes array directly to ContentElement array')]
-    public function testDecodeWithArrayReturnsContentElementArray(): void
+    #[TestDox('decodes an array directly to a stored element list')]
+    public function testDecodeWithArrayReturnsStoredElementList(): void
     {
-        $field = $this->createContentElementListField();
-        $elementSerializer = $this->elementSerializer();
-        $elementSerializer->method('decodeElement')->willReturn(new ContentElement('elem-1', 'text'));
+        $field = $this->createField();
 
-        $data = [
+        $result = $this->serializer()->decode($field, [
             ['id' => 'elem-1', 'component' => 'text', 'properties' => []],
-        ];
-
-        $result = $this->serializer($elementSerializer)->decode($field, $data);
+        ]);
 
         static::assertIsArray($result);
-        static::assertCount(1, $result);
-        static::assertInstanceOf(ContentElement::class, $result[0]);
+        static::assertSame(['elem-1'], array_map(static fn (StoredElement $e): string => $e->id, $result));
     }
 
     #[TestDox('decodes null to null')]
     public function testDecodeWithNullReturnsNull(): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
 
-        $result = $this->serializer()->decode($field, null);
-
-        static::assertNull($result);
+        static::assertNull($this->serializer()->decode($field, null));
     }
 
     #[TestDox('decodes empty array to empty array')]
     public function testDecodeWithEmptyArrayReturnsEmptyArray(): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
 
-        $result = $this->serializer()->decode($field, []);
-
-        static::assertSame([], $result);
+        static::assertSame([], $this->serializer()->decode($field, []));
     }
 
     #[TestDox('throws exception when decode receives wrong field type')]
-    public function testDecodeThrowsOnNonContentElementListField(): void
+    public function testDecodeThrowsOnNonStoredElementListField(): void
     {
         $invalidField = new JsonField('elements', 'elements');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldType(ContentElementListField::class, JsonField::class)
+            ContentSystemException::invalidFieldType(StoredElementListField::class, JsonField::class)
         );
 
         $this->serializer()->decode($invalidField, []);
@@ -274,7 +311,7 @@ class ContentElementListFieldSerializerTest extends TestCase
     #[DataProvider('throwsOnInvalidDecodeValueProvider')]
     public function testDecodeThrowsOnInvalidValue(mixed $value, string $path, string $expected, string $given): void
     {
-        $field = $this->createContentElementListField();
+        $field = $this->createField();
 
         $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType($path, $expected, $given)
@@ -283,26 +320,27 @@ class ContentElementListFieldSerializerTest extends TestCase
         $this->serializer()->decode($field, $value);
     }
 
+    /**
+     * @return iterable<string, array{mixed, string, string, string}>
+     */
     public static function throwsOnInvalidDecodeValueProvider(): iterable
     {
         yield 'non-array scalar value' => [42, 'elements', 'array', 'integer'];
 
         yield 'associative array instead of indexed list' => [
             ['key' => ['id' => 'elem-1', 'component' => 'text', 'properties' => []]],
-            'elements',
-            'indexed array of elements',
+            'layout',
+            'list of elements',
             'associative array',
         ];
 
-        yield 'array with non-array element' => [['not-an-array'], 'elements[0]', 'array', 'string'];
+        yield 'array with non-array element' => [['not-an-array'], 'layout[0]', 'array', 'string'];
     }
 
     #[TestDox('returns Type and All constraints without Required flag')]
     public function testBuildConstraintsWithoutRequiredFlagReturnsExpectedStructure(): void
     {
-        $field = $this->createContentElementListField();
-
-        $constraints = $this->serializer()->buildConstraints($field);
+        $constraints = $this->serializer()->buildConstraints($this->createField());
 
         static::assertCount(2, $constraints);
         static::assertInstanceOf(Type::class, $constraints[0]);
@@ -313,9 +351,7 @@ class ContentElementListFieldSerializerTest extends TestCase
     #[TestDox('appends NotBlank constraint when field has Required flag')]
     public function testBuildConstraintsWithRequiredFlagAddsNotBlank(): void
     {
-        $field = $this->createContentElementListFieldWithRequired();
-
-        $constraints = $this->serializer()->buildConstraints($field);
+        $constraints = $this->serializer()->buildConstraints($this->createRequiredField());
 
         static::assertCount(3, $constraints);
         static::assertInstanceOf(Type::class, $constraints[0]);
@@ -324,48 +360,65 @@ class ContentElementListFieldSerializerTest extends TestCase
     }
 
     #[TestDox('throws exception when buildConstraints receives wrong field type')]
-    public function testBuildConstraintsThrowsOnNonContentElementListField(): void
+    public function testBuildConstraintsThrowsOnNonStoredElementListField(): void
     {
         $invalidField = new JsonField('elements', 'elements');
         $invalidField->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         $this->expectExceptionObject(
-            ContentSystemException::invalidFieldType(ContentElementListField::class, JsonField::class)
+            ContentSystemException::invalidFieldType(StoredElementListField::class, JsonField::class)
         );
 
         $this->serializer()->buildConstraints($invalidField);
     }
 
-    private function serializer(?ContentElementFieldSerializer $elementSerializer = null): ContentElementListFieldSerializer
+    /**
+     * @return array<array-key, mixed>
+     */
+    private function decodeJson(mixed $encoded): array
+    {
+        static::assertIsString($encoded);
+
+        $decoded = json_decode($encoded, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($decoded);
+
+        return $decoded;
+    }
+
+    private function serializer(): StoredElementListFieldSerializer
     {
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
 
-        return new ContentElementListFieldSerializer(
+        return new StoredElementListFieldSerializer(
             $validator,
             static::createStub(DefinitionInstanceRegistry::class),
-            $elementSerializer ?? $this->elementSerializer(),
+            $this->elementSerializer(),
+            $this->codec(),
             static::createStub(LayoutDefaultSeeder::class),
             $this->passthroughReconciler(),
         );
     }
 
-    private function serializerWithPassthroughValidator(?ContentElementFieldSerializer $elementSerializer = null): ContentElementListFieldSerializer
+    /**
+     * A passthrough validator raises no violations — used when encoding element objects and payloads whose
+     * rejection is the codec's to make, so the constraint pass cannot pre-empt what the test is asserting.
+     */
+    private function serializerWithPassthroughValidator(): StoredElementListFieldSerializer
     {
-        // Passthrough validator never raises violations — used when encoding ContentElement objects
-        // (the Type('array') constraint would otherwise reject them before serializer conversion)
         $passthroughValidator = static::createStub(ValidatorInterface::class);
         $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
 
-        return new ContentElementListFieldSerializer(
+        return new StoredElementListFieldSerializer(
             $passthroughValidator,
             static::createStub(DefinitionInstanceRegistry::class),
-            $elementSerializer ?? $this->elementSerializer(),
+            $this->elementSerializer(),
+            $this->codec(),
             static::createStub(LayoutDefaultSeeder::class),
             $this->passthroughReconciler(),
         );
     }
 
-    private function serializerWithRealSeeder(): ContentElementListFieldSerializer
+    private function serializerWithRealSeeder(): StoredElementListFieldSerializer
     {
         $specs = ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')->primitive('headline', 'string', default: 'Hi')->build()];
 
@@ -373,13 +426,26 @@ class ContentElementListFieldSerializerTest extends TestCase
         $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
         $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
 
-        return new ContentElementListFieldSerializer(
+        return new StoredElementListFieldSerializer(
             static::createStub(ValidatorInterface::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->elementSerializer(),
+            $this->codec(),
             new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider()),
             $this->passthroughReconciler(),
         );
+    }
+
+    /**
+     * Loader config semantics stay out of these tests: a provider that accepts any config keeps them about the
+     * field serializer's own contract rather than about what a given source's config must contain.
+     */
+    private function codec(): StoredTreeCodec
+    {
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willReturn(new StubLoaderConfig());
+
+        return new StoredTreeCodec(new StoredElementCodec($configProvider));
     }
 
     /**
@@ -417,17 +483,17 @@ class ContentElementListFieldSerializerTest extends TestCase
         return static::createStub(WriteParameterBag::class);
     }
 
-    private function createContentElementListField(): ContentElementListField
+    private function createField(): StoredElementListField
     {
-        $field = new ContentElementListField('elements', 'elements');
+        $field = new StoredElementListField('elements', 'elements');
         $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 
         return $field;
     }
 
-    private function createContentElementListFieldWithRequired(): ContentElementListField
+    private function createRequiredField(): StoredElementListField
     {
-        $field = new ContentElementListField('elements', 'elements');
+        $field = new StoredElementListField('elements', 'elements');
         $field->addFlags(new Required());
         $field->compile(static::createStub(DefinitionInstanceRegistry::class));
 

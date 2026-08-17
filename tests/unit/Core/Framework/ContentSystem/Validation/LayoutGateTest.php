@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Log\Package;
 
@@ -28,7 +29,7 @@ class LayoutGateTest extends TestCase
             ->with([], null)
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $gate = new LayoutGate($diagnostics);
+        $gate = new LayoutGate(new ContentElementLowering(), $diagnostics);
 
         static::assertSame($report, $gate->wellFormedness([]));
     }
@@ -43,7 +44,7 @@ class LayoutGateTest extends TestCase
             ->with([], [])
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $gate = new LayoutGate($diagnostics);
+        $gate = new LayoutGate(new ContentElementLowering(), $diagnostics);
 
         static::assertSame($report, $gate->resolvability([], []));
     }

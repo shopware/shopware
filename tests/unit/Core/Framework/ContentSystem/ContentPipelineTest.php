@@ -22,6 +22,7 @@ use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
@@ -136,7 +137,7 @@ class ContentPipelineTest extends TestCase
 
     private function createLayoutEntity(string $layoutId, string $name = 'Test Layout'): ContentLayoutEntity
     {
-        $element = ContentElementBuilder::create('section')->build();
+        $element = StoredElementBuilder::create('section')->build();
         $entity = new ContentLayoutEntity();
         $entity->setId($layoutId);
         $entity->setName($name);

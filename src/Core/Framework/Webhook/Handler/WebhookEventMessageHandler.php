@@ -196,9 +196,7 @@ final class WebhookEventMessageHandler
         $curlOptions[\CURLOPT_RESOLVE] = $resolvePins;
         $requestContent['curl'] = $curlOptions;
 
-        $response = $method === 'POST'
-            ? $this->client->post($url, $requestContent)
-            : $this->client->get($url, $requestContent);
+        $response = $this->client->request($method, $url, $requestContent);
         if (!\in_array($response->getStatusCode(), [301, 302, 303, 307, 308], true)) {
             return $response;
         }

@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Http;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Http\PinningAppSystemHttpClient;
 use Shopware\Core\Framework\Log\Package;
@@ -24,8 +22,6 @@ class PinningAppSystemHttpClientTest extends TestCase
         $client = static::getContainer()->get('shopware.app_system.guzzle');
 
         static::assertInstanceOf(PinningAppSystemHttpClient::class, $client);
-        static::assertInstanceOf(ClientInterface::class, $client);
-        static::assertNotInstanceOf(Client::class, $client);
     }
 
     public function testUsesAppSystemPolicyForPublicIpLiterals(): void

@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Http\PinningAppSystemHttpClient;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
+use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -32,14 +33,14 @@ class PinningAppSystemHttpClientTest extends TestCase
 
         $client->request('POST', 'https://93.184.216.34/webhook');
 
-        static::assertSame(['93.184.216.34:443:93.184.216.34'], $this->history[0]['options']['curl'][\CURLOPT_RESOLVE]);
+        static::assertSame(['93.184.216.34:443:93.184.216.34'], $this->getHistoryEntry(0)['options']['curl'][\CURLOPT_RESOLVE]);
     }
 
     public function testRejectsPrivateIpLiteralBeforeTransport(): void
     {
         $client = $this->createClient(static fn (string $host): array => []);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionObject(WebhookException::targetNotAllowed());
 
         try {
             $client->request('POST', 'https://10.0.0.10/webhook');
@@ -65,10 +66,10 @@ class PinningAppSystemHttpClientTest extends TestCase
         $client->request('POST', 'https://example.com/source', ['body' => 'payload']);
 
         static::assertCount(2, $this->history);
-        static::assertSame(['example.com:443:93.184.216.34'], $this->history[0]['options']['curl'][\CURLOPT_RESOLVE]);
-        static::assertSame(['redirect.example.com:443:93.184.216.35'], $this->history[1]['options']['curl'][\CURLOPT_RESOLVE]);
-        static::assertSame('GET', $this->history[1]['request']->getMethod());
-        static::assertSame('', (string) $this->history[1]['request']->getBody());
+        static::assertSame(['example.com:443:93.184.216.34'], $this->getHistoryEntry(0)['options']['curl'][\CURLOPT_RESOLVE]);
+        static::assertSame(['redirect.example.com:443:93.184.216.35'], $this->getHistoryEntry(1)['options']['curl'][\CURLOPT_RESOLVE]);
+        static::assertSame('GET', $this->getHistoryEntry(1)['request']->getMethod());
+        static::assertSame('', (string) $this->getHistoryEntry(1)['request']->getBody());
     }
 
     /**
@@ -77,7 +78,9 @@ class PinningAppSystemHttpClientTest extends TestCase
      */
     private function createClient(\Closure $dnsResolver, array $responses = [new Response(200)]): ClientInterface
     {
-        $this->history = new \ArrayObject();
+        /** @var \ArrayObject<int, array{request: \Psr\Http\Message\RequestInterface, options: array<string, mixed>}> $history */
+        $history = new \ArrayObject();
+        $this->history = $history;
         $stack = HandlerStack::create(new MockHandler($responses));
         $stack->push(Middleware::history($this->history));
 
@@ -85,5 +88,17 @@ class PinningAppSystemHttpClientTest extends TestCase
             new Client(['handler' => $stack]),
             new WebhookTargetValidator(false, [], $dnsResolver, true),
         );
+    }
+
+    /**
+     * @return array{request: \Psr\Http\Message\RequestInterface, options: array<string, mixed>}
+     */
+    private function getHistoryEntry(int $index): array
+    {
+        $history = $this->history->getArrayCopy();
+
+        static::assertArrayHasKey($index, $history);
+
+        return $history[$index];
     }
 }

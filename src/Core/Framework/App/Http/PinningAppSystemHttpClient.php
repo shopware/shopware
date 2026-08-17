@@ -16,6 +16,7 @@ use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTarget;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
+use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -49,7 +50,9 @@ final class PinningAppSystemHttpClient implements ClientInterface
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
         $uri = $this->resolveUri($uri);
-        $redirectOptions = $options['allow_redirects'] ?? $this->client->getConfig('allow_redirects') ?? true;
+        /** @phpstan-ignore method.deprecated (Guzzle 7 has no non-deprecated replacement) */
+        $defaultRedirectOptions = $this->client->getConfig('allow_redirects');
+        $redirectOptions = $options['allow_redirects'] ?? $defaultRedirectOptions ?? true;
         $options['allow_redirects'] = false;
 
         return $this->sendWithRedirects($method, $uri, $options, $redirectOptions);
@@ -63,6 +66,24 @@ final class PinningAppSystemHttpClient implements ClientInterface
         $options[RequestOptions::SYNCHRONOUS] = true;
 
         return $this->requestAsync($method, $uri, $options)->wait();
+    }
+
+    /**
+     * @param string|UriInterface $uri
+     * @param array<mixed> $options
+     */
+    public function get($uri = '', array $options = []): ResponseInterface
+    {
+        return $this->request('GET', $uri, $options);
+    }
+
+    /**
+     * @param string|UriInterface $uri
+     * @param array<mixed> $options
+     */
+    public function post($uri = '', array $options = []): ResponseInterface
+    {
+        return $this->request('POST', $uri, $options);
     }
 
     /**
@@ -106,6 +127,7 @@ final class PinningAppSystemHttpClient implements ClientInterface
     private function resolveUri($uri): UriInterface
     {
         $uri = Utils::uriFor($uri);
+        /** @phpstan-ignore method.deprecated (Guzzle 7 has no non-deprecated replacement) */
         $baseUri = $this->client->getConfig('base_uri');
 
         return $baseUri === null ? $uri : UriResolver::resolve(Utils::uriFor($baseUri), $uri);
@@ -119,7 +141,7 @@ final class PinningAppSystemHttpClient implements ClientInterface
     {
         $target = $this->targetValidator->validate((string) $uri);
         if ($target === null) {
-            throw new \InvalidArgumentException('App system request target is not allowed.');
+            throw WebhookException::targetNotAllowed();
         }
 
         $options = $this->pinTarget($options, $target);

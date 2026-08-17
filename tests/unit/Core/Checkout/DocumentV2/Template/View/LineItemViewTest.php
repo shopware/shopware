@@ -161,7 +161,7 @@ class LineItemViewTest extends TestCase
 
         $view = LineItemView::listFromOrder($this->createOrder(CartPrice::TAX_STATE_NET, [$lineItem]))[0];
 
-        static::assertSame(LineItemView::PRICE_BASIS_QUANTITY, $view->basisQuantity);
+        static::assertSame(1.0, $view->basisQuantity);
     }
 
     public function testListFromOrderThrowsOnNegativeQuantityByDefault(): void

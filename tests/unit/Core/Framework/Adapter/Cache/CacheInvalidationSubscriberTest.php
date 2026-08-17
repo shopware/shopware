@@ -33,6 +33,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
@@ -88,6 +89,46 @@ class CacheInvalidationSubscriberTest extends TestCase
                             [],
                             SalesChannelDefinition::ENTITY_NAME,
                             EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+    }
+
+    public function testTracesTaxWriteOperationWhenInvalidatingContext(): void
+    {
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $trace = $this->createMock(AtsContextCacheTrace::class);
+        $trace->expects($this->once())
+            ->method('contextInvalidation')
+            ->with(['insert']);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(['sales-channel-context'], true);
+
+        $subscriber = new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            true,
+            $trace,
+        );
+
+        $subscriber->invalidateContext(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    TaxDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            TaxDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_INSERT,
                         ),
                     ],
                     Context::createDefaultContext(),

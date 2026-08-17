@@ -1,0 +1,2 @@
+monolog:
+    channels: [ats_context_cache_trace]

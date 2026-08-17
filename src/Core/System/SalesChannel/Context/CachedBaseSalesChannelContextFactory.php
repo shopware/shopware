@@ -56,16 +56,21 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
         $cacheMiss = false;
         $fresh = null;
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $salesChannelId, $options, &$cacheMiss, &$fresh) {
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($key, $name, $salesChannelId, $options, &$cacheMiss, &$fresh) {
             $cacheMiss = true;
             $item->tag([$name, CachedSalesChannelContextFactory::ALL_TAG]);
 
-            return CacheValueCompressor::compress($fresh = $this->decorated->create($salesChannelId, $options));
+            $this->atsContextCacheTrace->cacheBuildStarted('base', $key);
+
+            $fresh = $this->decorated->create($salesChannelId, $options);
+            $this->atsContextCacheTrace->cacheBuildCompleted('base', $key, $fresh->getTaxRules()->count());
+
+            return CacheValueCompressor::compress($fresh);
         });
 
         // The context was built in this call, return it directly instead of uncompressing the cache payload that was just compressed from it.
         if ($fresh instanceof BaseSalesChannelContext) {
-            $this->atsContextCacheTrace->cacheAccess('base', $cacheMiss, $fresh->getTaxRules()->count());
+            $this->atsContextCacheTrace->cacheAccess('base', $key, $cacheMiss, $fresh->getTaxRules()->count());
 
             return $fresh;
         }
@@ -73,7 +78,7 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
         $context = CacheValueCompressor::uncompress($value);
 
         if ($context instanceof BaseSalesChannelContext) {
-            $this->atsContextCacheTrace->cacheAccess('base', $cacheMiss, $context->getTaxRules()->count());
+            $this->atsContextCacheTrace->cacheAccess('base', $key, $cacheMiss, $context->getTaxRules()->count());
         }
 
         return $context;

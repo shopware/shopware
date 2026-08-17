@@ -49,16 +49,21 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         $cacheMiss = false;
         $fresh = null;
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options, &$cacheMiss, &$fresh) {
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($key, $name, $token, $salesChannelId, $options, &$cacheMiss, &$fresh) {
             $cacheMiss = true;
             $item->tag([$name, self::ALL_TAG]);
 
-            return CacheValueCompressor::compress($fresh = $this->decorated->create($token, $salesChannelId, $options));
+            $this->atsContextCacheTrace->cacheBuildStarted('full', $key);
+
+            $fresh = $this->decorated->create($token, $salesChannelId, $options);
+            $this->atsContextCacheTrace->cacheBuildCompleted('full', $key, $fresh->getTaxRules()->count());
+
+            return CacheValueCompressor::compress($fresh);
         });
 
         // The context was built in this call, return it directly instead of uncompressing the cache payload that was just compressed from it.
         if ($fresh instanceof SalesChannelContext) {
-            $this->atsContextCacheTrace->cacheAccess('full', $cacheMiss, $fresh->getTaxRules()->count());
+            $this->atsContextCacheTrace->cacheAccess('full', $key, $cacheMiss, $fresh->getTaxRules()->count());
 
             return $fresh;
         }
@@ -69,7 +74,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
             return $this->getDecorated()->create($token, $salesChannelId, $options);
         }
 
-        $this->atsContextCacheTrace->cacheAccess('full', $cacheMiss, $context->getTaxRules()->count());
+        $this->atsContextCacheTrace->cacheAccess('full', $key, $cacheMiss, $context->getTaxRules()->count());
 
         $context->assign(['token' => $token]);
 

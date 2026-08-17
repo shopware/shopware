@@ -186,22 +186,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         ).toBe('label1 (locale.de-DE)');
     });
 
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy translated-label tabs.
-    it.deprecated('v6.8.0.0')('should update multiple locales with tabs', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const textField = wrapper.find('.sw-custom-field-translated-labels__translated-content-field input');
-        expect(textField.exists()).toBe(true);
-
-        await textField.setValue('NewValue');
-        await textField.trigger('update');
-        await flushPromises();
-
-        expect(wrapper.vm.config.label1[en]).toBe('NewValue');
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('should update multiple locales with tabs', async () => {
+    it('should update multiple locales with tabs', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

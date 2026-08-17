@@ -160,8 +160,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy product-media popover.
-    it.deprecated('v6.8.0.0')('should not show cover when `showCoverLabel` is false', async () => {
+    it('should not show cover when `showCoverLabel` is false', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
@@ -181,58 +180,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])('should not show cover when `showCoverLabel` is false', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.setData({
-            showCoverLabel: false,
-        });
-
-        await wrapper.vm.$nextTick();
-        expect(wrapper.find('.is--cover').exists()).toBeFalsy();
-
-        await wrapper.find('.sw-product-media-form__previews').find('.sw-product-image__context-button').trigger('click');
-        await flushPromises();
-
-        const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
-        expect(buttons).toHaveLength(1);
-        expect(buttons.at(0).text()).toContain('global.default.remove');
-    });
-
-    // @deprecated tag:v6.8.0 - The test will be removed with the legacy product-media popover.
-    it.deprecated('v6.8.0.0')('should move media to first position when it is marked as cover', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        let productMediaItems = wrapper.findAll('.sw-product-image');
-
-        expect(productMediaItems[0].classes()).toContain('is--cover');
-        expect(productMediaItems[0].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
-        expect(productMediaItems[1].classes()).not.toContain('is--cover');
-        expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[1].mediaId);
-
-        const contextButton = productMediaItems[1].find('.sw-product-image__context-button');
-        await contextButton.trigger('click');
-        await flushPromises();
-
-        const buttonCover = contextButton.find('.sw-product-image__button-cover');
-        expect(buttonCover.exists()).toBeTruthy();
-
-        // Media will be move to first position after clicking on Use as cover button
-        await buttonCover.trigger('click');
-
-        productMediaItems = wrapper.findAll('.sw-product-image');
-        expect(productMediaItems[0].classes()).toContain('is--cover');
-        expect(productMediaItems[0].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[1].mediaId);
-
-        expect(productMediaItems[1].classes()).not.toContain('is--cover');
-        expect(productMediaItems[1].find('sw-media-preview-v2-stub').attributes('source')).toEqual(media[0].mediaId);
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('should move media to first position when it is marked as cover', async () => {
+    it('should move media to first position when it is marked as cover', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();

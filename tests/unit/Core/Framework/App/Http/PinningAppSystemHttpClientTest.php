@@ -78,9 +78,12 @@ class PinningAppSystemHttpClientTest extends TestCase
      */
     private function createClient(\Closure $dnsResolver, array $responses = [new Response(200)]): ClientInterface
     {
-        $this->history = [];
+        /** @var array<int, array<string, mixed>> $history */
+        $history = [];
         $stack = HandlerStack::create(new MockHandler($responses));
-        $stack->push(Middleware::history($this->history));
+        $stack->push(Middleware::history($history));
+        static::assertIsArray($history);
+        $this->history = &$history;
 
         return new PinningAppSystemHttpClient(
             new Client(['handler' => $stack]),

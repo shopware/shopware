@@ -46,4 +46,28 @@ class RuleCollectionTest extends TestCase
             'd' => [$ruleE->getId()],
         ], $collection->getIdsByArea());
     }
+
+    public function testGetIdsByAreaDeduplicatesAndKeepsInsertionOrder(): void
+    {
+        // a rule listing the same area twice must not produce a duplicate id
+        $ruleA = new RuleEntity();
+        $ruleA->setId(Uuid::randomHex());
+        $ruleA->setAreas(['a', 'a', 'b']);
+
+        $ruleB = new RuleEntity();
+        $ruleB->setId(Uuid::randomHex());
+        $ruleB->setAreas(['a']);
+
+        $collection = new RuleCollection([$ruleA, $ruleB]);
+
+        $result = $collection->getIdsByArea();
+
+        static::assertSame([
+            'a' => [$ruleA->getId(), $ruleB->getId()],
+            'b' => [$ruleA->getId()],
+        ], $result);
+
+        // the returned id lists must be sequentially indexed (real lists, no gaps)
+        static::assertSame([0, 1], array_keys($result['a']));
+    }
 }

@@ -24,7 +24,8 @@ test(
         // domain URL, tripping its uniqueness constraint.
         const appUrl = new URL(process.env.APP_URL ?? 'http://localhost:8000/');
         const uniqueId = TestDataService.IdProvider.getIdPair().uuid;
-        const secondDomainUrl = `http://second-${uniqueId}.127.0.0.1.nip.io:${appUrl.port || '80'}/`;
+        const port = appUrl.port || (appUrl.protocol === 'https:' ? '443' : '80');
+        const secondDomainUrl = `${appUrl.protocol}//second-${uniqueId}.127.0.0.1.nip.io:${port}/`;
 
         await TestDataService.createSalesChannelDomain({ url: secondDomainUrl });
         await TestDataService.clearCaches();

@@ -14,7 +14,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
  * Triggered when the cookie consent groups are collected for the current sales channel.
- * Allows apps to add, modify or remove cookie groups and entries, e.g. depending on the payment methods active in the current sales channel.
+ * Allows apps to modify or remove cookie groups and entries, e.g. depending on the payment methods active in the current sales channel.
  *
  * @hook-use-case data_loading
  *

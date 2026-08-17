@@ -43,7 +43,7 @@ All available Hooks that can be used to load additional data.
 | **Name**               | cookie-group-collect                         |
 | **Since**              | 6.7.14.0                        |
 | **Class**              | `Shopware\Core\Content\Cookie\Hook\CookieGroupCollectHook`                      |
-| **Description**        | Triggered when the cookie consent groups are collected for the current sales channel.<br>Allows apps to add, modify or remove cookie groups and entries, e.g. depending on the payment methods active in the current sales channel.                  |
+| **Description**        | Triggered when the cookie consent groups are collected for the current sales channel.<br>Allows apps to modify or remove cookie groups and entries, e.g. depending on the payment methods active in the current sales channel.                  |
 | **Available Data**     | context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>cookieGroups: [`Shopware\Core\Content\Cookie\Struct\CookieGroupCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Cookie/Struct/CookieGroupCollection.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/shopware/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
 | **Available Services** | [repository](./data-loading-script-services-reference#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference#SystemConfigFacade)<br>[store](./data-loading-script-services-reference#SalesChannelRepositoryFacade)<br>[acl](./miscellaneous-script-services-reference#AclFacade)<br> |
 | **Stoppable**          | `false`                  |

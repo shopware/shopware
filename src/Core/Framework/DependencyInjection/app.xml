@@ -346,7 +346,7 @@
         <service id="shopware.app_system.target_validator" class="Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator">
             <argument>%shopware.webhook.allow_unencrypted_traffic%</argument>
             <argument>%shopware.webhook.allowed_ip_addresses%</argument>
-            <argument type="null"/>
+            <argument/>
             <argument>true</argument>
         </service>
 

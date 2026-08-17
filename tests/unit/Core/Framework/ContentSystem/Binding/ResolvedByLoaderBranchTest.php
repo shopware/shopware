@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -46,7 +47,7 @@ class ResolvedByLoaderBranchTest extends TestCase
     #[TestDox('validates stored value matches branch shape: $_dataName')]
     public function testMatchesStoredValueShape(ResolvedByLoaderBranch $branch, mixed $value, bool $expected): void
     {
-        static::assertSame($expected, $branch->matchesStoredValueShape($value));
+        static::assertSame($expected, $branch->matchesStoredValueShape(StoredValue::fromDecoded($value)));
     }
 
     /**

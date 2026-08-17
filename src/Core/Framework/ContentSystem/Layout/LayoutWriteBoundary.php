@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -27,7 +26,7 @@ final class LayoutWriteBoundary
 {
     public function __construct(
         private readonly LayoutDefaultSeeder $defaultSeeder,
-        private readonly ElementStyleNormalizer $styleNormalizer,
+        private readonly StoredTreeStyleNormalizer $styleNormalizer,
         private readonly AttributionReconciler $attributionReconciler,
     ) {
     }
@@ -36,26 +35,9 @@ final class LayoutWriteBoundary
     {
         $seeded = $this->elements($this->defaultSeeder->seed($tree->roots));
 
-        $styled = array_map($this->normalizeStyle(...), $seeded);
+        $styled = $this->styleNormalizer->normalize(new StoredTree($seeded))->roots;
 
         return new StoredTree($this->elements($this->attributionReconciler->reconcile($styled)));
-    }
-
-    /**
-     * The style of this element and of every element below it, canonicalised. The walk rebuilds each node it
-     * visits, so a slot child keeps its own normalised style rather than its parent's.
-     */
-    private function normalizeStyle(StoredElement $element): StoredElement
-    {
-        $slots = [];
-
-        foreach ($element->slots as $name => $children) {
-            $slots[$name] = array_map($this->normalizeStyle(...), $children);
-        }
-
-        return $element
-            ->withStyle($this->styleNormalizer->normalize($element->style))
-            ->withSlots($slots);
     }
 
     /**

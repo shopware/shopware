@@ -49,6 +49,7 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::INVALID_FIELD_VALUE_TYPE,
             ContentSystemException::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
             ContentSystemException::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+            ContentSystemException::INVALID_MAP_KEY,
         ];
 
         $actual = ContentSystemException::CLIENT_DEFECT_CODES;

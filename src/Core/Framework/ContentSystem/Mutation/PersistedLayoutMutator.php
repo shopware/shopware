@@ -6,11 +6,10 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,10 +33,9 @@ class PersistedLayoutMutator
     public function __construct(
         private readonly LockFactory $lockFactory,
         private readonly EntityRepository $contentLayoutRepository,
-        private readonly ContentElementFieldSerializer $elementSerializer,
-        private readonly ContentElementLowering $lowering,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly ContentElementLowering $lowering,
     ) {
     }
 
@@ -60,14 +58,15 @@ class PersistedLayoutMutator
                 throw ContentSystemException::layoutVersionConflict($layoutId);
             }
 
-            // The mutation operations still take and return the older element model, so the loaded stored tree is
-            // lowered on the way in; what comes back out is serialized to the storage wire shape for the write.
-            $mutated = $mutation->apply($this->lowering->lowerTree($layout->getLayout()));
+            // The entity holds the storage model the operations speak, so the loaded tree goes in as it is and the
+            // mutated one is handed to the write path the same way: the layout field's serializer takes stored
+            // elements directly.
+            $mutated = $mutation->apply(new StoredTree($layout->getLayout()));
             $affected = $mutation->affected();
 
             $this->contentLayoutRepository->update([[
                 'id' => $layoutId,
-                'layout' => array_map($this->elementSerializer->serializeContentElement(...), $mutated),
+                'layout' => $mutated->roots,
             ]], $context);
 
             $analysis = $this->diagnose($layout->getRootSource(), $mutated, $context);
@@ -117,18 +116,19 @@ class PersistedLayoutMutator
      * Re-resolves the mutated tree against the layout's single root source (the loaded entity carries it), so the
      * echoed report matches what the content_layout write gate enforced on commit. resolve() returns a list (never
      * null — [] for none/header/footer), so the binding-scope checks always run; the intrinsic-only path no longer
-     * applies to a stored layout.
+     * applies to a stored layout. The tree is lowered here because the diagnostics pass still speaks the older
+     * element model.
      *
      * resolve() is never handed an unregistered id here even when the stored source was de-registered: mutate()
      * commits the tree via update() first, and that write runs ContentLayoutWriteValidator, which re-checks
      * membership of the committed root source and rejects a de-registered source as a clean unknownRootSource 400
      * before any commit. A membership gate in this method would instead fire after the commit (this diagnose()
      * runs after update() has already committed), so the preceding write gate is the correct and only check needed.
-     *
-     * @param list<ContentElement> $tree
      */
-    private function diagnose(string $rootSource, array $tree, Context $context): LayoutAnalysis
+    private function diagnose(string $rootSource, StoredTree $tree, Context $context): LayoutAnalysis
     {
-        return $this->diagnostics->analyze($tree, $this->rootSourceRegistry->resolve($rootSource, $context));
+        $rootContext = $this->rootSourceRegistry->resolve($rootSource, $context);
+
+        return $this->diagnostics->analyze($this->lowering->lowerTree($tree->roots), $rootContext);
     }
 }

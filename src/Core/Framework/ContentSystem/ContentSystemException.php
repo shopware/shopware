@@ -82,8 +82,12 @@ class ContentSystemException extends HttpException
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
-     * diagnostics layer maps only these per element to an `invalid_config` violation and lets every other code
-     * propagate, so an internal fault is never relabelled as the client's mistake.
+     * diagnostics layer and the draft decode path map only these per element to a client-facing 400 and let
+     * every other code propagate, so an internal fault is never relabelled as the client's mistake.
+     *
+     * {@see INVALID_MAP_KEY} is one of them because a JSON object member named "5" arrives as an integer PHP
+     * array key: a numeric property, data-requirement, slot or context key is a malformed payload the client
+     * sent, which is why the DAL write path already rejects it as a layout write rejection rather than a fault.
      */
     public const CLIENT_DEFECT_CODES = [
         self::DATA_LOADER_NOT_REGISTERED,
@@ -92,6 +96,7 @@ class ContentSystemException extends HttpException
         self::INVALID_FIELD_VALUE_TYPE,
         self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
         self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+        self::INVALID_MAP_KEY,
     ];
 
     public static function isClientDefect(\Throwable $exception): bool

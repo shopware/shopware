@@ -3,7 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
@@ -23,22 +24,22 @@ final class AttachElement extends AbstractLayoutMutation
 {
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly ContentElement $element,
+        private readonly StoredElement $element,
         private readonly ?string $parentElementId = null,
         private readonly ?string $slot = null,
         private readonly ?int $index = null,
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
-        $this->requireRegistered($this->registry, $this->element->getComponent());
+        $this->requireRegistered($this->registry, $this->element->component);
 
         $clone = $this->cloneWithNewIds($this->element);
         $this->affected = $this->subtreeIds($clone);
 
         if ($this->parentElementId === null) {
-            return $this->insertAtRoot($tree, $this->index, [$clone]);
+            return $tree->insertAtRoot($this->index, [$clone]);
         }
 
         $slot = $this->slot;
@@ -47,10 +48,10 @@ final class AttachElement extends AbstractLayoutMutation
             throw ContentSystemException::mutationSlotRequired();
         }
 
-        if ($this->findNode($tree, $this->parentElementId) === null) {
+        if ($tree->find($this->parentElementId) === null) {
             throw ContentSystemException::mutationTargetNotFound($this->parentElementId);
         }
 
-        return $this->insertIntoSlot($tree, $this->parentElementId, $slot, $this->index, [$clone]);
+        return $tree->insertIntoSlot($this->parentElementId, $slot, $this->index, [$clone]);
     }
 }

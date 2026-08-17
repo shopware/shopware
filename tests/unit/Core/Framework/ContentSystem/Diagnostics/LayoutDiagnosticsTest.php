@@ -25,13 +25,16 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
@@ -312,11 +315,15 @@ class LayoutDiagnosticsTest extends TestCase
         $bindingRegistry->method('all')->willReturn([]);
         $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
 
-        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))->apply([new ContentElement('el', 'Sw:Old')]);
+        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))
+            ->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
 
-        static::assertSame('Sw:New', $replaced[0]->getComponent());
-        static::assertSame('Default headline', $replaced[0]->getProperty('headline'));
-        static::assertSame([], $this->diagnostics($specs)->analyze($replaced, [])->report->bindingErrors());
+        static::assertSame('Sw:New', $replaced->roots[0]->component);
+        static::assertSame('Default headline', $replaced->roots[0]->property('headline')?->jsonSerialize());
+        static::assertSame(
+            [],
+            $this->diagnostics($specs)->analyze((new ContentElementLowering())->lowerTree($replaced->roots), [])->report->bindingErrors()
+        );
     }
 
     #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]

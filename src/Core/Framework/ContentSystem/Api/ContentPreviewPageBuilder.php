@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
@@ -30,6 +31,7 @@ class ContentPreviewPageBuilder
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly RenderingSpecificationResolver $specificationResolver,
         private readonly DraftLayoutDecoder $decoder,
+        private readonly ContentElementLowering $lowering,
         private readonly DraftLayoutChecker $layoutValidator,
         private readonly ContentPipeline $contentPipeline,
     ) {
@@ -61,7 +63,10 @@ class ContentPreviewPageBuilder
             $salesChannelContext,
         );
 
-        $elements = $this->decoder->decode($payload->layout);
+        // The draft decodes into the storage model; the check and the render path both still speak the older
+        // element model, so the tree is lowered once here and handed to both.
+        $stored = $this->decoder->decode($payload->layout);
+        $elements = $this->lowering->lowerTree($stored);
 
         $violations = $this->layoutValidator->check($elements);
         if ($violations->count() > 0) {

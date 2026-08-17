@@ -4,17 +4,17 @@ namespace Shopware\Core\Framework\ContentSystem\Binding;
 
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Applies one {@see BindingSpecification}'s wiring onto a {@see ContentElement}, rebuilding it via the
- * {@see ContentElement} constructor rather than mutating it (the mutation immutability invariant). Two modes:
- * {@see self::apply()} overwrites the same `resolves`/attribution keys, {@see self::applyFillOnly()} wires and
- * attributes only keys the element carries no data requirement for yet. Both seed an `inputs` default only when
- * the element does not already carry the property ({@see ContentElement::hasProperty()} presence gate, so an
- * authored value always wins, including an explicit null).
+ * Applies one {@see BindingSpecification}'s wiring onto a {@see StoredElement}, through the element's own
+ * `with*()` copiers. Two modes: {@see self::apply()} overwrites the same `resolves`/attribution keys,
+ * {@see self::applyFillOnly()} wires and attributes only keys the element carries no data requirement for yet.
+ * Both seed an `inputs` default only when the element does not already carry the property
+ * ({@see StoredElement::property()} presence gate, so an authored value always wins, including an explicit null).
  *
  * @internal
  */
@@ -26,11 +26,11 @@ final class BindingApplicator
     ) {
     }
 
-    public function apply(ContentElement $element, BindingSpecification $specification, string $bindingSpecificationId): ContentElement
+    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId): StoredElement
     {
-        $dataRequirements = array_replace($element->getDataRequirements(), $this->resolveDataRequirements($specification));
-        $properties = array_replace($this->seedInputDefaults($element, $specification), $element->getProperties());
-        $attributedSpecifications = array_replace($element->getAttributedSpecifications(), $this->attributionFor(array_keys($specification->resolves()), $bindingSpecificationId));
+        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification));
+        $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
+        $attributedSpecifications = array_replace($element->attributedSpecifications, $this->attributionFor(array_keys($specification->resolves()), $bindingSpecificationId));
 
         return $this->rebuild($element, $dataRequirements, $properties, $attributedSpecifications);
     }
@@ -41,35 +41,29 @@ final class BindingApplicator
      * existing-wins idiom {@see \Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder} uses for property
      * seeding (`$properties + $defaults`): the element's own map is the left-hand operand, so its keys win.
      */
-    public function applyFillOnly(ContentElement $element, BindingSpecification $specification, string $bindingSpecificationId): ContentElement
+    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId): StoredElement
     {
-        $existingDataRequirements = $element->getDataRequirements();
+        $existingDataRequirements = $element->dataRequirements;
         $wiredKeys = array_diff(array_keys($specification->resolves()), array_keys($existingDataRequirements));
 
         $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($specification);
-        $properties = array_replace($this->seedInputDefaults($element, $specification), $element->getProperties());
-        $attributedSpecifications = $element->getAttributedSpecifications() + $this->attributionFor($wiredKeys, $bindingSpecificationId);
+        $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
+        $attributedSpecifications = $element->attributedSpecifications + $this->attributionFor($wiredKeys, $bindingSpecificationId);
 
         return $this->rebuild($element, $dataRequirements, $properties, $attributedSpecifications);
     }
 
     /**
      * @param array<string, DataRequirement> $dataRequirements
-     * @param array<string, mixed> $properties
+     * @param array<string, StoredValue> $properties
      * @param array<string, string> $attributedSpecifications
      */
-    private function rebuild(ContentElement $element, array $dataRequirements, array $properties, array $attributedSpecifications): ContentElement
+    private function rebuild(StoredElement $element, array $dataRequirements, array $properties, array $attributedSpecifications): StoredElement
     {
-        return new ContentElement(
-            $element->getId(),
-            $element->getComponent(),
-            $dataRequirements,
-            $properties,
-            $element->getSlots(),
-            $element->getContextDefinitions(),
-            $element->getStyle(),
-            $attributedSpecifications,
-        );
+        return $element
+            ->withDataRequirements($dataRequirements)
+            ->withProperties($properties)
+            ->withAttributedSpecifications($attributedSpecifications);
     }
 
     /**
@@ -87,9 +81,9 @@ final class BindingApplicator
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, StoredValue>
      */
-    private function seedInputDefaults(ContentElement $element, BindingSpecification $specification): array
+    private function seedInputDefaults(StoredElement $element, BindingSpecification $specification): array
     {
         $defaults = [];
 
@@ -98,11 +92,11 @@ final class BindingApplicator
                 continue;
             }
 
-            if ($element->hasProperty($key)) {
+            if ($element->property($key) !== null) {
                 continue;
             }
 
-            $defaults[$key] = $input->default;
+            $defaults[$key] = StoredValue::fromDecoded($input->default);
         }
 
         return $defaults;

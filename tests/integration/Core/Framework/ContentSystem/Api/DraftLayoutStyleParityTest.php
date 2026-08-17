@@ -32,7 +32,7 @@ class DraftLayoutStyleParityTest extends TestCase
             'style' => ['align-self' => ['xs' => 'center']],
         ]];
 
-        $draftStyle = static::getContainer()->get(DraftLayoutDecoder::class)->decode($raw)[0]->getStyle()->toArray();
+        $draftStyle = static::getContainer()->get(DraftLayoutDecoder::class)->decode($raw)[0]->style->toArray();
 
         $stored = static::getContainer()->get(LayoutWriteBoundary::class)
             ->apply(static::getContainer()->get(StoredTreeCodec::class)->decode($raw));

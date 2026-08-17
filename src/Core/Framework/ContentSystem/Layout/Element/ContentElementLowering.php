@@ -12,19 +12,29 @@ use Shopware\Core\Framework\Log\Package;
  * are. No inverse exists here, and none is wanted: the storage side is where the typed model lives, and a
  * conversion back into it would let an untyped element re-enter it.
  *
- * It exists to hold the places where a storage-typed tree still meets code written against the older model,
- * and each place carries its own deletion duty:
+ * It exists to hold the places where a storage-typed tree still meets code written against the older model.
+ * Six call sites remain, in two expiry groups:
  *
- * - The serving seam, `ContentSystem\RenderableLayout::fromEntity()`. It goes when the rendered element model
- *   lands and serving reads that model instead of a {@see ContentElement}.
- * - The persisted mutator, `ContentSystem\Mutation\PersistedLayoutMutator`, which hands the loaded tree to the
- *   mutation operations. It goes when those operations take and return stored elements.
- * - The write-validation gate, `ContentSystem\Validation\LayoutGate`, which lowers the tree it was handed before
- *   diagnosing it. It goes together with the persisted mutator, when diagnostics moves onto the storage model.
+ * Group one goes when diagnostics moves onto the storage model, because each of these lowers only to feed
+ * `ContentSystem\Diagnostics\LayoutDiagnostics`, which still takes the older model:
  *
- * When all of them are gone this class has no callers left and is deleted with them. The list above is the
+ * - `ContentSystem\Validation\LayoutGate`, lowering the written tree before diagnosing it.
+ * - `ContentSystem\Mutation\MutationPipeline`, lowering the mutated tree.
+ * - `ContentSystem\Mutation\PersistedLayoutMutator`, lowering the mutated tree.
+ * - `ContentSystem\Api\ContentDiagnoseController`, lowering the decoded draft.
+ *
+ * Group two goes only when {@see ContentElement} is retired entirely, because each of these feeds the
+ * rendering path, which speaks that model for longer than diagnostics does:
+ *
+ * - `ContentSystem\RenderableLayout::fromEntity()`, lowering the stored layout for serving.
+ * - `ContentSystem\Api\ContentPreviewPageBuilder`, which lowers once and hands the one lowered tree to both
+ *   `ContentSystem\DraftLayoutChecker::check()` and `ContentSystem\RenderableLayout::create()`. Its diagnosis
+ *   half expires with group one, but the render feed keeps the lowering itself alive until the model dies.
+ *
+ * When both groups are gone this class has no callers left and is deleted with them. The list above is the
  * whole set: an undeclared call site would make the old model reachable from somewhere the split has already
- * moved past, so a new one is added here with its expiry or not added at all.
+ * moved past, so a new one is added here with its expiry or not added at all. The mutation operations
+ * themselves lower nothing: they take and return stored elements.
  *
  * @internal
  */

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -65,12 +66,18 @@ enum ResolvedByLoaderBranch
      * Whether a stored value matches this branch's shape: a single ID string for `Entity`, a list whose every
      * entry is a string for `EntityCollection`. Deliberately stricter than the serve path, which filters
      * non-string entries tolerantly.
+     *
+     * Typed on {@see StoredValue} rather than `mixed`: the shape being judged is a stored one, and taking the
+     * storage envelope makes that claim a type error to break instead of a convention to remember. The payload
+     * is unwrapped once here, because the branch shapes are stated in raw PHP terms.
      */
-    public function matchesStoredValueShape(mixed $value): bool
+    public function matchesStoredValueShape(StoredValue $value): bool
     {
+        $raw = $value->jsonSerialize();
+
         return match ($this) {
-            self::Entity => \is_string($value),
-            self::EntityCollection => \is_array($value) && array_is_list($value) && $this->everyEntryIsString($value),
+            self::Entity => \is_string($raw),
+            self::EntityCollection => \is_array($raw) && array_is_list($raw) && $this->everyEntryIsString($raw),
         };
     }
 

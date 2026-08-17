@@ -10,7 +10,10 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
@@ -28,14 +31,14 @@ class MutationPipelineTest extends TestCase
     #[TestDox('applies the mutation and returns the mutated layout, affected ids and report')]
     public function testRunReturnsMutatedLayout(): void
     {
-        $mutated = new ContentElement('new-1', 'Sw:Card');
+        $mutated = new StoredTree([new StoredElement('new-1', 'Sw:Card')]);
         $report = new DiagnosticsReport([]);
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis($report, ['new-1' => []])));
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis($report, ['new-1' => []])));
 
-        $result = $pipeline->run($this->mutation([$mutated], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], null);
+        $result = $pipeline->run($this->mutation($mutated, ['new-1']), $this->inputTree(), null);
 
-        static::assertSame([$mutated], $result->layout);
+        static::assertSame($mutated, $result->layout);
         static::assertSame(['new-1'], $result->affectedElementIds);
         static::assertSame($report, $result->diagnostics);
     }
@@ -48,9 +51,9 @@ class MutationPipelineTest extends TestCase
             'other' => [new PropertyResolution('title', PropertyKind::Primitive, false, 'string', 'x')],
         ];
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
 
-        $result = $pipeline->run($this->mutation([new ContentElement('new-1', 'Sw:Card')], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], null);
+        $result = $pipeline->run($this->mutation(new StoredTree([new StoredElement('new-1', 'Sw:Card')]), ['new-1']), $this->inputTree(), null);
 
         static::assertSame(['new-1'], array_keys($result->resolutions));
     }
@@ -62,9 +65,9 @@ class MutationPipelineTest extends TestCase
             'new-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')],
         ];
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
 
-        $result = $pipeline->run($this->mutation([new ContentElement('new-1', 'Sw:Card')], []), [new ContentElement('el-1', 'Sw:Block')], null);
+        $result = $pipeline->run($this->mutation(new StoredTree([new StoredElement('new-1', 'Sw:Card')]), []), $this->inputTree(), null);
 
         static::assertSame([], $result->resolutions);
     }
@@ -72,11 +75,11 @@ class MutationPipelineTest extends TestCase
     #[TestDox('passes orphaned subtrees from the op through to the result')]
     public function testRunCarriesOrphaned(): void
     {
-        $orphan = new ContentElement('orphan', 'Sw:Block');
+        $orphan = new StoredElement('orphan', 'Sw:Block');
 
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
 
-        $result = $pipeline->run($this->mutation([new ContentElement('el-1', 'Sw:New')], ['el-1'], [$orphan]), [new ContentElement('el-1', 'Sw:Block')], null);
+        $result = $pipeline->run($this->mutation(new StoredTree([new StoredElement('el-1', 'Sw:New')]), ['el-1'], [$orphan]), $this->inputTree(), null);
 
         static::assertSame([$orphan], $result->orphaned);
     }
@@ -84,37 +87,50 @@ class MutationPipelineTest extends TestCase
     #[TestDox('passes dropped wiring keys from the op through to the result')]
     public function testRunCarriesDroppedWiring(): void
     {
-        $pipeline = new MutationPipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
 
-        $result = $pipeline->run($this->mutation([new ContentElement('el-1', 'Sw:New')], ['el-1'], [], ['legacy']), [new ContentElement('el-1', 'Sw:Block')], null);
+        $result = $pipeline->run($this->mutation(new StoredTree([new StoredElement('el-1', 'Sw:New')]), ['el-1'], [], ['legacy']), $this->inputTree(), null);
 
         static::assertSame(['legacy'], $result->droppedWiring);
     }
 
-    #[TestDox('forwards the mutated tree and root context to the diagnostics pass')]
-    public function testRunForwardsArgumentsToDiagnostics(): void
+    #[TestDox('lowers the mutated tree and forwards it with the root context to the diagnostics pass')]
+    public function testRunForwardsLoweredTreeAndRootContextToDiagnostics(): void
     {
-        $mutated = new ContentElement('new-1', 'Sw:Card');
+        $mutated = new StoredTree([new StoredElement('new-1', 'Sw:Card')]);
         $rootContext = [new ProvidedContext('product', 'Some\\Entity', ContextType::Single, null, DistributionStrategy::Broadcast)];
 
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
         $diagnostics->expects($this->once())
             ->method('analyze')
-            ->with([$mutated], $rootContext)
+            ->with(static::callback(static function (array $tree): bool {
+                static::assertCount(1, $tree);
+                static::assertInstanceOf(ContentElement::class, $tree[0]);
+                static::assertSame('new-1', $tree[0]->getId());
+
+                return true;
+            }), $rootContext)
             ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
 
-        $pipeline = new MutationPipeline($diagnostics);
+        $this->pipeline($diagnostics)->run($this->mutation($mutated, ['new-1']), $this->inputTree(), $rootContext);
+    }
 
-        $pipeline->run($this->mutation([$mutated], ['new-1']), [new ContentElement('el-1', 'Sw:Block')], $rootContext);
+    private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
+    {
+        return new MutationPipeline($diagnostics, new ContentElementLowering());
+    }
+
+    private function inputTree(): StoredTree
+    {
+        return new StoredTree([new StoredElement('el-1', 'Sw:Block')]);
     }
 
     /**
-     * @param list<ContentElement> $appliedTree
+     * @param list<StoredElement> $orphaned
      * @param list<string> $affected
-     * @param list<ContentElement> $orphaned
      * @param list<string> $droppedWiring
      */
-    private function mutation(array $appliedTree, array $affected, array $orphaned = [], array $droppedWiring = []): LayoutMutation
+    private function mutation(StoredTree $appliedTree, array $affected, array $orphaned = [], array $droppedWiring = []): LayoutMutation
     {
         $mutation = static::createStub(LayoutMutation::class);
         $mutation->method('apply')->willReturn($appliedTree);

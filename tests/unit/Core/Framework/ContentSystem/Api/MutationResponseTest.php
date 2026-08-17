@@ -7,8 +7,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\MutationResponse;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
@@ -25,8 +28,8 @@ class MutationResponseTest extends TestCase
     public function testEmptyMapFieldsEncodeAsJsonObjects(): void
     {
         $response = MutationResponse::fromResult(
-            new MutationResult([], [], new DiagnosticsReport([]), []),
-            $this->elementSerializer(),
+            new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []),
+            $this->elementCodec(),
         );
 
         $json = json_encode($response, \JSON_THROW_ON_ERROR);
@@ -39,8 +42,8 @@ class MutationResponseTest extends TestCase
     public function testEmptyListFieldsEncodeAsJsonArrays(): void
     {
         $response = MutationResponse::fromResult(
-            new MutationResult([], [], new DiagnosticsReport([]), []),
-            $this->elementSerializer(),
+            new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []),
+            $this->elementCodec(),
         );
 
         $json = json_encode($response, \JSON_THROW_ON_ERROR);
@@ -55,8 +58,8 @@ class MutationResponseTest extends TestCase
     public function testSerializesExactlyTheSevenWireKeys(): void
     {
         $response = MutationResponse::fromResult(
-            new MutationResult([], [], new DiagnosticsReport([]), []),
-            $this->elementSerializer(),
+            new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []),
+            $this->elementCodec(),
         );
 
         $decoded = json_decode((string) json_encode($response, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
@@ -73,17 +76,17 @@ class MutationResponseTest extends TestCase
     public function testMapsEveryResultFieldThrough(): void
     {
         $result = new MutationResult(
-            [new ContentElement('el-1', 'Sw:Card')],
+            new StoredTree([new StoredElement('el-1', 'Sw:Card')]),
             ['el-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')]],
             new DiagnosticsReport([]),
             ['el-1'],
-            [new ContentElement('orphan', 'Sw:Block')],
+            [new StoredElement('orphan', 'Sw:Block')],
             ['legacy'],
-            ['headline' => 'Old headline'],
+            ['headline' => StoredValue::ofString('Old headline')],
         );
 
         $decoded = json_decode(
-            (string) json_encode(MutationResponse::fromResult($result, $this->elementSerializer()), \JSON_THROW_ON_ERROR),
+            (string) json_encode(MutationResponse::fromResult($result, $this->elementCodec()), \JSON_THROW_ON_ERROR),
             true,
             512,
             \JSON_THROW_ON_ERROR,
@@ -98,13 +101,8 @@ class MutationResponseTest extends TestCase
         static::assertSame('Old headline', $decoded['droppedProperties']['headline']);
     }
 
-    private function elementSerializer(): ContentElementFieldSerializer
+    private function elementCodec(): StoredElementCodec
     {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('serializeContentElement')->willReturnCallback(
-            static fn (ContentElement $element): array => ['id' => $element->getId(), 'component' => $element->getComponent(), 'properties' => []],
-        );
-
-        return $serializer;
+        return new StoredElementCodec(static::createStub(DataLoaderConfigSerializerProvider::class));
     }
 }

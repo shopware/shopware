@@ -16,15 +16,19 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,7 +50,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning($analysis),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
         );
 
         $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
@@ -64,7 +67,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning($analysis),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
         );
 
         $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
@@ -78,15 +80,19 @@ class ContentDiagnoseControllerTest extends TestCase
     #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
     public function testDiagnoseMapsDecodeClientDefect(): void
     {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: $serializer,
+            configProvider: $configProvider,
         );
 
-        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+        $response = $controller->diagnose(new ContentDiagnoseRequest([[
+            'id' => 'el-1',
+            'component' => 'Sw:Block',
+            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['entity' => 'prodct']]],
+        ]]), Context::createDefaultContext());
 
         $body = $this->decode($response);
         static::assertFalse($body['diagnostics']['wellFormed']);
@@ -119,7 +125,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $diagnostics,
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             rootSourceRegistry: $registry,
         );
 
@@ -149,7 +154,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $diagnostics,
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             rootSourceRegistry: $registry,
         );
 
@@ -168,7 +172,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             rootSourceRegistry: $registry,
         );
 
@@ -188,7 +191,6 @@ class ContentDiagnoseControllerTest extends TestCase
     {
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: static::createStub(ContentElementFieldSerializer::class),
         );
 
         try {
@@ -201,13 +203,22 @@ class ContentDiagnoseControllerTest extends TestCase
 
     private function controller(
         LayoutDiagnostics $diagnostics,
-        ContentElementFieldSerializer $serializer,
+        ?DataLoaderConfigSerializerProvider $configProvider = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
     ): ContentDiagnoseController {
+        $decoder = new DraftLayoutDecoder(
+            new StoredElementCodec($configProvider ?? static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new StoredTreeStyleNormalizer(
+                new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer())
+            ),
+            new ViolationConstraintMapper(),
+        );
+
         return new ContentDiagnoseController(
-            new DraftLayoutDecoder($serializer, new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer())),
-            $diagnostics,
+            $decoder,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
+            $diagnostics,
+            new ContentElementLowering(),
         );
     }
 
@@ -217,14 +228,6 @@ class ContentDiagnoseControllerTest extends TestCase
         $diagnostics->method('analyze')->willReturn($analysis);
 
         return $diagnostics;
-    }
-
-    private function serializerDecoding(ContentElement $element): ContentElementFieldSerializer
-    {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willReturn($element);
-
-        return $serializer;
     }
 
     /**

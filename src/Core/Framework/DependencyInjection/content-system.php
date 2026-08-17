@@ -79,6 +79,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSer
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -257,11 +258,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PrimitiveDefaultProvider::class),
         ]);
 
+    // The forest-wide style pass, shared by the write boundary and the draft decode so the two cannot drift
+    $services->set(StoredTreeStyleNormalizer::class)
+        ->args([
+            service(ElementStyleNormalizer::class),
+        ]);
+
     // The single admission point for a layout write: seed type defaults, normalize style, reconcile attribution
     $services->set(LayoutWriteBoundary::class)
         ->args([
             service(LayoutDefaultSeeder::class),
-            service(ElementStyleNormalizer::class),
+            service(StoredTreeStyleNormalizer::class),
             service(AttributionReconciler::class),
         ]);
 
@@ -655,8 +662,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Shared draft-layout decode (structural gate) for the preview, diagnose and mutation routes
     $services->set(DraftLayoutDecoder::class)
         ->args([
-            service(ContentElementFieldSerializer::class),
-            service(ElementStyleNormalizer::class),
+            service(StoredElementCodec::class),
+            service(StoredTreeStyleNormalizer::class),
+            service(ViolationConstraintMapper::class),
         ]);
 
     // Remaps the serializer's ExtraAttributesException to a content-system 400 for the strict-mapped admin routes
@@ -674,8 +682,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DraftLayoutDecoder::class),
-            service(LayoutDiagnostics::class),
             service(RootSourceRegistry::class),
+            service(LayoutDiagnostics::class),
+            service(ContentElementLowering::class),
         ]);
 
     $services->set(ContentPreviewPageBuilder::class)
@@ -683,6 +692,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextService::class),
             service(RenderingSpecificationResolver::class),
             service(DraftLayoutDecoder::class),
+            service(ContentElementLowering::class),
             service(DraftLayoutChecker::class),
             service(ContentPipeline::class),
         ]);
@@ -705,6 +715,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MutationPipeline::class)
         ->args([
             service(LayoutDiagnostics::class),
+            service(ContentElementLowering::class),
         ]);
 
     // Layout Mutation Actions (Admin API)
@@ -715,7 +726,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MutationPipeline::class),
             service(ContentSystemElementTypeRegistry::class),
             service(RootSourceRegistry::class),
-            service(ContentElementFieldSerializer::class),
+            service(StoredElementCodec::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
         ]);
@@ -725,10 +736,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('lock.factory'),
             service('content_layout.repository'),
-            service(ContentElementFieldSerializer::class),
-            service(ContentElementLowering::class),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
+            service(ContentElementLowering::class),
         ]);
 
     // Persisted Layout Mutation Actions (Admin API)
@@ -737,7 +747,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(PersistedLayoutMutator::class),
             service(ContentSystemElementTypeRegistry::class),
-            service(ContentElementFieldSerializer::class),
+            service(StoredElementCodec::class),
             service(DraftLayoutDecoder::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),

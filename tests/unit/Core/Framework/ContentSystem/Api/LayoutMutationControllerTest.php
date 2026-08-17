@@ -23,12 +23,16 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
@@ -42,6 +46,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,7 +61,7 @@ class LayoutMutationControllerTest extends TestCase
     #[TestDox('serializes the mutation result into the layout, resolutions, diagnostics and affected ids')]
     public function testInsertSerializesMutationResult(): void
     {
-        $result = new MutationResult([new ContentElement('el-1', 'Sw:Card')], ['el-1' => []], new DiagnosticsReport([]), ['el-1']);
+        $result = new MutationResult(new StoredTree([new StoredElement('el-1', 'Sw:Card')]), ['el-1' => []], new DiagnosticsReport([]), ['el-1']);
         $controller = $this->controller($this->pipelineReturning($result));
 
         $response = $controller->insert(new InsertElementRequest('Sw:Card'), Context::createDefaultContext());
@@ -82,7 +87,7 @@ class LayoutMutationControllerTest extends TestCase
         $pipeline->method('run')->willReturnCallback(function (LayoutMutation $mutation) use (&$captured): MutationResult {
             $captured = $mutation;
 
-            return new MutationResult([], [], new DiagnosticsReport([]), []);
+            return new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
         });
 
         $invoke($this->controller($pipeline));
@@ -143,7 +148,7 @@ class LayoutMutationControllerTest extends TestCase
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
     public function testEmptyResolutionsEncodeAsJsonObject(): void
     {
-        $result = new MutationResult([], [], new DiagnosticsReport([]), []);
+        $result = new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
         $controller = $this->controller($this->pipelineReturning($result));
 
         $response = $controller->remove(new RemoveElementRequest('el'), Context::createDefaultContext());
@@ -194,21 +199,21 @@ class LayoutMutationControllerTest extends TestCase
     public static function replaceOptionalFieldsProvider(): iterable
     {
         yield 'orphaned subtrees surface for re-attachment' => [
-            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [new ContentElement('orphan', 'Sw:Block')]),
+            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [new StoredElement('orphan', 'Sw:Block')]),
             'orphaned',
             static fn (mixed $value): mixed => $value[0]['id'],
             'orphan',
         ];
 
         yield 'dropped wiring keys are reported' => [
-            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
+            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
             'droppedWiring',
             static fn (mixed $value): mixed => $value,
             ['legacy'],
         ];
 
         yield 'dropped property values are reported' => [
-            new MutationResult([new ContentElement('el', 'Sw:New')], [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => 'Old headline']),
+            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => StoredValue::ofString('Old headline')]),
             'droppedProperties',
             static fn (mixed $value): mixed => $value['headline'],
             'Old headline',
@@ -221,10 +226,10 @@ class LayoutMutationControllerTest extends TestCase
     ): LayoutMutationController {
         return new LayoutMutationController(
             $this->decoder(),
-            $pipeline ?? $this->pipelineReturning(new MutationResult([], [], new DiagnosticsReport([]), [])),
+            $pipeline ?? $this->pipelineReturning(new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), [])),
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
-            $this->elementSerializer(),
+            $this->elementCodec(),
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
             // BindingApplicator is final: a real instance over a stubbed serializer provider.
             new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
@@ -239,10 +244,10 @@ class LayoutMutationControllerTest extends TestCase
     {
         $pipeline = static::createStub(MutationPipeline::class);
         $pipeline->method('run')->willReturnCallback(
-            function (LayoutMutation $mutation, array $tree, ?array $analyzedRootContext) use (&$captured): MutationResult {
+            function (LayoutMutation $mutation, StoredTree $tree, ?array $analyzedRootContext) use (&$captured): MutationResult {
                 $captured = $analyzedRootContext;
 
-                return new MutationResult([], [], new DiagnosticsReport([]), []);
+                return new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
         );
 
@@ -251,15 +256,13 @@ class LayoutMutationControllerTest extends TestCase
 
     private function decoder(): DraftLayoutDecoder
     {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willReturnCallback(
-            static fn (array $raw): ContentElement => new ContentElement(
-                \is_string($raw['id'] ?? null) ? $raw['id'] : 'incoming',
-                \is_string($raw['component'] ?? null) ? $raw['component'] : 'Sw:Card',
+        return new DraftLayoutDecoder(
+            $this->elementCodec(),
+            new StoredTreeStyleNormalizer(
+                new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer())
             ),
+            new ViolationConstraintMapper(),
         );
-
-        return new DraftLayoutDecoder($serializer, new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer()));
     }
 
     private function pipelineReturning(MutationResult $result): MutationPipeline
@@ -270,14 +273,9 @@ class LayoutMutationControllerTest extends TestCase
         return $pipeline;
     }
 
-    private function elementSerializer(): ContentElementFieldSerializer
+    private function elementCodec(): StoredElementCodec
     {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('serializeContentElement')->willReturnCallback(
-            static fn (ContentElement $element): array => ['id' => $element->getId(), 'component' => $element->getComponent(), 'properties' => []],
-        );
-
-        return $serializer;
+        return new StoredElementCodec(static::createStub(DataLoaderConfigSerializerProvider::class));
     }
 
     /**

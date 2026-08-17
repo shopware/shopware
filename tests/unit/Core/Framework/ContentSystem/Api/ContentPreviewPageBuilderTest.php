@@ -13,7 +13,8 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
@@ -38,18 +39,22 @@ class ContentPreviewPageBuilderTest extends TestCase
     #[TestDox('renders the decoded layout through the pipeline in full mode and returns the page and synthesized context')]
     public function testBuildRendersDecodedLayoutThroughThePipeline(): void
     {
-        $decodedElement = new ContentElement('e1', 'Sw:Content:Heading');
         $specification = $this->specification();
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $contentPage = new ContentPage('preview-layout', [$decodedElement], 'preview', null);
+        $contentPage = new ContentPage('preview-layout', [], 'preview', null);
 
         $pipeline = static::createMock(ContentPipeline::class);
         $pipeline->expects($this->once())
             ->method('load')
             ->with(
-                static::callback(static fn (RenderableLayout $layout): bool => $layout->elements === [$decodedElement]
-                    && $layout->reference->name === 'preview'
-                    && $layout->reference->version === null),
+                static::callback(static function (RenderableLayout $layout): bool {
+                    static::assertCount(1, $layout->elements);
+                    static::assertSame('e1', $layout->elements[0]->getId());
+                    static::assertSame('preview', $layout->reference->name);
+                    static::assertNull($layout->reference->version);
+
+                    return true;
+                }),
                 static::identicalTo($specification),
                 static::isInstanceOf(RenderingCacheContext::class),
                 RenderingMode::FULL,
@@ -60,7 +65,8 @@ class ContentPreviewPageBuilderTest extends TestCase
         $builder = new ContentPreviewPageBuilder(
             $this->contextService($salesChannelContext),
             $this->resolverReturning($specification),
-            $this->decoderReturning([$decodedElement]),
+            $this->decoderReturning([new StoredElement('e1', 'Sw:Content:Heading')]),
+            new ContentElementLowering(),
             $this->checker(new ConstraintViolationList()),
             $pipeline,
         );
@@ -81,7 +87,8 @@ class ContentPreviewPageBuilderTest extends TestCase
         $builder = new ContentPreviewPageBuilder(
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
-            $this->decoderReturning([new ContentElement('e1', 'Sw:Unknown:Widget')]),
+            $this->decoderReturning([new StoredElement('e1', 'Sw:Unknown:Widget')]),
+            new ContentElementLowering(),
             $this->checker($violations),
             static::createStub(ContentPipeline::class),
         );
@@ -102,6 +109,7 @@ class ContentPreviewPageBuilderTest extends TestCase
             $this->contextService(Generator::generateSalesChannelContext()),
             $resolver,
             static::createStub(DraftLayoutDecoder::class),
+            new ContentElementLowering(),
             static::createStub(DraftLayoutChecker::class),
             static::createStub(ContentPipeline::class),
         );
@@ -123,6 +131,7 @@ class ContentPreviewPageBuilderTest extends TestCase
             $contextService,
             static::createStub(RenderingSpecificationResolver::class),
             static::createStub(DraftLayoutDecoder::class),
+            new ContentElementLowering(),
             static::createStub(DraftLayoutChecker::class),
             static::createStub(ContentPipeline::class),
         );
@@ -164,7 +173,7 @@ class ContentPreviewPageBuilderTest extends TestCase
     }
 
     /**
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      */
     private function decoderReturning(array $elements): DraftLayoutDecoder
     {

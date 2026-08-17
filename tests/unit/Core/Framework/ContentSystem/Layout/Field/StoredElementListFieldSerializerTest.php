@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSer
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -563,7 +564,7 @@ class StoredElementListFieldSerializerTest extends TestCase
 
         $boundary = new LayoutWriteBoundary(
             new LayoutDefaultSeeder($typeRegistry, new PrimitiveDefaultProvider()),
-            new ElementStyleNormalizer($styleRegistry, new BoxSpacingNormalizer()),
+            new StoredTreeStyleNormalizer(new ElementStyleNormalizer($styleRegistry, new BoxSpacingNormalizer())),
             $reconciler,
         );
 
@@ -584,7 +585,7 @@ class StoredElementListFieldSerializerTest extends TestCase
      */
     private function boundary(LayoutDefaultSeeder $seeder): LayoutWriteBoundary
     {
-        return new LayoutWriteBoundary($seeder, $this->styleNormalizer(), $this->passthroughReconciler());
+        return new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler());
     }
 
     private function passthroughSeeder(): LayoutDefaultSeeder

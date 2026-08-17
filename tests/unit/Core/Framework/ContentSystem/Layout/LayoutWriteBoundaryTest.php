@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
@@ -97,7 +98,7 @@ class LayoutWriteBoundaryTest extends TestCase
         $seeder = static::createStub(LayoutDefaultSeeder::class);
         $seeder->method('seed')->willReturn(['not-an-element']);
 
-        $boundary = new LayoutWriteBoundary($seeder, $this->styleNormalizer(), $this->passthroughReconciler());
+        $boundary = new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler());
 
         $this->expectExceptionObject(
             ContentSystemException::invalidFieldValueType('layout', StoredElement::class, 'string')
@@ -111,7 +112,7 @@ class LayoutWriteBoundaryTest extends TestCase
         $seeder = static::createStub(LayoutDefaultSeeder::class);
         $seeder->method('seed')->willReturnArgument(0);
 
-        return new LayoutWriteBoundary($seeder, $this->styleNormalizer(), $this->passthroughReconciler());
+        return new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $this->passthroughReconciler());
     }
 
     /**

@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
@@ -39,7 +40,7 @@ final class InsertElement extends AbstractLayoutMutation
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
         $this->requireRegistered($this->registry, $this->type);
 
@@ -49,10 +50,10 @@ final class InsertElement extends AbstractLayoutMutation
             ? $this->scaffoldWithDefault($this->type)
             : $this->scaffoldBoundElement($bindingSpecificationId);
 
-        $this->affected = [$element->getId()];
+        $this->affected = [$element->id];
 
         if ($this->parentElementId === null) {
-            return $this->insertAtRoot($tree, $this->index, [$element]);
+            return $tree->insertAtRoot($this->index, [$element]);
         }
 
         $slot = $this->slot;
@@ -61,14 +62,14 @@ final class InsertElement extends AbstractLayoutMutation
             throw ContentSystemException::mutationSlotRequired();
         }
 
-        if ($this->findNode($tree, $this->parentElementId) === null) {
+        if ($tree->find($this->parentElementId) === null) {
             throw ContentSystemException::mutationTargetNotFound($this->parentElementId);
         }
 
-        return $this->insertIntoSlot($tree, $this->parentElementId, $slot, $this->index, [$element]);
+        return $tree->insertIntoSlot($this->parentElementId, $slot, $this->index, [$element]);
     }
 
-    private function scaffoldBoundElement(string $bindingSpecificationId): ContentElement
+    private function scaffoldBoundElement(string $bindingSpecificationId): StoredElement
     {
         $specification = $this->bindingRegistry->get($bindingSpecificationId);
 
@@ -89,7 +90,7 @@ final class InsertElement extends AbstractLayoutMutation
      * Scaffolds a fresh element of $type and fill-applies its default binding specification (resolved via
      * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
      */
-    private function scaffoldWithDefault(string $type): ContentElement
+    private function scaffoldWithDefault(string $type): StoredElement
     {
         $element = $this->scaffoldElement($this->registry, $type);
         $default = $this->resolveDefaultSpecification($this->bindingRegistry, $type);

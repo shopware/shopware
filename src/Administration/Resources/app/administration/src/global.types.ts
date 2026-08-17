@@ -11,7 +11,7 @@ import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
@@ -337,7 +337,7 @@ declare global {
     interface InitContainer extends SubContainer<'init'> {
         state: $TSFixMe; // has to be removed once we moved to vite
         router: $TSFixMe;
-        httpClient: AxiosInstance;
+        httpClient: HttpClient;
     }
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {

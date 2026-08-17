@@ -3,11 +3,11 @@ import { getFlowId, compareFlowTemplateWithFlow } from '@shopware-ag/acceptance-
 
 test(
     'As an admin, I want to create new flows from templates, so that I can easily create new ones based on the default flows.',
-    { 
+    {
         tag: '@Flow',
         annotation: {
             type: 'issue',
-            description: 'https://github.com/shopware/shopware/issues/19378',      
+            description: 'https://github.com/shopware/shopware/issues/19378',
         },
     },
     async ({
@@ -19,8 +19,11 @@ test(
         AdminApiContext,
         InstanceMeta,
     }) => {
-        test.skip(InstanceMeta.isSaaS, 'Test is skipped in SaaS due to search issue with Advanced Search. See https://github.com/shopware/shopware/issues/19378 ');
-        
+        test.skip(
+            InstanceMeta.isSaaS,
+            'Test is skipped in SaaS due to search issue with Advanced Search. See https://github.com/shopware/shopware/issues/19378 ',
+        );
+
         const flowTemplateName = 'Order placed';
         const flowTemplateSingleTerms = flowTemplateName.split(' ');
         const flowTemplateSearchTerm = flowTemplateSingleTerms[flowTemplateSingleTerms.length - 2];

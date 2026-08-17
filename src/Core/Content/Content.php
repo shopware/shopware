@@ -42,6 +42,7 @@ class Content extends Bundle
         $loader->load('revocation_request_form.xml');
         $loader->load('sitemap.xml');
         $loader->load('landing_page.xml');
+        $loader->load('legal_guarantee_notice.xml');
         $loader->load('flow.xml');
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);

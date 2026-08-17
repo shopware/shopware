@@ -38,6 +38,7 @@ async function createWrapper() {
                 'sw-product-basic-form': await wrapTestComponent('sw-product-basic-form', { sync: true }),
                 'sw-product-feature-set-form': true,
                 'sw-product-settings-form': true,
+                'sw-product-guarantee-form': true,
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-empty-state': true,

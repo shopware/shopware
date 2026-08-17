@@ -292,6 +292,8 @@ final class StoredTreeConstraints
                     fields: [
                         'key' => new Optional([new Type('string')]),
                         'source' => [new NotBlank(), new Type('string')],
+                        // Shape only, by design: what a config *means* is the source's own serializer's to judge, and the
+                        // decode-first normalize() order is where it does so, before this descriptor ever runs.
                         'config' => new Optional($this->stringKeyedMap()),
                     ],
                     allowExtraFields: false,

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Contex
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -60,6 +61,36 @@ class KeyedDistributionConfigTest extends TestCase
             ['distribution' => 'keyed', 'keyProperty' => 'data_key', 'consumerAlias' => null],
             $config->toArray()
         );
+    }
+
+    #[TestDox('rejects a present keyProperty of the wrong type instead of substituting the default')]
+    public function testFromArrayRejectsANonStringKeyProperty(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('keyProperty', 'string', 'int')
+        );
+
+        KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'keyProperty' => 5]);
+    }
+
+    #[TestDox('rejects a keyProperty present as null instead of substituting the default')]
+    public function testFromArrayRejectsANullKeyProperty(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('keyProperty', 'string', 'null')
+        );
+
+        KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'keyProperty' => null]);
+    }
+
+    #[TestDox('rejects a present consumerAlias of the wrong type instead of substituting the default')]
+    public function testFromArrayRejectsANonStringConsumerAlias(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int')
+        );
+
+        KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'consumerAlias' => 42]);
     }
 
     #[TestDox('returns constraint mapping with keyProperty NotBlank+Type and consumerAlias Type constraints')]

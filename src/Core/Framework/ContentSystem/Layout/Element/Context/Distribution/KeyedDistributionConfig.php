@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -30,14 +31,27 @@ final readonly class KeyedDistributionConfig implements DistributionConfig
     }
 
     /**
+     * An absent field takes its default; a present one of the wrong type is rejected rather than replaced by
+     * it, so a caller can tell a field it never set from a field it set wrongly. `keyProperty` is not
+     * nullable, so a present `null` is one of those wrong types and is rejected like any other.
+     *
      * @param array<string, mixed> $data
      */
     public static function fromArray(array $data): DistributionConfig
     {
-        return new self(
-            keyProperty: isset($data['keyProperty']) && \is_string($data['keyProperty']) ? $data['keyProperty'] : 'data_key',
-            consumerAlias: isset($data['consumerAlias']) && \is_string($data['consumerAlias']) ? $data['consumerAlias'] : null
-        );
+        $keyProperty = \array_key_exists('keyProperty', $data) ? $data['keyProperty'] : 'data_key';
+
+        if (!\is_string($keyProperty)) {
+            throw ContentSystemException::invalidFieldValueType('keyProperty', 'string', get_debug_type($keyProperty));
+        }
+
+        $consumerAlias = $data['consumerAlias'] ?? null;
+
+        if ($consumerAlias !== null && !\is_string($consumerAlias)) {
+            throw ContentSystemException::invalidFieldValueType('consumerAlias', 'string', get_debug_type($consumerAlias));
+        }
+
+        return new self(keyProperty: $keyProperty, consumerAlias: $consumerAlias);
     }
 
     /**

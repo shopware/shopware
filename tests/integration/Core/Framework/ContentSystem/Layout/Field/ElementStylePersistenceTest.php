@@ -18,8 +18,9 @@ use Shopware\Core\Test\Stub\ContentSystem\TestStyleOptionLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
- * End-to-end through the real DAL and the real style option registry: a valid style round-trips, an
- * empty style reads back empty, and a style violating the registry-derived constraints is rejected.
+ * End-to-end through the real DAL and the real style option registry: a valid style round-trips in the
+ * canonical form the write boundary stores, an empty style reads back empty, and a style violating the
+ * registry-derived constraints is rejected.
  *
  * @internal
  */
@@ -36,16 +37,25 @@ class ElementStylePersistenceTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
-    #[TestDox('persists a valid style on an element and reads it back unchanged')]
+    #[TestDox('persists a valid style on an element and reads it back in the write-boundary canonical form')]
     public function testPersistsAndReadsBackValidStyle(): void
     {
         $context = Context::createDefaultContext();
         $id = $this->ids->get('layout');
+        // `display` declares a default, so the write boundary fills its unspecified breakpoints from it;
+        // `col-span` declares none, so its partial map is stored exactly as authored.
         $style = ['col-span' => ['md' => 6, 'lg' => 4], 'display' => ['xs' => false]];
+        $expected = [
+            'col-span' => ['md' => 6, 'lg' => 4],
+            'display' => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
+        ];
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
-        static::assertSame($style, $this->readElement($id, $context)->style->toArray());
+        static::assertSame(
+            $this->byKey($expected),
+            $this->byKey($this->readElement($id, $context)->style->toArray()),
+        );
     }
 
     #[TestDox('persists a flat option as a bare scalar beside a breakpoint-aware option and reads both back unchanged')]
@@ -59,7 +69,10 @@ class ElementStylePersistenceTest extends TestCase
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
-        static::assertSame($style, $this->readElement($id, $context)->style->toArray());
+        static::assertSame(
+            $this->byKey($style),
+            $this->byKey($this->readElement($id, $context)->style->toArray()),
+        );
     }
 
     #[TestDox('reads back an empty style for an element written without one')]
@@ -99,6 +112,32 @@ class ElementStylePersistenceTest extends TestCase
             // The range-specific phrasing distinguishes a Range violation from a Type mismatch on the same field
             static::assertStringContainsString('between 1 and 12', $exception->getMessage());
         }
+    }
+
+    /**
+     * Key order in a stored JSON map is not part of the contract, and the two engines disagree about it:
+     * MySQL normalises object members by key length then bytewise, MariaDB preserves insertion order. So a
+     * `['md' => …, 'lg' => …]` map read back byte-for-byte is green locally and red on CI. Sorting both sides
+     * by key keeps the comparison on decoded structure while leaving values, types and list order strict.
+     *
+     * @param array<string, mixed> $style
+     *
+     * @return array<string, mixed>
+     */
+    private function byKey(array $style): array
+    {
+        ksort($style);
+
+        foreach ($style as $option => $value) {
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            ksort($value);
+            $style[$option] = $value;
+        }
+
+        return $style;
     }
 
     private function readElement(string $layoutId, Context $context): StoredElement

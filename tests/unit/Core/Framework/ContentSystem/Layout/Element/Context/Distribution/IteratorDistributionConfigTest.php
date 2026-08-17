@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Type;
@@ -38,6 +39,24 @@ class IteratorDistributionConfigTest extends TestCase
         $config = IteratorDistributionConfig::fromArray($data);
 
         static::assertSame($data, $config->toArray());
+    }
+
+    #[TestDox('takes the null default when consumerAlias is absent from the array data')]
+    public function testFromArrayWithoutConsumerAliasTakesTheDefault(): void
+    {
+        $config = IteratorDistributionConfig::fromArray(['distribution' => 'iterator']);
+
+        static::assertNull($config->getConsumerAlias());
+    }
+
+    #[TestDox('rejects a present consumerAlias of the wrong type instead of substituting the default')]
+    public function testFromArrayRejectsANonStringConsumerAlias(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int')
+        );
+
+        IteratorDistributionConfig::fromArray(['distribution' => 'iterator', 'consumerAlias' => 42]);
     }
 
     #[TestDox('creates config with given alias via aliased factory')]

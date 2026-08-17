@@ -13,20 +13,32 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListField;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -51,7 +63,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     public function testNormalizeSeedsPrimitiveDefaultsIntoRawPayload(): void
     {
         $field = $this->createField();
-        $data = ['elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+        $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
 
         $result = $this->serializerWithRealSeeder()->normalize($field, $data, $this->parameters());
 
@@ -64,14 +76,9 @@ class StoredElementListFieldSerializerTest extends TestCase
         $field = $this->createField();
         $element = StoredElementBuilder::create('Sw:Block', 'el')->build();
 
-        $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => $element], $this->parameters());
+        $result = $this->serializerWithRealSeeder()->normalize($field, ['id' => 'layout-1', 'elements' => $element], $this->parameters());
 
-        static::assertIsArray($result['elements']);
-        static::assertCount(1, $result['elements']);
-
-        $seeded = $result['elements'][0];
-        static::assertInstanceOf(StoredElement::class, $seeded);
-        static::assertSame('Hi', $seeded->property('headline')?->jsonSerialize());
+        static::assertSame([['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['headline' => 'Hi']]], $result['elements']);
     }
 
     #[TestDox('leaves a non-list layout value untouched')]
@@ -82,6 +89,94 @@ class StoredElementListFieldSerializerTest extends TestCase
         $result = $this->serializerWithRealSeeder()->normalize($field, ['elements' => 'not-a-list'], $this->parameters());
 
         static::assertSame(['elements' => 'not-a-list'], $result);
+    }
+
+    /**
+     * The pinned-order test. It proves the write chain runs decode → validate → seed → style-normalize →
+     * reconcile, in that sequence rather than merely running each step: the three boundary passes record into
+     * one shared log through the collaborators each of them reaches, and the two rejection tests below pin the
+     * two links ahead of them by showing that neither an undecodable nor an ill-formed payload gets that far.
+     */
+    #[TestDox('runs seeding, style normalization and attribution reconciliation in the pinned order')]
+    public function testNormalizeRunsTheWriteChainInThePinnedOrder(): void
+    {
+        $calls = [];
+        $field = $this->createField();
+        $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+
+        $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
+
+        static::assertSame(['seed', 'style', 'reconcile'], $calls);
+    }
+
+    #[TestDox('rejects an undecodable payload before any write-boundary pass runs')]
+    public function testNormalizeRejectsAnUndecodablePayloadBeforeTheBoundary(): void
+    {
+        $calls = [];
+        $field = $this->createField();
+        $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => [12 => 'x']]]];
+
+        try {
+            $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
+            static::fail('Expected the decode step to reject the payload.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame(ContentSystemException::INVALID_MAP_KEY, $exception->getViolations()->get(0)->getCode());
+            static::assertSame([], $calls);
+        }
+    }
+
+    #[TestDox('rejects a forest repeating an element id before any write-boundary pass runs')]
+    public function testNormalizeRejectsADuplicateElementIdBeforeTheBoundary(): void
+    {
+        $calls = [];
+        $field = $this->createField();
+        $data = ['id' => 'layout-1', 'elements' => [
+            ['id' => 'el', 'component' => 'Sw:Block', 'properties' => []],
+            ['id' => 'el', 'component' => 'Sw:Block', 'properties' => []],
+        ]];
+
+        try {
+            $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
+            static::fail('Expected the tree-global validation step to reject the payload.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getViolations()->get(0)->getCode());
+            static::assertSame([], $calls);
+        }
+    }
+
+    #[TestDox('expands a partially specified breakpoint map on a raw-array write that never passed the Administration')]
+    public function testNormalizeNormalizesStyleOnARawArrayPayload(): void
+    {
+        $field = $this->createField();
+        $data = ['id' => 'layout-1', 'elements' => [
+            ['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => ['display' => ['xs' => false]]],
+        ]];
+
+        $result = $this->serializer()->normalize($field, $data, $this->parameters());
+
+        static::assertSame(
+            [['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => [
+                'display' => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
+            ]]],
+            $result['elements']
+        );
+    }
+
+    #[TestDox('memoizes the boundary-processed tree on the write context under the written row id')]
+    public function testNormalizeMemoizesTheBoundaryProcessedTree(): void
+    {
+        $context = Context::createDefaultContext();
+        $field = $this->createField();
+        $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+
+        $this->serializerWithRealSeeder()->normalize($field, $data, $this->parametersFor($context));
+
+        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+        static::assertInstanceOf(LayoutWriteContext::class, $memo);
+
+        $tree = $memo->consume('content_layout', 'layout-1');
+        static::assertNotNull($tree);
+        static::assertSame('Hi', $tree->roots[0]->property('headline')?->asString());
     }
 
     #[TestDox('encodes a single StoredElement wrapped to a list as a JSON string')]
@@ -394,8 +489,8 @@ class StoredElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $this->elementSerializer(),
             $this->codec(),
-            static::createStub(LayoutDefaultSeeder::class),
-            $this->passthroughReconciler(),
+            new ViolationConstraintMapper(),
+            $this->boundary($this->passthroughSeeder()),
         );
     }
 
@@ -413,8 +508,8 @@ class StoredElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $this->elementSerializer(),
             $this->codec(),
-            static::createStub(LayoutDefaultSeeder::class),
-            $this->passthroughReconciler(),
+            new ViolationConstraintMapper(),
+            $this->boundary($this->passthroughSeeder()),
         );
     }
 
@@ -431,9 +526,97 @@ class StoredElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $this->elementSerializer(),
             $this->codec(),
-            new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider()),
-            $this->passthroughReconciler(),
+            new ViolationConstraintMapper(),
+            $this->boundary(new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider())),
         );
+    }
+
+    /**
+     * A serializer whose three boundary passes append their own name to $calls as they run. Each pass is
+     * recorded through a collaborator it cannot skip: the seeder asks the type registry whether a component
+     * is known, the style normalizer reads the option registry, and the reconciler is called once per forest.
+     *
+     * @param list<string> $calls
+     */
+    private function recordingSerializer(array &$calls): StoredElementListFieldSerializer
+    {
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willReturnCallback(function () use (&$calls): bool {
+            $calls[] = 'seed';
+
+            return false;
+        });
+
+        $styleRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $styleRegistry->method('all')->willReturnCallback(function () use (&$calls): array {
+            $calls[] = 'style';
+
+            return [];
+        });
+
+        $reconciler = static::createStub(AttributionReconciler::class);
+        $reconciler->method('reconcile')->willReturnCallback(function (array $forest) use (&$calls): array {
+            $calls[] = 'reconcile';
+
+            return $forest;
+        });
+
+        $boundary = new LayoutWriteBoundary(
+            new LayoutDefaultSeeder($typeRegistry, new PrimitiveDefaultProvider()),
+            new ElementStyleNormalizer($styleRegistry, new BoxSpacingNormalizer()),
+            $reconciler,
+        );
+
+        return new StoredElementListFieldSerializer(
+            static::createStub(ValidatorInterface::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->elementSerializer(),
+            $this->codec(),
+            new ViolationConstraintMapper(),
+            $boundary,
+        );
+    }
+
+    /**
+     * Attribution reconciliation is covered by its own tests, so a passthrough reconciler keeps these
+     * assertions about the serializer's contract. The style registry holds the one breakpoint-aware option
+     * with a declared default that the style assertions need.
+     */
+    private function boundary(LayoutDefaultSeeder $seeder): LayoutWriteBoundary
+    {
+        return new LayoutWriteBoundary($seeder, $this->styleNormalizer(), $this->passthroughReconciler());
+    }
+
+    private function passthroughSeeder(): LayoutDefaultSeeder
+    {
+        $seeder = static::createStub(LayoutDefaultSeeder::class);
+        $seeder->method('seed')->willReturnArgument(0);
+
+        return $seeder;
+    }
+
+    private function styleNormalizer(): ElementStyleNormalizer
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([
+            'display' => new StyleOptionSpecification(
+                'display',
+                new StyleOptionValueType(StyleOptionValueType::TYPE_BOOLEAN, null, null, null, true),
+                true,
+                null,
+                'test',
+            ),
+        ]);
+
+        return new ElementStyleNormalizer($registry, new BoxSpacingNormalizer());
+    }
+
+    private function passthroughReconciler(): AttributionReconciler
+    {
+        $reconciler = static::createStub(AttributionReconciler::class);
+        $reconciler->method('reconcile')->willReturnArgument(0);
+
+        return $reconciler;
     }
 
     /**
@@ -446,18 +629,6 @@ class StoredElementListFieldSerializerTest extends TestCase
         $configProvider->method('decode')->willReturn(new StubLoaderConfig());
 
         return new StoredTreeCodec(new StoredElementCodec($configProvider));
-    }
-
-    /**
-     * These tests exercise the seeding half of normalize(); attribution reconciliation is covered by its own
-     * tests. A passthrough reconciler returns the forest unchanged so the seeding assertions are unaffected.
-     */
-    private function passthroughReconciler(): AttributionReconciler
-    {
-        $reconciler = static::createStub(AttributionReconciler::class);
-        $reconciler->method('reconcile')->willReturnArgument(0);
-
-        return $reconciler;
     }
 
     /**
@@ -480,7 +651,20 @@ class StoredElementListFieldSerializerTest extends TestCase
 
     private function parameters(): WriteParameterBag
     {
-        return static::createStub(WriteParameterBag::class);
+        return $this->parametersFor(Context::createDefaultContext());
+    }
+
+    private function parametersFor(Context $context): WriteParameterBag
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('content_layout');
+
+        return new WriteParameterBag(
+            $definition,
+            WriteContext::createFromContext($context),
+            '/0',
+            new WriteCommandQueue()
+        );
     }
 
     private function createField(): StoredElementListField

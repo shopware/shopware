@@ -8,7 +8,7 @@ Every class name resolves "about what?" and "what kind of thing?". `ContentLayou
 
 ## The subject is what the class is about, not what it holds
 
-A class is named for the thing it operates on, never for its dependencies. `LayoutTreeDecoder` decodes the element tree; the layout entity definition it is injected with is only how it reaches the stored column. When the subject is unclear, ask which concept a reader would expect under that name, not which services the constructor lists.
+A class is named for the thing it operates on, never for its dependencies. `LayoutWriteBoundary` admits a layout write; the seeder, style normalizer and reconciler it is injected with are only how it does so. When the subject is unclear, ask which concept a reader would expect under that name, not which services the constructor lists.
 
 The module separates a few subjects on purpose: the persisted entity, the in-memory element model an operation works on, an admin API action, and standalone value objects that are none of these. So a write-time guard on the entity and an in-memory predicate over the tree read differently by design, even when they cooperate on one feature.
 

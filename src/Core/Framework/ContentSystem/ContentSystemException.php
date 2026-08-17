@@ -77,6 +77,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
+    public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -798,6 +799,22 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * The write validator found no decoded tree for a command that writes the layout column. The field
+     * serializer memoizes one for every such command before the validation event fires, so the absence is a
+     * broken write-path invariant rather than a defect in the caller's payload: falling back to a second
+     * decode here would validate a tree other than the one being stored, and do it silently.
+     */
+    public static function layoutWriteMemoMissing(string $entityName, string $writePath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_WRITE_MEMO_MISSING,
+            'No decoded layout tree was memoized for the "{{ entityName }}" write at "{{ writePath }}".',
+            ['entityName' => $entityName, 'writePath' => $writePath]
+        );
+    }
+
     // The assignment-mismatch write violation, shared by the Core entity-assignment validator and the Storefront
     // header/footer validator: both reject a content-layout assignment whose bound layout's immutable root source
     // is a different page kind, with the identical ConstraintViolation shape. $assignmentType is the entity type
@@ -819,10 +836,16 @@ class ContentSystemException extends HttpException
     }
 
     // The layout column's write rejection, built the same way as the assignment-mismatch violation above and
-    // wrapped for the DAL: the layout field serializer decodes the payload at the write boundary, and a defect
-    // the decode raises is the caller's input being refused, not an internal fault. $defect is that decode
-    // failure, whose message and error code the violation carries; $fieldKey is the written field, $value the
-    // payload it rejected, and $writePath the command's path the DAL reports the violation under.
+    // wrapped for the DAL: the layout field serializer decodes the payload at the write boundary, and the
+    // decode's defects are reported to the caller as a structured refusal of that payload rather than as an
+    // unstructured 500. Most of them are the caller's input — an unknown key, a malformed container, a value
+    // of the wrong type. Not all: CONFIG_SERIALIZER_NOT_REGISTERED, raised by DataLoaderConfigSerializerProvider
+    // for a loader source with no registered serializer, signals a missing registration, an internal fault the
+    // caller cannot have caused. It is reported here the same way regardless — it is already a CLIENT_DEFECT_CODE
+    // and encode() has always wrapped it too, and telling the caller which loader source the tree named is more
+    // use than a 500 either way. $defect is the decode failure, whose message and error code the violation
+    // carries; $fieldKey is the written field, $value the payload it rejected, and $writePath the command's path
+    // the DAL reports the violation under.
     public static function layoutWriteRejection(self $defect, string $fieldKey, mixed $value, string $writePath): WriteConstraintViolationException
     {
         $violation = new ConstraintViolation(

@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Field;
 
-use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
-use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -41,18 +42,24 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         DefinitionInstanceRegistry $definitionRegistry,
         private readonly ContentElementFieldSerializer $contentElementSerializer,
         private readonly StoredTreeCodec $treeCodec,
-        private readonly LayoutDefaultSeeder $defaultSeeder,
-        private readonly AttributionReconciler $attributionReconciler
+        private readonly ViolationConstraintMapper $violationMapper,
+        private readonly LayoutWriteBoundary $writeBoundary
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
 
     /**
-     * Seeds each element's primitive type defaults into the write payload before the resolvability gate decodes it,
-     * so a tree reaching storage outside the layout mutations (direct DAL write, Sync API, import, fixtures) still
-     * carries its type defaults, then reconciles each element's `attributedSpecifications` against its current
-     * wiring so a stored attribution stays honest by construction (see {@see AttributionReconciler}). Runs ahead
-     * of {@see PreWriteValidationEvent}.
+     * The write's first decode, and the admission that follows it. The payload is decoded into the typed tree,
+     * the tree's global invariants are checked, {@see LayoutWriteBoundary} admits it, and the result is
+     * re-encoded to the arrays the DAL's constraint pass and {@see encode()} expect. The boundary-processed
+     * tree is then memoized on the write `Context` ({@see LayoutWriteContext}) so {@see PreWriteValidationEvent}
+     * gates the very tree that is about to be stored. That removes the gate's own decode, not {@see encode()}'s:
+     * a normal write decodes twice, here and again there.
+     *
+     * A defect raised anywhere in that chain is remapped exactly as {@see encode()} remaps a codec defect: it
+     * is the caller's payload being refused at the write boundary, not an internal fault, and the DAL collects
+     * a {@see WriteConstraintViolationException} thrown from normalize onto the write rather than aborting on
+     * it. A raw throw would escape as an unstructured 500 instead.
      */
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
@@ -67,14 +74,23 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             return $data;
         }
 
-        $data[$key] = $this->defaultSeeder->seed($value);
-        $data[$key] = $this->attributionReconciler->reconcile($data[$key]);
+        try {
+            $tree = $this->tree($value);
+            $this->rejectIllFormedTree($tree);
+            $tree = $this->writeBoundary->apply($tree);
+        } catch (ContentSystemException $exception) {
+            throw ContentSystemException::layoutWriteRejection($exception, $key, $value, $parameters->getPath());
+        }
+
+        $data[$key] = $this->treeCodec->encode($tree);
+
+        $this->memoize($parameters, $data['id'] ?? null, $tree);
 
         return $data;
     }
 
     /**
-     * The write boundary for the layout column. A raw payload is decoded into the stored model here rather than
+     * The storage encoding for the layout column. A raw payload is decoded into the stored model here rather than
      * passed through, so what lands in storage is what the codec produces and every later read of the column
      * decodes it again without complaint.
      *
@@ -200,5 +216,45 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         }
 
         return $this->treeCodec->decode($value);
+    }
+
+    /**
+     * The tree-global invariants the codec cannot see, checked before the boundary rebuilds anything: a
+     * forest that repeats an element id addresses two nodes under one id, and every later stage — the
+     * boundary's own walks included — would silently pick one of them.
+     */
+    private function rejectIllFormedTree(StoredTree $tree): void
+    {
+        $violations = $tree->validate();
+
+        if ($violations === []) {
+            return;
+        }
+
+        throw ContentSystemException::invalidLayoutStructure(
+            $this->violationMapper->toConstraintViolationList($violations)
+        );
+    }
+
+    /**
+     * Hands the boundary-processed tree to the write's {@see LayoutWriteContext}, creating it on the first
+     * layout row of the write. The id is already minted at this point: the extractor normalizes every
+     * primary-key field before any other field.
+     */
+    private function memoize(WriteParameterBag $parameters, mixed $id, StoredTree $tree): void
+    {
+        if (!\is_string($id)) {
+            throw ContentSystemException::invalidFieldValueType('id', 'string', get_debug_type($id));
+        }
+
+        $context = $parameters->getContext()->getContext();
+        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+
+        if (!$memo instanceof LayoutWriteContext) {
+            $memo = new LayoutWriteContext();
+            $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+        }
+
+        $memo->remember($parameters->getDefinition()->getEntityName(), $id, $tree);
     }
 }

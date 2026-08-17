@@ -77,6 +77,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializ
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
@@ -104,7 +105,6 @@ use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWrit
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -228,8 +228,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(ContentElementFieldSerializer::class),
             service(StoredTreeCodec::class),
-            service(LayoutDefaultSeeder::class),
-            service(AttributionReconciler::class),
+            service(ViolationConstraintMapper::class),
+            service(LayoutWriteBoundary::class),
         ])
         ->tag('shopware.field_serializer');
 
@@ -255,6 +255,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemElementTypeRegistry::class),
             service(PrimitiveDefaultProvider::class),
+        ]);
+
+    // The single admission point for a layout write: seed type defaults, normalize style, reconcile attribution
+    $services->set(LayoutWriteBoundary::class)
+        ->args([
+            service(LayoutDefaultSeeder::class),
+            service(ElementStyleNormalizer::class),
+            service(AttributionReconciler::class),
         ]);
 
     // Content Data Loaders
@@ -620,12 +628,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ViolationConstraintMapper::class);
 
-    $services->set(LayoutTreeDecoder::class)
-        ->args([
-            service(ContentLayoutDefinition::class),
-            service(StoredElementListFieldSerializer::class),
-        ]);
-
     // Shared read of a layout's immutable root source (in-flight write batch first, then committed row)
     $services->set(LayoutRootSourceReader::class)
         ->args([
@@ -637,7 +639,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LayoutGate::class),
             service(ViolationConstraintMapper::class),
-            service(LayoutTreeDecoder::class),
             service(RootSourceRegistry::class),
             service(LayoutRootSourceReader::class),
         ])

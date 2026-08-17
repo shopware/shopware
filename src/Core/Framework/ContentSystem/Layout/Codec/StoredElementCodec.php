@@ -54,9 +54,9 @@ use Shopware\Core\Framework\Log\Package;
  * unreadable; the registry-aware check belongs to the write boundary, not here. A provider entry's
  * already-noted open key set is a second leniency: the declared distribution strategy's own fields ride
  * alongside `type` and `distribution` without decode enforcing the closed set it applies to every other map.
- * Those strategy fields are, in turn, read by the distribution config's own `fromArray()`, a third leniency —
- * it substitutes its declared default for a field that is absent or the wrong shape, and decode neither
- * validates nor repeats that substitution itself. Every other malformed value throws.
+ * Those strategy fields are, in turn, judged by the distribution config's own `fromArray()`, which substitutes
+ * its declared default for a field that is absent or null but rejects a present one of the wrong type; decode
+ * neither validates nor repeats that judgement itself. Every other malformed value throws.
  *
  * @internal
  */

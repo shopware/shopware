@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Contex
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -122,6 +123,36 @@ class SlicedDistributionConfigTest extends TestCase
             ['distribution' => 'sliced', 'sliceSize' => 10, 'consumerAlias' => null],
             $config->toArray()
         );
+    }
+
+    #[TestDox('rejects a present sliceSize of the wrong type instead of substituting the default')]
+    public function testFromArrayRejectsANonIntSliceSize(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('sliceSize', 'int', 'string')
+        );
+
+        SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => '10']);
+    }
+
+    #[TestDox('rejects a sliceSize present as null instead of substituting the default')]
+    public function testFromArrayRejectsANullSliceSize(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('sliceSize', 'int', 'null')
+        );
+
+        SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => null]);
+    }
+
+    #[TestDox('rejects a present consumerAlias of the wrong type instead of substituting the default')]
+    public function testFromArrayRejectsANonStringConsumerAlias(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int')
+        );
+
+        SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => 5, 'consumerAlias' => 42]);
     }
 
     #[TestDox('returns constraint mapping with sliceSize NotBlank+Type(int) and consumerAlias Type(string) constraints')]

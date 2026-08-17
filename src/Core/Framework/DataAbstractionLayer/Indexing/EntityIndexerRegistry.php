@@ -242,6 +242,24 @@ class EntityIndexerRegistry
         return $this->getIndexer($name) !== null;
     }
 
+    /**
+     * @return array<string, list<string>>
+     */
+    public function getIndexers(): array
+    {
+        $indexers = [];
+
+        foreach ($this->indexer as $indexer) {
+            if ($indexer instanceof PostUpdateIndexer) {
+                continue;
+            }
+
+            $indexers[$indexer->getName()] = $indexer->getOptions();
+        }
+
+        return $indexers;
+    }
+
     public function getIndexer(string $name): ?EntityIndexer
     {
         foreach ($this->indexer as $indexer) {

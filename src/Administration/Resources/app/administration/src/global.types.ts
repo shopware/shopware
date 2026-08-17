@@ -70,6 +70,8 @@ import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
+import type DocumentV2ApiService from './core/service/api/documentV2.api.service';
+import type DocumentV2Service from './module/sw-order/service/documentV2.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
 import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
@@ -256,6 +258,8 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService;
         customFieldDataProviderService: $TSFixMe;
         customSnippetApiService: CustomSnippetApiService;
+        documentV2ApiService: DocumentV2ApiService;
+        documentV2Service: DocumentV2Service;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;
@@ -275,6 +279,7 @@ declare global {
         loginService: LoginService;
         mediaDefaultFolderService: $TSFixMe;
         menuService: $TSFixMe;
+        numberRangeService: $TSFixMe;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;

@@ -224,37 +224,37 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
     }
 
-    public function testWebhookNetworkPolicyDefaultsAreSecure(): void
+    public function testAppSystemNetworkPolicyDefaultsAreSecure(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), []);
 
-        static::assertFalse($config['webhook']['allow_unencrypted_traffic']);
-        static::assertSame([], $config['webhook']['allowed_ip_addresses']);
+        static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
     }
 
-    public function testWebhookNetworkPolicyCanBeConfigured(): void
+    public function testAppSystemNetworkPolicyCanBeConfigured(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [
             [
-                'webhook' => [
+                'app_system' => [
                     'allow_unencrypted_traffic' => true,
-                    'allowed_ip_addresses' => ['10.0.0.10', 'fd00::1'],
+                    'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
                 ],
             ],
         ]);
 
-        static::assertTrue($config['webhook']['allow_unencrypted_traffic']);
-        static::assertSame(['10.0.0.10', 'fd00::1'], $config['webhook']['allowed_ip_addresses']);
+        static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
     }
 
-    public function testWebhookNetworkPolicyRejectsInvalidAllowedIpAddress(): void
+    public function testAppSystemNetworkPolicyRejectsInvalidAllowedPrivateIpAddress(): void
     {
-        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.webhook.allowed_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
 
         (new Processor())->processConfiguration(new Configuration(), [
             [
-                'webhook' => [
-                    'allowed_ip_addresses' => ['not-an-ip'],
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['not-an-ip'],
                 ],
             ],
         ]);

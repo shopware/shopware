@@ -54,7 +54,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
                 ->append($this->createProductSection())
-                ->append($this->createWebhookSection())
+                ->append($this->createAppSystemSection())
             ->end();
 
         return $treeBuilder;
@@ -1317,16 +1317,16 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
-    private function createWebhookSection(): ArrayNodeDefinition
+    private function createAppSystemSection(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder('webhook');
+        $treeBuilder = new TreeBuilder('app_system');
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
                 ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
-                ->arrayNode('allowed_ip_addresses')
+                ->arrayNode('allowed_private_ip_addresses')
                     ->performNoDeepMerging()
                     ->defaultValue([])
                     ->scalarPrototype()

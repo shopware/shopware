@@ -1,0 +1,116 @@
+# Custom Data Loaders
+
+The plugin-facing guide to registering a new data source: what to extend, what to tag, the config and serializer pair it needs, and how it declares cache behavior.
+
+Data loaders fetch external data—APIs, computed values, aggregations. The built-in `entity` loader handles Shopware entities; other built-in loaders handle known data structures like product listing, navigation, language, currency, payment method, and shipping method.
+
+A data loader consists of three classes:
+
+| Component  | Base Class                                  | Service Tag                        | Purpose                |
+|------------|---------------------------------------------|------------------------------------|------------------------|
+| Config     | `AbstractContentDataLoaderConfig`           | (none)                             | Hold loader parameters |
+| Serializer | `AbstractContentDataLoaderConfigSerializer` | `content_system.config_serializer` | Encode/decode config   |
+| Loader     | `AbstractContentDataLoader`                 | `content_system.data_loader`       | Fetch the data         |
+
+Define array shapes with `@phpstan-type ConfigData array{field?: type}` in the Config class, then import with `@phpstan-import-type ConfigData from ConfigClass` in the Serializer. Annotate `encode()` with `@return ConfigData` for type-safe serialization.
+
+## Example: Weather Data Loader
+
+The `source` value (`weather`) links all three components.
+
+**Config:**
+
+```php
+final readonly class WeatherLoaderConfig extends AbstractContentDataLoaderConfig
+{
+    public function __construct(
+        public string $location,
+        public string $units = 'metric',
+    ) {}
+}
+```
+
+**Serializer:**
+
+```php
+final class WeatherLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
+{
+    public static function getSource(): string
+    { return 'weather'; /* Must match loader's getRequirementType() */ }
+
+    public function decode(array $data): AbstractContentDataLoaderConfig
+    { /* Convert array to WeatherLoaderConfig */ }
+
+    public function encode(AbstractContentDataLoaderConfig $config): array
+    { /* Convert WeatherLoaderConfig to array */ }
+}
+```
+
+**Loader:**
+
+```php
+/**
+ * @extends AbstractContentDataLoader<WeatherStruct>
+ */
+final class WeatherLoader extends AbstractContentDataLoader
+{
+    public function __construct(private readonly WeatherApiClient $weatherClient) {}
+
+    public static function getRequirementType(): string
+    { return 'weather'; /* Must match serializer's getSource() */ }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        $config = $requirement->config;
+        \assert($config instanceof WeatherLoaderConfig);
+
+        $weather = $this->weatherClient->fetch($config->location);
+        if ($weather === null) {
+            return ContentDataLoaderResult::notFound();
+        }
+        // External API - cannot track for invalidation
+        return ContentDataLoaderResult::uncacheable($weather);
+    }
+}
+```
+
+**Service registration:**
+
+```xml
+<service id="MyPlugin\ContentSystem\Weather\WeatherLoaderConfigSerializer">
+    <tag name="content_system.config_serializer"/>
+</service>
+
+<service id="MyPlugin\ContentSystem\Weather\WeatherLoader">
+    <argument type="service" id="MyPlugin\Service\WeatherApiClient"/>
+    <tag name="content_system.data_loader"/>
+</service>
+```
+
+## Cache Awareness
+
+All data loaders must return `ContentDataLoaderResult` to indicate cache behavior:
+
+| Factory Method            | When to Use                                               |
+|---------------------------|-----------------------------------------------------------|
+| `notFound()`              | Data not found, page remains cacheable                    |
+| `cached($data, ...$tags)` | Data with invalidation tags (e.g., `'product-' . $id`)    |
+| `cachedExternally($data)` | Data loaded via delegated route that handles its own tags |
+| `uncacheable($data)`      | External APIs or data that cannot be cache-tracked        |
+
+If any loader returns uncacheable data, the entire page becomes uncacheable.
+
+For entity-based data, provide cache tags that match Shopware's existing invalidation patterns:
+
+```php
+// Use tag patterns matching Shopware's cache invalidation system:
+// product → 'product-{id}', category → 'category-route-{id}',
+// landing_page → 'landing-page-route-{id}', cms_page → 'cms-page-{id}'
+return ContentDataLoaderResult::cached($entity, 'product-' . $entityId);
+```
+
+Reference: `../EntityLoader/`
+
+## Discoverability
+
+A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live definition registry. See [Data Loader Introspection](introspection.md).

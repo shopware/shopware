@@ -7,7 +7,8 @@ Header and footer content layout assignments for the Storefront. These are Store
 - **HeaderContentLayout/** — Header assignment entity + domain-aware specification source
 - **FooterContentLayout/** — Footer assignment entity + domain-aware specification source
 - **Extension/** — Entity extensions adding header/footer associations to `ContentLayout`, `SalesChannel`, and `SalesChannelDomain`
-- **Validation/** — DAL `PreWriteValidationEvent` gate for header/footer assignment writes (`HeaderFooterAssignmentWriteValidator`): a tree-blind type-match of the bound layout's immutable `root_source` against the section id
+- **Validation/** — [Validation/README.md](Validation/README.md) — DAL `PreWriteValidationEvent` gate for header/footer assignment writes (`HeaderFooterAssignmentWriteValidator`): a tree-blind type-match of the bound layout's immutable `root_source` against the section id
+- [docs/header-footer.md](docs/header-footer.md) — The Store API header and footer endpoints, the assignment record, and domain-aware resolution
 
 ## Resolution
 

@@ -1,4 +1,6 @@
-@README.md
+> Conceptual overview and design rationale live in [README.md](README.md), same
+> directory. The references and constraints below cover most code changes; read
+> the README when you need the mental model.
 
 ## Source Code References
 
@@ -38,7 +40,7 @@
 - `affected()` is a conservative highlight hint, not the correctness output. The authoritative result is `MutationPipeline`'s `LayoutDiagnostics` pass over the whole new tree; the pipeline only uses `affected` to narrow which resolutions the result carries.
 - No silent loss: a subtree an operation detaches is always returned via `orphaned()`, a wiring key it cannot re-home via `droppedWiring()`, and a static property value it cannot carry over via `droppedProperties()` (a `ReplaceElement`'s new type cannot hold it, or an `UnwrapElement` removes the container that held it). None is discarded or silently re-mapped.
 - `droppedWiring` carries reference keys an operation could not re-home. It is populated by `ReplaceElement` (keys with no matching reference property on the new type) and by `UnwrapElement` (the removed container's own data requirement and accepted-context keys, which the hoisted children cannot inherit). The carve-out is narrow: the context an unwrapped element *provided* to its descendants is ancestor context, not a wiring key it could re-home, so it is not a `droppedWiring` entry. A hoisted descendant that depended on that provided context instead surfaces as a `ViolationCode::BrokenRequiredChain` binding violation in the diagnostics pass when a source is bound. This is intentional, not a silent loss.
-- Affected-set rules are load-bearing — do not weaken them (rationale in `README.md`, "Affected-set rationale"): `RemoveElement` reports none; `MoveElement` reports the moved subtree only on a parent change; `ReplaceElement` reports the whole reconstructed subtree; `UnwrapElement` reports the whole hoisted forest.
+- Affected-set rules are load-bearing — do not weaken them (rationale in [README.md](README.md#affected-set-rationale)): `RemoveElement` reports none; `MoveElement` reports the moved subtree only on a parent change; `ReplaceElement` reports the whole reconstructed subtree; `UnwrapElement` reports the whole hoisted forest.
 - Structural impossibilities fail `400` via `ContentSystemException`: `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`. These are mutation-specific structural errors and are NOT client-defect codes (not in `CLIENT_DEFECT_CODES`).
 - `Op/BindElement` additionally fails `400` with `bindingSpecificationNotFound` (unregistered `bindingSpecificationId`) and `bindingTypeMismatch` (specification's declared `type` ≠ target's `component`), alongside the shared `mutationTargetNotFound` when the target element itself is absent. Unlike the structural codes above, these concern the specification, not the tree's shape — also not client-defect codes.
 - `MutationPipeline::run()`: `$tree` is the already-decoded `list<ContentElement>`; `$rootContext` is the bound source's root-ambient context (`list<ProvidedContext>`) or `null` for the well-formedness-only subset. The request draft is decoded upstream by `Api/DraftLayoutDecoder` (structural pre-gate, shared with the preview and diagnose routes), not by the pipeline.

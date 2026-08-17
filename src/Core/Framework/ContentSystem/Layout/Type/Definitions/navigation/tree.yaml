@@ -43,29 +43,3 @@ properties:
     description: "Label of the navigation landmark for assistive technology."
     adminUI:
       helpText: "Helps screen reader users tell this navigation apart from others on the page."
-
-# Each binding seeds its own accessible label: a page showing two of these trees would otherwise
-# announce both landmarks as "Categories", which is what the label exists to prevent. An editor's
-# own value still wins — seeding only fills an unset property.
-bindings:
-  service-navigation:
-    label: "Service navigation"
-    inputs:
-      ariaLabel:
-        default: "Service navigation"
-    resolves:
-      navigationTree:
-        loader: navigation
-        config:
-          rootId: service-navigation
-
-  footer-navigation:
-    label: "Footer navigation"
-    inputs:
-      ariaLabel:
-        default: "Footer navigation"
-    resolves:
-      navigationTree:
-        loader: navigation
-        config:
-          rootId: footer-navigation

@@ -35,43 +35,33 @@ class NavigationTreeComponentTest extends TestCase
         $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
 
-        $expectedRoots = [
-            'core:Sw:Navigation:Tree' => 'main-navigation',
-            'core:service-navigation' => 'service-navigation',
-            'core:footer-navigation' => 'footer-navigation',
-        ];
+        $specification = $registry->all()['core:Sw:Navigation:Tree'] ?? null;
+        static::assertInstanceOf(BindingSpecification::class, $specification);
+        static::assertSame('Sw:Navigation:Tree', $specification->type());
 
-        foreach ($expectedRoots as $qualifiedId => $expectedRoot) {
-            $specification = $registry->all()[$qualifiedId] ?? null;
-            static::assertInstanceOf(BindingSpecification::class, $specification, $qualifiedId);
-            static::assertSame('Sw:Navigation:Tree', $specification->type(), $qualifiedId);
-
-            $binding = $specification->resolves()['navigationTree'] ?? null;
-            static::assertInstanceOf(LoaderBinding::class, $binding, $qualifiedId);
-            static::assertSame('navigation', $binding->loader, $qualifiedId);
-            static::assertSame($expectedRoot, $binding->config['rootId'] ?? null, $qualifiedId);
-        }
+        $binding = $specification->resolves()['navigationTree'] ?? null;
+        static::assertInstanceOf(LoaderBinding::class, $binding);
+        static::assertSame('navigation', $binding->loader);
+        static::assertSame('main-navigation', $binding->config['rootId'] ?? null);
     }
 
     /**
-     * A page carrying two of these trees would announce both landmarks as "Categories", which is
-     * what the label exists to prevent. The two non-default bindings therefore seed their own.
+     * The type ships the synthesized default and nothing else. A binding is an entry an editor picks
+     * from a list, so one exists to serve a use case, not to expose a root the loader happens to
+     * accept — the service and footer roots feed the footer's own column and link-row layouts, which
+     * this component does not produce.
      */
-    public function testTheNonDefaultBindingsSeedTheirOwnLabel(): void
+    public function testTheTypeShipsNoBindingBeyondTheSynthesizedDefault(): void
     {
         $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
 
-        $expectedLabels = [
-            'core:service-navigation' => 'Service navigation',
-            'core:footer-navigation' => 'Footer navigation',
-        ];
+        $ownBindings = array_keys(array_filter(
+            $registry->all(),
+            static fn (BindingSpecification $specification): bool => $specification->type() === 'Sw:Navigation:Tree'
+        ));
 
-        foreach ($expectedLabels as $qualifiedId => $expectedLabel) {
-            $specification = $registry->all()[$qualifiedId] ?? null;
-            static::assertInstanceOf(BindingSpecification::class, $specification, $qualifiedId);
-            static::assertSame($expectedLabel, $specification->inputs()['ariaLabel']->default ?? null, $qualifiedId);
-        }
+        static::assertSame(['core:Sw:Navigation:Tree'], $ownBindings);
     }
 
     /**

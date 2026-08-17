@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Category\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -107,6 +109,52 @@ class NavigationDataLoaderTest extends TestCase
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
+    }
+
+    /**
+     * @param non-empty-string $alias
+     * @param callable(SalesChannelEntity, string): void $assignRootToSalesChannel
+     */
+    #[TestDox('resolves the optional service and footer roots to their sales channel category')]
+    #[DataProvider('optionalRootProvider')]
+    public function testLoadResolvesTheOptionalSalesChannelRoots(string $alias, callable $assignRootToSalesChannel): void
+    {
+        $rootId = Uuid::randomHex();
+        $activeId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => $activeId]);
+        $config = new NavigationLoaderConfig(rootId: $alias, depth: 2, activeProperty: 'activeId');
+        $requirement = new DataRequirement('navKey', 'navigation', $config);
+        $context = Generator::generateSalesChannelContext();
+        $assignRootToSalesChannel($context->getSalesChannel(), $rootId);
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($activeId, $context, $rootId, 2)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load($element, $requirement, $context, new Request());
+
+        static::assertTrue($result->hasData());
+        static::assertSame($tree, $result->data);
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string, callable(SalesChannelEntity, string): void}>
+     */
+    public static function optionalRootProvider(): iterable
+    {
+        yield 'service navigation' => ['service-navigation', static function (SalesChannelEntity $salesChannel, string $rootId): void {
+            $salesChannel->setServiceCategoryId($rootId);
+        }];
+
+        yield 'footer navigation' => ['footer-navigation', static function (SalesChannelEntity $salesChannel, string $rootId): void {
+            $salesChannel->setFooterCategoryId($rootId);
+        }];
     }
 
     #[TestDox('reads active ID from custom activeProperty name')]

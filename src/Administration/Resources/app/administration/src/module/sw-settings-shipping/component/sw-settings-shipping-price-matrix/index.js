@@ -96,6 +96,12 @@ export default {
             return this.repositoryFactory.create('shipping_method_price');
         },
 
+        currentCalculation() {
+            const [firstPrice] = this.priceGroup.prices;
+
+            return firstPrice ? firstPrice.calculation : this.priceGroup.calculation;
+        },
+
         labelQuantityStart() {
             const calculationType = {
                 1: 'sw-settings-shipping.priceMatrix.columnQuantityStart',
@@ -104,7 +110,7 @@ export default {
                 4: 'sw-settings-shipping.priceMatrix.columnVolumeStart',
             };
 
-            return calculationType[this.priceGroup.calculation] || 'sw-settings-shipping.priceMatrix.columnQuantityStart';
+            return calculationType[this.currentCalculation] || 'sw-settings-shipping.priceMatrix.columnQuantityStart';
         },
 
         labelQuantityEnd() {
@@ -115,7 +121,7 @@ export default {
                 4: 'sw-settings-shipping.priceMatrix.columnVolumeEnd',
             };
 
-            return calculationType[this.priceGroup.calculation] || 'sw-settings-shipping.priceMatrix.columnQuantityEnd';
+            return calculationType[this.currentCalculation] || 'sw-settings-shipping.priceMatrix.columnQuantityEnd';
         },
 
         numberFieldType() {
@@ -126,7 +132,7 @@ export default {
                 4: 'float',
             };
 
-            return calculationType[this.priceGroup.calculation] || 'float';
+            return calculationType[this.currentCalculation] || 'float';
         },
 
         confirmDeleteText() {
@@ -154,8 +160,7 @@ export default {
 
         showDataGrid() {
             return (
-                !!this.priceGroup.calculation ||
-                this.priceGroup.prices.some((shippingPrice) => shippingPrice.calculationRuleId)
+                !!this.currentCalculation || this.priceGroup.prices.some((shippingPrice) => shippingPrice.calculationRuleId)
             );
         },
 
@@ -205,7 +210,7 @@ export default {
         },
 
         isRuleMatrix() {
-            return !this.priceGroup.calculation;
+            return !this.currentCalculation;
         },
 
         usedCalculationRules() {
@@ -314,7 +319,7 @@ export default {
             newShippingPrice.calculation = refPrice.calculation;
 
             // If the calculation type is "quantity" always increase by one, otherwise use end as start
-            if (this.priceGroup.calculation === 1) {
+            if (this.currentCalculation === 1) {
                 newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
             } else {
                 newShippingPrice.quantityStart = refPrice.quantityEnd;
@@ -366,6 +371,8 @@ export default {
         },
 
         onCalculationChange(calculation) {
+            this.priceGroup.calculation = Number(calculation);
+
             this.priceGroup.prices.forEach((shippingPrice) => {
                 shippingPrice.calculation = Number(calculation);
                 shippingPrice.ruleId = this.priceGroup.ruleId;

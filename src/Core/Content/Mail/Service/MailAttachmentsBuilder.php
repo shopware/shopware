@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -38,7 +39,8 @@ class MailAttachmentsBuilder
         private readonly EntityRepository $mediaRepository,
         private readonly DocumentGenerator $documentGenerator,
         private readonly Connection $connection,
-        private readonly EntityRepository $documentRepository
+        private readonly EntityRepository $documentRepository,
+        private readonly LoggerInterface $logger
     ) {
     }
 
@@ -269,10 +271,17 @@ class MailAttachmentsBuilder
                 continue;
             }
 
+            $matchedFormat = false;
+            $availableFormats = [];
+
             foreach ($documentFiles as $documentFile) {
+                $availableFormats[] = $documentFile->getDocumentFormat();
+
                 if ($requestedFormats !== null && !\in_array($documentFile->getDocumentFormat(), $requestedFormats, true)) {
                     continue;
                 }
+
+                $matchedFormat = true;
 
                 $media = $documentFile->getMedia();
 
@@ -291,9 +300,30 @@ class MailAttachmentsBuilder
                     'mimeType' => $media->getMimeType(),
                 ];
             }
+
+            if ($requestedFormats !== null && !$matchedFormat) {
+                $this->logMissingDocumentFormat($documentId, $requestedFormats, array_values(array_unique($availableFormats)));
+            }
         }
 
         return $attachments;
+    }
+
+    /**
+     * @param array<string> $requestedFormats
+     * @param array<string> $availableFormats
+     */
+    private function logMissingDocumentFormat(string $documentId, array $requestedFormats, array $availableFormats): void
+    {
+        // Logged on the business_events channel, which is persisted to log_entry
+        $this->logger->warning(
+            'None of the requested document formats were generated for this document, so no attachment was added for it.',
+            [
+                'documentId' => $documentId,
+                'requestedFormats' => $requestedFormats,
+                'availableFormats' => $availableFormats,
+            ]
+        );
     }
 
     /**

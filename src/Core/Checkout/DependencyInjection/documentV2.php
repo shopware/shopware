@@ -72,7 +72,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(DocumentTypeRegistry::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(DocumentBaseConfigSyncSubscriber::class)
         ->args([
@@ -148,7 +149,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             tagged_iterator('shopware.document_v2.type'),
             service(AppFeatureStorage::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(DocumentTemplateRenderer::class)
         ->public()

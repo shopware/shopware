@@ -275,6 +275,8 @@ class ThumbnailService
         );
 
         $writtenPaths = [];
+        $fileSystem = $this->getFileSystem($media);
+
         try {
             $event = new MediaPathChangedEvent($context);
 
@@ -289,7 +291,6 @@ class ThumbnailService
                 $this->writeThumbnail($thumbnail, $media, $path, $config->getThumbnailQuality());
                 $writtenPaths[] = $path;
 
-                $fileSystem = $this->getFileSystem($media);
                 if ($imageSize === $thumbnailSize && $fileSystem->fileSize($media->getPath()) < $fileSystem->fileSize($path)) {
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }

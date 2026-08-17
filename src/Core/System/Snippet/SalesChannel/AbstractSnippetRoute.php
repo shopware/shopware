@@ -16,5 +16,5 @@ abstract class AbstractSnippetRoute
 {
     abstract public function load(Request $request, SalesChannelContext $context): SnippetRouteResponse;
 
-    abstract protected function getDecorated(): AbstractSnippetRoute;
+    abstract public function getDecorated(): AbstractSnippetRoute;
 }

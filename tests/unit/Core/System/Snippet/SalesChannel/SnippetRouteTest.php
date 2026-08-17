@@ -10,12 +10,13 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
-use Shopware\Core\System\Snippet\SalesChannel\SnippetSetResult;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,7 +66,6 @@ class SnippetRouteTest extends TestCase
         static::assertCount(1, $response->getResult()->sets);
         $result = $response->getResult()->sets[0];
 
-        static::assertInstanceOf(SnippetSetResult::class, $result);
         static::assertSame($this->salesChannelContext->getLanguageId(), $result->languageId);
         static::assertSame('pl-PL', $result->locale);
         static::assertSame('pl', $result->fallbackLocale);
@@ -81,7 +81,7 @@ class SnippetRouteTest extends TestCase
             $result->snippets
         );
 
-        static::assertSame(hash('xxh128', (string) json_encode($result->snippets)), $result->hash);
+        static::assertSame(Hasher::hash($result->snippets), $result->hash);
         static::assertSame('"' . $result->hash . '"', $response->getEtag());
     }
 
@@ -157,7 +157,7 @@ class SnippetRouteTest extends TestCase
             'de-DE' => new MessageCatalogue('de-DE', ['messages' => ['checkout.cart.title' => 'Warenkorb']]),
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn($languageIds);
 
         $route = $this->createRoute(
@@ -181,7 +181,7 @@ class SnippetRouteTest extends TestCase
     {
         $languageId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([]);
 
         $route = $this->createRoute([], connection: $connection);
@@ -191,6 +191,15 @@ class SnippetRouteTest extends TestCase
         );
 
         $route->load(new Request(['languageIds' => $languageId]), $this->salesChannelContext);
+    }
+
+    public function testGetDecoratedThrows(): void
+    {
+        $route = $this->createRoute([]);
+
+        $this->expectExceptionObject(new DecorationPatternException(SnippetRoute::class));
+
+        $route->getDecorated();
     }
 
     public function testThrowsWhenTooManyPrefixesAreRequested(): void
@@ -229,13 +238,13 @@ class SnippetRouteTest extends TestCase
     {
         $locales ??= [$this->salesChannelContext->getLanguageId() => 'pl-PL'];
 
-        $translator = $this->createMock(AbstractTranslator::class);
+        $translator = static::createStub(AbstractTranslator::class);
         $translator->method('getCatalogue')->willReturnCallback(
-            static fn (?string $locale): MessageCatalogue => $catalogues[$locale] ?? new MessageCatalogue((string) $locale)
+            static fn (?string $locale): MessageCatalogue => $catalogues[(string) $locale] ?? new MessageCatalogue((string) $locale)
         );
         $translator->method('getSnippetSetId')->willReturn($this->snippetSetId);
 
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $languageLocaleProvider->method('getLocaleForLanguageId')->willReturnCallback(
             static fn (string $languageId): string => $locales[$languageId] ?? 'en-GB'
         );
@@ -243,7 +252,7 @@ class SnippetRouteTest extends TestCase
         return new SnippetRoute(
             $translator,
             $languageLocaleProvider,
-            $connection ?? $this->createMock(Connection::class),
+            $connection ?? static::createStub(Connection::class),
             static::createStub(CacheTagCollector::class)
         );
     }

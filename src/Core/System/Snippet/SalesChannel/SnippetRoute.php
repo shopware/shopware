@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -65,9 +66,9 @@ class SnippetRoute extends AbstractSnippetRoute
 
         $response = new SnippetRouteResponse(new SnippetSetResultList($results));
 
-        $etag = \count($results) === 1
-            ? $results[0]->hash
-            : hash('xxh128', implode('-', array_map(static fn (SnippetSetResult $result): string => $result->hash, $results)));
+        $hashes = array_map(static fn (SnippetSetResult $result): string => $result->hash, $results);
+        // a single set keeps its own hash as etag, multiple sets are combined into one
+        $etag = \count($hashes) === 1 ? implode('', $hashes) : Hasher::hash(implode('-', $hashes));
 
         $response->setEtag($etag);
         $response->isNotModified($request);
@@ -75,7 +76,7 @@ class SnippetRoute extends AbstractSnippetRoute
         return $response;
     }
 
-    protected function getDecorated(): AbstractSnippetRoute
+    public function getDecorated(): AbstractSnippetRoute
     {
         throw new DecorationPatternException(self::class);
     }
@@ -103,7 +104,7 @@ class SnippetRoute extends AbstractSnippetRoute
         if ($prefixes !== []) {
             $snippets = array_filter(
                 $snippets,
-                static fn (string $key): bool => self::matchesAnyPrefix($key, $prefixes),
+                static fn (string|int $key): bool => self::matchesAnyPrefix((string) $key, $prefixes),
                 \ARRAY_FILTER_USE_KEY
             );
         }
@@ -117,7 +118,7 @@ class SnippetRoute extends AbstractSnippetRoute
             locale: $locale,
             fallbackLocale: $fallbackLocale !== $locale ? $fallbackLocale : null,
             snippetSetId: $snippetSetId,
-            hash: hash('xxh128', json_encode($snippets, \JSON_THROW_ON_ERROR)),
+            hash: Hasher::hash($snippets),
             snippets: $snippets,
         );
     }
@@ -138,7 +139,11 @@ class SnippetRoute extends AbstractSnippetRoute
 
         $snippets = [];
         foreach (array_reverse($catalogues) as $chainCatalogue) {
-            $snippets = array_replace($snippets, $chainCatalogue->all('messages'));
+            foreach ($chainCatalogue->all('messages') as $key => $value) {
+                if (\is_string($value)) {
+                    $snippets[(string) $key] = $value;
+                }
+            }
         }
 
         return $snippets;

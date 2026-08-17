@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Http;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriComparator;
@@ -22,7 +21,7 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
  * @internal
  */
 #[Package('framework')]
-final class PinningAppSystemHttpClient implements ClientInterface
+final class PinningAppSystemHttpClient extends Client
 {
     public function __construct(
         private readonly Client $client,

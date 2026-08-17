@@ -16,7 +16,15 @@ import {
 } from './renderer-label-help-text-inheritance.helper';
 
 type LabelHelpContract = 'simple' | 'composite' | 'rich';
-type InheritanceContract = 'component-owned' | 'wrapper-owned' | 'none';
+
+/**
+ * How the rendered input component decides to show an inheritance switch:
+ * - `switch-prop`: only when `isInheritanceField` is set (mt-switch).
+ * - `inherited-value`: whenever `inheritedValue` is not null (mt-checkbox). sw-system-config always
+ *   passes one, so those fields show the switch even while no sales channel is selected.
+ * - `none`: never — the component has no inheritance support (mt-datepicker) or the field is not inheritable.
+ */
+type InheritanceContract = 'switch-prop' | 'inherited-value' | 'none';
 
 type TestedFieldDefinition = FormFieldDefinition & {
     labelHelp: LabelHelpContract;
@@ -24,11 +32,11 @@ type TestedFieldDefinition = FormFieldDefinition & {
 };
 
 const TESTED_FIELD_DEFINITIONS: TestedFieldDefinition[] = [
-    { type: 'bool', labelHelp: 'simple', inheritance: 'component-owned' },
-    { type: 'checkbox', labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'bool', labelHelp: 'simple', inheritance: 'switch-prop' },
+    { type: 'checkbox', labelHelp: 'simple', inheritance: 'inherited-value' },
     { type: 'colorpicker', labelHelp: 'simple', inheritance: 'none' },
-    { type: 'date', labelHelp: 'simple', inheritance: 'component-owned' },
-    { type: 'datetime', labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'date', labelHelp: 'simple', inheritance: 'none' },
+    { type: 'datetime', labelHelp: 'simple', inheritance: 'none' },
     { type: 'email', labelHelp: 'simple', inheritance: 'none' },
     { type: 'float', labelHelp: 'simple', inheritance: 'none' },
     { type: 'int', labelHelp: 'simple', inheritance: 'none' },
@@ -39,25 +47,25 @@ const TESTED_FIELD_DEFINITIONS: TestedFieldDefinition[] = [
     { type: 'radio', labelHelp: 'simple', inheritance: 'none' },
     { type: 'single-select', labelHelp: 'simple', inheritance: 'none' },
     { type: 'string', labelHelp: 'simple', inheritance: 'none' },
-    { type: 'switch', labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'switch', labelHelp: 'simple', inheritance: 'switch-prop' },
     { type: 'tagged', labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', labelHelp: 'simple', inheritance: 'none' },
     { type: 'text-editor', labelHelp: 'rich', inheritance: 'none' },
     { type: 'textarea', labelHelp: 'simple', inheritance: 'none' },
-    { type: 'time', labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'time', labelHelp: 'simple', inheritance: 'none' },
     { type: 'url', labelHelp: 'simple', inheritance: 'none' },
-    { type: 'text', config: { componentName: 'mt-checkbox' }, labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'text', config: { componentName: 'mt-checkbox' }, labelHelp: 'simple', inheritance: 'inherited-value' },
     { type: 'text', config: { componentName: 'mt-email-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'mt-number-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'mt-password-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'mt-select' }, labelHelp: 'simple', inheritance: 'none' },
-    { type: 'text', config: { componentName: 'mt-switch' }, labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'text', config: { componentName: 'mt-switch' }, labelHelp: 'simple', inheritance: 'switch-prop' },
     { type: 'text', config: { componentName: 'mt-text-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'mt-textarea' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'mt-url-field' }, labelHelp: 'simple', inheritance: 'none' },
-    { type: 'text', config: { componentName: 'sw-checkbox-field' }, labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'text', config: { componentName: 'sw-checkbox-field' }, labelHelp: 'simple', inheritance: 'inherited-value' },
     { type: 'text', config: { componentName: 'sw-colorpicker' }, labelHelp: 'simple', inheritance: 'none' },
-    { type: 'text', config: { componentName: 'sw-datepicker' }, labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'text', config: { componentName: 'sw-datepicker' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-email-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-number-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-password-field' }, labelHelp: 'simple', inheritance: 'none' },
@@ -65,7 +73,7 @@ const TESTED_FIELD_DEFINITIONS: TestedFieldDefinition[] = [
     { type: 'text', config: { componentName: 'sw-radio-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-select-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-snippet-field' }, labelHelp: 'simple', inheritance: 'none' },
-    { type: 'text', config: { componentName: 'sw-switch-field' }, labelHelp: 'simple', inheritance: 'component-owned' },
+    { type: 'text', config: { componentName: 'sw-switch-field' }, labelHelp: 'simple', inheritance: 'switch-prop' },
     { type: 'text', config: { componentName: 'sw-tagged-field' }, labelHelp: 'simple', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-text-editor' }, labelHelp: 'rich', inheritance: 'none' },
     { type: 'text', config: { componentName: 'sw-text-field' }, labelHelp: 'simple', inheritance: 'none' },
@@ -74,16 +82,13 @@ const TESTED_FIELD_DEFINITIONS: TestedFieldDefinition[] = [
 ];
 
 const SIMPLE_LABEL_HELP_DEFINITIONS = TESTED_FIELD_DEFINITIONS.filter((field) => field.labelHelp === 'simple');
-const COMPONENT_OWNED_INHERITANCE_DEFINITIONS = TESTED_FIELD_DEFINITIONS.filter((field) => {
-    return field.inheritance === 'component-owned';
-});
+const INHERITANCE_DEFINITIONS = TESTED_FIELD_DEFINITIONS.filter((field) => field.inheritance !== 'none');
+const INHERITANCE_CONTRACTS = INHERITANCE_DEFINITIONS.map((field) => field.inheritance);
 
 const FORM_FIELD_RENDERER_LABEL_FIELDS = buildRendererFields(removeTestMetadata(SIMPLE_LABEL_HELP_DEFINITIONS));
-const FORM_FIELD_RENDERER_INHERITANCE_FIELDS = buildRendererFields(
-    removeTestMetadata(COMPONENT_OWNED_INHERITANCE_DEFINITIONS),
-);
+const FORM_FIELD_RENDERER_INHERITANCE_FIELDS = buildRendererFields(removeTestMetadata(INHERITANCE_DEFINITIONS));
 const SIMPLE_LABEL_HELP_FIELDS = buildRendererFields(removeTestMetadata(SIMPLE_LABEL_HELP_DEFINITIONS));
-const COMPONENT_OWNED_INHERITANCE_FIELDS = buildRendererFields(removeTestMetadata(COMPONENT_OWNED_INHERITANCE_DEFINITIONS));
+const INHERITANCE_FIELDS = buildRendererFields(removeTestMetadata(INHERITANCE_DEFINITIONS));
 
 function removeTestMetadata(fields: TestedFieldDefinition[]): FormFieldDefinition[] {
     return fields.map(({ type, config }) => ({ type, config }));
@@ -151,10 +156,10 @@ describe('components/form/sw-custom-field-set-renderer label, help text, and inh
         async ({ hasParent, expectedCount }) => {
             expect.hasAssertions();
 
-            const wrapper = await mountCustomFieldSetRenderer(COMPONENT_OWNED_INHERITANCE_FIELDS, { hasParent });
+            const wrapper = await mountCustomFieldSetRenderer(INHERITANCE_FIELDS, { hasParent });
             await flushPromises();
 
-            COMPONENT_OWNED_INHERITANCE_FIELDS.forEach((field) => {
+            INHERITANCE_FIELDS.forEach((field) => {
                 expectInheritanceSwitches(wrapper.find(customFieldSelector(field)), field, expectedCount);
             });
         },
@@ -176,23 +181,25 @@ describe('src/module/sw-settings/component/sw-system-config label, help text, an
     it('renders one inheritance switch for each system config field when a sales channel is selected', async () => {
         expect.hasAssertions();
 
-        const wrapper = await mountSystemConfig(COMPONENT_OWNED_INHERITANCE_FIELDS);
+        const wrapper = await mountSystemConfig(INHERITANCE_FIELDS);
         await flushPromises();
         await switchSystemConfigToSalesChannel(wrapper);
 
-        COMPONENT_OWNED_INHERITANCE_FIELDS.forEach((field) => {
+        INHERITANCE_FIELDS.forEach((field) => {
             expectInheritanceSwitches(wrapper.find(systemConfigSelector(field)), field, 1);
         });
     });
 
-    it('renders no inheritance switch for each system config field without a sales channel', async () => {
+    it('renders an inheritance switch without a sales channel only for inherited-value fields', async () => {
         expect.hasAssertions();
 
-        const wrapper = await mountSystemConfig(COMPONENT_OWNED_INHERITANCE_FIELDS);
+        const wrapper = await mountSystemConfig(INHERITANCE_FIELDS);
         await flushPromises();
 
-        COMPONENT_OWNED_INHERITANCE_FIELDS.forEach((field) => {
-            expectInheritanceSwitches(wrapper.find(systemConfigSelector(field)), field, 0);
+        INHERITANCE_FIELDS.forEach((field, index) => {
+            const expectedCount = INHERITANCE_CONTRACTS[index] === 'inherited-value' ? 1 : 0;
+
+            expectInheritanceSwitches(wrapper.find(systemConfigSelector(field)), field, expectedCount);
         });
     });
 });

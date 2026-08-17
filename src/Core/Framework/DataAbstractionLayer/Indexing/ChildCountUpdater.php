@@ -57,12 +57,7 @@ class ChildCountUpdater
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
-        // Read the counts with a plain SELECT (non-locking consistent read) instead of a
-        // single self-joined UPDATE: the subquery of the previous statement took shared
-        // next-key locks on all child rows while the UPDATE took exclusive locks on the
-        // parent rows, which deadlocks under concurrent writes to the same tree (NEXT-22174).
-        // A slightly stale count is acceptable - child_count is recomputed on every indexing run.
-        $counts = $this->connection->fetchAllKeyValue(
+        $aggregations = $this->connection->fetchAllKeyValue(
             \sprintf(
                 'SELECT parent_id, COUNT(id) FROM %s WHERE parent_id IN (:ids) %s GROUP BY parent_id',
                 $entity,
@@ -71,28 +66,32 @@ class ChildCountUpdater
             $params,
             ['ids' => ArrayParameterType::BINARY]
         );
+        /**
+         * @var list<array{
+         *     sql: non-falsy-string,
+         *     params: non-empty-array<lowercase-string&non-falsy-string, int|non-empty-string>
+         * }> $cases
+         */
+        $cases = array_map(
+            static fn (string $id, int $key): array => [
+                'sql' => \sprintf('WHEN :id%d THEN :count%d ', $key, $key),
+                'params' => ['id' . $key => $id, 'count' . $key => (int) ($aggregations[$id] ?? 0)],
+            ],
+            $ids,
+            array_keys($ids)
+        );
 
-        // the primary key lookup only takes record locks on the listed parents, no gap locks
-        $cases = '0';
-        if ($counts !== []) {
-            $cases = 'CASE id ' . implode('', array_map(
-                static fn (int $i) => \sprintf('WHEN :id%d THEN :count%d ', $i, $i),
-                range(0, \count($counts) - 1)
-            )) . 'ELSE 0 END';
-
-            $i = 0;
-            foreach ($counts as $parentId => $total) {
-                $params['id' . $i] = $parentId;
-                $params['count' . $i] = (int) $total;
-                ++$i;
-            }
+        if ($cases === []) {
+            return;
         }
+
+        $params = array_merge($params, ...array_column($cases, 'params'));
 
         $this->connection->executeStatement(
             \sprintf(
-                'UPDATE %s SET child_count = %s WHERE id IN (:ids) %s',
+                'UPDATE %s SET child_count = CASE id %s ELSE 0 END WHERE id IN (:ids) %s',
                 $entity,
-                $cases,
+                implode('', array_column($cases, 'sql')),
                 $versionAware ? 'AND version_id = :version' : ''
             ),
             $params,

@@ -72,13 +72,6 @@ class SeoUrlPersister
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $table = $this->seoUrlRepository->getDefinition()->getEntityName();
-
-        // Use INSERT ... ON DUPLICATE KEY UPDATE instead of REPLACE INTO: REPLACE is a DELETE + INSERT
-        // that takes exclusive next-key locks on both unique indexes of seo_url and rewrites every
-        // secondary index entry. Under concurrent url generation that churn deadlocks even under the
-        // default REPEATABLE READ isolation (see NEXT-22174). Updating the colliding row in place keeps
-        // the same resulting rows with a much smaller lock footprint, so REPEATABLE READ's next-key
-        // locks serialize overlapping batches cleanly instead of forming lock cycles.
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
         foreach (['foreign_key', 'path_info', 'seo_path_info', 'route_name', 'is_canonical', 'is_modified', 'is_deleted'] as $updateField) {
             $insertQuery->addUpdateFieldOnDuplicateKey($table, $updateField);

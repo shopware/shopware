@@ -6,6 +6,10 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### New app script hook `cookie-group-collect`
+
+Apps can now manipulate the cookie consent groups with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks. This complements the declarative `<active-payment-method>` cookie condition in the app manifest for use cases that need custom logic or other conditions.
+
 ## API
 
 ### Order recalculation and conversion endpoints now require ACL privileges

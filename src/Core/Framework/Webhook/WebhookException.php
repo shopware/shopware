@@ -16,6 +16,9 @@ class WebhookException extends HttpException
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
     public const DUPLICATE_DESCRIBED_EVENT = 'FRAMEWORK__WEBHOOK_DUPLICATE_DESCRIBED_EVENT';
+    public const TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_TARGET_NOT_ALLOWED';
+    public const REDIRECT_TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED';
+    public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -49,7 +52,36 @@ class WebhookException extends HttpException
         );
     }
 
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function targetNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TARGET_NOT_ALLOWED,
+            'Webhook target is not allowed.'
+        );
+    }
+
+    public static function redirectTargetNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REDIRECT_TARGET_NOT_ALLOWED,
+            'Redirect target is not allowed.'
+        );
+    }
+
+    public static function maximumRedirectsExceeded(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAXIMUM_REDIRECTS_EXCEEDED,
+            'Maximum redirects exceeded.'
+        );
+    }
+
     public static function invalidDataMapping(string $propertyName, string $className): self|\RuntimeException
     {
         return new self(

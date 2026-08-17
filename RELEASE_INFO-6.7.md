@@ -535,6 +535,13 @@ Store API criteria that load product reviews through a nested association now ap
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
 ### Newsletter route methods keep the `StoreApiResponse` return type
+### Webhook target validation hardened
+
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+
+Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
+
+### Document rendering supports decorated Twig environments
 
 `subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
 `StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
@@ -1360,6 +1367,9 @@ Extension SDK action and URI-signing requests now require `app.all` or `app.<app
 Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
 The Administration module response omits modules for apps the current user cannot access.
 Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
+### App requests block private targets and unencrypted traffic by default
+
+App-system requests now block private and reserved network targets as well as unencrypted HTTP traffic by default, including redirect targets. Before upgrading, operators whose apps use HTTP endpoints must set `shopware.app_system.allow_unencrypted_traffic`; operators whose apps use private endpoints must add each required address to `shopware.app_system.allowed_private_ip_addresses`.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

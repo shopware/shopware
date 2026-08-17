@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 
 /**
  * @internal
+ *
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 #[Package('framework')]
 final class PinningAppSystemHttpClient extends Client

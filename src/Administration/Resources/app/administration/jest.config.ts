@@ -2,6 +2,13 @@
  * @sw-package framework
  */
 
+/**
+ * Jest configuration shared by Administration unit tests and Storefront administration tests.
+ *
+ * It includes build-time TypeScript helpers such as `vue-setup-transform` so transform tests run in
+ * the same project-level module aliases and coverage collection as application code.
+ */
+
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 import type { Config } from 'jest';
@@ -96,6 +103,9 @@ const config: Config = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+        'build/vue-setup-transform/**/*.ts',
+        '!build/vue-setup-transform/**/*.spec.ts',
+        '!build/vue-setup-transform/**/index.spec/**',
 
         // The extension tooling ships as production code (it runs in a shop via
         // composer/bin/console), so its coverage is measured like any other.
@@ -152,7 +162,7 @@ const config: Config = {
         ],
         '^.+(\\.twig|\\.html)$': '<rootDir>/test/transformer/twigToVueTransformer.js',
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
-        '^.+\\.vue$': '@vue/vue3-jest',
+        '^.+\\.vue$': '<rootDir>/test/transformer/shopwareSetupVueTransformer.js',
     },
 
     transformIgnorePatterns: [
@@ -173,7 +183,7 @@ const config: Config = {
         '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
         '^lodash-es$': 'lodash',
         '^lodash-es/(.*)$': 'lodash/$1',
-        vue$: 'vue/dist/vue.cjs.js',
+        '^vue$': 'vue/dist/vue.cjs.js',
     },
 
     reporters: isCi
@@ -212,6 +222,7 @@ const config: Config = {
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
+        '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',

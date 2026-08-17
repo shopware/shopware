@@ -10,10 +10,10 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Http\PinningAppSystemHttpClient;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
-use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Webhook\WebhookException;
 class PinningAppSystemHttpClientTest extends TestCase
 {
     /**
-     * @var \ArrayObject<int, array{request: \Psr\Http\Message\RequestInterface, options: array<string, mixed>}>
+     * @var \ArrayObject<int, array>
      */
     private \ArrayObject $history;
 
@@ -40,7 +40,7 @@ class PinningAppSystemHttpClientTest extends TestCase
     {
         $client = $this->createClient(static fn (string $host): array => []);
 
-        $this->expectExceptionObject(WebhookException::targetNotAllowed());
+        $this->expectExceptionObject(AppException::appSystemRequestTargetNotAllowed());
 
         try {
             $client->request('POST', 'https://10.0.0.10/webhook');
@@ -78,7 +78,7 @@ class PinningAppSystemHttpClientTest extends TestCase
      */
     private function createClient(\Closure $dnsResolver, array $responses = [new Response(200)]): ClientInterface
     {
-        /** @var \ArrayObject<int, array{request: \Psr\Http\Message\RequestInterface, options: array<string, mixed>}> $history */
+        /** @var \ArrayObject<int, array> $history */
         $history = new \ArrayObject();
         $this->history = $history;
         $stack = HandlerStack::create(new MockHandler($responses));
@@ -99,6 +99,12 @@ class PinningAppSystemHttpClientTest extends TestCase
 
         static::assertArrayHasKey($index, $history);
 
-        return $history[$index];
+        $entry = $history[$index];
+        static::assertArrayHasKey('request', $entry);
+        static::assertArrayHasKey('options', $entry);
+        static::assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $entry['request']);
+        static::assertIsArray($entry['options']);
+
+        return ['request' => $entry['request'], 'options' => $entry['options']];
     }
 }

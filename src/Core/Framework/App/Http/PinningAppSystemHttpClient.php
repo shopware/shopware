@@ -13,10 +13,10 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTarget;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
-use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -141,7 +141,7 @@ final class PinningAppSystemHttpClient implements ClientInterface
     {
         $target = $this->targetValidator->validate((string) $uri);
         if ($target === null) {
-            throw WebhookException::targetNotAllowed();
+            throw AppException::appSystemRequestTargetNotAllowed();
         }
 
         $options = $this->pinTarget($options, $target);

@@ -23,9 +23,9 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 class PinningAppSystemHttpClientTest extends TestCase
 {
     /**
-     * @var \ArrayObject<int, array>
+     * @var array<int, array<string, mixed>>
      */
-    private \ArrayObject $history;
+    private array $history;
 
     public function testPinsValidatedPublicIpLiteral(): void
     {
@@ -78,9 +78,7 @@ class PinningAppSystemHttpClientTest extends TestCase
      */
     private function createClient(\Closure $dnsResolver, array $responses = [new Response(200)]): ClientInterface
     {
-        /** @var \ArrayObject<int, array> $history */
-        $history = new \ArrayObject();
-        $this->history = $history;
+        $this->history = [];
         $stack = HandlerStack::create(new MockHandler($responses));
         $stack->push(Middleware::history($this->history));
 
@@ -95,7 +93,7 @@ class PinningAppSystemHttpClientTest extends TestCase
      */
     private function getHistoryEntry(int $index): array
     {
-        $history = $this->history->getArrayCopy();
+        $history = $this->history;
 
         static::assertArrayHasKey($index, $history);
 
@@ -105,6 +103,9 @@ class PinningAppSystemHttpClientTest extends TestCase
         static::assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $entry['request']);
         static::assertIsArray($entry['options']);
 
-        return ['request' => $entry['request'], 'options' => $entry['options']];
+        /** @var array<string, mixed> $options */
+        $options = $entry['options'];
+
+        return ['request' => $entry['request'], 'options' => $options];
     }
 }

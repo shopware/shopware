@@ -62,13 +62,11 @@ class CachedSalesChannelContextFactoryTest extends TestCase
 
         $first = $factory->create('token', 'sales-channel-id', $options);
 
-        // the context was built in this call and is returned without a serialization round trip
-        static::assertSame($context, $first);
+        static::assertSame($context, $first, 'a context built in this call is returned without a serialization round trip');
 
         $second = $factory->create('other-token', 'sales-channel-id', $options);
 
-        // a cache hit is unserialized into a fresh instance with the requested token
-        static::assertNotSame($context, $second);
+        static::assertNotSame($context, $second, 'a cache hit is unserialized into a fresh instance');
         static::assertSame('other-token', $second->getToken());
         static::assertSame($context->getSalesChannelId(), $second->getSalesChannelId());
     }

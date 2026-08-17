@@ -75,8 +75,10 @@ class SeoUrlPersister
 
         // Use INSERT ... ON DUPLICATE KEY UPDATE instead of REPLACE INTO: REPLACE is a DELETE + INSERT
         // that takes exclusive next-key locks on both unique indexes of seo_url and rewrites every
-        // secondary index entry, which deadlocks under concurrent url generation (see NEXT-22174).
-        // Updating the colliding row in place keeps the same resulting rows with a much smaller lock footprint.
+        // secondary index entry. Under concurrent url generation that churn deadlocks even under the
+        // default REPEATABLE READ isolation (see NEXT-22174). Updating the colliding row in place keeps
+        // the same resulting rows with a much smaller lock footprint, so REPEATABLE READ's next-key
+        // locks serialize overlapping batches cleanly instead of forming lock cycles.
         $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
         foreach (['foreign_key', 'path_info', 'seo_path_info', 'route_name', 'is_canonical', 'is_modified', 'is_deleted'] as $updateField) {
             $insertQuery->addUpdateFieldOnDuplicateKey($table, $updateField);
@@ -159,10 +161,7 @@ class SeoUrlPersister
 
         $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $languageId, $salesChannelId);
 
-        // This transaction only writes (all reads happen above), so it does not depend on
-        // repeatable reads. READ COMMITTED avoids the gap locks that made concurrent url
-        // generations deadlock on the seo_url table (see NEXT-22174).
-        RetryableTransaction::retryableReadCommitted($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
+        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
 

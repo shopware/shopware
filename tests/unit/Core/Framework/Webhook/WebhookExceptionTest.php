@@ -31,6 +31,33 @@ class WebhookExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
     }
 
+    public function testTargetNotAllowed(): void
+    {
+        $exception = WebhookException::targetNotAllowed();
+
+        static::assertSame('Webhook target is not allowed.', $exception->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_TARGET_NOT_ALLOWED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
+
+    public function testRedirectTargetNotAllowed(): void
+    {
+        $exception = WebhookException::redirectTargetNotAllowed();
+
+        static::assertSame('Redirect target is not allowed.', $exception->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
+
+    public function testMaximumRedirectsExceeded(): void
+    {
+        $exception = WebhookException::maximumRedirectsExceeded();
+
+        static::assertSame('Maximum redirects exceeded.', $exception->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
+
     public function testInvalidDataMapping(): void
     {
         $exception = WebhookException::invalidDataMapping('propertyName', 'classString');

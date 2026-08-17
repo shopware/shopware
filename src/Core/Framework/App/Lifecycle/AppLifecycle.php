@@ -250,8 +250,8 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $webhooks = $this->getWebhooks($manifest, $flowActions, $id, $defaultLocale, (bool) $app->getAppSecret());
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id): void {
-            $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id, $manifest): void {
+            $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context, $manifest->getMetadata()->getName());
         });
 
         $flowEvents = $this->getFlowEvents($app);

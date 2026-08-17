@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\InAppPurchases\Payload;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -214,11 +215,11 @@ class InAppPurchasesPayloadServiceTest extends TestCase
                 'body' => '{"purchases":["purchase-1","purchase-2"]}',
             ]));
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (it is literally tested, if post method is used) */
-        $client = $this->createMock(Client::class);
+        $client = $this->createMock(ClientInterface::class);
         $client
             ->expects($this->once())
-            ->method('post')
+            ->method('request')
+            ->with('POST', 'https://example.com', static::isType('array'))
             ->willReturn(new Response(200, [], \json_encode([
                 'purchases' => [
                     'purchase-2',

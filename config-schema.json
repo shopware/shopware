@@ -122,6 +122,9 @@
                 },
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
+                },
+                "app_system": {
+                    "$ref": "#/definitions/app_system"
                 }
             },
             "title": "Shopware"
@@ -1238,6 +1241,23 @@
                 }
             },
             "title": "Media"
+        },
+        "app_system": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allow_unencrypted_traffic": {
+                    "type": "boolean"
+                },
+                "allowed_private_ip_addresses": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "title": "App System"
         },
         "sitemap": {
             "type": "object",

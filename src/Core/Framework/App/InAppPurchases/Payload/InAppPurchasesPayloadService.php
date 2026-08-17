@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\InAppPurchases\Payload;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\InAppPurchases\Response\InAppPurchasesResponse;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -17,7 +17,7 @@ class InAppPurchasesPayloadService
 {
     public function __construct(
         private readonly AppPayloadServiceHelper $helper,
-        private readonly Client $client,
+        private readonly ClientInterface $client,
     ) {
     }
 
@@ -25,7 +25,7 @@ class InAppPurchasesPayloadService
     {
         $options = $this->helper->createRequestOptions($payload, $app, $context);
 
-        $response = $this->client->post($url, $options->jsonSerialize());
+        $response = $this->client->request('POST', $url, $options->jsonSerialize());
         $content = \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (\array_key_exists('purchases', $content) && \is_array($content['purchases'])) {

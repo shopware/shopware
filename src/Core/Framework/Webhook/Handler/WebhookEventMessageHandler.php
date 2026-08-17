@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Framework\Webhook\Handler;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\CurlVersion;
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriComparator;
+use GuzzleHttp\Psr7\UriResolver;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
@@ -15,6 +20,7 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -27,16 +33,25 @@ final class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
+    private const MAX_REDIRECTS = 5;
+
+    /**
+     * @var \Closure(): bool
+     */
+    private readonly \Closure $canUseCurl;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly Client $client,
+        private readonly ClientInterface $client,
         private readonly EntityRepository $webhookEventLogRepository,
         private readonly RelatedWebhooks $relatedWebhooks,
         private readonly WebhookSigningSecretResolver $signingSecretResolver,
+        private readonly WebhookTargetValidator $targetValidator,
+        ?\Closure $canUseCurl = null,
     ) {
+        $this->canUseCurl = $canUseCurl ?? static fn (): bool => \defined('CURLOPT_CUSTOMREQUEST') && \function_exists('curl_exec') && CurlVersion::supportsCurlHandler();
     }
 
     public function __invoke(WebhookEventMessage $message): void
@@ -92,7 +107,7 @@ final class WebhookEventMessageHandler
         ], $context);
 
         try {
-            $response = $this->client->post($url, $requestContent);
+            $response = $this->sendWithRedirects($url, $requestContent);
 
             $this->webhookEventLogRepository->update([
                 [
@@ -139,11 +154,86 @@ final class WebhookEventMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
+            if ($e instanceof WebhookException && $e->getErrorCode() === WebhookException::CURL_NOT_AVAILABLE) {
+                throw $e;
+            }
+
             if ($e instanceof BadResponseException && $message->getAppId()) {
                 throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $e);
             }
 
             throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $requestContent
+     */
+    private function sendWithRedirects(string $url, array $requestContent, int $redirects = 0, string $method = 'POST'): ResponseInterface
+    {
+        $target = $this->targetValidator->validate($url);
+        if ($target === null) {
+            throw $redirects > 0 ? WebhookException::redirectTargetNotAllowed() : WebhookException::targetNotAllowed();
+        }
+
+        if (!$this->canUseCurl()) {
+            throw WebhookException::curlNotAvailable();
+        }
+
+        // Guzzle redirects are disabled so every redirect target can be validated and pinned before following it.
+        $requestContent['allow_redirects'] = false;
+        $curlOptions = $requestContent['curl'] ?? [];
+        if (!\is_array($curlOptions)) {
+            $curlOptions = [];
+        }
+
+        $resolvePins = $curlOptions[\CURLOPT_RESOLVE] ?? [];
+        if (!\is_array($resolvePins)) {
+            $resolvePins = [];
+        }
+
+        $resolvePins[] = \sprintf('%s:%d:%s', $target->host, $target->port, $this->formatCurlResolveAddress($target->ip));
+        $curlOptions[\CURLOPT_RESOLVE] = $resolvePins;
+        $requestContent['curl'] = $curlOptions;
+
+        $response = $this->client->request($method, $url, $requestContent);
+        if (!\in_array($response->getStatusCode(), [301, 302, 303, 307, 308], true)) {
+            return $response;
+        }
+
+        if ($redirects >= self::MAX_REDIRECTS) {
+            throw WebhookException::maximumRedirectsExceeded();
+        }
+
+        $location = $response->getHeaderLine('Location');
+        if ($location === '') {
+            return $response;
+        }
+
+        $redirectUrl = (string) UriResolver::resolve(new Uri($url), new Uri($location));
+        if (\in_array($response->getStatusCode(), [301, 302, 303], true)) {
+            unset($requestContent['body'], $requestContent['headers']['Content-Length'], $requestContent['headers']['Transfer-Encoding']);
+            $method = 'GET';
+        }
+
+        if (UriComparator::isCrossOrigin(new Uri($url), new Uri($redirectUrl))) {
+            $requestContent['headers'] = array_filter(
+                $requestContent['headers'],
+                static fn (string $name): bool => !\in_array(strtolower($name), ['authorization', 'cookie'], true),
+                \ARRAY_FILTER_USE_KEY
+            );
+        }
+
+        return $this->sendWithRedirects($redirectUrl, $requestContent, $redirects + 1, $method);
+    }
+
+    private function formatCurlResolveAddress(string $ip): string
+    {
+        return str_contains($ip, ':') ? \sprintf('[%s]', $ip) : $ip;
+    }
+
+    private function canUseCurl(): bool
+    {
+        return ($this->canUseCurl)();
     }
 }

@@ -63,7 +63,12 @@ export default {
         },
 
         documentTypeOptions() {
-            return this.documentTypes.filter((documentType) => documentType.technicalName in this.supportedDocumentTypes);
+            return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
+                return {
+                    value: technicalName,
+                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                };
+            });
         },
 
         fileFormatOptions() {
@@ -100,13 +105,13 @@ export default {
 
     methods: {
         async createdComponent() {
-            if (!this.documentTypes.length) {
-                this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                    Shopware.Store.get('swFlow').documentTypes = data;
-                });
-            }
-
             if (!this.isDocumentGenerationReworkActive) {
+                if (!this.documentTypes.length) {
+                    this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
+                        Shopware.Store.get('swFlow').documentTypes = data;
+                    });
+                }
+
                 this.initializeLegacyState();
 
                 return;
@@ -114,8 +119,9 @@ export default {
 
             await this.loadSupportedDocumentTypes();
 
-            this.documentTypeSelected =
-                this.sequence?.config?.documentType ?? this.sequence?.config?.documentTypes?.[0]?.documentType ?? null;
+            // v1 config supports multiple document types; v2 is single-select, so picking one for the
+            // user would silently drop the rest on save. Leave it empty and require an explicit choice.
+            this.documentTypeSelected = this.sequence?.config?.documentType ?? null;
 
             this.fileFormatsSelected = this.sequence?.config?.fileFormats || [];
         },

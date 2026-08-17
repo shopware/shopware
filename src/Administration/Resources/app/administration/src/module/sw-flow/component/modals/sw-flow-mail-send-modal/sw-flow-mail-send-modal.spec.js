@@ -182,6 +182,8 @@ async function createWrapper(sequence = {}) {
                 },
                 documentV2Service: {
                     getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
                 documentV2ApiService: {
                     getAvailableTypes: () =>

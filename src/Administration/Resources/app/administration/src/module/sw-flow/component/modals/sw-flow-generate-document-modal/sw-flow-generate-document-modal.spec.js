@@ -38,7 +38,7 @@ const supportedDocumentTypesMock = {
     credit_note: { formats: ['pdf'] },
 };
 
-async function createWrapper() {
+async function createWrapper(sequence = {}) {
     return mount(
         await wrapTestComponent('sw-flow-generate-document-modal', {
             sync: true,
@@ -56,6 +56,8 @@ async function createWrapper() {
                     },
                     documentV2Service: {
                         getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+                        getDocumentTypeSnippet: (technicalName) =>
+                            `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                     },
                     documentV2ApiService: {
                         getAvailableTypes: () => Promise.resolve({ documentTypes: supportedDocumentTypesMock }),
@@ -99,7 +101,7 @@ async function createWrapper() {
                 },
             },
             props: {
-                sequence: {},
+                sequence,
             },
         },
     );
@@ -182,10 +184,26 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             expect(wrapper.find('.sw-flow-generate-document-modal__file-formats-select').exists()).toBe(true);
 
             expect(wrapper.vm.supportedDocumentTypes).toEqual(supportedDocumentTypesMock);
-            expect(wrapper.vm.documentTypeOptions.map((type) => type.technicalName)).toEqual([
+            expect(wrapper.vm.documentTypeOptions.map((type) => type.value)).toEqual([
                 'invoice',
                 'credit_note',
             ]);
+        });
+
+        it('should not preselect a document type when the sequence has a legacy multi-type config', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper({
+                config: {
+                    documentTypes: [
+                        { documentType: 'invoice' },
+                        { documentType: 'credit_note' },
+                    ],
+                },
+            });
+            await flushPromises();
+
+            expect(wrapper.vm.documentTypeSelected).toBeNull();
         });
 
         it('should show an error notification and keep the previously loaded types when reloading the available types fails', async () => {

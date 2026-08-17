@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -65,8 +67,10 @@ class MailAttachmentsBuilder
             );
         }
 
+        // Branches on the config shape rather than the feature flag, so already-saved sequences keep
+        // working the way they were configured even if the flag is toggled afterwards.
         if (isset($eventConfig['documentTypeIds']) && \is_array($eventConfig['documentTypeIds']) && $eventConfig['documentTypeIds'] !== [] && $orderId) {
-            $attachments = $this->buildLegacyAttachments(
+            $attachments = $this->mapLegacyAttachments(
                 $eventConfig['documentTypeIds'],
                 $extensions,
                 $attachments,
@@ -74,7 +78,7 @@ class MailAttachmentsBuilder
                 $orderId
             );
         } else {
-            $attachments = $this->buildDocumentAttachments(
+            $attachments = $this->mapDocumentAttachments(
                 $eventConfig,
                 $extensions,
                 $attachments,
@@ -128,23 +132,16 @@ class MailAttachmentsBuilder
         return array_column($unique, 'doc_id');
     }
 
-    private function getLatestDocumentIdByTechnicalName(string $orderId, string $documentTypeTechnicalName): ?string
+    private function getLatestDocumentIdByTechnicalName(string $orderId, string $documentTypeTechnicalName, Context $context): ?string
     {
-        $documentId = $this->connection->fetchOne(
-            'SELECT LOWER(hex(`document`.`id`))
-            FROM `document`
-            INNER JOIN `document_type` ON `document_type`.`id` = `document`.`document_type_id`
-            WHERE `document`.`order_id` = :orderId
-            AND `document_type`.`technical_name` = :technicalName
-            ORDER BY `document`.`created_at` DESC
-            LIMIT 1',
-            [
-                'orderId' => Uuid::fromHexToBytes($orderId),
-                'technicalName' => $documentTypeTechnicalName,
-            ]
-        );
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('orderId', $orderId))
+            ->addFilter(new EqualsFilter('documentType.technicalName', $documentTypeTechnicalName))
+            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING))
+            ->setLimit(1);
+        $criteria->setTitle('send-mail::latest-document-by-type');
 
-        return $documentId === false ? null : $documentId;
+        return $this->documentRepository->searchIds($criteria, $context)->firstId();
     }
 
     /**
@@ -156,7 +153,7 @@ class MailAttachmentsBuilder
      *
      * @return MailAttachments
      */
-    private function buildLegacyAttachments(
+    private function mapLegacyAttachments(
         array $documentTypeIds,
         MailSendSubscriberConfig $extensions,
         array $attachments,
@@ -209,7 +206,7 @@ class MailAttachmentsBuilder
      *
      * @return MailAttachments
      */
-    private function buildDocumentAttachments(
+    private function mapDocumentAttachments(
         array $eventConfig,
         MailSendSubscriberConfig $extensions,
         array $attachments,
@@ -224,7 +221,7 @@ class MailAttachmentsBuilder
         }
 
         if ($orderId && ($eventConfig['documentType'] ?? '') !== '') {
-            $resolvedDocumentId = $this->getLatestDocumentIdByTechnicalName($orderId, $eventConfig['documentType']);
+            $resolvedDocumentId = $this->getLatestDocumentIdByTechnicalName($orderId, $eventConfig['documentType'], $context);
 
             if ($resolvedDocumentId !== null && !\in_array($resolvedDocumentId, $documentIds, true)) {
                 $fileFormats = $eventConfig['fileFormats'] ?? [];

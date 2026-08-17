@@ -644,9 +644,10 @@ export default class FlowBuilderService {
             translator,
         } = context;
 
-        if (config.fileFormats) {
-            const documentTypeName =
-                data.documentTypes.find((item) => item.technicalName === config.documentType)?.translated?.name ?? '';
+        if (config.fileFormats?.length) {
+            const documentTypeName = config.documentType
+                ? translator.$t(Shopware.Service('documentV2Service').getDocumentTypeSnippet(config.documentType))
+                : '';
 
             const fileFormatLabels = config.fileFormats.map((format) =>
                 translator.$t(Shopware.Service('documentV2Service').getFileFormatSnippet(format)),

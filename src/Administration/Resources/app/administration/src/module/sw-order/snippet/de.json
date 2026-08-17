@@ -654,6 +654,12 @@
                     "zugferdEmbeddedPdf": "PDF mit eingebettetem ZUGFeRD XML",
                     "zugferdXml": "ZUGFeRD XML"
                 },
+                "documentTypes": {
+                    "invoice": "Rechnung",
+                    "creditNote": "Gutschrift",
+                    "cancellationInvoice": "Stornorechnung",
+                    "deliveryNote": "Lieferschein"
+                },
                 "error": {
                     "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen.",
                     "loadSupportedDocumentFileFormats": "Das Laden der verfügbaren Dateiformaten je Dokumenttyp ist fehlgeschlagen.",

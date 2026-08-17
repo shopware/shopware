@@ -76,11 +76,14 @@ class SwTwigFunction
 
     private static function resolveGetter(Struct $object, string $item): string
     {
-        // Structs best only have getter with get/is prefixes, or public properties. Checking for other prefixes as well is too costly
+        // Structs best only have getter with get/is/has prefixes, or public properties. These are the prefixes
+        // {@see CoreExtension::getAttribute()} supports as well, with the same precedence: get > is > has.
+        // Probing them is only done once per class and item, the result is cached in self::$getterCache.
         $getterMethods = [
             'get' . $item,
             'is' . $item,
             $item, // property()
+            'has' . $item,
         ];
 
         foreach ($getterMethods as $getterMethod) {

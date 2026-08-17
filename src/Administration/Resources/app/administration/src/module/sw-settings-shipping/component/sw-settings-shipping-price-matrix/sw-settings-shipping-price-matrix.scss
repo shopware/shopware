@@ -52,15 +52,9 @@
 
     .sw-settings-shipping-price-matrix__price {
         display: flex;
-
-        // sw-inherit-wrapper forces flex-direction: column, which would stack the
-        // inheritance switch and the gross/net inputs on separate lines
         flex-direction: row;
         align-items: center;
         gap: var(--scale-size-8);
-
-        // the cell must take its width from the grid column, not from its children:
-        // .mt-field sizes itself with width: 100%, which contributes nothing intrinsically
         width: 100%;
     }
 
@@ -69,7 +63,6 @@
     }
 
     .sw-settings-shipping-price-matrix__price-input {
-        // let both inputs share the remaining column width evenly
         flex: 1 1 0;
         min-width: 0;
     }

@@ -48,6 +48,7 @@ import {
     createExtendableSetup,
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
+import { registerNativeBlockOverrides } from 'src/core/factory/native-block-override-registry';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
@@ -146,6 +147,16 @@ class ShopwareClass implements CustomShopwareProperties {
         createExtendableSetup: createExtendableSetup,
         attachOverrides: attachOverrides,
         overrideComponentSetup: overrideComponentSetup,
+
+        /**
+         * @private
+         *
+         * Import-time counterpart to `registerOverrideComponent`: announces which blocks an override
+         * extends, before the Twig templates are rendered. Twig components materialize only these block
+         * boundaries as `<sw-block>` elements, so a native override can reach into a component that has
+         * not been migrated to a native SFC yet. Emitted by the build; not for author use.
+         */
+        registerNativeBlockOverrides: registerNativeBlockOverrides,
 
         /**
          * @private

@@ -16,6 +16,7 @@ import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-in
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
 import { createShimSlot } from '../shim/create-shim-slot';
+import withTwigOwnerDataScope from './twig-owner-data-scope';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
 
 /**
@@ -80,6 +81,17 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object as PropType<ComponentInternalInstance['proxy']>,
             default: null,
         },
+        /**
+         * Set by the Twig → Native Block shim on wrappers emitted from a Twig component template.
+         *
+         * Such a block must not consume the legacy Twig block index: `TemplateFactory` has already
+         * merged every legacy Twig override of that component into the very template this block was
+         * emitted from, so rendering the index entries too would show them twice.
+         */
+        fromTwigTemplate: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, { slots }) {
         const { addBlock, removeBlock, getBlocks } = useBlockContext();
@@ -115,7 +127,7 @@ export default Shopware.Component.wrapComponentConfig({
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
         const shimSlots: Slot[] =
-            props.name && hasBlockEntries(props.name)
+            props.name && !props.fromTwigTemplate && hasBlockEntries(props.name)
                 ? getBlockEntries(props.name).map((entry) => {
                       // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
                       const shimSlot = createShimSlot(entry, props.name!);
@@ -159,7 +171,10 @@ export default Shopware.Component.wrapComponentConfig({
                 ...shimSlots,
                 ...nativeBlocks,
             ];
-            const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
+            // A block emitted from a Twig template has no extendable setup behind it, so an override
+            // written for a native owner would destructure a missing `__swOverride` and throw.
+            const blockData = props.fromTwigTemplate ? withTwigOwnerDataScope(props.data, props.name) : props.data;
+            const blocksNodes = blocksAndParent.map((block) => block?.(blockData));
 
             const lastNode = blocksNodes.pop();
             // Each <sw-block-parent /> calls .pop() exactly once in its own setup()

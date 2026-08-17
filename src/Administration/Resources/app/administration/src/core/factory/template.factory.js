@@ -6,6 +6,8 @@
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import transformNativeLegacyBlockConditionals from './transform-legacy-block-conditionals';
+import emitLegacyBlockWrappers from './emit-legacy-block-wrappers';
+import { hasAnyNativeBlockOverride } from './native-block-override-registry';
 
 /**
  * @module core/factory/async-template
@@ -254,13 +256,35 @@ function resolveTemplates() {
     return normalizedTemplateRegistry;
 }
 
+/**
+ * Renders a resolved template definition to its final markup.
+ *
+ * Twig → Native Block shim: when an installed extension carries a native `<sw-block extends>` override
+ * for one of this template's blocks, the token tree is stringified with `<sw-block>` wrappers around
+ * exactly those blocks instead of being rendered by TwigJS. Without such an override — the case for
+ * every template in a vanilla installation — nothing changes and TwigJS renders as before.
+ *
+ * @param {Object} templateDefinition
+ * @returns {string}
+ */
+function renderFinalHtml(templateDefinition) {
+    if (hasAnyNativeBlockOverride()) {
+        const shimmedHtml = emitLegacyBlockWrappers(templateDefinition.template.tokens, templateDefinition.name);
+
+        if (shimmedHtml !== null) {
+            return shimmedHtml;
+        }
+    }
+
+    return templateDefinition.template.render({});
+}
+
 function applyTemplateOverrides(name) {
     const item = normalizedTemplateRegistry.get(name);
-    const templateVars = {};
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render(templateVars);
+        const finalHtml = renderFinalHtml(item);
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -291,7 +315,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render(templateVars);
+    const finalHtml = renderFinalHtml(updatedTemplate);
 
     // Update item which will written to the registry
     updatedTemplate = {

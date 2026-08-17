@@ -1,4 +1,4 @@
-import { test, expect } from '@fixtures/AcceptanceTest';
+import { test } from '@fixtures/AcceptanceTest';
 
 const CORS_ERROR_PATTERN = /cors|cross-origin|access-control-allow-origin/i;
 
@@ -11,7 +11,7 @@ test(
             '@MultiDomain',
         ],
     },
-    async ({ page, ShopCustomer, TestDataService }) => {
+    async ({ ShopCustomer, ShopAdmin, TestDataService }) => {
         // CI only exposes a single webserver (APP_URL), so we cannot rely on a second port or
         // hostname being reachable. `nip.io` is a wildcard DNS service that resolves any
         // "<anything>.127.0.0.1.nip.io" hostname to 127.0.0.1, which gives us a second, genuinely
@@ -29,19 +29,14 @@ test(
         await TestDataService.createSalesChannelDomain({ url: secondDomainUrl });
         await TestDataService.clearCaches();
 
-        // `page` in this suite is actually the already-authenticated Administration page
-        // (`AdminPage`), not a neutral tab, and `ShopCustomer` drives its own separate
-        // storefront page/context - so the storefront checks below use `ShopCustomer.page`,
-        // not `page`.
-        const storefrontPage = ShopCustomer.page;
         const storefrontConsoleMessages: { type: string; text: string }[] = [];
-        storefrontPage.on('console', (msg) => {
+        ShopCustomer.page.on('console', (msg) => {
             storefrontConsoleMessages.push({ type: msg.type(), text: msg.text() });
         });
 
         await test.step('Load storefront from the second sales channel domain', async () => {
             await ShopCustomer.goesTo(secondDomainUrl);
-            await expect(storefrontPage).toHaveURL(new RegExp(`^${secondDomainUrl}`));
+            await ShopCustomer.expects(ShopCustomer.page).toHaveURL(new RegExp(`^${secondDomainUrl}`));
         });
 
         await test.step('No CORS errors are logged', async () => {
@@ -49,44 +44,44 @@ test(
                 (msg) => msg.type === 'error' && CORS_ERROR_PATTERN.test(msg.text),
             );
 
-            expect(corsErrors).toHaveLength(0);
+            ShopCustomer.expects(corsErrors).toHaveLength(0);
         });
 
         await test.step('Assets are referenced from the second domain', async () => {
-            const shopwareScripts = await storefrontPage.locator('script[src*="shopware.js"]').all();
-            expect(shopwareScripts.length).toBeGreaterThan(0);
+            const shopwareScripts = await ShopCustomer.page.locator('script[src*="shopware.js"]').all();
+            ShopCustomer.expects(shopwareScripts.length).toBeGreaterThan(0);
 
-            const pageHost = new URL(storefrontPage.url()).host;
+            const pageHost = new URL(ShopCustomer.page.url()).host;
 
             for (const script of shopwareScripts) {
-                await expect(script).toHaveAttribute('src', /.+/);
+                await ShopCustomer.expects(script).toHaveAttribute('src', /.+/);
                 const src = await script.getAttribute('src');
 
                 if (src && src.startsWith('http')) {
-                    expect(new URL(src).host).toBe(pageHost);
+                    ShopCustomer.expects(new URL(src).host).toBe(pageHost);
                 }
             }
         });
 
         await test.step('Storefront is functional on the second domain', async () => {
-            await expect(storefrontPage).toHaveTitle(/.+/);
-            await expect(storefrontPage.locator('body')).toBeVisible();
+            await ShopCustomer.expects(ShopCustomer.page).toHaveTitle(/.+/);
+            await ShopCustomer.expects(ShopCustomer.page.locator('body')).toBeVisible();
         });
 
         await test.step('Administration is reachable from the second domain', async () => {
             const adminConsoleMessages: { type: string; text: string }[] = [];
-            page.on('console', (msg) => {
+            ShopAdmin.page.on('console', (msg) => {
                 adminConsoleMessages.push({ type: msg.type(), text: msg.text() });
             });
 
-            await page.goto(new URL('admin/', secondDomainUrl).toString(), { waitUntil: 'domcontentloaded' });
-            await expect(page.locator('.sw-login')).toBeVisible();
+            await ShopAdmin.goesTo(new URL('admin/', secondDomainUrl).toString());
+            await ShopAdmin.expects(ShopAdmin.page.locator('.sw-login')).toBeVisible();
 
             const corsErrors = adminConsoleMessages.filter(
                 (msg) => msg.type === 'error' && CORS_ERROR_PATTERN.test(msg.text),
             );
 
-            expect(corsErrors).toHaveLength(0);
+            ShopAdmin.expects(corsErrors).toHaveLength(0);
         });
     },
 );

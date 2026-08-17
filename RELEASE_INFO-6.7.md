@@ -2,6 +2,9 @@
 
 ## Critical Fixes
 
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
 ### Nested `productReviews` associations follow the same visibility rules as the top-level association
 
 Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.

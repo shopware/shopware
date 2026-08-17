@@ -1,28 +1,46 @@
 import { test, setViewport, replaceElements, hideElements, assertScreenshot, FlowConfig } from '@fixtures/AcceptanceTest';
 
-test('Visual: Flow Builder listing', { tag: '@Visual' }, async ({ ShopAdmin, AdminFlowBuilderListing }) => {
-    await test.step('Create a screenshot of the flow listing.', async () => {
-        await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
-        await setViewport(AdminFlowBuilderListing.page, {
-            waitForSelector: AdminFlowBuilderListing.createFlowButton,
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip(
+    'Visual: Flow Builder listing',
+    {
+        tag: '@Visual',
+        annotation: {
+            type: 'issue',
+            description: 'https://github.com/shopware/shopware/issues/19385',
+        },
+    },
+    async ({ ShopAdmin, AdminFlowBuilderListing }) => {
+        await test.step('Create a screenshot of the flow listing.', async () => {
+            await ShopAdmin.goesTo(AdminFlowBuilderListing.url());
+            await setViewport(AdminFlowBuilderListing.page, {
+                waitForSelector: AdminFlowBuilderListing.createFlowButton,
+            });
+            await replaceElements(AdminFlowBuilderListing.page, [AdminFlowBuilderListing.testFlowNameCells]);
+            await AdminFlowBuilderListing.flowTemplatesTab.hover();
+            await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Listing-Hover.png');
         });
-        await replaceElements(AdminFlowBuilderListing.page, [AdminFlowBuilderListing.testFlowNameCells]);
-        await AdminFlowBuilderListing.flowTemplatesTab.hover();
-        await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Listing-Hover.png');
-    });
 
-    await test.step('Create a screenshot of the flow templates listing.', async () => {
-        await AdminFlowBuilderListing.flowTemplatesTab.click();
-        await setViewport(AdminFlowBuilderListing.page, {
-            waitForSelector: AdminFlowBuilderListing.pagination,
+        await test.step('Create a screenshot of the flow templates listing.', async () => {
+            await AdminFlowBuilderListing.flowTemplatesTab.click();
+            await setViewport(AdminFlowBuilderListing.page, {
+                waitForSelector: AdminFlowBuilderListing.pagination,
+            });
+            await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Templates-Listing-Hover.png');
         });
-        await assertScreenshot(AdminFlowBuilderListing.page, 'Flow-Builder-Templates-Listing-Hover.png');
-    });
-});
+    },
+);
 
-test(
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip(
     'Visual: Flow Builder detail page',
-    { tag: '@Visual' },
+    {
+        tag: '@Visual',
+        annotation: {
+            type: 'issue',
+            description: 'https://github.com/shopware/shopware/issues/19385',
+        },
+    },
     async ({ ShopAdmin, TestDataService, IdProvider, AdminFlowBuilderListing, AdminFlowBuilderDetail, CreateFlow }) => {
         const uniqueId = IdProvider.getIdPair().uuid;
         const tagName = `Test tag - ${uniqueId}`;

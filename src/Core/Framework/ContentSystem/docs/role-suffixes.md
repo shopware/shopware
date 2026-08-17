@@ -1,0 +1,27 @@
+# Role Suffixes
+
+A role suffix is a contract, not decoration. This page says what each one promises and what breaks the promise; the naming principles it applies live in [NAMING.md](../NAMING.md). The examples below, like the paths on [Stored and rendered element models](stored-and-rendered.md), are the names the storage/render split establishes; the code has yet to acquire some of them.
+
+Some suffixes promise behavior, and a reader is entitled to that promise. A `Validator` here is a write-boundary subscriber that rejects an invalid write, so a service that only computes and returns a report is not one, however validation-shaped it feels. Choose by answering behavioral questions — does it reject at a boundary, decide a pass/fail predicate, apply a decision it must first resolve — not by reaching for the nearest synonym. The suffix encodes the answer so the next reader does not have to open the file.
+
+A `Registry` is the single authority over a named set and its resolution, so a class that merely looks a value up without owning the set has not earned it. A `Reader` reads one persisted value behind a precedence rule its callers should not have to carry; it promises a single encapsulated read, not a general query service.
+
+## The two-model roles
+
+The two-model split adds roles for moving between the models and for the state each side accumulates. Each of these is a promise, not a flavor of "service":
+
+- **`*Codec`** owns both directions of one wire shape for one subject in one class, so the two directions cannot drift apart. A class that goes only one way is a `Decoder` or an `Encoder`.
+- **`*Encoder`** turns a subject into its wire form and nothing else. **`Encoded*`** is the paired noun for that wire form held as a value: `ContentPageEncoder` produces an `EncodedContentPage`, and the pair reads as one step because the participle names the output of the verb.
+- **`*Preparer`** brings a subject into the state a named downstream stage requires and hands the same subject back. It decides nothing the caller could not have decided itself; one that decides is a `Planner` or a `Resolver`.
+- **`*Lowering`** is a one-way translation from the richer model to the poorer one, a noun because the translation itself is the thing: `ElementLowering` takes the stored model down onto the rendered one. Information is dropped by design and no inverse exists; a role with an inverse is a `Codec`.
+- **`*Planner`** computes a plan and returns it without executing it. `WiringPlanner` decides what wiring applies where; something else applies it, so a `Planner` that also writes has broken its contract.
+- **`*Distributor`** hands one thing to many recipients by a rule it does not own. `ContextDistributor` spreads resolved context across the elements that accept it; who accepts what lives in the declarations.
+- **`*Factory`** mints instances of exactly the subject it names — `RenderedElementFactory` returns rendered elements. One that also mutates, persists or validates is misnamed.
+- **`*Resolver`** turns a request for a value into that value, by whatever lookup that takes. `LoaderInputResolver` produces the `LoaderInputs` a loader needs; it promises the answer, not the mechanism.
+- **`*Index`** is lookup by key over an already-computed set. `ResolvedValueIndex` answers "what did we resolve for this key?" and computes nothing on read; a type that computes on read is a `Resolver`.
+- **`*Scaffolding`** is an immutable record of structural facts that one stage derives and a later stage consumes. `RenderScaffolding` records whether a virtual root survived a pruning pass and, optionally, the id of the element a partial render extracts — facts the later stage reads instead of re-deriving. It is not a service and not a persisted value.
+- **`*Boundary`** is the single place a whole class of change enters the system. `LayoutWriteBoundary` is where a layout write is admitted, and the singular is the point: a second boundary for the same class of change means one of them is misnamed. **`*Context`** in this position is the ambient data a boundary carries down to everything running inside it, so `LayoutWriteContext` is what a write's participants read rather than re-derive.
+
+## No suffix is a role too
+
+A bare plural noun with no suffix — `PlaceholderValues`, and `LoaderInputs` on the same pattern — is a value bag: an immutable set of related values validated once on the way in and read back afterwards. The absence of a suffix is what states that role.

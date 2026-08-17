@@ -70,7 +70,7 @@ Domain-specific content system classes live in their owning domain module — no
 
 ## Naming
 
-The reasoning behind how classes in this module are named (the subjects, role-suffix contracts, and domain vocabulary a new class should follow) lives in [`NAMING.md`](NAMING.md). Consult it before adding or renaming a type.
+The reasoning behind how classes in this module are named starts at [`NAMING.md`](NAMING.md), which routes on to the two subjects that need room of their own. Consult it before adding or renaming a type.
 
 ## Administration API
 

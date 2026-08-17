@@ -93,6 +93,7 @@ class SnippetValidatorTest extends TestCase
             'noPluralization' => 'Something',
             'somethingValid' => '{1} Singular |[0,Inf[ Plural',
             'somethingValidWith0' => '{0} Zero case | {1} Singular |[0,Inf[ Plural',
+            'binaryPluralization' => '{0} No bundle | {1} Bundle',
             ...$expectedInvalidSnippets,
         ];
 
@@ -106,6 +107,7 @@ class SnippetValidatorTest extends TestCase
         static::assertCount(5, $invalidPluralization);
         static::assertFalse($invalidPluralization->has('somethingValid'));
         static::assertFalse($invalidPluralization->has('somethingValidWith0'));
+        static::assertFalse($invalidPluralization->has('binaryPluralization'));
 
         foreach ($expectedInvalidSnippets as $expectedKey => $expectedValue) {
             static::assertTrue($invalidPluralization->has($expectedKey), "Missing expected key: $expectedKey");

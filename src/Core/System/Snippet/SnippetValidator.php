@@ -254,7 +254,9 @@ readonly class SnippetValidator implements SnippetValidatorInterface
             ];
         }
 
-        $hasInvalidPluralization = !preg_match('/^(\{0\}.+\|)?(\{1\}.+\|)(\[0,inf\[.+)/i', $unformattedSnippet);
+        $hasValidBinaryPluralization = preg_match('/^\{0\}.+\|\{1\}.+$/i', $unformattedSnippet);
+        $hasInvalidPluralization = !$hasValidBinaryPluralization
+            && !preg_match('/^(\{0\}.+\|)?(\{1\}.+\|)(\[0,inf\[.+)/i', $unformattedSnippet);
         $hasInvalidPluralizationRange = str_contains($unformattedSnippet, ']1,inf[');
 
         return [

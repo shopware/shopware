@@ -8,7 +8,7 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 
 ### New app script hook `cookie-group-collect`
 
-Apps can now manipulate the cookie consent groups with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks. This complements the declarative `<active-payment-method>` cookie condition in the app manifest for use cases that need custom logic or other conditions.
+Apps can now manipulate the cookie consent groups with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
 
 ## API
 
@@ -557,19 +557,6 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
-### Cookies can be bound to active payment methods
-
-Cookies declared in an app's `manifest.xml` were always shown in the storefront cookie consent manager, even on sales channels where the app's payment methods are not offered. A cookie (both standalone and inside a group's `<entries>`) can now reference payment methods of the app via the repeatable `<active-payment-method>` element:
-
-```xml
-<cookie>
-    <snippet-name>myApp.cookie.wallet</snippet-name>
-    <cookie>my-app-wallet</cookie>
-    <active-payment-method>wallet</active-payment-method>
-</cookie>
-```
-
-The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
 
 ## Hosting & Configuration
 

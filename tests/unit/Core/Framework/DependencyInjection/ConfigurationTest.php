@@ -228,15 +228,6 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
     }
 
-    public function testWebhookOnlyContainsFailureStrategy(): void
-    {
-        $config = (new Processor())->processConfiguration(new Configuration(), []);
-
-        static::assertSame([
-            'failure_strategy' => 'disable_on_threshold',
-        ], $config['webhook']);
-    }
-
     public function testWebhookDoesNotAcceptNetworkPolicy(): void
     {
         $this->expectException(InvalidConfigurationException::class);

@@ -60,7 +60,7 @@ final class PinningAppSystemHttpClient extends Client
     /**
      * @param array<mixed> $options
      */
-    public function request(string $method, $uri, array $options = []): ResponseInterface
+    public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
         $options[RequestOptions::SYNCHRONOUS] = true;
 

@@ -104,6 +104,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
             if (!$this->isStoreApi($path)) {
                 continue;
             }
+            if (!$this->shouldRouteBeIncludedInOpenApi($route)) {
+                continue;
+            }
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
@@ -166,6 +169,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = $route->getPath();
             $subPath = \substr($path, \strlen('/api'));
             if (!$this->isAdminApi($path)) {
+                continue;
+            }
+            if (!$this->shouldRouteBeIncludedInOpenApi($route)) {
                 continue;
             }
 
@@ -334,6 +340,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $controllerClass = strtok($route->getDefault('_controller'), ':');
 
         return $controllerClass === ApiController::class || $controllerClass === CustomEntityApiController::class;
+    }
+
+    private function shouldRouteBeIncludedInOpenApi(Route $route): bool
+    {
+        return $route->getDefault(PlatformRequest::ATTRIBUTE_OPENAPI) !== false;
     }
 
     private function isCoreRoute(Route $route): bool

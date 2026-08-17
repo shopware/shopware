@@ -27,6 +27,10 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapabil
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -471,6 +475,38 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnregisteredComponent, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
+    #[TestDox('reports a style option the registry does not know as an intrinsic error keyed on the option name')]
+    public function testUnknownStyleOptionIsIntrinsicError(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block', style: new ElementStyle(['gone-option' => ['xs' => 'x']]))];
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
+            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
+        )->analyze($tree, null)->report;
+
+        $violation = $this->onlyIntrinsicError($report->intrinsicErrors());
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::UnknownStyleOption, $violation->code);
+        static::assertSame('gone-option', $violation->key);
+        static::assertSame('el-1', $violation->elementId);
+    }
+
+    #[TestDox('reports no style violation for an option the registry knows')]
+    public function testRegisteredStyleOptionProducesNoViolation(): void
+    {
+        $tree = [new ContentElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
+            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
+        )->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
     #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]
     public function testInvalidConfigForUnknownEntity(): void
     {
@@ -719,6 +755,7 @@ class LayoutDiagnosticsTest extends TestCase
         ?ContentSystemDataLoaderMap $map = null,
         ?DataLoaderConfigSerializerProvider $serializers = null,
         ?DataLoaderProvider $loaderProvider = null,
+        ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
     ): LayoutDiagnostics {
         $registry = $this->registry($specs);
 
@@ -744,7 +781,30 @@ class LayoutDiagnosticsTest extends TestCase
             new RootContextMapper($loaderProvider),
             $typeResolver,
             $serializers,
+            $styleOptionRegistry ?? $this->styleOptionRegistry([]),
         );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    private function styleOptionRegistry(array $names): AbstractContentSystemStyleOptionRegistry
+    {
+        $options = [];
+        foreach ($names as $name) {
+            $options[$name] = new StyleOptionSpecification(
+                $name,
+                new StyleOptionValueType('string', null, null, null, null),
+                true,
+                null,
+                'core',
+            );
+        }
+
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn($options);
+
+        return $registry;
     }
 
     /**

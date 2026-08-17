@@ -23,6 +23,7 @@ enum ViolationCode: string
     case UnresolvedOptional = 'unresolved_optional';
     case OrphanedProvider = 'orphaned_provider';
     case UnfilledRequiredInput = 'unfilled_required_input';
+    case UnknownStyleOption = 'unknown_style_option';
 
     public function scope(): ViolationScope
     {
@@ -31,6 +32,7 @@ enum ViolationCode: string
             self::DuplicateElementId,
             self::InvalidConfig,
             self::MismatchedReferenceType,
+            self::UnknownStyleOption,
             self::OrphanedProvider => ViolationScope::Intrinsic,
             self::UnresolvedRequired,
             self::AmbiguousRequired,
@@ -47,6 +49,7 @@ enum ViolationCode: string
             self::DuplicateElementId,
             self::InvalidConfig,
             self::MismatchedReferenceType,
+            self::UnknownStyleOption,
             self::UnresolvedRequired,
             self::AmbiguousRequired,
             self::BrokenRequiredChain,

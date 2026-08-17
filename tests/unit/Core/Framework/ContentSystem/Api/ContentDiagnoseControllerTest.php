@@ -18,6 +18,9 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
@@ -202,7 +205,7 @@ class ContentDiagnoseControllerTest extends TestCase
         ?RootSourceRegistry $rootSourceRegistry = null,
     ): ContentDiagnoseController {
         return new ContentDiagnoseController(
-            new DraftLayoutDecoder($serializer),
+            new DraftLayoutDecoder($serializer, new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer())),
             $diagnostics,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
         );

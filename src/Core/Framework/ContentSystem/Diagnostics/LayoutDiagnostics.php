@@ -7,6 +7,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
@@ -39,6 +41,7 @@ class LayoutDiagnostics
         private readonly RootContextMapper $rootContextMapper,
         private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
+        private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
     ) {
     }
 
@@ -53,12 +56,16 @@ class LayoutDiagnostics
         $violations = [];
         $resolutions = [];
 
+        // Read once per analysis rather than per element: the strict view is the same one the write boundary's
+        // constraint descriptor reads, so the two cannot disagree about which options exist.
+        $styleOptions = $this->styleOptionRegistry->all();
+
         foreach ($this->duplicateIdViolations($elements) as $violation) {
             $violations[] = $violation;
         }
 
         foreach ($elements as $element) {
-            foreach ($this->intrinsicElementViolations($element) as $violation) {
+            foreach ($this->intrinsicElementViolations($element, $styleOptions) as $violation) {
                 $violations[] = $violation;
             }
 
@@ -108,9 +115,11 @@ class LayoutDiagnostics
     }
 
     /**
+     * @param array<string, StyleOptionSpecification> $styleOptions
+     *
      * @return list<Violation>
      */
-    private function intrinsicElementViolations(ContentElement $element): array
+    private function intrinsicElementViolations(ContentElement $element, array $styleOptions): array
     {
         $violations = [];
 
@@ -131,8 +140,41 @@ class LayoutDiagnostics
             }
         }
 
+        foreach ($this->unknownStyleOptionViolations($element, $styleOptions) as $violation) {
+            $violations[] = $violation;
+        }
+
         foreach ($this->orphanedProviderViolations($element) as $violation) {
             $violations[] = $violation;
+        }
+
+        return $violations;
+    }
+
+    /**
+     * A style option the registry does not know, reported per option so a client can name and clear the one
+     * that broke. It mirrors the unregistered-component rule: the write rejects such an option and the read
+     * keeps it verbatim so an old layout still renders, and this makes the rejection legible instead of opaque.
+     *
+     * @param array<string, StyleOptionSpecification> $styleOptions
+     *
+     * @return list<Violation>
+     */
+    private function unknownStyleOptionViolations(ContentElement $element, array $styleOptions): array
+    {
+        $violations = [];
+
+        foreach (array_keys($element->getStyle()->toArray()) as $name) {
+            if (\array_key_exists($name, $styleOptions)) {
+                continue;
+            }
+
+            $violations[] = new Violation(
+                ViolationCode::UnknownStyleOption,
+                $element->getId(),
+                $name,
+                \sprintf('Style option "%s" is not a registered style option.', $name),
+            );
         }
 
         return $violations;

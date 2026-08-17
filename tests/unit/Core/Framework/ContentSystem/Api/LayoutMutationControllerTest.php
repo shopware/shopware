@@ -25,6 +25,9 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
@@ -256,7 +259,7 @@ class LayoutMutationControllerTest extends TestCase
             ),
         );
 
-        return new DraftLayoutDecoder($serializer);
+        return new DraftLayoutDecoder($serializer, new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer()));
     }
 
     private function pipelineReturning(MutationResult $result): MutationPipeline

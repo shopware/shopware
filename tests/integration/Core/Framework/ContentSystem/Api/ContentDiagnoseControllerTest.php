@@ -48,6 +48,27 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains('unregistered_component', $codes);
     }
 
+    #[TestDox('reports an unregistered style option as an unknown_style_option violation keyed on the option name')]
+    public function testDiagnoseReportsUnknownStyleOption(): void
+    {
+        $element = $this->element($this->registeredComponent());
+        $element['style'] = ['definitely-not-a-style-option' => ['xs' => 'x']];
+
+        $body = $this->diagnose(['layout' => [$element]]);
+
+        static::assertFalse($body['diagnostics']['wellFormed']);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'unknown_style_option',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame('intrinsic', $violations[0]['scope']);
+        static::assertSame('error', $violations[0]['severity']);
+        static::assertSame('definitely-not-a-style-option', $violations[0]['key']);
+    }
+
     #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
     public function testDiagnoseWithRootSource(): void
     {

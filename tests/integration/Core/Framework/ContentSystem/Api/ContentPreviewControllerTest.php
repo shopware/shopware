@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -18,6 +19,8 @@ class ContentPreviewControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     private const PREVIEW_URL = '/api/_action/content-system/preview/entity';
+
+    private const PREVIEW_URL_URL = '/api/_action/content-system/preview/entity/url';
 
     #[TestDox('rejects an envelope missing a required field with 400 (not Symfony default 422)')]
     public function testPreviewReturns400ForMissingRequiredField(): void
@@ -55,6 +58,49 @@ class ContentPreviewControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         static::assertStringContainsString('CONTENT_SYSTEM__ELEMENT_TYPES_INVALID', (string) $response->getContent());
+    }
+
+    #[TestDox('rejects a draft carrying an unregistered style option with 400')]
+    public function testPreviewReturns400ForUnknownStyleOption(): void
+    {
+        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
+        $component = array_key_first($registered);
+        static::assertIsString($component);
+
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => $component,
+                'properties' => [],
+                'style' => ['definitely-not-a-style-option' => ['xs' => 'x']],
+            ]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('CONTENT_SYSTEM__ELEMENT_TYPES_INVALID', (string) $response->getContent());
+        static::assertStringContainsString('definitely-not-a-style-option', (string) $response->getContent());
+    }
+
+    #[TestDox('previewUrl rejects an unregistered component with 400 and mints no token')]
+    public function testPreviewUrlReturns400ForUnregisteredComponent(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [['id' => 'el-1', 'component' => 'Sw:Test:PreviewProbe']],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('CONTENT_SYSTEM__ELEMENT_TYPES_INVALID', (string) $response->getContent());
+        static::assertStringNotContainsString('"url"', (string) $response->getContent());
     }
 
     #[TestDox('rejects an unknown entity type with 400')]

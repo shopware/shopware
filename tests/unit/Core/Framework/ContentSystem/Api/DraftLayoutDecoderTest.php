@@ -10,6 +10,13 @@ use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -26,26 +33,26 @@ class DraftLayoutDecoderTest extends TestCase
     public function testDecodeReturnsTree(): void
     {
         $element = new ContentElement('el-1', 'Sw:Block');
-        $decoder = new DraftLayoutDecoder($this->serializerDecoding($element));
+        $decoder = $this->decoder($this->serializerDecoding($element));
 
         $tree = $decoder->decode([['id' => 'el-1', 'component' => 'Sw:Block']]);
 
-        static::assertSame([$element], $tree);
+        static::assertEquals([$element], $tree);
     }
 
     #[TestDox('decodeOne returns the single decoded element for a structurally valid element')]
     public function testDecodeOneReturnsElement(): void
     {
         $element = new ContentElement('el-1', 'Sw:Block');
-        $decoder = new DraftLayoutDecoder($this->serializerDecoding($element));
+        $decoder = $this->decoder($this->serializerDecoding($element));
 
-        static::assertSame($element, $decoder->decodeOne(['id' => 'el-1', 'component' => 'Sw:Block']));
+        static::assertEquals($element, $decoder->decodeOne(['id' => 'el-1', 'component' => 'Sw:Block']));
     }
 
     #[TestDox('decodeOne throws invalidLayoutStructure for a malformed element instead of a serializer error')]
     public function testDecodeOneRejectsMalformedElement(): void
     {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+        $decoder = $this->decoder(static::createStub(ContentElementFieldSerializer::class));
 
         try {
             $decoder->decodeOne(['component' => 'Sw:Block']);
@@ -62,7 +69,7 @@ class DraftLayoutDecoderTest extends TestCase
     #[TestDox('decode rejects a structurally invalid layout with a precise violation list')]
     public function testDecodeRejectsInvalidLayout(array $rawLayout, ConstraintViolationList $expectedViolations): void
     {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+        $decoder = $this->decoder(static::createStub(ContentElementFieldSerializer::class));
 
         $this->expectExceptionObject(ContentSystemException::invalidLayoutStructure($expectedViolations));
 
@@ -139,7 +146,7 @@ class DraftLayoutDecoderTest extends TestCase
     #[TestDox('decode rejects a tree nested past the maximum depth')]
     public function testDecodeRejectsExcessiveNestingDepth(): void
     {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+        $decoder = $this->decoder(static::createStub(ContentElementFieldSerializer::class));
 
         $element = ['id' => 'leaf', 'component' => 'Sw:Block'];
         for ($level = 0; $level < 60; ++$level) {
@@ -161,7 +168,7 @@ class DraftLayoutDecoderTest extends TestCase
         $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
 
-        $decoder = new DraftLayoutDecoder($serializer);
+        $decoder = $this->decoder($serializer);
 
         try {
             $decoder->decode([['id' => 'el-1', 'component' => 'Sw:Block']]);
@@ -177,7 +184,7 @@ class DraftLayoutDecoderTest extends TestCase
         $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willThrowException(ContentSystemException::layoutNotFound('x'));
 
-        $decoder = new DraftLayoutDecoder($serializer);
+        $decoder = $this->decoder($serializer);
 
         $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
         $decoder->decode([['id' => 'el-1', 'component' => 'Sw:Block']]);
@@ -187,11 +194,11 @@ class DraftLayoutDecoderTest extends TestCase
     public function testDecodeLintableReturnsTreeWithoutViolations(): void
     {
         $element = new ContentElement('el-1', 'Sw:Block');
-        $decoder = new DraftLayoutDecoder($this->serializerDecoding($element));
+        $decoder = $this->decoder($this->serializerDecoding($element));
 
         [$tree, $violations] = $decoder->decodeLintable([['id' => 'el-1', 'component' => 'Sw:Block']]);
 
-        static::assertSame([$element], $tree);
+        static::assertEquals([$element], $tree);
         static::assertSame([], $violations);
     }
 
@@ -207,14 +214,14 @@ class DraftLayoutDecoderTest extends TestCase
                 : $good,
         );
 
-        $decoder = new DraftLayoutDecoder($serializer);
+        $decoder = $this->decoder($serializer);
 
         [$tree, $violations] = $decoder->decodeLintable([
             ['id' => 'bad', 'component' => 'Sw:Block'],
             ['id' => 'good', 'component' => 'Sw:Block'],
         ]);
 
-        static::assertSame([$good], $tree);
+        static::assertEquals([$good], $tree);
         static::assertCount(1, $violations);
         static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
         static::assertSame('bad', $violations[0]->elementId);
@@ -229,21 +236,21 @@ class DraftLayoutDecoderTest extends TestCase
         $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willReturnOnConsecutiveCalls($first, $second);
 
-        $decoder = new DraftLayoutDecoder($serializer);
+        $decoder = $this->decoder($serializer);
 
         [$tree, $violations] = $decoder->decodeLintable([
             ['id' => 'dup', 'component' => 'Sw:Block'],
             ['id' => 'dup', 'component' => 'Sw:Other'],
         ]);
 
-        static::assertSame([$first, $second], $tree);
+        static::assertEquals([$first, $second], $tree);
         static::assertSame([], $violations);
     }
 
     #[TestDox('decodeLintable still throws invalidLayoutStructure for a structurally invalid element')]
     public function testDecodeLintableRejectsStructurallyInvalidElement(): void
     {
-        $decoder = new DraftLayoutDecoder(static::createStub(ContentElementFieldSerializer::class));
+        $decoder = $this->decoder(static::createStub(ContentElementFieldSerializer::class));
 
         try {
             $decoder->decodeLintable([['component' => 'Sw:Block']]);
@@ -259,10 +266,69 @@ class DraftLayoutDecoderTest extends TestCase
         $serializer = static::createStub(ContentElementFieldSerializer::class);
         $serializer->method('decodeElement')->willThrowException(ContentSystemException::layoutNotFound('x'));
 
-        $decoder = new DraftLayoutDecoder($serializer);
+        $decoder = $this->decoder($serializer);
 
         $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
         $decoder->decodeLintable([['id' => 'el-1', 'component' => 'Sw:Block']]);
+    }
+
+    #[TestDox('decode canonicalises the style of a decoded element through the style normalizer')]
+    public function testDecodeNormalizesElementStyle(): void
+    {
+        $element = new ContentElement(
+            'el-1',
+            'Sw:Block',
+            style: new ElementStyle(['align-self' => ['xs' => 'center']]),
+        );
+
+        $tree = $this->decoder($this->serializerDecoding($element))->decode([['id' => 'el-1', 'component' => 'Sw:Block']]);
+
+        static::assertSame(
+            ['align-self' => ['xs' => 'center', 'sm' => 'auto', 'md' => 'auto', 'lg' => 'auto', 'xl' => 'auto', 'xxl' => 'auto']],
+            $tree[0]->getStyle()->toArray(),
+        );
+    }
+
+    #[TestDox('decode canonicalises the style of a slot child, not only of the root element')]
+    public function testDecodeNormalizesSlotChildStyle(): void
+    {
+        $child = new ContentElement(
+            'child',
+            'Sw:Text',
+            style: new ElementStyle(['align-self' => ['xs' => 'end']]),
+        );
+        $root = new ContentElement(
+            'root',
+            'Sw:Block',
+            slots: ['content' => new SlotContent([$child])],
+        );
+
+        $tree = $this->decoder($this->serializerDecoding($root))->decode([['id' => 'root', 'component' => 'Sw:Block']]);
+
+        $decodedChild = $tree[0]->getSlots()['content']->first();
+        static::assertInstanceOf(ContentElement::class, $decodedChild);
+        static::assertSame(
+            ['align-self' => ['xs' => 'end', 'sm' => 'auto', 'md' => 'auto', 'lg' => 'auto', 'xl' => 'auto', 'xxl' => 'auto']],
+            $decodedChild->getStyle()->toArray(),
+        );
+    }
+
+    #[TestDox('decodeLintable canonicalises style too, so the diagnose route sees the saved shape')]
+    public function testDecodeLintableNormalizesElementStyle(): void
+    {
+        $element = new ContentElement(
+            'el-1',
+            'Sw:Block',
+            style: new ElementStyle(['align-self' => ['xs' => 'center']]),
+        );
+
+        [$tree, $violations] = $this->decoder($this->serializerDecoding($element))->decodeLintable([['id' => 'el-1', 'component' => 'Sw:Block']]);
+
+        static::assertSame([], $violations);
+        static::assertSame(
+            ['align-self' => ['xs' => 'center', 'sm' => 'auto', 'md' => 'auto', 'lg' => 'auto', 'xl' => 'auto', 'xxl' => 'auto']],
+            $tree[0]->getStyle()->toArray(),
+        );
     }
 
     private function serializerDecoding(ContentElement $element): ContentElementFieldSerializer
@@ -271,5 +337,21 @@ class DraftLayoutDecoderTest extends TestCase
         $serializer->method('decodeElement')->willReturn($element);
 
         return $serializer;
+    }
+
+    private function decoder(ContentElementFieldSerializer $serializer): DraftLayoutDecoder
+    {
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturn([
+            'align-self' => new StyleOptionSpecification(
+                'align-self',
+                new StyleOptionValueType('string', ['auto', 'start', 'center', 'end'], null, null, 'auto'),
+                true,
+                null,
+                'core',
+            ),
+        ]);
+
+        return new DraftLayoutDecoder($serializer, new ElementStyleNormalizer($registry, new BoxSpacingNormalizer()));
     }
 }

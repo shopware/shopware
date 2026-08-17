@@ -41,13 +41,22 @@ class ContentPreviewController
         return $this->responseFactory->createResponse($this->previewPageBuilder->build($payload, $context)['contentPage']);
     }
 
+    /**
+     * The draft is admitted through the same {@see ContentPreviewPageBuilder::build()} the entity preview runs,
+     * and its page is discarded: minting a token is a promise that redeeming it renders, and the only way to
+     * keep that promise without a second copy of the gate is to run the one gate. A draft the builder refuses
+     * is a 400 and never reaches the store.
+     */
     #[Route(path: '/api/_action/content-system/preview/entity/url', name: 'api.action.content_system.preview.entity.url', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function previewUrl(
         #[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
         ContentPreviewRequest $payload,
         Request $request,
+        Context $context,
     ): JsonResponse {
-        $token = $this->payloadStore->store($this->serializePayload($payload));
+        $this->previewPageBuilder->build($payload, $context);
+
+        $token = $this->payloadStore->store($payload);
         $url = \sprintf(
             '%s%s/content-system/preview/%s',
             $request->getSchemeAndHttpHost(),
@@ -58,23 +67,5 @@ class ContentPreviewController
         return new JsonResponse([
             'url' => $url,
         ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function serializePayload(ContentPreviewRequest $payload): array
-    {
-        return [
-            'layout' => $payload->layout,
-            'entityType' => $payload->entityType,
-            'entityId' => $payload->entityId,
-            'salesChannelId' => $payload->salesChannelId,
-            'languageId' => $payload->languageId,
-            'currencyId' => $payload->currencyId,
-            'domainId' => $payload->domainId,
-            'customerId' => $payload->customerId,
-            'queryParameters' => $payload->queryParameters,
-        ];
     }
 }

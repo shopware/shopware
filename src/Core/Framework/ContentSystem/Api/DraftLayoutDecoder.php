@@ -6,6 +6,8 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -27,6 +29,12 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * lenient {@see decodeLintable()} path deliberately does NOT run that check: the diagnose route is meant to
  * report a duplicate id as a `duplicate_element_id` violation in its 200 body, not to reject it.
  *
+ * Every decoded element's style is canonicalised on the way out, on both paths, through the one
+ * {@see ElementStyleNormalizer} the write boundary runs — so a draft previews and diagnoses with the style
+ * shape its saved layout will carry. Only style: the write boundary's default seeding and attribution
+ * reconciliation stay write-only, so a draft still shows unreconciled attribution and still over-reports an
+ * unseeded required default.
+ *
  * @internal
  *
  * @final
@@ -38,6 +46,7 @@ class DraftLayoutDecoder
 
     public function __construct(
         private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly ElementStyleNormalizer $styleNormalizer,
     ) {
     }
 
@@ -56,7 +65,7 @@ class DraftLayoutDecoder
 
         foreach ($gated as $entry) {
             try {
-                $tree[] = $this->elementSerializer->decodeElement($entry['element']);
+                $tree[] = $this->normalizeStyle($this->elementSerializer->decodeElement($entry['element']));
             } catch (ContentSystemException $exception) {
                 if (!ContentSystemException::isClientDefect($exception)) {
                     throw $exception;
@@ -98,7 +107,7 @@ class DraftLayoutDecoder
 
         foreach ($this->gate($rawLayout) as $entry) {
             try {
-                $tree[] = $this->elementSerializer->decodeElement($entry['element']);
+                $tree[] = $this->normalizeStyle($this->elementSerializer->decodeElement($entry['element']));
             } catch (ContentSystemException $exception) {
                 if (!ContentSystemException::isClientDefect($exception)) {
                     throw $exception;
@@ -109,6 +118,32 @@ class DraftLayoutDecoder
         }
 
         return [$tree, $violations];
+    }
+
+    /**
+     * The draft counterpart of the write boundary's style pass: this element's style and every style below it,
+     * canonicalised through the same normalizer. The walk rebuilds each node it visits — a {@see ContentElement}
+     * exposes no way to replace a style in place, and a slot child must keep its own normalised style rather
+     * than its parent's.
+     */
+    private function normalizeStyle(ContentElement $element): ContentElement
+    {
+        $slots = [];
+
+        foreach ($element->getSlots() as $name => $children) {
+            $slots[$name] = new SlotContent(array_map($this->normalizeStyle(...), $children->getElements()));
+        }
+
+        return new ContentElement(
+            $element->getId(),
+            $element->getComponent(),
+            $element->getDataRequirements(),
+            $element->getProperties(),
+            $slots,
+            $element->getContextDefinitions(),
+            $this->styleNormalizer->normalize($element->getStyle()),
+            $element->getAttributedSpecifications(),
+        );
     }
 
     /**

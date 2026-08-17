@@ -618,6 +618,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RootContextMapper::class),
             service(ContentSystemDataLoaderMapResolver::class),
             service(DataLoaderConfigSerializerProvider::class),
+            service(ContentSystemStyleOptionRegistry::class),
         ]);
 
     $services->set(LayoutGate::class)
@@ -655,6 +656,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DraftLayoutDecoder::class)
         ->args([
             service(ContentElementFieldSerializer::class),
+            service(ElementStyleNormalizer::class),
         ]);
 
     // Remaps the serializer's ExtraAttributesException to a content-system 400 for the strict-mapped admin routes

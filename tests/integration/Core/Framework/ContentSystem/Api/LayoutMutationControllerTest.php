@@ -40,6 +40,31 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame([], $body['orphaned']);
     }
 
+    #[TestDox('reports an unregistered style option in the 200 diagnostics body rather than rejecting the mutation')]
+    public function testMutationReportsUnknownStyleOptionInDiagnostics(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $element = $this->element('block-a', $component);
+        $element['style'] = ['definitely-not-a-style-option' => ['xs' => 'x']];
+
+        $body = $this->mutate('remove-element', [
+            'layout' => [$element, $this->element('block-b', $component)],
+            'elementId' => 'block-b',
+        ]);
+
+        static::assertFalse($body['diagnostics']['wellFormed']);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'unknown_style_option',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame('block-a', $violations[0]['elementId']);
+        static::assertSame('definitely-not-a-style-option', $violations[0]['key']);
+    }
+
     #[TestDox('removes an element and returns the trimmed layout')]
     public function testRemoveElement(): void
     {

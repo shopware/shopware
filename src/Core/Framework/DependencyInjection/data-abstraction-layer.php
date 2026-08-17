@@ -147,6 +147,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -952,6 +953,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             param('shopware.dal.versioning.expire_days'),
             service(ClockInterface::class),
+            service(EventDispatcherInterface::class),
         ])
         ->tag('messenger.message_handler');
 

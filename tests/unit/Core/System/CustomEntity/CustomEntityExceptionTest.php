@@ -42,6 +42,24 @@ class CustomEntityExceptionTest extends TestCase
         static::assertSame('Entity label_property "some_label" must be a string field', $exception->getMessage());
     }
 
+    public function testInvalidEntityName(): void
+    {
+        $exception = CustomEntityException::invalidEntityName('ce_test`x');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomEntityException::CUSTOM_ENTITY_INVALID_NAME, $exception->getErrorCode());
+        static::assertSame('Custom entity name "ce_test`x" is invalid. It may only contain letters, digits, underscores and dollar signs.', $exception->getMessage());
+    }
+
+    public function testInvalidFieldName(): void
+    {
+        $exception = CustomEntityException::invalidFieldName('ce_test', 'my-field');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(CustomEntityException::CUSTOM_ENTITY_INVALID_FIELD_NAME, $exception->getErrorCode());
+        static::assertSame('Field name "my-field" of custom entity "ce_test" is invalid. It may only contain letters, digits, underscores and dollar signs.', $exception->getMessage());
+    }
+
     public function testUnsupportedOnDeletePropertyOnField(): void
     {
         $onDelete = 'some_on_delete';

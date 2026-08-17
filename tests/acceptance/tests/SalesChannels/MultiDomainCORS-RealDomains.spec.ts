@@ -18,8 +18,13 @@ test(
         // cross-origin domain (different host) pointing at the very same webserver without any
         // extra CI infrastructure. Shopware is then told about it as a real sales channel domain,
         // exactly like a merchant configuring an additional domain would.
+        // The hostname must be unique per run: this test is repeated concurrently across
+        // workers against the same shop instance (e.g. the "acceptance-tests-changed" CI job),
+        // and a fixed hostname would race multiple runs into creating the same sales channel
+        // domain URL, tripping its uniqueness constraint.
         const appUrl = new URL(process.env.APP_URL ?? 'http://localhost:8000/');
-        const secondDomainUrl = `http://second.127.0.0.1.nip.io:${appUrl.port || '80'}/`;
+        const uniqueId = TestDataService.IdProvider.getIdPair().uuid;
+        const secondDomainUrl = `http://second-${uniqueId}.127.0.0.1.nip.io:${appUrl.port || '80'}/`;
 
         await TestDataService.createSalesChannelDomain({ url: secondDomainUrl });
         await TestDataService.clearCaches();

@@ -59,7 +59,7 @@ class ProductFeatureBuilder
             }
 
             $lineItem->replacePayload([
-                'features' => $this->buildFeatures($data, $lineItem, $product),
+                'features' => $this->buildFeatures($data, $lineItem, $product, $context),
             ]);
         }
     }
@@ -69,7 +69,7 @@ class ProductFeatureBuilder
      *
      * @return array<int, array{label: string, value: mixed, type: string}>
      */
-    private function buildFeatures(CartDataCollection $data, LineItem $lineItem, SalesChannelProductEntity $product): array
+    private function buildFeatures(CartDataCollection $data, LineItem $lineItem, SalesChannelProductEntity $product, SalesChannelContext $context): array
     {
         $sortedFeatures = $product->getFeatureSet()?->getFeatures();
         if ($sortedFeatures === null) {
@@ -93,7 +93,7 @@ class ProductFeatureBuilder
             }
 
             if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-                $features[] = $this->getCustomField($feature['name'], $data, $product);
+                $features[] = $this->getCustomField($feature['name'], $data, $product, $context);
 
                 continue;
             }
@@ -249,7 +249,7 @@ class ProductFeatureBuilder
      *
      * @return array{label: string, value: array{id: string, type: string, content: mixed}, type: string}|null
      */
-    private function getCustomField(string $name, CartDataCollection $data, SalesChannelProductEntity $product): ?array
+    private function getCustomField(string $name, CartDataCollection $data, SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
         $fieldKey = \sprintf('custom-field-%s', $name);
         $translation = $product->getTranslation('customFields');
@@ -267,7 +267,7 @@ class ProductFeatureBuilder
             throw CartException::wrongCartDataType($fieldKey, CustomFieldEntity::class);
         }
 
-        $label = $this->getCustomFieldLabel($customField);
+        $label = $this->getCustomFieldLabel($customField, $context);
         if (!\is_string($label)) {
             return null;
         }
@@ -311,16 +311,25 @@ class ProductFeatureBuilder
     }
 
     /**
-     * Since it's not intended to display custom field labels outside of the admin at the moment,
-     * their labels are indexed by the locale code of the system language (fixed value, not translated).
-     *
-     * @see https://github.com/shopware/shopware/issues/4458
+     * Custom field labels are not translated by the DAL, they are stored inside the field's config,
+     * indexed by locale code. As a label is not required for every language, the language chain of
+     * the context is walked, so a label inherits from the parent language and finally from the
+     * system language, matching how the DAL resolves translated fields.
      */
-    private function getCustomFieldLabel(CustomFieldEntity $customField): ?string
+    private function getCustomFieldLabel(CustomFieldEntity $customField, SalesChannelContext $context): ?string
     {
-        $localeCode = $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $labels = $customField->getConfig()['label'] ?? null;
 
-        return $customField->getConfig()['label'][$localeCode] ?? null;
+        foreach ($context->getLanguageIdChain() as $languageId) {
+            $localeCode = $this->languageLocaleProvider->getLocaleForLanguageId($languageId);
+            $label = $labels[$localeCode] ?? null;
+
+            if (\is_string($label) && $label !== '') {
+                return $label;
+            }
+        }
+
+        return null;
     }
 
     private function getDataKey(string $id): string

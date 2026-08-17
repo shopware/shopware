@@ -11,6 +11,11 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: false
+    app_system:
+        allow_unencrypted_traffic: true
+        allowed_private_ip_addresses:
+            - '127.0.0.1'
+            - '::1'
     admin_worker:
         enable_admin_worker: false
         enable_queue_stats_worker: false

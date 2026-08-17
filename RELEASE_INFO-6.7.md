@@ -27,6 +27,12 @@ When updating an Elasticsearch/OpenSearch mapping references an analyzer/normali
 
 ## Core
 
+### Webhook target validation hardened
+
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+
+Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
+
 ### Document rendering supports decorated Twig environments
 
 The document renderer now type-hints the base `Twig\Environment` instead of Shopware's `TwigEnvironment`, so a decorated `twig` service no longer breaks document generation. The sales channel business timezone override applies only when Shopware's `TwigEnvironment` is in use. With a decorator that does not extend it, documents render in Twig's default timezone.
@@ -492,6 +498,10 @@ For Administration clients that need to decide whether to trigger a direct brows
 The route is guarded by the existing `media:read` ACL privilege and returns a small JSON payload describing whether the client should use an external URL or perform the authenticated blob download through Shopware.
 
 ## App System
+
+### App requests block private targets and unencrypted traffic by default
+
+App-system requests now block private and reserved network targets as well as unencrypted HTTP traffic by default, including redirect targets. Before upgrading, operators whose apps use HTTP endpoints must set `shopware.app_system.allow_unencrypted_traffic`; operators whose apps use private endpoints must add each required address to `shopware.app_system.allowed_private_ip_addresses`.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

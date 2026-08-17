@@ -47,13 +47,21 @@ class CachedBaseSalesChannelContextFactory extends AbstractBaseSalesChannelConte
 
         $key = implode('-', [$name, Hasher::hash($keys)]);
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $salesChannelId, $options) {
+        $fresh = null;
+
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $salesChannelId, $options, &$fresh) {
             $item->tag([$name, CachedSalesChannelContextFactory::ALL_TAG]);
 
-            return CacheValueCompressor::compress(
-                $this->decorated->create($salesChannelId, $options)
-            );
+            $fresh = $this->decorated->create($salesChannelId, $options);
+
+            return CacheValueCompressor::compress($fresh);
         });
+
+        // the context was built in this call, return it directly instead of
+        // uncompressing the cache payload that was just compressed from it
+        if ($fresh instanceof BaseSalesChannelContext) {
+            return $fresh;
+        }
 
         return CacheValueCompressor::uncompress($value);
     }

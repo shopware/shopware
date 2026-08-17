@@ -72,6 +72,22 @@ shopware:
                         transport:
                             policy: open
 
+                scheduled_task.run.duration:
+                    # per-task-name performance signal, kept separate from overall messenger noise;
+                    # only terminal outcomes are recorded (retried attempts are covered by the messenger metrics)
+                    description: 'Scheduled task execution duration (worker received to handled/failed), per task/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-second cache invalidation up to long sitemap/product-export generation
+                        buckets: [10, 100, 1000, 10000, 60000, 300000, 600000]
+                    labels:
+                        # see TaskNameResolver
+                        task_name:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
                 dal.associations.count:
                     description: 'Number of associations loaded'
                     type: 'histogram'
@@ -229,6 +245,24 @@ shopware:
                             policy: open
                         operation:
                             allowed_values: [read, write, delete, none]
+
+                number_range.allocation.duration:
+                    # IncrementStorage::reserve duration; rising p95/p99 with storage=mysql under order load =
+                    # number_range_state row-lock contention, the leading indicator for switching to the Redis storage
+                    description: 'Number range increment reservation duration, per type/storage/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # single indexed statement; anything beyond tens of ms indicates lock contention
+                        buckets: [1, 5, 10, 50, 100, 1000]
+                    labels:
+                        # see NumberRangeTypeResolver
+                        number_range_type:
+                            policy: open
+                        # configured storage key (known core: mysql, redis; plugin-registered backends pass through)
+                        storage:
+                            policy: open
+                        # a reserve failing on lock wait timeout is the contention signal itself
 
                 api.sync.operations.count:
                     description: 'Operations per Sync API request'

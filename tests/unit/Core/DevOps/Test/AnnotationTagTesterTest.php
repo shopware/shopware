@@ -139,6 +139,15 @@ class AnnotationTagTesterTest extends TestCase
         );
     }
 
+    public function testParameterDefaultValueChangeWithLiveVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[ParameterDefaultValueChange(version: \'v6.4.0\', parameterName: \'value\', newDefaultValue: \'new\')]'
+        );
+    }
+
     public function testBCChangeAttributeWithMalformedVersionThrowsException(): void
     {
         $this->expectExceptionObject(new \InvalidArgumentException('The tag version should start with `v` and comprise 3 digits separated by periods.'));

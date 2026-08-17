@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateHydratorCommand;
@@ -96,6 +97,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\EntityIndexingSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -115,6 +117,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityTelemetrySubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExistsValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExistsValidator;
@@ -134,6 +138,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Script\AppContextCreator;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
@@ -142,6 +147,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -867,7 +873,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(EntitySearcherInterface::class),
             service(RequestCriteriaBuilder::class),
+            service(AclCriteriaValidator::class),
             service(SyncFkResolver::class),
+            service(SyncMetricsInstrumentor::class),
+        ]);
+
+    $services->set(SyncMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(EntityGroupResolver::class),
         ]);
 
     $services->set(SyncFkResolver::class)
@@ -896,8 +910,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.entity_indexer'),
             service('messenger.default_bus'),
             service('event_dispatcher'),
+            service(IndexerMetricsInstrumentor::class),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(IndexerMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+        ]);
 
     $services->set(EntityIndexingSubscriber::class)
         ->args([
@@ -933,6 +953,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             param('shopware.dal.versioning.expire_days'),
             service(ClockInterface::class),
+            service(EventDispatcherInterface::class),
         ])
         ->tag('messenger.message_handler');
 
@@ -942,4 +963,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber')
         ->tag('shopware.telemetry.subscriber');
+
+    // shared entity-name bucketing for telemetry labels (DAL search collectors + HTTP request domain)
+    $services->set(EntityGroupResolver::class);
+
+    // injected into every EntityRepository by EntityCompilerPass; self-gates on the telemetry flag
+    $services->set(DalSearchInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(EntityGroupResolver::class),
+            service(MetricConfigProvider::class),
+            param('shopware.telemetry.metrics.enabled'),
+        ]);
 };

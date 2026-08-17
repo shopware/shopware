@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -40,7 +41,8 @@ class EntityIndexerRegistry
     public function __construct(
         private readonly iterable $indexer,
         private readonly MessageBusInterface $messageBus,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly IndexerMetricsInstrumentor $indexerMetrics,
     ) {
     }
 
@@ -59,7 +61,7 @@ class EntityIndexerRegistry
             $indexer = $this->getIndexer($message->getIndexer());
 
             if ($indexer) {
-                $indexer->handle($message);
+                $this->indexerMetrics->measureRun($indexer, $message, fn () => $indexer->handle($message));
             }
 
             return;
@@ -238,6 +240,24 @@ class EntityIndexerRegistry
     public function has(string $name): bool
     {
         return $this->getIndexer($name) !== null;
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function getIndexers(): array
+    {
+        $indexers = [];
+
+        foreach ($this->indexer as $indexer) {
+            if ($indexer instanceof PostUpdateIndexer) {
+                continue;
+            }
+
+            $indexers[$indexer->getName()] = $indexer->getOptions();
+        }
+
+        return $indexers;
     }
 
     public function getIndexer(string $name): ?EntityIndexer

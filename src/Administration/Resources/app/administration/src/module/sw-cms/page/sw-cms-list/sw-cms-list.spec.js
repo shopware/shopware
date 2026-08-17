@@ -8,6 +8,13 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
 const cloneMock = jest.fn(() => Promise.resolve());
@@ -23,6 +30,7 @@ async function createWrapper(
         'system_config:read',
     ],
     mocks = {},
+    { featureActive = false } = {},
 ) {
     return mount(
         await wrapTestComponent('sw-cms-list', {
@@ -44,7 +52,33 @@ async function createWrapper(
                         template: '<div><slot></slot></div>',
                     },
                     'sw-tabs': {
-                        template: '<div><slot name="content"></slot></div>',
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot name="content"></slot></div>',
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            vertical: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
                     },
                     'sw-select-field': true,
                     'sw-pagination': {
@@ -169,6 +203,9 @@ async function createWrapper(
                             return privileges.includes(identifier);
                         },
                     },
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     cmsPageTypeService: {
                         getTypes: () => [
                             {
@@ -215,6 +252,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
+    beforeEach(() => {
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
+    });
+
     it('should show the right list of pageTypes for the filters', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -234,6 +276,63 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 value: 'landingpage',
             },
         ]);
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
+        expect(tabs.props('defaultItem')).toBe('all-pages');
+        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-cms.sorting.labelSortByAllPages',
+                name: 'all-pages',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'page',
+                name: 'page',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'landingpage',
+                name: 'landingpage',
+                onClick: expect.any(Function),
+            }),
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should filter by page type when a meteor tab item is clicked', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const pageTab = tabs.props('items').find((item) => item.name === 'page');
+        pageTab.onClick();
+
+        expect(wrapper.vm.currentPageType).toBe('page');
+        expect(wrapper.vm.activePageTypeTab).toBe('page');
+
+        const allPagesTab = tabs.props('items').find((item) => item.name === 'all-pages');
+        allPagesTab.onClick();
+
+        expect(wrapper.vm.currentPageType).toBeNull();
+        expect(wrapper.vm.activePageTypeTab).toBe('all-pages');
     });
 
     it('should show the correct context menu item for default layouts', async () => {

@@ -1,0 +1,90 @@
+name: ZUGFeRD Compliance
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "tests/integration/Core/Checkout/Document/Renderer/_snapshots/**"
+      - "tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/**"
+      - ".github/bin/js/zugferd-compliance.ts"
+      - ".github/workflows/zugferd-compliance.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zugferd-compliance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zugferd-compliance:
+    name: ZUGFeRD compliance
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Setup Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Run ZUGFeRD compliance check
+        id: check
+        env:
+          WORK_DIR: ${{ runner.temp }}/zugferd
+        run: node ./.github/bin/js/zugferd-compliance.ts
+
+      - name: Upload validation reports
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: zugferd-compliance-reports
+          path: ${{ runner.temp }}/zugferd/reports
+          if-no-files-found: ignore
+
+      - name: Notify Slack
+        if: failure() && github.event_name == 'schedule' && steps.check.outputs.document_count != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_ZUGFERD_COMPLIANCE_WORKFLOW_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_ID: ${{ github.run_id }}
+          DOCUMENT_COUNT: ${{ steps.check.outputs.document_count }}
+          FAILED_COUNT: ${{ steps.check.outputs.failed_count }}
+          FAILED_DOCUMENTS: ${{ steps.check.outputs.failed_documents }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$SLACK_WEBHOOK_URL" ]]; then
+            exit 0
+          fi
+
+          payload=$(
+            jq -nc \
+              --arg run_id "$RUN_ID" \
+              --arg run_url "$RUN_URL" \
+              --arg document_count "$DOCUMENT_COUNT" \
+              --arg failed_count "$FAILED_COUNT" \
+              --arg failed_documents "$FAILED_DOCUMENTS" \
+              '{
+                run_id: $run_id,
+                run_url: $run_url,
+                document_count: $document_count,
+                failed_count: $failed_count,
+                failed_documents: $failed_documents
+              }'
+          )
+
+          curl -fsSL -X POST \
+            -H 'Content-type: application/json' \
+            --data "$payload" \
+            "$SLACK_WEBHOOK_URL"

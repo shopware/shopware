@@ -100,15 +100,27 @@
                 class="sw-meteor-page__smart-bar-tabs"
             >
                 {% block sw_meteor_page_smart_bar_tabs %}
-                <sw-tabs
-                    position-identifier="sw-meteor-page"
-                    :small="false"
-                    @new-item-active="emitNewTab"
-                >
-                    <template #default>
-                        <slot name="page-tabs"></slot>
-                    </template>
-                </sw-tabs>
+                <template v-if="feature.isActive('v6.8.0.0')">
+                    <mt-tabs
+                        position-identifier="sw-meteor-page"
+                        :default-item="defaultTab"
+                        :items="tabItems"
+                        :small="true"
+                        @new-item-active="emitNewTab"
+                    />
+                </template>
+
+                <template v-else>
+                    <sw-tabs
+                        position-identifier="sw-meteor-page"
+                        :small="false"
+                        @new-item-active="emitNewTab"
+                    >
+                        <template #default>
+                            <slot name="page-tabs"></slot>
+                        </template>
+                    </sw-tabs>
+                </template>
                 {% endblock %}
             </div>
         </header>

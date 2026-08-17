@@ -39,7 +39,6 @@ class DownloadServiceTest extends TestCase
     public function testInvalidAccessToken(ImportExportFileEntity $fileEntity, string $accessToken): void
     {
         $this->expectExceptionObject(ImportExportException::invalidFileAccessToken());
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
@@ -52,7 +51,6 @@ class DownloadServiceTest extends TestCase
     {
         $this->expectExceptionObject(ImportExportException::fileNotFound($fileId));
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $downloadService = $this->createDownloadService(fileRepository: $fileRepository);
@@ -68,7 +66,6 @@ class DownloadServiceTest extends TestCase
         string $expectOutputFilename,
         string $expectedContentType
     ): void {
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
@@ -104,7 +101,6 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
@@ -116,7 +112,7 @@ class DownloadServiceTest extends TestCase
             static::assertIsResource($stream);
             fwrite($stream, 'test');
             rewind($stream);
-            $fileSystem->method('readStream')->willReturn($stream);
+            $fileSystem->expects($this->once())->method('readStream')->willReturn($stream);
             $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
         } else {
             $fileSystem->expects($this->never())->method('readStream');
@@ -167,7 +163,6 @@ class DownloadServiceTest extends TestCase
             'updatedAt' => new \DateTimeImmutable(),
         ]);
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);

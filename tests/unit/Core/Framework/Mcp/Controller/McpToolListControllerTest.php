@@ -42,6 +42,7 @@ class McpToolListControllerTest extends TestCase
         static::assertCount(1, $data);
         static::assertSame('shopware-entity-search', $data[0]['name']);
         static::assertSame('Search entities', $data[0]['description']);
+        static::assertSame('shopware', $data[0]['group']);
     }
 
     public function testListSortsToolsAlphabetically(): void
@@ -103,7 +104,7 @@ class McpToolListControllerTest extends TestCase
     {
         $page = new Page([self::makeTool('MyApp-my-tool')], null);
 
-        $provider = $this->createMock(AppMcpPrivilegeProvider::class);
+        $provider = static::createStub(AppMcpPrivilegeProvider::class);
         $provider->method('getAppToolPrivileges')->willReturn([
             'MyApp-my-tool' => ['product:read', 'order:read'],
         ]);

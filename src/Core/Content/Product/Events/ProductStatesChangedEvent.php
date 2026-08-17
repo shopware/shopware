@@ -22,6 +22,10 @@ class ProductStatesChangedEvent extends Event implements ShopwareEvent
         protected array $updatedStates,
         protected Context $context
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
     }
 
     /**

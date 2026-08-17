@@ -1,5 +1,7 @@
 /**
  * @sw-package framework
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */

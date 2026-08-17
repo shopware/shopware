@@ -1,5 +1,7 @@
 /**
  * @sw-package discovery
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import { computed, shallowRef, type ComputedRef, type ShallowRef } from 'vue';
 

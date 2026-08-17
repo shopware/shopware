@@ -1,5 +1,7 @@
 /**
  * @sw-package framework
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import { computed, onMounted, ref, watch } from 'vue';
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';

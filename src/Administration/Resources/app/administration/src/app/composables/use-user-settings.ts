@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 /**
  * @sw-package framework
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import Criteria from 'src/core/data/criteria.data';
 

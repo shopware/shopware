@@ -276,8 +276,10 @@ The conversion rules are data tables plus one handler per option:
 - `composables/` — `COMPOSABLE_DESCRIPTORS`, assembled in `composables/descriptors/index.ts` from one
   file per mixin that has a composable. Supporting another mixin means writing the composable and adding
   its descriptor; `resolveMixins()` and the assembly stay untouched. A new descriptor needs, in this order:
-  the composable under `src/app/composables/` (a default export, `@private`, with a cross-reference
-  comment on the mixin, which stays in place); the descriptor itself in
+  the composable under `src/app/composables/` (a default export, `@private` and
+  `@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES` — the layer is experimental
+  until the next major, so a composable's shape may still change — with a cross-reference comment on
+  the mixin, which stays in place); the descriptor itself in
   `composables/descriptors/<id>.ts`, named after its own `id` (a default export) and registered in
   `composables/descriptors/index.ts`, its member kinds read off the mixin's `computed`, `methods` and `data`,
   everything the mixin called on itself in `internallyReferencedMembers`, and everything it kept to

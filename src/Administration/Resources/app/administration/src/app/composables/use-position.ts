@@ -1,5 +1,7 @@
 /**
  * @sw-package framework
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import type Repository from 'src/core/data/repository.data';
 import Criteria from 'src/core/data/criteria.data';

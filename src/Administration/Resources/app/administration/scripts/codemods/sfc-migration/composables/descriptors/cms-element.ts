@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers, refMembers } from '../types';
@@ -59,4 +60,4 @@ const CMS_ELEMENT_DESCRIPTOR: ComposableDescriptor = {
     },
 };
 
-export { CMS_ELEMENT_DESCRIPTOR };
+export default CMS_ELEMENT_DESCRIPTOR;

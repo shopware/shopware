@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -28,4 +29,4 @@ const USER_SETTINGS_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { USER_SETTINGS_DESCRIPTOR };
+export default USER_SETTINGS_DESCRIPTOR;

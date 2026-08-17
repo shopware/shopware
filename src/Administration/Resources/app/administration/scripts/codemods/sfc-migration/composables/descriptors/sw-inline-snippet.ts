@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -17,4 +18,4 @@ const SW_INLINE_SNIPPET_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { SW_INLINE_SNIPPET_DESCRIPTOR };
+export default SW_INLINE_SNIPPET_DESCRIPTOR;

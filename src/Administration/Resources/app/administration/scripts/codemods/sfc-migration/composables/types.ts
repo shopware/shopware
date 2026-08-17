@@ -1,10 +1,11 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 /**
  * The shape of a descriptor and the two helpers its member map is written with. The registry itself is
- * assembled in index.ts.
+ * assembled in descriptors/index.ts.
  */
 
 /** `ref` appends `.value` on rewrite; `value` and `method` use the binding as written. */

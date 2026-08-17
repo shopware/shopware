@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -13,4 +14,4 @@ const PLACEHOLDER_DESCRIPTOR: ComposableDescriptor = {
     ]),
 };
 
-export { PLACEHOLDER_DESCRIPTOR };
+export default PLACEHOLDER_DESCRIPTOR;

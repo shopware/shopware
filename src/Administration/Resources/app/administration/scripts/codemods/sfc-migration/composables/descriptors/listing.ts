@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers, refMembers } from '../types';
@@ -115,4 +116,4 @@ const LISTING_DESCRIPTOR: ComposableDescriptor = {
     },
 };
 
-export { LISTING_DESCRIPTOR };
+export default LISTING_DESCRIPTOR;

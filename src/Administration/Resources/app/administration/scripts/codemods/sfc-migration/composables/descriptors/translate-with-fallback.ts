@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -16,4 +17,4 @@ const TRANSLATE_WITH_FALLBACK_DESCRIPTOR: ComposableDescriptor = {
     ]),
 };
 
-export { TRANSLATE_WITH_FALLBACK_DESCRIPTOR };
+export default TRANSLATE_WITH_FALLBACK_DESCRIPTOR;

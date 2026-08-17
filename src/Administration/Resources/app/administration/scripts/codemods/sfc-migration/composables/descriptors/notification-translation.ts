@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -17,4 +18,4 @@ const NOTIFICATION_TRANSLATION_DESCRIPTOR: ComposableDescriptor = {
     ]),
 };
 
-export { NOTIFICATION_TRANSLATION_DESCRIPTOR };
+export default NOTIFICATION_TRANSLATION_DESCRIPTOR;

@@ -16,14 +16,14 @@ import { convertFixture } from './spec-helpers';
 
 const DESCRIPTOR_FILE_IDS = fs
     .readdirSync(path.join(__dirname, 'composables', 'descriptors'))
-    .filter((file) => file.endsWith('.ts'))
+    .filter((file) => file.endsWith('.ts') && file !== 'index.ts')
     .map((file) => path.basename(file, '.ts'));
 
 describe('scripts/codemods/sfc-migration mixin composables', () => {
     describe('descriptor registry', () => {
-        // Only index.ts assembles the registry, so a descriptor file it does not import converts
-        // nothing while looking supported. Comparing the ids against the directory catches that, and
-        // a file whose name no longer matches the descriptor it holds.
+        // Only descriptors/index.ts assembles the registry, so a descriptor file it does not import
+        // converts nothing while looking supported. Comparing the ids against the directory catches
+        // that, and a file whose name no longer matches the descriptor it holds.
         it('registers every descriptor file exactly once, under its filename', () => {
             const ids = COMPOSABLE_DESCRIPTORS.map((descriptor) => descriptor.id);
 

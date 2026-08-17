@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, refMembers } from '../types';
@@ -19,4 +20,4 @@ const RULE_BETWEEN_OPERATOR_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { RULE_BETWEEN_OPERATOR_DESCRIPTOR };
+export default RULE_BETWEEN_OPERATOR_DESCRIPTOR;

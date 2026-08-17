@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers, refMembers } from '../types';
@@ -42,4 +43,4 @@ const VIDEO_COVER_DESCRIPTOR: ComposableDescriptor = {
     propArgs: ['item'],
 };
 
-export { VIDEO_COVER_DESCRIPTOR };
+export default VIDEO_COVER_DESCRIPTOR;

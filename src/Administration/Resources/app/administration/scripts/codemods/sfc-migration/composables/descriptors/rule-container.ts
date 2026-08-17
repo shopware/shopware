@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers, refMembers } from '../types';
@@ -44,4 +45,4 @@ const RULE_CONTAINER_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { RULE_CONTAINER_DESCRIPTOR };
+export default RULE_CONTAINER_DESCRIPTOR;

@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 /**
@@ -9,8 +10,6 @@
  * it covers, which composable replaces them, and which `this.<member>` accesses that composable
  * answers. Member kinds mirror the `MemberKind` tiers of tables.ts, so mixin members flow through
  * the same `ctx.bindings` rewrite as a component's own members instead of a second mechanism.
- *
- * Each descriptor lives in descriptors/<id>.ts, named after its own `id`.
  *
  * The two safety flags carry the cases where a composable is not a drop-in for the mixin's `this`
  * semantics. Both refuse the component rather than emitting something that compiles and behaves
@@ -36,43 +35,7 @@ import {
     type ComposableProvidedProp,
     type ComposableScaffold,
 } from './types';
-import { CMS_ELEMENT_DESCRIPTOR } from './descriptors/cms-element';
-import { CMS_STATE_DESCRIPTOR } from './descriptors/cms-state';
-import { LISTING_DESCRIPTOR } from './descriptors/listing';
-import { MEDIA_GRID_LISTENER_DESCRIPTOR } from './descriptors/media-grid-listener';
-import { MEDIA_SIDEBAR_MODAL_DESCRIPTOR } from './descriptors/media-sidebar-modal';
-import { NOTIFICATION_DESCRIPTOR } from './descriptors/notification';
-import { NOTIFICATION_TRANSLATION_DESCRIPTOR } from './descriptors/notification-translation';
-import { PLACEHOLDER_DESCRIPTOR } from './descriptors/placeholder';
-import { POSITION_DESCRIPTOR } from './descriptors/position';
-import { RULE_BETWEEN_OPERATOR_DESCRIPTOR } from './descriptors/rule-between-operator';
-import { RULE_CONTAINER_DESCRIPTOR } from './descriptors/rule-container';
-import { SALUTATION_DESCRIPTOR } from './descriptors/salutation';
-import { SW_INLINE_SNIPPET_DESCRIPTOR } from './descriptors/sw-inline-snippet';
-import { TRANSLATE_WITH_FALLBACK_DESCRIPTOR } from './descriptors/translate-with-fallback';
-import { USER_SETTINGS_DESCRIPTOR } from './descriptors/user-settings';
-import { VALIDATION_DESCRIPTOR } from './descriptors/validation';
-import { VIDEO_COVER_DESCRIPTOR } from './descriptors/video-cover';
-
-const COMPOSABLE_DESCRIPTORS: ComposableDescriptor[] = [
-    CMS_ELEMENT_DESCRIPTOR,
-    CMS_STATE_DESCRIPTOR,
-    LISTING_DESCRIPTOR,
-    MEDIA_GRID_LISTENER_DESCRIPTOR,
-    MEDIA_SIDEBAR_MODAL_DESCRIPTOR,
-    NOTIFICATION_DESCRIPTOR,
-    NOTIFICATION_TRANSLATION_DESCRIPTOR,
-    PLACEHOLDER_DESCRIPTOR,
-    POSITION_DESCRIPTOR,
-    RULE_BETWEEN_OPERATOR_DESCRIPTOR,
-    RULE_CONTAINER_DESCRIPTOR,
-    SALUTATION_DESCRIPTOR,
-    SW_INLINE_SNIPPET_DESCRIPTOR,
-    TRANSLATE_WITH_FALLBACK_DESCRIPTOR,
-    USER_SETTINGS_DESCRIPTOR,
-    VALIDATION_DESCRIPTOR,
-    VIDEO_COVER_DESCRIPTOR,
-];
+import { COMPOSABLE_DESCRIPTORS } from './descriptors';
 
 /** The descriptor covering a mixin registered under `name`, if one exists. */
 function findComposableDescriptor(name: string): ComposableDescriptor | undefined {

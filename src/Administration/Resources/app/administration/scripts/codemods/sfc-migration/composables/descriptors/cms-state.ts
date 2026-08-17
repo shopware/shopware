@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, type ComposableMember, methodMembers, refMembers } from '../types';
@@ -49,4 +50,6 @@ const CMS_STATE_DESCRIPTOR: ComposableDescriptor = {
     internallyReferencedMembers: CMS_STATE_INTERNAL_MEMBERS,
 };
 
-export { CMS_STATE_DESCRIPTOR, CMS_STATE_INTERNAL_MEMBERS, CMS_STATE_MEMBERS };
+export { CMS_STATE_INTERNAL_MEMBERS, CMS_STATE_MEMBERS };
+
+export default CMS_STATE_DESCRIPTOR;

@@ -251,7 +251,7 @@ Each file answers exactly one question:
 | `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
 | `rewrite-this.ts` | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope |
 | `tables.ts` | What converts to what? All conversion tables — the extension surface |
-| `composables/` | Which mixin has a composable, and which `this.<member>` does it answer? `index.ts` assembles the registry, `types.ts` holds the descriptor shape, `descriptors/<id>.ts` one descriptor per mixin |
+| `composables/` | Which mixin has a composable, and which `this.<member>` does it answer? `descriptors/index.ts` assembles the registry, `types.ts` holds the descriptor shape, `descriptors/<id>.ts` one descriptor per mixin, `index.ts` the queries over them |
 | `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
 | `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
 | `sfc-migration.spec.ts` + `__fixtures__/` | What does one component convert into? A snapshot of every fixture through the full pipeline |
@@ -270,13 +270,13 @@ The conversion rules are data tables plus one handler per option:
   `data`, `computed`, `watch`, …). Promoting a feature means moving its key out of the TODO/SKIP
   set and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`)
   and the assembly (`transform-script.ts`) stay untouched.
-- `composables/` — `COMPOSABLE_DESCRIPTORS`, assembled in `composables/index.ts` from one file per
-  mixin that has a composable. Supporting another mixin means writing the composable and adding its
-  descriptor; `resolveMixins()` and the assembly stay untouched. A new descriptor needs, in this order:
+- `composables/` — `COMPOSABLE_DESCRIPTORS`, assembled in `composables/descriptors/index.ts` from one
+  file per mixin that has a composable. Supporting another mixin means writing the composable and adding
+  its descriptor; `resolveMixins()` and the assembly stay untouched. A new descriptor needs, in this order:
   the composable under `src/app/composables/` (a default export, `@private`, with a cross-reference
   comment on the mixin, which stays in place); the descriptor itself in
-  `composables/descriptors/<id>.ts`, named after its own `id` and imported into the registry in
-  `composables/index.ts`, its member kinds read off the mixin's `computed`, `methods` and `data`,
+  `composables/descriptors/<id>.ts`, named after its own `id` (a default export) and registered in
+  `composables/descriptors/index.ts`, its member kinds read off the mixin's `computed`, `methods` and `data`,
   everything the mixin called on itself in `internallyReferencedMembers`, and everything it kept to
   itself in `unmappedMembers`; a fixture per new behaviour and per new refusal; and a named assertion
   in `mixin-composables.spec.ts`. The registry invariants there hold the descriptor to its own shape

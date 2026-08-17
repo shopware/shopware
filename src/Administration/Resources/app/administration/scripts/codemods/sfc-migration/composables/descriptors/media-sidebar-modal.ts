@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers, refMembers } from '../types';
@@ -55,4 +56,4 @@ const MEDIA_SIDEBAR_MODAL_DESCRIPTOR: ComposableDescriptor = {
     },
 };
 
-export { MEDIA_SIDEBAR_MODAL_DESCRIPTOR };
+export default MEDIA_SIDEBAR_MODAL_DESCRIPTOR;

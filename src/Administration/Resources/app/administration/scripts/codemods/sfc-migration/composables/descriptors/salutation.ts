@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -16,4 +17,4 @@ const SALUTATION_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { SALUTATION_DESCRIPTOR };
+export default SALUTATION_DESCRIPTOR;

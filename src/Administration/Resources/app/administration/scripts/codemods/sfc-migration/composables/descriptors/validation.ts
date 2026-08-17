@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers } from '../types';
@@ -29,4 +30,4 @@ const VALIDATION_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { VALIDATION_DESCRIPTOR };
+export default VALIDATION_DESCRIPTOR;

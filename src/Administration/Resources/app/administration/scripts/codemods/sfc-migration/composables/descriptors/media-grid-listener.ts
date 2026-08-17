@@ -1,5 +1,6 @@
 /**
  * @sw-package framework
+ * @private
  */
 
 import { type ComposableDescriptor, methodMembers, refMembers } from '../types';
@@ -57,4 +58,4 @@ const MEDIA_GRID_LISTENER_DESCRIPTOR: ComposableDescriptor = {
     ],
 };
 
-export { MEDIA_GRID_LISTENER_DESCRIPTOR };
+export default MEDIA_GRID_LISTENER_DESCRIPTOR;

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -75,6 +76,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
+    public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -769,6 +771,30 @@ class ContentSystemException extends HttpException
             self::BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS,
             'Element type "{{ type }}" has more than one default binding specification ({{ qualifiedIds }}), but at most one specification may be default per type.',
             ['type' => $type, 'qualifiedIds' => implode(', ', $qualifiedIds)]
+        );
+    }
+
+    /**
+     * The internal 500 for a PCRE failure while tokenizing a box-spacing style value into its four sides —
+     * a malformed-UTF-8 subject, or a backtrack/recursion limit on a large one. BoxSpacingNormalizer throws
+     * instead of substituting a plausible-looking split, because a substituted split is indistinguishable
+     * from a real one and would be stored as if it were the authored value.
+     *
+     * The value is identified by its byte length and a content fingerprint rather than echoed: the message
+     * must stay bounded, and the very inputs that reach this path may not be valid UTF-8 to begin with.
+     */
+    public static function boxSpacingTokenizationFailed(string $operation, string $value, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::BOX_SPACING_TOKENIZATION_FAILED,
+            'Could not {{ operation }} a box-spacing value: {{ reason }}. Value length: {{ length }} bytes, fingerprint: {{ fingerprint }}.',
+            [
+                'operation' => $operation,
+                'reason' => $reason,
+                'length' => (string) \strlen($value),
+                'fingerprint' => Hasher::hash($value),
+            ]
         );
     }
 

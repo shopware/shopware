@@ -59,6 +59,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\CachedContentSystemStyleOptionRegistry;
@@ -483,6 +485,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedContentSystemStyleOptionRegistry::class . '.inner'),
             service('cache.system'),
+        ]);
+
+    $services->set(BoxSpacingNormalizer::class);
+
+    $services->set(ElementStyleNormalizer::class)
+        ->args([
+            service(ContentSystemStyleOptionRegistry::class),
+            service(BoxSpacingNormalizer::class),
         ]);
 
     // Binding Specification System

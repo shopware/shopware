@@ -6,6 +6,8 @@ Some suffixes promise behavior, and a reader is entitled to that promise. A `Val
 
 A `Registry` is the single authority over a named set and its resolution, so a class that merely looks a value up without owning the set has not earned it. A `Reader` reads one persisted value behind a precedence rule its callers should not have to carry; it promises a single encapsulated read, not a general query service.
 
+A `Normalizer` maps a subject onto the one canonical form of that subject, so applying it to its own output changes nothing: `ElementStyleNormalizer` turns an authored `ElementStyle` into the `ElementStyle` a write stores. Idempotence is the promise, and so is staying on the same subject — one that turns a subject into its wire form is an `Encoder`, which is what `LayoutDiagnosticsResultNormalizer` does, a name to correct rather than a precedent to copy.
+
 ## The two-model roles
 
 The two-model split adds roles for moving between the models and for the state each side accumulates. Each of these is a promise, not a flavor of "service":

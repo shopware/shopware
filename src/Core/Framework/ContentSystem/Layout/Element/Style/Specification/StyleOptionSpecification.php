@@ -57,6 +57,14 @@ final readonly class StyleOptionSpecification
     }
 
     /**
+     * @return array<string, mixed>|null
+     */
+    public function adminUI(): ?array
+    {
+        return $this->adminUI;
+    }
+
+    /**
      * @return StyleOptionSchema
      */
     public function toSchema(): array

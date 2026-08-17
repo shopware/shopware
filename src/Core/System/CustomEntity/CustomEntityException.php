@@ -12,6 +12,8 @@ class CustomEntityException extends HttpException
 {
     public const CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED = 'FRAMEWORK__CUSTOM_ENTITY_ON_DELETE_PROPERTY_NOT_SUPPORTED';
     public const CUSTOM_ENTITY_TABLE_WRONG_PREFIX = 'FRAMEWORK__CUSTOM_ENTITY_WRONG_TABLE_PREFIX';
+    public const CUSTOM_ENTITY_INVALID_NAME = 'FRAMEWORK__CUSTOM_ENTITY_INVALID_NAME';
+    public const CUSTOM_ENTITY_INVALID_FIELD_NAME = 'FRAMEWORK__CUSTOM_ENTITY_INVALID_FIELD_NAME';
     public const CUSTOM_FIELDS_AWARE_NO_LABEL_PROPERTY = 'NO_LABEL_PROPERTY';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_NOT_DEFINED = 'LABEL_PROPERTY_NOT_DEFINED';
     public const CUSTOM_FIELDS_AWARE_LABEL_PROPERTY_WRONG_TYPE = 'LABEL_PROPERTY_WRONG_TYPE';
@@ -37,6 +39,26 @@ class CustomEntityException extends HttpException
             self::CUSTOM_ENTITY_TABLE_WRONG_PREFIX,
             'Table "{{ tableName }}" has to be prefixed with "{{ allowedPrefixes }}"',
             ['tableName' => $tableName, 'allowedPrefixes' => implode('", "', $allowedPrefixes)],
+        );
+    }
+
+    public static function invalidEntityName(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CUSTOM_ENTITY_INVALID_NAME,
+            'Custom entity name "{{ entityName }}" is invalid. It may only contain letters, digits, underscores and dollar signs.',
+            ['entityName' => $entityName],
+        );
+    }
+
+    public static function invalidFieldName(string $entityName, string $fieldName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CUSTOM_ENTITY_INVALID_FIELD_NAME,
+            'Field name "{{ fieldName }}" of custom entity "{{ entityName }}" is invalid. It may only contain letters, digits, underscores and dollar signs.',
+            ['entityName' => $entityName, 'fieldName' => $fieldName],
         );
     }
 

@@ -13,6 +13,7 @@
  */
 
 import { assertBlockSlots } from './assert-block-slots';
+import { hoistBlockSlots } from './hoist-block-slots';
 import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
 type TemplateResult = {
@@ -52,14 +53,21 @@ function transformTemplate(twig: string): TemplateResult {
         };
     }
 
+    // Runs before the gate below, so a slot the conversion re-parented is repaired rather than refused.
+    const hoisted = hoistBlockSlots(template);
+
+    if (hoisted.blockers.length > 0) {
+        return { template: null, blockers: hoisted.blockers };
+    }
+
     // Checked before the guard insertion below, so the blocker describes the authored shape.
-    const slotBlockers = assertBlockSlots(template);
+    const slotBlockers = assertBlockSlots(hoisted.template);
 
     if (slotBlockers.length > 0) {
         return { template: null, blockers: slotBlockers };
     }
 
-    return normalizeCrossBlockConditionals(template);
+    return normalizeCrossBlockConditionals(hoisted.template);
 }
 
 export { transformTemplate, TWIG_PARENT_BLOCKER, type TemplateResult };

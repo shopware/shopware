@@ -30,11 +30,30 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-named-slot 1`] = `
 {
-  "outcome": "skipped",
-  "reasons": [
-    "named slot inside a twig block (<sw-block> renders only its default slot)",
-  ],
-  "sfc": null,
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_block_named_slot">
+        <sw-modal v-if="active">
+            <template #modal-footer>
+                <sw-block name="sw_block_named_slot_footer">
+                    <button class="sw-block-named-slot__cancel">Cancel</button>
+                </sw-block>
+            </template>
+        </sw-modal>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
 }
 `;
 

@@ -5,7 +5,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse } from '@babel/parser';
-import { SLOT_IN_BLOCK } from './assert-block-slots';
 import { convertComponent, type ConvertResult } from './convert-component';
 import { OPTION_HANDLERS } from './option-handlers';
 import { LIFECYCLE_HOOKS, OPTION_TIERS } from './tables';
@@ -180,10 +179,16 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER] });
         });
 
-        it('skips a component whose twig block wraps a named slot', async () => {
+        // The block keeps its name and its position around the slot content, so an override still
+        // targets exactly what it targeted before the inversion.
+        it('hoists a named slot out of the twig block that wrapped it', async () => {
             const result = await convertFixture('sw-block-named-slot');
 
-            expect(result).toEqual({ outcome: 'skipped', reasons: [SLOT_IN_BLOCK], sfc: null });
+            expect(result.outcome).toBe('full');
+            expect(result.sfc).toContain('<template #modal-footer>');
+            expect(result.sfc?.indexOf('<template #modal-footer>')).toBeLessThan(
+                result.sfc!.indexOf('<sw-block name="sw_block_named_slot_footer">'),
+            );
         });
 
         it('skips a component whose twig uses {% parent %}', async () => {

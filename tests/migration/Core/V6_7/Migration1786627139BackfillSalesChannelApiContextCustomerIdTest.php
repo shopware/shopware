@@ -206,9 +206,18 @@ class Migration1786627139BackfillSalesChannelApiContextCustomerIdTest extends Te
         static::assertIsString($row['token']);
         static::assertIsString($row['payload']);
         static::assertIsString($row['sales_channel_id']);
-        static::assertTrue($row['customer_id'] === null || \is_string($row['customer_id']));
 
-        return $row;
+        $customerId = $row['customer_id'];
+        if ($customerId !== null) {
+            static::assertIsString($customerId);
+        }
+
+        return [
+            'token' => $row['token'],
+            'payload' => $row['payload'],
+            'customer_id' => $customerId,
+            'sales_channel_id' => $row['sales_channel_id'],
+        ];
     }
 
     /**

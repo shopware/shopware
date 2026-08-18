@@ -143,7 +143,7 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ### System config schema endpoints now require system config read access
 
-The deprecated endpoint `POST /api/_action/system-config/schema` and its successor `POST /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
 
 ### Deprecation of `ConfigurationService` class
 

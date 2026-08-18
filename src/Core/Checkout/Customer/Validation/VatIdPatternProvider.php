@@ -104,7 +104,7 @@ class VatIdPatternProvider implements ResetInterface
         $patterns = [];
         foreach ($rows as $row) {
             // Merchants can edit the patterns, so they are not guaranteed to compile. A single broken
-            // one would otherwise WARN on every VAT ID that has to be checked against the whole list.
+            // pattern would WARN on every VAT ID that has to be checked against the whole list.
             if (self::compiles($row['vat_id_pattern'])) {
                 $patterns[$row['iso']] = $row['vat_id_pattern'];
             }

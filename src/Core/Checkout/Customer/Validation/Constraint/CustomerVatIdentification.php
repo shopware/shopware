@@ -29,7 +29,7 @@ class CustomerVatIdentification extends Constraint
     protected bool $shouldCheck = false;
 
     /**
-     * Also accept a VAT ID that matches the pattern of any other EU member state, not only the one of `$countryId`.
+     * Also accept a VAT ID that matches the pattern of any other EU member state
      */
     protected bool $matchesAnyEuVat = false;
 

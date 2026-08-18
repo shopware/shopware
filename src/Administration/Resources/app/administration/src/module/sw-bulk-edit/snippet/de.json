@@ -46,6 +46,7 @@
       },
       "prices": {
         "cardTitle": "Preise",
+        "netHelpTextMixedTaxRates": "Die ausgewählten Produkte verwenden unterschiedliche Steuersätze. Gib einen Bruttopreis ein, der Nettopreis wird für jedes Produkt mit dessen eigenem Steuersatz berechnet. Um einen Nettopreis einzugeben, wähle oben einen Steuersatz aus.",
         "taxRate": {
           "changeLabel": "Ändern: Steuersatz",
           "placeholderTax": "Steuersatz auswählen ..."

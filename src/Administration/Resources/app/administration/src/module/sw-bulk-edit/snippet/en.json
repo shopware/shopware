@@ -46,6 +46,7 @@
       },
       "prices": {
         "cardTitle": "Prices",
+        "netHelpTextMixedTaxRates": "The selected products use different tax rates. Enter a gross price, the net price is calculated for each product with its own tax rate. To enter a net price, select a tax rate above.",
         "taxRate": {
           "changeLabel": "Change: Tax rate",
           "placeholderTax": "Select tax rate..."

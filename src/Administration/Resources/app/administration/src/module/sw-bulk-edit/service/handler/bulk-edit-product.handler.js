@@ -41,6 +41,10 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         if (price || purchasePrices) {
             updatedPricePayload = this.updatePriceDirectly(price, purchasePrices, updatedPricePayload);
 
+            if (!taxId) {
+                updatedPricePayload = await this.recalculateNetPrices(updatedPricePayload, price, purchasePrices);
+            }
+
             payload = payload.filter((change) => change.field !== 'price' && change.field !== 'purchasePrices');
         }
 
@@ -276,6 +280,82 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         });
 
         return payload.concat(calculatedProductPrices);
+    }
+
+    /**
+     * The net values of the entered prices are calculated in the administration with a single tax rate,
+     * but each product can use a different one. Recalculate the net value of every linked price with the
+     * tax rate of the product it belongs to, so the tax rate of the products stays untouched.
+     */
+    async recalculateNetPrices(pricePayload, inputPrice, inputPurchasePrices) {
+        // One group per tax rate and price type, each holding the price to recalculate per product
+        const groups = new Map();
+
+        const addPrice = (taxId, type, productId, enteredPrice, price) => {
+            // Only prices the user entered a gross value for are recalculated, every other price was
+            // restored from the database by `formatPrice` and has to stay untouched.
+            if (enteredPrice?.gross == null || price?.gross == null || !price.linked) {
+                return;
+            }
+
+            const key = `${taxId}.${type}`;
+
+            if (!groups.has(key)) {
+                groups.set(key, { taxId, prices: new Map() });
+            }
+
+            groups.get(key).prices.set(productId, price);
+        };
+
+        pricePayload.forEach(({ id, price, purchasePrices }) => {
+            const taxId = this.products.find((product) => product.id === id)?.taxId;
+
+            if (!taxId) {
+                return;
+            }
+
+            if (inputPrice) {
+                const currentPrice = price?.find((item) => item.currencyId === inputPrice[0].currencyId);
+
+                addPrice(taxId, 'price', id, inputPrice[0], currentPrice);
+                addPrice(taxId, 'listPrice', id, inputPrice[0].listPrice, currentPrice?.listPrice);
+                addPrice(taxId, 'regulationPrice', id, inputPrice[0].regulationPrice, currentPrice?.regulationPrice);
+            }
+
+            if (inputPurchasePrices) {
+                const currentPurchasePrice = purchasePrices?.find(
+                    (item) => item.currencyId === inputPurchasePrices[0].currencyId,
+                );
+
+                addPrice(taxId, 'purchasePrices', id, inputPurchasePrices[0], currentPurchasePrice);
+            }
+        });
+
+        await Promise.all(
+            Array.from(groups.values()).map(async ({ taxId, prices }) => {
+                const grossPrices = {};
+
+                prices.forEach((price, productId) => {
+                    grossPrices[productId] = [this.getRecalculatePrice(price)];
+                });
+
+                const calculatedPrices = await this.calculatePrices(taxId, grossPrices);
+
+                prices.forEach((price, productId) => {
+                    const calculatedPrice = calculatedPrices[productId]?.[price.currencyId];
+
+                    if (!calculatedPrice) {
+                        return;
+                    }
+
+                    const net = price.gross - this.getTax(calculatedPrice.calculatedTaxes);
+
+                    price.net = parseFloat(net.toPrecision(14));
+                });
+            }),
+        );
+
+        return pricePayload;
     }
 
     updatePrice(inputPrice, dbPrices) {

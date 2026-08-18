@@ -16,7 +16,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawnSync } from 'child_process';
-import { convertComponent, type ConvertResult } from './convert-component';
+import { convertComponent, type ConvertResult, type Outcome } from './convert-component';
 import {
     collectComponentSourceIndex,
     isContained,
@@ -25,43 +25,26 @@ import {
     type SourceDiagnostic,
 } from './component-source-model';
 
-type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
-
-type ComponentClass = RegistrationKind | 'unregistered' | 'ambiguous';
-
 type ComponentReport = {
     name: string;
     dir: string;
     outcome: Outcome;
-    registration: ComponentClass;
+    registration: RegistrationKind | 'unregistered' | 'ambiguous';
     reasons: string[];
 };
 
 type MigrationResult = {
     reports: ComponentReport[];
-    stats: Record<'full' | 'partial' | 'skipped' | 'alreadyMigrated' | 'error', number>;
+    stats: Record<Outcome, number>;
     inlineOverrides: InlineOverride[];
     diagnostics?: SourceDiagnostic[];
-};
-
-const STAT_KEY: Record<Outcome, keyof MigrationResult['stats']> = {
-    full: 'full',
-    partial: 'partial',
-    skipped: 'skipped',
-    'already-migrated': 'alreadyMigrated',
-    error: 'error',
 };
 
 const errorText = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
-const SCAN_ERROR_CODES = [
-    'read-failed',
-    'parse-failed',
-    'registration-path-outside-root',
-];
-const COMPONENT_CLASSES: ComponentClass[] = [
+const COMPONENT_CLASSES: ComponentReport['registration'][] = [
     'register',
     'extend',
     'override',
@@ -189,10 +172,9 @@ async function runMigration(
             full: 0,
             partial: 0,
             skipped: 0,
-            alreadyMigrated: 0,
-            error: index.diagnostics.filter(
-                (diagnostic) => !targetFiles.has(diagnostic.file) && SCAN_ERROR_CODES.includes(diagnostic.code),
-            ).length,
+            'already-migrated': 0,
+            error: index.diagnostics.filter((diagnostic) => !targetFiles.has(diagnostic.file) && diagnostic.isScanError)
+                .length,
         },
         inlineOverrides: index.inlineOverrides,
         diagnostics: index.diagnostics,
@@ -201,11 +183,11 @@ async function runMigration(
     // which matters once an outcome can still change after the conversion (a failing write).
     const report = (name: string, dir: string, outcome: Outcome, reasons: string[] = []): void => {
         const registrations = index.registrationsByDir.get(dir) ?? [];
-        const registration: ComponentClass =
+        const registration: ComponentReport['registration'] =
             registrations.length > 1 ? 'ambiguous' : (registrations[0]?.kind ?? 'unregistered');
 
         result.reports.push({ name, dir, outcome, registration, reasons });
-        result.stats[STAT_KEY[outcome]] += 1;
+        result.stats[outcome] += 1;
     };
 
     for (const indexFile of indexFiles) {
@@ -264,9 +246,7 @@ async function runMigration(
                 continue;
             }
 
-            const templateDiagnostics = component.diagnostics.filter((diagnostic) =>
-                diagnostic.code.startsWith('template-'),
-            );
+            const templateDiagnostics = component.diagnostics.filter((diagnostic) => diagnostic.isTemplateBinding);
 
             if (templateDiagnostics.length > 0) {
                 report(
@@ -361,7 +341,7 @@ async function runMigration(
 
 function printReport(result: MigrationResult, targetDir: string, write: boolean, replaceOriginals: boolean): void {
     const histogram = new Map<string, number>();
-    const classes = new Map<ComponentClass, number>();
+    const classes = new Map<ComponentReport['registration'], number>();
 
     for (const entry of result.reports) {
         const reasons = entry.reasons.length > 0 ? `  ${entry.reasons.join(', ')}` : '';
@@ -392,7 +372,7 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
     }
 
     const { stats } = result;
-    const total = stats.full + stats.partial + stats.skipped + stats.alreadyMigrated + stats.error;
+    const total = stats.full + stats.partial + stats.skipped + stats['already-migrated'] + stats.error;
     const split = COMPONENT_CLASSES.filter((componentClass) => classes.has(componentClass))
         .map((componentClass) => `${classes.get(componentClass)} ${componentClass}`)
         .join(' / ');
@@ -404,13 +384,13 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
 
     console.log(
         `\n${total} components${split ? ` (${split})` : ''}: ${stats.full} full, ${stats.partial} partial, ` +
-            `${stats.skipped} skipped, ${stats.alreadyMigrated} already migrated, ${stats.error} errors${mode}`,
+            `${stats.skipped} skipped, ${stats['already-migrated']} already migrated, ${stats.error} errors${mode}`,
     );
 
     if ((result.diagnostics ?? []).length > 0) {
         console.log('\nScan diagnostics:');
         result.diagnostics?.forEach((diagnostic) =>
-            console.log(`  ${diagnostic.stage}/${diagnostic.code}: ${diagnostic.file}: ${diagnostic.message}`),
+            console.log(`  ${diagnostic.label}: ${diagnostic.file}: ${diagnostic.message}`),
         );
     }
 

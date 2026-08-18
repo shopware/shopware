@@ -21,8 +21,11 @@ type ConvertInput = {
     templateImportRange: { start: number; end: number };
 };
 
+/** The one status vocabulary: three the conversion produces, two only the batch runner can. */
+type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
+
 type ConvertResult = {
-    outcome: 'full' | 'partial' | 'skipped';
+    outcome: Outcome;
     reasons: string[];
     sfc: string | null;
 };
@@ -39,7 +42,7 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     });
 
     if (script.script === null) {
-        return { outcome: 'skipped', reasons: script.blockers, sfc: null };
+        return { outcome: 'skipped', reasons: script.reasons, sfc: null };
     }
 
     const langAttribute = input.lang === 'ts' ? ' lang="ts"' : '';
@@ -63,10 +66,10 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     }
 
     return {
-        outcome: script.todos.length > 0 ? 'partial' : 'full',
-        reasons: script.todos,
+        outcome: script.reasons.length > 0 ? 'partial' : 'full',
+        reasons: script.reasons,
         sfc: formatted,
     };
 }
 
-export { convertComponent, type ConvertInput, type ConvertResult };
+export { convertComponent, type ConvertInput, type ConvertResult, type Outcome };

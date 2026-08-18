@@ -139,7 +139,7 @@ The conversion rules are data tables plus one handler per option:
   helper/import) and the `OPTION_TIERS` (`skip` / `todo`) assignment for top-level options.
 - `option-handlers.ts` — `OPTION_HANDLERS`, one small handler per supported option (`props`,
   `data`, `computed`, `watch`, …). Promoting a feature means dropping its key from `OPTION_TIERS`
-  and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`) and
-  the render pass (`transform-script.ts`) stay untouched.
+  and adding a handler — never both, because the tier is read first; the classification loop, the
+  `this.` rewrite pass (`rewrite-this.ts`) and the render pass (`transform-script.ts`) stay untouched.
 - New conversions are covered by dropping a fixture folder into `__fixtures__/` —
   `sfc-migration.spec.ts` snapshots every fixture automatically and runs the full validation gate.

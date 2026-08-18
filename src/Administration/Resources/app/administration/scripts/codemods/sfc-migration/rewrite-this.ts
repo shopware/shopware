@@ -17,7 +17,7 @@
 import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
 import { INSTANCE_PROPS, SKIP_INSTANCE_PROPS } from './tables';
-import { type Ctx, type FnLike, IDENTIFIER, isThisMember, memberName, overwrite, raw, todo } from './ast';
+import { type Ctx, type FnLike, IDENTIFIER, isThisMember, memberName, overwrite, report } from './ast';
 
 type Scope = NodePath['scope'];
 
@@ -73,7 +73,7 @@ function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath,
     const { ctx } = pass;
 
     if (!isComponent) {
-        todo(ctx, '`this.$refs` inside a nested function keeps its own `this`', raw(ctx, node));
+        report(ctx, 'todo', '`this.$refs` inside a nested function keeps its own `this`', node);
         return false;
     }
 
@@ -87,14 +87,15 @@ function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath,
 
     // The shadowed case must not register the ref either — transform-script would emit a
     // `const x = ref(null)` that nothing ever assigns.
-    todo(
+    report(
         ctx,
+        'todo',
         refName
             ? isShadowed(pass, path, refName)
                 ? `template ref '${refName}' is shadowed by a local binding`
                 : `template ref '${refName}' collides with an existing binding`
             : 'dynamic this.$refs access',
-        raw(ctx, node),
+        node,
     );
 
     return node.computed;
@@ -105,17 +106,17 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
     const name = memberName(node);
 
     if (!name) {
-        todo(ctx, 'dynamic `this[...]` access', raw(ctx, node));
+        report(ctx, 'todo', 'dynamic `this[...]` access', node);
         return true;
     }
 
     if (!isComponent) {
-        todo(ctx, `\`this.${name}\` inside a nested function keeps its own \`this\``);
+        report(ctx, 'todo', `\`this.${name}\` inside a nested function keeps its own \`this\``);
         return false;
     }
 
     if (SKIP_INSTANCE_PROPS.has(name)) {
-        ctx.blockers.add(`this.${name}`);
+        report(ctx, 'skip', `this.${name}`);
         return false;
     }
 
@@ -124,7 +125,7 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
     if (instanceProp) {
         // Bail before registering the helper, so a shadowed reference does not declare an unused one.
         if (isShadowed(pass, path, instanceProp.replacement)) {
-            todo(ctx, `this.${name} is shadowed by a local binding`);
+            report(ctx, 'todo', `this.${name} is shadowed by a local binding`);
             return false;
         }
 
@@ -139,13 +140,13 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
     const kind = ctx.bindings.get(name);
 
     if (kind === undefined) {
-        todo(ctx, `unmapped this.${name}`);
+        report(ctx, 'todo', `unmapped this.${name}`);
         return false;
     }
 
     // Props resolve through the `props` object, so only that name can shadow them.
     if (isShadowed(pass, path, kind === 'prop' ? 'props' : name)) {
-        todo(ctx, `this.${name} is shadowed by a local binding`);
+        report(ctx, 'todo', `this.${name} is shadowed by a local binding`);
         return false;
     }
 
@@ -186,7 +187,7 @@ function visit(pass: Pass, path: NodePath): boolean {
                 ctx.inferredEmits.push(event.value);
             }
         } else {
-            todo(ctx, 'dynamic $emit event name', raw(ctx, node));
+            report(ctx, 'todo', 'dynamic $emit event name', node);
         }
     }
 
@@ -199,7 +200,7 @@ function visit(pass: Pass, path: NodePath): boolean {
     }
 
     if (node.type === 'ThisExpression') {
-        todo(ctx, isComponent ? 'bare `this` usage' : '`this` inside a nested function');
+        report(ctx, 'todo', isComponent ? 'bare `this` usage' : '`this` inside a nested function');
         return false;
     }
 

@@ -169,7 +169,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         it('writes validated drafts while retaining every legacy source', async () => {
             const result = await runMigration(tmpDir, { write: true });
 
-            expect(result.stats).toEqual({ full: 3, partial: 0, skipped: 0, alreadyMigrated: 0, error: 0 });
+            expect(result.stats).toEqual({ full: 3, partial: 0, skipped: 0, 'already-migrated': 0, error: 0 });
 
             NAMES.forEach((name) => {
                 expect(fs.existsSync(path.join(tmpDir, name, `${name}.vue`))).toBe(true);
@@ -181,7 +181,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         it('replaces only in explicit replacement mode and retains Twig', async () => {
             const result = await runMigration(tmpDir, { write: true, replaceOriginals: true });
 
-            expect(result.stats).toEqual({ full: 3, partial: 0, skipped: 0, alreadyMigrated: 0, error: 0 });
+            expect(result.stats).toEqual({ full: 3, partial: 0, skipped: 0, 'already-migrated': 0, error: 0 });
 
             NAMES.forEach((name) => {
                 expect(fs.readFileSync(path.join(tmpDir, name, 'index.js'), 'utf8')).toContain(
@@ -350,7 +350,7 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         it('is idempotent: a second run reports already-migrated and re-converts nothing', async () => {
             const second = await runMigration(tmpDir, { write: true });
 
-            expect(second.stats).toEqual({ full: 0, partial: 0, skipped: 3, alreadyMigrated: 2, error: 0 });
+            expect(second.stats).toEqual({ full: 0, partial: 0, skipped: 3, 'already-migrated': 2, error: 0 });
         });
     });
 

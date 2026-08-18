@@ -27,7 +27,7 @@ import { traverse } from '@babel/core';
 import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
 import MagicString from 'magic-string';
-import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type TodoEntry } from './tables';
+import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type ReportKind, type TodoEntry } from './tables';
 import { type Ctx, arrowText, report, snip, unwrapOptions } from './ast';
 import {
     type Collected,
@@ -42,8 +42,8 @@ import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 type ScriptResult = {
     script: string | null;
     moduleScript: string | null;
-    todos: string[];
-    blockers: string[];
+    /** The blockers that refused the script when it is null, otherwise the TODOs the draft carries. */
+    reasons: string[];
 };
 
 function todoBlock(entry: TodoEntry): string {
@@ -147,7 +147,7 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
-        ...ctx.todos.map(todoBlock),
+        ...ctx.reports.filter((entry) => entry.kind === 'todo').map(todoBlock),
         publicNames.length > 0
             ? `swDefinePublic({\n${publicNames.map((publicName) => `${publicName},`).join('\n')}\n});`
             : 'swDefinePublic({});',
@@ -170,21 +170,18 @@ function transformScript(
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
-        todos: [],
-        blockers: new Set(),
+        reports: [],
     };
+
+    const reasonsOf = (kind: ReportKind): string[] =>
+        ctx.reports.filter((entry) => entry.kind === kind).map((entry) => entry.reason);
 
     let ast: t.File;
 
     try {
         ast = parse(source, { sourceType: 'module', plugins: ['typescript'] });
     } catch (error) {
-        return {
-            script: null,
-            moduleScript: null,
-            todos: [],
-            blockers: [`script parse error: ${(error as Error).message}`],
-        };
+        return { script: null, moduleScript: null, reasons: [`script parse error: ${(error as Error).message}`] };
     }
 
     const body = ast.program.body;
@@ -193,13 +190,13 @@ function transformScript(
     );
 
     if (!exportDefault) {
-        return { script: null, moduleScript: null, todos: [], blockers: ['no default export'] };
+        return { script: null, moduleScript: null, reasons: ['no default export'] };
     }
 
     const options = unwrapOptions(exportDefault.declaration);
 
     if (!options) {
-        return { script: null, moduleScript: null, todos: [], blockers: ['unsupported default export shape'] };
+        return { script: null, moduleScript: null, reasons: ['unsupported default export shape'] };
     }
 
     // --- collect ----------------------------------------------------------------------------------
@@ -232,8 +229,8 @@ function transformScript(
         }
     }
 
-    if (ctx.blockers.size > 0) {
-        return { script: null, moduleScript: null, todos: [], blockers: [...ctx.blockers] };
+    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
+        return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
     }
 
     // --- rewrite pass ---------------------------------------------------------------------------
@@ -267,8 +264,8 @@ function transformScript(
         rewriteThis(ctx, node, false);
     }
 
-    if (ctx.blockers.size > 0) {
-        return { script: null, moduleScript: null, todos: [], blockers: [...ctx.blockers] };
+    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
+        return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
     }
 
     // --- prelude (module-level code outside the component options) ------------------------------
@@ -291,8 +288,7 @@ function transformScript(
     return {
         script: renderScript(ctx, collected, watchers),
         moduleScript,
-        todos: ctx.todos.map((entry) => entry.reason),
-        blockers: [],
+        reasons: reasonsOf('todo'),
     };
 }
 

@@ -7,6 +7,8 @@ import * as path from 'path';
 import { parse } from '@babel/parser';
 import { SLOT_IN_BLOCK } from './assert-block-slots';
 import { convertComponent, type ConvertResult } from './convert-component';
+import { OPTION_HANDLERS } from './option-handlers';
+import { LIFECYCLE_HOOKS, OPTION_TIERS } from './tables';
 import { TWIG_PARENT_BLOCKER, transformTemplate } from './transform-template';
 
 const FIXTURES = path.join(__dirname, '__fixtures__');
@@ -54,6 +56,17 @@ describe('scripts/codemods/sfc-migration', () => {
 
             expect(result).toMatchSnapshot();
         });
+    });
+
+    // classifyOptions() reads OPTION_TIERS before dispatching, so an option in both tables would
+    // never reach its handler.
+    it('assigns each option either a tier or a handler, never both', () => {
+        const dispatched = [
+            ...Object.keys(OPTION_HANDLERS),
+            ...Object.keys(LIFECYCLE_HOOKS),
+        ];
+
+        expect(dispatched.filter((option) => option in OPTION_TIERS)).toEqual([]);
     });
 
     describe('outcome expectations (guard the snapshots against silent regressions)', () => {

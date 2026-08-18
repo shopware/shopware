@@ -26,18 +26,12 @@ type SourceRange = {
 
 type SourceDiagnostic = {
     file: string;
-    stage: 'scan' | 'registration' | 'template-binding';
-    code:
-        | 'read-failed'
-        | 'parse-failed'
-        | 'registration-ambiguous'
-        | 'registration-path-outside-root'
-        | 'template-binding-missing'
-        | 'template-binding-not-default'
-        | 'template-binding-ambiguous'
-        | 'template-path-outside-component'
-        | 'template-file-not-found';
+    /** `<stage>/<code>`, printed verbatim in the run report — data, never branched on. */
+    label: string;
     message: string;
+    /** The only two things a consumer asks about: does it refuse a component, does it count as an error. */
+    isTemplateBinding?: boolean;
+    isScanError?: boolean;
     range?: SourceRange;
 };
 
@@ -226,7 +220,7 @@ function findTemplateBinding(
     ast: t.File,
 ): { binding: TemplateBinding | null; diagnostics: SourceDiagnostic[] } {
     const refuse = (
-        code: SourceDiagnostic['code'],
+        code: string,
         message: string,
         range: SourceRange,
     ): { binding: null; diagnostics: SourceDiagnostic[] } => ({
@@ -234,9 +228,9 @@ function findTemplateBinding(
         diagnostics: [
             {
                 file,
-                stage: 'template-binding',
-                code,
+                label: `template-binding/${code}`,
                 message,
+                isTemplateBinding: true,
                 range,
             },
         ],
@@ -332,9 +326,9 @@ function findTemplateBinding(
             : [
                   {
                       file,
-                      stage: 'template-binding',
-                      code: 'template-file-not-found',
+                      label: 'template-binding/template-file-not-found',
                       message: `template file not found: ${twigPath}`,
+                      isTemplateBinding: true,
                       range: importRange,
                   },
               ],
@@ -394,9 +388,9 @@ function extractRegistrations(
             } else if (resolved.outsideRoot) {
                 diagnostics.push({
                     file,
-                    stage: 'registration',
-                    code: 'registration-path-outside-root',
+                    label: 'registration/registration-path-outside-root',
                     message: `registration import '${specifier}' resolves outside the scan root`,
+                    isScanError: true,
                     range: reference.range,
                 });
             }
@@ -424,9 +418,9 @@ function parseSourceFile(
             diagnostics: [
                 {
                     file,
-                    stage: 'scan',
-                    code: 'read-failed',
+                    label: 'scan/read-failed',
                     message: `could not read source: ${error instanceof Error ? error.message : String(error)}`,
+                    isScanError: true,
                 },
             ],
         };
@@ -445,9 +439,9 @@ function parseSourceFile(
             diagnostics: [
                 {
                     file,
-                    stage: 'scan',
-                    code: 'parse-failed',
+                    label: 'scan/parse-failed',
                     message: `could not parse source: ${error instanceof Error ? error.message : String(error)}`,
+                    isScanError: true,
                 },
             ],
         };
@@ -542,8 +536,7 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         if (registrations.length > 1) {
             index.diagnostics.push({
                 file: registrations[0].file,
-                stage: 'registration',
-                code: 'registration-ambiguous',
+                label: 'registration/registration-ambiguous',
                 message: `multiple registrations resolve to '${dir}'`,
                 range: registrations[0].range,
             });

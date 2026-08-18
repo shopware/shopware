@@ -1,7 +1,8 @@
 import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
+import Hammer from 'hammerjs';
 
 /**
- * @package discovery
+ * @package storefront
  */
 describe('ImageZoomPlugin tests', () => {
     let plugin = undefined;
@@ -9,6 +10,14 @@ describe('ImageZoomPlugin tests', () => {
     function defineSize(element, width, height) {
         Object.defineProperty(element, 'offsetWidth', { value: width, configurable: true });
         Object.defineProperty(element, 'offsetHeight', { value: height, configurable: true });
+    }
+
+    /**
+     * Mirrors what Hammer delivers when a pinch ends: the END input type, but isFinal
+     * false, because the two fingers never lift within the same frame.
+     */
+    function pinchEvent(eventType, scale) {
+        return { eventType, scale, isFinal: false, deltaX: 0, deltaY: 0 };
     }
 
     beforeEach(() => {
@@ -43,7 +52,7 @@ describe('ImageZoomPlugin tests', () => {
     it('persists the pinched zoom level when the gesture ends', () => {
         expect(plugin._storedTransform.z).toBe(1);
 
-        plugin._hammer.emit('pinchend', { isFinal: true, scale: 2, deltaX: 0, deltaY: 0 });
+        plugin._hammer.emit('pinch', pinchEvent(Hammer.INPUT_END, 2));
 
         expect(plugin._storedTransform.z).toBe(2);
     });
@@ -51,8 +60,15 @@ describe('ImageZoomPlugin tests', () => {
     it('persists the pinched zoom level when the gesture is cancelled', () => {
         expect(plugin._storedTransform.z).toBe(1);
 
-        plugin._hammer.emit('pinchcancel', { isFinal: true, scale: 3, deltaX: 0, deltaY: 0 });
+        plugin._hammer.emit('pinch', pinchEvent(Hammer.INPUT_CANCEL, 3));
 
         expect(plugin._storedTransform.z).toBe(3);
+    });
+
+    it('does not persist while the gesture is still running', () => {
+        plugin._hammer.emit('pinch', pinchEvent(Hammer.INPUT_MOVE, 2));
+
+        expect(plugin._transform.z).toBe(2);
+        expect(plugin._storedTransform.z).toBe(1);
     });
 });

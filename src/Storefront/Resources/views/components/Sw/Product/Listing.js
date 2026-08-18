@@ -21,6 +21,7 @@ export default class ProductListing extends ShopwareComponent {
         this.debouncedLoad = this.debounce(async () => {
             const productGrid = this.el.querySelector('.sw-product-listing__grid');
             const pagination = this.el.querySelector('.sw-product-listing__pagination');
+            const resultCounter = this.el.querySelector('.sw-filter-panel__counter');
             productGrid.classList.add('is--loading');
 
             const location = new URL(window.location);
@@ -33,9 +34,15 @@ export default class ProductListing extends ShopwareComponent {
             const doc = this.domParser.parseFromString(html, 'text/html');
             const grid = doc.querySelector('.sw-product-listing__grid');
             const pagi = doc.querySelector('.sw-product-listing__pagination');
+            const counter = doc.querySelector('.sw-filter-panel__counter');
 
             productGrid.replaceWith(grid);
             pagination.replaceWith(pagi);
+
+            if (resultCounter && counter) {
+                resultCounter.replaceWith(counter);
+            }
+
             productGrid.classList.remove('is--loading');
         }, 200);
 

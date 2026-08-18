@@ -564,6 +564,10 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
+### Customer detail action buttons target the displayed customer
+
+Action buttons registered for `entity="customer" view="detail"` now receive the id of the customer currently on screen as soon as the route changes. When navigating from one customer detail page to another (for example through the admin search bar), the id in `data.ids` previously kept pointing at the previously opened customer until that customer's data had finished loading, so an action triggered during that window acted on the wrong record.
+
 ## Hosting & Configuration
 
 ### Optional `Clear-Site-Data` header on customer logout

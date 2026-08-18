@@ -204,6 +204,12 @@ export default {
         },
     },
 
+    // Use `beforeUnmount` instead of `beforeRouteLeave`, because a `beforeRouteLeave` here would
+    // shadow the one provided by the `discard-detail-page-changes` mixin.
+    beforeUnmount() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     created() {
         this.createdComponent();
     },
@@ -257,6 +263,8 @@ export default {
         },
 
         async createdComponent() {
+            Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
+
             await this.loadCustomer();
         },
 

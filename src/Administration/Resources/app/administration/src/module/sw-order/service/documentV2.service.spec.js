@@ -341,4 +341,31 @@ describe('core/service/documentV2.service.ts', () => {
 
         expect(documentV2Service.getFileFormatSnippet(fileFormat)).toStrictEqual(expectedSnippet);
     });
+
+    it.each([
+        [
+            DOCUMENT_TYPES.INVOICE,
+            'sw-order.components.createDocumentModal.documentTypes.invoice',
+        ],
+        [
+            DOCUMENT_TYPES.CREDIT_NOTE,
+            'sw-order.components.createDocumentModal.documentTypes.creditNote',
+        ],
+        [
+            DOCUMENT_TYPES.CANCELLATION_INVOICE,
+            'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
+        ],
+        [
+            DOCUMENT_TYPES.DELIVERY_NOTE,
+            'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
+        ],
+        [
+            'foo',
+            'foo',
+        ],
+    ])('should get correct document type snippet', (documentType, expectedSnippet) => {
+        const documentV2Service = new DocumentV2Service();
+
+        expect(documentV2Service.getDocumentTypeSnippet(documentType)).toStrictEqual(expectedSnippet);
+    });
 });

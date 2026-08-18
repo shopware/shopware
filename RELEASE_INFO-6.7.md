@@ -294,6 +294,12 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Cross-selling by dynamic product group excludes the whole variant family
+
+A cross-selling that uses a dynamic product group no longer returns the product it is displayed on. For variants, the complete variant family is excluded — the currently viewed variant, its parent, and all sibling variants — because variant grouping and main variant resolution would otherwise resolve a sibling back to the viewed product. Previously only the product the cross-selling is assigned to was excluded, which had no effect on variants that inherit their cross-sellings from the parent.
+
+Cross-sellings with a manual product assignment are unchanged. Extensions that need the old result can adjust the criteria in `ProductCrossSellingStreamCriteriaEvent`.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

@@ -48,13 +48,11 @@
         {% endblock %}
     </div>
 
-    {% block sw_settings_user_list_verify_modal %}
     <sw-verify-user-modal
         v-if="isConfirmingPasswordModalOpen"
         @verified="deleteUser"
         @close="onCloseConfirmPasswordModal"
     />
-    {% endblock %}
 
     {% block sw_settings_user_list_content %}
     {% block sw_settings_user_list_content_grid %}

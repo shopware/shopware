@@ -483,15 +483,6 @@ The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
-### Listing filter plugins: scalar query keys are no longer pipe-joined
-
-`Listing._mapFilters()` now treats every query parameter that the listing backend reads as a scalar (`p`, `order`, `limit`, `rating`, `shipping-free`, `min-price`, `max-price`) as strictly single-valued (last value wins) instead of pipe-joining multiple contributions.
-A third-party filter plugin that returns `{ p: 2 }` from `getValues()` used to produce `p=1|2` when combined with the built-in pagination value, triggering a `400 Bad Request` on `/widgets/cms/navigation/...`; `rating=3|4` used to cast to `3` server-side. Genuinely multi-valued filter keys (`manufacturer`, `properties`, ...) still pipe-join.
-For `p`, the built-in pagination plugin now always wins, regardless of the order in which filters registered.
-
-The merge step also now normalises scalar / array / object contributions into arrays before merging, drops empty values so they cannot leak into the query as a bare `|`, and skips third-party filter plugins whose `getValues()`, `getLabels()`, `reset()` or `resetAll()` throws.
-Plugin authors who intentionally relied on the previous pipe-join behaviour for these keys should drop them from their `getValues()` output and call `listing.changeListing(true, { p: nextPage })` directly instead.
-
 ### Theme CLI commands clean up unused theme directories
 
 Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.

@@ -203,13 +203,7 @@
         "labelDocumentTypeSingle": "Document type",
         "placeholderDocumentTypeSingle": "Select document type...",
         "labelFileFormats": "File formats",
-        "placeholderFileFormats": "Select file formats...",
-        "fileFormats": {
-          "pdf": "PDF",
-          "html": "HTML",
-          "zugferdXml": "ZUGFeRD XML",
-          "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF"
-        }
+        "placeholderFileFormats": "Select file formats..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Set download access",

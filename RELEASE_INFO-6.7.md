@@ -6,6 +6,10 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### New app script hook `cookie-group-collect`
+
+Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
+
 ## API
 
 ### Added new shop setting endpoint
@@ -294,6 +298,12 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Cross-selling by dynamic product group excludes the whole variant family
+
+A cross-selling that uses a dynamic product group no longer returns the product it is displayed on. For variants, the complete variant family is excluded — the currently viewed variant, its parent, and all sibling variants — because variant grouping and main variant resolution would otherwise resolve a sibling back to the viewed product. Previously only the product the cross-selling is assigned to was excluded, which had no effect on variants that inherit their cross-sellings from the parent.
+
+Cross-sellings with a manual product assignment are unchanged. Extensions that need the old result can adjust the criteria in `ProductCrossSellingStreamCriteriaEvent`.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
@@ -553,19 +563,6 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
-### Cookies can be bound to active payment methods
-
-Cookies declared in an app's `manifest.xml` were always shown in the storefront cookie consent manager, even on sales channels where the app's payment methods are not offered. A cookie (both standalone and inside a group's `<entries>`) can now reference payment methods of the app via the repeatable `<active-payment-method>` element:
-
-```xml
-<cookie>
-    <snippet-name>myApp.cookie.wallet</snippet-name>
-    <cookie>my-app-wallet</cookie>
-    <active-payment-method>wallet</active-payment-method>
-</cookie>
-```
-
-The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
 
 ## Hosting & Configuration
 
@@ -3434,10 +3431,13 @@ The Administration now supports axios 1.x alongside the existing axios 0.30.2 to
 **Current behavior (6.7.x):**
 - Default: axios 0.30.2 (backward compatible)
 - Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+- Repository requests use axios 1.x internally. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+- Existing `httpClient.interceptors` and `httpClient.defaults` customizations are mirrored to both internal clients, so extensions do not need version-specific setup.
+- The Shopware HTTP client remains structurally compatible with the previous `AxiosInstance` type and `axios-mock-adapter`, while new code can use Shopware's `HttpClient` contract.
 
 **Future behavior (6.8.0+):**
-- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
-- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+- Direct HTTP request default: axios 1.x (when `V6_8_0_0` feature flag is active)
+- Direct HTTP request opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
 
 **Key differences between versions:**
 - **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)

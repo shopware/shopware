@@ -5,7 +5,7 @@
 /**
  * The codemod's conversion tables — its primary extension surface.
  *
- * SKIP_OPTIONS / TODO_OPTIONS decide an option's tier, INSTANCE_PROPS drives `this.$xyz` rewrites,
+ * OPTION_TIERS decides an unhandled option's tier, INSTANCE_PROPS drives `this.$xyz` rewrites,
  * LIFECYCLE_HOOKS maps hook names. Anything no table claims becomes a `// TODO(sfc-migration)`
  * comment (partial migration) or a blocker (component skipped) — never a silent guess. Supporting
  * a new feature usually means adding one entry here plus a handler in option-handlers.ts.
@@ -17,32 +17,33 @@ type HelperName = 't' | 'router' | 'route' | 'emit' | 'props' | 'slots' | 'attrs
 
 type TodoEntry = { reason: string; code?: string };
 
-// Options whose presence makes the whole component non-migratable.
-const SKIP_OPTIONS = new Set([
-    'mixins',
-    'render',
-    'renderError',
-]);
+/** The two ways the codemod says "I could not convert this": refuse the component, or leave a note. */
+type ReportKind = 'skip' | 'todo';
 
-// Options that are kept as TODO comments; everything unknown lands here too (see classifyOptions).
-const TODO_OPTIONS = new Set([
-    'metaInfo',
-    'shortcuts',
-    'provide',
-    'filters',
-    'compatConfig',
-    'components',
-    'directives',
-    'validations',
-    'model',
-    'expose',
-    'setup',
-    'i18n',
-    'beforeCreate',
-    'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
-]);
+// Tier for options no handler claims: 'skip' makes the whole component non-migratable, 'todo' keeps
+// the option as a comment. Anything absent from this table and unclaimed is an unknown option — also
+// a TODO, but under a different reason (see classifyOptions).
+const OPTION_TIERS: Record<string, ReportKind> = {
+    mixins: 'skip',
+    render: 'skip',
+    renderError: 'skip',
+    metaInfo: 'todo',
+    shortcuts: 'todo',
+    provide: 'todo',
+    filters: 'todo',
+    compatConfig: 'todo',
+    components: 'todo',
+    directives: 'todo',
+    validations: 'todo',
+    model: 'todo',
+    expose: 'todo',
+    setup: 'todo',
+    i18n: 'todo',
+    beforeCreate: 'todo',
+    beforeRouteEnter: 'todo',
+    beforeRouteLeave: 'todo',
+    beforeRouteUpdate: 'todo',
+};
 
 // `this.$super` / `this.$parent` are structural — the component is skipped entirely.
 const SKIP_INSTANCE_PROPS = new Set([
@@ -105,8 +106,8 @@ export {
     type MemberKind,
     type HelperName,
     type TodoEntry,
-    SKIP_OPTIONS,
-    TODO_OPTIONS,
+    type ReportKind,
+    OPTION_TIERS,
     SKIP_INSTANCE_PROPS,
     INSTANCE_PROPS,
     HELPER_SETUP_LINES,

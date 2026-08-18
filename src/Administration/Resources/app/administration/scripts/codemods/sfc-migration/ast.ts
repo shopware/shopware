@@ -11,7 +11,7 @@
 import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
 import type MagicString from 'magic-string';
-import type { MemberKind, HelperName, TodoEntry } from './tables';
+import type { MemberKind, HelperName, ReportKind, TodoEntry } from './tables';
 
 type Ctx = {
     source: string;
@@ -23,6 +23,7 @@ type Ctx = {
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
     inferredEmits: string[];
+    /** Written through `report()`; a non-empty `blockers` refuses the component outright. */
     todos: TodoEntry[];
     blockers: Set<string>;
 };
@@ -52,10 +53,24 @@ function overwrite(ctx: Ctx, node: t.Node, text: string): void {
     ctx.ms.overwrite(node.start as number, node.end as number, text);
 }
 
+/** Records a TODO once per reason+code pair, so a repeated shape leaves a single comment. */
 function todo(ctx: Ctx, reason: string, code?: string): void {
     if (!ctx.todos.some((entry) => entry.reason === reason && entry.code === code)) {
         ctx.todos.push({ reason, code });
     }
+}
+
+/**
+ * The single channel for "I could not convert this". A `skip` refuses the whole component, a `todo`
+ * keeps the draft and leaves a comment quoting `node`'s original source.
+ */
+function report(ctx: Ctx, kind: ReportKind, reason: string, node?: t.Node): void {
+    if (kind === 'skip') {
+        ctx.blockers.add(reason);
+        return;
+    }
+
+    todo(ctx, reason, node ? raw(ctx, node) : undefined);
 }
 
 function keyName(prop: t.ObjectMethod | t.ObjectProperty): string | null {
@@ -213,6 +228,7 @@ export {
     raw,
     overwrite,
     todo,
+    report,
     keyName,
     asFunction,
     isThisMember,

@@ -120,7 +120,7 @@ Each file answers exactly one question:
 | `template-ast.ts` | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate |
 | `assert-block-slots.ts` | Does a converted block swallow content? Named-slot children of `<sw-block>` |
 | `normalize-cross-block-conditionals.ts` | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned |
-| `transform-script.ts` | In what order is the `<script setup>` assembled? Orchestrates parse → classify → rewrite → assemble |
+| `transform-script.ts` | In what order is the `<script setup>` assembled? Orchestrates parse → collect → rewrite → render |
 | `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
 | `rewrite-this.ts` | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope |
 | `tables.ts` | What converts to what? All conversion tables — the extension surface |
@@ -136,10 +136,10 @@ Each file answers exactly one question:
 The conversion rules are data tables plus one handler per option:
 
 - `tables.ts` — `INSTANCE_PROPS` (one entry per `this.$xyz` rewrite: replacement + required
-  helper/import) and the `TODO_OPTIONS` / `SKIP_OPTIONS` tier assignment for top-level options.
+  helper/import) and the `OPTION_TIERS` (`skip` / `todo`) assignment for top-level options.
 - `option-handlers.ts` — `OPTION_HANDLERS`, one small handler per supported option (`props`,
-  `data`, `computed`, `watch`, …). Promoting a feature means moving its key out of the TODO/SKIP
-  set and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`)
-  and the assembly (`transform-script.ts`) stay untouched.
+  `data`, `computed`, `watch`, …). Promoting a feature means dropping its key from `OPTION_TIERS`
+  and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`) and
+  the render pass (`transform-script.ts`) stay untouched.
 - New conversions are covered by dropping a fixture folder into `__fixtures__/` —
   `sfc-migration.spec.ts` snapshots every fixture automatically and runs the full validation gate.

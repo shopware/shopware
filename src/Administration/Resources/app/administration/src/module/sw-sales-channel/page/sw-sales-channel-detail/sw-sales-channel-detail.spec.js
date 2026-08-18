@@ -285,6 +285,23 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         ]);
     });
 
+    it('should allow storefront and headless sales channels as product export source', async () => {
+        const wrapper = await createWrapper();
+
+        const filters = wrapper.vm.storefrontSalesChannelCriteria.filters;
+
+        expect(filters).toEqual([
+            {
+                type: 'equalsAny',
+                field: 'typeId',
+                value: [
+                    Shopware.Defaults.storefrontSalesChannelTypeId,
+                    Shopware.Defaults.apiSalesChannelTypeId,
+                ].join('|'),
+            },
+        ]);
+    });
+
     it('should provide agentic commerce export config accessor for child views', async () => {
         const wrapper = await createWrapper();
 

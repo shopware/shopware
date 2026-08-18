@@ -188,6 +188,14 @@ class ProductStreamIndexer extends EntityIndexer
 
             if ($this->isMultiFilter($entity['type'])) {
                 $entity['queries'] = $this->buildNested($entities, $entity['id'], $entity['type']);
+
+                if ($entity['queries'] === []) {
+                    continue;
+                }
+            }
+
+            if ($this->isEmptyIdFilter($entity)) {
+                continue;
             }
 
             if ($this->isIdFilter($entity['field'])) {
@@ -208,6 +216,24 @@ class ProductStreamIndexer extends EntityIndexer
     private function isIdFilter(?string $field): bool
     {
         return $field === 'id' || $field === $this->productDefinition->getEntityName() . '.id';
+    }
+
+    /**
+     * @param array<string, mixed> $entity
+     */
+    private function isEmptyIdFilter(array $entity): bool
+    {
+        if (!$this->isIdFilter($entity['field'] ?? null)) {
+            return false;
+        }
+
+        $value = $entity['value'] ?? null;
+
+        if ($value === null) {
+            return true;
+        }
+
+        return \is_string($value) && trim($value) === '';
     }
 
     private function isNotEqualToAnyType(string $type, ?string $parentType): bool

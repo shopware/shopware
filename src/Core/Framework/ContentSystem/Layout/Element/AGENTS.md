@@ -23,8 +23,9 @@ is the pre-split model they are replacing, still alive on the serving path:
   with the render layers. Slots are `array<string, list<RenderedElement>>`.
 - `ContentElement` — the pre-split model: still `extends Struct` and mutable,
   and still the model the rendering pipeline speaks from its lowering onward.
-  The pipeline's first steps — the preparation event, placeholder resolution
-  and the virtual-root wrap — run on stored elements;
+  The pipeline's first steps — the preparation event, placeholder resolution,
+  the virtual-root wrap and the redistribute expansion — run on stored
+  elements;
   `ContentElementLowering` produces this model at the one seam that remains
   (see its class comment for that site and its removal condition). Slots are
   `array<string, SlotContent>`.

@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
@@ -292,6 +293,131 @@ class ContentPipelineTest extends TestCase
         // Fixture guard: the consumer really did redistribute, so the step ran after the dispatch.
         $elements = iterator_to_array($result->elements, false);
         static::assertArrayHasKey('product', $elements[0]->getProvidesContext());
+    }
+
+    #[TestDox('carries the expanded redistribute provider into the tree the pipeline renders')]
+    public function testRedistributeExpansionResultReachesTheRenderedTree(): void
+    {
+        $consumer = StoredElementBuilder::create('text', 'consumer-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $redistributor = StoredElementBuilder::create('section', 'redistributor-id')
+            ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withProperty('product', 'product-payload')
+            ->withSlot('default', [$consumer])
+            ->build();
+        $layout = $this->createSingleRootLayout($redistributor);
+
+        // Fixture guard: the authored tree declares no provider at all, so the only way the payload
+        // can reach the child is through the provider the expansion derives.
+        static::assertSame([], $redistributor->contextDefinitions->getAllProviders());
+        static::assertNull($consumer->property('product'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
+    }
+
+    #[TestDox('rejects a redistributing consumer whose context key is a dotted path')]
+    public function testRedistributeExpansionRejectsADottedConsumerKey(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true)
+                ->build()
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::SKELETON,
+            Generator::generateSalesChannelContext()
+        );
+    }
+
+    #[TestDox('rejects a redistributing consumer whose derived provider key is already provided')]
+    public function testRedistributeExpansionRejectsAProviderKeyConflict(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product', ContextType::Single, redistribute: true)
+                ->withProvider('product', BroadcastDistributionConfig::simple())
+                ->build()
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->expectExceptionObject(ContentSystemException::redistributeConflict('product'));
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::SKELETON,
+            Generator::generateSalesChannelContext()
+        );
+    }
+
+    #[TestDox('rejects two consumers on one element that write the same property key')]
+    public function testRedistributeExpansionRejectsAPropertyAliasCollision(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product', ContextType::Single, propertyAlias: 'item')
+                ->withConsumer('category', ContextType::Single, propertyAlias: 'item.name')
+                ->build()
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->expectExceptionObject(ContentSystemException::propertyAliasCollision('item', 'product', 'category'));
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::SKELETON,
+            Generator::generateSalesChannelContext()
+        );
+    }
+
+    #[TestDox('validates a subtree the partial prune is about to discard')]
+    public function testRedistributeExpansionValidatesASubtreeThePartialRenderDiscards(): void
+    {
+        $target = StoredElementBuilder::create('text', 'target-id')->build();
+        $discarded = StoredElementBuilder::create('text', 'discarded-id')
+            ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true)
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withSlot('default', [$target, $discarded])
+                ->build()
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id'),
+            new RenderingCacheContext(),
+            RenderingMode::SKELETON,
+            Generator::generateSalesChannelContext()
+        );
     }
 
     #[TestDox('exposes the unpruned layout tree to preparation subscribers, before the partial prune')]

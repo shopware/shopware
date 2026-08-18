@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -62,9 +63,9 @@ class ContentPipeline
             $storedTree = [$this->virtualRootWrapper->wrap($storedTree, $specification)];
         }
 
-        $elements = $this->lowering->lowerTree($storedTree);
+        $storedTree = $this->expandRedistribution($storedTree);
 
-        $this->expandRedistribution($elements);
+        $elements = $this->lowering->lowerTree($storedTree);
 
         $extractTargetId = $this->extractTargetId($specification);
         $elements = $this->pruneToTarget($elements, $extractTargetId);
@@ -144,31 +145,54 @@ class ContentPipeline
      * to descendants. This step generates the ContextProvider objects that enable
      * this behavior during rendering.
      *
-     * @param list<ContentElement> $elements
+     * It runs on the whole authored forest, before the partial prune, so a wiring defect
+     * inside a subtree a partial render is about to discard still fails the request.
+     *
+     * @param list<StoredElement> $elements
+     *
+     * @return list<StoredElement>
      */
-    private function expandRedistribution(array $elements): void
+    private function expandRedistribution(array $elements): array
     {
-        foreach ($elements as $element) {
-            $this->expandRedistributionRecursively($element);
-        }
+        return array_map($this->expandRedistributionRecursively(...), $elements);
     }
 
-    private function expandRedistributionRecursively(ContentElement $element): void
+    /**
+     * Rebuilds the element rather than mutating it: derivation and validation run on this node
+     * first, so a defect on a parent still reports before one on its children, then the children
+     * are expanded and the node is rebuilt only where something actually changed.
+     */
+    private function expandRedistributionRecursively(StoredElement $element): StoredElement
     {
-        $consumers = $element->getAcceptsContext();
-        $providers = $element->getProvidesContext();
+        $consumers = $element->contextDefinitions->getAllConsumers();
 
         $this->validatePropertyAliases($consumers);
-        $virtualProviders = $this->generateVirtualProviders($consumers, $providers);
+        $virtualProviders = $this->generateVirtualProviders($consumers, $element->contextDefinitions->getAllProviders());
 
-        if ($virtualProviders !== []) {
-            $newDefinitions = $element->getContextDefinitions()->withAddedProviders($virtualProviders);
-            $element->setContextDefinitions($newDefinitions);
+        $slots = [];
+        $slotsChanged = false;
+
+        foreach ($element->slots as $slotName => $children) {
+            $expandedChildren = [];
+
+            foreach ($children as $child) {
+                $expandedChild = $this->expandRedistributionRecursively($child);
+                $slotsChanged = $slotsChanged || $expandedChild !== $child;
+                $expandedChildren[] = $expandedChild;
+            }
+
+            $slots[$slotName] = $expandedChildren;
         }
 
-        foreach ($element->allSlotElements() as $child) {
-            $this->expandRedistributionRecursively($child);
+        if ($slotsChanged) {
+            $element = $element->withSlots($slots);
         }
+
+        if ($virtualProviders === []) {
+            return $element;
+        }
+
+        return $element->withContextDefinitions($element->contextDefinitions->withAddedProviders($virtualProviders));
     }
 
     /**

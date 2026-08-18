@@ -13,8 +13,8 @@ Core ships no listener on either event. `ContentPipeline::load()` (module root) 
 **Before hydration**, after `ContentTreePreparationEvent` is dispatched:
 1. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only (`Layout/Scaffolding/StoredTreePreparer`)
 2. Virtual-root wrap — wraps the stored roots with a temporary container for layout-level context (`Layout/Scaffolding/VirtualRootWrapper`)
-3. Lowering — takes the stored tree onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
-4. Redistribute expansion — expands `redistribute: true` into broadcast providers
+3. Redistribute expansion — expands `redistribute: true` into broadcast providers, on the stored tree
+4. Lowering — takes the stored tree onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
 5. Partial prune — prunes the tree when `targetElementId` is specified (`Output/PartialRenderer`)
 
 **After hydration**, before `PostHydrationEvent` is dispatched:

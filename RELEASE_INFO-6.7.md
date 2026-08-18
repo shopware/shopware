@@ -141,6 +141,10 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ## Core
 
+### ACL in system config schema routes
+
+The deprecated system config schema route `/api/_action/system-config/schema` and its successor route `/api/_action/system-config/get-schema` now require the `system_config:read` permission.
+
 ### Deprecation of `ConfigurationService` class
 
 Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.

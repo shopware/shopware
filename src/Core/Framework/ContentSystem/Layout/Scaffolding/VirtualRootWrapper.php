@@ -69,46 +69,33 @@ final class VirtualRootWrapper
     }
 
     /**
-     * Extracts actual roots from virtual root wrapper with validation.
+     * Extracts the actual roots back out of the virtual root wrapper.
      *
-     * @throws ContentSystemException If element is not a virtual root or data integrity violated
+     * The caller establishes that this element is the wrapper, so identity is not re-checked here.
+     * A wrapper always holds at least one root — `requiresWrapping()` refuses an empty forest and the
+     * partial prune rebuilds the slot around the surviving child — so a wrapper whose roots slot is
+     * absent or empty is a corrupt tree, never an empty layout, and is rejected rather than reported
+     * as no roots.
      *
-     * @return list<ContentElement>
+     * @throws ContentSystemException If the roots slot holds no roots
+     *
+     * @return non-empty-list<ContentElement>
      */
     public function unwrap(ContentElement $virtualRoot): array
     {
-        if ($virtualRoot->getId() !== self::VIRTUAL_ROOT_ID) {
-            throw ContentSystemException::pathIntegrityViolation(
-                \sprintf(
-                    'Expected virtual page context root with ID "%s", got element with ID "%s" and component "%s"',
-                    self::VIRTUAL_ROOT_ID,
-                    $virtualRoot->getId(),
-                    $virtualRoot->getComponent()
-                )
-            );
-        }
-
-        $slots = $virtualRoot->getSlots();
-        $pageRootsSlot = $slots[self::VIRTUAL_ROOT_SLOT_NAME] ?? null;
-
-        if ($pageRootsSlot === null) {
-            throw ContentSystemException::pathIntegrityViolation(
-                \sprintf(
-                    'Virtual page context root is missing required slot "%s"',
-                    self::VIRTUAL_ROOT_SLOT_NAME
-                )
-            );
-        }
-
-        $extractedRoots = $pageRootsSlot->getElements();
+        $pageRootsSlot = $virtualRoot->getSlots()[self::VIRTUAL_ROOT_SLOT_NAME] ?? null;
+        $extractedRoots = $pageRootsSlot === null ? [] : array_values($pageRootsSlot->getElements());
 
         if ($extractedRoots === []) {
-            throw ContentSystemException::pathIntegrityViolation(
-                'Virtual page context root slot is empty - roots were lost during hydration'
+            throw ContentSystemException::invalidMapValue(
+                'Virtual page context root slot map',
+                self::VIRTUAL_ROOT_SLOT_NAME,
+                'a slot holding at least one root',
+                $pageRootsSlot === null ? 'no such slot' : 'an empty slot'
             );
         }
 
-        return array_values($extractedRoots);
+        return $extractedRoots;
     }
 
     /**

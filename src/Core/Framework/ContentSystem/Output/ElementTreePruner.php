@@ -40,57 +40,68 @@ class ElementTreePruner
         string $targetId,
         ContextDependencyAnalyzer $dependencyAnalyzer
     ): ContentElement {
-        $path = $this->findPathToElement($root, $targetId);
+        $resolved = $this->resolvePath($root, $targetId);
 
-        if ($path === []) {
+        if ($resolved === null) {
             throw ContentSystemException::elementNotFound($targetId);
         }
 
-        $pathElements = $this->buildPathElements($root, $path);
+        [$pathElements, $slotNames] = $resolved;
         $dataRootIndex = $dependencyAnalyzer->findDataRootIndex($pathElements);
 
         return $this->reconstructPrunedTree(
             $pathElements,
+            $slotNames,
             $dataRootIndex,
             \count($pathElements) - 1
         );
     }
 
     /**
-     * @param list<string> $path Element IDs from root to target
+     * Finds the target and returns the elements from `$element` down to it, recording for each of them
+     * the slot that holds the next one.
      *
-     * @return list<ContentElement>
+     * The elements and their slots come out of one descent, so the reconstruction can never disagree
+     * with the search about which child a step meant: ids are supposed to be unique across the forest,
+     * but a raw-SQL or migration write can put the same id in two slots, and re-locating a step by id
+     * would then be free to pick the sibling the search did not walk through.
+     *
+     * Pre-order, first match wins, slot order — the order {@see findPathToElement} reports.
+     *
+     * @return array{list<ContentElement>, list<string>}|null The path elements and, per element, the
+     *                                                        slot holding its successor; null when the
+     *                                                        target is not in this tree
      */
-    private function buildPathElements(ContentElement $root, array $path): array
+    private function resolvePath(ContentElement $element, string $targetId): ?array
     {
-        $elements = [$root];
-        $current = $root;
-        $pathCount = \count($path);
-
-        for ($i = 1; $i < $pathCount; ++$i) {
-            $nextId = $path[$i];
-
-            // Search only among direct children (O(children) instead of O(tree))
-            $found = $this->findDirectChild($current, $nextId);
-
-            if ($found === null) {
-                throw ContentSystemException::pathIntegrityViolation(
-                    "Element {$nextId} not found as direct child of {$current->getId()}"
-                );
-            }
-
-            $elements[] = $found;
-            $current = $found;
+        if ($element->getId() === $targetId) {
+            return [[$element], []];
         }
 
-        return $elements;
+        foreach ($element->getSlots() as $slotName => $slotContent) {
+            foreach ($slotContent as $child) {
+                $resolved = $this->resolvePath($child, $targetId);
+
+                if ($resolved === null) {
+                    continue;
+                }
+
+                [$elements, $slotNames] = $resolved;
+
+                return [[$element, ...$elements], [$slotName, ...$slotNames]];
+            }
+        }
+
+        return null;
     }
 
     /**
-     * @param array<ContentElement> $pathElements
+     * @param list<ContentElement> $pathElements
+     * @param list<string> $slotNames
      */
     private function reconstructPrunedTree(
         array $pathElements,
+        array $slotNames,
         int $startIndex,
         int $targetIndex
     ): ContentElement {
@@ -99,14 +110,16 @@ class ElementTreePruner
         }
 
         // Build from bottom up (target to context root) to handle immutability
-        return $this->reconstructFromBottom($pathElements, $startIndex, $targetIndex);
+        return $this->reconstructFromBottom($pathElements, $slotNames, $startIndex, $targetIndex);
     }
 
     /**
-     * @param array<ContentElement> $pathElements
+     * @param list<ContentElement> $pathElements
+     * @param list<string> $slotNames
      */
     private function reconstructFromBottom(
         array $pathElements,
+        array $slotNames,
         int $currentIndex,
         int $targetIndex
     ): ContentElement {
@@ -114,54 +127,21 @@ class ElementTreePruner
             return clone $pathElements[$targetIndex];
         }
 
-        $child = $this->reconstructFromBottom($pathElements, $currentIndex + 1, $targetIndex);
+        $child = $this->reconstructFromBottom($pathElements, $slotNames, $currentIndex + 1, $targetIndex);
 
         $currentElement = $pathElements[$currentIndex];
-        $nextElement = $pathElements[$currentIndex + 1];
-
-        $slotName = $this->findSlotContaining($currentElement, $nextElement->getId());
-
-        if ($slotName === null) {
-            throw ContentSystemException::pathIntegrityViolation(
-                "Element {$nextElement->getId()} not found in any slot of parent {$currentElement->getId()}"
-            );
-        }
 
         return new ContentElement(
             $currentElement->getId(),
             $currentElement->getComponent(),
             $currentElement->getDataRequirements(),
             $currentElement->getProperties(),
-            [$slotName => new SlotContent([$child])],
+            [$slotNames[$currentIndex] => new SlotContent([$child])],
             new ContextDefinitions(
                 $currentElement->getProvidesContext(),
                 $currentElement->getAcceptsContext()
             ),
             $currentElement->getStyle(),
         );
-    }
-
-    private function findSlotContaining(ContentElement $parent, string $childId): ?string
-    {
-        foreach ($parent->getSlots() as $slotName => $slotContent) {
-            foreach ($slotContent as $element) {
-                if ($element->getId() === $childId) {
-                    return $slotName;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private function findDirectChild(ContentElement $parent, string $childId): ?ContentElement
-    {
-        foreach ($parent->allSlotElements() as $child) {
-            if ($child->getId() === $childId) {
-                return $child;
-            }
-        }
-
-        return null;
     }
 }

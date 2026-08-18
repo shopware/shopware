@@ -110,55 +110,50 @@ class VirtualRootWrapperTest extends TestCase
         static::assertSame('root-b', $extractedRoots[1]->getId());
     }
 
-    #[TestDox('throws when element is not the virtual root')]
-    public function testUnwrapThrowsWhenElementIsNotVirtualRoot(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::pathIntegrityViolation(
-            'Expected virtual page context root with ID "__page_context_root__", got element with ID "some-id" and component "Sw:Text"'
-        ));
-
-        $regularElement = ContentElementBuilder::create('Sw:Text', 'some-id')->build();
-        $this->wrapper->unwrap($regularElement);
-    }
-
-    #[DataProvider('throwsWhenSlotMissingOrEmptyProvider')]
-    #[TestDox('throws when the page roots slot is missing or empty')]
-    public function testUnwrapThrowsWhenSlotIsMissingOrEmpty(
-        ContentElement $element,
+    #[DataProvider('rootlessWrapperProvider')]
+    #[TestDox('rejects a wrapper whose roots slot holds no roots')]
+    public function testUnwrapRejectsAWrapperWithoutRoots(
+        ContentElement $malformedWrapper,
         ContentSystemException $expectedException
     ): void {
+        // Fixture guard: the element really passes the identity check the caller performs, so the
+        // rejection below is about the roots slot and nothing else.
+        static::assertTrue($this->wrapper->isVirtualRoot($malformedWrapper));
+
         $this->expectExceptionObject($expectedException);
 
-        $this->wrapper->unwrap($element);
+        $this->wrapper->unwrap($malformedWrapper);
     }
 
     /**
      * @return \Generator<string, array{ContentElement, ContentSystemException}>
      */
-    public static function throwsWhenSlotMissingOrEmptyProvider(): \Generator
+    public static function rootlessWrapperProvider(): \Generator
     {
-        $elementWithoutSlot = new ContentElement(
-            '__page_context_root__',
-            'Sw:Internal:PageContext',
-        );
-
         yield 'missing slot' => [
-            $elementWithoutSlot,
-            ContentSystemException::pathIntegrityViolation('Virtual page context root is missing required slot "__page_roots__"'),
+            new ContentElement(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'Sw:Internal:PageContext'),
+            ContentSystemException::invalidMapValue(
+                'Virtual page context root slot map',
+                '__page_roots__',
+                'a slot holding at least one root',
+                'no such slot'
+            ),
         ];
 
-        $emptySlot = new SlotContent();
-        $elementWithEmptySlot = new ContentElement(
-            '__page_context_root__',
-            'Sw:Internal:PageContext',
-            [],
-            [],
-            ['__page_roots__' => $emptySlot],
-        );
-
         yield 'empty slot' => [
-            $elementWithEmptySlot,
-            ContentSystemException::pathIntegrityViolation('Virtual page context root slot is empty - roots were lost during hydration'),
+            new ContentElement(
+                VirtualRootWrapper::VIRTUAL_ROOT_ID,
+                'Sw:Internal:PageContext',
+                [],
+                [],
+                ['__page_roots__' => new SlotContent()],
+            ),
+            ContentSystemException::invalidMapValue(
+                'Virtual page context root slot map',
+                '__page_roots__',
+                'a slot holding at least one root',
+                'an empty slot'
+            ),
         ];
     }
 

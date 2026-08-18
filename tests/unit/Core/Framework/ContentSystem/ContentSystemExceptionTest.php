@@ -171,13 +171,6 @@ class ContentSystemExceptionTest extends TestCase
             'elem-1',
         ];
 
-        yield 'path integrity violation' => [
-            ContentSystemException::pathIntegrityViolation('duplicate key'),
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            'CONTENT_SYSTEM__PATH_INTEGRITY_VIOLATION',
-            'duplicate key',
-        ];
-
         yield 'no factory can handle' => [
             ContentSystemException::noFactoryCanHandle('/store-api/content/unknown'),
             Response::HTTP_NOT_FOUND,

@@ -254,6 +254,35 @@ class ElementTreePrunerTest extends TestCase
         static::assertSame($childId, $targetSlots['main']->getElements()[0]->getId());
     }
 
+    #[TestDox('walks through the duplicate-id ancestor that actually holds the target, not its namesake in an earlier slot')]
+    public function testPruneWalksThroughTheAncestorHoldingTheTarget(): void
+    {
+        $target = ContentElementBuilder::create('target-component', 'target-id')->build();
+
+        $decoyMiddle = ContentElementBuilder::create('middle-component', 'middle-id')
+            ->withSlot('default', [ContentElementBuilder::create('leaf-component', 'decoy-leaf')->build()])
+            ->build();
+        $realMiddle = ContentElementBuilder::create('middle-component', 'middle-id')
+            ->withSlot('default', [$target])
+            ->build();
+
+        $root = ContentElementBuilder::create('root-component', 'root-id')
+            ->withSlot('first', [$decoyMiddle])
+            ->withSlot('second', [$realMiddle])
+            ->build();
+
+        // Fixture guard: the two ancestors really do share an id, and the earlier slot is really the
+        // one that does not hold the target — the pair a search by id alone cannot tell apart.
+        static::assertSame($decoyMiddle->getId(), $realMiddle->getId());
+        static::assertSame(['first', 'second'], array_keys($root->getSlots()));
+        static::assertSame([], $this->pruner->findPathToElement($decoyMiddle, 'target-id'));
+
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, 'target-id', $this->dependencyAnalyzer);
+
+        // The target consumes nothing, so it is its own data root and the prune stops there.
+        static::assertSame('target-id', $pruned->getId());
+    }
+
     #[TestDox('throws element-not-found exception when target element is not in tree')]
     public function testPruneToPathAndDescendantsThrowsWhenElementNotFound(): void
     {

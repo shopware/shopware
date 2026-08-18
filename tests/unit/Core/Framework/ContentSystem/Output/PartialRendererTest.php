@@ -31,15 +31,22 @@ class PartialRendererTest extends TestCase
         );
     }
 
-    #[TestDox('prunes to target element, catching exceptions for roots where target is not found')]
-    public function testPruneToTargetCatchesExceptionsAndContinues(): void
+    #[TestDox('prunes to the target element, skipping the roots that do not contain it')]
+    public function testPruneToTargetSkipsRootsWithoutTheTarget(): void
     {
-        $root1 = ContentElementBuilder::create('section', 'r1')->build();
+        $root1 = ContentElementBuilder::create('section', 'r1')
+            ->withSlot('default', [ContentElementBuilder::create('text', 'bystander')->build()])
+            ->build();
 
         $target = ContentElementBuilder::create('text', 'target')->build();
         $root2 = ContentElementBuilder::create('section', 'r2')
             ->withSlot('default', [$target])
             ->build();
+
+        // Fixture guard: the first root is populated but target-free, so only a search for the target
+        // itself can decide to skip it — "has no children" would keep it.
+        static::assertTrue($root1->hasSlots());
+        static::assertSame([], (new ElementTreePruner())->findPathToElement($root1, 'target'));
 
         $result = $this->renderer->pruneToTarget([$root1, $root2], 'target');
 

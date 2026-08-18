@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
@@ -51,10 +52,18 @@ class ContentPipeline
         $this->eventDispatcher->dispatch($preHydrationEvent);
         $elements = $preHydrationEvent->elements;
 
-        $elements = $this->wrapVirtualRoot($elements, $specification);
+        $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $elements);
+
+        if ($virtualRootWrapped) {
+            $elements = [$this->virtualRootWrapper->wrap($elements, $specification)];
+        }
+
         $this->resolvePlaceholders($elements, $specification);
         $this->expandRedistribution($elements);
-        $elements = $this->pruneToTarget($elements, $specification);
+
+        $extractTargetId = $this->extractTargetId($specification);
+        $elements = $this->pruneToTarget($elements, $extractTargetId);
+        $scaffolding = $this->deriveScaffolding($elements, $extractTargetId, $virtualRootWrapped);
 
         if ($mode === RenderingMode::FULL) {
             $hydratedElementsGenerator = $this->hydrationService->hydrate(
@@ -66,8 +75,8 @@ class ContentPipeline
             $elements = array_values(iterator_to_array($hydratedElementsGenerator, false));
         }
 
-        $elements = $this->unwrapVirtualRoot($elements, $specification);
-        $elements = $this->extractPartialTarget($elements, $specification);
+        $elements = $this->unwrapVirtualRoot($elements, $scaffolding);
+        $elements = $this->extractPartialTarget($elements, $scaffolding);
 
         $afterHydrationEvent = new PostHydrationEvent(
             $elements,
@@ -90,21 +99,37 @@ class ContentPipeline
     }
 
     /**
-     * Wraps layout roots with a temporary virtual root to distribute layout-level data as context.
+     * Records what the finishing steps need to know about the tree the preparation steps produced.
      *
-     * The virtual root is removed again by `unwrapVirtualRoot()`.
+     * `virtualRootSurvivedPrune` is read off the post-prune forest, because the wrap decision alone
+     * does not answer whether the virtual root is still there: a partial render addressed at an
+     * element that needs no page-level context prunes it away. Element ids are unique across roots,
+     * so pruning leaves at most one surviving root whenever a target is set and the first root
+     * decides. `$extractTargetId` is passed in already normalised — the prune ran on it.
      *
      * @param list<ContentElement> $elements
-     *
-     * @return list<ContentElement>
      */
-    private function wrapVirtualRoot(array $elements, RenderingSpecification $specification): array
+    private function deriveScaffolding(array $elements, ?string $extractTargetId, bool $virtualRootWrapped): RenderScaffolding
     {
-        if (!$this->virtualRootWrapper->requiresWrapping($specification, $elements)) {
-            return $elements;
+        $virtualRootSurvivedPrune = $virtualRootWrapped
+            && $elements !== []
+            && $this->virtualRootWrapper->isVirtualRoot($elements[0]);
+
+        return new RenderScaffolding($virtualRootSurvivedPrune, $extractTargetId);
+    }
+
+    /**
+     * The id a partial render extracts, or null when the request addresses the whole layout.
+     */
+    private function extractTargetId(RenderingSpecification $specification): ?string
+    {
+        $targetElementId = $specification->targetElementId;
+
+        if ($targetElementId === null || $targetElementId === '') {
+            return null;
         }
 
-        return [$this->virtualRootWrapper->wrap($elements, $specification)];
+        return $targetElementId;
     }
 
     /**
@@ -231,33 +256,25 @@ class ContentPipeline
      *
      * @return list<ContentElement>
      */
-    private function pruneToTarget(array $elements, RenderingSpecification $specification): array
+    private function pruneToTarget(array $elements, ?string $extractTargetId): array
     {
-        $targetElementId = $specification->targetElementId;
-
-        if ($targetElementId === null || $targetElementId === '') {
+        if ($extractTargetId === null) {
             return $elements;
         }
 
-        return $this->partialRenderer->pruneToTarget($elements, $targetElementId);
+        return $this->partialRenderer->pruneToTarget($elements, $extractTargetId);
     }
 
     /**
-     * Removes the virtual root wrapper added by `wrapVirtualRoot()`, restoring the original layout structure.
+     * Removes the virtual root wrapper, restoring the original layout structure.
      *
      * @param list<ContentElement> $elements
      *
      * @return list<ContentElement>
      */
-    private function unwrapVirtualRoot(array $elements, RenderingSpecification $specification): array
+    private function unwrapVirtualRoot(array $elements, RenderScaffolding $scaffolding): array
     {
-        if (!$this->virtualRootWrapper->requiresWrapping($specification, $elements)) {
-            return $elements;
-        }
-
-        // VirtualRoot may be legitimately pruned during partial rendering when
-        // target element doesn't need page-level context. Skip cleanup gracefully.
-        if (!$this->virtualRootWrapper->isVirtualRoot($elements[0])) {
+        if (!$scaffolding->virtualRootSurvivedPrune) {
             return $elements;
         }
 
@@ -273,14 +290,12 @@ class ContentPipeline
      *
      * @return list<ContentElement>
      */
-    private function extractPartialTarget(array $elements, RenderingSpecification $specification): array
+    private function extractPartialTarget(array $elements, RenderScaffolding $scaffolding): array
     {
-        $targetElementId = $specification->targetElementId;
-
-        if ($targetElementId === null || $targetElementId === '') {
+        if ($scaffolding->extractTargetId === null) {
             return $elements;
         }
 
-        return [$this->partialRenderer->extractTarget($elements, $targetElementId)];
+        return [$this->partialRenderer->extractTarget($elements, $scaffolding->extractTargetId)];
     }
 }

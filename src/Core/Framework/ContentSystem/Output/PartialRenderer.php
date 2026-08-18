@@ -30,6 +30,9 @@ class PartialRenderer
      * Pre-hydration pruning keeps context dependencies to ensure data flows correctly
      * during hydration. Post-hydration extraction removes these ancestors.
      *
+     * A target that is in no root at all leaves an empty forest here; `extractTarget()` is where that
+     * turns into the `elementNotFound` the caller sees.
+     *
      * @param list<ContentElement> $elements
      *
      * @return list<ContentElement> Pruned elements containing target
@@ -40,16 +43,15 @@ class PartialRenderer
 
         // Try each root element - target may be in any root
         foreach ($elements as $element) {
-            try {
-                $prunedElement = $this->treePruner->pruneToPathAndDescendants(
-                    $element,
-                    $targetElementId,
-                    $this->dependencyAnalyzer
-                );
-                $prunedElements[] = $prunedElement;
-            } catch (ContentSystemException) {
-                // Element not found in this root, try next
+            if ($this->treePruner->findPathToElement($element, $targetElementId) === []) {
+                continue;
             }
+
+            $prunedElements[] = $this->treePruner->pruneToPathAndDescendants(
+                $element,
+                $targetElementId,
+                $this->dependencyAnalyzer
+            );
         }
 
         return $prunedElements;

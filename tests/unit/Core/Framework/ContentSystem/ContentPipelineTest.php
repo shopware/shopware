@@ -15,6 +15,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
@@ -35,6 +37,7 @@ use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
@@ -380,6 +383,85 @@ class ContentPipelineTest extends TestCase
         );
 
         static::assertSame(['target-id'], $observed);
+    }
+
+    #[TestDox('serves only the partial-render target when the prune already removed the virtual root')]
+    public function testPartialRenderWhoseTargetNeedsNoPageContextDropsTheVirtualRoot(): void
+    {
+        $target = ContentElementBuilder::create('text', 'target-id')->build();
+        $root = ContentElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [$target])
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+        $specification = new RenderingSpecification(
+            [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
+            PlaceholderValues::from([]),
+            new Request(),
+            'target-id'
+        );
+
+        // Fixture guard: the page-level data requirement really does make the pipeline wrap ...
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
+        // ... the target really does need no parent data ...
+        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
+        // ... and so the prune really does cut the virtual root away above it, rather than there
+        // never having been one.
+        static::assertSame('target-id', (new ElementTreePruner())->pruneToPathAndDescendants(
+            (new VirtualRootWrapper())->wrap($layout->elements, $specification),
+            'target-id',
+            new ContextDependencyAnalyzer(),
+        )->getId());
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            $specification,
+            new RenderingCacheContext(),
+            RenderingMode::SKELETON,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame(['target-id'], $this->collectIds($result->elements));
+    }
+
+    #[TestDox('delivers a page-level data requirement to a consuming root through the virtual root')]
+    public function testPageLevelDataRequirementReachesAConsumingRootThroughTheVirtualRoot(): void
+    {
+        $root = ContentElementBuilder::create('section', 'root-id')
+            ->withConsumer('language', ContextType::Single)
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+        $specification = new RenderingSpecification(
+            [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
+            PlaceholderValues::from([]),
+            new Request()
+        );
+
+        // Fixture guard: the layout itself provides nothing and holds no value under the consumed key,
+        // so the virtual root the pipeline wraps around it is the only possible source.
+        static::assertSame([], $root->getProvidesContext());
+        static::assertNull($root->getProperty('language'));
+
+        $pageData = new StubStruct();
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('load')->willReturn(ContentDataLoaderResult::cached($pageData, 'language-1'));
+        $this->hydrator = new ContentElementHydrator(
+            new DataLoaderProvider(new ServiceLocator(['language' => static fn (): AbstractContentDataLoader => $loader])),
+            new DataContextResolver(new ContextPathResolver()),
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->createPipeline()->load(
+            $layout,
+            $specification,
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame($pageData, $root->getProperty('language'));
     }
 
     private function createPipeline(): ContentPipeline

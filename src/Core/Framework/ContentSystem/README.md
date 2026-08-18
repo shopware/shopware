@@ -34,9 +34,9 @@ The pipeline is source-independent — specification sources translate entity ID
 
 1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the `ResolvedContentLayout`. See Adapter/.
 2. **Layout Loading** — `ContentRoute` retrieves the `ContentLayoutEntity` from the content-layout repository and wraps it in a `RenderableLayout` passed into the pipeline.
-3. **PreHydration Events** — Listeners prepare layout: virtual root wrapping, redistribute-flag expansion, placeholder resolution, partial rendering pruning. See Event/Listener/.
+3. **Preparation** — `ContentPipeline` prepares the layout itself, in this order: virtual root wrapping, placeholder resolution, redistribute-flag expansion, partial rendering pruning. `PreContentHydrationEvent` is dispatched before all four, so a listener sees raw author content. See Event/Listener/.
 4. **Hydration** (FULL mode only) — `ContentElementHydrator` loads data per element's requirements, then distributes context. Skipped in SKELETON mode. See Hydration/.
-5. **PostHydration Events** — Listeners finalize: virtual root cleanup, partial extraction. See Event/Listener/.
+5. **Finishing** — `ContentPipeline` finishes the tree itself: virtual root cleanup, partial extraction, both driven by the `RenderScaffolding` recorded during preparation. `PostHydrationEvent` is dispatched after both, so a listener sees the finished tree. See Event/Listener/.
 
 See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data flow.
 

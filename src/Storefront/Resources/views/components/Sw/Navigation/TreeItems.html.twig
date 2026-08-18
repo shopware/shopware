@@ -1,0 +1,69 @@
+{# ludtwig-ignore-file #}
+{# @sw-package discovery #}
+{# @internal #}
+
+{% props
+    navigationTree = [],
+    navigationLevel = 1,
+    navigationMaxDepth = context.salesChannel.navigationCategoryDepth,
+    expandAll = false,
+    activeId = shopware.navigation.id,
+    activePath = shopware.navigation.pathIdList,
+%}
+
+{% set treeItemsCVA = cva({
+    base: 'sw-navigation-tree-items nav flex-column',
+    variants: {
+        root: {
+            true: ['is--root'],
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: treeItemsCVA.apply({ root: navigationLevel == 1 }),
+    style: '--sw-navigation-tree-items-level: ' ~ navigationLevel ~ ';',
+} %}
+
+<ul {{ attributes.defaults(attributeDefaults) }}>
+    {% for treeItem in navigationTree %}
+        {% set category = treeItem.category %}
+        {% set isActive = category.id is same as(activeId) %}
+        {% set isInPath = category.id in activePath %}
+        {% set onActivePath = isActive or isInPath %}
+
+        {# NavigationRoute loads the active path beyond the requested depth on purpose, so the limit
+           must not reach it — clipping it would drop the item carrying aria-current. #}
+        {% set showChildren = treeItem.children|length > 0
+            and (onActivePath or (expandAll and navigationLevel < navigationMaxDepth)) %}
+
+        <li class="sw-navigation-tree-items__item">
+            {% if category.seoUrl %}
+                <a
+                    class="sw-navigation-tree-items__link nav-link{% if isActive %} active{% endif %}{% if isInPath %} is--in-path{% endif %}"
+                    href="{{ category.seoUrl }}"
+                    {% if isActive %}aria-current="page"{% endif %}
+                    {% if category.shouldOpenInNewTab %}target="_blank"{% endif %}
+                >
+                    {{ category.translated.name }}
+                </a>
+            {% else %}
+                <span class="sw-navigation-tree-items__folder nav-link">
+                    {{ category.translated.name }}
+                </span>
+            {% endif %}
+
+            {% if showChildren %}
+                <twig:Sw:Navigation:TreeItems
+                    :navigationTree="treeItem.children"
+                    :navigationLevel="navigationLevel + 1"
+                    :navigationMaxDepth="navigationMaxDepth"
+                    :expandAll="expandAll"
+                    :activeId="activeId"
+                    :activePath="activePath"
+                />
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

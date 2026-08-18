@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
     public static function getSource(): string
@@ -32,7 +32,7 @@ class NavigationLoaderConfigSerializer extends AbstractContentDataLoaderConfigSe
             $rootId = $data['rootId'];
         }
 
-        $depth = NavigationLoaderConfig::DEFAULT_DEPTH;
+        $depth = null;
         if (\array_key_exists('depth', $data)) {
             if (!\is_int($data['depth']) || $data['depth'] < 1) {
                 throw CategoryException::invalidFieldValueType('depth', 'positive int', \gettype($data['depth']));

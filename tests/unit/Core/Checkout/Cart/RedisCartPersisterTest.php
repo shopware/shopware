@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -55,6 +56,31 @@ class RedisCartPersisterTest extends TestCase
         $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
 
         $persister->save($cart, $context);
+
+        static::assertTrue($redis->exists(RedisCartPersister::PREFIX . $token));
+    }
+
+    public function testSaveWithSkipCartPersistencePermissionLeavesStorageUntouched(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart($token);
+        $cart->add(new LineItem('test', 'test'));
+
+        $dispatcher = static::createStub(EventDispatcher::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $redis = new RedisStub();
+        $context = static::createStub(SalesChannelContext::class);
+
+        $persister = new RedisCartPersister($redis, $dispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), 90);
+        $persister->save($cart, $context);
+
+        static::assertTrue($redis->exists(RedisCartPersister::PREFIX . $token));
+
+        // an emptied cart would fall into the delete branch without the permission
+        $emptiedCart = new Cart($token);
+        $emptiedCart->setBehavior(new CartBehavior([CheckoutPermissions::SKIP_CART_PERSISTENCE => true]));
+
+        $persister->save($emptiedCart, $context);
 
         static::assertTrue($redis->exists(RedisCartPersister::PREFIX . $token));
     }

@@ -326,6 +326,175 @@ class ContentPipelineTest extends TestCase
         static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
     }
 
+    #[TestDox('carries context down a second redistribution hop to a grandchild')]
+    public function testRedistributionChainsToAGrandchild(): void
+    {
+        $grandchild = StoredElementBuilder::create('text', 'grandchild-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $middle = StoredElementBuilder::create('section', 'middle-id')
+            ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withSlot('default', [$grandchild])
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('product', BroadcastDistributionConfig::simple())
+                ->withProperty('product', 'product-payload')
+                ->withSlot('default', [$middle])
+                ->build()
+        );
+
+        // Fixture guard: the middle element stores nothing of its own, so the only value it can
+        // redistribute is the one the root delivers to it — this is a genuine two-hop chain.
+        static::assertNull($middle->property('product'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'grandchild-id')->getProperty('product'));
+    }
+
+    #[TestDox('carries context down a second redistribution hop that renames the key for children')]
+    public function testRedistributionChainsToAGrandchildUnderAConsumerAlias(): void
+    {
+        $grandchild = StoredElementBuilder::create('text', 'grandchild-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $middle = StoredElementBuilder::create('section', 'middle-id')
+            ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: 'product')
+            ->withSlot('default', [$grandchild])
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('featuredProduct', BroadcastDistributionConfig::simple())
+                ->withProperty('featuredProduct', 'product-payload')
+                ->withSlot('default', [$middle])
+                ->build()
+        );
+
+        // Fixture guard: the middle element stores nothing of its own, so the derived provider has to
+        // read back the value the root delivered under the accepted key, not under the alias.
+        static::assertNull($middle->property('featuredProduct'));
+        static::assertNull($middle->property('product'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'grandchild-id')->getProperty('product'));
+    }
+
+    #[TestDox('delivers the same value whether a container redistributes or wires accept and provide by hand')]
+    public function testRedistributeShorthandMatchesTheManualAcceptAndProvidePair(): void
+    {
+        $shorthandChild = StoredElementBuilder::create('text', 'shorthand-child-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $shorthand = StoredElementBuilder::create('section', 'shorthand-id')
+            ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: 'product')
+            ->withSlot('default', [$shorthandChild])
+            ->build();
+
+        $manualChild = StoredElementBuilder::create('text', 'manual-child-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $manual = StoredElementBuilder::create('section', 'manual-id')
+            ->withConsumer('featuredProduct', ContextType::Single)
+            ->withProvider('featuredProduct', BroadcastDistributionConfig::aliased('product'))
+            ->withSlot('default', [$manualChild])
+            ->build();
+
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('featuredProduct', BroadcastDistributionConfig::simple())
+                ->withProperty('featuredProduct', 'product-payload')
+                ->withSlot('default', [$shorthand, $manual])
+                ->build()
+        );
+
+        // Fixture guard: the two containers differ only in how they are wired — neither holds a value.
+        static::assertNull($shorthand->property('featuredProduct'));
+        static::assertNull($manual->property('featuredProduct'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'shorthand-child-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'manual-child-id')->getProperty('product'));
+    }
+
+    /**
+     * The derived provider is serialized verbatim into a full-format response, so its distribution config
+     * is wire-visible. A derivation that always carried an alias would rename nothing yet still change the
+     * body of every plain redistribution.
+     */
+    #[TestDox('serializes a derived redistribute provider carrying an alias only where the key is renamed')]
+    #[DataProvider('derivedProviderWireShapeProvider')]
+    public function testDerivedRedistributeProviderSerializesItsConsumerAlias(?string $consumerAlias, ?string $expectedSerializedAlias): void
+    {
+        $middle = StoredElementBuilder::create('section', 'middle-id')
+            ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: $consumerAlias)
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'grandchild-id')
+                    ->withConsumer($consumerAlias ?? 'featuredProduct', ContextType::Single)
+                    ->build(),
+            ])
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('featuredProduct', BroadcastDistributionConfig::simple())
+                ->withProperty('featuredProduct', 'product-payload')
+                ->withSlot('default', [$middle])
+                ->build()
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        $serialized = $this->renderedElement($result->elements, 'middle-id')->jsonSerialize();
+
+        static::assertSame(
+            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => $expectedSerializedAlias],
+            $serialized['providesContext']['featuredProduct']
+        );
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string}>
+     */
+    public static function derivedProviderWireShapeProvider(): iterable
+    {
+        yield 'no alias keeps the plain config' => [null, null];
+        yield 'alias is carried through' => ['product', 'product'];
+    }
+
     #[TestDox('rejects a redistributing consumer whose context key is a dotted path')]
     public function testRedistributeExpansionRejectsADottedConsumerKey(): void
     {

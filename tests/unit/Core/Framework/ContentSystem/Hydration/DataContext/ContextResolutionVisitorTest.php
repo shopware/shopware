@@ -85,6 +85,24 @@ class ContextResolutionVisitorTest extends TestCase
         static::assertSame('product-data', $child->getProperty('myProduct'));
     }
 
+    #[TestDox('reads the value from the provider key and delivers it to children matching the consumer alias')]
+    public function testProviderConsumerAliasSelectsChildrenIndependentlyOfTheProviderKey(): void
+    {
+        $child = ContentElementBuilder::create('child', 'c1')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+
+        $parent = ContentElementBuilder::create('parent', 'p1')
+            ->withProperty('featuredProduct', 'product-data')
+            ->withProvider('featuredProduct', BroadcastDistributionConfig::aliased('product'))
+            ->withSlot('default', [$child])
+            ->build();
+
+        $parent->traverse($this->visitor);
+
+        static::assertSame('product-data', $child->getProperty('product'));
+    }
+
     #[TestDox('resolves nested Struct property via dot notation')]
     public function testResolvesNestedStructPropertyViaDotNotation(): void
     {

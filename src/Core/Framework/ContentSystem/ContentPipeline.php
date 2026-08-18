@@ -156,6 +156,10 @@ class ContentPipeline
      * Rejects a redistributing consumer the derivation could not turn into a provider: one keyed by a
      * dotted path, and one whose derived provider key an authored provider already holds.
      *
+     * The derived key is the property the consumer writes ({@see generateVirtualProviders()}), so that is
+     * what the collision is judged on — a `consumerAlias` renames what children match, not where the value
+     * is read from, and can therefore never collide with an authored provider key.
+     *
      * @param array<string, ContextConsumer> $consumers
      * @param array<string, ContextProvider> $existingProviders
      */
@@ -170,7 +174,7 @@ class ContentPipeline
                 throw ContentSystemException::redistributeWithDottedPath($contextKey);
             }
 
-            if (\array_key_exists($consumer->consumerAlias ?? $contextKey, $existingProviders)) {
+            if (\array_key_exists($consumer->propertyAlias ?? $contextKey, $existingProviders)) {
                 throw ContentSystemException::redistributeConflict($contextKey);
             }
         }
@@ -235,6 +239,18 @@ class ContentPipeline
     /**
      * Generates virtual providers from consumers with redistribute flag.
      *
+     * The provider is keyed by the property the consumer actually writes its received value to
+     * (`propertyAlias ?? contextKey`), because a provider's key is the property
+     * {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextResolutionVisitor} reads the
+     * value from. The name children receive it under is a separate concern, carried by the broadcast
+     * config's `consumerAlias` — the same selection mechanism an authored provider uses. Keying the
+     * provider by `consumerAlias` instead would name a property the element never wrote, so a chained
+     * redistribution would silently deliver nothing.
+     *
+     * The alias is set only where the two keys genuinely differ. Where they coincide the config stays
+     * plain, because the config is serialized verbatim into a full-format response and an alias that
+     * merely restates the provider key would change that wire shape for no behavioural gain.
+     *
      * A consumer whose derived key an authored provider already holds is skipped rather than merged:
      * the validation pass has already rejected that tree, so this branch only keeps the derivation
      * from silently overwriting an authored provider if it is ever run on an unvalidated forest.
@@ -253,7 +269,8 @@ class ContentPipeline
                 continue;
             }
 
-            $providerKey = $consumer->consumerAlias ?? $contextKey;
+            $providerKey = $consumer->propertyAlias ?? $contextKey;
+            $childKey = $consumer->consumerAlias ?? $contextKey;
 
             if (\array_key_exists($providerKey, $existingProviders)) {
                 continue;
@@ -261,7 +278,9 @@ class ContentPipeline
 
             $virtualProviders[$providerKey] = new ContextProvider(
                 $consumer->type,
-                BroadcastDistributionConfig::simple()
+                $childKey === $providerKey
+                    ? BroadcastDistributionConfig::simple()
+                    : BroadcastDistributionConfig::aliased($childKey)
             );
         }
 

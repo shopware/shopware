@@ -112,7 +112,7 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
     public function testDimensionNormalizeIsMirroredFromIndexCreator(): void
     {
         $sentBodies = [];
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $this->dimensionAnalysis(), [], true));
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $this->dimensionAnalysis(), true));
         $tester->execute(['term' => '5 x 70']);
 
         static::assertCount(1, $sentBodies);
@@ -137,44 +137,6 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
             [['type' => 'pattern_replace', 'pattern' => 'unit']],
             $sentBodies[0]['char_filter'],
         );
-    }
-
-    public function testAdminAnalyzersAreListedInTheirOwnSection(): void
-    {
-        $adminAnalysis = [
-            'analyzer' => [
-                'sw_admin_completion_index_analyzer' => [
-                    'type' => 'custom',
-                    'tokenizer' => 'whitespace',
-                    'filter' => ['lowercase'],
-                ],
-            ],
-        ];
-
-        $sentBodies = [];
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), [], $adminAnalysis));
-        $tester->execute(['term' => 'foo']);
-
-        static::assertCount(1, $sentBodies);
-        static::assertStringContainsString('Custom admin analyzers', $tester->getDisplay());
-        static::assertStringContainsString('sw_admin_completion_index_analyzer', $tester->getDisplay());
-    }
-
-    public function testNonCustomAnalyzerTypesAreNotSentAsInlineBody(): void
-    {
-        $analysis = [
-            'analyzer' => [
-                'my_analyzer' => ['type' => 'standard', 'stopwords' => '_english_'],
-            ],
-        ];
-
-        $sentBodies = [];
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), $analysis));
-        $tester->execute(['term' => 'foo']);
-
-        static::assertSame([], $sentBodies);
-        static::assertStringContainsString('my_analyzer', $tester->getDisplay());
-        static::assertStringContainsString('not testable inline', $tester->getDisplay());
     }
 
     public function testAFailingAnalyzerDoesNotAbortTheReport(): void
@@ -229,7 +191,7 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
     public function testBuiltInAnalyzersIncludedWithAllFlag(): void
     {
         $sentBodies = [];
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), [], []));
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($this->createClient($sentBodies), []));
         $tester->execute(['term' => 'foo', '--all' => true]);
 
         $analyzedNames = array_column($sentBodies, 'analyzer');

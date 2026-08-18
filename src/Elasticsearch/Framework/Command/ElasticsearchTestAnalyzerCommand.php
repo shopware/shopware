@@ -26,12 +26,10 @@ class ElasticsearchTestAnalyzerCommand extends Command
      * @internal
      *
      * @param array<string, mixed> $analysis the `elasticsearch.analysis` section (analyzer, tokenizer, char_filter, filter)
-     * @param array<string, mixed> $adminAnalysis the `elasticsearch.administration.analysis` section
      */
     public function __construct(
         private readonly Client $client,
         private readonly array $analysis = [],
-        private readonly array $adminAnalysis = [],
         private readonly bool $dimensionNormalize = false,
     ) {
         parent::__construct();
@@ -63,7 +61,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             foreach ($analyzers as $name => $body) {
                 $rows[] = [
                     'Analyzer' => $name,
-                    'Tokens' => \is_string($body) ? $body : $this->analyze($body, $term),
+                    'Tokens' => $this->analyze($body, $term),
                 ];
             }
 
@@ -152,16 +150,14 @@ class ElasticsearchTestAnalyzerCommand extends Command
     }
 
     /**
-     * Builds the table sections. Each entry is either an _analyze request body or a string
-     * explaining why the analyzer cannot be tested, keyed by display name.
+     * Builds the table sections, each entry being an _analyze request body keyed by display name.
      *
-     * @return array<string, array<string, array<string, mixed>|string>>
+     * @return array<string, array<string, array<string, mixed>>>
      */
     private function getSections(bool $includeBuiltIn): array
     {
         $sections = [
-            'Custom analyzers (elasticsearch.yaml)' => $this->buildCustomBodies($this->analysis, $this->dimensionNormalize),
-            'Custom admin analyzers (elasticsearch.yaml)' => $this->buildCustomBodies($this->adminAnalysis, false),
+            'Custom analyzers (storefront elasticsearch.yaml)' => $this->buildCustomBodies($this->analysis, $this->dimensionNormalize),
         ];
 
         if (!$includeBuiltIn) {
@@ -200,7 +196,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
      *
      * @param array<string, mixed> $analysis
      *
-     * @return array<string, array<string, mixed>|string>
+     * @return array<string, array<string, mixed>>
      */
     private function buildCustomBodies(array $analysis, bool $dimensionNormalize): array
     {
@@ -219,16 +215,6 @@ class ElasticsearchTestAnalyzerCommand extends Command
         $bodies = [];
         foreach ($analyzers as $name => $config) {
             if (!\is_array($config)) {
-                continue;
-            }
-
-            $type = $config['type'] ?? 'custom';
-
-            if ($type !== 'custom') {
-                // _analyze accepts no `type` parameter, so a built-in analyzer type configured
-                // with extra options can only be tested against an index that has it installed.
-                $bodies[$name] = \sprintf('<not testable inline: analyzer type "%s">', \is_string($type) ? $type : \get_debug_type($type));
-
                 continue;
             }
 

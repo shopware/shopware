@@ -58,6 +58,8 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
+use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenGenerator;
+use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenStore;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -80,6 +82,10 @@ use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileNotFoundSubscriber;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
+use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffGenerateRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffRedeemRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffGenerateRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffRedeemRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher;
@@ -344,6 +350,37 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ContextRoute::class)
         ->public();
+
+    $services->set(ContextHandoffTokenStore::class)
+        ->args([
+            service('cache.object'),
+        ]);
+
+    $services->set(ContextHandoffTokenGenerator::class)
+        ->args([
+            service('shopware.jwt_config'),
+            service(DataValidator::class),
+        ]);
+
+    $services->set(ContextHandoffGenerateRoute::class)
+        ->public()
+        ->args([
+            service(ContextHandoffTokenGenerator::class),
+            service(ContextHandoffTokenStore::class),
+            service(ClockInterface::class),
+        ]);
+
+    $services->alias(AbstractContextHandoffGenerateRoute::class, ContextHandoffGenerateRoute::class);
+
+    $services->set(ContextHandoffRedeemRoute::class)
+        ->public()
+        ->args([
+            service(ContextHandoffTokenGenerator::class),
+            service(ContextHandoffTokenStore::class),
+            service('logger'),
+        ]);
+
+    $services->alias(AbstractContextHandoffRedeemRoute::class, ContextHandoffRedeemRoute::class);
 
     $services->set(SalesChannelDefinitionInstanceRegistry::class)
         ->public()

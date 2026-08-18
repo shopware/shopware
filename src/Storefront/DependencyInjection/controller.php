@@ -60,6 +60,8 @@ use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffGenerateRoute;
+use Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffRedeemRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
@@ -75,6 +77,7 @@ use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Controller\CmsController;
 use Shopware\Storefront\Controller\ContextController;
 use Shopware\Storefront\Controller\ContextGatewayController;
+use Shopware\Storefront\Controller\ContextHandoffController;
 use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Controller\CountryStateController;
 use Shopware\Storefront\Controller\DocumentController;
@@ -96,6 +99,7 @@ use Shopware\Storefront\Controller\VerificationHashController;
 use Shopware\Storefront\Controller\WellKnownController;
 use Shopware\Storefront\Controller\WishlistController;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Routing\ContextTokenSessionWriter;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
@@ -287,6 +291,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextSwitchRoute::class),
             service('request_stack'),
             service('router.default'),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(ContextHandoffController::class)
+        ->args([
+            service(ContextHandoffGenerateRoute::class),
+            service(ContextHandoffRedeemRoute::class),
+            service(ContextTokenSessionWriter::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

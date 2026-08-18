@@ -25,6 +25,7 @@ class StorefrontException extends HttpException
      */
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'STOREFRONT__REVIEW_NOT_ACTIVE';
     final public const SALES_CHANNEL_DOMAIN_NOT_FOUND = 'STOREFRONT__SALES_CHANNEL_DOMAIN_NOT_FOUND';
+    final public const XML_HTTP_REQUEST_REQUIRED = 'STOREFRONT__XML_HTTP_REQUEST_REQUIRED';
 
     private const CUSTOM_APP_PATH = 'custom/apps/';
 
@@ -140,5 +141,15 @@ class StorefrontException extends HttpException
     public static function routeNotFound(string $route, ?\Throwable $previous = null): StorefrontRouteNotFoundException
     {
         return new StorefrontRouteNotFoundException($route, $previous);
+    }
+
+    public static function xmlHttpRequestRequired(?string $route = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::XML_HTTP_REQUEST_REQUIRED,
+            'Controller ' . ($route ? '"{{ route }}" ' : '') . 'can only be requested via XmlHttpRequest.',
+            ['route' => $route]
+        );
     }
 }

@@ -12,6 +12,19 @@ Apps can now modify or remove cookie consent groups and entries with an app scri
 
 ## API
 
+### Context handoff between the storefront session and header-authenticated Store API clients
+
+The `sw-context-token` lives in two places that can drift apart: the storefront PHP session and the header of a Store API client such as a checkout SPA. When a Store API client rotates the token, for example through guest registration, the storefront session keeps pointing at the old context and the customer sees an empty cart on the next storefront request.
+
+Four new routes transfer a context between both worlds without ever putting the raw context token into cacheable media:
+
+* `POST /store-api/context/handoff/generate` mints a handoff token for the context of the current `sw-context-token`. It answers with `{"token": "<jwt>", "expiresAt": "<RFC3339>"}`.
+* `POST /store-api/context/handoff/redeem` takes `{"token": "<jwt>"}` and answers with the resolved context token in the `sw-context-token` response header. It needs no prior context token.
+* `POST /context/handoff/generate` is the storefront counterpart and uses the context token of the current session. Same JSON response, `XmlHttpRequest` only.
+* `POST /context/handoff/redeem` writes the resolved context token into the storefront session and answers with `204`. `XmlHttpRequest` only.
+
+A handoff token is signed, valid for 60 seconds and can be redeemed exactly once. It is a reference, not a container: the context token is not a claim, the `jti` is the lookup key for it. Redeeming a token that expired or was already redeemed answers `400` with `SYSTEM__CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED` and logs a warning. Redeeming a token that was issued for another sales channel answers `400` with `SYSTEM__CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH`.
+
 ### Added new shop setting endpoint
 
 Added new Store API route `GET /store-api/shop-settings`, which exposes the UI- and validation-relevant, non-sensitive subset of the system configuration (grouped into `general`, `loginRegistration`, `cart`, `listing` and `newsletter`) resolved for the current sales channel, so headless frontends (e.g. Composable Frontends) can render the shop consistently with the administration settings.
@@ -100,6 +113,13 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 ### E-invoice line positions state the correct price base quantity
 
 ZUGFeRD invoices previously wrote the product's purchase unit (`product.purchaseUnit`, the package content used for base price display) as the item price base quantity (BT-149). Recipients validating against EN16931 saw `PEPPOL-EN16931-R120` violations for every line whose product has a purchase unit other than 1, and Peppol access points may have rejected such invoices. Line positions now always state a base quantity of 1, matching the per-unit item net price. Additionally, the item net price (BT-146) is now written with 4 decimals instead of 2, so the line amount calculation stays within the rule's rounding tolerance for higher quantities.
+### New context handoff route classes
+- Added `Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffGenerateRoute` and `Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffRedeemRoute` as decoratable extension points.
+- Added `Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffGenerateRoute` and `Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffRedeemRoute`.
+- Added `Shopware\Core\System\SalesChannel\ContextHandoffTokenResponse`.
+- Added `Shopware\Core\System\SalesChannel\Struct\ContextHandoffToken` and `Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenGenerator`, which sign and validate handoff tokens through the core JWT framework.
+- Added `Shopware\Core\System\SalesChannel\SalesChannelException::contextHandoffTokenExpiredOrConsumed()` and `Shopware\Core\System\SalesChannel\SalesChannelException::contextHandoffSalesChannelMismatch()`.
+
 ### New shop settings route classes
 - Added `Shopware\Core\System\SystemConfig\SalesChannel\AbstractShopSettingsRoute` as a decoratable extension point.
 - Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute`.
@@ -499,6 +519,14 @@ const { data: media } = useDataset('sw-media-quickinfo__item', {
 The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
+
+### New context handoff controller
+
+Added `Shopware\Storefront\Controller\ContextHandoffController`, which serves `POST /context/handoff/generate` (`frontend.context.handoff.generate`) and `POST /context/handoff/redeem` (`frontend.context.handoff.redeem`). Both routes are `XmlHttpRequest` only and answer with `Cache-Control: no-store`. Redeeming writes the resolved context token into the storefront session, so a Store API client can hand its context back to the storefront without the raw context token appearing in HTML.
+
+The session write of `Shopware\Storefront\Framework\Routing\StorefrontSubscriber::updateSession()` now lives in the new `Shopware\Storefront\Framework\Routing\ContextTokenSessionWriter` service, which both the subscriber and the controller use. `updateSession()` keeps its signature and behaviour.
+
+Added `Shopware\Storefront\Controller\Exception\StorefrontException::xmlHttpRequestRequired()`, which answers `400` with `STOREFRONT__XML_HTTP_REQUEST_REQUIRED`.
 
 ### Theme CLI commands clean up unused theme directories
 

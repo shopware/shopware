@@ -91,4 +91,25 @@ class StorefrontExceptionTest extends TestCase
             $res->getMessage()
         );
     }
+
+    public function testXmlHttpRequestRequired(): void
+    {
+        $res = StorefrontException::xmlHttpRequestRequired('frontend.context.handoff.generate');
+
+        static::assertSame(400, $res->getStatusCode());
+        static::assertSame('STOREFRONT__XML_HTTP_REQUEST_REQUIRED', $res->getErrorCode());
+        static::assertSame(
+            'Controller "frontend.context.handoff.generate" can only be requested via XmlHttpRequest.',
+            $res->getMessage()
+        );
+    }
+
+    public function testXmlHttpRequestRequiredWithoutRoute(): void
+    {
+        $res = StorefrontException::xmlHttpRequestRequired();
+
+        static::assertSame(400, $res->getStatusCode());
+        static::assertSame('STOREFRONT__XML_HTTP_REQUEST_REQUIRED', $res->getErrorCode());
+        static::assertSame('Controller can only be requested via XmlHttpRequest.', $res->getMessage());
+    }
 }

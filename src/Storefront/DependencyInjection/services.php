@@ -87,6 +87,7 @@ use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
 use Shopware\Storefront\Framework\Routing\CanonicalLinkListener;
 use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
+use Shopware\Storefront\Framework\Routing\ContextTokenSessionWriter;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -394,6 +395,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StorefrontMediaDocumentValidator::class)
         ->tag('storefront.media.upload.validator');
 
+    $services->set(ContextTokenSessionWriter::class)
+        ->args([
+            service('request_stack'),
+            service(SystemConfigService::class),
+        ]);
+
     $services->set(StorefrontSubscriber::class)
         ->args([
             service('request_stack'),
@@ -401,6 +408,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MaintenanceModeResolver::class),
             service(SystemConfigService::class),
             service('event_dispatcher'),
+            service(ContextTokenSessionWriter::class),
         ])
         ->tag('kernel.event_subscriber');
 

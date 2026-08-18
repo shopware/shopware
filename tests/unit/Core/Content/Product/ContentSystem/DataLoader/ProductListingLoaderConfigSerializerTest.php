@@ -185,6 +185,39 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         ], $result);
     }
 
+    #[TestDox('decodes a valid associationOverride into the config')]
+    public function testDecodeWithValidAssociationOverrideSetsAssociationOverride(): void
+    {
+        $result = $this->serializer->decode(['associationOverride' => 'extraAssociations']);
+
+        static::assertInstanceOf(ProductListingLoaderConfig::class, $result);
+        static::assertSame('extraAssociations', $result->associationOverride);
+    }
+
+    #[TestDox('decodes a config without associationOverride into a null associationOverride')]
+    public function testDecodeWithoutAssociationOverrideLeavesItNull(): void
+    {
+        $result = $this->serializer->decode([]);
+
+        static::assertInstanceOf(ProductListingLoaderConfig::class, $result);
+        static::assertNull($result->associationOverride);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[TestWithJson('[{"associationOverride": ""}, "string"]', 'associationOverride is empty string')]
+    #[TestWithJson('[{"associationOverride": 42}, "integer"]', 'associationOverride is non-string type')]
+    #[TestDox('throws exception when associationOverride is invalid')]
+    public function testDecodeWithInvalidAssociationOverrideThrowsException(array $data, string $actualType): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('associationOverride', 'non-empty string', $actualType)
+        );
+
+        $this->serializer->decode($data);
+    }
+
     /**
      * @param array<string, mixed> $original
      */
@@ -206,6 +239,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         yield 'empty config' => [[]];
         yield 'property only' => [['property' => 'categoryProperty']];
         yield 'associations only' => [['associations' => ['options', 'cover']]];
+        yield 'association override only' => [['associationOverride' => 'extraAssociations']];
         yield 'full config' => [
             ['property' => 'myProperty', 'associations' => ['manufacturer', 'media']],
         ];

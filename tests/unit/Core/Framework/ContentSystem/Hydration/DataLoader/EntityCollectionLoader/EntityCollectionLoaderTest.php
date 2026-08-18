@@ -17,7 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
@@ -174,8 +173,8 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            self::inputs('product', null),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -201,8 +200,8 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$id1, $id2])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            self::inputs('product', [$id1, $id2]),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -240,8 +239,8 @@ class EntityCollectionLoaderTest extends TestCase
 
         $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
         $result = $loader->load(
-            ContentElementBuilder::create('category-grid')->withProperty('categoryIds', [$categoryId])->build(),
-            new DataRequirement('categories', 'entity_collection', new EntityLoaderConfig('category', 'categoryIds', [])),
+            self::inputs('category', [$categoryId]),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -267,8 +266,8 @@ class EntityCollectionLoaderTest extends TestCase
         });
 
         $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$upperCaseId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            self::inputs('product', [$upperCaseId]),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -292,8 +291,8 @@ class EntityCollectionLoaderTest extends TestCase
         });
 
         $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', ['manufacturer', 'cover'])),
+            self::inputs('product', [$productId], ['manufacturer', 'cover']),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -304,37 +303,21 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertCount(2, $capturedCriteria->getAssociations());
     }
 
-    #[TestDox('returns cached empty collection when property is null on element')]
-    public function testLoadReturnsCachedEmptyWhenPropertyIsNull(): void
+    /**
+     * @param list<string>|null $entityIds
+     */
+    #[DataProvider('emptyCollectionProvider')]
+    #[TestDox('returns a cached empty collection when $_dataName')]
+    public function testLoadReturnsCachedEmptyCollection(?array $entityIds): void
     {
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        // element has no 'productIds' property → getProperty returns null
-        $element = ContentElementBuilder::create('product-grid')->build();
-        $context = Generator::generateSalesChannelContext();
-
         $loader = $this->createLoaderWithDefinition('product', EntityCollection::class);
-        $result = $loader->load($element, $requirement, $context, new Request());
 
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-        static::assertCount(0, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns cached empty collection when entity IDs contain no valid strings')]
-    public function testLoadReturnsCachedEmptyWhenEntityIdsContainNoStrings(): void
-    {
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        // non-string values get filtered out
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [123, null, true])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $loader = $this->createLoaderWithDefinition('product', EntityCollection::class);
-        $result = $loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load(
+            self::inputs('product', $entityIds),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertInstanceOf(EntityCollection::class, $result->data);
         static::assertCount(0, $result->data);
@@ -357,28 +340,14 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
+            self::inputs('product', [$productId]),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
 
         static::assertFalse($result->isCacheAware());
         static::assertInstanceOf(EntityCollection::class, $result->data);
-    }
-
-    #[DataProvider('returnsNullDataProvider')]
-    #[TestDox('returns null data when $_dataName')]
-    public function testLoadReturnsNullData(DataRequirement $requirement, ContentElement $element): void
-    {
-        $loader = $this->createMinimalLoader();
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('returns notFound instead of throwing when the configured entity is not registered')]
@@ -393,8 +362,8 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('ghostIds', ['id-1'])->build(),
-            new DataRequirement('ghosts', 'entity_collection', new EntityLoaderConfig('ghost', 'ghostIds', [])),
+            self::inputs('ghost', ['id-1']),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -405,19 +374,30 @@ class EntityCollectionLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{DataRequirement, ContentElement}>
+     * @return iterable<string, array{list<string>|null}>
      */
-    public static function returnsNullDataProvider(): iterable
+    public static function emptyCollectionProvider(): iterable
     {
-        yield 'config is not an EntityLoaderConfig' => [
-            new DataRequirement('products', 'entity_collection', new StubLoaderConfig()),
-            ContentElementBuilder::create('product-grid')->build(),
-        ];
+        yield 'the property input is unresolved' => [null];
+        yield 'the property input resolves to an empty list' => [[]];
+    }
 
-        yield 'property value is not an array' => [
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', 'not-an-array')->build(),
-        ];
+    /**
+     * @param list<string>|null $entityIds
+     * @param list<string> $associations
+     */
+    private static function inputs(string $entityName, ?array $entityIds, array $associations = []): LoaderInputs
+    {
+        return new LoaderInputs([
+            'entity' => $entityName,
+            'property' => $entityIds,
+            'associations' => $associations,
+        ]);
+    }
+
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', []));
     }
 
     /**

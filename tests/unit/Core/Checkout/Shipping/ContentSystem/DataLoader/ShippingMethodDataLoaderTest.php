@@ -11,8 +11,7 @@ use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoade
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -59,14 +58,16 @@ class ShippingMethodDataLoaderTest extends TestCase
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig();
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
         $this->shippingMethodRoute->method('load')->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $result = $this->dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($shippingMethods, $result->data);
@@ -74,15 +75,12 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('sets onlyAvailable true on cloned request when using default config')]
+    #[TestDox('sets onlyAvailable true on cloned request when the onlyAvailable input is true')]
     public function testLoadSetsOnlyAvailableTrueByDefaultOnClonedRequest(): void
     {
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig();
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
@@ -101,18 +99,20 @@ class ShippingMethodDataLoaderTest extends TestCase
             ->willReturn($response);
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
     }
 
-    #[TestDox('adds associations from ShippingMethodLoaderConfig to criteria')]
+    #[TestDox('adds the associations input to criteria')]
     public function testLoadAddsAssociationsFromConfigToCriteria(): void
     {
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig(associations: ['country', 'translations']);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
         $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
@@ -132,18 +132,20 @@ class ShippingMethodDataLoaderTest extends TestCase
             ->willReturn($response);
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader->load(
+            new LoaderInputs(['associations' => ['country', 'translations'], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
     }
 
-    #[TestDox('sets onlyAvailable false on cloned request when config has onlyAvailable false')]
+    #[TestDox('sets onlyAvailable false on cloned request when the onlyAvailable input is false')]
     public function testLoadSetsOnlyAvailableFalseOnClonedRequest(): void
     {
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig(onlyAvailable: false);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
         $originalRequest = new Request();
 
@@ -164,31 +166,17 @@ class ShippingMethodDataLoaderTest extends TestCase
             ->willReturn($response);
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load($element, $requirement, $context, $originalRequest);
+        $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => false]),
+            self::requirement(),
+            $context,
+            $originalRequest,
+        );
     }
 
-    #[TestDox('loads shipping methods without associations and defaults onlyAvailable to true when config is not a ShippingMethodLoaderConfig instance')]
-    public function testLoadWithNonShippingMethodLoaderConfigSkipsConfigSpecificLogic(): void
+    private static function requirement(): DataRequirement
     {
-        $shippingMethods = new ShippingMethodCollection();
-        $response = $this->createShippingMethodRouteResponse($shippingMethods);
-
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $wrongConfig);
-        $context = Generator::generateSalesChannelContext();
-        $originalRequest = new Request();
-
-        $this->shippingMethodRoute
-            ->method('load')
-            ->willReturn($response);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, $originalRequest);
-
-        static::assertTrue($result->hasData());
-        static::assertSame($shippingMethods, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        return new DataRequirement('shippingMethodKey', 'shipping_method', new ShippingMethodLoaderConfig());
     }
 
     private function createShippingMethodRouteResponse(ShippingMethodCollection $shippingMethods): ShippingMethodRouteResponse

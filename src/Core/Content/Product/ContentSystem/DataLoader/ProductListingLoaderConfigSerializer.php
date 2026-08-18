@@ -46,7 +46,15 @@ class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConf
             }
         }
 
-        return new ProductListingLoaderConfig($property, $associations);
+        $associationOverride = null;
+        if (\array_key_exists('associationOverride', $data)) {
+            if (!\is_string($data['associationOverride']) || $data['associationOverride'] === '') {
+                throw ProductException::invalidFieldValueType('associationOverride', 'non-empty string', \gettype($data['associationOverride']));
+            }
+            $associationOverride = $data['associationOverride'];
+        }
+
+        return new ProductListingLoaderConfig($property, $associations, $associationOverride);
     }
 
     /**

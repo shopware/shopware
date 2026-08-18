@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,6 +22,7 @@ class ContentElementHydrator
 {
     public function __construct(
         private readonly DataLoaderProvider $dataLoaderProvider,
+        private readonly LoaderInputResolver $inputResolver,
         private readonly DataContextResolver $contextResolver,
     ) {
     }
@@ -29,6 +31,8 @@ class ContentElementHydrator
      * Hydrates elements in two phases:
      *
      * Phase 1 (data loading): For each element, executes its data requirements depth-first.
+     * Each requirement's config and the element's stored properties are resolved into the
+     * loader's declared inputs first, so a loader never reads a property itself.
      * Each loader result is stored in the element's properties under the requirement key:
      *   $element->setProperty($key, $result->data)
      * This is where FQCN-typed properties (declared in the element type spec but absent
@@ -74,7 +78,14 @@ class ContentElementHydrator
 
             foreach ($dataRequirements as $key => $requirement) {
                 $loader = $this->dataLoaderProvider->get($requirement->source);
-                $result = $loader->load($element, $requirement, $context, $request);
+
+                $inputs = $this->inputResolver->resolve(
+                    $loader->configSpecification(),
+                    $requirement->config,
+                    $element->getProperties(),
+                );
+
+                $result = $loader->load($inputs, $requirement, $context, $request);
 
                 if ($result->hasData()) {
                     $element->setProperty($key, $result->data);

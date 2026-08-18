@@ -22,6 +22,9 @@ class DependencyInjectionException extends HttpException
     public const DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE';
     public const DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH';
     public const DATA_LOADER_RESERVED_CONFIG_KEY = 'FRAMEWORK__DATA_LOADER_RESERVED_CONFIG_KEY';
+    public const DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE';
+    public const DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED';
+    public const DATA_LOADER_CONFIG_KEY_INVALID_MERGE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_MERGE';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -134,6 +137,47 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH,
             \sprintf('Config key "%s" of data loader "%s" has an incoherent default: %s.', $key, $loaderClass, $reason)
+        );
+    }
+
+    /**
+     * @param list<string> $referencedTypes
+     */
+    public static function dataLoaderConfigKeyUnknownReferencedType(string $loaderClass, string $key, string $referencedType, array $referencedTypes): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE,
+            \sprintf(
+                'Config key "%s" of data loader "%s" declares the unknown referenced type "%s". Declarable referenced types: "%s".',
+                $key,
+                $loaderClass,
+                $referencedType,
+                implode('", "', $referencedTypes)
+            )
+        );
+    }
+
+    public static function dataLoaderConfigKeyReferencedTypeMisplaced(string $loaderClass, string $key, string $kind): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED,
+            \sprintf(
+                'Config key "%s" of data loader "%s" has kind "%s" and must therefore leave the referenced type at its "string" default: only a propertyReference key dereferences a stored value.',
+                $key,
+                $loaderClass,
+                $kind
+            )
+        );
+    }
+
+    public static function dataLoaderConfigKeyInvalidMerge(string $loaderClass, string $key, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_INVALID_MERGE,
+            \sprintf('Config key "%s" of data loader "%s" declares an invalid merge: %s.', $key, $loaderClass, $reason)
         );
     }
 

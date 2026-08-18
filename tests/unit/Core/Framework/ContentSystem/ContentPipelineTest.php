@@ -18,6 +18,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResol
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -61,6 +63,7 @@ class ContentPipelineTest extends TestCase
         $this->ids = new IdsCollection();
         $this->hydrator = new ContentElementHydrator(
             new DataLoaderProvider(new ServiceLocator([])),
+            new LoaderInputResolver(),
             new DataContextResolver(new ContextPathResolver()),
         );
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
@@ -445,9 +448,11 @@ class ContentPipelineTest extends TestCase
 
         $pageData = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
         $loader->method('load')->willReturn(ContentDataLoaderResult::cached($pageData, 'language-1'));
         $this->hydrator = new ContentElementHydrator(
             new DataLoaderProvider(new ServiceLocator(['language' => static fn (): AbstractContentDataLoader => $loader])),
+            new LoaderInputResolver(),
             new DataContextResolver(new ContextPathResolver()),
         );
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -15,8 +16,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Fails the container build when a tagged data loader cannot satisfy the introspection contract: the class must
  * extend AbstractContentDataLoader with a resolvable `@extends` annotation, its source name must not be reserved
  * (`loader`/`config`), and its declared configSpecification() must have unique keys, types from the
- * ConfigKeySpecification::TYPES set, string-typed reference kinds, coherent defaults (never on a required key),
- * and no reserved key name.
+ * ConfigKeySpecification::TYPES set, string-typed reference kinds, referenced types from the
+ * ConfigKeySpecification::REFERENCED_TYPES set and only on a reference kind, coherent defaults (never on a
+ * required key), coherent merges (a `list<string>` reference key merging into a declared `list<string>` literal
+ * key, with at most one merger key claiming any given target), and no reserved key name.
  *
  * @internal
  */
@@ -90,8 +93,11 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
 
             $this->validateKeyType($class, $key);
             $this->validateKeyKindType($class, $key);
+            $this->validateKeyReferencedType($class, $key);
             $this->validateKeyDefault($class, $key);
         }
+
+        $this->validateMerges($class, $specification);
     }
 
     /**
@@ -120,6 +126,77 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
         }
 
         throw DependencyInjectionException::dataLoaderConfigKeyInvalidType($class, $key->name, $key->kind->value, $key->type);
+    }
+
+    /**
+     * @param class-string<AbstractContentDataLoader<Struct>> $class
+     */
+    private function validateKeyReferencedType(string $class, ConfigKeySpecification $key): void
+    {
+        if (!\in_array($key->referencedType, ConfigKeySpecification::REFERENCED_TYPES, true)) {
+            throw DependencyInjectionException::dataLoaderConfigKeyUnknownReferencedType($class, $key->name, $key->referencedType, ConfigKeySpecification::REFERENCED_TYPES);
+        }
+
+        if ($key->kind === ConfigKeyKind::PropertyReference) {
+            return;
+        }
+
+        if ($key->referencedType === 'string') {
+            return;
+        }
+
+        throw DependencyInjectionException::dataLoaderConfigKeyReferencedTypeMisplaced($class, $key->name, $key->kind->value);
+    }
+
+    /**
+     * A merge target is another key of the same specification, so this runs over the whole specification rather
+     * than per key.
+     *
+     * @param class-string<AbstractContentDataLoader<Struct>> $class
+     */
+    private function validateMerges(string $class, LoaderConfigSpecification $specification): void
+    {
+        $byName = [];
+        foreach ($specification->keys as $key) {
+            $byName[$key->name] = $key;
+        }
+
+        $claimedBy = [];
+        foreach ($specification->keys as $key) {
+            if ($key->mergesInto === null) {
+                continue;
+            }
+
+            if ($key->kind !== ConfigKeyKind::PropertyReference) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('only a propertyReference key can merge into another key, this one has kind "%s"', $key->kind->value));
+            }
+
+            if ($key->referencedType !== 'list<string>') {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('a merging key must reference a "list<string>" value, this one references "%s"', $key->referencedType));
+            }
+
+            if ($key->mergesInto === $key->name) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, 'a key cannot merge into itself');
+            }
+
+            $target = $byName[$key->mergesInto] ?? null;
+
+            if ($target === null) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('the merge target "%s" is not declared in the same specification', $key->mergesInto));
+            }
+
+            if ($target->kind !== ConfigKeyKind::Literal || $target->type !== 'list<string>') {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('the merge target "%s" must be a literal key of type "list<string>", got kind "%s" of type "%s"', $target->name, $target->kind->value, $target->type));
+            }
+
+            $priorClaimant = $claimedBy[$key->mergesInto] ?? null;
+
+            if ($priorClaimant !== null) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('the merge target "%s" is already claimed by key "%s"; at most one merger key may target a given key', $key->mergesInto, $priorClaimant));
+            }
+
+            $claimedBy[$key->mergesInto] = $key->name;
+        }
     }
 
     /**

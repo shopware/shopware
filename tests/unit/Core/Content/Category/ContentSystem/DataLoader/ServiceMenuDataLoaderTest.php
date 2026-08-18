@@ -15,11 +15,10 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,22 +59,19 @@ class ServiceMenuDataLoaderTest extends TestCase
     #[TestDox('loads service menu categories flattened from navigation tree')]
     public function testLoadReturnsFlattenedCategoryCollection(): void
     {
-        $serviceCategoryId = Uuid::randomHex();
+        $serviceCategoryId = 'category-service';
         $categoryA = new CategoryEntity();
-        $categoryA->setId(Uuid::randomHex());
-        $categoryA->setUniqueIdentifier($categoryA->getId());
+        $categoryA->setId('category-alice');
+        $categoryA->setUniqueIdentifier('category-alice');
         $categoryB = new CategoryEntity();
-        $categoryB->setId(Uuid::randomHex());
-        $categoryB->setUniqueIdentifier($categoryB->getId());
+        $categoryB->setId('category-bob');
+        $categoryB->setUniqueIdentifier('category-bob');
 
         $tree = new Tree(null, [
             new TreeItem($categoryA, []),
             new TreeItem($categoryB, []),
         ]);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig();
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
 
@@ -87,7 +83,12 @@ class ServiceMenuDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'service-navigation']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -96,19 +97,16 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame($categoryB, $result->data->last());
     }
 
-    #[TestDox('uses explicit rootId from config instead of service-navigation alias')]
-    public function testLoadUsesExplicitRootIdFromConfig(): void
+    #[TestDox('uses explicit rootId input instead of the service-navigation alias')]
+    public function testLoadUsesExplicitRootIdInput(): void
     {
-        $rootId = Uuid::randomHex();
+        $rootId = 'category-root';
         $category = new CategoryEntity();
-        $category->setId(Uuid::randomHex());
-        $category->setUniqueIdentifier($category->getId());
+        $category->setId('category-alice');
+        $category->setUniqueIdentifier('category-alice');
 
         $tree = new Tree(null, [new TreeItem($category, [])]);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig(rootId: $rootId);
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
@@ -119,7 +117,12 @@ class ServiceMenuDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -129,18 +132,17 @@ class ServiceMenuDataLoaderTest extends TestCase
     #[TestDox('returns empty cached category collection when tree has no items')]
     public function testLoadReturnsEmptyCachedCollectionWhenTreeHasNoItems(): void
     {
-        $serviceCategoryId = Uuid::randomHex();
-        $tree = new Tree(null, []);
-
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig();
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
+        $context->getSalesChannel()->setServiceCategoryId('category-service');
 
-        $this->navigationLoader->method('load')->willReturn($tree);
+        $this->navigationLoader->method('load')->willReturn(new Tree(null, []));
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $result = $this->dataLoader->load(
+            new LoaderInputs(['rootId' => 'service-navigation']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -152,16 +154,18 @@ class ServiceMenuDataLoaderTest extends TestCase
     #[TestDox('returns empty CategoryCollection when service category is not configured')]
     public function testLoadReturnsEmptyCollectionWhenServiceCategoryNotConfigured(): void
     {
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig();
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
         $navigationLoader->expects($this->never())->method('load');
 
         $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'service-navigation']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
@@ -170,33 +174,33 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when config is not a ServiceMenuLoaderConfig instance')]
-    public function testLoadReturnNotFoundWhenConfigIsNotServiceMenuLoaderConfig(): void
+    #[TestDox('resolves an unset rootId to the declared service-navigation default')]
+    public function testUnsetRootIdResolvesToDeclaredServiceNavigationDefault(): void
     {
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $wrongConfig);
         $context = Generator::generateSalesChannelContext();
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
         $navigationLoader->expects($this->never())->method('load');
 
         $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $inputs = (new LoaderInputResolver())->resolve(
+            $dataLoader->configSpecification(),
+            new ServiceMenuLoaderConfig(),
+            [],
+        );
 
-        static::assertFalse($result->hasData());
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertTrue($result->hasData());
+        static::assertInstanceOf(CategoryCollection::class, $result->data);
+        static::assertCount(0, $result->data);
     }
 
     #[TestDox('returns notFound result when navigation loader throws CategoryNotFoundException')]
     public function testLoadReturnsNotFoundWhenCategoryNotFoundExceptionIsThrown(): void
     {
-        $serviceCategoryId = Uuid::randomHex();
+        $serviceCategoryId = 'category-service';
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new ServiceMenuLoaderConfig();
-        $requirement = new DataRequirement('serviceMenu', 'service_menu', $config);
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
 
@@ -204,10 +208,20 @@ class ServiceMenuDataLoaderTest extends TestCase
             ->method('load')
             ->willThrowException(new CategoryNotFoundException($serviceCategoryId));
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $result = $this->dataLoader->load(
+            new LoaderInputs(['rootId' => 'service-navigation']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('serviceMenu', 'service_menu', new ServiceMenuLoaderConfig());
     }
 }

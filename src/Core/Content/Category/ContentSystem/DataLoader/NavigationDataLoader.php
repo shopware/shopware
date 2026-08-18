@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -44,37 +44,29 @@ class NavigationDataLoader extends AbstractContentDataLoader
     public function configSpecification(): LoaderConfigSpecification
     {
         return new LoaderConfigSpecification([
-            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null),
+            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'main-navigation'),
             new ConfigKeySpecification('depth', ConfigKeyKind::Literal, 'integer', required: false, hasDefault: true, default: NavigationLoaderConfig::DEFAULT_DEPTH),
             new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'activeId'),
         ]);
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
-
-        if (!$config instanceof NavigationLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
-        }
-
         // Resolve root ID from config or use sales channel's navigation category
-        $rootId = $config->rootId ?? 'main-navigation';
-        $rootId = $this->aliasResolver->resolve($rootId, $context);
+        $rootId = $this->aliasResolver->resolve($inputs->string('rootId'), $context);
 
-        // Get active ID from element property or use root as active
-        $activeProperty = $config->activeProperty;
-        $activeId = $element->getProperty($activeProperty);
+        // Get active ID from the referenced element property or use root as active
+        $activeId = $inputs->stringOrNull('activeProperty');
 
-        if (!\is_string($activeId) || $activeId === '') {
+        if ($activeId === null || $activeId === '') {
             $activeId = $rootId;
         }
 
-        $tree = $this->navigationLoader->load($activeId, $context, $rootId, $config->depth);
+        $tree = $this->navigationLoader->load($activeId, $context, $rootId, $inputs->int('depth'));
 
         // NavigationLoader handles its own caching internally
         return ContentDataLoaderResult::cachedExternally($tree);

@@ -20,6 +20,14 @@ final readonly class ConfigKeySpecification
     public const TYPES = ['string', 'integer', 'number', 'boolean', 'list<string>', 'map'];
 
     /**
+     * The closed set of declarable referenced-value types. ContentSystemDataLoaderCompilerPass fails the
+     * container build on any other value.
+     */
+    public const REFERENCED_TYPES = ['string', 'list<string>'];
+
+    /**
+     * `$type` is the type of the reference token, `$referencedType` the type of the value it points at.
+     *
      * @param array<string, mixed>|null $adminUI
      */
     public function __construct(
@@ -30,6 +38,8 @@ final readonly class ConfigKeySpecification
         public bool $hasDefault = false,
         public mixed $default = null,    // meaningful only when hasDefault is true
         public ?array $adminUI = null,   // same hint shape as element-type property adminUI
+        public string $referencedType = 'string',  // one of self::REFERENCED_TYPES; meaningful only on ConfigKeyKind::PropertyReference
+        public ?string $mergesInto = null,         // name of another declared key this key's resolved list is unioned into
     ) {
     }
 }

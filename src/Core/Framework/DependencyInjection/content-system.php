@@ -49,6 +49,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -252,9 +253,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener');
 
     // Hydration Services
+    $services->set(LoaderInputResolver::class);
+
     $services->set(ContentElementHydrator::class)
         ->args([
             service(DataLoaderProvider::class),
+            service(LoaderInputResolver::class),
             service(DataContextResolver::class),
         ]);
 

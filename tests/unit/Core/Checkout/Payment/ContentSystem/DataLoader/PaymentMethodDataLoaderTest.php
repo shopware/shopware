@@ -11,8 +11,7 @@ use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderC
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -69,16 +68,18 @@ class PaymentMethodDataLoaderTest extends TestCase
                 $context->getContext()
             )
         );
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new PaymentMethodLoaderConfig();
-        $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
         $request = new Request();
 
         $this->paymentMethodRoute
             ->method('load')
             ->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, $request);
+        $result = $this->dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            $request,
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($paymentMethods, $result->data);
@@ -86,7 +87,7 @@ class PaymentMethodDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('adds associations from PaymentMethodLoaderConfig to criteria')]
+    #[TestDox('adds the associations input to criteria')]
     public function testLoadAddsAssociationsFromConfigToCriteria(): void
     {
         $paymentMethods = new PaymentMethodCollection();
@@ -101,10 +102,6 @@ class PaymentMethodDataLoaderTest extends TestCase
                 $context->getContext()
             )
         );
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new PaymentMethodLoaderConfig(associations: ['country', 'translations']);
-        $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
-
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
             ->expects($this->once())
@@ -122,10 +119,15 @@ class PaymentMethodDataLoaderTest extends TestCase
             ->willReturn($response);
 
         $dataLoader = new PaymentMethodDataLoader($paymentMethodRoute);
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader->load(
+            new LoaderInputs(['associations' => ['country', 'translations'], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
     }
 
-    #[TestDox('sets onlyAvailable query parameter from config on cloned request')]
+    #[TestDox('sets the onlyAvailable query parameter from the input on the cloned request')]
     public function testLoadSetsOnlyAvailableParameterFromConfig(): void
     {
         $paymentMethods = new PaymentMethodCollection();
@@ -140,10 +142,6 @@ class PaymentMethodDataLoaderTest extends TestCase
                 $context->getContext()
             )
         );
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new PaymentMethodLoaderConfig(onlyAvailable: false);
-        $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
-
         $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
             ->expects($this->once())
@@ -160,38 +158,12 @@ class PaymentMethodDataLoaderTest extends TestCase
             ->willReturn($response);
 
         $dataLoader = new PaymentMethodDataLoader($paymentMethodRoute);
-        $dataLoader->load($element, $requirement, $context, new Request());
-    }
-
-    #[TestDox('skips config-specific logic when config is not a PaymentMethodLoaderConfig instance')]
-    public function testLoadWithNonPaymentMethodLoaderConfigSkipsConfigSpecificLogic(): void
-    {
-        $paymentMethods = new PaymentMethodCollection();
-        $context = Generator::generateSalesChannelContext();
-        $response = new PaymentMethodRouteResponse(
-            new EntitySearchResult(
-                'payment_method',
-                0,
-                $paymentMethods,
-                null,
-                new Criteria(),
-                $context->getContext()
-            )
+        $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => false]),
+            self::requirement(),
+            $context,
+            new Request(),
         );
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $wrongConfig);
-
-        $this->paymentMethodRoute
-            ->method('load')
-            ->willReturn($response);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertSame($paymentMethods, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('does not modify original request when cloning for onlyAvailable parameter')]
@@ -209,17 +181,24 @@ class PaymentMethodDataLoaderTest extends TestCase
                 $context->getContext()
             )
         );
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new PaymentMethodLoaderConfig(onlyAvailable: false);
-        $requirement = new DataRequirement('paymentMethodKey', 'payment_method', $config);
         $originalRequest = new Request();
 
         $this->paymentMethodRoute
             ->method('load')
             ->willReturn($response);
 
-        $this->dataLoader->load($element, $requirement, $context, $originalRequest);
+        $this->dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => false]),
+            self::requirement(),
+            $context,
+            $originalRequest,
+        );
 
         static::assertNull($originalRequest->query->get('onlyAvailable'));
+    }
+
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('paymentMethodKey', 'payment_method', new PaymentMethodLoaderConfig());
     }
 }

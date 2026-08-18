@@ -78,6 +78,10 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
+    public const LOADER_INPUT_NOT_DECLARED = 'CONTENT_SYSTEM__LOADER_INPUT_NOT_DECLARED';
+    public const LOADER_INPUT_UNRESOLVED = 'CONTENT_SYSTEM__LOADER_INPUT_UNRESOLVED';
+    public const LOADER_INPUT_TYPE_MISMATCH = 'CONTENT_SYSTEM__LOADER_INPUT_TYPE_MISMATCH';
+    public const LOADER_CONFIG_KEY_WITHOUT_PROPERTY = 'CONTENT_SYSTEM__LOADER_CONFIG_KEY_WITHOUT_PROPERTY';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -152,6 +156,52 @@ class ContentSystemException extends HttpException
             'Invalid configuration for data loader source "{{ source }}": {{ reason }}',
             ['source' => $source, 'reason' => $previous->getMessage()],
             $previous,
+        );
+    }
+
+    /**
+     * The four loader-input faults below are loader authoring bugs, never client-supplied layout defects, and
+     * are therefore deliberately absent from CLIENT_DEFECT_CODES.
+     *
+     * @param list<string> $declaredKeys
+     */
+    public static function loaderInputNotDeclared(string $key, array $declaredKeys): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_INPUT_NOT_DECLARED,
+            'Loader input "{{ key }}" was never declared in the loader\'s configSpecification(). Declared inputs: "{{ declaredKeys }}"',
+            ['key' => $key, 'declaredKeys' => implode('", "', $declaredKeys)]
+        );
+    }
+
+    public static function loaderInputUnresolved(string $key): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_INPUT_UNRESOLVED,
+            'Loader input "{{ key }}" is unresolved. Declare a default for it or read it through a nullable accessor',
+            ['key' => $key]
+        );
+    }
+
+    public static function loaderInputTypeMismatch(string $key, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_INPUT_TYPE_MISMATCH,
+            'Loader input "{{ key }}" was read as {{ expectedType }}, but resolved to {{ actualType }}',
+            ['key' => $key, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    public static function loaderConfigKeyWithoutProperty(string $configClass, string $key): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_CONFIG_KEY_WITHOUT_PROPERTY,
+            'Config class "{{ configClass }}" has no public property for the declared config key "{{ key }}"',
+            ['configClass' => $configClass, 'key' => $key]
         );
     }
 

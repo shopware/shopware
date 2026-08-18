@@ -14,7 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderCompilerPass;
@@ -205,6 +205,79 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
                 'the default value of PHP type "string" does not match the declared type "integer"'
             ),
         ];
+
+        yield 'config key declares a referenced type outside the declarable set' => [
+            UnknownReferencedTypeLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyUnknownReferencedType(
+                UnknownReferencedTypeLoader::class,
+                'property',
+                'list<integer>',
+                ConfigKeySpecification::REFERENCED_TYPES
+            ),
+        ];
+
+        yield 'non-reference config key declares a referenced type' => [
+            ReferencedTypeOnLiteralLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyReferencedTypeMisplaced(
+                ReferencedTypeOnLiteralLoader::class,
+                'associations',
+                'literal'
+            ),
+        ];
+
+        yield 'merging config key is not a reference' => [
+            MergeFromLiteralLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidMerge(
+                MergeFromLiteralLoader::class,
+                'associationOverride',
+                'only a propertyReference key can merge into another key, this one has kind "literal"'
+            ),
+        ];
+
+        yield 'merging config key does not reference a list' => [
+            MergeFromStringReferenceLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidMerge(
+                MergeFromStringReferenceLoader::class,
+                'associationOverride',
+                'a merging key must reference a "list<string>" value, this one references "string"'
+            ),
+        ];
+
+        yield 'config key merges into itself' => [
+            SelfMergeLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidMerge(
+                SelfMergeLoader::class,
+                'associations',
+                'a key cannot merge into itself'
+            ),
+        ];
+
+        yield 'merge target is not declared in the same specification' => [
+            UnknownMergeTargetLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidMerge(
+                UnknownMergeTargetLoader::class,
+                'associationOverride',
+                'the merge target "associations" is not declared in the same specification'
+            ),
+        ];
+
+        yield 'merge target is not a list-typed literal key' => [
+            NonLiteralMergeTargetLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidMerge(
+                NonLiteralMergeTargetLoader::class,
+                'associationOverride',
+                'the merge target "associations" must be a literal key of type "list<string>", got kind "propertyReference" of type "string"'
+            ),
+        ];
+
+        yield 'two merger keys target the same key' => [
+            DuplicateMergeTargetLoader::class,
+            DependencyInjectionException::dataLoaderConfigKeyInvalidMerge(
+                DuplicateMergeTargetLoader::class,
+                'secondOverride',
+                'the merge target "associations" is already claimed by key "firstOverride"; at most one merger key may target a given key'
+            ),
+        ];
     }
 
     /**
@@ -254,7 +327,7 @@ class GenericStubLoader extends AbstractContentDataLoader
         return 'test_generic';
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -267,7 +340,7 @@ class NoDocblockStubLoader extends AbstractContentDataLoader // @phpstan-ignore 
         return 'test_no_docblock';
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -285,7 +358,7 @@ class MissingAnnotationStubLoader extends AbstractContentDataLoader
         return 'test_missing';
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -305,7 +378,7 @@ class NonStructTypeStubLoader extends AbstractContentDataLoader
         return 'test_non_struct';
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -331,7 +404,7 @@ class DuplicateKeyLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -356,7 +429,7 @@ class NonStringPropertyReferenceLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -381,7 +454,7 @@ class UnknownKeyTypeLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -406,7 +479,7 @@ class RequiredKeyWithDefaultLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -431,7 +504,7 @@ class MixedListDefaultLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -456,7 +529,7 @@ class DefaultWithoutHasDefaultLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -481,7 +554,7 @@ class MismatchedDefaultTypeLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -499,7 +572,7 @@ class ReservedLoaderSourceLoader extends AbstractContentDataLoader
         return 'loader';
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -517,7 +590,7 @@ class ReservedConfigSourceLoader extends AbstractContentDataLoader
         return 'config';
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -542,7 +615,7 @@ class ReservedLoaderKeyLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -567,7 +640,7 @@ class ReservedConfigKeyLoader extends AbstractContentDataLoader
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }
@@ -597,10 +670,216 @@ class ValidSpecificationLoader extends AbstractContentDataLoader
             new ConfigKeySpecification('ratio', ConfigKeyKind::Literal, 'number', required: false, hasDefault: true, default: 1.5),
             new ConfigKeySpecification('enabled', ConfigKeyKind::Literal, 'boolean', required: false, hasDefault: true, default: true),
             new ConfigKeySpecification('filters', ConfigKeyKind::Literal, 'map', required: false, hasDefault: true, default: ['color' => 'red']),
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
         ]);
     }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class UnknownReferencedTypeLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_unknown_referenced_type';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<integer>'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class ReferencedTypeOnLiteralLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_referenced_type_on_literal';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, referencedType: 'list<string>'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class MergeFromLiteralLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_merge_from_literal';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::Literal, 'list<string>', required: false, mergesInto: 'associations'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class MergeFromStringReferenceLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_merge_from_string_reference';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, mergesInto: 'associations'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class SelfMergeLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_self_merge';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class UnknownMergeTargetLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_unknown_merge_target';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class NonLiteralMergeTargetLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_non_literal_merge_target';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::PropertyReference, 'string', required: false),
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class DuplicateMergeTargetLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_duplicate_merge_target';
+    }
+
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+            new ConfigKeySpecification('firstOverride', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
+            new ConfigKeySpecification('secondOverride', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
+        ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
     {
         return ContentDataLoaderResult::notFound();
     }

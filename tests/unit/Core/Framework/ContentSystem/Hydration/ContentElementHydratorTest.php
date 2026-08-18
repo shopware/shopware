@@ -11,8 +11,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResol
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -50,6 +56,7 @@ class ContentElementHydratorTest extends TestCase
 
         $struct = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
         $loader->method('load')->willReturn(ContentDataLoaderResult::cached($struct, 'product-abc', 'product-def'));
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
@@ -81,6 +88,7 @@ class ContentElementHydratorTest extends TestCase
             ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
         $loader->method('load')->willReturn(ContentDataLoaderResult::notFound());
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
@@ -118,6 +126,7 @@ class ContentElementHydratorTest extends TestCase
             ->build();
 
         $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
         $loader->method('load')->willReturn(ContentDataLoaderResult::uncacheable(new StubStruct()));
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
@@ -140,6 +149,7 @@ class ContentElementHydratorTest extends TestCase
 
         $childStruct = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
         $loader->method('load')->willReturn(ContentDataLoaderResult::cached($childStruct));
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
@@ -147,6 +157,34 @@ class ContentElementHydratorTest extends TestCase
         iterator_to_array($hydrator->hydrate([$parent], $this->context, new Request(), $this->cacheContext), false);
 
         static::assertSame($childStruct, $child->getProperty('item'));
+    }
+
+    #[TestDox('hands the loader its declared inputs, dereferenced against the element properties')]
+    public function testHydrateResolvesDeclaredInputsFromElementProperties(): void
+    {
+        $element = ContentElementBuilder::create('product-card')
+            ->withProperty('productId', 'product-alice')
+            ->withDataRequirement('product', 'entity', new EntityLoaderConfig('product', 'productId', []))
+            ->build();
+
+        $received = null;
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+        ]));
+        $loader->method('load')->willReturnCallback(
+            static function (LoaderInputs $inputs) use (&$received): ContentDataLoaderResult {
+                $received = $inputs->string('property');
+
+                return ContentDataLoaderResult::notFound();
+            }
+        );
+
+        $hydrator = $this->createHydrator(['entity' => $loader]);
+
+        iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
+
+        static::assertSame('product-alice', $received);
     }
 
     #[TestDox('yields nothing when element list is empty')]
@@ -171,6 +209,7 @@ class ContentElementHydratorTest extends TestCase
 
         return new ContentElementHydrator(
             new DataLoaderProvider(new ServiceLocator($factories)),
+            new LoaderInputResolver(),
             new DataContextResolver(new ContextPathResolver()),
         );
     }

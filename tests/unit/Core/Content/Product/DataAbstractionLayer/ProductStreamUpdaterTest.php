@@ -166,7 +166,7 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
-     * @param list<string> $ids
+     * @param string[] $ids
      * @param array<int, array<string, bool|string>> $filters
      */
     #[DataProvider('filterProvider')]
@@ -180,8 +180,6 @@ class ProductStreamUpdaterTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn($filters);
 
-        // no STATE_ELASTICSEARCH_AWARE: this path runs directly after the products have
-        // been written, their Elasticsearch documents are not updated yet
         $criteria->addFilter(new EqualsAnyFilter('id', $ids));
 
         /** @var StaticEntityRepository<ProductCollection> */
@@ -332,250 +330,6 @@ class ProductStreamUpdaterTest extends TestCase
         );
 
         $updater->handle($message);
-    }
-
-    /**
-     * Regression coverage for https://github.com/shopware/shopware/issues/10770.
-     *
-     * When a product stream contains many top-level AND conditions we must not
-     * build a single giant criteria (which would explode past the MariaDB 61-table
-     * join limit). Instead the updater chunks the conditions, runs multiple
-     * `searchIds` calls and intersects the resulting id sets.
-     */
-    public function testLargeNumberOfConditionsIsChunkedIntoMultipleSearches(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $conditionCount = 70;
-        $filters = [];
-        for ($i = 0; $i < $conditionCount; ++$i) {
-            $filters[] = [
-                'type' => 'equals',
-                'field' => 'active',
-                'value' => '1',
-            ];
-        }
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => Uuid::randomHex(),
-                    'api_filter' => json_encode($filters),
-                ],
-            ]);
-
-        $candidateIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
-
-        $calls = [];
-        /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository([
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                // Always return the candidate ids so that subsequent chunks keep matching.
-                return $candidateIds;
-            },
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                return $candidateIds;
-            },
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                return $candidateIds;
-            },
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                return $candidateIds;
-            },
-        ]);
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            new ProductDefinition(),
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            static::createStub(ManyToManyIdFieldUpdater::class),
-            $this->createDefaultLanguageRepo(),
-            true
-        );
-
-        $updater->updateProducts($candidateIds, $context);
-
-        // 70 conditions with a chunk size of 20 → 4 batches (20 + 20 + 20 + 10),
-        // executed once for the single (system) language context.
-        static::assertCount(4, $calls);
-
-        foreach ($calls as $i => $criteria) {
-            $criteriaFilters = $criteria->getFilters();
-            // Every batch carries the id restriction (EqualsAnyFilter on id).
-            $hasIdFilter = false;
-            foreach ($criteriaFilters as $filter) {
-                if ($filter instanceof EqualsAnyFilter && $filter->getField() === 'id') {
-                    $hasIdFilter = true;
-
-                    break;
-                }
-            }
-            static::assertTrue($hasIdFilter, 'Chunk #' . $i . ' must be constrained to the candidate ids.');
-
-            // Each chunk must carry at most CONDITION_CHUNK_SIZE condition filters
-            // (plus the id filter) — which proves we never build a single giant criteria.
-            static::assertLessThanOrEqual(21, \count($criteriaFilters));
-        }
-    }
-
-    /**
-     * Regression coverage for https://github.com/shopware/shopware/issues/10770.
-     *
-     * The Administration always wraps the conditions of a stream into a root OR
-     * container (see `product-stream-condition.service.js::getOrContainerData`),
-     * so the conditions to be chunked are never on the top level of `api_filter`.
-     */
-    public function testConditionsInsideTheAdministrationOrContainerAreChunked(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $conditions = [];
-        for ($i = 0; $i < 70; ++$i) {
-            $conditions[] = [
-                'type' => 'equals',
-                'field' => 'active',
-                'value' => '1',
-            ];
-        }
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => Uuid::randomHex(),
-                    'api_filter' => json_encode([[
-                        'type' => 'multi',
-                        'operator' => 'OR',
-                        'queries' => [[
-                            'type' => 'multi',
-                            'operator' => 'AND',
-                            'queries' => $conditions,
-                        ]],
-                    ]]),
-                ],
-            ]);
-
-        $candidateIds = [Uuid::randomHex()];
-
-        $calls = 0;
-        $searches = [];
-        for ($i = 0; $i < 4; ++$i) {
-            $searches[] = static function (Criteria $criteria) use (&$calls, $candidateIds): array {
-                ++$calls;
-
-                return $candidateIds;
-            };
-        }
-
-        // the repository compiles the definition, which is required to resolve the association paths
-        $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository($searches, $definition);
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            static::createStub(ManyToManyIdFieldUpdater::class),
-            $this->createDefaultLanguageRepo(),
-            true
-        );
-
-        $updater->updateProducts($candidateIds, $context);
-
-        // 70 conditions with a chunk size of 20 → 4 batches (20 + 20 + 20 + 10)
-        static::assertSame(4, $calls);
-    }
-
-    /**
-     * Conditions addressing the same to-many association must not be spread over
-     * separate top level filters: `JoinGroupBuilder` would then join the
-     * association once per condition (as independent `EXISTS` sub queries)
-     * instead of matching them against the same joined row.
-     */
-    public function testConditionsOnTheSameToManyAssociationStayInOneFilter(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $conditions = [
-            ['type' => 'equals', 'field' => 'categories.name', 'value' => 'first'],
-            ['type' => 'equals', 'field' => 'categories.name', 'value' => 'second'],
-        ];
-        for ($i = 0; $i < 40; ++$i) {
-            $conditions[] = ['type' => 'equals', 'field' => 'active', 'value' => '1'];
-        }
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => Uuid::randomHex(),
-                    'api_filter' => json_encode([[
-                        'type' => 'multi',
-                        'operator' => 'AND',
-                        'queries' => $conditions,
-                    ]]),
-                ],
-            ]);
-
-        $candidateIds = [Uuid::randomHex()];
-
-        $grouped = null;
-        $searches = [];
-        for ($i = 0; $i < 3; ++$i) {
-            $searches[] = static function (Criteria $criteria) use (&$grouped, $candidateIds): array {
-                foreach ($criteria->getFilters() as $filter) {
-                    if ($filter instanceof MultiFilter && $filter->getOperator() === MultiFilter::CONNECTION_AND) {
-                        $grouped = $filter;
-                    }
-                }
-
-                return $candidateIds;
-            };
-        }
-
-        // the repository compiles the definition, which is required to resolve the association paths
-        $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository($searches, $definition);
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            static::createStub(ManyToManyIdFieldUpdater::class),
-            $this->createDefaultLanguageRepo(),
-            true
-        );
-
-        $updater->updateProducts($candidateIds, $context);
-
-        static::assertInstanceOf(MultiFilter::class, $grouped);
-        static::assertEquals(
-            [
-                new EqualsFilter('product.categories.name', 'first'),
-                new EqualsFilter('product.categories.name', 'second'),
-            ],
-            $grouped->getQueries()
-        );
     }
 
     public function testInvalidFilter(): void
@@ -748,13 +502,12 @@ class ProductStreamUpdaterTest extends TestCase
                     ]]),
                 ],
             ],
-            // Top-level AND wrappers are flattened before the criteria is
-            // executed, so that large conjunctions can be chunked without
-            // exceeding the MariaDB 61-table join limit (see #10770).
             (new Criteria())->addFilter(
-                new MultiFilter(MultiFilter::CONNECTION_OR, [
-                    new RangeFilter('product.price', [RangeFilter::LTE => 50]),
-                    new RangeFilter('product.prices.price', [RangeFilter::LTE => 50]),
+                new MultiFilter(MultiFilter::CONNECTION_AND, [
+                    new MultiFilter(MultiFilter::CONNECTION_OR, [
+                        new RangeFilter('product.price', [RangeFilter::LTE => 50]),
+                        new RangeFilter('product.prices.price', [RangeFilter::LTE => 50]),
+                    ]),
                 ]),
             ),
         ];
@@ -777,13 +530,12 @@ class ProductStreamUpdaterTest extends TestCase
                     ]]),
                 ],
             ],
-            // Top-level AND wrappers are flattened before the criteria is
-            // executed, so that large conjunctions can be chunked without
-            // exceeding the MariaDB 61-table join limit (see #10770).
             (new Criteria())->addFilter(
-                new MultiFilter(MultiFilter::CONNECTION_OR, [
-                    new RangeFilter('product.price.percentage', [RangeFilter::LTE => 50]),
-                    new RangeFilter('product.prices.price.percentage', [RangeFilter::LTE => 50]),
+                new MultiFilter(MultiFilter::CONNECTION_AND, [
+                    new MultiFilter(MultiFilter::CONNECTION_OR, [
+                        new RangeFilter('product.price.percentage', [RangeFilter::LTE => 50]),
+                        new RangeFilter('product.prices.price.percentage', [RangeFilter::LTE => 50]),
+                    ]),
                 ]),
             ),
         ];

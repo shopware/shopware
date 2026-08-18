@@ -211,6 +211,53 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertNull($this->findHeadlessProductSeoUrl($this->ids->get('hidden')));
     }
 
+    public function testAnUnrenderableTemplateKeepsTheExistingSeoUrl(): void
+    {
+        $templateId = Uuid::randomBytes();
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->insert('seo_url_template', [
+            'id' => $templateId,
+            'sales_channel_id' => Uuid::fromHexToBytes($this->headlessSalesChannel['id']),
+            'route_name' => ProductStoreApiUrlRoute::ROUTE_NAME,
+            'entity_name' => ProductDefinition::ENTITY_NAME,
+            'template' => '{{ product.translated.name }}',
+            'is_headless' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $product = (new ProductBuilder($this->ids, 'product'))
+            ->price(100)
+            ->name('generated-product')
+            ->visibility($this->headlessSalesChannel['id'])
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $updater = static::getContainer()->get(SeoUrlUpdater::class);
+        $updater->update(ProductStoreApiUrlRoute::ROUTE_NAME, [$this->ids->get('product')]);
+
+        $seoUrl = $this->findHeadlessProductSeoUrl($this->ids->get('product'));
+        static::assertNotNull($seoUrl);
+        static::assertSame('generated-product', $seoUrl->getSeoPathInfo());
+
+        // A template referencing a field that does not exist cannot be rendered. The
+        // regeneration must leave the existing URL alone instead of flagging it deleted,
+        // which would make the storefront answer 404 for it.
+        $connection->update(
+            'seo_url_template',
+            ['template' => '{{ product.translated.customFields.doesNotExist }}'],
+            ['id' => $templateId]
+        );
+
+        $updater->update(ProductStoreApiUrlRoute::ROUTE_NAME, [$this->ids->get('product')]);
+
+        $seoUrl = $this->findHeadlessProductSeoUrl($this->ids->get('product'));
+        static::assertNotNull($seoUrl);
+        static::assertSame('generated-product', $seoUrl->getSeoPathInfo());
+        static::assertFalse($seoUrl->getIsDeleted());
+        static::assertTrue($seoUrl->getIsCanonical());
+    }
+
     public function testHeadlessSalesChannelWithoutExternalStorefrontDomainGeneratesNoSeoUrls(): void
     {
         // flag the domain as a non-external storefront: no SEO URLs must be generated for it

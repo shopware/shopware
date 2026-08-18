@@ -119,6 +119,7 @@ async function createWrapper(props = {}) {
                     getDocumentNumberRangeType: (documentType) => documentType,
                     sortFileFormats: (formats) => formats,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
+                    getDocumentTypeSnippet: (technicalName) => `${technicalName}--type-snippet`,
                     getDocumentNumbersByTypes: (documents, types) =>
                         documents
                             .filter((document) => types.some((type) => document.type === type))

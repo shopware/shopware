@@ -654,6 +654,12 @@
           "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
           "zugferdXml": "ZUGFeRD XML"
         },
+        "documentTypes": {
+          "invoice": "Invoice",
+          "creditNote": "Credit note",
+          "cancellationInvoice": "Cancellation invoice",
+          "deliveryNote": "Delivery note"
+        },
         "error": {
           "loadDocumentTypes": "Failed to load available document types.",
           "loadSupportedDocumentFileFormats": "Failed to load available file formats per document type.",

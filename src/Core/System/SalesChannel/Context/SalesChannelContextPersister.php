@@ -35,6 +35,10 @@ class SalesChannelContextPersister
     }
 
     /**
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextPersisterTest
+     *
      * @param array<string, mixed> $newParameters
      */
     public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void

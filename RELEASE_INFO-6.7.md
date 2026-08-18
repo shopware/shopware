@@ -2172,16 +2172,11 @@ Run it via:
 
 ```bash
 npm run codemod:sfc-migration -- <target-directory>        # dry-run preview
-npm run codemod:sfc-migration -- <target-directory> --write # write validated .vue drafts only
-npm run codemod:sfc-migration -- <target-directory> --write --replace-originals # explicit replacement
+npm run codemod:sfc-migration -- --write <target-directory> # write .vue files
 ```
 
 The codemod converts Options API to Composition API (`data` → `ref`, `computed`, `watch`, `methods`, lifecycle hooks), rewrites Twig block syntax to `<sw-block>` elements, and merges template + script into a single `.vue` file.
-Every generated file is compiler-validated before it is written. Ordinary writes retain the legacy
-`index.js` and Twig files; only an unambiguous full `Component.register` conversion may replace its
-entry point with the separate `--replace-originals` option. Components with `render()` functions,
-`mixins`, or `Shopware.Component.extend()` are skipped and reported rather than receiving a plain
-Options API `<script>` fallback.
+Components with `render()` functions are skipped; components using `mixins` or `Shopware.Component.extend()` receive a backoff to plain `<script>` so they can be migrated manually.
 
 See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md` for full usage, flags, and known limitations.
 

@@ -20,7 +20,7 @@
  * name twice — and two blocks of one name render every override for it twice.
  */
 
-import { NodeTypes } from '@vue/compiler-dom';
+import { ElementTypes, NodeTypes } from '@vue/compiler-dom';
 import type { ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import { isConvertedBlock, parseTemplate } from './template-ast';
 
@@ -58,6 +58,15 @@ function namedSlotOf(node: ElementNode): string | null {
     }
 
     return null;
+}
+
+/**
+ * Can this tag own a named slot? Vue's parser already answered that while parsing, and reusing its
+ * verdict keeps kebab-case, PascalCase and `<component :is>` owners together — a hyphen test refuses
+ * everything but the first, and the build transform accepts all three.
+ */
+function ownsNamedSlots(node: ElementNode): boolean {
+    return node.tagType === ElementTypes.COMPONENT;
 }
 
 /** Children carrying content: elements plus non-whitespace text. Comments travel with the block. */
@@ -138,7 +147,7 @@ function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ances
             const reason =
                 slotName === '[dynamic]'
                     ? `${NON_HOISTABLE} (dynamic slot name)`
-                    : owner === null || !owner.tag.includes('-')
+                    : owner === null || !ownsNamedSlots(owner)
                       ? `${NON_HOISTABLE} (no component owns the slot)`
                       : !solePath
                         ? `${NON_HOISTABLE} (the block wraps more than the slot)`

@@ -87,4 +87,31 @@ describe('scripts/codemods/sfc-migration/hoist-block-slots', () => {
             'named slot inside a twig block cannot be hoisted (no component owns the slot)',
         ]);
     });
+
+    // Whether a tag owns slots is Vue's call, not a hyphen's: the build transform accepts a named
+    // slot below every one of these owners, so the codemod must not refuse what its own gate allows.
+    it.each([
+        'sw-modal',
+        'ChildComponent',
+        'MtButton',
+    ])('hoists a slot owned by %s', (owner) => {
+        const result = hoistBlockSlots(`<${owner}><sw-block name="a"><template #footer>X</template></sw-block></${owner}>`);
+
+        expect(result.blockers).toEqual([]);
+        expect(result.template).toBe(
+            `<${owner}><template #footer>\n<sw-block name="a">\nX\n</sw-block>\n</template></${owner}>`,
+        );
+    });
+
+    // A native element owns no slots, so the inversion would address a slot that does not exist.
+    it.each([
+        'div',
+        'span',
+    ])('still refuses a slot below the native element %s', (owner) => {
+        const result = hoistBlockSlots(`<${owner}><sw-block name="a"><template #footer>X</template></sw-block></${owner}>`);
+
+        expect(result.blockers).toEqual([
+            'named slot inside a twig block cannot be hoisted (no component owns the slot)',
+        ]);
+    });
 });

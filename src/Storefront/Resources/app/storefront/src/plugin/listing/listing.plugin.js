@@ -3,6 +3,7 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
+import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
@@ -140,6 +141,45 @@ export default class ListingPlugin extends Plugin {
     }
 
     /**
+     * Calls a method on a registered filter plugin without letting a broken third-party
+     * plugin break the entire listing update. Returns `fallback` if the method is missing
+     * or throws.
+     *
+     * @private
+     */
+    _callFilterPlugin(filterPlugin, method, fallback, ...args) {
+        if (typeof filterPlugin[method] !== 'function') {
+            return fallback;
+        }
+
+        try {
+            return filterPlugin[method](...args);
+        } catch (error) {
+            console.warn(`Listing filter plugin threw from ${method}(); skipping.`, error);
+
+            return fallback;
+        }
+    }
+
+    /**
+     * The built-in pagination plugin is authoritative for the single-valued `p` parameter.
+     * It is therefore merged last, so the last-value-wins rule in `_mapFilters()` resolves to
+     * its page regardless of the order in which third-party filters happened to register.
+     *
+     * @private
+     */
+    _getPrioritisedRegistry() {
+        const others = [];
+        const pagination = [];
+
+        this._registry.forEach((filterPlugin) => {
+            (filterPlugin instanceof ListingPaginationPlugin ? pagination : others).push(filterPlugin);
+        });
+
+        return [...others, ...pagination];
+    }
+
+    /**
      * Merges the values reported by every registered filter plugin into a single map.
      * Third-party plugins that throw from `getValues()` or return malformed shapes are
      * skipped instead of breaking the entire listing update.
@@ -149,17 +189,8 @@ export default class ListingPlugin extends Plugin {
     _fetchValuesOfRegisteredFilters() {
         const filters = {};
 
-        this._registry.forEach((filterPlugin) => {
-            let values = {};
-
-            if (typeof filterPlugin.getValues === 'function') {
-                try {
-                    values = filterPlugin.getValues();
-                } catch (error) {
-                    console.warn('Listing filter plugin threw from getValues(); skipping.', error);
-                    return;
-                }
-            }
+        this._getPrioritisedRegistry().forEach((filterPlugin) => {
+            const values = this._callFilterPlugin(filterPlugin, 'getValues', null);
 
             if (!values) {
                 return;
@@ -184,7 +215,10 @@ export default class ListingPlugin extends Plugin {
                 }
 
                 list.forEach((entry) => {
-                    if (entry !== null && entry !== undefined) {
+                    // An inactive filter reports an empty string (e.g. an unchecked boolean
+                    // filter). Keeping it would produce separator-only values such as `|` once
+                    // the list is pipe-joined below, which the backend reads as an active filter.
+                    if (entry !== null && entry !== undefined && entry !== '') {
                         filters[key].push(entry);
                     }
                 });
@@ -198,16 +232,25 @@ export default class ListingPlugin extends Plugin {
      * Serialises the merged filter map into the request query parameter map.
      *
      * Note: the `singleValuedKeys` set tracks query parameters that the listing backend
-     * expects as a single value (see `PagingListingProcessor` and `SortingListingProcessor`
-     * under `Core/Content/Product/SalesChannel/Listing/Processor/` on the PHP side).
-     * Pipe-joining them would produce invalid queries like `p=1|2`, which results in 400
-     * responses on `/widgets/cms/navigation/*`. Keep this in sync when the backend adds
-     * new single-valued listing params (e.g. a future pagination token).
+     * reads as a single value, either via `PagingListingProcessor` / `SortingListingProcessor`
+     * under `Core/Content/Product/SalesChannel/Listing/Processor/`, or via the scalar casts in
+     * the handlers under `Core/Content/Product/SalesChannel/Listing/Filter/` on the PHP side.
+     * Pipe-joining them produces either invalid queries like `p=1|2` (400 responses on
+     * `/widgets/cms/navigation/*`) or silently wrong filters like `rating=3|4`, which casts to
+     * `3`. Keep this in sync when the backend adds new single-valued listing params.
      *
      * @private
      */
     _mapFilters(filters) {
-        const singleValuedKeys = new Set(['p', 'order', 'limit']);
+        const singleValuedKeys = new Set([
+            'p',
+            'order',
+            'limit',
+            'rating',
+            'shipping-free',
+            'min-price',
+            'max-price',
+        ]);
         const mapped = {};
 
         Object.keys(filters).forEach((key) => {
@@ -326,7 +369,7 @@ export default class ListingPlugin extends Plugin {
         let labelHtml = '';
 
         this._registry.forEach((filterPlugin) => {
-            const labels = filterPlugin.getLabels();
+            const labels = this._callFilterPlugin(filterPlugin, 'getLabels', []);
 
             if (labels.length) {
                 labels.forEach((label) => {
@@ -380,7 +423,7 @@ export default class ListingPlugin extends Plugin {
      */
     resetFilter(label) {
         this._registry.forEach((filterPlugin) => {
-            filterPlugin.reset(label.dataset.id);
+            this._callFilterPlugin(filterPlugin, 'reset', undefined, label.dataset.id);
         });
 
         this._buildRequest();
@@ -392,7 +435,7 @@ export default class ListingPlugin extends Plugin {
      */
     resetAllFilter() {
         this._registry.forEach((filterPlugin) => {
-            filterPlugin.resetAll();
+            this._callFilterPlugin(filterPlugin, 'resetAll', undefined);
         });
 
         this._buildRequest();

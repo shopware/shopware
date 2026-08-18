@@ -1,4 +1,5 @@
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
+import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 
 describe('ListingPlugin tests', () => {
     let listingPlugin = undefined;
@@ -353,6 +354,18 @@ describe('ListingPlugin tests', () => {
             expect(result.rating).toEqual([]);
         });
 
+        test('drops empty values so they cannot leak into the query as a bare separator', () => {
+            const uncheckedA = { getValues: () => ({ 'shipping-free': '' }) };
+            const uncheckedB = { getValues: () => ({ 'shipping-free': '' }) };
+
+            listingPlugin._registry = [uncheckedA, uncheckedB];
+
+            const filters = listingPlugin._fetchValuesOfRegisteredFilters();
+
+            expect(filters['shipping-free']).toEqual([]);
+            expect(listingPlugin._mapFilters(filters)['shipping-free']).toBeUndefined();
+        });
+
         test('skips filters whose getValues throws and continues with remaining filters', () => {
             const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
             const throwingFilter = { getValues: () => { throw new Error('boom'); } };
@@ -420,6 +433,20 @@ describe('ListingPlugin tests', () => {
             expect(mapped.p).not.toBe('1|2');
         });
 
+        test('returns scalar backend filter params as single values', () => {
+            const mapped = listingPlugin._mapFilters({
+                rating: ['3', '4'],
+                'shipping-free': ['1', '1'],
+                'min-price': ['10', '20'],
+                'max-price': ['50', '60'],
+            });
+
+            expect(mapped.rating).toBe('4');
+            expect(mapped['shipping-free']).toBe('1');
+            expect(mapped['min-price']).toBe('20');
+            expect(mapped['max-price']).toBe('60');
+        });
+
         test('omits empty and nullish values', () => {
             const mapped = listingPlugin._mapFilters({
                 manufacturer: [],
@@ -435,6 +462,31 @@ describe('ListingPlugin tests', () => {
             expect(mapped.shippingFree).toBeUndefined();
             expect(mapped.order).toBe('name-asc');
         });
+    });
+
+    test('lets the built-in pagination plugin win the `p` param regardless of registration order', () => {
+        const paginationPlugin = Object.create(ListingPaginationPlugin.prototype);
+        paginationPlugin.getValues = () => ({ p: 5 });
+        const thirdPartyFilter = { getValues: () => ({ p: 2 }) };
+
+        listingPlugin._registry = [paginationPlugin, thirdPartyFilter];
+
+        const mapped = listingPlugin._mapFilters(listingPlugin._fetchValuesOfRegisteredFilters());
+
+        expect(mapped.p).toBe('5');
+    });
+
+    test('does not break the listing update when a filter plugin throws from getLabels', () => {
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const throwingFilter = { getLabels: () => { throw new Error('boom'); } };
+        const validFilter = { getLabels: () => [{ id: 'abc', label: 'ABC' }] };
+
+        listingPlugin._registry = [throwingFilter, validFilter];
+
+        expect(() => listingPlugin._buildLabels()).not.toThrow();
+        expect(listingPlugin.activeFilterContainer.innerHTML).toContain('ABC');
+
+        consoleWarnSpy.mockRestore();
     });
 
     test('builds the labels for the active filters and renders them inside the filter panel', async () => {

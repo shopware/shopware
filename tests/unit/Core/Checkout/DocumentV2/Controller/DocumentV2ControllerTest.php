@@ -741,6 +741,9 @@ class DocumentV2ControllerTest extends TestCase
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
 
+        $fileNameProvider = static::createStub(FileNameProvider::class);
+        $fileNameProvider->method('provide')->willReturnArgument(0);
+
         $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, []));
 
@@ -755,6 +758,7 @@ class DocumentV2ControllerTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $fileNameProvider,
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),

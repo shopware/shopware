@@ -51,11 +51,7 @@ class ContextHandoffGenerateRoute extends AbstractContextHandoffGenerateRoute
 
         $handoffJwt = $this->tokenGenerator->encode($handoffToken);
 
-        $this->tokenStore->store(
-            $handoffToken->jti,
-            $context->getToken(),
-            ContextHandoffTokenGenerator::TOKEN_LIFETIME
-        );
+        $this->tokenStore->store($handoffToken->jti, $context->getToken(), $handoffToken->exp);
 
         return new ContextHandoffTokenResponse($handoffJwt, $handoffToken->exp);
     }

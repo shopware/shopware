@@ -6,6 +6,7 @@ use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\JWT\JWTException;
@@ -21,7 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffRedeemRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\SalesChannel\Struct\ContextHandoffToken;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -37,7 +37,7 @@ class ContextHandoffRedeemRouteTest extends TestCase
 
     private ContextHandoffTokenGenerator $tokenGenerator;
 
-    private ContextHandoffTokenStore $tokenStore;
+    private ContextHandoffTokenStore&Stub $tokenStore;
 
     private TestHandler $logHandler;
 
@@ -50,7 +50,7 @@ class ContextHandoffRedeemRouteTest extends TestCase
             JWTConfigurationFactory::createJWTConfiguration(),
             new DataValidator(Validation::createValidator())
         );
-        $this->tokenStore = new ContextHandoffTokenStore(new ArrayAdapter(storeSerialized: false));
+        $this->tokenStore = static::createStub(ContextHandoffTokenStore::class);
         $this->logHandler = new TestHandler(Level::Warning);
 
         $this->route = new ContextHandoffRedeemRoute(
@@ -63,6 +63,7 @@ class ContextHandoffRedeemRouteTest extends TestCase
     public function testRedeemReturnsTheReferencedContextToken(): void
     {
         $handoffToken = $this->mintHandoffToken();
+        $this->tokenStore->method('consume')->willReturn(self::CONTEXT_TOKEN);
 
         $response = $this->route->redeem(new RequestDataBag(['token' => $handoffToken]), $this->createContext());
 
@@ -73,6 +74,8 @@ class ContextHandoffRedeemRouteTest extends TestCase
     public function testRedeemingTwiceIsRejected(): void
     {
         $handoffToken = $this->mintHandoffToken();
+        $this->tokenStore->method('consume')->willReturn(self::CONTEXT_TOKEN, null);
+
         $this->route->redeem(new RequestDataBag(['token' => $handoffToken]), $this->createContext());
 
         $this->expectExceptionObject(SalesChannelException::contextHandoffTokenExpiredOrConsumed());
@@ -83,6 +86,8 @@ class ContextHandoffRedeemRouteTest extends TestCase
     {
         $jti = Uuid::randomHex();
         $handoffToken = $this->mintHandoffToken($jti);
+        $this->tokenStore->method('consume')->willReturn(self::CONTEXT_TOKEN, null);
+
         $this->route->redeem(new RequestDataBag(['token' => $handoffToken]), $this->createContext());
 
         try {
@@ -109,16 +114,19 @@ class ContextHandoffRedeemRouteTest extends TestCase
 
     public function testAForeignSalesChannelDoesNotConsumeTheToken(): void
     {
-        $jti = Uuid::randomHex();
-        $handoffToken = $this->mintHandoffToken($jti);
+        $handoffToken = $this->mintHandoffToken();
 
-        try {
-            $this->route->redeem(new RequestDataBag(['token' => $handoffToken]), $this->createContext(Uuid::randomHex()));
-        } catch (SalesChannelException) {
-            // the untouched store entry is the assertion subject
-        }
+        $tokenStore = $this->createMock(ContextHandoffTokenStore::class);
+        $tokenStore->expects($this->never())->method('consume');
 
-        static::assertSame(self::CONTEXT_TOKEN, $this->tokenStore->consume($jti));
+        $route = new ContextHandoffRedeemRoute(
+            $this->tokenGenerator,
+            $tokenStore,
+            new Logger('test', [$this->logHandler])
+        );
+
+        $this->expectExceptionObject(SalesChannelException::contextHandoffSalesChannelMismatch());
+        $route->redeem(new RequestDataBag(['token' => $handoffToken]), $this->createContext(Uuid::randomHex()));
     }
 
     public function testRedeemIsRejectedForAGarbageToken(): void
@@ -141,17 +149,12 @@ class ContextHandoffRedeemRouteTest extends TestCase
 
     private function mintHandoffToken(?string $jti = null, ?string $salesChannelId = null): string
     {
-        $jti ??= Uuid::randomHex();
-
         $handoffToken = new ContextHandoffToken();
-        $handoffToken->jti = $jti;
+        $handoffToken->jti = $jti ?? Uuid::randomHex();
         $handoffToken->aud = [ContextHandoffTokenGenerator::AUDIENCE];
         $handoffToken->salesChannelId = $salesChannelId ?? $this->salesChannelId;
 
-        $encoded = $this->tokenGenerator->encode($handoffToken);
-        $this->tokenStore->store($jti, self::CONTEXT_TOKEN, ContextHandoffTokenGenerator::TOKEN_LIFETIME);
-
-        return $encoded;
+        return $this->tokenGenerator->encode($handoffToken);
     }
 
     private function createContext(?string $salesChannelId = null): SalesChannelContext

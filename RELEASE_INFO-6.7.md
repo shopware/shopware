@@ -23,7 +23,9 @@ Four new routes transfer a context between both worlds without ever putting the 
 * `POST /context/handoff/generate` is the storefront counterpart and uses the context token of the current session. Same JSON response, `XmlHttpRequest` only.
 * `POST /context/handoff/redeem` writes the resolved context token into the storefront session and answers with `204`. `XmlHttpRequest` only.
 
-A handoff token is signed, valid for 60 seconds and can be redeemed exactly once. It is a reference, not a container: the context token is not a claim, the `jti` is the lookup key for it. Redeeming a token that expired or was already redeemed answers `400` with `SYSTEM__CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED` and logs a warning. Redeeming a token that was issued for another sales channel answers `400` with `SYSTEM__CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH`.
+A handoff token is signed, valid for 60 seconds and can be redeemed exactly once. It is a reference, not a container: the context token is not a claim, the `jti` is the lookup key for a row in the new `context_handoff_token` table that holds it. Redeeming deletes that row, so the context token stops existing in the database as soon as it was handed over. Redeeming a token that expired or was already redeemed answers `400` with `SYSTEM__CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED` and logs a warning. Redeeming a token that was issued for another sales channel answers `400` with `SYSTEM__CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH`.
+
+Unredeemed rows are removed by the new daily scheduled task `context_handoff_token.cleanup`.
 
 ### Added new shop setting endpoint
 
@@ -118,6 +120,8 @@ ZUGFeRD invoices previously wrote the product's purchase unit (`product.purchase
 - Added `Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffGenerateRoute` and `Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffRedeemRoute`.
 - Added `Shopware\Core\System\SalesChannel\ContextHandoffTokenResponse`.
 - Added `Shopware\Core\System\SalesChannel\Struct\ContextHandoffToken` and `Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenGenerator`, which sign and validate handoff tokens through the core JWT framework.
+- Added the `context_handoff_token` table and `Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenStore`, which holds the single-use state of a handoff token. It is stored in the database rather than in a cache pool so a handoff survives across requests in every environment, including `APP_ENV=dev`, where `cache.object` is an in-memory adapter.
+- Added the daily scheduled task `context_handoff_token.cleanup` (`Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupContextHandoffTokenTask`), which removes handoff tokens that were never redeemed.
 - Added `Shopware\Core\System\SalesChannel\SalesChannelException::contextHandoffTokenExpiredOrConsumed()` and `Shopware\Core\System\SalesChannel\SalesChannelException::contextHandoffSalesChannelMismatch()`.
 
 ### New shop settings route classes

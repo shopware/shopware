@@ -2,47 +2,70 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Psr\Cache\CacheItemPoolInterface;
+use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Holds the context token a handoff token refers to, keyed by the `jti` of that handoff token.
  *
- * Entries are single use, {@see self::consume()} removes the entry it returns.
+ * Entries are single use: {@see self::consume()} removes the entry it returns, so the context
+ * token stops existing in the database as soon as it was handed over.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\ContextHandoffTokenStoreTest
  */
 #[Package('framework')]
 class ContextHandoffTokenStore
 {
-    private const CACHE_KEY_PREFIX = 'context-handoff-';
-
-    public function __construct(private readonly CacheItemPoolInterface $cache)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
-    public function store(string $jti, string $contextToken, int $lifetime): void
+    public function store(string $jti, string $contextToken, \DateTimeInterface $expiresAt): void
     {
-        $item = $this->cache->getItem(self::CACHE_KEY_PREFIX . $jti);
-        $item->set($contextToken);
-        $item->expiresAfter($lifetime);
-
-        $this->cache->save($item);
+        $this->connection->insert('context_handoff_token', [
+            'token' => $jti,
+            'context_token' => $contextToken,
+            'expires' => $expiresAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
     }
 
     public function consume(string $jti): ?string
     {
-        $key = self::CACHE_KEY_PREFIX . $jti;
+        $contextToken = $this->connection->fetchOne(
+            'SELECT context_token FROM context_handoff_token WHERE token = :token AND expires > :now',
+            ['token' => $jti, 'now' => $this->now()]
+        );
 
-        $item = $this->cache->getItem($key);
-        if (!$item->isHit()) {
+        if (!\is_string($contextToken) || $contextToken === '') {
             return null;
         }
 
-        $this->cache->deleteItem($key);
+        // concurrent redemptions race on this delete, only the one that removed the row may proceed
+        $deleted = (int) $this->connection->delete('context_handoff_token', ['token' => $jti]);
 
-        $contextToken = $item->get();
+        return $deleted === 1 ? $contextToken : null;
+    }
 
-        return \is_string($contextToken) && $contextToken !== '' ? $contextToken : null;
+    public function deleteExpired(): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM context_handoff_token WHERE expires <= :now',
+            ['now' => $this->now()]
+        );
+    }
+
+    private function now(): string
+    {
+        return $this->clock->now()
+            ->setTimezone(new \DateTimeZone('UTC'))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
 }

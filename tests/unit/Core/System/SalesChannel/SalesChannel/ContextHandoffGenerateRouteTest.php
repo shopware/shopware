@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -13,7 +14,6 @@ use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenGenerator;
 use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenStore;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextHandoffGenerateRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validation;
 
@@ -30,7 +30,7 @@ class ContextHandoffGenerateRouteTest extends TestCase
 
     private ContextHandoffTokenGenerator $tokenGenerator;
 
-    private ContextHandoffTokenStore $tokenStore;
+    private ContextHandoffTokenStore&Stub $tokenStore;
 
     private MockClock $clock;
 
@@ -43,7 +43,7 @@ class ContextHandoffGenerateRouteTest extends TestCase
             JWTConfigurationFactory::createJWTConfiguration(),
             new DataValidator(Validation::createValidator())
         );
-        $this->tokenStore = new ContextHandoffTokenStore(new ArrayAdapter(storeSerialized: false));
+        $this->tokenStore = static::createStub(ContextHandoffTokenStore::class);
         $this->clock = new MockClock();
 
         $this->route = new ContextHandoffGenerateRoute($this->tokenGenerator, $this->tokenStore, $this->clock);
@@ -51,13 +51,47 @@ class ContextHandoffGenerateRouteTest extends TestCase
 
     public function testGeneratedTokenReferencesTheCurrentContext(): void
     {
-        $response = $this->route->generate($this->createContext());
+        $tokenStore = $this->createMock(ContextHandoffTokenStore::class);
 
-        $handoffToken = $this->tokenGenerator->decode($response->getHandoffToken());
+        $storedJti = null;
+        $tokenStore->expects($this->once())
+            ->method('store')
+            ->with(
+                static::callback(static function (string $jti) use (&$storedJti): bool {
+                    $storedJti = $jti;
+
+                    return true;
+                }),
+                self::CONTEXT_TOKEN,
+                static::anything()
+            );
+
+        $route = new ContextHandoffGenerateRoute($this->tokenGenerator, $tokenStore, $this->clock);
+
+        $handoffToken = $this->tokenGenerator->decode($route->generate($this->createContext())->getHandoffToken());
 
         static::assertSame($this->salesChannelId, $handoffToken->salesChannelId);
-        static::assertNotNull($handoffToken->jti);
-        static::assertSame(self::CONTEXT_TOKEN, $this->tokenStore->consume($handoffToken->jti));
+        static::assertSame($storedJti, $handoffToken->jti);
+    }
+
+    public function testStoredEntryExpiresWithTheHandoffToken(): void
+    {
+        $tokenStore = $this->createMock(ContextHandoffTokenStore::class);
+        $tokenStore->expects($this->once())
+            ->method('store')
+            ->with(
+                static::anything(),
+                self::CONTEXT_TOKEN,
+                static::callback(static fn (\DateTimeInterface $expiresAt): bool => $expiresAt->format(\DateTimeInterface::RFC3339) === '2026-08-18T12:01:00+00:00')
+            );
+
+        $route = new ContextHandoffGenerateRoute(
+            $this->tokenGenerator,
+            $tokenStore,
+            new MockClock(new \DateTimeImmutable('2026-08-18T12:00:00+00:00'))
+        );
+
+        $route->generate($this->createContext());
     }
 
     public function testGeneratedTokenDoesNotContainTheContextToken(): void
@@ -80,21 +114,6 @@ class ContextHandoffGenerateRouteTest extends TestCase
         );
 
         static::assertSame('2026-08-18T12:01:00+00:00', $route->generate($this->createContext())->getExpiresAt());
-    }
-
-    public function testStoredEntryIsKeyedByTheTokenIdentifier(): void
-    {
-        $cache = new ArrayAdapter(storeSerialized: false);
-        $route = new ContextHandoffGenerateRoute(
-            $this->tokenGenerator,
-            new ContextHandoffTokenStore($cache),
-            $this->clock
-        );
-
-        $handoffToken = $this->tokenGenerator->decode($route->generate($this->createContext())->getHandoffToken());
-        static::assertNotNull($handoffToken->jti);
-
-        static::assertTrue($cache->getItem('context-handoff-' . $handoffToken->jti)->isHit());
     }
 
     public function testEachCallMintsAFreshToken(): void

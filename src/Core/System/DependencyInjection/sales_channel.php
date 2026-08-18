@@ -55,6 +55,8 @@ use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
+use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupContextHandoffTokenTask;
+use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupContextHandoffTokenTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
@@ -353,8 +355,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ContextHandoffTokenStore::class)
         ->args([
-            service('cache.object'),
+            service(Connection::class),
+            service(ClockInterface::class),
         ]);
+
+    $services->set(CleanupContextHandoffTokenTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(CleanupContextHandoffTokenTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(ContextHandoffTokenStore::class),
+        ])
+        ->tag('messenger.message_handler');
 
     $services->set(ContextHandoffTokenGenerator::class)
         ->args([

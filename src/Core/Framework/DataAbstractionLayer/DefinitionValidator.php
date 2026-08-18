@@ -105,6 +105,7 @@ class DefinitionValidator
         'app_config',
         'app_feature',
         'cart',
+        'context_handoff_token',
         'deleted_apps',
         'migration',
         'sales_channel_api_context',

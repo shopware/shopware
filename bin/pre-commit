@@ -21,7 +21,6 @@ SCSS_FILES="$(changed_files '\.(scss)$')"
 SCSS_ADMIN_FILES="$(changed_files '^src/Administration/Resources/app/administration/.*\.(scss)$')"
 SCSS_STOREFRONT_FILES="$(changed_files '^src/Storefront/Resources/app/storefront/.*\.(scss)$')"
 JS_ADMIN_FILES="$(changed_files '^src/Administration/Resources/app/administration/.*\.(js)$')"
-JS_E2E_FILES="$(changed_files '^src/Administration/Resources/app/administration/test/e2e/.*\.(js)$')"
 JS_STOREFRONT_FILES="$(changed_files '^src/Storefront/Resources/app/storefront/src/.*\.(js)$')"
 JS_FILES="$(changed_files '\.(js)$')"
 GHA_FILES="$(changed_files '^\.github/(workflows|actions)/.*\.(ya?ml)$')"
@@ -113,4 +112,4 @@ then
     .github/bin/lint-actions.bash --fix
 fi
 
-git add ${SCSS_ADMIN_FILES} ${SCSS_STOREFRONT_FILES} ${JS_ADMIN_FILES} ${JS_E2E_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES} ${GHA_FILES}
+git add ${SCSS_ADMIN_FILES} ${SCSS_STOREFRONT_FILES} ${JS_ADMIN_FILES} ${JS_STOREFRONT_FILES} ${PHP_FILES} ${GHA_FILES}

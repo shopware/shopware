@@ -32,8 +32,8 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@currents/playwright": "2.1.2",
-    "@shopware-ag/acceptance-test-suite": "12.15.1",
+    "@currents/playwright": "2.3.3",
+    "@shopware-ag/acceptance-test-suite": "12.17.0",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"

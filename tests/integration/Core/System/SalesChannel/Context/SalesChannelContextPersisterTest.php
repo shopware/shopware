@@ -252,6 +252,31 @@ class SalesChannelContextPersisterTest extends TestCase
         );
     }
 
+    public function testSaveReplacesConflictingTokenAndCustomerContext(): void
+    {
+        $customerId = $this->createCustomer();
+        $token = Random::getAlphanumericString(32);
+        $customerToken = Random::getAlphanumericString(32);
+
+        $this->contextPersister->save($token, ['guest' => 'value'], TestDefaults::SALES_CHANNEL);
+        $this->contextPersister->save($customerToken, ['customer' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+        $this->contextPersister->save($token, ['new' => 'value'], TestDefaults::SALES_CHANNEL, $customerId);
+
+        static::assertFalse($this->contextExists($customerToken));
+        $context = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
+        ksort($context);
+
+        static::assertSame(
+            [
+                'customer' => 'value',
+                'expired' => false,
+                'new' => 'value',
+                'token' => $token,
+            ],
+            $context
+        );
+    }
+
     public function testLoadSameCustomerOnDifferentSalesChannel(): void
     {
         $customerId = $this->createCustomer();

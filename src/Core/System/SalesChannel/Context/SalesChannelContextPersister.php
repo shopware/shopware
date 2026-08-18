@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Defaults;
@@ -47,6 +48,14 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
+        $data = [
+            'token' => $token,
+            'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
+            'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
+            'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
+            'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
+
         $query = new RetryableQuery(
             $this->connection,
             $this->connection->prepare(<<<'SQL'
@@ -61,15 +70,19 @@ class SalesChannelContextPersister
                 SQL)
         );
 
-        $query->execute(
-            [
-                'token' => $token,
-                'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
-                'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
-                'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
+        try {
+            $query->execute($data);
+        } catch (UniqueConstraintViolationException) {
+            $query = new RetryableQuery(
+                $this->connection,
+                $this->connection->prepare(
+                    'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
+                    VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)'
+                )
+            );
+
+            $query->execute($data);
+        }
     }
 
     public function delete(string $token, string $salesChannelId, ?string $customerId = null): void

@@ -31,6 +31,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testCheckConfigurationReturnsFalseForBrokenConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
@@ -38,11 +40,14 @@ class ConfigurationServiceTest extends TestCase
         // Should return false instead of throwing UtilXmlParsingException
         static::assertFalse(
             $configurationService->checkConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext())
+ 
         );
     }
 
     public function testCheckConfigurationReturnsTrueForValidConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new ValidConfigPlugin(true, __DIR__ . '/_fixtures/ValidConfigPlugin'),
         ]);
@@ -54,6 +59,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testGetConfigurationThrowsExceptionForBrokenConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
@@ -65,6 +72,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testGetResolvedConfigurationReturnsEmptyArrayForBrokenConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
@@ -80,6 +89,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testBasicInformationContainsCompanyInformationCardWhenFeatureFlagIsActive(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         Feature::skipTestIfInActive('DOCUMENT_GENERATION_REWORK', $this);
 
         $configuration = $this->createConfigurationService([])->getConfiguration(
@@ -95,6 +105,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testBasicInformationDoesNotContainCompanyInformationCardWhenFeatureFlagIsInactive(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
 
         $configuration = $this->createConfigurationService([])->getConfiguration(

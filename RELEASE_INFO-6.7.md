@@ -97,6 +97,9 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ## Core
 
+### E-invoice line positions state the correct price base quantity
+
+ZUGFeRD invoices previously wrote the product's purchase unit (`product.purchaseUnit`, the package content used for base price display) as the item price base quantity (BT-149). Recipients validating against EN16931 saw `PEPPOL-EN16931-R120` violations for every line whose product has a purchase unit other than 1, and Peppol access points may have rejected such invoices. Line positions now always state a base quantity of 1, matching the per-unit item net price. Additionally, the item net price (BT-146) is now written with 4 decimals instead of 2, so the line amount calculation stays within the rule's rounding tolerance for higher quantities.
 ### New shop settings route classes
 - Added `Shopware\Core\System\SystemConfig\SalesChannel\AbstractShopSettingsRoute` as a decoratable extension point.
 - Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute`.
@@ -115,6 +118,11 @@ The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) 
 A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
 
 `ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
+### New `Criteria::resetFields()` and `Criteria::resetExcludedFields()`
+
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
+
+They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 

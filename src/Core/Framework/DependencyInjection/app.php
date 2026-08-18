@@ -470,7 +470,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppCookieCollectListener::class)
         ->args([
             service('app.repository'),
-            service('payment_method.repository'),
         ])
         ->tag('kernel.event_listener');
 

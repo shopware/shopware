@@ -38,6 +38,10 @@ class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
 
+    private const ERROR_EMPTY_SEO_PATH_INFO = 'The SEO URL template rendered an empty path';
+
+    private const ERROR_TEMPLATE_NOT_RENDERABLE = 'The SEO URL template could not be rendered';
+
     private readonly TwigVariableParser $twigVariableParser;
 
     /**
@@ -61,6 +65,10 @@ class SeoUrlGenerator
      */
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, SalesChannelEntity $salesChannel): iterable
     {
+        if (trim($template) === '') {
+            return [];
+        }
+
         $criteria = new Criteria($ids);
         $route->prepareCriteria($criteria, $salesChannel);
 
@@ -131,7 +139,13 @@ class SeoUrlGenerator
             $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
             if ($seoPathInfo === null || $seoPathInfo === '') {
-                continue;
+                $error = $seoPathInfo === null ? self::ERROR_TEMPLATE_NOT_RENDERABLE : self::ERROR_EMPTY_SEO_PATH_INFO;
+
+                // Yielded with an error rather than skipped: skipping drops the entity from
+                // the persisted set, which makes SeoUrlPersister mark the existing SEO URL
+                // as deleted, so the storefront starts answering 404 for it.
+                $seoUrl->setError($mapping->getError() ?? $error);
+                $seoPathInfo = '';
             }
 
             $seoUrl->setSeoPathInfo($seoPathInfo);

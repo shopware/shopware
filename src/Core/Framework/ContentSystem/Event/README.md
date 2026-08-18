@@ -14,8 +14,10 @@ preparation event, whose elements are immutable, and the mutable `elements` prop
 
 ```
 ContentTreePreparationEvent
-  → placeholder resolution (FULL mode only) → virtual-root wrap
-  → redistribute expansion → partial prune → lowering onto ContentElement
+  → StoredTreePreparer: placeholder resolution (FULL mode only)
+      → virtual-root wrap → partial prune
+  → wiring validation (on the pre-prune forest)
+  → redistribute derivation (on the pruned tree) → lowering onto ContentElement
   → Hydration (FULL mode only)
   → virtual-root unwrap → partial extract
 → PostHydrationEvent
@@ -26,8 +28,9 @@ them: the preparation event sees the tree before every preparation step, and the
 every finishing step. Core claims no priority band. See [Listener/docs/custom-listeners.md](Listener/docs/custom-listeners.md)
 for what a listener may do at each position.
 
-Whether the unwrap runs is decided during preparation, not rediscovered afterwards: `load()` assembles a
-`Layout/Scaffolding/RenderScaffolding` and the two finishing steps read it. Only `virtualRootSurvivedPrune`
+Whether the unwrap runs is decided during preparation, not rediscovered afterwards: `StoredTreePreparer`
+returns a `Layout/Scaffolding/TreePreparationResult` carrying a `Layout/Scaffolding/RenderScaffolding`,
+and the two finishing steps read it. Only `virtualRootSurvivedPrune`
 is read off the post-prune tree — a partial render addressed at an element that needs no page-level context
 prunes the virtual root away, so there is nothing left to unwrap. `extractTargetId` is normalised from the
 `RenderingSpecification` before the prune, which is the same value the prune runs on.

@@ -118,8 +118,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     // Scaffolding Services
-    $services->set(StoredTreePreparer::class);
     $services->set(VirtualRootWrapper::class);
+    $services->set(StoredTreePreparer::class)
+        ->args([
+            service(VirtualRootWrapper::class),
+            service(PartialRenderer::class),
+        ]);
 
     // Output Services
     $services->set(PartialRenderer::class)

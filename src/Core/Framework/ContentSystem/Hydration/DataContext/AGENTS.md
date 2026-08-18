@@ -8,4 +8,4 @@
 - Path resolution requires Struct objects at every intermediate step
 - Property alias applied after path resolution, not before
 - `consumerAlias: null` (default) makes the provider's own context key the consumer key it matches against; that key becomes the property name only for a matched consumer that declares no `propertyAlias`
-- Redistribution: `redistribute: true` → auto-generates broadcast provider before hydration, in `ContentPipeline`'s redistribute-expansion step
+- Redistribution: `redistribute: true` → auto-generates broadcast provider before hydration, in `ContentPipeline`'s redistribute-derivation step

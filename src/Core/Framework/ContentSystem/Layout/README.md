@@ -6,7 +6,7 @@ Content layout tree structure and processing. Layouts are reusable templates con
 
 1. **Element Structure** (Element/) — ContentElement tree with slots, visitor pattern for traversal
 2. **DAL Definitions** (Entity/, Field/) — Database schema and custom field serializers
-3. **Scaffolding** (Scaffolding/) — The virtual-root wrapper, plus the `RenderScaffolding` record carrying its outcome to the finishing steps
+3. **Scaffolding** (Scaffolding/) — The stored-tree preparer and the virtual-root wrapper it drives, plus the two records the preparer hands back: `TreePreparationResult` and, inside it, the `RenderScaffolding` carrying the wrap outcome to the finishing steps
 4. **Default Seeding** (`LayoutDefaultSeeder`) seeds element-type primitive defaults into the stored tree at the DAL write boundary, invoked from the `Field/` layout serializer's `normalize` hook
 
 ## Default Seeding
@@ -22,5 +22,5 @@ ContentLayoutEntity can contain multiple root elements. Each root is an independ
 - **[Element/](Element/README.md)** - ContentElement tree structure, visitor pattern, context and data requirement definitions
 - **Entity/** - DAL definitions (ContentLayoutDefinition)
 - **[Field/](Field/README.md)** - Custom DAL field types and serializers (infrastructure)
-- **Scaffolding/** - `VirtualRootWrapper` (wraps the stored roots for page-level context, recognises its own wrapper on the stored post-prune forest, and unwraps it again at the far end of the pipeline, where the tree has been lowered onto `ContentElement`) and `RenderScaffolding`, the immutable record `ContentPipeline` assembles once the preparation steps are done so its finishing steps read it instead of re-deriving. Only `virtualRootSurvivedPrune` is read off the post-prune tree; `extractTargetId` is normalised from the `RenderingSpecification` before the prune, and the prune itself consumes it
+- **Scaffolding/** - `StoredTreePreparer` (the one component that brings a stored forest into renderable shape: placeholder resolution, then the virtual-root wrap, then the partial prune), `VirtualRootWrapper` (wraps the stored roots for page-level context, recognises its own wrapper on the stored post-prune forest, and unwraps it again at the far end of the pipeline, where the tree has been lowered onto `ContentElement`), and the two records the preparer returns. `TreePreparationResult` carries the pruned tree, the pre-prune forest (which the pipeline's wiring validation judges, so a defect in a discarded subtree still fails the render) and the `RenderScaffolding`; `RenderScaffolding` is the immutable record the finishing steps read instead of re-deriving. Only `virtualRootSurvivedPrune` is read off the post-prune tree; `extractTargetId` is normalised from the `RenderingSpecification` before the prune, and the prune itself consumes it
 - **[Type/](Type/README.md)** - Element type system: declarative type definitions, YAML loading, registry, app integration

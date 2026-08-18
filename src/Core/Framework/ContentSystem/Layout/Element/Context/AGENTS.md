@@ -4,7 +4,7 @@
 
 ## Constraints
 
-- `redistribute: true` generates virtual provider at runtime — `ContentPipeline`'s redistribute-expansion step, which runs on the stored tree after the virtual-root wrap and before the partial prune — never persisted
+- `redistribute: true` generates virtual provider at runtime — `ContentPipeline`'s redistribute-derivation step, which runs on the stored tree after the partial prune and before the lowering — never persisted
 - `consumerAlias` requires `redistribute: true` — enforced at two sites: `Layout/Codec/StoredElementCodec` throws `ContentSystemException::consumerAliasWithoutRedistribute()` on decode, and `Layout/Codec/StoredTreeConstraints` reports it as a write-descriptor violation on `[consumerAlias]`
 - `propertyAlias` does NOT require `redistribute` (independent)
-- `propertyAlias`: no dots — enforced at the same two sites as `consumerAlias` above; unique per element — `ContentPipeline`'s redistribute-expansion step alone
+- `propertyAlias`: no dots — enforced at the same two sites as `consumerAlias` above; unique per element — `ContentPipeline`'s wiring-validation step alone, which runs after the partial prune and before the redistribute derivation, on the pre-prune forest

@@ -518,50 +518,47 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['target-id'], $observed);
     }
 
-    #[TestDox('serves only the partial-render target when the prune already removed the virtual root')]
-    public function testPartialRenderWhoseTargetNeedsNoPageContextDropsTheVirtualRoot(): void
+    #[TestDox('delivers a derived redistribute provider to a child inside the surviving partial-render subtree')]
+    public function testRedistributeDerivationSurvivesThePartialPrune(): void
     {
-        $target = StoredElementBuilder::create('text', 'target-id')->build();
-        $root = StoredElementBuilder::create('section', 'root-id')
-            ->withSlot('default', [$target])
+        $consumer = StoredElementBuilder::create('text', 'consumer-id')
+            ->withConsumer('product', ContextType::Single)
             ->build();
-        $layout = $this->createSingleRootLayout($root);
-        $specification = new RenderingSpecification(
-            [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
-            PlaceholderValues::from([]),
-            new Request(),
-            'target-id'
+        $redistributor = StoredElementBuilder::create('section', 'redistributor-id')
+            ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withProperty('product', 'product-payload')
+            ->withSlot('default', [$consumer])
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withSlot('default', [
+                    $redistributor,
+                    StoredElementBuilder::create('text', 'sibling-id')->build(),
+                ])
+                ->build()
         );
 
-        $storedTarget = $this->findStoredChild($layout->elements[0], 'target-id');
-        static::assertNotNull($storedTarget);
-
-        // Fixture guard: the page-level data requirement really does make the pipeline wrap ...
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
-        // ... the target really does need no parent data ...
-        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($storedTarget));
-        // ... and so the prune really does cut the virtual root away above it, rather than there
-        // never having been one. Wrap and prune both run on the stored tree, so the guard chains
-        // them exactly as the pipeline does.
-        $prunedWrapper = (new ElementTreePruner())->pruneToPathAndDescendants(
-            (new VirtualRootWrapper())->wrap($layout->elements, $specification),
-            'target-id',
-            new ContextDependencyAnalyzer(),
-        );
-        static::assertNotNull($prunedWrapper);
-        static::assertSame('target-id', $prunedWrapper->id);
+        // Fixture guard: the authored tree declares no provider, so only the derived one can carry the
+        // payload down, and the sibling proves the prune really ran.
+        static::assertSame([], $redistributor->contextDefinitions->getAllProviders());
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $result = $this->createPipeline()->load(
             $layout,
-            $specification,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'redistributor-id'),
             new RenderingCacheContext(),
-            RenderingMode::SKELETON,
+            RenderingMode::FULL,
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame(['target-id'], $this->collectIds($result->elements));
+        // Why this test exists: the derivation moved from the pre-prune forest onto the surviving tree.
+        // That is safe today only because the derivation is node-local and the prune never rewrites a
+        // survivor's wiring. Nothing else pins that pairing — every other redistribute test either runs
+        // without a partial render or asserts a throw — so this is the test that fails when a future
+        // change makes the derivation depend on a node the prune has removed.
+        static::assertSame(['redistributor-id', 'consumer-id'], $this->collectIds($result->elements));
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
     }
 
     #[TestDox('never loads the data a subtree the partial prune discards would have required')]
@@ -658,7 +655,10 @@ class ContentPipelineTest extends TestCase
     {
         return new ContentPipeline(
             $this->eventDispatcher,
-            new StoredTreePreparer(),
+            new StoredTreePreparer(
+                new VirtualRootWrapper(),
+                new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            ),
             new ContentElementLowering(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),

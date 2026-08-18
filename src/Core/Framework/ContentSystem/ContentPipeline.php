@@ -55,19 +55,12 @@ class ContentPipeline
         );
         $this->eventDispatcher->dispatch($preparationEvent);
 
-        $storedTree = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
+        $preparation = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
+        $scaffolding = $preparation->scaffolding;
 
-        $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $storedTree);
+        $this->validateWiring($preparation->prePruneForest);
 
-        if ($virtualRootWrapped) {
-            $storedTree = [$this->virtualRootWrapper->wrap($storedTree, $specification)];
-        }
-
-        $storedTree = $this->expandRedistribution($storedTree);
-
-        $extractTargetId = $this->extractTargetId($specification);
-        $storedTree = $this->pruneToTarget($storedTree, $extractTargetId);
-        $scaffolding = $this->deriveScaffolding($storedTree, $extractTargetId, $virtualRootWrapped);
+        $storedTree = $this->deriveRedistribution($preparation->tree);
 
         $elements = $this->lowering->lowerTree($storedTree);
 
@@ -105,130 +98,30 @@ class ContentPipeline
     }
 
     /**
-     * Records what the finishing steps need to know about the tree the preparation steps produced.
+     * Rejects a context-wiring defect anywhere in the forest.
      *
-     * `virtualRootSurvivedPrune` is read off the post-prune forest, because the wrap decision alone
-     * does not answer whether the virtual root is still there: a partial render addressed at an
-     * element that needs no page-level context prunes it away. Element ids are unique across roots,
-     * so pruning leaves at most one surviving root whenever a target is set and the first root
-     * decides. `$extractTargetId` is passed in already normalised — the prune ran on it.
+     * It runs on the pre-prune forest, so a defect inside a subtree a partial render is about to
+     * discard still fails the request: whether an element is served decides nothing about whether
+     * its wiring is valid.
      *
-     * @param list<StoredElement> $elements
-     */
-    private function deriveScaffolding(array $elements, ?string $extractTargetId, bool $virtualRootWrapped): RenderScaffolding
-    {
-        $virtualRootSurvivedPrune = $virtualRootWrapped
-            && $elements !== []
-            && $this->virtualRootWrapper->isVirtualRoot($elements[0]);
-
-        return new RenderScaffolding($virtualRootSurvivedPrune, $extractTargetId);
-    }
-
-    /**
-     * The id a partial render extracts, or null when the request addresses the whole layout.
-     */
-    private function extractTargetId(RenderingSpecification $specification): ?string
-    {
-        $targetElementId = $specification->targetElementId;
-
-        if ($targetElementId === null || $targetElementId === '') {
-            return null;
-        }
-
-        return $targetElementId;
-    }
-
-    /**
-     * Expands redistribute flags on consumers into broadcast providers.
-     *
-     * Consumers with `redistribute: true` automatically provide their received context
-     * to descendants. This step generates the ContextProvider objects that enable
-     * this behavior during rendering.
-     *
-     * It runs on the whole authored forest, before the partial prune, so a wiring defect
-     * inside a subtree a partial render is about to discard still fails the request.
+     * Validation is deliberately separate from {@see deriveRedistribution()} — a derivation that also
+     * throws would carry these rejections onto whatever tree it happens to run on, and today that is
+     * the pruned one.
      *
      * @param list<StoredElement> $elements
-     *
-     * @return list<StoredElement>
      */
-    private function expandRedistribution(array $elements): array
+    private function validateWiring(array $elements): void
     {
-        return array_map($this->expandRedistributionRecursively(...), $elements);
-    }
+        foreach ($elements as $element) {
+            $consumers = $element->contextDefinitions->getAllConsumers();
 
-    /**
-     * Rebuilds the element rather than mutating it: derivation and validation run on this node
-     * first, so a defect on a parent still reports before one on its children, then the children
-     * are expanded and the node is rebuilt only where something actually changed.
-     */
-    private function expandRedistributionRecursively(StoredElement $element): StoredElement
-    {
-        $consumers = $element->contextDefinitions->getAllConsumers();
+            $this->validatePropertyAliases($consumers);
+            $this->validateRedistribution($consumers, $element->contextDefinitions->getAllProviders());
 
-        $this->validatePropertyAliases($consumers);
-        $virtualProviders = $this->generateVirtualProviders($consumers, $element->contextDefinitions->getAllProviders());
-
-        $slots = [];
-        $slotsChanged = false;
-
-        foreach ($element->slots as $slotName => $children) {
-            $expandedChildren = [];
-
-            foreach ($children as $child) {
-                $expandedChild = $this->expandRedistributionRecursively($child);
-                $slotsChanged = $slotsChanged || $expandedChild !== $child;
-                $expandedChildren[] = $expandedChild;
+            foreach ($element->slots as $children) {
+                $this->validateWiring($children);
             }
-
-            $slots[$slotName] = $expandedChildren;
         }
-
-        if ($slotsChanged) {
-            $element = $element->withSlots($slots);
-        }
-
-        if ($virtualProviders === []) {
-            return $element;
-        }
-
-        return $element->withContextDefinitions($element->contextDefinitions->withAddedProviders($virtualProviders));
-    }
-
-    /**
-     * Generates virtual providers from consumers with redistribute flag.
-     *
-     * @param array<string, ContextConsumer> $consumers
-     * @param array<string, ContextProvider> $existingProviders
-     *
-     * @return array<string, ContextProvider>
-     */
-    private function generateVirtualProviders(array $consumers, array $existingProviders): array
-    {
-        $virtualProviders = [];
-
-        foreach ($consumers as $contextKey => $consumer) {
-            if (!$consumer->redistribute) {
-                continue;
-            }
-
-            if (str_contains($contextKey, '.')) {
-                throw ContentSystemException::redistributeWithDottedPath($contextKey);
-            }
-
-            $providerKey = $consumer->consumerAlias ?? $contextKey;
-
-            if (\array_key_exists($providerKey, $existingProviders)) {
-                throw ContentSystemException::redistributeConflict($contextKey);
-            }
-
-            $virtualProviders[$providerKey] = new ContextProvider(
-                $consumer->type,
-                BroadcastDistributionConfig::simple()
-            );
-        }
-
-        return $virtualProviders;
     }
 
     /**
@@ -260,25 +153,119 @@ class ContentPipeline
     }
 
     /**
-     * Prunes the layout tree to the target element and its dependencies when the `elementId` parameter is present.
+     * Rejects a redistributing consumer the derivation could not turn into a provider: one keyed by a
+     * dotted path, and one whose derived provider key an authored provider already holds.
      *
-     * Pre-hydration tree pruning keeps context-dependent ancestors to preserve data flow;
-     * `extractPartialTarget()` removes those ancestors after hydration.
+     * @param array<string, ContextConsumer> $consumers
+     * @param array<string, ContextProvider> $existingProviders
+     */
+    private function validateRedistribution(array $consumers, array $existingProviders): void
+    {
+        foreach ($consumers as $contextKey => $consumer) {
+            if (!$consumer->redistribute) {
+                continue;
+            }
+
+            if (str_contains($contextKey, '.')) {
+                throw ContentSystemException::redistributeWithDottedPath($contextKey);
+            }
+
+            if (\array_key_exists($consumer->consumerAlias ?? $contextKey, $existingProviders)) {
+                throw ContentSystemException::redistributeConflict($contextKey);
+            }
+        }
+    }
+
+    /**
+     * Expands redistribute flags on consumers into broadcast providers.
      *
-     * It runs on the stored forest, after the redistribute expansion and before the lowering, so the
-     * discarded subtrees never reach the render model at all.
+     * Consumers with `redistribute: true` automatically provide their received context
+     * to descendants. This step generates the ContextProvider objects that enable
+     * this behavior during rendering.
+     *
+     * Pure derivation: {@see validateWiring()} has already rejected every consumer this could not
+     * express, so nothing here throws.
      *
      * @param list<StoredElement> $elements
      *
      * @return list<StoredElement>
      */
-    private function pruneToTarget(array $elements, ?string $extractTargetId): array
+    private function deriveRedistribution(array $elements): array
     {
-        if ($extractTargetId === null) {
-            return $elements;
+        return array_map($this->deriveRedistributionRecursively(...), $elements);
+    }
+
+    /**
+     * Rebuilds the element rather than mutating it: the children are expanded first and the node is
+     * rebuilt only where something actually changed.
+     */
+    private function deriveRedistributionRecursively(StoredElement $element): StoredElement
+    {
+        $virtualProviders = $this->generateVirtualProviders(
+            $element->contextDefinitions->getAllConsumers(),
+            $element->contextDefinitions->getAllProviders()
+        );
+
+        $slots = [];
+        $slotsChanged = false;
+
+        foreach ($element->slots as $slotName => $children) {
+            $expandedChildren = [];
+
+            foreach ($children as $child) {
+                $expandedChild = $this->deriveRedistributionRecursively($child);
+                $slotsChanged = $slotsChanged || $expandedChild !== $child;
+                $expandedChildren[] = $expandedChild;
+            }
+
+            $slots[$slotName] = $expandedChildren;
         }
 
-        return $this->partialRenderer->pruneToTarget($elements, $extractTargetId);
+        if ($slotsChanged) {
+            $element = $element->withSlots($slots);
+        }
+
+        if ($virtualProviders === []) {
+            return $element;
+        }
+
+        return $element->withContextDefinitions($element->contextDefinitions->withAddedProviders($virtualProviders));
+    }
+
+    /**
+     * Generates virtual providers from consumers with redistribute flag.
+     *
+     * A consumer whose derived key an authored provider already holds is skipped rather than merged:
+     * the validation pass has already rejected that tree, so this branch only keeps the derivation
+     * from silently overwriting an authored provider if it is ever run on an unvalidated forest.
+     *
+     * @param array<string, ContextConsumer> $consumers
+     * @param array<string, ContextProvider> $existingProviders
+     *
+     * @return array<string, ContextProvider>
+     */
+    private function generateVirtualProviders(array $consumers, array $existingProviders): array
+    {
+        $virtualProviders = [];
+
+        foreach ($consumers as $contextKey => $consumer) {
+            if (!$consumer->redistribute) {
+                continue;
+            }
+
+            $providerKey = $consumer->consumerAlias ?? $contextKey;
+
+            if (\array_key_exists($providerKey, $existingProviders)) {
+                continue;
+            }
+
+            $virtualProviders[$providerKey] = new ContextProvider(
+                $consumer->type,
+                BroadcastDistributionConfig::simple()
+            );
+        }
+
+        return $virtualProviders;
     }
 
     /**

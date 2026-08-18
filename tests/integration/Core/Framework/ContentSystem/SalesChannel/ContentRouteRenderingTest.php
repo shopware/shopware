@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Response;
  * writes — all three are behaviours under active change.
  *
  * Two step orderings inside the rendering pipeline are pinned by outcome rather than by declaration:
- * redistribute expansion validating a subtree the partial-render prune would discard, and the page-level
+ * redistribute wiring validation judging a subtree the partial-render prune would discard, and the page-level
  * context arriving at a root only because the virtual root wraps and then unwraps around hydration.
  *
  * @internal

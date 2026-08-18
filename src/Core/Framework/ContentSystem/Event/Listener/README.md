@@ -11,11 +11,12 @@ Event-driven extension points for the content hydration lifecycle. A listener re
 Core ships no listener on either event. `ContentPipeline::load()` (module root) calls its preparation and finishing steps directly, in this order:
 
 **Before hydration**, after `ContentTreePreparationEvent` is dispatched:
-1. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only (`Layout/Scaffolding/StoredTreePreparer`)
-2. Virtual-root wrap — wraps the stored roots with a temporary container for layout-level context (`Layout/Scaffolding/VirtualRootWrapper`)
-3. Redistribute expansion — expands `redistribute: true` into broadcast providers, on the stored tree
-4. Partial prune — prunes the stored tree when `targetElementId` is specified (`Output/PartialRenderer`), after the redistribute expansion and before the lowering
-5. Lowering — takes the pruned stored tree onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
+1. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only (`Layout/Scaffolding/StoredTreePreparer`, whose remaining steps follow)
+2. Virtual-root wrap — wraps the stored roots with a temporary container for layout-level context (`Layout/Scaffolding/VirtualRootWrapper`), after the placeholder resolution
+3. Partial prune — prunes the stored tree when `targetElementId` is specified (`Output/PartialRenderer`), after the virtual-root wrap; it ends the preparer's work, which hands back both the pruned tree and the forest as it stood before this step
+4. Wiring validation — rejects a context-wiring defect, judging the pre-prune forest, so a defect inside a subtree the prune discarded still fails the request
+5. Redistribute derivation — expands `redistribute: true` into broadcast providers on the surviving stored tree, after the validation and before the lowering; it throws nothing
+6. Lowering — takes the derived stored tree onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
 
 **After hydration**, before `PostHydrationEvent` is dispatched:
 1. Virtual-root unwrap — removes the virtual root wrapper, on the lowered tree

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  * roots to enable page-level data requirements to be distributed as broadcast context.
  *
  * All of this class speaks {@see StoredElement} except `unwrap()`. `requiresWrapping()`, `wrap()` and
- * `isVirtualRoot()` run while `ContentSystem\ContentPipeline::load()` still holds the storage model —
+ * `isVirtualRoot()` are called by {@see StoredTreePreparer}, which holds the storage model throughout —
  * the wrap before the lowering, the identity check on the post-prune stored forest. `unwrap()` alone
  * still takes {@see ContentElement}, because the pipeline reaches it at its far end, on a tree the
  * lowering has long since taken across. The lone split signature is the seam moving through this class,

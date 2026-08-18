@@ -16,6 +16,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawnSync } from 'child_process';
+import { parse } from '@babel/parser';
+import type * as t from '@babel/types';
 import { convertComponent, type ConvertResult, type Outcome } from './convert-component';
 import {
     collectComponentSourceIndex,
@@ -52,11 +54,36 @@ const COMPONENT_CLASSES: ComponentReport['registration'][] = [
     'ambiguous',
 ];
 
+const SW_PACKAGE = /@sw-package\s+(\S+)/;
+const PUBLIC_ANNOTATION = /@public\b/;
+
+/**
+ * The comments attached to the default export — the component's own docblock, which is where its
+ * visibility annotation lives. Reading it from anywhere else in the file picks up the `@public` on
+ * a prop's or method's JSDoc and would declare a `@private` component public.
+ */
+function exportDocblock(originalSource: string): string {
+    try {
+        const ast = parse(originalSource, { sourceType: 'module', plugins: ['typescript'] });
+        const exportDefault = ast.program.body.find(
+            (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
+        );
+
+        return (exportDefault?.leadingComments ?? []).map((comment) => comment.value).join('\n');
+    } catch {
+        return '';
+    }
+}
+
 function buildIndexShim(originalSource: string, componentName: string): string {
-    const packageMatch = originalSource.match(/@sw-package\s+([\w.-]+)/);
+    const sourceDocblock = exportDocblock(originalSource);
+    // `@sw-package` sits either in that docblock or in a file-level one above the imports, so it
+    // falls back to the whole file. Visibility never does: absent from the component's own docblock
+    // means @private.
+    const packageMatch = sourceDocblock.match(SW_PACKAGE) ?? originalSource.match(SW_PACKAGE);
     // sw-deprecation-rules/private-feature-declarations requires a visibility annotation on the
     // re-export; carry the original one over (components default to @private).
-    const visibility = originalSource.includes('@public') ? '@public' : '@private';
+    const visibility = PUBLIC_ANNOTATION.test(sourceDocblock) ? '@public' : '@private';
     const docblock = [
         '/**',
         ...(packageMatch

@@ -225,7 +225,7 @@ class SalesChannelContextPersister
     private function getCustomerContext(array $data, string $salesChannelId, string $customerId): ?array
     {
         foreach ($data as $row) {
-            if (!empty($row['customer_id'])
+            if ($row['customer_id'] !== null
                 && Uuid::fromBytesToHex($row['sales_channel_id']) === $salesChannelId
                 && Uuid::fromBytesToHex($row['customer_id']) === $customerId
             ) {

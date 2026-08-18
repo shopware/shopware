@@ -2,22 +2,30 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
-## Two element models
+## Three element models
 
-This directory holds two element models, one on each side of the storage/render
-split (see [role-suffixes.md](../../docs/role-suffixes.md#the-two-model-roles)):
+Two of them are the storage/render split (see
+[role-suffixes.md](../../docs/role-suffixes.md#the-two-model-roles)); the third
+is the pre-split model they are replacing, still alive on the serving path:
 
 - `StoredElement` — the storage model: what the admin edits, what the storage
-  column holds. Validation and mutation still lower it to `ContentElement`
-  first, then move onto it later. `final readonly`; every edit returns a new
+  column holds. Storage, validation, mutation and diagnostics all run on it
+  directly. `final readonly`; every edit returns a new
   instance via a `with*()` method. Property values are
   wrapped in `StoredValue`, never a raw PHP scalar, so a hydrated object can
   never sit in the stored tree by type rather than by convention. Slots are
   `array<string, list<StoredElement>>`.
-- `ContentElement` — the older model: still `extends Struct` and mutable.
-  `ContentElementLowering` produces it from a `StoredElement` tree for the call
-  sites that still speak it (see its class comment for the exact list and each
-  site's removal condition). Slots are `array<string, SlotContent>`.
+- `RenderedElement` — the render model: what a response body and the Twig
+  components read. `final readonly`, and deliberately not a `Struct`. It carries
+  no data requirements, no context wiring and no attribution, and its property
+  values are raw unwrapped PHP values, because the Twig filter chain needs
+  entities unwrapped. Nothing produces one yet — the lowering that does arrives
+  with the render layers. Slots are `array<string, list<RenderedElement>>`.
+- `ContentElement` — the pre-split model: still `extends Struct` and mutable,
+  and still the model the entire rendering pipeline speaks.
+  `ContentElementLowering` produces it from a `StoredElement` tree for the two
+  serving seams that remain (see its class comment for each site and its
+  removal condition). Slots are `array<string, SlotContent>`.
 
 The mutation-oriented guidance below (`setProperty`, `AssignArrayTrait`, the
 struct/non-struct split, the storage → post-hydration property lifecycle) is

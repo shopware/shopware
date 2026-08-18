@@ -155,7 +155,7 @@ export default class ImageZoomPlugin extends Plugin {
             this._panStartTransform = new Vector3(this._storedTransform.x, this._storedTransform.y, this._storedTransform.z);
         });
         this._hammer.on('pan panend pancancel', event => this._onPan(event));
-        this._hammer.on('pinch pinchmove', event => this._onPinch(event));
+        this._hammer.on('pinch pinchmove pinchend pinchcancel', event => this._onPinch(event));
         this._hammer.on('doubletap', event => this._onDoubleTap(event));
 
         this.el.addEventListener('wheel', event => this._onMouseWheel(event), false);

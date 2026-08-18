@@ -30,7 +30,9 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\LandingPageStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\SeoUrlRoute\StoreApiSeoUrlUpdateListener;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateChangeSubscriber;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingHandler;
 use Shopware\Core\Content\Seo\SeoUrlTwigFactory;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfoValidator;
@@ -46,6 +48,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
 use Shopware\Core\Framework\Adapter\Twig\Extension\TwigFeaturesWithInheritanceExtension;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -256,6 +259,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoUrlUpdater::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SeoUrlTemplateChangeSubscriber::class)
+        ->args([
+            service(Connection::class),
+            service('messenger.default_bus'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(SeoUrlTemplateIndexingHandler::class)
+        ->args([
+            service(SeoUrlUpdater::class),
+            service(IteratorFactory::class),
+            service(DefinitionInstanceRegistry::class),
+            service(SeoUrlRouteRegistry::class),
+            service('messenger.default_bus'),
+            tagged_iterator('shopware.entity.seo_url.route'),
+        ])
+        ->tag('messenger.message_handler');
 
     $services->set(BuildBreadcrumbExtension::class)
         ->args([

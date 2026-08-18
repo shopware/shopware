@@ -94,6 +94,66 @@ class GenerateThumbnailsCommandTest extends TestCase
         static::assertTrue($message->isStrict());
     }
 
+    #[TestDox('The force option is forwarded to the thumbnail service')]
+    public function testForwardsForceOptionSynchronously(): void
+    {
+        $media = $this->createMediaEntity();
+
+        $mediaRepository = new StaticEntityRepository([
+            [$media->getId()],
+            new MediaCollection([$media]),
+            new MediaCollection(),
+        ], new TestEntityDefinition());
+
+        $thumbnailService = $this->createMock(ThumbnailService::class);
+        $thumbnailService
+            ->expects($this->once())
+            ->method('updateThumbnails')
+            ->with($media, static::anything(), false, true)
+            ->willReturn(1);
+
+        $commandTester = new CommandTester(new GenerateThumbnailsCommand(
+            $thumbnailService,
+            $mediaRepository,
+            $this->createFolderRepository(),
+            new CollectingMessageBus()
+        ));
+
+        static::assertSame(Command::SUCCESS, $commandTester->execute(['--force' => true]));
+    }
+
+    #[TestDox('The force option is forwarded to queued batch jobs')]
+    public function testForwardsForceOptionToBatchJobs(): void
+    {
+        $media = $this->createMediaEntity();
+
+        $mediaRepository = new StaticEntityRepository([
+            new MediaCollection([$media]),
+            new MediaCollection(),
+        ], new TestEntityDefinition());
+
+        $messageBus = new CollectingMessageBus();
+
+        $commandTester = new CommandTester(new GenerateThumbnailsCommand(
+            static::createStub(ThumbnailService::class),
+            $mediaRepository,
+            $this->createFolderRepository(),
+            $messageBus
+        ));
+
+        static::assertSame(Command::SUCCESS, $commandTester->execute([
+            '--async' => true,
+            '--force' => true,
+        ]));
+
+        $messages = $messageBus->getMessages();
+        static::assertCount(1, $messages);
+        $message = $messages[0]->getMessage();
+        static::assertInstanceOf(UpdateThumbnailsMessage::class, $message);
+        static::assertTrue($message->isForce());
+        static::assertFalse($message->isStrict());
+    }
+
     #[TestDox('Thumbnail generation is skipped when remote thumbnails are enabled')]
     public function testFailsWhenRemoteThumbnailsAreEnabled(): void
     {

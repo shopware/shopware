@@ -2,7 +2,7 @@
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
     <meta>
-        <name>SwagApp</name>
+        <name>SwagCookieScript</name>
         <label>Swag App Test</label>
         <label lang="de-DE">Swag App Test</label>
         <description>Test for App System</description>
@@ -16,21 +16,15 @@
     </meta>
     <cookies>
         <group>
-            <snippet-name>app.cookies.group</snippet-name>
+            <snippet-name>swag.cookies.group</snippet-name>
             <entries>
                 <cookie>
                     <snippet-name>always.shown</snippet-name>
-                    <cookie>swag-app-always</cookie>
+                    <cookie>swag-app-keep</cookie>
                 </cookie>
                 <cookie>
-                    <snippet-name>payment.bound</snippet-name>
-                    <cookie>swag-app-payment</cookie>
-                    <active-payment-method>myPaymentMethod</active-payment-method>
-                </cookie>
-                <cookie>
-                    <snippet-name>any.payment.bound</snippet-name>
-                    <cookie>swag-app-any-payment</cookie>
-                    <active-payment-method>*</active-payment-method>
+                    <snippet-name>conditionally.shown</snippet-name>
+                    <cookie>swag-app-conditional</cookie>
                 </cookie>
             </entries>
         </group>

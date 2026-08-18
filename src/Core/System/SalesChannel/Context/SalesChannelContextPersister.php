@@ -56,6 +56,7 @@ class SalesChannelContextPersister
             'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
+        // Update in place for the usual single-key conflict to avoid REPLACE's delete and insert lock pattern.
         $query = new RetryableQuery(
             $this->connection,
             $this->connection->prepare(<<<'SQL'
@@ -73,6 +74,7 @@ class SalesChannelContextPersister
         try {
             $query->execute($data);
         } catch (UniqueConstraintViolationException) {
+            // When both unique keys conflict, retain REPLACE's behavior of removing both conflicting rows.
             $query = new RetryableQuery(
                 $this->connection,
                 $this->connection->prepare(

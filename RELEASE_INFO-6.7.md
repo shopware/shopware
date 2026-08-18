@@ -49,8 +49,18 @@ With the newly added tabs feature, plugin developers can now add another layer o
     </tab>
 </config>
 ```
+### New app script hook `cookie-group-collect`
+
+Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
 
 ## API
+
+### Added new shop setting endpoint
+
+Added new Store API route `GET /store-api/shop-settings`, which exposes the UI- and validation-relevant, non-sensitive subset of the system configuration (grouped into `general`, `loginRegistration`, `cart`, `listing` and `newsletter`) resolved for the current sales channel, so headless frontends (e.g. Composable Frontends) can render the shop consistently with the administration settings.
+### Cache information includes registered indexers
+
+`GET /api/_action/cache_info` now returns an `indexers` map containing the registered normal-refresh indexers and their optional child updaters. Administration clients can use this metadata when offering cache-index refresh controls; post-update-only indexers are excluded.
 
 ### Order recalculation and conversion endpoints now require ACL privileges
 
@@ -124,11 +134,33 @@ The `sw-expect-packages` header is no longer evaluated on API endpoints that do 
 
 Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
+### Store API schema documents cart totals as a separate `CartPrice` component
+
+The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
+
 ## Core
 
 ### Deprecation of `ConfigurationService` class
 
 Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+### New shop settings route classes
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\AbstractShopSettingsRoute` as a decoratable extension point.
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute`.
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRouteResponse` and the structs `ShopSettings`, `ShopGeneralSettings`, `ShopLoginRegistrationSettings`, `ShopCartSettings`, `ShopListingSettings`, `ShopNewsletterSettings` in the same namespace.
+### Plugins can customize version cleanup
+
+Plugins can subscribe to the new `CleanupVersionEvent` to protect version records from scheduled cleanup. The event provides the cleanup cutoff through `getCleanupTime()`, allowing plugins to apply retention rules consistently with the scheduled cleanup task.
+### Force thumbnail regeneration and deletion via `--force`
+
+The `media:generate-thumbnails` command now accepts a `--force` (`-f`) option that regenerates thumbnails for all configured sizes even when a thumbnail already exists — for example after changing the thumbnail quality or sizes of a media folder. The option works with both synchronous and `--async` execution. Previously, existing thumbnails were always skipped.
+
+Note that regenerated thumbnails are written to the same physical path, so their URLs do not change: browsers and CDNs may keep serving the previously cached files until their cache expires or is invalidated manually.
+
+The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) option that deletes all thumbnail records and files even when remote thumbnails are disabled — previously the command refused to run in that case. The command now removes the whole physical thumbnail directory, which also cleans up orphaned files without a database record (e.g. left behind after their media was uploaded again), and prints the number of deleted files. Note that the storefront is missing thumbnails until they are regenerated; prefer `media:generate-thumbnails --force` to replace them without such a gap.
+
+A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
+
+`ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -267,6 +299,15 @@ MCP tool metadata now includes a `group` value in the `/_action/mcp/tools` and `
 
 Tools without an explicit group derive one from the longest name prefix they share with another tool at a hyphen boundary, so tools such as `swag-my-plugin-orders` and `swag-my-plugin-products` use `swag-my-plugin` without being combined with tools from another `swag-*` extension. Existing core, plugin, and app tools continue to work.
 
+### SEO URLs for headless sales channels
+
+Headless (API type) sales channels can now generate SEO URLs and be used for product export feeds. Products, categories and landing pages generate SEO URLs for headless channels via dedicated store-api routes (`store-api.product.detail`, `store-api.category.detail`, `store-api.landing-page.detail`).
+
+- The `seo_url_template` entity gained an `is_headless` flag that discriminates the storefront (`frontend.*`) and headless (`store-api.*`) route families. Storefront channels resolve the non-headless templates, headless channels the headless ones — the two inheritance chains are kept separate.
+- Three default `store-api.*` templates are seeded (one per entity), mirroring the relative template of their storefront counterpart. Headless channels inherit these defaults just like storefront channels inherit the `frontend.*` defaults; the resolved path is prefixed with the host of the external storefront domain. A per-channel template may be an absolute URL (`https://…`), which is then used as-is.
+- The `sales_channel_domain` entity gained an `is_external_storefront` flag (default `false`). For headless sales channels, SEO URLs are only generated for domains flagged as external storefront, and the resolved relative path is prefixed with that domain's URL (one SEO URL per matching domain). The flag can be set per domain in the Administration when editing a headless sales channel's domains.
+- Product export feeds now accept both *Storefront* and *Headless* sales channels.
+
 ### New BC-change attributes for planned API changes
 
 Shopware previously used `@deprecated tag:vX.Y.Z - reason:*` PHPDoc annotations to document planned backwards-compatibility-affecting changes that are not actual deprecations, such as return type narrowing, new optional parameters, or classes becoming internal or final. In plugin projects these annotations surfaced as `Call to deprecated method` errors in static analysis, although there is no replacement API to migrate to.
@@ -314,8 +355,57 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Cross-selling by dynamic product group excludes the whole variant family
+
+A cross-selling that uses a dynamic product group no longer returns the product it is displayed on. For variants, the complete variant family is excluded — the currently viewed variant, its parent, and all sibling variants — because variant grouping and main variant resolution would otherwise resolve a sibling back to the viewed product. Previously only the product the cross-selling is assigned to was excluded, which had no effect on variants that inherit their cross-sellings from the parent.
+
+Cross-sellings with a manual product assignment are unchanged. Extensions that need the old result can adjust the criteria in `ProductCrossSellingStreamCriteriaEvent`.
+
 ## Administration
 
+### Admin Worker loads correctly when the Administration is hosted under a base path
+
+The Vite `asset-path-plugin` now also prefixes the literal `Worker`/`SharedWorker` script URLs that Vite bakes into the Administration bundle with `window.__sw__.assetPath`, the same prefix that is already applied to every other admin asset through the `assetsURL()` helper. Previously these worker URLs were emitted as absolute paths against the domain root (e.g. `new SharedWorker("/bundles/administration/administration/assets/adminWorker-*.js")`) and never passed through `assetsURL()`, so on any Shopware install served from a subdirectory / base path — including Shopware-hosted staging environments mounted under a subpath such as `/staging` — the Admin Worker's `SharedWorker` failed to load (404 against the domain root instead of the base path). This broke admin-worker-driven message-queue and scheduled-task processing in the Administration. Operators running the Administration under a base path now get a working Admin Worker; no action is required.
+
+### Vue Single File Components for Administration extensions
+
+Administration components can now be written as Vue Single File Components. `.vue` files were previously not supported at all: components were registered through the component factory with Twig templates, and there was no way to author or override one as an SFC.
+
+A build-time transform lowers these files onto the Composition-API extension system before Vue compiles them, so an override receives the base component's state instead of replacing its implementation. It runs in every extension build — no configuration needed in your plugin.
+
+Filename decides both identity and role: `sw-my-component.vue` (or `sw-my-component/index.vue`) declares the base component `sw-my-component`, and `sw-my-component.override.vue` overrides it. Two markers declare the extension surface, and both are mandatory in their mode — pass an empty object when there is nothing to declare:
+
+```vue
+<!-- sw-my-component.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const count = ref(0);
+const internalValue = ref('private');
+
+swDefinePublic({ count });   // `count` is overrideable, `internalValue` is not
+</script>
+```
+
+```vue
+<!-- sw-my-component.override.vue -->
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const count = computed(() => previousState.count.value * 2);
+
+swDefineOverride({ count });
+</script>
+```
+
+A few things to know before you start:
+
+* **Every `.vue` file in your own source needs a `<script setup>` block.** A plain `<script>` (Options API) SFC or a template-only SFC is rejected at build time, because the markers that make a component extendable only exist in `<script setup>`. Options-API components continue to work as before through the component factory; this applies to `.vue` files only. SFCs inside `node_modules` are exempt — a dependency's components are not yours to make extendable.
+* **An override only works when the base component is itself native-setup.** `sw-my-component.override.vue` extends a base declared with `swDefinePublic()`; it cannot override a component registered through the component factory (Twig / Options API). The base must be authored as a native-setup SFC for `useSwPreviousState()` and the override to resolve.
+* **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
+
+Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
@@ -352,6 +442,9 @@ sw.ui.tabs('sw-order-detail').addTabItem({
     label: 'my-plugin.tabTitle',
     componentSectionId: 'my-plugin-tab',
     visible: order.stateMachineState.technicalName === 'open',
+});
+```
+
 ### Administration caches shared user configuration and lookup data
 
 Administration now reuses a generic cache layer for current-user configuration and frequently loaded lookup data such as the system currency, currencies, taxes, active languages, sales channel types, number range ids, and custom field sets. This reduces repeated Admin API requests when multiple Administration components need the same data.
@@ -490,6 +583,11 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ## App System
 
+### App installation recovers ambiguously failed registrations
+
+A newly registered or rotated app secret only becomes active once the app confirms it. If an installation or secret rotation is interrupted before that confirmation — a crash, a timeout, or an unreachable app server — re-running `bin/console app:install <app-name>` now recovers the app instead of reporting it as already installed.
+
+Recovery also survives an uninstall. An app that adopted a secret the shop never committed rejects everything the shop signs afterwards, including the `app.deleted` webhook, so it keeps its registration across an uninstall and a plain reinstall used to fail with a signature error. The unconfirmed secrets are now kept alongside the committed one when an app is removed, and reinstalling authenticates with them.
 ### Apps can register custom fields on media folders
 
 Apps can now register custom fields on the `media_folder` and `media_folder_configuration` entities. Previously these entities were not part of the allowed `related-entities` for app custom field sets, so custom fields could only be attached to entities such as `product`, `order`, or `media`.
@@ -522,19 +620,6 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
-### Cookies can be bound to active payment methods
-
-Cookies declared in an app's `manifest.xml` were always shown in the storefront cookie consent manager, even on sales channels where the app's payment methods are not offered. A cookie (both standalone and inside a group's `<entries>`) can now reference payment methods of the app via the repeatable `<active-payment-method>` element:
-
-```xml
-<cookie>
-    <snippet-name>myApp.cookie.wallet</snippet-name>
-    <cookie>my-app-wallet</cookie>
-    <active-payment-method>wallet</active-payment-method>
-</cookie>
-```
-
-The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
 
 ## Hosting & Configuration
 
@@ -1071,6 +1156,30 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 ```
 
 ## Administration
+
+### Opt-in TypeScript and ESLint configuration for Administration extensions (experimental)
+
+This toolchain is **experimental** and not covered by the backwards-compatibility promise: it is shipped early to gather feedback while it is still being shaped, so the command names and their options, the layout of the generated files, and the `manifest.json` schema can change in any release without a deprecation cycle. Re-running setup after a Shopware update is the supported migration path — the generated files are disposable by design, so nothing should be hand-edited or automated on top of. Stabilization is targeted for v6.8.0 (annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING` in the source); the experimental marker is removed once the surfaces have settled. Not running the command leaves a project exactly as it was.
+
+`composer admin:setup-extension-tooling` generates the TypeScript and ESLint configuration that lets an Administration extension be type-checked and linted against the **installed** Shopware version — its live types, its entity schema and its pinned tool versions — instead of against a toolchain the extension vendors itself and that drifts.
+
+- **Every extension is bridged automatically.** Setup discovers every installed extension with Administration sources from `var/plugins.json` and writes a git-ignored, self-explaining `.shopware/` bridge beside each Administration folder — custom and vendor-installed alike — plus small committable `tsconfig.json` / `eslint.config.mjs` that extend it when the extension has none yet. Existing configs are never overwritten — the report prints the single line to add instead. One bridge is written per directory that owns a config, so a multi-bundle package whose shared config governs several Administration roots gets a single shared bridge (`-- --root-config=<Extension>:<dir>` forces one for a layout the grouping cannot infer). Root `tsconfig.json` / `eslint.config.mjs` projections and IDE bootstraps for VS Code and Zed are generated at the project root (PhpStorm settings are printed); editors then resolve the full Administration API, including installation-specific entity types.
+- **Unwritable directories degrade gracefully.** A bridge that cannot be written (e.g. a read-only vendor directory) is skipped with a warning; the extension's sources stay covered by the generated root `tsconfig.json`, which includes whatever no extension config governs. Files written under `vendor/` are local only: a composer update removes them and re-running setup restores them.
+- **The report says what is missing, not just what happened.** Each extension is classified `ready`, `bridged`, `bridge-unwired` or `not bridged`, changed files are listed by path, git-ignored bridge files are distinguished from committable plugin-owned ones, and only the actually-missing next step is printed.
+- **CI can verify the projection is current** with `composer admin:setup-extension-tooling:check` — a guaranteed read-only dry run that writes nothing and exits 1 on drift.
+
+Options belong after Composer's `--` separator; `-- --help` prints the generated reference, and an unknown flag exits 2 before anything is written. In a Composer/Flex install, where the Administration lives under `vendor/shopware/administration` and the Composer scripts do not exist, the same commands are available as `bin/console administration:setup-extension-tooling` and `bin/console administration:generate-entity-schema-types` — run `npm ci` in the Administration directory once, since its Node dependencies are not part of the Composer package.
+
+`composer admin:check-extensions` then runs that configuration: per extension it executes `vue-tsc` and ESLint with the Administration's own pinned tool versions and prints their native, unmodified output under a per-extension header, paths relativized to the project root. Pass `-- --only=<name[,name]>` to narrow it; without that it checks everything. Extension configs that do not compose the Shopware preset are visibly skipped with a reason-specific `why:` and the exact `fix:` — never silently green — and a run that skipped a writable extension carries a prominent warning so `exit 0` cannot be mistaken for full coverage. TypeScript is blocked with the fix command while the entity schema is missing, rather than flooding the report with cascade errors, and a JavaScript-only extension reports an honest qualified pass (`0 TypeScript files — .js is not type-checked`) instead of a vacuous green. `-- --fix` applies ESLint autofixes, including the Shopware `sw-*` → `mt-*` deprecation codemods. Findings in `vendor/`-installed extensions are reported but never fail the run.
+
+Because bridging a large plugin can surface hundreds of findings at once — which would make an exit-1 check useless — `-- --only=<name> --update-baseline` records the current findings into a committed, plugin-relative `.shopware-admin-baseline.json` (custom/plugins only). The check then reports `N new · M baselined` and fails only on new findings, so a fully baselined plugin reads green while regressions still fail. Matching ignores line and column, so a recorded finding survives unrelated line drift; entries that no longer occur are reported as stale and pruned on the next `--update-baseline`. A safety net compares the structured parse against each tool's own counter and disables suppression on any disagreement, so a parser bug can never silently green a real finding. Diagnostics originating outside the extension's own root — a conflict it imposes on the shared type surface — are fatal and cannot be baselined away.
+
+Spec files are type-checked too. A dedicated `vue-tsc` program per extension injects jest types (`describe`/`it`/`expect`, from a shipped `spec-types.d.ts`) and includes only the specs, so the runtime program stays free of runner globals; spec findings are reported on their own `TS (specs)` line and column. ESLint lints specs with the jest globals available, but its type-aware rules stay off for them: the generated `.shopware/` bridges are not solution-style project references, so typescript-eslint's project service has no spec program to resolve them against — `vue-tsc` is what type-checks specs, ESLint is not. Type-checking test code surfaces findings that were previously invisible, which is exactly what the baseline above absorbs: the two features are partners.
+
+In an interactive terminal the check opens a numbered picker (numbers, ranges, `a` for all, `w` for writable-only); `-- --only=<name[,name]>` or `-- --all` skip it, and non-interactive shells check everything. Three flags exist for CI and debugging: `-- --fail-on-skipped` turns any skipped or blocked writable extension into exit 1, so `exit 0` cannot mean "checked nothing" — this is the flag a CI gate should use; `-- --strict-vendor` makes findings in `vendor/`-installed extensions fatal too; and `-- --show-commands` prints the exact underlying `vue-tsc`/ESLint invocation per extension, so any result can be reproduced by hand.
+
+Nothing changes for existing flows: no default build, watch, init or CI pipeline invokes the new command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
+Nothing changes for existing flows unless you opt in: in a platform checkout `composer setup` runs the setup command only when the experimental `ADMIN_EXTENSION_TOOLING` feature flag is enabled (e.g. `ADMIN_EXTENSION_TOOLING=1` in `.env`); without the flag the step is a one-line no-op, and no build, watch or CI pipeline invokes the command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
 
 ### Reworked search behaviour options
 
@@ -3379,10 +3488,13 @@ The Administration now supports axios 1.x alongside the existing axios 0.30.2 to
 **Current behavior (6.7.x):**
 - Default: axios 0.30.2 (backward compatible)
 - Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+- Repository requests use axios 1.x internally. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+- Existing `httpClient.interceptors` and `httpClient.defaults` customizations are mirrored to both internal clients, so extensions do not need version-specific setup.
+- The Shopware HTTP client remains structurally compatible with the previous `AxiosInstance` type and `axios-mock-adapter`, while new code can use Shopware's `HttpClient` contract.
 
 **Future behavior (6.8.0+):**
-- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
-- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+- Direct HTTP request default: axios 1.x (when `V6_8_0_0` feature flag is active)
+- Direct HTTP request opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
 
 **Key differences between versions:**
 - **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)

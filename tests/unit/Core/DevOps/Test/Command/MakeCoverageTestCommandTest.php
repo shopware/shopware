@@ -10,7 +10,6 @@ use Shopware\Core\Content\Cms\Subscriber\UnusedMediaSubscriber;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand;
 use Shopware\Core\DevOps\Test\Command\MakeCoverageTestCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
@@ -78,7 +77,6 @@ class MakeCoverageTestCommandTest extends TestCase
         $tester = new CommandTester($command);
         $tester->execute([
             'classes' => [
-                SystemDumpDatabaseCommand::class, // normal case
                 'not-a-class', // not a class
                 Migration1763996000Dummy::class, // migration test
                 'src/Core/DevOps/DevOps.php', // pass a string that is a php file that is a class
@@ -99,7 +97,6 @@ class MakeCoverageTestCommandTest extends TestCase
         ]);
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        static::assertTrue($this->filesystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
         static::assertTrue($this->filesystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
         static::assertTrue($this->filesystem->exists($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
         static::assertIsString($devOpsTest = file_get_contents($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
@@ -124,7 +121,6 @@ class MakeCoverageTestCommandTest extends TestCase
         // execute again to test if the file is not rewrite
         $tester->execute([
             'classes' => [
-                SystemDumpDatabaseCommand::class, // normal case
                 'not-a-class', // not a class
                 Migration1763996000Dummy::class, // migration test
                 'src/Core/DevOps/DevOps.php', // pass a string that is a php file that is a class
@@ -138,7 +134,6 @@ class MakeCoverageTestCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $tester->getStatusCode());
 
-        static::assertTrue($this->filesystem->exists($this->projectDir . '/tests/unit/Core/DevOps/System/Command/SystemDumpDatabaseCommandTest.php'));
         static::assertTrue($this->filesystem->exists($this->projectDir . '/tests/unit/Core/DevOps/DevOpsTest.php'));
         static::assertTrue($this->filesystem->exists($this->projectDir . '/tests/migration/Tests/Unit/Core/DevOps/Test/Command/Fixture/Migration1763996000DummyTest.php'));
 

@@ -55,7 +55,12 @@ import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromo
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
 import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
-import { MtDropdownMenuRoot, MtDropdownMenuTrigger, MtDropdownMenuPortal } from '@shopware-ag/meteor-component-library';
+import {
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
+    MtDropdownMenuPortal,
+    MtDropdownMenuSub,
+} from '@shopware-ag/meteor-component-library';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -478,6 +483,7 @@ export default class VueAdapter extends ViewAdapter {
             MtDropdownMenuRoot,
             MtDropdownMenuTrigger,
             MtDropdownMenuPortal,
+            MtDropdownMenuSub,
         } as const;
 
         const lazyMeteorComponents = {

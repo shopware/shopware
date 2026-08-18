@@ -1268,6 +1268,7 @@
     "document_base_config.name",
     "document_base_config.filenamePrefix",
     "document_base_config.filenameSuffix",
+    "document_base_config.filenameInfixes",
     "document_base_config.global",
     "document_base_config.documentNumber",
     "document_base_config.config",

@@ -2123,7 +2123,9 @@ class EntityReaderTest extends TestCase
         $this->productRepository->upsert($products, $context);
 
         $criteria = new Criteria([$id1, $id2]);
-        $criteria->getAssociation('categories')->setLimit(3);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING))
+            ->setLimit(3);
 
         $products = $this->productRepository
             ->search($criteria, $context)
@@ -2141,6 +2143,14 @@ class EntityReaderTest extends TestCase
 
         static::assertCount(3, $product1->getCategories());
         static::assertCount(3, $product2->getCategories());
+        static::assertSame(
+            ['test1', 'test2', 'test3'],
+            array_values($product1->getCategories()->map(static fn (CategoryEntity $category) => $category->getName()))
+        );
+        static::assertSame(
+            ['test10', 'test11', 'test12'],
+            array_values($product2->getCategories()->map(static fn (CategoryEntity $category) => $category->getName()))
+        );
     }
 
     public function testReadSupportsConditions(): void

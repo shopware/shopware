@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Pdo\Mysql;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
@@ -117,6 +118,32 @@ class MySQLFactoryTest extends TestCase
         // Verify custom option from DSN is preserved
         static::assertArrayHasKey($customOption, $params['driverOptions']);
         static::assertSame($customValue, $params['driverOptions'][$customOption]);
+    }
+
+    public function testDefaultSessionVariablesAreSetByDefault(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://localhost:3306/shopware',
+            'SQL_SET_DEFAULT_SESSION_VARIABLES' => null,
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayHasKey(Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
+    }
+
+    public function testDefaultSessionVariablesCanBeSkipped(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://localhost:3306/shopware',
+            'SQL_SET_DEFAULT_SESSION_VARIABLES' => '0',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayNotHasKey(Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
     }
 
     public function testDriverOptionsFromDsnArePreservedInReplicaConfiguration(): void

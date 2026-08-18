@@ -58,13 +58,14 @@ class MySQLFactory
             \PDO::ATTR_TIMEOUT => 5,
         ] + ($dsnParameters['driverOptions'] ?? []);
 
-        $initCommands = [
-            'SET @@session.time_zone = \'+00:00\'',
-            'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
-            'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
-        ];
-
-        $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
+        if (EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true)) {
+            $initCommands = [
+                'SET @@session.time_zone = \'+00:00\'',
+                'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
+                'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
+            ];
+            $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
+        }
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $sslCa;

@@ -82,10 +82,6 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 ## Core
 
-### Sales channel API context payload now includes `customerId`
-
-`SalesChannelContextPersister::save()` and `replace()` now write `customerId` into the JSON payload whenever a customer is present, instead of only storing it on the `customer_id` column. A one-time migration backfills existing rows that have a column value but no payload key (for example after `replace()` inserted `payload = []`). Store API requests then hydrate `SalesChannelContext::getCustomer()` correctly, so customer-scoped rules and flows no longer run as guest for those tokens.
-
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
 - Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).

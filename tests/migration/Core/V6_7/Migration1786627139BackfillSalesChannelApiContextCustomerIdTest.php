@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -25,9 +26,28 @@ class Migration1786627139BackfillSalesChannelApiContextCustomerIdTest extends Te
 
     private Connection $connection;
 
+    /**
+     * @var list<string>
+     */
+    private array $tokens = [];
+
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+        $this->tokens = [];
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->tokens === []) {
+            return;
+        }
+
+        $this->connection->executeStatement(
+            'DELETE FROM `sales_channel_api_context` WHERE `token` IN (:tokens)',
+            ['tokens' => $this->tokens],
+            ['tokens' => ArrayParameterType::STRING]
+        );
     }
 
     public function testGetCreationTimestamp(): void
@@ -35,26 +55,92 @@ class Migration1786627139BackfillSalesChannelApiContextCustomerIdTest extends Te
         static::assertSame(1786627139, (new Migration1786627139BackfillSalesChannelApiContextCustomerId())->getCreationTimestamp());
     }
 
-    public function testBackfillsMissingCustomerIdAndKeepsExistingPayloadValue(): void
+    public function testAlignsPayloadCustomerIdWithoutChangingIdentityColumns(): void
     {
-        $emptyArrayCustomerId = $this->createCustomer();
-        $existingCustomerId = $this->createCustomer();
-        $emptyArrayToken = Uuid::randomHex();
-        $existingToken = Uuid::randomHex();
-        $keptCustomerId = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        $emptyCustomerId = $this->createCustomer();
+        $mismatchCustomerId = $this->createCustomer();
+        $syncedCustomerId = $this->createCustomer();
+        $emptyToken = Uuid::randomHex();
+        $mismatchToken = Uuid::randomHex();
+        $syncedToken = Uuid::randomHex();
+        $staleCustomerId = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        $currencyId = Defaults::CURRENCY;
 
-        $this->insertContext($emptyArrayToken, $emptyArrayCustomerId, '[]');
-        $this->insertContext($existingToken, $existingCustomerId, json_encode(['customerId' => $keptCustomerId], \JSON_THROW_ON_ERROR));
+        $this->insertContext($emptyToken, $emptyCustomerId, '[]');
+        $this->insertContext(
+            $mismatchToken,
+            $mismatchCustomerId,
+            json_encode(['customerId' => $staleCustomerId, 'currencyId' => $currencyId], \JSON_THROW_ON_ERROR)
+        );
+        $this->insertContext(
+            $syncedToken,
+            $syncedCustomerId,
+            json_encode(['customerId' => $syncedCustomerId], \JSON_THROW_ON_ERROR)
+        );
+
+        $emptyBefore = $this->fetchRow($emptyToken);
+        $mismatchBefore = $this->fetchRow($mismatchToken);
+        $syncedBefore = $this->fetchRow($syncedToken);
 
         $migration = new Migration1786627139BackfillSalesChannelApiContextCustomerId();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $emptyArrayPayload = $this->fetchPayload($emptyArrayToken);
-        static::assertSame($emptyArrayCustomerId, $emptyArrayPayload['customerId']);
+        $emptyAfter = $this->fetchRow($emptyToken);
+        $this->assertIdentityUnchanged($emptyBefore, $emptyAfter);
+        static::assertSame($emptyCustomerId, $this->decodePayload($emptyAfter['payload'])['customerId']);
 
-        $existingPayload = $this->fetchPayload($existingToken);
-        static::assertSame($keptCustomerId, $existingPayload['customerId']);
+        $mismatchAfter = $this->fetchRow($mismatchToken);
+        $this->assertIdentityUnchanged($mismatchBefore, $mismatchAfter);
+        $mismatchPayload = $this->decodePayload($mismatchAfter['payload']);
+        static::assertSame($mismatchCustomerId, $mismatchPayload['customerId']);
+        static::assertSame($currencyId, $mismatchPayload['currencyId']);
+
+        $syncedAfter = $this->fetchRow($syncedToken);
+        $this->assertIdentityUnchanged($syncedBefore, $syncedAfter);
+        static::assertSame($syncedBefore['payload'], $syncedAfter['payload']);
+    }
+
+    public function testSkipsGuestRows(): void
+    {
+        $guestToken = Uuid::randomHex();
+        $guestPayload = json_encode(['currencyId' => Defaults::CURRENCY], \JSON_THROW_ON_ERROR);
+        $this->insertContext($guestToken, null, $guestPayload);
+
+        $before = $this->fetchRow($guestToken);
+
+        $migration = new Migration1786627139BackfillSalesChannelApiContextCustomerId();
+        $migration->update($this->connection);
+
+        $after = $this->fetchRow($guestToken);
+        static::assertNull($after['customer_id']);
+        static::assertSame($before['token'], $after['token']);
+        static::assertSame($before['sales_channel_id'], $after['sales_channel_id']);
+        static::assertSame($before['payload'], $after['payload']);
+    }
+
+    public function testBackfillsAcrossChunks(): void
+    {
+        $expected = [];
+        for ($i = 0; $i < 5; ++$i) {
+            $customerId = $this->createCustomer();
+            $token = Uuid::randomHex();
+            $expected[$token] = $customerId;
+            $this->insertContext($token, $customerId, '[]');
+        }
+
+        $migration = new class extends Migration1786627139BackfillSalesChannelApiContextCustomerId {
+            protected function getUpdateLimit(): int
+            {
+                return 2;
+            }
+        };
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        foreach ($expected as $token => $customerId) {
+            static::assertSame($customerId, $this->decodePayload($this->fetchRow($token)['payload'])['customerId']);
+        }
     }
 
     private function createCustomer(): string
@@ -93,29 +179,54 @@ class Migration1786627139BackfillSalesChannelApiContextCustomerIdTest extends Te
         return $customerId;
     }
 
-    private function insertContext(string $token, string $customerId, string $payload): void
+    private function insertContext(string $token, ?string $customerId, string $payload): void
     {
+        $this->tokens[] = $token;
+
         $this->connection->insert('sales_channel_api_context', [
             'token' => $token,
             'payload' => $payload,
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'customer_id' => Uuid::fromHexToBytes($customerId),
+            'customer_id' => $customerId !== null ? Uuid::fromHexToBytes($customerId) : null,
             'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{token: string, payload: string, customer_id: string|null, sales_channel_id: string}
      */
-    private function fetchPayload(string $token): array
+    private function fetchRow(string $token): array
     {
-        $payload = $this->connection->fetchOne(
-            'SELECT `payload` FROM `sales_channel_api_context` WHERE `token` = :token',
+        $row = $this->connection->fetchAssociative(
+            'SELECT `token`, `payload`, `customer_id`, `sales_channel_id` FROM `sales_channel_api_context` WHERE `token` = :token',
             ['token' => $token]
         );
 
-        static::assertIsString($payload);
+        static::assertIsArray($row);
+        static::assertIsString($row['token']);
+        static::assertIsString($row['payload']);
+        static::assertIsString($row['sales_channel_id']);
+        static::assertTrue($row['customer_id'] === null || \is_string($row['customer_id']));
 
+        return $row;
+    }
+
+    /**
+     * @param array{token: string, payload: string, customer_id: string|null, sales_channel_id: string} $before
+     * @param array{token: string, payload: string, customer_id: string|null, sales_channel_id: string} $after
+     */
+    private function assertIdentityUnchanged(array $before, array $after): void
+    {
+        static::assertSame($before['token'], $after['token']);
+        static::assertSame($before['customer_id'], $after['customer_id']);
+        static::assertSame($before['sales_channel_id'], $after['sales_channel_id']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodePayload(string $payload): array
+    {
         $decoded = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
         static::assertIsArray($decoded);
 

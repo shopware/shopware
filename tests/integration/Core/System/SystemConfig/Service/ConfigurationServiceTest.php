@@ -40,7 +40,6 @@ class ConfigurationServiceTest extends TestCase
         // Should return false instead of throwing UtilXmlParsingException
         static::assertFalse(
             $configurationService->checkConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext())
- 
         );
     }
 

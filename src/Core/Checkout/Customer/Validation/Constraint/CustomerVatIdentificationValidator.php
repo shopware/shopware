@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Validation\EuVatIdPatternProvider;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPattern;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -17,10 +14,8 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
     /**
      * @internal
      */
-    public function __construct(
-        private readonly Connection $connection,
-        private readonly EuVatIdPatternProvider $euVatIdPatternProvider,
-    ) {
+    public function __construct(private readonly VatIdPatternProvider $vatIdPatternProvider)
+    {
     }
 
     public function validate(mixed $vatIds, Constraint $constraint): void
@@ -37,33 +32,24 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             throw CustomerException::unexpectedConstraintValue('iterable', CustomerVatIdentification::class);
         }
 
-        $vatIdInformation = $this->connection->fetchAssociative(
-            'SELECT iso, check_vat_id_pattern, vat_id_pattern FROM `country` WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($constraint->getCountryId())]
-        );
+        $country = $this->vatIdPatternProvider->getCountrySettings($constraint->getCountryId());
 
-        if ($vatIdInformation === false) {
+        if ($country === null) {
             return;
         }
 
-        \assert(\array_key_exists('iso', $vatIdInformation));
-        \assert(\array_key_exists('check_vat_id_pattern', $vatIdInformation));
-        \assert(\array_key_exists('vat_id_pattern', $vatIdInformation));
-
-        if (!$constraint->getShouldCheck() && !$vatIdInformation['check_vat_id_pattern']) {
+        if (!$constraint->getShouldCheck() && !$country['checkPattern']) {
             return;
         }
 
-        $pattern = (string) $vatIdInformation['vat_id_pattern'];
-        $countryPattern = $pattern === '' ? null : new VatIdPattern((string) $vatIdInformation['iso'], $pattern);
-        $anyEuCountry = $constraint->getAnyEuCountry();
+        $matchesAnyEuVat = $constraint->getMatchesAnyEuVat();
 
-        if ($countryPattern === null && !$anyEuCountry) {
+        if ($country['pattern'] === null && !$matchesAnyEuVat) {
             return;
         }
 
         foreach ($vatIds as $vatId) {
-            if ($this->isValid((string) $vatId, $countryPattern, $anyEuCountry)) {
+            if ($this->isValid((string) $vatId, $country['pattern'], $matchesAnyEuVat)) {
                 continue;
             }
 
@@ -74,12 +60,12 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         }
     }
 
-    private function isValid(string $vatId, ?VatIdPattern $countryPattern, bool $anyEuCountry): bool
+    private function isValid(string $vatId, ?string $countryPattern, bool $matchesAnyEuVat): bool
     {
-        if ($countryPattern?->matches($vatId)) {
+        if ($countryPattern !== null && $this->vatIdPatternProvider->matches($countryPattern, $vatId)) {
             return true;
         }
 
-        return $anyEuCountry && $this->euVatIdPatternProvider->matchVatId($vatId) !== null;
+        return $matchesAnyEuVat && $this->vatIdPatternProvider->matchEuVatId($vatId) !== null;
     }
 }

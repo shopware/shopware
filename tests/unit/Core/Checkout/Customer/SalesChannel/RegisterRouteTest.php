@@ -691,7 +691,7 @@ class RegisterRouteTest extends TestCase
                 static::assertInstanceOf(Type::class, $properties['vatIds'][1]);
                 static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraint = $properties['vatIds'][2]);
 
-                static::assertFalse($vatIdConstraint->getAnyEuCountry());
+                static::assertFalse($vatIdConstraint->getMatchesAnyEuVat());
 
                 return true;
             }));

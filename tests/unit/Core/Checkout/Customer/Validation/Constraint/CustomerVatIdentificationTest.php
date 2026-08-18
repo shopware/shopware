@@ -18,70 +18,70 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(CustomerVatIdentification::class)]
 class CustomerVatIdentificationTest extends TestCase
 {
-    public function testAnyEuCountryDefaultsToFalse(): void
+    public function testMatchesAnyEuVatDefaultsToFalse(): void
     {
         $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex());
 
-        static::assertFalse($constraint->getAnyEuCountry());
+        static::assertFalse($constraint->getMatchesAnyEuVat());
     }
 
-    public function testAnyEuCountryCanBeEnabledViaNamedArgument(): void
+    public function testMatchesAnyEuVatCanBeEnabledViaNamedArgument(): void
     {
-        $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex(), anyEuCountry: true);
+        $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex(), matchesAnyEuVat: true);
 
-        static::assertTrue($constraint->getAnyEuCountry());
+        static::assertTrue($constraint->getMatchesAnyEuVat());
     }
 
-    public function testAnyEuCountryIsIndependentOfShouldCheck(): void
+    public function testMatchesAnyEuVatIsIndependentOfShouldCheck(): void
     {
         $constraint = new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: true,
-            anyEuCountry: true,
+            matchesAnyEuVat: true,
         );
 
         static::assertTrue($constraint->getShouldCheck());
-        static::assertTrue($constraint->getAnyEuCountry());
+        static::assertTrue($constraint->getMatchesAnyEuVat());
     }
 
     public function testTheDefaultMessageIsUnaffectedByTheNewArgument(): void
     {
-        $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex(), anyEuCountry: true);
+        $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex(), matchesAnyEuVat: true);
 
         static::assertSame('The format of vatId {{ vatId }} is not correct.', $constraint->getMessage());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
     #[IgnoreDeprecations]
-    public function testAnyEuCountryDefaultsToFalseInTheLegacyOptionsArray(): void
+    public function testMatchesAnyEuVatDefaultsToFalseInTheLegacyOptionsArray(): void
     {
         $constraint = new CustomerVatIdentification(['countryId' => Uuid::randomHex()]);
 
-        static::assertFalse($constraint->getAnyEuCountry());
+        static::assertFalse($constraint->getMatchesAnyEuVat());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
     #[IgnoreDeprecations]
-    public function testAnyEuCountryCanBeEnabledViaTheLegacyOptionsArray(): void
+    public function testMatchesAnyEuVatCanBeEnabledViaTheLegacyOptionsArray(): void
     {
         $constraint = new CustomerVatIdentification([
             'countryId' => Uuid::randomHex(),
-            'anyEuCountry' => true,
+            'matchesAnyEuVat' => true,
         ]);
 
-        static::assertTrue($constraint->getAnyEuCountry());
+        static::assertTrue($constraint->getMatchesAnyEuVat());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
     #[IgnoreDeprecations]
-    public function testTheLegacyOptionsArrayRejectsANonBooleanAnyEuCountry(): void
+    public function testTheLegacyOptionsArrayRejectsANonBooleanMatchesAnyEuVat(): void
     {
-        $this->expectExceptionObject(CustomerException::invalidOption('anyEuCountry', 'bool', CustomerVatIdentification::class));
+        $this->expectExceptionObject(CustomerException::invalidOption('matchesAnyEuVat', 'bool', CustomerVatIdentification::class));
 
         /** @phpstan-ignore argument.type (intentionally wrong option type for test purpose) */
         new CustomerVatIdentification([
             'countryId' => Uuid::randomHex(),
-            'anyEuCountry' => 'yes',
+            'matchesAnyEuVat' => 'yes',
         ]);
     }
 }

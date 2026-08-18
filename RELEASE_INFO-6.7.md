@@ -294,6 +294,20 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Static analysis reports N+1 queries
+
+`shopware/phpstan-extension` gained two rules for this. `NoIndirectQueryInLoopRule` reports a loop that calls a method of the same class which queries, under the `shopware.indirectQueryInLoop` identifier — moving a query into a helper does not make the loop cheaper, so the rule follows the delegation. It does not report a call that leads back to its own caller, because that recursion follows the shape of the data rather than the number of records.
+
+Neither rule looks at migrations, demodata generators or `Shopware\Core\Framework\DataAbstractionLayer`, because a migration runs once, demodata only builds a development shop, and the DAL is the layer that does the batching.
+
+`NoQueryInLoopRule` reports the direct case (part of `rules.neon`, so it is active automatically with `phpstan/extension-installer`). It reports database queries that are executed inside a loop body under the `shopware.queryInLoop` identifier: the DBAL read methods on `Connection` and `QueryBuilder` (`fetch*`, `iterate*`, `executeQuery()`), and the `EntityRepository`/`SalesChannelRepository` methods (`search()`, `searchIds()`, `aggregate()`, `create()`, `update()`, `upsert()`, `delete()`).
+
+Loops that already process a whole set of records per iteration are not reported: chunked sources (`foreach (array_chunk($ids, 250) as $chunk)`), any `foreach` that binds a list per iteration (`foreach ($chunks as $chunk)`, `foreach ($idsByLanguage as $languageId => $ids)`), pagination loops driven by an `IterableQuery`, `RepositoryIterator` or `SalesChannelRepositoryIterator` (`while ($ids = $iterator->fetch())`), `while`/`do-while` loops that drain a worklist (`while ($pendingIds !== [])`) or a paginated query (`LIMIT :limit`, `setLimit()`, `setOffset()`), and loops with a statically fixed iteration count. Test classes are skipped.
+
+Queries a loop reaches at most once are not reported either: a query memoised by a null check (`if ($sets === null) { $sets = … }`), and a query in a block that ends in `throw` or `return`, such as the cleanup query of an error handler that rethrows.
+
+If your plugin picks up the new errors, either load the data for all iterations before the loop, or — when the loop legitimately runs one query per group rather than per record — suppress the report with a reason: `// @phpstan-ignore shopware.queryInLoop (one query per entity definition)`.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

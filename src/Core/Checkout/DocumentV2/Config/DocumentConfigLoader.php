@@ -200,6 +200,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             itemsPerPage: $itemsPerPage,
             filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
             filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
+            filenameInfixes: $salesChannelRow?->getFilenameInfixes() ?? $globalRow?->getFilenameInfixes() ?? [],
             logo: $logo,
         );
     }

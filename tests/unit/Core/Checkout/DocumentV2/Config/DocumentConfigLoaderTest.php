@@ -87,6 +87,51 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
     }
 
+    public function testLoadPicksMatchingSalesChannelFilenameInfixesOverGlobal(): void
+    {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenameInfixes: ['zugferd_embedded_pdf' => 'global-infix'],
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenameInfixes: ['zugferd_embedded_pdf' => 'channel-infix'],
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(['zugferd_embedded_pdf' => 'channel-infix'], $bundle->config->filenameInfixes);
+    }
+
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
     {
         $globalRow = $this->createBaseConfig(
@@ -323,6 +368,9 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame(self::LEGACY_LOGO_ID, $bundle->config->logo?->getId());
     }
 
+    /**
+     * @param array<string, string>|null $filenameInfixes
+     */
     private function createBaseConfig(
         bool $global,
         string $pageSize,
@@ -330,6 +378,7 @@ class DocumentConfigLoaderTest extends TestCase
         ?string $salesChannelId = null,
         int $itemsPerPage = 10,
         ?string $logoId = null,
+        ?array $filenameInfixes = null,
     ): DocumentBaseConfigEntity {
         $entity = new DocumentBaseConfigEntity();
         $entity->setUniqueIdentifier(Uuid::randomHex());
@@ -338,6 +387,7 @@ class DocumentConfigLoaderTest extends TestCase
         $entity->setPageSize($pageSize);
         $entity->setPageOrientation('portrait');
         $entity->setItemsPerPage($itemsPerPage);
+        $entity->setFilenameInfixes($filenameInfixes);
         $entity->setConfig([
             'companyName' => $companyName,
             'companyStreet' => 'Example Street 1',

@@ -435,7 +435,7 @@ const countItems = // A binding in a sibling nested function must not block the 
         return items.value.length + total.length;
     };
 
-const toggle = // Block scope is not modelled: a binding anywhere in the function shadows the whole body.
+const toggle = // Block scope is modelled: a binding the reference never reaches is not shadowing.
     function () {
         if (props.title) {
             const hidden = true;

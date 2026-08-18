@@ -97,6 +97,15 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-media-collection-field',
+    () => import('./component/sw-experience-studio-media-collection-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-element-picker',
     () => import('./component/sw-experience-studio-element-picker'),
 );

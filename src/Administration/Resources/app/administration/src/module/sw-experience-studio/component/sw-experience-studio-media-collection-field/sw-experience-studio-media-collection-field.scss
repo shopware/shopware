@@ -1,0 +1,11 @@
+.sw-experience-studio-media-collection-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mt-spacing-xs);
+
+    &__label {
+        color: var(--color-darkgray-200);
+        font-size: var(--mt-font-size-xs);
+        font-weight: var(--mt-font-weight-medium);
+    }
+}

@@ -1,0 +1,19 @@
+meta:
+  label: "Gallery"
+  description: "Media gallery element showing multiple images with thumbnail navigation."
+  icon: "regular-image"
+  category: "content"
+  copilot:
+    summary: "Media gallery element."
+    hints:
+      - "Requires one or more media entities."
+
+properties:
+  mediaItems:
+    type: Shopware\Core\Content\Media\MediaCollection
+    required: true
+    title: "Media"
+    description: "The images to be shown in the gallery."
+    resolvedBy: mediaIds
+    adminUI:
+      component: "media-collection"

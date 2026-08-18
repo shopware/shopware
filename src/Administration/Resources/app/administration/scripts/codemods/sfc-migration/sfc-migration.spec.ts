@@ -212,7 +212,7 @@ describe('scripts/codemods/sfc-migration', () => {
                     export default {
                         template,
                         methods: {
-                            /** @deprecated tag:v6.8.0 @experimental stableVersion:v6.8.0 @internal @private */
+                            /** @deprecated tag:v6.8.0 @internal @private */
                             typed<T>(value: T): T {
                                 return value;
                             },
@@ -237,9 +237,9 @@ describe('scripts/codemods/sfc-migration', () => {
             });
 
             expect(result.outcome).toBe('full');
-            expect(result.sfc).toContain('@deprecated tag:v6.8.0 @experimental stableVersion:v6.8.0 @internal @private');
+            expect(result.sfc).toContain('@deprecated tag:v6.8.0 @internal @private');
             expect(result.sfc).toMatch(
-                /const typed =\s+\/\*\* @deprecated tag:v6.8.0 @experimental stableVersion:v6.8.0 @internal @private \*\/\s+function <T>\(value: T\): T/,
+                /const typed =\s+\/\*\* @deprecated tag:v6.8.0 @internal @private \*\/\s+function <T>\(value: T\): T/,
             );
         });
     });

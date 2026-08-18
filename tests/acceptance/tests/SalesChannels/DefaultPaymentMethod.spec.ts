@@ -6,37 +6,39 @@ test(
     {
         tag: '@SalesChannel',
     },
-    async ({ ShopAdmin, TestDataService, AdminSalesChannelDetail, DefaultSalesChannel, IdProvider, InstanceMeta, AdminApiContext }) => {
+    async ({
+        ShopAdmin,
+        TestDataService,
+        AdminSalesChannelDetail,
+        DefaultSalesChannel,
+        IdProvider,
+        InstanceMeta,
+        AdminApiContext,
+    }) => {
         test.skip(satisfies(InstanceMeta.version, '<6.7.14.0'), 'Feature not available until version 6.7.14.0');
 
         const uuid = IdProvider.getIdPair().uuid;
         const salesChannelId = TestDataService.defaultSalesChannel.id;
-        const paymentMethodName = `Test Payment | ${uuid.substring(0,9)}+' '+${uuid.substring(10,20)}`;
+        const paymentMethodName = `Test Payment | ${uuid.substring(0, 9)}+' '+${uuid.substring(10, 20)}`;
         const newPaymentMethod = await TestDataService.createBasicPaymentMethod({
             name: paymentMethodName,
         });
 
         await TestDataService.assignSalesChannelPaymentMethod(salesChannelId, newPaymentMethod.id);
-        
+
         await ShopAdmin.goesTo(AdminSalesChannelDetail.url(salesChannelId));
         await AdminSalesChannelDetail.page.waitForURL(`**sales/channel/detail/${salesChannelId}**`);
 
         const defaultPaymentMethodField = AdminSalesChannelDetail.page.locator(
             '.sw-sales-channel-detail__assign-payment-methods',
         );
-        const selectedText = defaultPaymentMethodField.locator(
-            '.sw-entity-single-select__selection-text'
-        );
-        const paymentMethodOptions = AdminSalesChannelDetail.page.locator(
-            '.sw-select-result-list__content'
-        );
-        const loadingIndicator = defaultPaymentMethodField
-            .locator('.sw-select__selection-indicators')
-            .locator('sw-loader');
-            
+        const selectedText = defaultPaymentMethodField.locator('.sw-entity-single-select__selection-text');
+        const paymentMethodOptions = AdminSalesChannelDetail.page.locator('.sw-select-result-list__content');
+        const loadingIndicator = defaultPaymentMethodField.locator('.sw-select__selection-indicators').locator('sw-loader');
+
         const defaultPaymentMethodId = DefaultSalesChannel.salesChannel.paymentMethodId;
         const paymentMethodResponse = await AdminApiContext.get(
-            `./payment-method/${defaultPaymentMethodId}?_response=detail`
+            `./payment-method/${defaultPaymentMethodId}?_response=detail`,
         );
         expect(paymentMethodResponse.ok()).toBeTruthy();
         const { data: defaultPaymentMethod } = await paymentMethodResponse.json();
@@ -45,14 +47,15 @@ test(
         const defaultPaymentMethodInput = defaultPaymentMethodField.getByLabel('Default payment method');
         await ShopAdmin.expects(selectedText).toContainText(defaultPaymentMethodName);
         await ShopAdmin.expects(loadingIndicator).toBeHidden();
-        
+
         await defaultPaymentMethodField.locator('.sw-select__selection').click();
         await loadingIndicator.waitFor({ state: 'hidden' });
         await ShopAdmin.expects(paymentMethodOptions).toBeVisible();
         await defaultPaymentMethodInput.fill(paymentMethodName);
         await loadingIndicator.waitFor({ state: 'hidden' });
         await ShopAdmin.expects(paymentMethodOptions).toBeVisible();
-        await paymentMethodOptions.locator('.sw-select-result__result-item-text')
+        await paymentMethodOptions
+            .locator('.sw-select-result__result-item-text')
             .filter({ hasText: paymentMethodName })
             .click();
 

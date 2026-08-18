@@ -258,6 +258,30 @@ class FieldQueryBuilderTest extends TestCase
         static::assertSame(42, $array['term']['stock']['value']);
     }
 
+    public function testExplainModeFlagsTheNonTextTermClauseAsWeighted(): void
+    {
+        // The leaf TermQuery folds the field ranking into its own boost (it is a
+        // standalone clause, not a DisMax member), so its named-query score already
+        // carries the field weight. The payload must say so, or the preview scales it
+        // by the ranking a second time when it survives inside a translated DisMax.
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new IntField('stock', 'stock'));
+        $config = new SearchFieldConfig('stock', 500, false);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, '42', $config, $context);
+
+        static::assertNotNull($query);
+        $termName = $query->toArray()['term']['stock']['_name'] ?? null;
+        static::assertNotNull($termName);
+
+        $payload = json_decode((string) $termName, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('exact', $payload['type']);
+        static::assertTrue($payload['weighted']);
+    }
+
     public function testIntFieldWithNonNumericTokenReturnsNull(): void
     {
         $builder = new FieldQueryBuilder();
@@ -366,5 +390,33 @@ class FieldQueryBuilderTest extends TestCase
         static::assertSame('name', $payload['field']);
         static::assertSame('foobar', $payload['term']);
         static::assertSame('exact', $payload['type']);
+        // DisMax members carry the raw, un-weighted relevance (the ranking sits on the
+        // DisMax wrapper), so they must NOT be flagged as weighted.
+        static::assertArrayNotHasKey('weighted', $payload);
+    }
+
+    public function testExplainModeFlagsThePhraseClauseAsWeighted(): void
+    {
+        // The phrase clause folds the field ranking into its own boost (it is a standalone
+        // SHOULD, not a DisMax member), so its named-query score already carries the field
+        // weight. The payload must say so, or the live-search preview scales it by the
+        // ranking a second time and the phrase bar dwarfs every other clause.
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = (new SearchFieldConfig('name', 500, false, true, true))->withPhrase();
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foo bar', $config, $context);
+
+        static::assertNotNull($query);
+        $phraseName = $query->toArray()['match_phrase_prefix']['name.search']['_name'] ?? null;
+        static::assertNotNull($phraseName);
+
+        $payload = json_decode((string) $phraseName, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('phrase', $payload['type']);
+        static::assertSame('foo bar', $payload['term']);
+        static::assertTrue($payload['weighted']);
     }
 }

@@ -110,7 +110,32 @@
       "labelName": "Suchergebnis",
       "labelScore": "Rangpunktzahl",
       "textNoResult": "Keine Ergebnisse gefunden.",
-      "textNoResultDescription": "Versuche es noch einmal mit einem anderen Suchbegriff."
+      "textNoResultDescription": "Versuche es noch einmal mit einem anderen Suchbegriff.",
+      "relevance": "Relevanz",
+      "explainTitle": "Warum dieses Ranking?",
+      "totalScore": "Gesamtpunktzahl",
+      "weight": "Gewichtung",
+      "partialContext": "· „{fragment}“ in „{word}“",
+      "partialContextWhole": "· in „{word}“",
+      "scoreHelpText": "Die von Elasticsearch kombinierte Relevanz für dieses Ergebnis. Innerhalb jedes Felds wird der stärkste Treffer behalten und ein kleiner Bruchteil der schwächeren (unscharf, Präfix, partiell) addiert, dann mit der Gewichtung des Felds multipliziert. Die hier gezeigten Balken sind bereits mit der Gewichtung skaliert, sodass Felder mit unterschiedlicher Gewichtung direkt verglichen werden können. Jeder Balken zeigt nur den stärksten Treffer eines Felds, daher bleiben sie zusammen etwas unter der Gesamtpunktzahl – der Unterschied sind die schwächeren Treffer desselben Felds, die nicht einzeln dargestellt werden. Dasselbe Wort kann in zwei Feldern auch unterschiedlich punkten – die Punktzahl jedes Felds hängt davon ab, wie selten das Wort dort ist und wie kurz der Feldtext ist.",
+      "scoreColumnHelpText": "Die Position des Ergebnisses in der aktuellen Reihenfolge, seine Relevanzpunktzahl und ein Balken, der diese Punktzahl im Verhältnis zum besten Ergebnis zeigt. Wähle die Punktzahl einer Zeile, um zu sehen, wie sie sich zusammensetzt.",
+      "uniformScoresHint": "Alle Ergebnisse haben dieselbe Punktzahl, daher ist ihre Reihenfolge hier nicht aussagekräftig.",
+      "matchedTerms": "Gefunden",
+      "unmatchedTerms": "Nicht gefunden",
+      "matchType": {
+        "exact": "exakt",
+        "fuzzy": "unscharf",
+        "prefix": "Präfix",
+        "ngram": "teilweise",
+        "phrase": "Wortgruppe"
+      },
+      "matchTypeTooltip": {
+        "exact": "Das gesamte Suchwort stimmt exakt mit einem Wort in diesem Feld überein.",
+        "fuzzy": "Treffer mit Tippfehler-Toleranz – das Wort unterscheidet sich um ein oder zwei Buchstaben.",
+        "prefix": "Ein Wort in diesem Feld beginnt mit dem Suchwort.",
+        "ngram": "Treffer über ein gemeinsames Buchstabenfragment statt des ganzen Wortes. Die Fragmentlänge wird über die Umgebungsvariablen SHOPWARE_ES_NGRAM_MIN_GRAM und SHOPWARE_ES_NGRAM_MAX_GRAM festgelegt.",
+        "phrase": "Die vollständige Suchphrase kommt in dieser Reihenfolge in diesem Feld vor – das stärkste Signal, höher gewichtet als die einzelnen Wort-Treffer."
+      }
     },
     "textLeaveConfirm": "Du hast Änderungen an dieser Seite vorgenommen. Falls Du die Seite verlässt, ohne zu speichern, gehen Deine Änderungen verloren."
   },

@@ -6,6 +6,12 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### Live-search preview explains the ranking
+
+The live-search preview in Settings > Search now shows each result's rank and a relative score bar, and lets merchants expand a result into a "Why this ranking?" breakdown: how each field matched (exact, phrase, fuzzy, prefix, partial), with all clause scores scaled by the field weight so fields are directly comparable, and — for multi-word searches — which of the entered words the result did and did not match.
+
+The breakdown is fed by Elasticsearch explain mode: hit-level `matched_queries` are now passed through into the `search` extension of the search result while explain mode is active (it is only activated for the Administration's store-api proxy). The field-level explain payload no longer claims a `type` of `exact` — the clauses inside a nested query decide how the field matched, so field-level names now carry no match type (`phrase` is kept where it is true). Requires Elasticsearch/OpenSearch; with the platform's MySQL search the preview shows plain scores as before.
+
 ## API
 
 ### Added new shop setting endpoint

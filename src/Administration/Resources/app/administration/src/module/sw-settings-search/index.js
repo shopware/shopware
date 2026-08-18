@@ -40,6 +40,10 @@ Shopware.Component.register(
 Shopware.Component.register('sw-settings-search-search-index', () => import('./component/sw-settings-search-search-index'));
 Shopware.Component.register('sw-settings-search-live-search', () => import('./component/sw-settings-search-live-search'));
 Shopware.Component.register(
+    'sw-settings-search-live-search-explain',
+    () => import('./component/sw-settings-search-live-search-explain'),
+);
+Shopware.Component.register(
     'sw-settings-search-live-search-keyword',
     () => import('./component/sw-settings-search-live-search-keyword'),
 );

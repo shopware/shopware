@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
+import { SEARCH_CONFIG_FIELD_SNIPPETS } from '../../constant/search-config-fields.constant';
 
 const { Context, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -49,9 +50,10 @@ export default {
             isLoading: false,
             isEnabledReset: true,
             searchConfigFields: [],
+            // Labels derive from the shared field map so the config table and the
+            // live-search explain panel cannot drift.
             fieldConfigs: [
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.name'),
                     value: 'name',
                     defaultConfigs: {
                         searchable: true,
@@ -60,7 +62,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.parentName'),
                     value: 'parent.name',
                     defaultConfigs: {
                         searchable: false,
@@ -69,7 +70,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.description'),
                     value: 'description',
                     defaultConfigs: {
                         searchable: false,
@@ -78,7 +78,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.productNumber'),
                     value: 'productNumber',
                     defaultConfigs: {
                         searchable: true,
@@ -87,7 +86,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.manufacturerNumber'),
                     value: 'manufacturerNumber',
                     defaultConfigs: {
                         searchable: true,
@@ -96,7 +94,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.ean'),
                     value: 'ean',
                     defaultConfigs: {
                         searchable: true,
@@ -105,7 +102,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.customSearchKeywords'),
                     value: 'customSearchKeywords',
                     defaultConfigs: {
                         searchable: true,
@@ -114,7 +110,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.manufacturerName'),
                     value: 'manufacturer.name',
                     defaultConfigs: {
                         searchable: true,
@@ -123,7 +118,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.manufacturerCustomFields'),
                     value: 'manufacturer.customFields',
                     defaultConfigs: {
                         searchable: false,
@@ -132,7 +126,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.categoriesName'),
                     value: 'categories.name',
                     defaultConfigs: {
                         searchable: false,
@@ -141,7 +134,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.categoriesCustomFields'),
                     value: 'categories.customFields',
                     defaultConfigs: {
                         searchable: false,
@@ -150,7 +142,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.tagsName'),
                     value: 'tags.name',
                     defaultConfigs: {
                         searchable: false,
@@ -159,7 +150,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.metaTitle'),
                     value: 'metaTitle',
                     defaultConfigs: {
                         searchable: false,
@@ -168,7 +158,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.metaDescription'),
                     value: 'metaDescription',
                     defaultConfigs: {
                         searchable: false,
@@ -177,7 +166,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.propertiesValue'),
                     value: 'properties.name',
                     defaultConfigs: {
                         searchable: false,
@@ -186,7 +174,6 @@ export default {
                     },
                 },
                 {
-                    label: this.$t('sw-settings-search.generalTab.configFields.variantValue'),
                     value: 'options.name',
                     defaultConfigs: {
                         searchable: false,
@@ -194,7 +181,12 @@ export default {
                         tokenize: false,
                     },
                 },
-            ],
+            ].map((fieldConfig) => ({
+                ...fieldConfig,
+                label: this.$t(
+                    `sw-settings-search.generalTab.configFields.${SEARCH_CONFIG_FIELD_SNIPPETS[fieldConfig.value]}`,
+                ),
+            })),
         };
     },
 

@@ -105,6 +105,18 @@
             :columns="searchColumns"
         >
             {% block sw_settings_search_view_live_search_results_search_grid_columns %}
+            {% block sw_settings_search_view_live_search_results_search_grid_score_label %}
+            <template #column-label-score="{ column }">
+                <span class="sw-settings-search-live-search__score-label">
+                    {{ column.label }}
+                    <sw-help-text
+                        class="sw-settings-search-live-search__score-help"
+                        :text="$t('sw-settings-search.liveSearchTab.scoreColumnHelpText')"
+                    />
+                </span>
+            </template>
+            {% endblock %}
+
             {% block sw_settings_search_view_live_search_results_search_grid_name %}
             <template #column-name="{ item }">
                 <sw-product-variant-info
@@ -121,9 +133,30 @@
 
             {% block sw_settings_search_view_live_search_results_search_grid_score %}
             <template #column-score="{ item }">
-                <span class="sw-settings-search-live-search__grid-result__score">
-                    {{ Math.round(parseFloat(item.extensions.search._score)) }}
-                </span>
+                <component
+                    :is="hasExplain(item) ? 'button' : 'div'"
+                    :type="hasExplain(item) ? 'button' : null"
+                    class="sw-settings-search-live-search__score"
+                    :class="{ 'is--clickable': hasExplain(item), 'is--open': isExplainOpen(item) }"
+                    :aria-expanded="hasExplain(item) ? String(isExplainOpen(item)) : null"
+                    :aria-controls="hasExplain(item) ? 'sw-settings-search-live-search-explain' : null"
+                    @click="hasExplain(item) && toggleExplain(item)"
+                >
+                    <span class="sw-settings-search-live-search__score-rank">#{{ getRank(item) }}</span>
+                    <span class="sw-settings-search-live-search__score-bar">
+                        <span
+                            class="sw-settings-search-live-search__score-bar-fill"
+                            :style="{ width: getScoreBarWidth(item) }"
+                        ></span>
+                    </span>
+                    <span class="sw-settings-search-live-search__score-value">{{ formatScore(getScoreValue(item)) }}</span>
+                    <mt-icon
+                        v-if="hasExplain(item)"
+                        class="sw-settings-search-live-search__score-caret"
+                        :name="isExplainOpen(item) ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs'"
+                        size="12px"
+                    />
+                </component>
             </template>
             {% endblock %}
             {% endblock %}
@@ -137,6 +170,15 @@
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-settings-search.liveSearchTab.textNoResult')"
             :description="$t('sw-settings-search.liveSearchTab.textNoResultDescription')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_search_view_live_search_results_explain %}
+        <sw-settings-search-live-search-explain
+            v-if="selectedExplainItem"
+            :item="selectedExplainItem"
+            :search-term="currentSearchTerm"
+            :scores-are-uniform="scoresAreUniform"
         />
         {% endblock %}
     </div>

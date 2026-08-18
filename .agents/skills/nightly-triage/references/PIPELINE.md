@@ -73,15 +73,17 @@ test-file owner.
 
 ## 6. Issue generation
 
-One issue per **domain × job area**, plus one parent. Draft to scratchpad,
-get user approval, then create.
+One issue per **domain × job area** — flat, deliberately no parent tracking
+issue (the parent/sub-issue split confused readers about where to look and
+comment). Draft to scratchpad, get user approval, then create.
 
-Child issue layout (title:
+Issue layout (title:
 `[nightly][<job-area>] <domain-slug>: <N> failing tests across <S> shard(s) (<date>)`):
 
-- `Tracking issue: #<parent>` (prepend after parent exists)
 - **Context** — run link, per-shard job links, count, grouping rule
-  ("root-cause owner; confirmed collateral included here")
+  ("root-cause owner; confirmed collateral included here"), and why the run
+  is red when that needs saying (e.g. suite reinstated after a gap, so
+  breakage accumulated)
 - **Reproduce** — the standard block below, so each team can rerun its
   failures without rediscovering the env:
 
@@ -118,16 +120,12 @@ Child issue layout (title:
 Labels: the domain label; `domain/framework` additionally gets exactly one
 `component/*`. Team = label only — no assignees, no @-mentions.
 
-Parent issue: context (why the run is red — e.g. suite reinstated after a
-gap, so breakage accumulated), a table `Issue | Domain | Tests | Headline
-root cause`, the attribution method, a note that counts follow root-cause
-ownership, and a definition of done (the workflow's aggregate check green).
-
-Reconcile totals: sum of children == extracted unique test entries. Always.
+Reconcile totals: sum of the issues == extracted unique test entries. Always.
+The cluster table (`Issue | Domain | Tests | Headline root cause`), the
+attribution method, and a note that counts follow root-cause ownership go
+into the closing summary for the user, not into an issue.
 
 ## 7. Post-filing
 
-- `gh issue edit` each child to prepend the tracking line.
 - If routing changes later (audit finds hidden collateral), regenerate the
-  affected bodies from the data files — don't hand-edit lists — and update
-  the parent table in the same pass.
+  affected bodies from the data files — don't hand-edit lists.

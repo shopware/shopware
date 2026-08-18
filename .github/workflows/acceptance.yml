@@ -158,7 +158,6 @@ jobs:
           extra-options: >-
             --repeat-each="10" -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"
-          cache-trace: true
 
   tested-update-versions:
     name: tested-versions

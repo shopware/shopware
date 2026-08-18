@@ -5,14 +5,10 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\AtsContextCacheTrace;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -24,8 +20,6 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 #[CoversClass(CachedSalesChannelContextFactory::class)]
 class CachedSalesChannelContextFactoryTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testCustomerSpecificOptionsAreNotCached(): void
     {
         $context = Generator::generateSalesChannelContext();
@@ -39,8 +33,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
 
         $factory = new CachedSalesChannelContextFactory(
             $inner,
-            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class)),
-            static::createStub(AtsContextCacheTrace::class),
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
         );
 
         static::assertSame($context, $factory->create('token', 'sales-channel-id', $options));
@@ -57,9 +50,9 @@ class CachedSalesChannelContextFactoryTest extends TestCase
             ->with('token', 'sales-channel-id', $options)
             ->willReturn($context);
 
-        $cache = new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class));
+        $cache = new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()));
 
-        $factory = new CachedSalesChannelContextFactory($inner, $cache, static::createStub(AtsContextCacheTrace::class));
+        $factory = new CachedSalesChannelContextFactory($inner, $cache);
 
         $first = $factory->create('token', 'sales-channel-id', $options);
 
@@ -91,28 +84,9 @@ class CachedSalesChannelContextFactoryTest extends TestCase
                 return $secondContext;
             });
 
-        $factory = new CachedSalesChannelContextFactory($inner, new InvalidationRaceAwareCache($cache, static::createStub(AtsContextCacheTrace::class)), static::createStub(AtsContextCacheTrace::class));
+        $factory = new CachedSalesChannelContextFactory($inner, new InvalidationRaceAwareCache($cache));
 
         static::assertSame($firstContext, $factory->create('token', 'sales-channel-id'));
         static::assertSame($secondContext, $factory->create('another-token', 'sales-channel-id'));
-    }
-
-    public function testBypassesCacheWhenAtsIsRunning(): void
-    {
-        $this->setEnvVars(['ATS_RUNNING' => '1']);
-        $context = static::createStub(SalesChannelContext::class);
-        $decorated = $this->createMock(AbstractSalesChannelContextFactory::class);
-        $decorated->expects($this->once())
-            ->method('create')
-            ->with('token', 'sales-channel-id', ['languageId' => 'language-id'])
-            ->willReturn($context);
-
-        $factory = new CachedSalesChannelContextFactory(
-            $decorated,
-            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class)),
-            static::createStub(AtsContextCacheTrace::class),
-        );
-
-        static::assertSame($context, $factory->create('token', 'sales-channel-id', ['languageId' => 'language-id']));
     }
 }

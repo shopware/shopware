@@ -1,5 +1,4 @@
 monolog:
-    channels: [ats_context_cache_trace]
     handlers:
         main:
             type: fingers_crossed
@@ -9,11 +8,6 @@ monolog:
             type: rotating_file
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: error
-        ats_context_cache_trace:
-            type: stream
-            path: "%kernel.logs_dir%/ats-context-cache-trace.log"
-            level: error
-            channels: [ats_context_cache_trace]
         console:
             type:   console
             process_psr_3_messages: false

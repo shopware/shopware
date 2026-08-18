@@ -25,7 +25,6 @@ class InvalidationRaceAwareCache
 {
     public function __construct(
         private readonly CacheInterface&TagAwareAdapterInterface $cache,
-        private readonly AtsContextCacheTrace $atsContextCacheTrace,
     ) {
     }
 
@@ -48,7 +47,6 @@ class InvalidationRaceAwareCache
 
                 if (!$this->cache->hasItem($markerKey)) {
                     // A tagged invalidation overlapped cache value creation. Return the fresh value, but do not cache the potentially stale result.
-                    $this->atsContextCacheTrace->cacheBuildNotSaved($key);
                     $save = false;
                 }
 

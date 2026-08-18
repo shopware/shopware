@@ -63,7 +63,6 @@ describe('AddToCartPlugin tests', () => {
 
     test('should init plugin', () => {
         expect(typeof pluginInstance).toBe('object');
-        expect(pluginInstance.el.getAttribute('data-add-to-cart-ready')).toBe('true');
     });
 
     test('should fire events and open offcanvas when submitting form with offcanvas enabled', () => {

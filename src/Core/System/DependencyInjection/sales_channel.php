@@ -51,7 +51,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
-use Shopware\Core\System\SalesChannel\Context\AtsContextCacheTrace;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
@@ -280,18 +279,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedBaseSalesChannelContextFactory::class . '.inner'),
             service(InvalidationRaceAwareCache::class),
-            service(AtsContextCacheTrace::class),
         ]);
 
     $services->set(InvalidationRaceAwareCache::class)
         ->args([
             service('cache.object'),
-            service(AtsContextCacheTrace::class),
-        ]);
-
-    $services->set(AtsContextCacheTrace::class)
-        ->args([
-            service('monolog.logger.ats_context_cache_trace'),
         ]);
 
     $services->set(CachedSalesChannelContextFactory::class)
@@ -300,7 +292,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedSalesChannelContextFactory::class . '.inner'),
             service(InvalidationRaceAwareCache::class),
-            service(AtsContextCacheTrace::class),
         ]);
 
     $services->set(SalesChannelContextService::class)

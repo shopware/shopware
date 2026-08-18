@@ -67,10 +67,6 @@ inputs:
     required: false
     default: "ats"
     description: "Prefix for the artifact name"
-  cache-trace:
-    required: false
-    default: "false"
-    description: "Enable temporary backend context-cache diagnostics"
 
   playwright-role-arn:
     required: false
@@ -116,10 +112,6 @@ runs:
         echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
         echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
         echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
-        echo "ATS_RUNNING=1" >> $GITHUB_ENV
-        if [[ "${{ inputs.cache-trace }}" == "true" ]]; then
-          echo "ATS_CACHE_TRACE=1" >> $GITHUB_ENV
-        fi
 
     - name: Setup Shopware
       uses: shopware/setup-shopware@main
@@ -201,12 +193,10 @@ runs:
       # and the failed first attempt of a flaky test; never a clean pass), or always for Visual runs
       # (continue-on-error, results need manual review). Gating on trace.zip rather than on test-results/
       # being non-empty avoids uploading the Lighthouse HTML report, which is written on every run.
-      if: always() && (inputs.cache-trace == 'true' || hashFiles(format('{0}/test-results/**/trace.zip', inputs.directory)) != '' || contains(inputs.project, 'Visual'))
+      if: always() && (hashFiles(format('{0}/test-results/**/trace.zip', inputs.directory)) != '' || contains(inputs.project, 'Visual'))
       with:
         name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
-        path: |
-          ${{ inputs.directory }}/test-results/
-          var/log/ats-context-cache-trace.log
+        path: ${{ inputs.directory }}/test-results/
         retention-days: 3
       continue-on-error: true
 

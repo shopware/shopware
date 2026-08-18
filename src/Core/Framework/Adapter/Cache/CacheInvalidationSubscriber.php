@@ -55,7 +55,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
-use Shopware\Core\System\SalesChannel\Context\AtsContextCacheTrace;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -81,7 +80,6 @@ class CacheInvalidationSubscriber
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly Connection $connection,
         private readonly bool $productStreamIndexerEnabled,
-        private readonly AtsContextCacheTrace $atsContextCacheTrace,
     ) {
     }
 
@@ -383,15 +381,8 @@ class CacheInvalidationSubscriber
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
         }
 
-        $taxWriteOperations = [];
-        $taxWriteEvent = $event->getEventByEntityName(TaxDefinition::ENTITY_NAME);
-
-        if ($taxWriteEvent !== null) {
+        if ($event->getEventByEntityName(TaxDefinition::ENTITY_NAME)) {
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
-
-            foreach ($taxWriteEvent->getWriteResults() as $writeResult) {
-                $taxWriteOperations[] = $writeResult->getOperation();
-            }
         }
 
         if ($event->getEventByEntityName(CountryDefinition::ENTITY_NAME)) {
@@ -414,7 +405,6 @@ class CacheInvalidationSubscriber
 
         // immediately invalidates the context cache
         $this->cacheInvalidator->invalidate($keys, true);
-        $this->atsContextCacheTrace->contextInvalidation($taxWriteOperations);
     }
 
     public function invalidateManufacturerFilters(EntityWrittenContainerEvent $event): void

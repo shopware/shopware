@@ -123,6 +123,7 @@ A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced th
 `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
 
 They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
+
 ### `es:test:analyzer` lists analyzers configured in `elasticsearch.yaml`
 
 The `es:test:analyzer` command now runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, followed by the admin analyzers from `elasticsearch.administration.analysis.analyzer`.

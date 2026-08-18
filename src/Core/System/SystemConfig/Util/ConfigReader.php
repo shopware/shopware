@@ -23,6 +23,19 @@ class ConfigReader extends XmlReader
     protected string $xsdFile = __DIR__ . '/../Schema/config.xsd';
 
     /**
+     * @var array<string, array<array<string, mixed>>>
+     */
+    private array $configCache = [];
+
+    /**
+     * @return array<array<string, mixed>>
+     */
+    public function read(string $xmlFile): array
+    {
+        return $this->configCache[$xmlFile] ??= parent::read($xmlFile);
+    }
+
+    /**
      * @throws BundleConfigNotFoundException
      *
      * @return array<array<string, mixed>>

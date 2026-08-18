@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -41,6 +42,22 @@ class ConfigReaderTest extends TestCase
         $this->expectException(UtilException::class);
 
         $this->configReader->read(__DIR__ . '/_fixtures/invalid_config.xml');
+    }
+
+    public function testCachesPreviouslyReadConfig(): void
+    {
+        $filesystem = new Filesystem();
+        $configPath = sys_get_temp_dir() . '/' . bin2hex(random_bytes(8)) . '.xml';
+        $filesystem->copy(__DIR__ . '/_fixtures/valid_config.xml', $configPath);
+
+        try {
+            $firstRead = $this->configReader->read($configPath);
+            $filesystem->remove($configPath);
+
+            static::assertSame($firstRead, $this->configReader->read($configPath));
+        } finally {
+            $filesystem->remove($configPath);
+        }
     }
 
     /**

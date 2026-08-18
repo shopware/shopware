@@ -59,6 +59,7 @@ class SystemConfigController extends AbstractController
     #[Route(
         path: '/api/_action/system-config/schema',
         name: 'api.action.core.system-config',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
         methods: [Request::METHOD_GET]
     )]
     public function getConfiguration(Request $request, Context $context): JsonResponse
@@ -80,6 +81,7 @@ class SystemConfigController extends AbstractController
     #[Route(
         path: '/api/_action/system-config/get-schema',
         name: 'api.action.core.system-config.get-schema',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
         methods: [Request::METHOD_GET]
     )]
     public function getSchema(Request $request, Context $context): JsonResponse

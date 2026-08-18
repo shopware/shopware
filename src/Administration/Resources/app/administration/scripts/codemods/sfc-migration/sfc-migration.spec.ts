@@ -179,6 +179,28 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER] });
         });
 
+        // A `-->` in the body would close the generated comment early and spill the rest into
+        // rendered markup — output Vue parses happily, so nothing downstream would catch it.
+        it.each([
+            [
+                '{# see --> here #}',
+                '<!-- see -- > here -->',
+            ],
+            [
+                '{# see --!> here #}',
+                '<!-- see -- !> here -->',
+            ],
+            [
+                '{# arrow ---> tail #}',
+                '<!-- arrow --- > tail -->',
+            ],
+        ])('converts %s without letting the comment terminate early', (twig, expected) => {
+            const result = transformTemplate(`<div>${twig}<span>kept</span></div>`);
+
+            expect(result.blockers).toEqual([]);
+            expect(result.template).toBe(`<div>${expected}<span>kept</span></div>`);
+        });
+
         // The block keeps its name and its position around the slot content, so an override still
         // targets exactly what it targeted before the inversion.
         it('hoists a named slot out of the twig block that wrapped it', async () => {

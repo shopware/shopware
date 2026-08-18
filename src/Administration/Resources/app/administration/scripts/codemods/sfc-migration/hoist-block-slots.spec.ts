@@ -37,6 +37,24 @@ describe('scripts/codemods/sfc-migration/hoist-block-slots', () => {
         expect(result.template).toContain('<template #column-name="{ item }">');
     });
 
+    // A self-closing slot has neither children nor an end tag, so reconstructing it by subtracting
+    // a literal `</template>` produced an unmatched closing tag the gate could only reject.
+    it('re-opens a self-closing named slot around the block', () => {
+        const result = hoistBlockSlots('<sw-modal><sw-block name="a"><template #footer /></sw-block></sw-modal>');
+
+        expect(result.blockers).toEqual([]);
+        expect(result.template).toBe(
+            '<sw-modal><template #footer>\n<sw-block name="a">\n\n</sw-block>\n</template></sw-modal>',
+        );
+    });
+
+    it('reads the slot content up to a spaced end tag', () => {
+        const result = hoistBlockSlots('<sw-modal><sw-block name="a"><template #footer>X</template ></sw-block></sw-modal>');
+
+        expect(result.blockers).toEqual([]);
+        expect(result.template).toContain('<template #footer>\n<sw-block name="a">\nX\n</sw-block>\n</template>');
+    });
+
     it('leaves a default slot alone', () => {
         const template = '<sw-modal><sw-block name="a"><template #default>X</template></sw-block></sw-modal>';
 

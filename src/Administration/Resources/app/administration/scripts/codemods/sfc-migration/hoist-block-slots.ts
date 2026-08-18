@@ -201,8 +201,14 @@ function hoistBlockSlots(template: string): HoistResult {
         const regionStart = site.chain[0].loc.start.offset;
         const regionEnd = site.chain[0].loc.end.offset;
         const slotOpenEnd = openingTagEnd(current, site.slot.loc.start.offset);
-        const slotOpenTag = current.slice(site.slot.loc.start.offset, slotOpenEnd + 1);
-        const slotInner = current.slice(slotOpenEnd + 1, site.slot.loc.end.offset - '</template>'.length);
+        const authoredOpenTag = current.slice(site.slot.loc.start.offset, slotOpenEnd + 1);
+        // `<template #x />` carries its content in neither children nor an end tag, so the hoisted
+        // form has to re-open it around the blocks; taking the end tag's real offset rather than
+        // subtracting a literal `</template>` keeps `</template >` and friends intact too.
+        const slotOpenTag = site.slot.isSelfClosing ? `${authoredOpenTag.slice(0, -2).trimEnd()}>` : authoredOpenTag;
+        const slotInner = site.slot.isSelfClosing
+            ? ''
+            : current.slice(slotOpenEnd + 1, current.lastIndexOf('</', site.slot.loc.end.offset - 1));
         const blockOpenTags = site.chain.map((block) => {
             const openEnd = openingTagEnd(current, block.loc.start.offset);
 

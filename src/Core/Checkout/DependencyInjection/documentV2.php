@@ -204,6 +204,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_file.repository'),
             service('document_type.repository'),
             service(MediaService::class),
+            service(FileNameProvider::class),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)

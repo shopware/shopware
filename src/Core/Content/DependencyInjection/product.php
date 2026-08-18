@@ -777,6 +777,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductListingLoader::class),
             service(ProductCloseoutFilterFactory::class),
             service(CacheTagCollector::class),
+            service(Connection::class),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)

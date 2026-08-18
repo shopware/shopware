@@ -1,0 +1,73 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{#
+    Shared structure/layout for embedded third-party videos (YouTube, Vimeo, …).
+    Platform components (Sw:Media:Youtube, Sw:Media:Vimeo) build the embed URL and
+    delegate rendering to this component.
+#}
+
+{% props
+    videoUrl = null,
+    videoTitle = null,
+    previewMedia = null,
+    needsConfirmation = false,
+    cookieName = null,
+    platform = null,
+    allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-media sw-media-embed-video',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block video %}
+        {% if videoUrl is empty %}
+            <div class="sw-media-embed-video__empty">
+                <twig:Sw:Icon name="video-camera" size="2x" />
+            </div>
+        {% elseif needsConfirmation %}
+            {% set jsOptions = {
+                videoUrl: videoUrl,
+                videoTitle: videoTitle,
+                cookieName: cookieName,
+                allow: allow,
+            } %}
+
+            <div
+                class="sw-media-embed-video__consent"
+                data-component="Sw:Media:EmbedVideo"
+                data-component-options="{{ jsOptions|json_encode }}"
+            >
+                {% if previewMedia %}
+                    <twig:Sw:Media:Image :media="previewMedia" class="sw-media-embed-video__poster" />
+                {% endif %}
+
+                <div class="sw-media-embed-video__backdrop">
+                    <div class="sw-media-embed-video__notice">
+                        <p class="sw-media-embed-video__notice-text">
+                            {{ 'component.cms.vimeo.privacyNoticeText'|trans({
+                                '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
+                                '%platform%': platform,
+                            })|raw }}
+                        </p>
+
+                        <button type="button" class="sw-media-embed-video__accept btn btn-outline-secondary">
+                            {{ 'component.cms.vimeo.acceptButtonLabel'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <iframe
+                class="sw-media-embed-video__video"
+                src="{{ videoUrl }}"
+                title="{{ videoTitle }}"
+                allow="{{ allow }}"
+                allowfullscreen="allowfullscreen"
+            ></iframe>
+        {% endif %}
+    {% endblock %}
+</div>

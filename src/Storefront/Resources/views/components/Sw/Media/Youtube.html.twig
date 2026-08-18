@@ -63,50 +63,16 @@
     {% set queryParams = queryParams|merge({ end: end }) %}
 {% endif %}
 
-{% set videoUrl = host ~ resolvedVideoId ~ '?' ~ (queryParams|url_encode) %}
+{% set videoUrl = resolvedVideoId is not empty ? host ~ resolvedVideoId ~ '?' ~ (queryParams|url_encode) : null %}
 
-{% set attributeDefaults = {
-    class: 'sw-media sw-media-youtube',
-} %}
-
-<div {{ attributes.defaults(attributeDefaults) }}>
-    {% block video %}
-        {% if resolvedVideoId is empty %}
-            <div class="sw-media-youtube__empty">
-                <twig:Sw:Icon name="video-camera" size="2x" />
-            </div>
-        {% elseif needsConfirmation %}
-            {% set pluginConfiguration = {
-                cookieName: 'youtube-video',
-                videoUrl: videoUrl,
-                iframeClasses: ['sw-media-youtube__video'],
-                iframeTitle: videoTitle,
-                btnClasses: ['btn', 'btn-outline-secondary'],
-                backdropClasses: ['sw-media-youtube__backdrop'],
-                confirmButtonText: 'component.cms.vimeo.acceptButtonLabel'|trans,
-                overlayText: 'component.cms.vimeo.privacyNoticeText'|trans({
-                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
-                    '%platform%': 'YouTube',
-                })|raw,
-            } %}
-
-            <div
-                class="sw-media-youtube__placeholder"
-                data-cms-gdpr-video-element="true"
-                data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}"
-            >
-                {% if previewMedia %}
-                    <twig:Sw:Media:Image :media="previewMedia" class="sw-media-youtube__placeholder-image" />
-                {% endif %}
-            </div>
-        {% else %}
-            <iframe
-                class="sw-media-youtube__video"
-                src="{{ videoUrl }}"
-                title="{{ videoTitle }}"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen="allowfullscreen"
-            ></iframe>
-        {% endif %}
-    {% endblock %}
-</div>
+<twig:Sw:Media:EmbedVideo
+    {{ ...attributes }}
+    :videoUrl="videoUrl"
+    :videoTitle="videoTitle"
+    :previewMedia="previewMedia"
+    :needsConfirmation="needsConfirmation"
+    cookieName="youtube-video"
+    platform="YouTube"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+>
+</twig:Sw:Media:EmbedVideo>

@@ -1,11 +1,11 @@
-.sw-media-vimeo {
+.sw-media-embed-video {
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
 }
 
-.sw-media-vimeo__video,
-.sw-media-vimeo__placeholder {
+.sw-media-embed-video__video,
+.sw-media-embed-video__consent {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -13,25 +13,29 @@
     border: 0 none;
 }
 
-.sw-media-vimeo__placeholder-image {
+.sw-media-embed-video__poster {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.sw-media-vimeo__backdrop {
+.sw-media-embed-video__backdrop {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-
-    > div {
-        background-color: rgba(var(--bs-white-rgb), 0.9);
-        padding: var(--spacer-md);
-    }
 }
 
-.sw-media-vimeo__empty {
+.sw-media-embed-video__notice {
+    background-color: rgba(var(--bs-white-rgb), 0.9);
+    padding: var(--spacer-md);
+}
+
+.sw-media-embed-video__empty {
     position: absolute;
     inset: 0;
     display: flex;

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
@@ -26,8 +25,6 @@ use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\ValidC
 #[Package('framework')]
 class SystemConfigDefinitionServiceTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testCheckConfigurationReturnsFalseForBrokenConfigXml(): void
     {
         $systemConfigDefinitionService = $this->createSystemConfigDefinitionService([

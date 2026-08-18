@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-settings-tag-list {
     &__grid {
         .sw-label {
@@ -30,7 +28,7 @@
         }
 
         &-footer {
-            background: $color-gray-100;
+            background: var(--color-background-secondary-default);
             margin: 32px -8px -8px;
             padding: 20px 24px;
             text-align: right;
@@ -38,7 +36,7 @@
             border-bottom-right-radius: 4px;
 
             a {
-                color: $color-crimson-900;
+                color: var(--color-text-critical-default);
             }
         }
     }
@@ -57,9 +55,9 @@
                 padding: 2px 8px;
                 transform: translate(30%, -30%);
                 border-radius: 18px;
-                color: $color-white;
-                background: $color-shopware-brand-500;
-                font-size: $font-size-xxs;
+                color: var(--color-static-white);
+                background: var(--color-interaction-primary-default);
+                font-size: var(--font-size-2xs);
                 font-style: normal;
                 pointer-events: none;
             }
@@ -96,7 +94,7 @@
     &__bulk-merge-progress {
         text-align: center;
         padding: 50px 0 30px;
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
     }
 
     &__bulk-merge-progress-icon {

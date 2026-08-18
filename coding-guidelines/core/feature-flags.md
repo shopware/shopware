@@ -2,6 +2,8 @@
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
 We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
 
+Related ADR: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md).
+
 ### Activating the flag
 To switch flags on and off you can use the ***.env*** to configure each feature flag. Using dots inside an env variable are not allowed, so we use underscore instead:
 ```
@@ -85,14 +87,59 @@ class ApiController
 }
 ```
 
+## Planning public API changes
+
+Plan an API break for the next major with the matching attribute from
+`Shopware\Core\Framework\Deprecation\BCChange`, for example
+`#[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]`.
+These attributes describe a future contract change; they are not deprecations and the current API
+must remain usable until the announced version. Do not use `@deprecated reason:*` for this purpose:
+those annotations are treated as actionable deprecations by third-party static analysis even when
+there is no replacement today.
+
+Choose the attribute according to the affected audience. A
+`CallSiteCompatibilityChange` can break code that invokes a method, including a `parent::` call in
+a subclass. An `ExtenderCompatibilityChange` can break a subclass's override declaration or its
+inheritance relationship. Some attributes affect both. Use a real `@deprecated` annotation only
+when functionality is removed or has a replacement that callers must use now.
+
+For a planned change whose legacy use can be identified while the current API is executed
+(`BecomesAbstract`, `NewRequiredParameter`, `ParameterRemoval`, or `ParameterTypeNarrowing`),
+keep the old behavior and call `Feature::triggerDeprecationOrThrow()` only for the incompatible
+legacy use. This provides a runtime migration signal before the declared signature change.
+Framework-invoked methods are the exception because the framework would trigger the warning for
+legitimate calls.
+
+Use a `vX.Y.Z` version, parameter names without `$`, `::class` for class references, and the
+actual default value for `NewOptionalParameter`. PHPStan validates these conventions and rejects
+attributes that do not describe a real future change.
+
 ### Using flags in tests
-You can flag a test by using the corresponding helper function. This can also be used in the `setUp()` method.
+In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
+
+`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (`FEATURE_ALL`), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
+
 ```php
-use Shopware\Core\Framework\Feature;
- 
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+
 class ProductTest
 {
-  public function testNewFeature() 
+  #[DisabledFeatures(['v6.5.0.0'])]
+  public function testLegacyFeature()
+  {
+     // test code
+  }
+}
+```
+
+In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method.
+
+```php
+use Shopware\Core\Framework\Feature;
+
+class ProductTest
+{
+  public function testNewFeature()
   {
      Feature::skipTestIfActive('v6.5.0.0', $this);
 

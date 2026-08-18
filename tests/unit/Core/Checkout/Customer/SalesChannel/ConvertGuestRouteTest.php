@@ -3,13 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -19,12 +21,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ConvertGuestRoute::class)]
 class ConvertGuestRouteTest extends TestCase
 {
@@ -35,11 +39,11 @@ class ConvertGuestRouteTest extends TestCase
      */
     private StaticEntityRepository $customerRepository;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
+    private EventDispatcherInterface&Stub $eventDispatcher;
 
-    private DataValidator&MockObject $validator;
+    private DataValidator&Stub $validator;
 
-    private DataValidationFactoryInterface&MockObject $passwordValidationFactory;
+    private DataValidationFactoryInterface&Stub $passwordValidationFactory;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -48,16 +52,11 @@ class ConvertGuestRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->customerRepository = new StaticEntityRepository([]);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->validator = $this->createMock(DataValidator::class);
-        $this->passwordValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->validator = static::createStub(DataValidator::class);
+        $this->passwordValidationFactory = static::createStub(DataValidationFactoryInterface::class);
 
-        $this->route = new ConvertGuestRoute(
-            $this->customerRepository,
-            $this->eventDispatcher,
-            $this->validator,
-            $this->passwordValidationFactory
-        );
+        $this->route = $this->buildRoute();
 
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
@@ -74,28 +73,27 @@ class ConvertGuestRouteTest extends TestCase
         $passwordDefinition = new DataValidationDefinition('customer.password');
         $passwordDefinition->add('password', new NotBlank());
 
-        $this->passwordValidationFactory->expects($this->once())
+        $passwordValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $passwordValidationFactory->expects($this->once())
             ->method('create')
             ->with($this->salesChannelContext)
             ->willReturn($passwordDefinition);
 
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(
                 static::anything(),
                 static::equalTo('framework.validation.customer.guest.convert')
             );
 
-        $data = [
-            'id' => 'test-customer-id',
-            'email' => 'test@example.com',
-            'guest' => false,
-            'password' => 'new-password',
-        ];
-
-        $this->validator->expects($this->once())
+        $validator = $this->createMock(DataValidator::class);
+        $validator->expects($this->once())
             ->method('validate')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with([
+                'email' => 'test@example.com',
+                'password' => 'new-password',
+            ], static::callback(function (DataValidationDefinition $definition) {
                 static::assertSame('customer.guest.convert', $definition->getName());
                 static::assertEquals([
                     'password' => [new NotBlank()],
@@ -105,9 +103,15 @@ class ConvertGuestRouteTest extends TestCase
                 return true;
             }));
 
-        $this->route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
+        $route = $this->buildRoute($eventDispatcher, $validator, $passwordValidationFactory);
+        $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
 
-        static::assertSame([[$data]], $this->customerRepository->updates);
+        static::assertSame([[[
+            'id' => 'test-customer-id',
+            'email' => 'test@example.com',
+            'guest' => false,
+            'password' => 'new-password',
+        ]]], $this->customerRepository->updates);
     }
 
     public function testConvertGuestFailsForRegisteredCustomer(): void
@@ -115,8 +119,7 @@ class ConvertGuestRouteTest extends TestCase
         $this->customer->setGuest(false);
         $requestDataBag = new RequestDataBag(['password' => 'new-password']);
 
-        $this->expectException(CustomerException::class);
-        $this->expectExceptionMessage('Customer with id "test-customer-id" is not a guest');
+        $this->expectExceptionObject(CustomerException::registeredCustomerCannotBeConverted('test-customer-id'));
 
         $this->route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
     }
@@ -128,24 +131,23 @@ class ConvertGuestRouteTest extends TestCase
         $passwordDefinition = new DataValidationDefinition('customer.password');
         $passwordDefinition->add('password', new NotBlank());
 
-        $this->passwordValidationFactory->expects($this->once())
+        $passwordValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $passwordValidationFactory->expects($this->once())
             ->method('create')
             ->with($this->salesChannelContext)
             ->willReturn($passwordDefinition);
 
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch');
 
-        $data = [
-            'id' => 'test-customer-id',
-            'guest' => false,
-            'password' => '',
-            'email' => 'test@example.com',
-        ];
-
-        $this->validator->expects($this->once())
+        $validator = $this->createMock(DataValidator::class);
+        $validator->expects($this->once())
             ->method('validate')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with([
+                'email' => 'test@example.com',
+                'password' => '',
+            ], static::callback(function (DataValidationDefinition $definition) {
                 static::assertSame('customer.guest.convert', $definition->getName());
                 static::assertEquals([
                     'password' => [new NotBlank()],
@@ -154,11 +156,35 @@ class ConvertGuestRouteTest extends TestCase
 
                 return true;
             }))
-            ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), $data));
+            ->willThrowException(new ConstraintViolationException(
+                new ConstraintViolationList(),
+                [
+                    'id' => 'test-customer-id',
+                    'guest' => false,
+                    'password' => '',
+                    'email' => 'test@example.com']
+            ));
+
+        $route = $this->buildRoute($eventDispatcher, $validator, $passwordValidationFactory);
 
         $this->expectException(ConstraintViolationException::class);
-        $this->route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
+        $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
 
         static::assertEmpty($this->customerRepository->updates);
+    }
+
+    private function buildRoute(
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?DataValidator $validator = null,
+        ?DataValidationFactoryInterface $passwordValidationFactory = null
+    ): ConvertGuestRoute {
+        return new ConvertGuestRoute(
+            $this->customerRepository,
+            $eventDispatcher ?? $this->eventDispatcher,
+            $validator ?? $this->validator,
+            $passwordValidationFactory ?? $this->passwordValidationFactory,
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class),
+        );
     }
 }

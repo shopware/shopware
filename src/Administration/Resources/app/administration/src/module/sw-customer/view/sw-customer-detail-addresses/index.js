@@ -152,6 +152,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-shopping-cart',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    iconSize: '20px',
                 },
                 {
                     property: 'defaultBillingAddress',
@@ -159,6 +160,7 @@ export default {
                     align: 'center',
                     iconLabel: 'regular-file-text',
                     iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    iconSize: '20px',
                 },
                 {
                     property: 'lastName',
@@ -221,7 +223,7 @@ export default {
                 return;
             }
 
-            let address = this.activeCustomer.addresses.get(this.currentAddress.id);
+            let address = this.getLoadedAddress(this.currentAddress.id);
 
             if (typeof address === 'undefined' || address === null) {
                 address = this.addressRepository.create(Shopware.Context.api, this.currentAddress.id);
@@ -275,13 +277,18 @@ export default {
             this.currentAddress = null;
         },
 
+        // customer.addresses only holds the first page, so prefer the records the grid currently shows
+        getLoadedAddress(id) {
+            return this.$refs.addressGrid?.records?.get(id) ?? this.activeCustomer.addresses.get(id);
+        },
+
         onEditAddress(id) {
             const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
             // Otherwise repository save will do a POST call instead of PATCH
             currentAddress._isNew = false;
 
             // assign values and id to new address
-            Object.assign(currentAddress, this.activeCustomer.addresses.get(id));
+            Object.assign(currentAddress, this.getLoadedAddress(id));
 
             this.currentAddress = currentAddress;
             this.showEditAddressModal = id;

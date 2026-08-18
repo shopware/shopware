@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\AdminModuleGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdminModuleGenerator::class)]
 class AdminModuleGeneratorTest extends TestCase
 {
@@ -34,10 +36,10 @@ class AdminModuleGeneratorTest extends TestCase
     ): void {
         $configuration = $this->getConfig();
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn($getOptionResponse);
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
         $io->method('confirm')->willReturn($confirmResponse);
 
         (new AdminModuleGenerator())
@@ -108,8 +110,8 @@ class AdminModuleGeneratorTest extends TestCase
             'expected' => [
                 'src/Resources/app/administration/src/module/swag-example/index.js',
                 'src/Resources/app/administration/src/main.js',
-                'src/Resources/app/administration/src/snippet/en-GB.json',
-                'src/Resources/app/administration/src/snippet/de-DE.json',
+                'src/Resources/app/administration/src/snippet/en.json',
+                'src/Resources/app/administration/src/snippet/de.json',
             ],
         ];
     }

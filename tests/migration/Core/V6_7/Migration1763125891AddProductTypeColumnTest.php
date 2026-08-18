@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1763125891AddProductTypeColumn;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_7\Migration1763125891AddProductTypeColumn;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1763125891AddProductTypeColumn::class)]
 class Migration1763125891AddProductTypeColumnTest extends TestCase
 {
@@ -24,10 +26,29 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763125891, (new Migration1763125891AddProductTypeColumn())->getCreationTimestamp());
+    }
+
     public function testUpdateAddsTypeColumnAndIndex(): void
     {
         $this->ensureStatesColumnExists();
         $this->dropTypeColumnIfExists();
+
+        $migration = new Migration1763125891AddProductTypeColumn();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $typeColumn = TableHelper::getColumnOfTable($this->connection, 'product', 'type');
+        static::assertSame('physical', $typeColumn->defaultValue);
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.type'));
+    }
+
+    public function testUpdateAddsMissingIndexWhenTypeColumnAlreadyExists(): void
+    {
+        $this->ensureStatesColumnExists();
+        $this->ensureTypeColumnExistsWithoutIndex();
 
         $migration = new Migration1763125891AddProductTypeColumn();
         $migration->update($this->connection);
@@ -56,5 +77,14 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         }
 
         $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `states` JSON NULL');
+    }
+
+    private function ensureTypeColumnExistsWithoutIndex(): void
+    {
+        $this->dropTypeColumnIfExists();
+
+        $this->connection->executeStatement(
+            'ALTER TABLE `product` ADD COLUMN `type` VARCHAR(32) NOT NULL DEFAULT \'physical\''
+        );
     }
 }

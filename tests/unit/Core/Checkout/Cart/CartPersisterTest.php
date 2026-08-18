@@ -18,26 +18,27 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
-#[CoversClass(CartPersister::class)]
 #[Package('checkout')]
+#[CoversClass(CartPersister::class)]
 class CartPersisterTest extends TestCase
 {
     public function testDecorated(): void
     {
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $connection = $this->createMock(Connection::class);
-        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $connection = static::createStub(Connection::class);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
         $this->expectException(DecorationPatternException::class);
         $persister->getDecorated();
     }
 
     public function testLoadWithUnserializationTypeError(): void
     {
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -49,7 +50,7 @@ class CartPersisterTest extends TestCase
             ->with('invalid serialized data', 0)
             ->willThrowException(new \TypeError('Unserialization failed'));
 
-        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, $cartCompressor);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, $cartCompressor, new NativeClock());
 
         $this->expectException(CartTokenNotFoundException::class);
         $persister->load('token', Generator::generateSalesChannelContext());
@@ -72,8 +73,8 @@ class CartPersisterTest extends TestCase
             ->willReturn($statement);
 
         $eventDispatcher = new CollectingEventDispatcher();
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $persister->save($cart, Generator::generateSalesChannelContext());
 
@@ -81,6 +82,30 @@ class CartPersisterTest extends TestCase
         static::assertCount(2, $eventDispatcher->getEvents());
         static::assertInstanceOf(CartVerifyPersistEvent::class, $eventDispatcher->getEvents()[0]);
         static::assertInstanceOf(CartSavedEvent::class, $eventDispatcher->getEvents()[1]);
+    }
+
+    public function testSaveOfEmptiedPersistedCartResetsPersistedState(): void
+    {
+        $cart = new Cart('token');
+        $cart->setPersisted(true);
+
+        $statement = $this->createMock(Statement::class);
+        $statement->expects($this->once())
+            ->method('executeStatement')
+            ->willReturn(1);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('prepare')
+            ->with(static::stringContains('DELETE FROM `cart`'))
+            ->willReturn($statement);
+
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
+
+        $persister->save($cart, Generator::generateSalesChannelContext());
+
+        static::assertFalse($cart->isPersisted());
     }
 
     public function testSaveDoesNotDispatchSavedEventWhenPersistedCartUpdateAffectsZeroRows(): void
@@ -101,8 +126,8 @@ class CartPersisterTest extends TestCase
             ->willReturn($statement);
 
         $eventDispatcher = new CollectingEventDispatcher();
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $persister->save($cart, Generator::generateSalesChannelContext());
 

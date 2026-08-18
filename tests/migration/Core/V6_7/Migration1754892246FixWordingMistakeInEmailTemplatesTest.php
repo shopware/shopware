@@ -26,6 +26,11 @@ class Migration1754892246FixWordingMistakeInEmailTemplatesTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1754892246, (new Migration1754892246FixWordingMistakeInEmailTemplates())->getCreationTimestamp());
+    }
+
     public function testMigrationOfUnmodifiedTranslation(): void
     {
         $migration = new Migration1754892246FixWordingMistakeInEmailTemplates();

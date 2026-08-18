@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(CustomerTransformer::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerTransformer::class)]
 class CustomerTransformerTest extends TestCase
 {
     public function testCustomerTransformationWithCustomFields(): void

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
@@ -93,7 +95,16 @@ responses.addResponse({
     },
 });
 
-async function createWrapper(layoutType = 'product_list', systemConfigApiServiceOverrides = {}) {
+async function createWrapper(
+    layoutType = 'product_list',
+    systemConfigApiServiceOverrides = {},
+    { featureActive = false } = {},
+    products = mockProducts,
+) {
+    const origin = {
+        categories: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockCategories),
+    };
+
     return mount(
         await wrapTestComponent('sw-cms-layout-assignment-modal', {
             sync: true,
@@ -103,7 +114,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
             props: {
                 page: {
                     categories: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockCategories),
-                    products: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), mockProducts),
+                    products: new EntityCollection(null, null, Shopware.Context.api, new Criteria(1, 25), products),
                     landingPages: new EntityCollection(
                         null,
                         null,
@@ -113,6 +124,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     ),
                     type: layoutType,
                     id: 'uuid007',
+                    getOrigin: () => origin,
                 },
             },
             global: {
@@ -120,7 +132,38 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
+                    'mt-banner': {
+                        name: 'mt-banner',
+                        props: ['variant'],
+                        template: '<div class="mt-banner"><slot /></div>',
+                    },
                     'sw-category-tree-field': {
+                        props: {
+                            allowedTypes: {
+                                type: Array,
+                                required: false,
+                            },
+                        },
                         template: `
                         <div class="sw-category-tree-field-stub">
                           <div class="sw-category-tree-field-label" @click="$emit(\'categories-load-more\')"></div>
@@ -139,7 +182,10 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     },
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
-                    'sw-loader': true,
+                    'sw-loader': {
+                        name: 'sw-loader',
+                        template: '<div class="sw-loader"></div>',
+                    },
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">
@@ -165,6 +211,9 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-inherit-wrapper': true,
                 },
                 provide: {
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     systemConfigApiService: {
                         getValues: jest.fn((domain, salesChannelId) => {
                             if (salesChannelId === null) {
@@ -218,6 +267,68 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBeTruthy();
+        expect(wrapper.getComponent('.sw-category-tree-field-stub').props('allowedTypes')).toEqual(['page']);
+    });
+
+    it('should load inherited names for assigned variant products', async () => {
+        responses.addResponse({
+            method: 'Post',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [
+                    {
+                        id: 'variant-id',
+                        parentId: 'parent-id',
+                        attributes: {
+                            id: 'variant-id',
+                            parentId: 'parent-id',
+                            translated: {
+                                name: 'Parent product',
+                            },
+                        },
+                        relationships: [],
+                    },
+                ],
+            },
+        });
+
+        const wrapper = await createWrapper('product_detail', {}, {}, [
+            {
+                id: 'variant-id',
+                parentId: 'parent-id',
+                translated: {},
+            },
+        ]);
+
+        await flushPromises();
+
+        expect(wrapper.vm.page.products[0].translated.name).toBe('Parent product');
+    });
+
+    it('should allow variant products in the product assignment criteria', async () => {
+        const wrapper = await createWrapper('product_detail');
+
+        expect(wrapper.vm.productCriteria.filters).toEqual([]);
+    });
+
+    it.each([
+        [
+            'system configuration',
+            'isLoading',
+        ],
+        [
+            'assigned products',
+            'isLoadingProducts',
+        ],
+    ])('should report loading while loading %s', async (_label, loadingProperty) => {
+        const wrapper = await createWrapper('product_detail', {});
+
+        wrapper.vm[loadingProperty] = true;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isModalLoading).toBe(true);
+        expect(wrapper.findComponent({ name: 'sw-loader' }).exists()).toBe(true);
     });
 
     it('should render tabs when type is shop page', async () => {
@@ -226,6 +337,94 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-categories').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').exists()).toBeTruthy();
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper('page');
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper('page', {}, { featureActive: true });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-layout-assignment-modal');
+        expect(tabs.props('defaultItem')).toBe('categories');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
+                name: 'categories',
+            },
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabShopPages',
+                name: 'shop_pages',
+                disabled: true,
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
+    });
+
+    it('should provide landing page meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper('landingpage', {}, { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
+                name: 'categories',
+            },
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages',
+                name: 'landing_pages',
+                disabled: true,
+            },
+        ]);
+    });
+
+    it.each([
+        'page',
+        'landingpage',
+    ])(
+        'should render a tab permission warning banner for %s meteor tabs without system config permission',
+        async (layoutType) => {
+            const wrapper = await createWrapper(layoutType, {}, { featureActive: true });
+            const banner = wrapper.get('.sw-cms-layout-assignment-modal__tab-permission-warning');
+
+            expect(banner.text()).toBe('sw-privileges.tooltip.warning');
+            expect(wrapper.getComponent({ name: 'mt-banner' }).props('variant')).toBe('attention');
+        },
+    );
+
+    it.each([
+        'page',
+        'landingpage',
+    ])(
+        'should not render a tab permission warning banner for %s meteor tabs with system config permission',
+        async (layoutType) => {
+            global.activeAclRoles = ['system.system_config'];
+
+            const wrapper = await createWrapper(layoutType, {}, { featureActive: true });
+
+            expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-permission-warning').exists()).toBe(false);
+        },
+    );
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page', {}, { featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'shop_pages');
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('shop_pages');
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(true);
     });
 
     it('should disable shop pages tab with missing system config permission', async () => {
@@ -249,13 +448,11 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should store previous categories on component creation', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.previousCategories).toEqual(mockCategories);
-        expect(wrapper.vm.previousCategoryIds).toEqual(
-            expect.arrayContaining([
-                'uuid1',
-                'uuid2',
-            ]),
-        );
+        expect(wrapper.vm.previousCategoryIds).toEqual([
+            'uuid1',
+            'uuid2',
+            'uuid3',
+        ]);
     });
 
     it('should add categories', async () => {
@@ -1145,6 +1342,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
     it('should increment categoryIndex and update page.categories', async () => {
         const wrapper = await createWrapper();
+        const initialCategories = wrapper.vm.page.categories;
 
         expect(wrapper.vm.categoryIndex).toBe(1);
         expect(wrapper.vm.page.categories).toHaveLength(3);
@@ -1154,5 +1352,64 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
 
         expect(wrapper.vm.categoryIndex).toBe(2);
         expect(wrapper.vm.page.categories).toHaveLength(5);
+        expect(wrapper.vm.page.categories).toBe(initialCategories);
+    });
+
+    it('should preserve paginated category assignments when removing a loaded category', async () => {
+        const wrapper = await createWrapper();
+        const extraCategories = Array.from({ length: 50 }, (_, index) => {
+            return {
+                id: `extra-category-${index}`,
+                cmsPageId: wrapper.vm.page.id,
+            };
+        });
+        const removedCategory = extraCategories.at(-1);
+
+        wrapper.vm.categoryRepository.search = jest
+            .fn()
+            .mockResolvedValueOnce(extraCategories.slice(0, 25))
+            .mockResolvedValueOnce(extraCategories.slice(25));
+
+        await wrapper.vm.onExtraCategories();
+        await wrapper.vm.onExtraCategories();
+
+        wrapper.vm.page.categories.remove(removedCategory.id);
+        wrapper.vm.onCategoryRemove(removedCategory);
+
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(53);
+        expect(wrapper.vm.page.categories).toHaveLength(52);
+        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+
+        await expect(wrapper.vm.validateCategories()).rejects.toBeUndefined();
+        expect(wrapper.vm.hasDeletedCategories).toBe(true);
+    });
+
+    it('should not re-add a removed category when loading another category page', async () => {
+        const wrapper = await createWrapper();
+        const removedCategory = {
+            id: 'uuid3',
+            cmsPageId: wrapper.vm.page.id,
+        };
+
+        wrapper.vm.page.categories.remove(removedCategory.id);
+        wrapper.vm.onCategoryRemove(removedCategory);
+        wrapper.vm.categoryRepository.search = jest.fn().mockResolvedValue([removedCategory]);
+
+        await wrapper.vm.onExtraCategories();
+
+        expect(wrapper.vm.page.categories.has(removedCategory.id)).toBe(false);
+    });
+
+    it('should restore the complete category baseline when discarding changes', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.onExtraCategories();
+
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(5);
+
+        wrapper.vm.discardCategoryChanges();
+
+        expect(wrapper.vm.page.categories).toHaveLength(5);
+        expect(wrapper.vm.page.getOrigin().categories).toHaveLength(5);
     });
 });

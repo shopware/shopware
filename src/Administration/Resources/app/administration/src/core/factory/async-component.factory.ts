@@ -6,6 +6,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
+import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -60,6 +61,7 @@ export interface ComponentConfig extends ComponentOptions {
     functional?: boolean;
     extends?: ComponentConfig | string;
     _isOverride?: boolean;
+    _renderedBySfcTemplate?: boolean;
     component?: Promise<ComponentConfig | boolean>;
     loading?: ComponentConfig;
     delay?: number;
@@ -522,7 +524,7 @@ function register(componentName: string, componentConfiguration: unknown): unkno
              * The complete rendered template including all overrides will be added later.
              */
             delete config.template;
-        } else if (!config.functional && typeof config.render !== 'function') {
+        } else if (!config.functional && typeof config.render !== 'function' && !config._renderedBySfcTemplate) {
             warn(
                 'ComponentFactory',
                 `The component "${config.name}" needs a template to be functional.`,
@@ -610,6 +612,23 @@ function override(
     overrideIndex: number | null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+
+    /**
+     * For sync object configs the block index is populated here, before any
+     * `<sw-block>` mounts. For async function configs it is populated inside
+     * `configResolveMethod` when awaited — this relies on `initComponent()` being
+     * called for all components before Vue mounts anything. If that boot order
+     * changes, async Twig overrides will silently produce no output.
+     */
+    const isSyncWithTemplate =
+        componentConfiguration !== null &&
+        typeof componentConfiguration !== 'function' &&
+        typeof componentConfiguration.template === 'string';
+
+    if (isSyncWithTemplate) {
+        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
+    }
+
     const configResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
             return config;
@@ -634,15 +653,16 @@ function override(
         config.name = componentName;
 
         if (config.template) {
-            /**
-             * Register a template override for the existing component template.
-             */
+            // Async-only path: direct-object configs were already indexed synchronously
+            // above so the block index is ready before any <sw-block> setup() runs.
+            if (!isSyncWithTemplate) {
+                indexTwigBlocksFromTemplate(componentName, config.template as string);
+            }
+
             TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
 
-            /**
-             * Delete the template string from the component config.
-             * The complete rendered template including all overrides will be added later.
-             */
+            // The merged template (default + all overrides) is compiled later by
+            // TemplateFactory, so the raw string on the config object is no longer needed.
             delete config.template;
         }
 
@@ -766,8 +786,9 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
     /**
      * if config has a render function it will ignore template
      */
-    if (typeof config?.render === 'function') {
+    if (typeof config?.render === 'function' || config?._renderedBySfcTemplate) {
         delete config.template;
+        delete config._renderedBySfcTemplate;
         return config;
     }
 

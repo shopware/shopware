@@ -60,7 +60,6 @@ const sidebarsStore = Shopware.Store.register({
             });
         },
 
-        // Store API
         setActiveSidebar(locationId: string): void {
             // reset all sidebars
             this.sidebars.forEach((sidebar) => {

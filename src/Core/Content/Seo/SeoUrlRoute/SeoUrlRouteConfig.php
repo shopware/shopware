@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
@@ -12,7 +13,8 @@ class SeoUrlRouteConfig
         private readonly EntityDefinition $definition,
         private readonly string $routeName,
         private string $template,
-        private bool $skipInvalid = true
+        private bool $skipInvalid = true,
+        private readonly ?string $primaryKeyParameterKey = null,
     ) {
     }
 
@@ -44,5 +46,17 @@ class SeoUrlRouteConfig
     public function setSkipInvalid(bool $skipInvalid): void
     {
         $this->skipInvalid = $skipInvalid;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getPrimaryKeyParameter(string $primaryKey): array
+    {
+        if ($this->primaryKeyParameterKey === null) {
+            throw SeoUrlRouteConfigException::routeConfigMissingParameterKeyForPrimaryKey($this->definition->getEntityName());
+        }
+
+        return [$this->primaryKeyParameterKey => $primaryKey];
     }
 }

@@ -1,14 +1,12 @@
 @import "~scss/variables";
 
-$sw-media-library-color-background: $color-white;
-
 .sw-media-library {
     display: grid;
     grid-template-rows: auto 1fr;
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: $sw-media-library-color-background;
+    background-color: var(--color-elevation-surface-default);
 
     .sw-media-library__options-container {
         padding: 0 24px 16px;
@@ -35,7 +33,7 @@ $sw-media-library-color-background: $color-white;
 
     .sw-media-library__parent-folder {
         .sw-media-base-item__name-container {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
 
         &:hover .sw-media-base-item__selected-indicator {
@@ -63,9 +61,12 @@ $sw-media-library-color-background: $color-white;
         padding: 10px;
     }
 
-    .sw-media-library__load-more-button {
-        margin: 16px auto;
+    .sw-media-library__load-buttons {
         grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin: 16px auto;
     }
 
     &__empty-state {

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -60,6 +61,7 @@ class StorefrontCartSubscriberTest extends TestCase
     public function testResetCodesWithSession(): void
     {
         $session = $this->createMock(SessionInterface::class);
+        $session->method('isStarted')->willReturn(true);
         $session->expects($this->once())
             ->method('set')
             ->with(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES, []);
@@ -158,6 +160,56 @@ class StorefrontCartSubscriberTest extends TestCase
         $subscriber->onLineItemRemoved($event);
 
         static::assertFalse($cart->has($otherLineItem->getId()));
+        static::assertFalse($extension->hasCode('CODE123'));
+    }
+
+    public function testOnLineItemRemovedPromotionWithMultipleSiblingDiscountsDoesNotThrow(): void
+    {
+        // Reproduces a promotion with 3 "cart"-scope discounts, materialized as
+        // 3 separate line items sharing the same promotionId. A real event
+        // dispatcher is required here (unlike the other tests in this file)
+        // because the bug only manifests when BeforeLineItemRemovedEvent
+        // re-enters onLineItemRemoved() for the still-present siblings.
+        $cart = Generator::createCart();
+
+        $removedLineItem = new LineItem('discount-a', PromotionProcessor::LINE_ITEM_TYPE);
+        $removedLineItem->setReferencedId('CODE123');
+        $removedLineItem->setPayloadValue('promotionId', 'PROMO1');
+        $removedLineItem->setRemovable(true);
+
+        $siblingB = new LineItem('discount-b', PromotionProcessor::LINE_ITEM_TYPE);
+        $siblingB->setReferencedId('CODE123');
+        $siblingB->setPayloadValue('promotionId', 'PROMO1');
+        $siblingB->setRemovable(true);
+
+        $siblingC = new LineItem('discount-c', PromotionProcessor::LINE_ITEM_TYPE);
+        $siblingC->setReferencedId('CODE123');
+        $siblingC->setPayloadValue('promotionId', 'PROMO1');
+        $siblingC->setRemovable(true);
+
+        $cart->add($removedLineItem);
+        $cart->add($siblingB);
+        $cart->add($siblingC);
+
+        $cart->addExtension(CartExtension::KEY, new CartExtension());
+        $extension = $cart->getExtensionOfType(CartExtension::KEY, CartExtension::class);
+        static::assertInstanceOf(CartExtension::class, $extension);
+        $extension->addCode('CODE123');
+
+        $context = Generator::generateSalesChannelContext();
+
+        // the caller (e.g. CartItemRemoveRoute) removes the line item from the
+        // cart itself before dispatching the event
+        $cart->remove($removedLineItem->getId());
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber($this->createSubscriber($eventDispatcher));
+
+        $event = new BeforeLineItemRemovedEvent($removedLineItem, $cart, $context);
+        $eventDispatcher->dispatch($event);
+
+        static::assertFalse($cart->has($siblingB->getId()));
+        static::assertFalse($cart->has($siblingC->getId()));
         static::assertFalse($extension->hasCode('CODE123'));
     }
 

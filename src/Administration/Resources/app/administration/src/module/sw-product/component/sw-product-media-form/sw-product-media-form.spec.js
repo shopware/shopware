@@ -174,7 +174,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
         expect(buttons).toHaveLength(1);
-        expect(buttons.at(0).text()).toContain('Remove');
+        expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 
     it('should move media to first position when it is marked as cover', async () => {
@@ -223,5 +223,29 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.vm.product.media[1].mediaId).toBe('media1');
         // Check if new mediaItem has new url
         expect(wrapper.vm.product.media[1].media.url).toBe('http://shopware.test/media1-new-url.jpg');
+    });
+
+    describe('when the product has not been loaded yet', () => {
+        let loadedProduct;
+
+        beforeEach(() => {
+            loadedProduct = Shopware.Store.get('swProductDetail').product;
+            Shopware.Store.get('swProductDetail').product = {};
+        });
+
+        afterEach(() => {
+            Shopware.Store.get('swProductDetail').product = loadedProduct;
+        });
+
+        it('should render without a media association', async () => {
+            global.activeAclRoles = ['product.editor'];
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.cover).toBeNull();
+            expect(wrapper.vm.productMedia).toEqual([]);
+            expect(wrapper.find('.sw-product-media-form').exists()).toBeTruthy();
+            expect(wrapper.find('.sw-product-media-form__cover-image.is--placeholder').exists()).toBeTruthy();
+        });
     });
 });

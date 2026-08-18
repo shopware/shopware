@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -17,8 +20,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
 #[Package('after-sales')]
+#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
 final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -30,7 +33,8 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly EntityRepository $newsletterRecipientRepository
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -55,16 +59,29 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     {
         $criteria = new Criteria();
 
-        $dateTime = (new \DateTime())->add(\DateInterval::createFromDateString('-30 days'));
+        $dateTime = $this->clock->now()->modify('-30 days');
 
-        $criteria->addFilter(new RangeFilter(
-            'createdAt',
-            [
-                RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
-            ]
-        ));
+        $notSetRecipientFilter = new AndFilter([
+            new EqualsFilter('status', 'notSet'),
+            new RangeFilter(
+                'createdAt',
+                [
+                    RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
+                ]
+            ),
+        ]);
 
-        $criteria->addFilter(new EqualsFilter('status', 'notSet'));
+        $optOutRecipientFilter = new AndFilter([
+            new EqualsFilter('status', 'optOut'),
+            new RangeFilter(
+                'updatedAt',
+                [
+                    RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
+                ]
+            ),
+        ]);
+
+        $criteria->addFilter(new OrFilter([$notSetRecipientFilter, $optOutRecipientFilter]));
 
         $criteria->setLimit(999);
 

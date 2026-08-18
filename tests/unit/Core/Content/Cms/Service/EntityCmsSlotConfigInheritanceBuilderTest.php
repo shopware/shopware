@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[Group('store-api')]
 #[CoversClass(EntityCmsSlotConfigInheritanceBuilder::class)]
 class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
@@ -56,6 +58,42 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
         static::assertSame([
             'slot-a' => ['headline' => ['value' => 'parent']],
             'slot-b' => ['headline' => ['value' => 'child']],
+        ], $result);
+    }
+
+    public function testBuildRetainsParentLanguageFieldsWhenChildOverridesPartialSlot(): void
+    {
+        $childLanguageId = Uuid::randomHex();
+        $parentLanguageId = Uuid::randomHex();
+
+        $builder = new EntityCmsSlotConfigInheritanceBuilder(
+            $this->createConnectionWithParentLanguageIds([
+                $parentLanguageId,
+                null,
+            ]),
+        );
+
+        $translations = new ProductTranslationCollection([
+            $this->createTranslation($parentLanguageId, [
+                'slot-a' => [
+                    'headline' => ['value' => 'parent headline'],
+                    'content' => ['value' => 'parent content'],
+                ],
+            ]),
+            $this->createTranslation($childLanguageId, [
+                'slot-a' => [
+                    'content' => ['value' => 'child content'],
+                ],
+            ]),
+        ]);
+
+        $result = $builder->build($translations, $this->createSalesChannelContext($childLanguageId));
+
+        static::assertSame([
+            'slot-a' => [
+                'headline' => ['value' => 'parent headline'],
+                'content' => ['value' => 'child content'],
+            ],
         ], $result);
     }
 
@@ -97,8 +135,8 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
      */
     private function createConnectionWithParentLanguageIds(array $parentLanguageIds): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
 
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('from')->willReturnSelf();
@@ -106,7 +144,7 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
         $queryBuilder->method('setParameter')->willReturnSelf();
 
         $results = array_map(function (?string $parentLanguageId): Result {
-            $result = $this->createMock(Result::class);
+            $result = $this->createStub(Result::class);
             $result->method('fetchOne')->willReturn($parentLanguageId);
 
             return $result;

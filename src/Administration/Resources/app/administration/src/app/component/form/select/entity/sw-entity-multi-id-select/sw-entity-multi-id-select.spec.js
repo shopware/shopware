@@ -12,6 +12,7 @@ const fixture = [
         id: utils.createId(),
         name: 'first entry',
         active: true,
+        variation: [{ group: 'Color', option: 'Red' }],
     },
     {
         id: utils.createId(),
@@ -20,15 +21,15 @@ const fixture = [
     },
 ];
 
-function getCollection() {
-    return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);
+function getCollection(entity = 'testEntity', route = '/test-entity') {
+    return new EntityCollection(route, entity, null, new Criteria(1, 25), fixture, fixture.length, null);
 }
 
 function getEmptyCollection() {
     return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), [], 0, null);
 }
 
-async function createWrapper(propsOverride = {}) {
+async function createWrapper(propsOverride = {}, stubsOverride = {}) {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
         props: {
             value: getCollection().getIds(),
@@ -64,6 +65,7 @@ async function createWrapper(propsOverride = {}) {
                 'sw-select-result': true,
                 'sw-select-result-list': true,
                 'sw-loader': true,
+                ...stubsOverride,
             },
         },
     });
@@ -179,5 +181,83 @@ describe('components/sw-entity-multi-id-select', () => {
         await flushPromises();
 
         expect(search).not.toHaveBeenCalled();
+    });
+
+    it('should display product variant information for product entities', async () => {
+        const wrapper = await createWrapper({
+            repository: {
+                route: '/product',
+                entityName: 'product',
+                search: () => {
+                    return Promise.resolve(getCollection('product', '/product'));
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.displayVariants).toBe(true);
+        expect(wrapper.vm.selectCriteria.associations).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ association: 'options' }),
+            ]),
+        );
+    });
+
+    it('should render variant info in default label slots for product entities', async () => {
+        const slotRenderingMultiSelectStub = {
+            template: `
+                <div>
+                    <slot
+                        name="selection-label-property"
+                        :item="item"
+                        label-property="name"
+                    ></slot>
+                    <slot
+                        name="result-label-property"
+                        :item="item"
+                        label-property="name"
+                        :get-key="getKey"
+                        search-term=""
+                        :highlight-search-term="false"
+                    ></slot>
+                </div>
+            `,
+            data() {
+                return { item: fixture[0] };
+            },
+            methods: {
+                getKey: (item, key) => item[key],
+            },
+        };
+
+        const wrapper = await createWrapper(
+            {
+                repository: {
+                    route: '/product',
+                    entityName: 'product',
+                    search: () => {
+                        return Promise.resolve(getCollection('product', '/product'));
+                    },
+                },
+            },
+            {
+                'sw-entity-multi-select': slotRenderingMultiSelectStub,
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.findAll('sw-product-variant-info-stub')).toHaveLength(2);
+
+        const nonProductWrapper = await createWrapper(
+            {},
+            {
+                'sw-entity-multi-select': slotRenderingMultiSelectStub,
+            },
+        );
+        await flushPromises();
+
+        expect(nonProductWrapper.vm.displayVariants).toBe(false);
+        expect(nonProductWrapper.find('sw-product-variant-info-stub').exists()).toBe(false);
+        expect(nonProductWrapper.text()).toContain(fixture[0].name);
     });
 });

@@ -7,12 +7,15 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
@@ -26,7 +29,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(SeoUrlPlaceholderHandler::class)]
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
-    private MockObject&Connection $connection;
+    private Connection&Stub $connection;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -34,16 +37,12 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+        $this->connection = static::createStub(Connection::class);
+        $this->connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
 
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
-            $this->createMock(RequestStack::class),
-            $this->createMock(Router::class),
-            $this->connection
-        );
+        $this->seoUrlPlaceholderHandler = $this->createHandler();
     }
 
     /**
@@ -89,9 +88,11 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     #[DataProvider('replaceDataProvider')]
     public function testReplace(string $host, string $content, string $expected): void
     {
-        $this->connection->expects($this->once())->method('executeQuery')->willReturn($this->createMock(Result::class));
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
+        $connection->expects($this->once())->method('executeQuery')->willReturn(static::createStub(Result::class));
 
-        static::assertSame($expected, $this->seoUrlPlaceholderHandler->replace($content, $host, $this->salesChannelContext));
+        static::assertSame($expected, $this->createHandler($connection)->replace($content, $host, $this->salesChannelContext));
     }
 
     public function testSeoReplacementSalesChannelDefaultAndOverride(): void
@@ -123,5 +124,96 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         $expectedUrl2 = $host . '/cars-default';
         $expected = \sprintf($template, $expectedUrl1, $expectedUrl2);
         static::assertSame($expected, $actual);
+    }
+
+    public function testReplacePrependsExternalStorefrontDomainForHeadlessSalesChannel(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $result = $this->createMock(Result::class);
+        $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
+            [
+                'seo_path_info' => 'product/' . $productId,
+                'path_info' => '/store-api/product/' . $productId,
+                'sales_channel_id' => TestDefaults::SALES_CHANNEL,
+            ],
+        ]);
+        $this->connection->method('executeQuery')->willReturn($result);
+
+        $context = $this->createHeadlessSalesChannelContext(true);
+
+        $content = 'SEO: ' . SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/store-api/product/' . $productId . '#';
+        $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
+
+        static::assertSame('SEO: https://foo.bar/product/' . $productId, $actual);
+    }
+
+    public function testReplaceKeepsRelativePathForHeadlessSalesChannelWithoutExternalStorefrontDomain(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $result = $this->createMock(Result::class);
+        $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
+            [
+                'seo_path_info' => 'product/' . $productId,
+                'path_info' => '/store-api/product/' . $productId,
+                'sales_channel_id' => TestDefaults::SALES_CHANNEL,
+            ],
+        ]);
+        $this->connection->method('executeQuery')->willReturn($result);
+
+        $context = $this->createHeadlessSalesChannelContext(false);
+
+        $content = 'SEO: ' . SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/store-api/product/' . $productId . '#';
+        $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
+
+        static::assertSame('SEO: product/' . $productId, $actual);
+    }
+
+    public function testReplaceKeepsRelativePathForHeadlessSalesChannelWhenExternalStorefrontDomainLanguageDiffers(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $result = $this->createMock(Result::class);
+        $result->expects($this->once())->method('fetchAllAssociative')->willReturn([
+            [
+                'seo_path_info' => 'product/' . $productId,
+                'path_info' => '/store-api/product/' . $productId,
+                'sales_channel_id' => TestDefaults::SALES_CHANNEL,
+            ],
+        ]);
+        $this->connection->method('executeQuery')->willReturn($result);
+
+        $context = $this->createHeadlessSalesChannelContext(true, Uuid::randomHex());
+
+        $content = 'SEO: ' . SeoUrlPlaceholderHandler::DOMAIN_PLACEHOLDER . '/store-api/product/' . $productId . '#';
+        $actual = $this->seoUrlPlaceholderHandler->replace($content, 'https://my-storefront.com', $context);
+
+        static::assertSame('SEO: product/' . $productId, $actual);
+    }
+
+    private function createHeadlessSalesChannelContext(bool $externalStorefront, ?string $domainLanguageId = null): SalesChannelContext
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
+
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId(Uuid::randomHex());
+        $domain->setUrl('https://foo.bar');
+        $domain->setIsExternalStorefront($externalStorefront);
+        $domain->setLanguageId($domainLanguageId ?? $context->getLanguageId());
+
+        $context->getSalesChannel()->setDomains(new SalesChannelDomainCollection([$domain]));
+
+        return $context;
+    }
+
+    private function createHandler(?Connection $connection = null): SeoUrlPlaceholderHandler
+    {
+        return new SeoUrlPlaceholderHandler(
+            static::createStub(RequestStack::class),
+            static::createStub(Router::class),
+            $connection ?? $this->connection
+        );
     }
 }

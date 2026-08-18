@@ -30,7 +30,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeService implements ResetInterface
 {
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
@@ -88,16 +88,54 @@ class ThemeService implements ResetInterface
             $context
         );
 
-        // refresh the runtime config only if not using the StaticFileConfigLoader (no database)
+        // Refresh the runtime config values when the static file loader is used.
+        // The static file loader is only used for the compiled theme configuration;
+        // the resolved values are still stored in the runtime config table.
         if (!$this->configLoader instanceof StaticFileConfigLoader) {
+            $importMap = null;
+            if ($this->themeCompiler instanceof ThemeCompiler) {
+                $importMap = $this->themeCompiler->buildComponentImportMap(
+                    $configurationCollection ?? $this->extensionRegistry->getConfigurations()
+                );
+
+                $importMap ??= ['imports' => []];
+            }
+
             $this->themeRuntimeConfigService->refreshRuntimeConfig(
                 $themeId,
                 $themeConfig,
                 $context,
                 true,
-                $configurationCollection
+                $configurationCollection,
+                $importMap,
             );
+        } else {
+            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
         }
+    }
+
+    public function refreshThemeImportMap(
+        string $salesChannelId,
+        string $themeId,
+        Context $context,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null
+    ): void {
+        if ($this->configLoader instanceof StaticFileConfigLoader || !$this->themeCompiler instanceof ThemeCompiler) {
+            return;
+        }
+
+        $configurationCollection ??= $this->extensionRegistry->getConfigurations();
+        $themeConfig = $this->configLoader->load($themeId, $context);
+        $importMap = $this->themeCompiler->buildComponentImportMap($configurationCollection) ?? ['imports' => []];
+
+        $this->themeRuntimeConfigService->refreshRuntimeConfig(
+            $themeId,
+            $themeConfig,
+            $context,
+            false,
+            $configurationCollection,
+            $importMap,
+        );
     }
 
     /**
@@ -408,7 +446,7 @@ class ThemeService implements ResetInterface
                 [
                     'id' => Uuid::randomHex(),
                     'status' => 'info',
-                    'message' => 'The compilation of the changes will be started in the background. You may see the changes with delay (approx. 1 minute). You will receive a notification if the compilation is done.',
+                    'message' => 'sw-theme-manager.detail.asyncCompilation.started',
                     'requiredPrivileges' => [],
                 ],
                 $context

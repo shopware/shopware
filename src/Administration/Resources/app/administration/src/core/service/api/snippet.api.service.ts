@@ -1,4 +1,5 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import type { SnippetRegistry } from 'src/core/factory/locale.factory';
 import type LocaleFactory from 'src/core/factory/locale.factory';
@@ -10,13 +11,15 @@ type SnippetFilter = {
     data: Array<string>;
 };
 
+type InstalledLocales = Record<string, string>;
+
 /**
  * @class
  * @extends ApiService
  * @sw-package discovery
  */
 class SnippetApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'snippet') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'snippet') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'snippetService';
     }
@@ -72,14 +75,14 @@ class SnippetApiService extends ApiService {
             });
     }
 
-    async getLocales(): Promise<Array<string>> {
+    async getLocales(): Promise<InstalledLocales> {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
             .get(`/_admin/locales`, {
                 headers,
             })
-            .then((response: AxiosResponse<Array<string>>) => {
+            .then((response: AxiosResponse<InstalledLocales>) => {
                 return ApiService.handleResponse(response);
             });
     }

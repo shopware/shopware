@@ -7,7 +7,48 @@ import { mount } from '@vue/test-utils';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-async function createWrapper(propsData) {
+function createCustomerMock() {
+    return {
+        id: '63e27affb5804538b5b06cb4e344b130',
+        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+            {
+                street: 'Stehr Divide',
+                zipcode: '64885-2245',
+                city: 'Faheyshire',
+                id: '652e9e571cc94bd898077f256dcf629f',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
+                hash: 'isUnique',
+                getEntityName: () => 'customer_address',
+            },
+            {
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: 'Muster SE',
+                department: 'People & Culture',
+                id: '652e9e571cc94bd898077f256dcf6233',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
+                countryState: {
+                    translated: {
+                        name: 'NRW',
+                    },
+                },
+                hash: 'isDuplicate',
+                getEntityName: () => 'customer_address',
+            },
+        ]),
+    };
+}
+
+async function createWrapper(propsData, customerResponse = createCustomerMock()) {
     return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
         global: {
             directives: {
@@ -43,6 +84,10 @@ async function createWrapper(propsData) {
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
+                'sw-address': {
+                    props: ['formattingAddress'],
+                    template: '<div class="sw-address">{{ formattingAddress }}</div>',
+                },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
                     sync: true,
@@ -73,50 +118,19 @@ async function createWrapper(propsData) {
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () =>
-                            Promise.resolve({
-                                id: '63e27affb5804538b5b06cb4e344b130',
-                                addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
-                                    {
-                                        street: 'Stehr Divide',
-                                        zipcode: '64885-2245',
-                                        city: 'Faheyshire',
-                                        id: '652e9e571cc94bd898077f256dcf629f',
-                                        country: {
-                                            translated: {
-                                                name: 'Buzbach',
-                                            },
-                                        },
-                                        hash: 'isUnique',
-                                        getEntityName: () => 'customer_address',
-                                    },
-                                    {
-                                        street: 'Denesik Bridge',
-                                        zipcode: '05132',
-                                        city: 'Bernierstad',
-                                        company: 'Muster SE',
-                                        department: 'People & Culture',
-                                        id: '652e9e571cc94bd898077f256dcf6233',
-                                        country: {
-                                            translated: {
-                                                name: 'Buzbach',
-                                            },
-                                        },
-                                        countryState: {
-                                            translated: {
-                                                name: 'NRW',
-                                            },
-                                        },
-                                        hash: 'isDuplicate',
-                                        getEntityName: () => 'customer_address',
-                                    },
-                                ]),
-                            }),
+                        get: () => Promise.resolve(customerResponse),
                         create: () => ({
                             _isNew: true,
                             getEntityName: () => 'customer_address',
                         }),
                     }),
+                },
+                customSnippetApiService: {
+                    render: (address) => {
+                        return Promise.resolve({
+                            rendered: `${address.street}, ${address.zipcode} ${address.city}`,
+                        });
+                    },
                 },
                 shortcutService: {
                     stopEventListener: () => {},
@@ -269,6 +283,102 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(wrapper.find('.sw-customer-address-form')).toBeTruthy();
     });
 
+    it('should not offer to create a new address when the customer was deleted', async () => {
+        wrapper = await createWrapper({}, null);
+        await flushPromises();
+
+        const addressSelection = wrapper.find('.sw-order-address-selection');
+
+        await addressSelection.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.customer).toBeNull();
+        expect(wrapper.find('.sw-select-result__add-new-address').exists()).toBe(false);
+        expect(wrapper.findAll('.sw-select-result')).toHaveLength(1);
+    });
+
+    it('should select a newly created address after saving it', async () => {
+        wrapper = await createWrapper({
+            type: 'shipping',
+        });
+
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'newCustomerAddressId',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            street: 'Example Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            countryId: 'countryId',
+        });
+
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(wrapper.emitted('change-address')).toEqual([
+            [
+                {
+                    orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                    customerAddressId: 'newCustomerAddressId',
+                    type: 'shipping',
+                    edited: false,
+                },
+            ],
+        ]);
+    });
+
+    it('should keep id on options for addresses where id is not enumerable via spread', async () => {
+        await flushPromises();
+
+        const newAddressId = 'new-customer-address-without-enumerable-id';
+        const draft = {
+            street: 'Ada Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            hash: 'brandNewAddress',
+            getEntityName: () => 'customer_address',
+        };
+        // Mimic Entity proxy: id is readable but missing from Object spread / own keys
+        const entityLikeAddress = new Proxy(draft, {
+            get(target, property) {
+                if (property === 'id') {
+                    return newAddressId;
+                }
+
+                return target[property];
+            },
+        });
+
+        wrapper.vm.customer.addresses.push(entityLikeAddress);
+
+        const option = wrapper.vm.addressOptions.find((item) => item.street === 'Ada Street 1');
+
+        expect(option).toBeDefined();
+        expect(option.id).toBe(newAddressId);
+        // Selecting uses option.id as customerAddressId; without the explicit assignment this is undefined
+        expect({ ...draft }.id).toBeUndefined();
+
+        wrapper.vm.onAddressChange(option.id);
+
+        expect(wrapper.emitted('change-address').at(-1)).toEqual([
+            {
+                orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                customerAddressId: newAddressId,
+                type: 'billing',
+                edited: false,
+            },
+        ]);
+    });
+
     it('should be able to get the options with props', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
@@ -312,5 +422,15 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');
+    });
+
+    it('renders the selected address details below the select', async () => {
+        await flushPromises();
+
+        const selectedAddress = wrapper.find('.sw-order-address-selection__selected-address');
+        const selectedAddressContent = selectedAddress.find('.sw-address');
+
+        expect(selectedAddress.exists()).toBe(true);
+        expect(selectedAddressContent.text()).toBe('Denesik Bridge, 05132 Bernierstad');
     });
 });

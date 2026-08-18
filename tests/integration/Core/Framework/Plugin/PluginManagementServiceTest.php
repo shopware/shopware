@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -35,7 +35,7 @@ class PluginManagementServiceTest extends TestCase
 
     private const TEST_PLUGIN_ZIP_NAME = 'SwagFashionTheme.zip';
     private const TEST_APP_ZIP_NAME = 'App.zip';
-    private const FIXTURE_PATH = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+    private const FIXTURE_PATH = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
     private const PLUGIN_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_PLUGIN_ZIP_NAME;
     private const APP_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_APP_ZIP_NAME;
     private const PLUGINS_PATH = self::FIXTURE_PATH . 'plugins';
@@ -68,6 +68,9 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove(self::APP_ZIP_FIXTURE_PATH);
+        // App.zip extracts into the shared fixture dir; its root must never collide with a
+        // committed fixture app (it used to be `plugin/`, silently overwriting apps/plugin)
+        $this->filesystem->remove(self::APPS_PATH . '/SwagApp');
         $this->filesystem->remove($this->cacheDir);
 
         Kernel::getConnection()->executeStatement('DELETE FROM plugin');
@@ -182,7 +185,7 @@ class PluginManagementServiceTest extends TestCase
     private function getPluginService(): PluginService
     {
         return $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
+            self::FIXTURE_PATH . 'plugins',
             static::getContainer()->getParameter('kernel.project_dir'),
             static::getContainer()->get('plugin.repository'),
             static::getContainer()->get('language.repository'),

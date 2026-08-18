@@ -4,18 +4,23 @@ namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CategoryUrlGenerator::class)]
 class CategoryUrlGeneratorTest extends TestCase
 {
@@ -23,16 +28,17 @@ class CategoryUrlGeneratorTest extends TestCase
 
     private CategoryUrlGenerator $urlGenerator;
 
-    private MockObject&SeoUrlPlaceholderHandlerInterface $replacer;
+    private Stub&EntityRouteResolver $entityRouteResolver;
 
     private SalesChannelEntity $salesChannel;
 
     protected function setUp(): void
     {
-        $this->replacer = $this->getMockBuilder(SeoUrlPlaceholderHandlerInterface::class)->getMock();
-        $this->urlGenerator = new CategoryUrlGenerator($this->replacer);
-        $this->replacer->method('generate')->willReturnArgument(0);
+        $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
+        $this->urlGenerator = new CategoryUrlGenerator($this->entityRouteResolver);
+        $this->entityRouteResolver->method('generateSeoUrlPlaceholder')->willReturnArgument(0);
         $this->salesChannel = new SalesChannelEntity();
+        $this->salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $this->salesChannel->setNavigationCategoryId(Uuid::randomHex());
     }
 
@@ -42,7 +48,7 @@ class CategoryUrlGeneratorTest extends TestCase
         $category->setId(Uuid::randomHex());
         $category->setType(CategoryDefinition::TYPE_PAGE);
 
-        static::assertSame('frontend.navigation.page', $this->urlGenerator->generate($category, $this->salesChannel));
+        static::assertSame(CategoryDefinition::ENTITY_NAME, $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
     public function testFolder(): void
@@ -51,22 +57,6 @@ class CategoryUrlGeneratorTest extends TestCase
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
         static::assertNull($this->urlGenerator->generate($category, $this->salesChannel));
-    }
-
-    public function testLinkCategoryHome(): void
-    {
-        $category = new CategoryEntity();
-        $category->setType(CategoryDefinition::TYPE_LINK);
-        $category->setLinkType(CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_CATEGORY);
-        $category->setInternalLink(Uuid::randomHex());
-
-        $internalLink = $category->getInternalLink();
-        static::assertIsString($internalLink);
-        $category->addTranslated('internalLink', $internalLink);
-        $this->salesChannel->setNavigationCategoryId($internalLink);
-
-        static::assertSame('frontend.home.page', $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
     #[DataProvider('dataProviderLinkTypes')]
@@ -93,9 +83,9 @@ class CategoryUrlGeneratorTest extends TestCase
     public static function dataProviderLinkTypes(): array
     {
         return [
-            [CategoryDefinition::LINK_TYPE_PRODUCT, 'frontend.detail.page'],
-            [CategoryDefinition::LINK_TYPE_CATEGORY, 'frontend.navigation.page'],
-            [CategoryDefinition::LINK_TYPE_LANDING_PAGE, 'frontend.landing.page'],
+            [CategoryDefinition::LINK_TYPE_PRODUCT, ProductDefinition::ENTITY_NAME],
+            [CategoryDefinition::LINK_TYPE_CATEGORY, CategoryDefinition::ENTITY_NAME],
+            [CategoryDefinition::LINK_TYPE_LANDING_PAGE, LandingPageDefinition::ENTITY_NAME],
             [CategoryDefinition::LINK_TYPE_EXTERNAL, self::EXTERNAL_URL],
             [null, self::EXTERNAL_URL],
         ];

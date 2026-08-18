@@ -64,6 +64,21 @@ describe('components/sw-select-base', () => {
         expect(clearableIcon.exists()).toBe(false);
     });
 
+    it('should remove disabled selects from the tab order', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+
+        expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
+    });
+
+    it('should not emit a collapsed event when not expanded', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.expanded = false;
+
+        wrapper.vm.collapse();
+
+        expect(wrapper.emitted('select-collapsed')).toBeUndefined();
+    });
+
     it('should trigger clear event when user clicks on clearable icon', async () => {
         const wrapper = await createWrapper({ showClearableButton: true });
 
@@ -77,5 +92,51 @@ describe('components/sw-select-base', () => {
 
         // expect clear event thrown
         expect(wrapper.emitted('clear')).toHaveLength(1);
+    });
+
+    it('should not collapse when the event target is outside but the click position is inside the select', async () => {
+        const wrapper = await createWrapper();
+        const selection = wrapper.find('.sw-select__selection').element;
+        const originalElementsFromPoint = document.elementsFromPoint;
+
+        try {
+            document.elementsFromPoint = jest.fn(() => [
+                selection,
+                document.body,
+            ]);
+            wrapper.vm.collapse = jest.fn();
+
+            wrapper.vm.listenToClickOutside({
+                target: document.body,
+                clientX: 10,
+                clientY: 10,
+            });
+
+            expect(wrapper.vm.collapse).not.toHaveBeenCalled();
+        } finally {
+            document.elementsFromPoint = originalElementsFromPoint;
+        }
+    });
+
+    it('should collapse when the event target and click position are outside the select', async () => {
+        const wrapper = await createWrapper();
+        const originalElementsFromPoint = document.elementsFromPoint;
+
+        try {
+            document.elementsFromPoint = jest.fn(() => [
+                document.body,
+            ]);
+            wrapper.vm.collapse = jest.fn();
+
+            wrapper.vm.listenToClickOutside({
+                target: document.body,
+                clientX: 10,
+                clientY: 10,
+            });
+
+            expect(wrapper.vm.collapse).toHaveBeenCalledTimes(1);
+        } finally {
+            document.elementsFromPoint = originalElementsFromPoint;
+        }
     });
 });

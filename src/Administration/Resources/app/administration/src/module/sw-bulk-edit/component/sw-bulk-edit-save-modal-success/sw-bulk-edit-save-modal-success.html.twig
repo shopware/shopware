@@ -21,6 +21,42 @@
     </p>
     {% endblock %}
 
+    {% block sw_bulk_edit_save_modal_document_generation_errors %}
+    <div
+        v-if="hasSkippedDocuments || hasDocumentGenerationErrors"
+        class="sw-bulk-edit-save-modal-success__document-generation-result"
+    >
+        <mt-banner
+            v-if="hasSkippedDocuments"
+            :title="$t('sw-bulk-edit.modal.success.documentGenerationSkipped', {
+                count: documentGenerationResult.skipped
+            }, documentGenerationResult.skipped)"
+            variant="info"
+            class="sw-bulk-edit-save-modal-success__info-document-generation"
+        />
+
+        <div
+            v-if="hasSkippedDocuments && hasDocumentGenerationErrors"
+            class="sw-bulk-edit-save-modal-success__document-generation-separator"
+        ></div>
+
+        <template v-if="hasDocumentGenerationErrors">
+            <mt-banner
+                :title="$t('sw-bulk-edit.modal.success.documentGenerationFailed', {
+                    count: documentGenerationResult.failed
+                }, documentGenerationResult.failed)"
+                variant="critical"
+                class="sw-bulk-edit-save-modal-success__warning-document-generation"
+            />
+
+            <sw-bulk-edit-document-generation-failed-list
+                v-if="hasFailedDocumentRows"
+                :rows="failedDocumentRows"
+            />
+        </template>
+    </div>
+    {% endblock %}
+
     {% block sw_bulk_edit_save_modal_success_download_document %}
     <ul
         v-if="selectedDocumentTypes.length > 0"

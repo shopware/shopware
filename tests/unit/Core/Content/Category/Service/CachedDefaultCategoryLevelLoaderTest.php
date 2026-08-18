@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEvents;
@@ -25,33 +25,25 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 /**
  * @internal
  */
-#[CoversClass(CachedDefaultCategoryLevelLoader::class)]
 #[Package('discovery')]
+#[CoversClass(CachedDefaultCategoryLevelLoader::class)]
 class CachedDefaultCategoryLevelLoaderTest extends TestCase
 {
-    private CachedDefaultCategoryLevelLoader $categoryLevelLoader;
-
-    private MockObject&TagAwareCacheInterface $cache;
+    private TagAwareCacheInterface&Stub $cache;
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private MockObject&DefaultCategoryLevelLoader $innerLoader;
+    private DefaultCategoryLevelLoader&Stub $innerLoader;
 
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private Stub&SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->cache = $this->createMock(TagAwareCacheInterface::class);
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->cache = static::createStub(TagAwareCacheInterface::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $this->eventDispatcher = new EventDispatcher();
-        $this->innerLoader = $this->createMock(DefaultCategoryLevelLoader::class);
-
-        $this->categoryLevelLoader = new CachedDefaultCategoryLevelLoader(
-            $this->cache,
-            $this->eventDispatcher,
-            $this->innerLoader,
-        );
+        $this->innerLoader = static::createStub(DefaultCategoryLevelLoader::class);
     }
 
     public function testGetSubscribedEvents(): void
@@ -82,12 +74,13 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
 
         $expectedCollection = new CategoryCollection();
 
-        $this->innerLoader->expects($this->once())
+        $innerLoader = $this->createMock(DefaultCategoryLevelLoader::class);
+        $innerLoader->expects($this->once())
             ->method('loadLevels')
             ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
             ->willReturn($expectedCollection);
 
-        $result = $this->categoryLevelLoader->loadLevels(
+        $result = $this->createLoader(innerLoader: $innerLoader)->loadLevels(
             $rootId,
             $rootLevel,
             $this->salesChannelContext,
@@ -100,11 +93,12 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
 
     public function testInvalidateCache(): void
     {
-        $this->cache->expects($this->once())
+        $cache = $this->createMock(TagAwareCacheInterface::class);
+        $cache->expects($this->once())
             ->method('invalidateTags')
             ->with(['category_level_loader']);
 
-        $this->categoryLevelLoader->invalidateCache();
+        $this->createLoader(cache: $cache)->invalidateCache();
     }
 
     public function testCachedLoading(): void
@@ -127,7 +121,8 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             ->willReturn('sales-channel-id');
 
         $expectedCollection = new CategoryCollection();
-        $this->innerLoader->expects($this->exactly(1))
+        $innerLoader = $this->createMock(DefaultCategoryLevelLoader::class);
+        $innerLoader->expects($this->exactly(1))
             ->method('loadLevels')
             ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
             ->willReturn($expectedCollection);
@@ -137,7 +132,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $loader = new CachedDefaultCategoryLevelLoader(
             $cache,
             $this->eventDispatcher,
-            $this->innerLoader,
+            $innerLoader,
         );
 
         $cacheKeyParts = [
@@ -171,7 +166,8 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             $depth
         );
 
-        static::assertEquals($expectedCollection, $result);
+        // the first call built the levels itself and returns them without a cache round trip
+        static::assertSame($expectedCollection, $result);
         static::assertEquals($result2, $result);
         static::assertSame(2, $eventsThrown);
 
@@ -202,7 +198,8 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             ->willReturn('sales-channel-id');
 
         $expectedCollection = new CategoryCollection();
-        $this->innerLoader->expects($this->exactly(1))
+        $innerLoader = $this->createMock(DefaultCategoryLevelLoader::class);
+        $innerLoader->expects($this->exactly(1))
             ->method('loadLevels')
             ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
             ->willReturn($expectedCollection);
@@ -212,7 +209,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $loader = new CachedDefaultCategoryLevelLoader(
             $cache,
             $this->eventDispatcher,
-            $this->innerLoader,
+            $innerLoader,
         );
 
         $cacheKeyParts = [
@@ -267,7 +264,8 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             ->willReturn('sales-channel-id');
 
         $expectedCollection = new CategoryCollection();
-        $this->innerLoader->expects($this->exactly(1))
+        $innerLoader = $this->createMock(DefaultCategoryLevelLoader::class);
+        $innerLoader->expects($this->exactly(1))
             ->method('loadLevels')
             ->with($rootId, $rootLevel, $this->salesChannelContext, $criteria, $depth)
             ->willReturn($expectedCollection);
@@ -277,7 +275,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $loader = new CachedDefaultCategoryLevelLoader(
             $cache,
             $this->eventDispatcher,
-            $this->innerLoader,
+            $innerLoader,
         );
 
         $cacheKeyParts = [
@@ -315,5 +313,16 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $loader->invalidateCache();
 
         static::assertFalse($cache->hasItem(Hasher::hash($cacheKeyParts)));
+    }
+
+    private function createLoader(
+        ?TagAwareCacheInterface $cache = null,
+        ?DefaultCategoryLevelLoader $innerLoader = null,
+    ): CachedDefaultCategoryLevelLoader {
+        return new CachedDefaultCategoryLevelLoader(
+            $cache ?? $this->cache,
+            $this->eventDispatcher,
+            $innerLoader ?? $this->innerLoader,
+        );
     }
 }

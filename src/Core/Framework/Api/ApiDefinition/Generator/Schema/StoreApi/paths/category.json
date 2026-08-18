@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/category": {
@@ -9,19 +9,9 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a list of categories",
-                "description": "Perform a filtered search for categories.",
+                "description": "Perform a filtered search for categories.\n\n**Available Associations:**\n- `children` - Child categories within this category for hierarchical navigation\n- `media` - Category image or banner\n- `tags` - Tags for organizing and filtering categories\n- `cmsPage` - CMS page layout for the category\n- `seoUrls` - SEO-friendly URLs for the category across different sales channels",
                 "operationId": "readCategoryList",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "name": "sw-include-search-info",
                         "in": "header",
@@ -35,6 +25,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -54,6 +47,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/CategoryListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -68,19 +69,9 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a list of categories",
-                "description": "Perform a filtered search for categories.",
+                "description": "Perform a filtered search for categories.\n\n**Available Associations:**\n- `children` - Child categories within this category for hierarchical navigation\n- `media` - Category image or banner\n- `tags` - Tags for organizing and filtering categories\n- `cmsPage` - CMS page layout for the category\n- `seoUrls` - SEO-friendly URLs for the category across different sales channels",
                 "operationId": "readCategoryListGet",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "x-parameter-group": "criteria",
                         "x-help": "This is a custom extension that will be replaced by the set of parameters defined in the components.x-parameter-groups.<groupName> (see components/parameters folder)."
@@ -89,6 +80,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/CategoryListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -105,7 +104,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a single category",
-                "description": "This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
+                "description": "This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.\n\n**Available Associations:**\n- `children` - Child categories within this category for hierarchical navigation\n- `media` - Category image or banner\n- `tags` - Tags for organizing and filtering categories\n- `cmsPage` - CMS page layout for the category\n- `seoUrls` - SEO-friendly URLs for the category across different sales channels",
                 "operationId": "readCategory",
                 "parameters": [
                     {
@@ -115,16 +114,6 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -158,6 +147,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -183,6 +175,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The category does not exist, is not reachable in this sales channel, or the CMS page assigned to it was not found."
                     }
                 },
                 "security": [
@@ -197,7 +197,7 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch a single category",
-                "description": "This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
+                "description": "This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.\n\n**Available Associations:**\n- `children` - Child categories within this category for hierarchical navigation\n- `media` - Category image or banner\n- `tags` - Tags for organizing and filtering categories\n- `cmsPage` - CMS page layout for the category\n- `seoUrls` - SEO-friendly URLs for the category across different sales channels",
                 "operationId": "readCategoryGet",
                 "parameters": [
                     {
@@ -207,16 +207,6 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -251,6 +241,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The category does not exist, is not reachable in this sales channel, or the CMS page assigned to it was not found."
                     }
                 },
                 "security": [

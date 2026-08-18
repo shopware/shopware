@@ -3,18 +3,20 @@
  */
 
 const js = require('@eslint/js');
+const json = require('@eslint/json').default;
 const tseslint = require('typescript-eslint');
 const jestPlugin = require('eslint-plugin-jest');
 const globals = require('globals');
+const swCoreRules = require('./eslint-rules/core-rules');
 
 const isDevMode = process.env.NODE_ENV !== 'production';
 
 module.exports = tseslint.config(
     {
-        ignores: ['test/e2e/**/*', 'vendor/**/*', 'node_modules/**/*'],
+        ignores: ['vendor/**/*', 'node_modules/**/*'],
     },
 
-    js.configs.recommended,
+    { ...js.configs.recommended, ignores: ['**/*.json'] },
 
     {
         files: ['**/*.{js,ts}'],
@@ -88,6 +90,28 @@ module.exports = tseslint.config(
             '@typescript-eslint/no-unsafe-assignment': 'off',
             '@typescript-eslint/no-unsafe-return': 'off',
             '@typescript-eslint/no-misused-promises': 'off',
+        },
+    },
+
+    {
+        // Test files and manual mocks: relax rules that are overly strict in
+        // the context of a test runner where vi.fn() mock references are passed
+        // as arguments and this-binding is irrelevant.
+        files: ['**/*.test.{js,ts}', 'test/**/*.{js,ts}', '__mocks__/**/*.ts'],
+        rules: {
+            '@typescript-eslint/unbound-method': 'off',
+        },
+    },
+
+    {
+        files: ['**/snippet/storefront.*.json'],
+        language: 'json/json',
+        plugins: {
+            json,
+            'sw-core-rules': swCoreRules,
+        },
+        rules: {
+            'sw-core-rules/require-global-default-use': ['error', { snippetRoot: 'src/Storefront' }],
         },
     },
 );

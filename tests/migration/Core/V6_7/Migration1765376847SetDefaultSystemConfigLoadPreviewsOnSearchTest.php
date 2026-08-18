@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch;
@@ -13,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch::class)]
 class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends TestCase
 {
@@ -25,6 +27,11 @@ class Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearchTest extends 
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->delete('system_config', ['configuration_key' => self::CONFIG_KEY]);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1765376847, (new Migration1765376847SetDefaultSystemConfigLoadPreviewsOnSearch())->getCreationTimestamp());
     }
 
     public function testMigration(): void

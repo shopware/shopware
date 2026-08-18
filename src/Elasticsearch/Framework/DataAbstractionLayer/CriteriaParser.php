@@ -22,6 +22,7 @@ use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use OpenSearchDSL\Query\TermLevel\WildcardQuery;
 use OpenSearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\NestedSort;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
@@ -138,7 +139,7 @@ class CriteriaParser
         $path = $this->getNestedPath($definition, $sorting->getField());
 
         if ($path) {
-            $fieldSort->addParameter('nested', ['path' => $path]);
+            $fieldSort->setNestedFilter(new NestedSort($path));
         }
 
         return $fieldSort;

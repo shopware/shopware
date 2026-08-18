@@ -7,12 +7,14 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Tests;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<NoAssertsOnObjectsRule>
  */
+#[Package('framework')]
 class NoAssertsOnObjectsRuleTest extends RuleTestCase
 {
     public function testRule(): void
@@ -24,7 +26,7 @@ class NoAssertsOnObjectsRuleTest extends RuleTestCase
             ],
             [
                 'Asserting for equality with Response Objects is not allowed. Responses contain a date time as header, and thus those comparisons are time sensitive and thus flaky. Please assert on the properties of the Response you are interested in directly or use the `AssertResponseHelper`.',
-                41,
+                44,
             ],
         ]);
     }

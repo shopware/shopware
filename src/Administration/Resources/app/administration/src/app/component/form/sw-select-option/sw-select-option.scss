@@ -1,16 +1,6 @@
-@import "~scss/variables";
-
-$sw-select-option-active-color-background: lighten($color-shopware-brand-500, 40%);
-$sw-select-option-active-color-text: $color-shopware-brand-500;
-$sw-select-option-color-border: $color-gray-300;
-$sw-select-option-color-icon: darken($color-gray-100, 20%);
-$sw-select-option-transition-item-icon: all ease-in-out 0.15s;
-$sw-select-option-disabled-color-background: $color-gray-100;
-$sw-select-option-disabled-color-text: darken($color-gray-300, 15%);
-
 .sw-select-option {
     padding: 12px 15px;
-    border-bottom: 1px solid $sw-select-option-color-border;
+    border-bottom: 1px solid var(--color-border-secondary-default);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -22,23 +12,23 @@ $sw-select-option-disabled-color-text: darken($color-gray-300, 15%);
     }
 
     .mt-icon {
-        color: $sw-select-option-color-icon;
+        color: var(--color-icon-secondary-default);
         flex-grow: 0;
         flex-shrink: 0;
         margin-left: 10px;
     }
 
     &.is--active {
-        background: $sw-select-option-active-color-background;
-        color: $sw-select-option-active-color-text;
+        background: var(--color-background-brand-default);
+        color: var(--color-text-primary-default);
     }
 
     &.is--disabled {
-        color: $sw-select-option-disabled-color-text;
+        color: var(--color-text-primary-disabled);
 
         &.is--active {
-            background: $sw-select-option-disabled-color-background;
-            color: $sw-select-option-disabled-color-text;
+            background: var(--color-background-tertiary-default);
+            color: var(--color-text-primary-disabled);
             cursor: default;
         }
     }
@@ -50,7 +40,7 @@ $sw-select-option-disabled-color-text: darken($color-gray-300, 15%);
     // Vue.js transitions
     .sw-select-option-appear-enter-active,
     .sw-select-option-appear-leave-active {
-        transition: $sw-select-option-transition-item-icon;
+        transition: all ease-in-out 0.15s;
         transform: translateY(0);
     }
 

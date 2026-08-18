@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -10,6 +11,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class SwSanitizeTwigFilter extends AbstractExtension implements ResetInterface
 {
     /**

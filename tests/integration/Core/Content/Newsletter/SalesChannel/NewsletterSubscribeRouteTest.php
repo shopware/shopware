@@ -238,7 +238,7 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public function testSubscribeIfAlreadyRegistered(): void
     {
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
 
         $dispatcher = static::getContainer()->get('event_dispatcher');

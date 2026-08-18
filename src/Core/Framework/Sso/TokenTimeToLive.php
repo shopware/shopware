@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Sso;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @internal
@@ -12,7 +13,7 @@ class TokenTimeToLive
 {
     public static function getLowerTTL(\DateInterval $one, \DateInterval $two): \DateInterval
     {
-        $start = new \DateTimeImmutable();
+        $start = Clock::get()->now();
 
         if ($one->invert === 1 && $two->invert === 1) {
             throw SsoException::negativeTimeToLive();

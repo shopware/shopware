@@ -110,9 +110,6 @@
                                                            class="form-control"
                                                            placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
                                                            id="addPromotionOffcanvasCartInput"
-                                                           aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
-                                                           aria-describedby="addPromotionOffcanvasCart"
-                                                           required="required"
                                                            aria-invalid="false">
                                                 {% endblock %}
 
@@ -120,7 +117,7 @@
                                                     <button class="btn btn-outline-secondary offcanvas-cart-promotion-button"
                                                             type="submit"
                                                             id="addPromotionOffcanvasCart"
-                                                            aria-labelledby="addPromotionOffcanvasCartInput">
+                                                            aria-label="{{ 'checkout.addPromotionApplyAction'|trans|striptags }}">
                                                         {% sw_icon 'checkmark' %}
                                                     </button>
                                                 {% endblock %}
@@ -135,7 +132,7 @@
                     {% block component_offcanvas_cart_actions_checkout %}
                         <div class="d-grid">
                             <a href="{{ path('frontend.checkout.confirm.page') }}"
-                               class="btn begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
+                               class="btn begin-checkout-btn mb-2{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
                                title="{{ 'checkout.proceedToCheckout'|trans|striptags }}">
                                 {{ 'checkout.proceedToCheckout'|trans|sw_sanitize }}
                             </a>

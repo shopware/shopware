@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Validator\Constraints\Length;
@@ -13,6 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(PasswordValidationFactory::class)]
 class PasswordValidationFactoryTest extends TestCase
 {
@@ -38,7 +40,7 @@ class PasswordValidationFactoryTest extends TestCase
         static::assertCount(2, $constraints);
         static::assertContainsEquals(new NotBlank(), $constraints);
         static::assertContainsEquals(
-            new Length(min: 10, max: 4096, maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'),
+            new Length(min: 10, max: 4096, minMessage: 'VIOLATION::PASSWORD_IS_TOO_SHORT', maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'),
             $constraints
         );
     }
@@ -55,7 +57,7 @@ class PasswordValidationFactoryTest extends TestCase
         static::assertCount(2, $constraints);
         static::assertContainsEquals(new NotBlank(), $constraints);
         static::assertContainsEquals(
-            new Length(min: 10, max: 4096, maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'),
+            new Length(min: 10, max: 4096, minMessage: 'VIOLATION::PASSWORD_IS_TOO_SHORT', maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'),
             $constraints
         );
     }

@@ -6,22 +6,27 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -36,15 +41,15 @@ use Symfony\Component\Serializer\Serializer;
 #[CoversClass(ProductStreamIndexer::class)]
 class ProductStreamIndexerTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private IteratorFactory&MockObject $iteratorFactory;
+    private IteratorFactory&Stub $iteratorFactory;
 
-    private ProductDefinition&MockObject $productDefinition;
+    private ProductDefinition&Stub $productDefinition;
 
     private ProductStreamIndexer $indexer;
 
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private Stub&EventDispatcherInterface $dispatcher;
 
     /**
      * @var StaticEntityRepository<ProductStreamCollection>
@@ -53,20 +58,13 @@ class ProductStreamIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->productDefinition = $this->createMock(ProductDefinition::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->iteratorFactory = static::createStub(IteratorFactory::class);
+        $this->productDefinition = static::createStub(ProductDefinition::class);
         $this->repository = new StaticEntityRepository([], new ProductStreamDefinition());
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->dispatcher = static::createStub(EventDispatcherInterface::class);
 
-        $this->indexer = new ProductStreamIndexer(
-            $this->connection,
-            $this->iteratorFactory,
-            $this->repository,
-            new Serializer([], [new JsonEncoder()]),
-            $this->productDefinition,
-            $this->dispatcher
-        );
+        $this->indexer = $this->createIndexer();
     }
 
     public function testGetName(): void
@@ -82,23 +80,70 @@ class ProductStreamIndexerTest extends TestCase
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $queryBuilder->expects($this->once())->method('executeQuery')->willReturn($result);
 
-        $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
+        $iteratorFactory = $this->createMock(IteratorFactory::class);
+        $iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
-        $message = $this->indexer->iterate(['offset' => 10]);
+        $message = $this->createIndexer(iteratorFactory: $iteratorFactory)->iterate(['offset' => 10]);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
     }
 
     public function testUpdateReturnNull(): void
     {
-        static::assertNull($this->indexer->update($this->createMock(EntityWrittenContainerEvent::class)));
+        static::assertNull($this->indexer->update(static::createStub(EntityWrittenContainerEvent::class)));
     }
 
     public function testUpdate(): void
     {
-        $event = $this->createMock(EntityWrittenContainerEvent::class);
-        $event->expects($this->once())->method('getPrimaryKeys')->willReturn([123]);
+        $streamId = Uuid::randomHex();
+        $deletedStreamId = Uuid::randomHex();
 
-        static::assertInstanceOf(ProductStreamIndexingMessage::class, $this->indexer->update($event));
+        $message = $this->indexer->update(new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    ProductStreamDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $streamId,
+                            [],
+                            ProductStreamDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+                new EntityWrittenEvent(
+                    'product_stream_filter',
+                    [
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            ['productStreamId' => $streamId],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                        new EntityWriteResult(
+                            Uuid::randomHex(),
+                            [],
+                            'product_stream_filter',
+                            EntityWriteResult::OPERATION_DELETE,
+                            new EntityExistence(
+                                'product_stream_filter',
+                                ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                                true,
+                                false,
+                                false,
+                                ['product_stream_id' => Uuid::fromHexToBytes($deletedStreamId)]
+                            ),
+                        ),
+                    ],
+                    Context::createDefaultContext(),
+                ),
+            ]),
+            [],
+        ));
+
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+        static::assertSame([$streamId, $deletedStreamId], $message->getData());
     }
 
     public function testHandle(): void
@@ -171,7 +216,8 @@ class ProductStreamIndexerTest extends TestCase
         ]);
         $serialized = \json_encode([QueryStringParser::toArray($query)]);
 
-        $this->productDefinition->expects($this->exactly(5))->method('getEntityName')->willReturn('product');
+        $productDefinition = $this->createMock(ProductDefinition::class);
+        $productDefinition->expects($this->exactly(8))->method('getEntityName')->willReturn('product');
 
         $statement = $this->createMock(Statement::class);
         $params = [
@@ -189,10 +235,80 @@ class ProductStreamIndexerTest extends TestCase
 
         $statement->expects($this->once())->method('executeStatement')->willReturn(1);
 
-        $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn($filters);
-        $this->connection->expects($this->once())->method('prepare')->willReturn($statement);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllAssociative')->willReturn($filters);
+        $connection->expects($this->once())->method('prepare')->willReturn($statement);
 
-        $this->indexer->handle(new EntityIndexingMessage([$productStreamId]));
+        $this->createIndexer(connection: $connection, productDefinition: $productDefinition)->handle(new EntityIndexingMessage([$productStreamId]));
+    }
+
+    public function testHandleSkipsEmptyIdFilters(): void
+    {
+        $productStreamId = Uuid::randomHex();
+        $filterId1 = Uuid::randomHex();
+        $filterId2 = Uuid::randomHex();
+        $filterId3 = Uuid::randomHex();
+
+        $filters = [
+            [
+                'array_key' => $productStreamId,
+                'id' => $filterId1,
+                'product_stream_id' => $productStreamId,
+                'parent_id' => null,
+                'type' => 'multi',
+                'field' => null,
+                'operator' => 'OR',
+                'value' => null,
+                'parameters' => null,
+                'position' => '0',
+            ],
+            [
+                'array_key' => $productStreamId,
+                'id' => $filterId2,
+                'entity_stream_id' => $productStreamId,
+                'parent_id' => $filterId1,
+                'type' => 'multi',
+                'field' => null,
+                'operator' => 'AND',
+                'value' => null,
+                'parameters' => null,
+                'position' => '0',
+            ],
+            [
+                'array_key' => $productStreamId,
+                'id' => $filterId3,
+                'entity_stream_id' => $productStreamId,
+                'parent_id' => $filterId2,
+                'type' => 'equals',
+                'field' => 'id',
+                'operator' => null,
+                'value' => null,
+                'parameters' => null,
+                'position' => '0',
+            ],
+        ];
+
+        $statement = $this->createMock(Statement::class);
+        $params = [
+            ['serialized', '[]'],
+            ['invalid', 0],
+            ['id', Uuid::fromHexToBytes($productStreamId)],
+        ];
+        $matcher = $this->exactly(\count($params));
+        $statement->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
+        $statement->expects($this->once())->method('executeStatement')->willReturn(1);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllAssociative')->willReturn($filters);
+        $connection->expects($this->once())->method('prepare')->willReturn($statement);
+
+        $this->createIndexer(connection: $connection)->handle(new EntityIndexingMessage([$productStreamId]));
     }
 
     public function testGetTotal(): void
@@ -204,9 +320,25 @@ class ProductStreamIndexerTest extends TestCase
         $queryBuilder->expects($this->once())->method('getSelectParts')->willReturn(['id']);
         $queryBuilder->expects($this->once())->method('executeQuery')->willReturn($result);
 
-        $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
+        $iteratorFactory = $this->createMock(IteratorFactory::class);
+        $iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
-        $total = $this->indexer->getTotal();
+        $total = $this->createIndexer(iteratorFactory: $iteratorFactory)->getTotal();
         static::assertSame(1, $total);
+    }
+
+    private function createIndexer(
+        ?Connection $connection = null,
+        ?IteratorFactory $iteratorFactory = null,
+        ?ProductDefinition $productDefinition = null,
+    ): ProductStreamIndexer {
+        return new ProductStreamIndexer(
+            $connection ?? $this->connection,
+            $iteratorFactory ?? $this->iteratorFactory,
+            $this->repository,
+            new Serializer([], [new JsonEncoder()]),
+            $productDefinition ?? $this->productDefinition,
+            $this->dispatcher
+        );
     }
 }

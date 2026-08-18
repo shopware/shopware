@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 #[Package('framework')]
 class VersionCommitDefinition extends EntityDefinition
@@ -49,7 +50,7 @@ class VersionCommitDefinition extends EntityDefinition
     {
         return [
             'name' => 'auto-save',
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
 

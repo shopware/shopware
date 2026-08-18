@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\UnableToReadFile;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
@@ -26,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,7 +34,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('discovery')]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -104,15 +104,15 @@ class ThumbnailServiceTest extends TestCase
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
         static::assertCount(2, $thumbnails);
 
+        $folder = $updatedMedia->getMediaFolder();
+        static::assertInstanceOf(MediaFolderEntity::class, $folder);
+        static::assertInstanceOf(MediaFolderConfigurationEntity::class, $folder->getConfiguration());
+
+        $sizes = $folder->getConfiguration()->getMediaThumbnailSizes();
+        static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
+
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $thumbnail->getPath();
-
-            $folder = $updatedMedia->getMediaFolder();
-            static::assertInstanceOf(MediaFolderEntity::class, $folder);
-            static::assertInstanceOf(MediaFolderConfigurationEntity::class, $folder->getConfiguration());
-
-            $sizes = $folder->getConfiguration()->getMediaThumbnailSizes();
-            static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
 
             $filtered = $sizes->filter(
                 static fn (MediaThumbnailSizeEntity $size) => $size->getId() === $thumbnail->getMediaThumbnailSizeId()
@@ -153,8 +153,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->write($filePath, 'this is the content of the file, which is not a image');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailNotSupported($media->getId())->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailNotSupported($media->getId()));
         $this->thumbnailService->updateThumbnails(
             $media,
             $this->context,
@@ -174,7 +173,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria = new Criteria([$media->getId()]);
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaFolderEntity::class, $media->getMediaFolder());
         static::assertInstanceOf(MediaFolderConfigurationEntity::class, $media->getMediaFolder()->getConfiguration());
@@ -205,7 +204,7 @@ class ThumbnailServiceTest extends TestCase
         $this->runWorker();
 
         /** @var MediaEntity $updatedMedia */
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
@@ -241,7 +240,7 @@ class ThumbnailServiceTest extends TestCase
         $this->thumbnailService->updateThumbnails($media, $this->context, false);
 
         /** @var MediaEntity $updatedMedia */
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $thumbnails = $updatedMedia->getThumbnails();
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
@@ -294,7 +293,7 @@ class ThumbnailServiceTest extends TestCase
         );
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
 
         $mediaUrl = $media->getPath();
 
@@ -315,7 +314,7 @@ class ThumbnailServiceTest extends TestCase
         $this->runWorker();
 
         // refresh entity
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         $thumbnails = $media->getThumbnails();
@@ -403,7 +402,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
@@ -420,6 +419,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -478,7 +478,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
@@ -495,6 +495,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -551,7 +552,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
@@ -571,6 +572,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -597,11 +599,12 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function strictModeConditionsProvider(): array
+    public static function strictModeConditionsProvider(): iterable
     {
-        return [[true], [false]];
+        yield 'strict mode conditions true' => [true];
+        yield 'strict mode conditions false' => [false];
     }
 
     #[DataProvider('strictModeConditionsProvider')]
@@ -627,7 +630,7 @@ class ThumbnailServiceTest extends TestCase
         $criteria->addAssociation('thumbnails');
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
@@ -648,6 +651,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = $this->mediaRepository
             ->search($criteria, $this->context)
+            ->getEntities()
             ->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -700,6 +704,7 @@ class ThumbnailServiceTest extends TestCase
 
         $media = static::getContainer()->get('media.repository')
             ->search(new Criteria([$ids->get('media')]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(MediaEntity::class, $media);

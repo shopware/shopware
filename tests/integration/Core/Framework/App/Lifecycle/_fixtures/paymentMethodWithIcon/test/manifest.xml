@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>test</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/test/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <payments>
+        <payment-method>
+            <identifier>paymentWithIcon</identifier>
+            <name>The app payment method</name>
+            <description>This is a description</description>
+            <pay-url>https://payment.app/payment/process</pay-url>
+            <finalize-url>https://payment.app/payment/finalize</finalize-url>
+            <icon>icons/TestIcon.png</icon>
+        </payment-method>
+    </payments>
+</manifest>

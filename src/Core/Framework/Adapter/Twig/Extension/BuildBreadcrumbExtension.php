@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -54,10 +55,14 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function getFullBreadcrumb(array $twigContext, CategoryEntity $category, Context|SalesChannelContext $context): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        // Methods still called in Twig behind feature flag. Deprecation is silenced to avoid polluting logs.
+        $method = __METHOD__;
+        Feature::silent('v6.8.0.0', static function () use ($method): void {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, $method, 'v6.8.0.0'));
+        });
 
         if ($context instanceof Context) {
-            $context = $this->getSalesChannelContext($twigContext) ?? $context;
+            $context = TwigContextHelper::getSalesChannelContext($twigContext) ?? $context;
         }
 
         $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build(
@@ -102,10 +107,14 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function getFullBreadcrumbById(array $twigContext, string $categoryId, Context|SalesChannelContext $context): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+        // Methods still called in Twig behind feature flag. Deprecation is silenced to avoid polluting logs.
+        $method = __METHOD__;
+        Feature::silent('v6.8.0.0', static function () use ($method): void {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, $method, 'v6.8.0.0'));
+        });
 
         if ($context instanceof Context) {
-            $context = $this->getSalesChannelContext($twigContext) ?? $context;
+            $context = TwigContextHelper::getSalesChannelContext($twigContext) ?? $context;
         }
 
         if ($context instanceof SalesChannelContext) {
@@ -119,18 +128,5 @@ class BuildBreadcrumbExtension extends AbstractExtension
         }
 
         return $this->getFullBreadcrumb($twigContext, $category, $context);
-    }
-
-    /**
-     * @param array<string, mixed> $twigContext
-     */
-    private function getSalesChannelContext(array $twigContext): ?SalesChannelContext
-    {
-        $context = $twigContext['context'] ?? null;
-        if ($context instanceof SalesChannelContext) {
-            return $context;
-        }
-
-        return null;
     }
 }

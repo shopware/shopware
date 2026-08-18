@@ -14,12 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class GenerateMediaTypesCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -97,8 +99,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $this->createValidMediaFiles();
 

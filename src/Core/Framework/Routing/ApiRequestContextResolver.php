@@ -19,6 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Routing\ApiRequestContextResolverTest
+ */
 #[Package('framework')]
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
@@ -106,20 +111,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     {
         $parameters = [];
 
-        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            $langHeader = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-
-            if ($langHeader !== null) {
-                $parameters['languageId'] = $langHeader;
-            }
+        $languageId = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '');
+        if ($languageId !== '') {
+            $parameters['languageId'] = $languageId;
         }
 
-        if ($request->headers->has(PlatformRequest::HEADER_CURRENCY_ID)) {
-            $currencyHeader = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
-
-            if ($currencyHeader !== null) {
-                $parameters['currencyId'] = $currencyHeader;
-            }
+        $currencyId = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID, '');
+        if ($currencyId !== '') {
+            $parameters['currencyId'] = $currencyId;
         }
 
         if ($request->headers->has(PlatformRequest::HEADER_INHERITANCE)) {
@@ -132,10 +131,10 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function resolveContextSource(Request $request): ContextSource
     {
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $appIntegrationId = $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID);
+            $appIntegrationId = $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID, '');
 
             // The app integration id header is only to be used by a privileged user
-            if ($this->userAppIntegrationHeaderPrivileged($userId, $appIntegrationId)) {
+            if ($appIntegrationId !== '' && $this->userAppIntegrationHeaderPrivileged($userId, $appIntegrationId)) {
                 $userId = null;
             } else {
                 $appIntegrationId = null;
@@ -160,9 +159,12 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         if ($keyOrigin === 'integration') {
             $integrationId = $this->getIntegrationIdByAccessKey($clientId);
 
-            $userId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
+            $userId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID, '');
+            if ($userId === '' || !Uuid::isValid((string) $userId)) {
+                $userId = null;
+            }
 
-            if ($userId !== null && !$this->userAppIntegrationHeaderPrivileged($userId, $integrationId)) {
+            if ($userId !== null && $this->isAppIntegration($integrationId) && !$this->userAppIntegrationHeaderPrivileged($userId, $integrationId)) {
                 $userId = null;
             }
 
@@ -179,7 +181,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @param array{languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string} $params
+     * @param array{currencyId: string, languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool} $params
      *
      * @return non-empty-list<string>
      */
@@ -274,8 +276,31 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return $source;
         }
 
+        if ($userId !== null && $integrationId !== null) {
+            if ($this->isAdminIntegration($integrationId)) {
+                $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
+                $source->setIsAdmin($this->isAdmin($userId));
+
+                return $source;
+            }
+
+            $permissions = $this->fetchIntegrationPermissions($integrationId);
+
+            if (!$this->isAdmin($userId)) {
+                $permissions = array_intersect(
+                    $permissions,
+                    $this->fetchPermissions($userId)
+                );
+            }
+
+            $source->setIsAdmin(false);
+            $source->setPermissions($permissions);
+
+            return $source;
+        }
+
         if ($userId !== null) {
-            $source->setPermissions($this->fetchPermissions($userId));
+            $source->setPermissions($this->withDefaultUserPrivileges($this->fetchPermissions($userId)));
             $source->setIsAdmin($this->isAdmin($userId));
 
             return $source;
@@ -289,6 +314,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return $source;
+    }
+
+    /**
+     * @param array<string> $permissions
+     *
+     * @return array<string>
+     */
+    private function withDefaultUserPrivileges(array $permissions): array
+    {
+        return array_values(array_unique([
+            ...$permissions,
+            ...AdminApiSource::DEFAULT_USER_PRIVILEGES,
+        ]));
     }
 
     private function isAdmin(string $userId): bool
@@ -416,6 +454,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return $name;
+    }
+
+    private function isAppIntegration(string $integrationId): bool
+    {
+        return $this->fetchAppNameByIntegrationId($integrationId) !== null;
     }
 
     /**

@@ -26,7 +26,38 @@ class Migration1773322284ChangeDocumentReferencedDocumentIdConstraintTest extend
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773322284, (new Migration1773322284ChangeDocumentReferencedDocumentIdConstraint())->getCreationTimestamp());
+    }
+
+    public function testMigration(): void
+    {
+        $this->resetReferencedDocumentForeignKey();
+
+        $foreignKeyBefore = TableHelper::getForeignKeyOfTable(
+            $this->connection,
+            DocumentDefinition::ENTITY_NAME,
+            self::FOREIGN_KEY_NAME
+        );
+        static::assertSame(ReferentialAction::RESTRICT->value, $foreignKeyBefore->onDeleteAction);
+
+        $migration = new Migration1773322284ChangeDocumentReferencedDocumentIdConstraint();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $foreignKeyAfter = TableHelper::getForeignKeyOfTable(
+            $this->connection,
+            DocumentDefinition::ENTITY_NAME,
+            self::FOREIGN_KEY_NAME
+        );
+        static::assertSame(ReferentialAction::SET_NULL->value, $foreignKeyAfter->onDeleteAction);
+    }
+
+    private function resetReferencedDocumentForeignKey(): void
+    {
         $foreignKey = TableHelper::getForeignKeyOfTable(
             $this->connection,
             DocumentDefinition::ENTITY_NAME,
@@ -47,26 +78,5 @@ class Migration1773322284ChangeDocumentReferencedDocumentIdConstraintTest extend
                 ON DELETE RESTRICT ON UPDATE CASCADE;
             ', self::FOREIGN_KEY_NAME));
         }
-    }
-
-    public function testMigration(): void
-    {
-        $foreignKeyBefore = TableHelper::getForeignKeyOfTable(
-            $this->connection,
-            DocumentDefinition::ENTITY_NAME,
-            self::FOREIGN_KEY_NAME
-        );
-        static::assertSame(ReferentialAction::RESTRICT->value, $foreignKeyBefore->onDeleteAction);
-
-        $migration = new Migration1773322284ChangeDocumentReferencedDocumentIdConstraint();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
-
-        $foreignKeyAfter = TableHelper::getForeignKeyOfTable(
-            $this->connection,
-            DocumentDefinition::ENTITY_NAME,
-            self::FOREIGN_KEY_NAME
-        );
-        static::assertSame(ReferentialAction::SET_NULL->value, $foreignKeyAfter->onDeleteAction);
     }
 }

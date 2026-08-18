@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\Api\DataProvider as DataProviderObject;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ErrorResponseFactory::class)]
 class ErrorResponseFactoryTest extends TestCase
 {
@@ -121,23 +123,15 @@ class ErrorResponseFactoryTest extends TestCase
 
     public function testConvertExceptionToErrorCoversUnitEnum(): void
     {
-        $enum = TestEnum::FOO;
-
-        $errorArray = [
-            'paramOne' => 1,
-            'paramTwo' => 2,
-        ];
-
-        $simpleShopwareHttpException = new SimpleShopwareHttpException($errorArray);
+        $exception = new EnumMetaShopwareHttpException(['paramOne' => 1, 'paramTwo' => 2]);
 
         $errorResponseFactory = new ErrorResponseFactory();
-        $error = $errorResponseFactory->getErrorsFromException($simpleShopwareHttpException, true)[0];
+        // A non-backed enum has no JSON representation, so serializing the response only works
+        // because the factory converted the enum to its class name beforehand.
+        $response = $errorResponseFactory->getResponseFromException($exception, true);
+        $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $error['meta']['enumValue'] = $enum;
-        $converted = (new \ReflectionMethod(ErrorResponseFactory::class, 'convert'))
-            ->invoke(new ErrorResponseFactory(), $error);
-
-        static::assertSame(TestEnum::class, $converted['meta']['enumValue']);
+        static::assertSame(TestEnum::class, $responseBody['errors'][0]['meta']['enumValue']);
     }
 
     public function testItOverridesWithStatusCodeFromHttpException(): void
@@ -287,19 +281,17 @@ class ErrorResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return iterable<string, array{string}>
      */
-    public static function invalidUtf8SequencesProvider(): array
+    public static function invalidUtf8SequencesProvider(): iterable
     {
-        return [
-            'Invalid 2 Octet Sequence' => ["\xc3\x28"],
-            'Invalid Sequence Identifier' => ["\xa0\xa1"],
-            'Invalid 3 Octet Sequence (in 2nd Octet)' => ["\xe2\x28\xa1"],
-            'Invalid 3 Octet Sequence (in 3rd Octet)' => ["\xe2\x82\x28"],
-            'Invalid 4 Octet Sequence (in 2nd Octet)' => ["\xf0\x28\x8c\xbc"],
-            'Invalid 4 Octet Sequence (in 3rd Octet)' => ["\xf0\x90\x28\xbc"],
-            'Invalid 4 Octet Sequence (in 4th Octet)' => ["\xf0\x28\x8c\x28"],
-        ];
+        yield 'Invalid 2 Octet Sequence' => ["\xc3\x28"];
+        yield 'Invalid Sequence Identifier' => ["\xa0\xa1"];
+        yield 'Invalid 3 Octet Sequence (in 2nd Octet)' => ["\xe2\x28\xa1"];
+        yield 'Invalid 3 Octet Sequence (in 3rd Octet)' => ["\xe2\x82\x28"];
+        yield 'Invalid 4 Octet Sequence (in 2nd Octet)' => ["\xf0\x28\x8c\xbc"];
+        yield 'Invalid 4 Octet Sequence (in 3rd Octet)' => ["\xf0\x90\x28\xbc"];
+        yield 'Invalid 4 Octet Sequence (in 4th Octet)' => ["\xf0\x28\x8c\x28"];
     }
 
     #[DataProvider('invalidUtf8SequencesProvider')]
@@ -375,6 +367,25 @@ class SimpleShopwareHttpException extends ShopwareHttpException
     public function getStatusCode(): int
     {
         return Response::HTTP_I_AM_A_TEAPOT;
+    }
+}
+
+/**
+ * Exposes a \UnitEnum in the error meta data, so that the enum conversion of the
+ * ErrorResponseFactory can be observed through the public error API.
+ *
+ * @internal
+ */
+class EnumMetaShopwareHttpException extends SimpleShopwareHttpException
+{
+    public function getErrors(bool $withTrace = false): \Generator
+    {
+        foreach (parent::getErrors($withTrace) as $error) {
+            $error['meta']['enumValue'] = TestEnum::FOO;
+
+            /** @phpstan-ignore generator.valueType (Adding the undocumented meta value for testing purpose) */
+            yield $error;
+        }
     }
 }
 

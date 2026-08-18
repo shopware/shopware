@@ -78,7 +78,9 @@
             >
                 {% block sw_newsletter_recipientlist_list_grid_email %}
                 <template #column-email="{ item }">
-                    <p>{{ emailIdnFilter(item.email) }}</p>
+                    <mt-link :to="{ name: 'sw.newsletter.recipient.detail', params: { id: item.id } }">
+                        {{ emailIdnFilter(item.email) }}
+                    </mt-link>
                 </template>
                 {% endblock %}
 
@@ -188,7 +190,7 @@
 
     {% block sw_newsletter_recipient_list_sidebar %}
     <template #sidebar>
-        <sw-sidebar>
+        <sw-sidebar @item-register="registerFilterSidebarItem">
             {% block sw_newsletter_recipient_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
@@ -199,11 +201,9 @@
 
             {% block sw_newsletter_recipient_list_sidebar_filter %}
             <sw-sidebar-item
-                ref="filterSideBar"
                 icon="regular-filter"
                 :title="$t('sw-newsletter-recipient.list.titleSidebarItemFilter')"
-                @sw-sidebar-item-close-content="closeContent"
-                @click="closeContent"
+                :tooltip-shortcut="['O', 'F']"
             >
                 {% block sw_newsletter_recipient_list_sidebar_filter_status %}
                 <sw-sidebar-collapse>

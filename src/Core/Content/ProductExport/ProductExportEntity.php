@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport;
 
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -20,6 +21,11 @@ class ProductExportEntity extends Entity
     final public const FILE_FORMAT_CSV = 'csv';
     final public const FILE_FORMAT_XML = 'xml';
     final public const FILE_FORMAT_JSONL = 'jsonl';
+
+    final public const ALLOWED_SALES_CHANNEL_TYPE_IDS = [
+        Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+        Defaults::SALES_CHANNEL_TYPE_API,
+    ];
 
     protected string $productStreamId;
 
@@ -44,6 +50,8 @@ class ProductExportEntity extends Entity
      */
     protected ?string $provider = null;
 
+    protected ?string $feedLabel = null;
+
     protected ?ProductStreamEntity $productStream = null;
 
     protected ?SalesChannelEntity $storefrontSalesChannel = null;
@@ -59,6 +67,8 @@ class ProductExportEntity extends Entity
     protected bool $generateByCronjob;
 
     protected ?\DateTimeInterface $generatedAt = null;
+
+    protected ?\DateTimeInterface $nextGenerationAt = null;
 
     protected int $interval;
 
@@ -172,6 +182,16 @@ class ProductExportEntity extends Entity
         $this->provider = $provider;
     }
 
+    public function getFeedLabel(): ?string
+    {
+        return $this->feedLabel;
+    }
+
+    public function setFeedLabel(?string $feedLabel): void
+    {
+        $this->feedLabel = $feedLabel;
+    }
+
     public function getProductStream(): ?ProductStreamEntity
     {
         return $this->productStream;
@@ -250,6 +270,16 @@ class ProductExportEntity extends Entity
     public function setGeneratedAt(?\DateTimeInterface $generatedAt): void
     {
         $this->generatedAt = $generatedAt;
+    }
+
+    public function getNextGenerationAt(): ?\DateTimeInterface
+    {
+        return $this->nextGenerationAt;
+    }
+
+    public function setNextGenerationAt(?\DateTimeInterface $nextGenerationAt): void
+    {
+        $this->nextGenerationAt = $nextGenerationAt;
     }
 
     public function getInterval(): int

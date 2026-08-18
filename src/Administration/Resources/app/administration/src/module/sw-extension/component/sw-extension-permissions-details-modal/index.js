@@ -34,7 +34,7 @@ export default {
                     operation: 'read',
                 },
                 {
-                    label: this.$t('sw-extension-store.component.sw-extension-permissions-details-modal.operationUpdate'),
+                    label: this.$t('global.default.edit'),
                     operation: 'update',
                 },
                 {
@@ -42,7 +42,7 @@ export default {
                     operation: 'create',
                 },
                 {
-                    label: this.$t('sw-extension-store.component.sw-extension-permissions-details-modal.operationDelete'),
+                    label: this.$t('global.default.delete'),
                     operation: 'delete',
                 },
             ];

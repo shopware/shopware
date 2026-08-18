@@ -26,6 +26,10 @@
         />
         {% endblock %}
 
+        {% block sw_order_detail_details_payment_billing_address_divider %}
+        <hr class="sw-order-detail-state-card__divider sw-order-detail-details__divider">
+        {% endblock %}
+
         {% block sw_order_detail_details_payment_method_select %}
         <sw-entity-single-select
             v-model:value="transaction.paymentMethodId"
@@ -67,6 +71,10 @@
         />
         {% endblock %}
 
+        {% block sw_order_detail_details_shipping_address_divider %}
+        <hr class="sw-order-detail-state-card__divider sw-order-detail-details__divider">
+        {% endblock %}
+
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
             v-model:value="delivery.shippingMethodId"
@@ -90,6 +98,7 @@
             :step="1"
             :min="0"
             :label="$t('sw-order.detailDeliveries.labelShippingCosts')"
+            @input-change="onShippingChargeEdited"
         >
             <template #suffix>
                 {{ order.currency.symbol }}

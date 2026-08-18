@@ -60,6 +60,15 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
     }
 
     /**
+     * Resets the captcha after the form was submitted via AJAX. Concrete captcha versions
+     * override this to clear their widget state. Versions that already request a fresh token on
+     * every submit (e.g. reCAPTCHA v3) do not need to reset.
+     */
+    resetGreCaptcha() {
+        // handle by child plugin
+    }
+
+    /**
      * tries to get the closest form
      *
      * @returns {HTMLElement|boolean}
@@ -77,7 +86,34 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
     }
 
     _registerEvents() {
-        this._form.addEventListener('submit', this._onFormSubmitCallback.bind(this));
+        this._form.addEventListener('submit', this._onFormSubmitCallback.bind(this), { capture: true });
+
+        // Once the form's AJAX submission returns, the round-trip is complete and any captcha
+        // token that was sent has been consumed. Re-enable submitting and reset the captcha so a
+        // single-use token is never sent twice. This matters when the form stays on screen after
+        // a server-side validation error: the `_captcha` route flag validates (and consumes) the
+        // token before the remaining fields are validated, so a failed field validation would
+        // otherwise leave a stale token behind that fails on the next submission.
+        this._onFormAjaxResponseCallback = this._onFormAjaxResponse.bind(this);
+        this._form.addEventListener('onFormResponse', this._onFormAjaxResponseCallback);
+        this._form.addEventListener('onAfterAjaxSubmit', this._onFormAjaxResponseCallback);
+    }
+
+    /**
+     * Handles the completion of an AJAX form submission emitted by the form handler plugins.
+     *
+     * @private
+     */
+    _onFormAjaxResponse() {
+        this._formSubmitting = false;
+        this.resetGreCaptcha();
+    }
+
+    destroy() {
+        if (this._form && this._onFormAjaxResponseCallback) {
+            this._form.removeEventListener('onFormResponse', this._onFormAjaxResponseCallback);
+            this._form.removeEventListener('onAfterAjaxSubmit', this._onFormAjaxResponseCallback);
+        }
     }
 
     _submitInvisibleForm() {
@@ -109,6 +145,8 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
 
     _onFormSubmitCallback(event) {
         if (this._formSubmitting) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
             return;
         }
 

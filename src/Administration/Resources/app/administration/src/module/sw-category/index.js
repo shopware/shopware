@@ -45,8 +45,8 @@ Module.register('sw-category', {
     description: 'sw-category.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'solid-products',
+    color: 'var(--color-module-green-500)',
+    icon: 'regular-products',
     favicon: 'icon-module-products.png',
     entity: 'category',
 

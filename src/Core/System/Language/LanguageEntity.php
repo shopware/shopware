@@ -33,6 +33,9 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\Prop
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpPromptTranslation\AppMcpPromptTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
@@ -41,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Struct\Collection;
@@ -80,6 +84,8 @@ class LanguageEntity extends Entity
     protected string $name;
 
     protected bool $active;
+
+    protected bool $translationAutoUpdate = true;
 
     protected ?LocaleEntity $locale = null;
 
@@ -179,6 +185,9 @@ class LanguageEntity extends Entity
 
     protected ?ProductCrossSellingTranslationCollection $productCrossSellingTranslations = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     protected ?ImportExportProfileTranslationCollection $importExportProfileTranslations = null;
 
     protected ?ProductFeatureSetTranslationCollection $productFeatureSetTranslations = null;
@@ -196,6 +205,12 @@ class LanguageEntity extends Entity
     protected ?AppCmsBlockTranslationCollection $appCmsBlockTranslations = null;
 
     protected ?AppScriptConditionTranslationCollection $appScriptConditionTranslations = null;
+
+    protected ?AppMcpToolTranslationCollection $appMcpToolTranslations = null;
+
+    protected ?AppMcpPromptTranslationCollection $appMcpPromptTranslations = null;
+
+    protected ?AppMcpResourceTranslationCollection $appMcpResourceTranslations = null;
 
     protected ?AppFlowActionTranslationCollection $appFlowActionTranslations = null;
 
@@ -269,6 +284,16 @@ class LanguageEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getTranslationAutoUpdate(): bool
+    {
+        return $this->translationAutoUpdate;
+    }
+
+    public function setTranslationAutoUpdate(bool $translationAutoUpdate): void
+    {
+        $this->translationAutoUpdate = $translationAutoUpdate;
     }
 
     public function getLocale(): ?LocaleEntity
@@ -745,13 +770,29 @@ class LanguageEntity extends Entity
         $this->productCrossSellingTranslations = $productCrossSellingTranslations;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function getImportExportProfileTranslations(): ?ImportExportProfileTranslationCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->importExportProfileTranslations;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function setImportExportProfileTranslations(ImportExportProfileTranslationCollection $importExportProfileTranslations): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->importExportProfileTranslations = $importExportProfileTranslations;
     }
 
@@ -833,6 +874,36 @@ class LanguageEntity extends Entity
     public function setAppScriptConditionTranslations(AppScriptConditionTranslationCollection $appScriptConditionTranslations): void
     {
         $this->appScriptConditionTranslations = $appScriptConditionTranslations;
+    }
+
+    public function getAppMcpToolTranslations(): ?AppMcpToolTranslationCollection
+    {
+        return $this->appMcpToolTranslations;
+    }
+
+    public function setAppMcpToolTranslations(AppMcpToolTranslationCollection $appMcpToolTranslations): void
+    {
+        $this->appMcpToolTranslations = $appMcpToolTranslations;
+    }
+
+    public function getAppMcpPromptTranslations(): ?AppMcpPromptTranslationCollection
+    {
+        return $this->appMcpPromptTranslations;
+    }
+
+    public function setAppMcpPromptTranslations(AppMcpPromptTranslationCollection $appMcpPromptTranslations): void
+    {
+        $this->appMcpPromptTranslations = $appMcpPromptTranslations;
+    }
+
+    public function getAppMcpResourceTranslations(): ?AppMcpResourceTranslationCollection
+    {
+        return $this->appMcpResourceTranslations;
+    }
+
+    public function setAppMcpResourceTranslations(AppMcpResourceTranslationCollection $appMcpResourceTranslations): void
+    {
+        $this->appMcpResourceTranslations = $appMcpResourceTranslations;
     }
 
     public function getAppFlowActionTranslations(): ?AppFlowActionTranslationCollection

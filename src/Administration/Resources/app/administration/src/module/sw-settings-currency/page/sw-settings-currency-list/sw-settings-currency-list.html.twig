@@ -94,7 +94,7 @@
                         :router-link="{ name: 'sw.settings.currency.detail', params: { id: item.id, edit: 'edit' }}"
                         class="sw-currency-list__edit-action"
                     >
-                        {{ $t('sw-settings-currency.list.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -105,7 +105,7 @@
                         class="sw-currency-list__delete-action"
                         @click="onDelete(item.id)"
                     >
-                        {{ $t('sw-settings-currency.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -144,7 +144,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $t('sw-settings-currency.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>

@@ -30,6 +30,18 @@ export default class FormFieldTogglePlugin extends Plugin {
         valueDataAttribute: 'data-form-field-toggle-value',
 
         /**
+         * the data attribute for a selector that points to a button
+         * whose label should be toggled together with the field toggle state
+         */
+        buttonTargetDataAttribute: 'data-form-field-toggle-button-target',
+
+        /**
+         * the data attribute for the alternate button text
+         * used when the target is hidden
+         */
+        buttonTextDataAttribute: 'data-form-field-toggle-button-text',
+
+        /**
          * the class which gets applied
          * when the field previously had the required attribute
          */
@@ -67,6 +79,7 @@ export default class FormFieldTogglePlugin extends Plugin {
     init() {
         this._getTargets();
         this._getControlValue();
+        this._getButtonTarget();
         this._registerEvents();
 
         // Since the target could be hidden from the start,
@@ -107,13 +120,34 @@ export default class FormFieldTogglePlugin extends Plugin {
     }
 
     /**
+     * sets the submit button target and remembers its default text
+     *
+     * @private
+     */
+    _getButtonTarget() {
+        const buttonSelector = this.el.getAttribute(this.options.buttonTargetDataAttribute);
+
+        if (this.el.form) {
+            this._buttonTarget = this.el.form.querySelector(buttonSelector);
+        } else {
+            this._buttonTarget = document.querySelector(buttonSelector);
+        }
+
+        this._buttonDefaultText = this._buttonTarget ? this._buttonTarget.textContent.trim() : '';
+    }
+
+    /**
      * registers all needed events
      *
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener('change', this._onChange.bind(this));
-        this.el.addEventListener('change', this._onChange.bind(this));
+        if (!this._boundOnChange) {
+            this._boundOnChange = this._onChange.bind(this);
+        }
+
+        this.el.removeEventListener('change', this._boundOnChange);
+        this.el.addEventListener('change', this._boundOnChange);
     }
 
     /**
@@ -132,7 +166,29 @@ export default class FormFieldTogglePlugin extends Plugin {
             }
         });
 
+        this._toggleButtonText(shouldShow);
+
         this.$emitter.publish('onChange');
+    }
+
+    /**
+     * toggles a linked button text based on visibility state
+     *
+     * @param {boolean} shouldShow
+     * @private
+     */
+    _toggleButtonText(shouldShow) {
+        if (!this._buttonTarget) {
+            return;
+        }
+
+        const alternateText = this.el.getAttribute(this.options.buttonTextDataAttribute);
+
+        if (!alternateText) {
+            return;
+        }
+
+        this._buttonTarget.textContent = shouldShow ? this._buttonDefaultText : alternateText;
     }
 
     /**
@@ -147,7 +203,7 @@ export default class FormFieldTogglePlugin extends Plugin {
         if ('checkbox' !== type && 'radio' !== type) {
             return this.el.value === this._value;
         }
-    
+
         if (!this._value) {
             return this.el.checked;
         }

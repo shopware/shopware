@@ -60,7 +60,7 @@ class ShippingStateRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $stateId, bool $stateExists = true): void
     {
         $countryIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $state = new CountryStateEntity();
         $state->setId($stateId);
         $state = $stateExists ? $state : null;

@@ -1,11 +1,9 @@
-@import "~scss/variables";
-
 .sw-category-detail-custom-entity {
     .sw-many-to-many-assignment-card__select-container {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
     }
 
     .sw-card .sw-card__content {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
     }
 }

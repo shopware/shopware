@@ -34,6 +34,12 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     final public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
 
     /**
+     * Context state that suppresses the physical file deletion entirely, for callers
+     * that overwrite or clean up the affected files themselves after the transaction.
+     */
+    final public const SKIP_FILE_DELETE = 'skip-file-delete';
+
+    /**
      * @internal
      *
      * @param EntityRepository<MediaThumbnailCollection> $thumbnailRepository
@@ -223,16 +229,16 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      */
     private function performFileDelete(Context $context, array $paths, string $visibility): void
     {
-        if (\count($paths) <= 0) {
+        if (\count($paths) <= 0 || $context->hasState(self::SKIP_FILE_DELETE)) {
             return;
         }
 
         if ($context->hasState(self::SYNCHRONE_FILE_DELETE)) {
-            $this->deleteFileHandler->__invoke(new DeleteFileMessage($paths, $visibility));
+            $this->deleteFileHandler->__invoke(new DeleteFileMessage($paths, $visibility, true));
 
             return;
         }
 
-        $this->messageBus->dispatch(new DeleteFileMessage($paths, $visibility));
+        $this->messageBus->dispatch(new DeleteFileMessage($paths, $visibility, true));
     }
 }

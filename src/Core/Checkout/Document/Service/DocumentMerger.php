@@ -59,9 +59,6 @@ final class DocumentMerger
             return null;
         }
 
-        $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
-        $renderedDocument = new RenderedDocument(name: $fileName);
-
         if ($documents->count() === 1) {
             $document = $documents->first();
             if ($document === null) {
@@ -74,16 +71,49 @@ final class DocumentMerger
             }
 
             $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
-            $renderedDocument->setContent($fileBlob);
 
-            return $renderedDocument;
+            return $this->createRenderedDocument($document, $fileBlob);
+        }
+
+        if (!$this->containsOnlyPdfs($documents)) {
+            return $this->createDocumentsZip($documents, $context);
         }
 
         try {
+            $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
+            $renderedDocument = new RenderedDocument(name: $fileName);
+
             return $this->mergeWithFpdi($documents, $context, $renderedDocument);
         } catch (FpdiException $e) {
             return $this->createDocumentsZip($documents, $context);
         }
+    }
+
+    private function createRenderedDocument(DocumentEntity $document, string $fileBlob): RenderedDocument
+    {
+        $fileExtension = $this->resolveFileType($document);
+        $fileName = $document->getDocumentMediaFile()?->getFileName() ?? Random::getAlphanumericString(32);
+        $contentType = $document->getDocumentMediaFile()?->getMimeType() ?? $this->getContentType($fileExtension);
+
+        $renderedDocument = new RenderedDocument(
+            name: $fileName . '.' . $fileExtension,
+            fileExtension: $fileExtension,
+            contentType: $contentType,
+        );
+        $renderedDocument->setContent($fileBlob);
+
+        return $renderedDocument;
+    }
+
+    private function containsOnlyPdfs(DocumentCollection $documents): bool
+    {
+        foreach ($documents as $document) {
+            if ($this->resolveFileType($document) !== PdfRenderer::FILE_EXTENSION) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function mergeWithFpdi(DocumentCollection $documents, Context $context, RenderedDocument $renderedDocument): ?RenderedDocument
@@ -128,16 +158,16 @@ final class DocumentMerger
         return $renderedDocument;
     }
 
-    private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?string
+    private function ensureDocumentMediaFileGenerated(DocumentEntity $document, Context $context): ?DocumentEntity
     {
         $documentMediaId = $document->getDocumentMediaFileId();
         if ($documentMediaId !== null || $document->isStatic()) {
-            return $documentMediaId;
+            return $document;
         }
 
         $operation = new DocumentGenerateOperation(
             $document->getOrderId(),
-            PdfRenderer::FILE_EXTENSION,
+            $this->resolveFileType($document),
             $document->getConfig(),
             $document->getReferencedDocumentId()
         );
@@ -165,7 +195,7 @@ final class DocumentMerger
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
         \assert($document !== null);
 
-        return $document->getDocumentMediaFileId();
+        return $document;
     }
 
     /**
@@ -175,23 +205,29 @@ final class DocumentMerger
     {
         $criteria = (new Criteria($documentIds))
             ->addAssociation('documentType')
+            ->addAssociation('documentMediaFile')
             ->addAssociation('order')
             ->addSorting(new FieldSorting('order.orderNumber'));
 
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         $mediaCache = [];
+        $preparedDocuments = [];
 
         foreach ($documents as $document) {
-            $mediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
+            $preparedDocument = $this->ensureDocumentMediaFileGenerated($document, $context) ?? $document;
+
+            $preparedDocuments[] = $preparedDocument;
+
+            $mediaId = $preparedDocument->getDocumentMediaFileId();
             if ($mediaId !== null) {
-                $mediaCache[$document->getId()] = $mediaId;
+                $mediaCache[$preparedDocument->getId()] = $mediaId;
             }
         }
 
         $this->documentMediaCache = $mediaCache;
 
-        return $documents;
+        return new DocumentCollection($preparedDocuments);
     }
 
     private function createDocumentsZip(DocumentCollection $documents, Context $context): ?RenderedDocument
@@ -218,7 +254,7 @@ final class DocumentMerger
             $technicalName = $document->getDocumentType()?->getTechnicalName() ?? 'unknown';
             $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
             $documentNumber = $document->getDocumentNumber() ?? $document->getId();
-            $name = $orderNumber . '_' . $technicalName . '_' . $documentNumber . '.' . PdfRenderer::FILE_EXTENSION;
+            $name = $orderNumber . '_' . $technicalName . '_' . $documentNumber . '.' . $this->resolveFileType($document);
 
             $zip->addFromString($name, $fileContent);
 
@@ -253,5 +289,28 @@ final class DocumentMerger
                 $this->filesystem->remove($tempFile);
             }
         }
+    }
+
+    private function resolveFileType(DocumentEntity $document): string
+    {
+        $fileExtension = $document->getDocumentMediaFile()?->getFileExtension();
+        if (\is_string($fileExtension) && $fileExtension !== '') {
+            return $fileExtension;
+        }
+
+        $fileTypes = $document->getConfig()['fileTypes'] ?? null;
+        if (\is_array($fileTypes) && isset($fileTypes[0]) && \is_string($fileTypes[0]) && $fileTypes[0] !== '') {
+            return $fileTypes[0];
+        }
+
+        return PdfRenderer::FILE_EXTENSION;
+    }
+
+    private function getContentType(string $fileExtension): string
+    {
+        return match ($fileExtension) {
+            'xml' => 'application/xml',
+            default => PdfRenderer::FILE_CONTENT_TYPE,
+        };
     }
 }

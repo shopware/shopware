@@ -11,10 +11,12 @@ use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppLoader::class)]
 class AppLoaderTest extends TestCase
 {
@@ -49,8 +51,7 @@ class AppLoaderTest extends TestCase
         static::assertSame('test', $app->getMetadata()->getName());
         static::assertSame('1.0.0', $app->getMetadata()->getVersion());
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App test is managed by Composer and cannot be deleted');
+        $this->expectExceptionObject(AppException::cannotDeleteManaged('test'));
         $appLoader->deleteApp('test');
     }
 

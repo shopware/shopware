@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-product-detail-cross-selling {
     & &__restore-inheritance-btn.mt-button {
         display: block;
@@ -24,7 +22,7 @@
         line-height: var(--scale-size-16);
         font-size: var(--font-size-xs);
         margin: var(--scale-size-20) 0;
-        color: var(--color-darkgray-200);
+        color: var(--color-text-secondary-default);
 
         &.is--inherited {
             color: var(--color-module-purple-900);

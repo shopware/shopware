@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class CustomerGroupEntity extends Entity
 {
@@ -28,13 +31,13 @@ class CustomerGroupEntity extends Entity
 
     protected bool $registrationActive;
 
-    protected string $registrationTitle;
+    protected ?string $registrationTitle = null;
 
-    protected string $registrationIntroduction;
+    protected ?string $registrationIntroduction = null;
 
-    protected bool $registrationOnlyCompanyRegistration;
+    protected ?bool $registrationOnlyCompanyRegistration = null;
 
-    protected string $registrationSeoMetaDescription;
+    protected ?string $registrationSeoMetaDescription = null;
 
     protected ?SalesChannelCollection $registrationSalesChannels = null;
 
@@ -98,7 +101,7 @@ class CustomerGroupEntity extends Entity
         $this->registrationActive = $registrationActive;
     }
 
-    public function getRegistrationTitle(): string
+    public function getRegistrationTitle(): ?string
     {
         return $this->registrationTitle;
     }
@@ -108,7 +111,7 @@ class CustomerGroupEntity extends Entity
         $this->registrationTitle = $registrationTitle;
     }
 
-    public function getRegistrationIntroduction(): string
+    public function getRegistrationIntroduction(): ?string
     {
         return $this->registrationIntroduction;
     }
@@ -118,7 +121,7 @@ class CustomerGroupEntity extends Entity
         $this->registrationIntroduction = $registrationIntroduction;
     }
 
-    public function getRegistrationOnlyCompanyRegistration(): bool
+    public function getRegistrationOnlyCompanyRegistration(): ?bool
     {
         return $this->registrationOnlyCompanyRegistration;
     }
@@ -128,7 +131,7 @@ class CustomerGroupEntity extends Entity
         $this->registrationOnlyCompanyRegistration = $registrationOnlyCompanyRegistration;
     }
 
-    public function getRegistrationSeoMetaDescription(): string
+    public function getRegistrationSeoMetaDescription(): ?string
     {
         return $this->registrationSeoMetaDescription;
     }

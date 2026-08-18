@@ -28,8 +28,8 @@ Module.register('sw-settings-shipping', {
     name: 'settings-shipping',
     title: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'sw-settings-shipping.general.descriptionTextModule',
-    color: '#9AA8B5',
-    icon: 'solid-cog',
+    color: 'var(--color-icon-secondary-default)',
+    icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'shipping_method',
 

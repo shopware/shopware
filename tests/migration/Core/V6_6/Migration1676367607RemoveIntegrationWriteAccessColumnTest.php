@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1676367607RemoveIntegrationWriteAccessColumn;
@@ -11,9 +12,15 @@ use Shopware\Core\Migration\V6_6\Migration1676367607RemoveIntegrationWriteAccess
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1676367607RemoveIntegrationWriteAccessColumn::class)]
 class Migration1676367607RemoveIntegrationWriteAccessColumnTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1676367607, (new Migration1676367607RemoveIntegrationWriteAccessColumn())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $connection = KernelLifecycleManager::getConnection();

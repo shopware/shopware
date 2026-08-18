@@ -22,6 +22,7 @@ export default {
         'integrationService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -192,6 +193,14 @@ export default {
                     label: language.customLabel,
                 };
             });
+        },
+
+        mcpGrantedPrivileges() {
+            if (!this.user?.aclRoles) {
+                return [];
+            }
+
+            return [...new Set(this.user.aclRoles.flatMap((role) => role.privileges ?? []))];
         },
     },
 
@@ -396,19 +405,17 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (this.currentUser.id === this.user.id) {
-                await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-            }
-
-            const isEmailValid = await this.checkEmail();
-
-            if (!isEmailValid) {
-                return;
-            }
-
-            this.isLoading = true;
-
             try {
+                if (this.currentUser.id === this.user.id) {
+                    await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }
+
+                const isEmailValid = await this.checkEmail();
+
+                if (!isEmailValid) {
+                    return;
+                }
+
                 await this.userRepository.save(this.user, context);
 
                 if (this.currentUser.id === this.user.id) {
@@ -484,6 +491,23 @@ export default {
             }
 
             this.onCloseDetailModal();
+        },
+
+        onMcpAllowlistUpdate(allowlist) {
+            if (!this.userId) {
+                return;
+            }
+
+            this.userService
+                .saveMcpAllowlist(this.userId, allowlist)
+                .then(() => {
+                    this.user.mcpAllowlist = allowlist;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-users-permissions.users.user-detail.mcpAllowlistSaveError'),
+                    });
+                });
         },
 
         onCloseDeleteModal() {

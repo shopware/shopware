@@ -1,0 +1,14 @@
+diff --git a/changelog/_unreleased/2026-05-29-add-quick-save.md b/changelog/_unreleased/2026-05-29-add-quick-save.md
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/changelog/_unreleased/2026-05-29-add-quick-save.md
+@@ -0,0 +1,8 @@
++---
++title: Add quick-save action to product detail
++issue: NEXT-99999
++author: synthetic
++---
++# Core
++
++* Added a quick-save action to the product detail page.

@@ -28,12 +28,6 @@ export default {
         },
     },
 
-    data() {
-        return {
-            removePluginData: false,
-        };
-    },
-
     computed: {
         title() {
             return this.isLicensed
@@ -54,7 +48,7 @@ export default {
         btnLabel() {
             return this.isLicensed
                 ? this.$t('sw-extension-store.component.sw-extension-removal-modal.labelCancel')
-                : this.$t('sw-extension-store.component.sw-extension-removal-modal.labelRemove');
+                : this.$t('global.default.remove');
         },
     },
 

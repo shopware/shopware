@@ -178,7 +178,60 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     orderNumber?: mixed,
+     *     amountTotal?: float|null,
+     *     orderDate?: string|null,
+     *     orderDateTime?: string|null,
+     *     stateId?: mixed,
+     *     stateMachineState?: array{
+     *         id: mixed,
+     *         _count: int
+     *     }|null,
+     *     salesChannelId?: mixed,
+     *     affiliateCode?: mixed,
+     *     campaignCode?: mixed,
+     *     tags?: list<array{id: string, _count: int}>,
+     *     billingAddress?: array{
+     *         id: string,
+     *         _count: int,
+     *         countryId: string
+     *     }|null,
+     *     orderCustomer?: array{
+     *         id: string,
+     *         _count: int,
+     *         customer: array{
+     *             id: string,
+     *             _count: int,
+     *             groupId: string,
+     *             customerNumber: string
+     *         }|null
+     *     }|null,
+     *     lineItems?: list<array{
+     *         id: string,
+     *         _count: int,
+     *         productId: string|null,
+     *         payload: array{code: string|null}
+     *     }>,
+     *     primaryOrderTransaction?: array{
+     *         id: string,
+     *         _count: int,
+     *         stateMachineState: array{id: string, _count: int},
+     *         paymentMethodId: string
+     *     }|null,
+     *     primaryOrderDelivery?: array{
+     *         id: string,
+     *         _count: int,
+     *         stateMachineState: array{id: string, _count: int},
+     *         shippingMethodId: string,
+     *         shippingOrderAddress: array{id: string, _count: int, countryId: string}
+     *     }|null,
+     *     documents?: list<array{id: string, _count: int}>,
+     *     createdAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {
@@ -337,10 +390,19 @@ SQL;
                 $id,
             ]));
 
+            $completion = $this->buildCompletion([
+                \is_string($row['order_number'] ?? null) ? $row['order_number'] : null,
+                \is_string($row['email'] ?? null) ? $row['email'] : null,
+                \is_string($row['first_name'] ?? null) ? $row['first_name'] : null,
+                \is_string($row['last_name'] ?? null) ? $row['last_name'] : null,
+                \is_string($row['company'] ?? null) ? $row['company'] : null,
+            ]);
+
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
@@ -349,6 +411,7 @@ SQL;
             $mapped[$id] = [
                 'id' => $id,
                 'text' => \strtolower($text),
+                'completion' => $completion,
                 'orderNumber' => $row['order_number'] ?? null,
                 'amountTotal' => isset($row['amount_total']) ? (float) $row['amount_total'] : null,
                 'orderDate' => $this->formatDateTime($row, 'order_date_time'),

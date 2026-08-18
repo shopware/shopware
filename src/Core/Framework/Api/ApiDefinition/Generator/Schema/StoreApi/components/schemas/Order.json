@@ -1,19 +1,300 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "Order": {
+                "description": "Added since version: 6.0.0.0",
                 "required": [
                     "documents",
                     "orderDate",
                     "stateMachineState",
-                    "price"
+                    "price",
+                    "id",
+                    "billingAddressId",
+                    "currencyId",
+                    "languageId",
+                    "salesChannelId",
+                    "orderDateTime",
+                    "currencyFactor"
                 ],
                 "properties": {
-                    "price": { "$ref": "#/components/schemas/CalculatedPrice" }
-                }
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderNumber": {
+                        "description": "Unique number associated with every order.",
+                        "type": "string"
+                    },
+                    "billingAddressId": {
+                        "description": "Unique identity of the billing address.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "billingAddressVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "primaryOrderDeliveryId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "primaryOrderDeliveryVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "primaryOrderTransactionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "primaryOrderTransactionVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "currencyId": {
+                        "description": "Unique identity of the currency.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "languageId": {
+                        "description": "Unique identity of the language.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salesChannelId": {
+                        "description": "Unique identity of the sales channel.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderDateTime": {
+                        "description": "Timestamp when the order was placed.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "orderDate": {
+                        "description": "Date when the order was placed.",
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "price": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/CartPrice"
+                    },
+                    "amountTotal": {
+                        "description": "Gross price of the order.",
+                        "type": "number",
+                        "format": "float",
+                        "readOnly": true
+                    },
+                    "amountNet": {
+                        "description": "Net price of the order.",
+                        "type": "number",
+                        "format": "float",
+                        "readOnly": true
+                    },
+                    "positionPrice": {
+                        "description": "Price of each line item in the cart multiplied by its quantity excluding charges like shipping cost, rules, taxes etc.",
+                        "type": "number",
+                        "format": "float",
+                        "readOnly": true
+                    },
+                    "taxStatus": {
+                        "description": "TaxStatus takes `Free`, `Net` or `Gross` as values.",
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "shippingCosts": {
+                        "required": [
+                            "unitPrice",
+                            "totalPrice",
+                            "quantity"
+                        ],
+                        "properties": {
+                            "unitPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "totalPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantity": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "calculatedTaxes": {
+                                "type": "object"
+                            },
+                            "taxRules": {
+                                "type": "object"
+                            },
+                            "referencePrice": {
+                                "type": "object"
+                            },
+                            "listPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "discount": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "regulationPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "shippingTotal": {
+                        "description": "Total shipping cost of the ordered product.",
+                        "type": "number",
+                        "format": "float",
+                        "readOnly": true
+                    },
+                    "currencyFactor": {
+                        "description": "Rate at which currency is exchanged.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "deepLinkCode": {
+                        "description": "It is a generated special code linked to email. It is used to access orders placed by guest customers.",
+                        "type": "string"
+                    },
+                    "affiliateCode": {
+                        "description": "An affiliate code is an identification option with which website operators can mark outgoing links.",
+                        "type": "string"
+                    },
+                    "campaignCode": {
+                        "description": "A campaign code is the globally unique identifier for a campaign.",
+                        "type": "string"
+                    },
+                    "customerComment": {
+                        "description": "Comments given by comments.",
+                        "type": "string"
+                    },
+                    "source": {
+                        "description": "Source of orders either via normal order placement or subscriptions.",
+                        "type": "string"
+                    },
+                    "taxCalculationType": {
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdById": {
+                        "description": "Unique identity of createdBy.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "updatedById": {
+                        "description": "Unique identity of updatedBy.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "stateMachineState": {
+                        "$ref": "#/components/schemas/StateMachineState",
+                        "description": "Current order state (e.g., open, in_progress, completed, cancelled)"
+                    },
+                    "primaryOrderDelivery": {
+                        "$ref": "#/components/schemas/OrderDelivery",
+                        "description": "Primary delivery information for the order"
+                    },
+                    "primaryOrderTransaction": {
+                        "$ref": "#/components/schemas/OrderTransaction",
+                        "description": "Primary payment transaction for the order"
+                    },
+                    "orderCustomer": {
+                        "$ref": "#/components/schemas/OrderCustomer",
+                        "description": "Customer information associated with the order"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency",
+                        "description": "Currency used for the order"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/Language",
+                        "description": "Language used when placing the order"
+                    },
+                    "addresses": {
+                        "description": "All addresses associated with the order (billing and shipping)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderAddress"
+                        }
+                    },
+                    "billingAddress": {
+                        "$ref": "#/components/schemas/OrderAddress",
+                        "description": "Billing address for the order"
+                    },
+                    "deliveries": {
+                        "description": "Delivery information including shipping address and tracking",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderDelivery"
+                        }
+                    },
+                    "lineItems": {
+                        "description": "Order line items (products, discounts, fees)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderLineItem"
+                        }
+                    },
+                    "transactions": {
+                        "description": "Payment transactions for the order",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderTransaction"
+                        }
+                    },
+                    "documents": {
+                        "description": "Generated documents (invoices, delivery notes, credit notes)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Document"
+                        }
+                    },
+                    "tags": {
+                        "description": "Tags assigned to the order for organization and filtering",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Tag"
+                        }
+                    }
+                },
+                "type": "object"
             }
         }
     }

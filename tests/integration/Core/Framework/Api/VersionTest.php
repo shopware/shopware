@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class VersionTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -27,18 +29,16 @@ class VersionTest extends TestCase
     }
 
     /**
-     * @return array<array{string, string}>
+     * @return iterable<array{string, string}>
      */
-    public static function protectedRoutesDataProvider(): array
+    public static function protectedRoutesDataProvider(): iterable
     {
-        return [
-            ['GET', '/api/product'],
-            ['GET', '/api/tax'],
-            ['POST', '/api/_action/sync'],
-            ['GET', '/api/_info/stoplightio.html'],
-            ['GET', '/api/_info/entity-schema.json'],
-            ['GET', '/api/_info/events.json'],
-        ];
+        yield 'protected routes get api product' => ['GET', '/api/product'];
+        yield 'protected routes get api tax' => ['GET', '/api/tax'];
+        yield 'protected routes post api action sync' => ['POST', '/api/_action/sync'];
+        yield 'protected routes get api info stoplightio html' => ['GET', '/api/_info/stoplightio.html'];
+        yield 'protected routes get api info entity schema json' => ['GET', '/api/_info/entity-schema.json'];
+        yield 'protected routes get api info events json' => ['GET', '/api/_info/events.json'];
     }
 
     public function testAuthShouldNotBeProtected(): void

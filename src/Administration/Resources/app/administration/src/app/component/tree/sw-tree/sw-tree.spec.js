@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -6,7 +8,7 @@ import { mount } from '@vue/test-utils';
 import getTreeItems from './fixtures/treeItems';
 
 async function createWrapper(
-    { props, route } = {
+    { props, route, slots } = {
         props: {},
     },
 ) {
@@ -24,6 +26,7 @@ async function createWrapper(
             items: getTreeItems(),
             ...props,
         },
+        slots: slots ?? {},
         global: {
             stubs: {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -600,5 +603,157 @@ describe('src/app/component/tree/sw-tree', () => {
         // Check if tree item has checked value
         treeItem = wrapper.get('.sw-tree-item[aria-label="Shoes"] input[type="checkbox"]');
         expect(treeItem.element.checked).toBe(true);
+    });
+
+    it('should keep the focus on the confirm button while naming a new element', async () => {
+        const homeItem = getTreeItems().find((item) => item.name === 'Home');
+        const shoesId = homeItem.children.find((item) => item.name === 'Shoes').id;
+        const healthId = homeItem.children.find((item) => item.name === 'Health & Games').id;
+
+        const wrapper = await createWrapper({
+            props: {
+                activeTreeItemId: shoesId,
+                initiallyExpandedRoot: true,
+            },
+            route: {
+                params: {
+                    id: shoesId,
+                },
+            },
+            slots: {
+                items: `
+                    <sw-tree-item
+                        v-for="item in params.treeItems"
+                        :key="item.id"
+                        :item="item"
+                        :new-element-id="params.newElementId"
+                        :on-change-route="params.onChangeRoute"
+                    />
+                `,
+            },
+        });
+        await flushPromises();
+
+        // The new element is in naming mode
+        wrapper.vm.newElementId = healthId;
+        await flushPromises();
+
+        const nameInput = wrapper.get('.sw-tree-detail__edit-tree-item input');
+        nameInput.element.focus();
+        await nameInput.trigger('focusin');
+        await flushPromises();
+
+        expect(document.activeElement).toBe(nameInput.element);
+
+        // Clicking the confirm button focuses it, the tree must not pull the focus away
+        const submitButton = wrapper.get('.sw-confirm-field__button--submit');
+        submitButton.element.focus();
+        await submitButton.trigger('focusin');
+        await flushPromises();
+
+        expect(document.activeElement).toBe(submitButton.element);
+    });
+
+    describe('redirecting the focus to the active tree item', () => {
+        async function createActiveWrapper() {
+            const shoesId = getTreeItems().find((item) => item.name === 'Shoes').id;
+
+            const wrapper = await createWrapper({
+                props: {
+                    activeTreeItemId: shoesId,
+                    initiallyExpandedRoot: true,
+                },
+                route: {
+                    params: {
+                        id: shoesId,
+                    },
+                },
+            });
+            await flushPromises();
+
+            return wrapper;
+        }
+
+        it('should not scroll when the focus comes from a mouse interaction', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const focusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+
+            await wrapper.get('.sw-tree').trigger('mousedown');
+            await wrapper.get('.sw-tree').trigger('focusin');
+            await flushPromises();
+
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+        });
+
+        it('should scroll when the focus comes from the keyboard', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const focusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+
+            await wrapper.get('.sw-tree').trigger('focusin');
+            await flushPromises();
+
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+        });
+
+        it('should keep the focus on the tree item that was clicked', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const clickedTreeItem = wrapper
+                .findAll('.sw-tree-item')
+                .find((treeItem) => treeItem.element !== activeTreeItem.element);
+
+            const activeFocusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+            const clickedFocusSpy = jest.spyOn(clickedTreeItem.element, 'focus');
+
+            await clickedTreeItem.get('.sw-tree-item__element').trigger('mousedown');
+            await clickedTreeItem.get('.sw-tree-item__element').trigger('focusin');
+            await flushPromises();
+
+            expect(clickedFocusSpy).toHaveBeenCalledWith({ preventScroll: true });
+            expect(activeFocusSpy).not.toHaveBeenCalled();
+        });
+
+        it('should forget a mouse interaction that did not move the focus', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const focusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+
+            // Clicking something unfocusable must not turn the next keyboard focus into a mouse one
+            await wrapper.get('.sw-tree').trigger('mousedown');
+            await wrapper.get('.sw-tree').trigger('mouseup');
+            await wrapper.get('.sw-tree').trigger('focusin');
+            await flushPromises();
+
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+        });
+
+        it('should forget a mouse interaction that ended outside the tree', async () => {
+            const wrapper = await createActiveWrapper();
+            const activeTreeItem = wrapper.get('.sw-tree-item[aria-current="page"]');
+            const focusSpy = jest.spyOn(activeTreeItem.element, 'focus');
+
+            await wrapper.get('.sw-tree').trigger('mousedown');
+
+            // Dragging out of the tree releases the button somewhere else entirely
+            document.dispatchEvent(new MouseEvent('mouseup'));
+            await flushPromises();
+
+            await wrapper.get('.sw-tree').trigger('focusin');
+            await flushPromises();
+
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: false });
+        });
+
+        it('should stop listening for mouse interactions when it is destroyed', async () => {
+            const wrapper = await createActiveWrapper();
+            const removeListener = jest.spyOn(document, 'removeEventListener');
+
+            wrapper.unmount();
+
+            expect(removeListener).toHaveBeenCalledWith('mouseup', expect.any(Function));
+            expect(removeListener).toHaveBeenCalledWith('touchend', expect.any(Function));
+        });
     });
 });

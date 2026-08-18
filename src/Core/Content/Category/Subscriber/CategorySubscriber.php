@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Category\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -27,6 +29,7 @@ class CategorySubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -59,8 +62,8 @@ class CategorySubscriber implements EventSubscriberInterface
             return;
         }
 
-        $defaultCmsPageId = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
-        if ($defaultCmsPageId === '') {
+        $defaultCmsPageId = $this->getValidDefaultCmsPageId();
+        if ($defaultCmsPageId === null) {
             return;
         }
 
@@ -85,5 +88,32 @@ class CategorySubscriber implements EventSubscriberInterface
                 }
             }
         }
+    }
+
+    private function getValidDefaultCmsPageId(): ?string
+    {
+        $defaultCmsPageId = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
+        if ($defaultCmsPageId === '' || !Uuid::isValid($defaultCmsPageId)) {
+            return null;
+        }
+
+        if (!$this->cmsPageExists($defaultCmsPageId)) {
+            return null;
+        }
+
+        return $defaultCmsPageId;
+    }
+
+    private function cmsPageExists(string $cmsPageId): bool
+    {
+        $cmsPageIdResult = $this->connection->fetchOne(
+            'SELECT id FROM cms_page WHERE id = :cmsPageId AND version_id = :versionId LIMIT 1;',
+            [
+                'cmsPageId' => Uuid::fromHexToBytes($cmsPageId),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]
+        );
+
+        return $cmsPageIdResult !== false;
     }
 }

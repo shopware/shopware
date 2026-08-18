@@ -5,7 +5,10 @@ on:
     types:
       - opened
       - reopened
+      - ready_for_review
+      - edited
       - closed
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,95 +18,177 @@ permissions:
 jobs:
   set_milestone_label:
     name: Set milestone label
-    if: ${{ github.event.action != 'closed' && !contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action != 'closed' && !contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
-        - name: Get versions
-          id: versions
-          uses: shopware/github-actions/versions@main
-        - name: Get next minor
-          uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
-          id: next-milestone
-          env:
-            NEXT_MINOR: ${{ steps.versions.outputs.next-minor }}
-            NEXT_PATCH: ${{ steps.versions.outputs.next-patch }}
-            FREEZE_START: "${{ vars.FREEZE_START }}"
-            FROZEN_VERSION: "${{ vars.FROZEN_VERSION }}"
-          with:
-            result-encoding: string
-            script: |
-                const nextMinor = process.env.NEXT_MINOR.substring(1);
-                const nextPatch = process.env.NEXT_PATCH.substring(1);
+      - name: Get versions
+        id: versions
+        uses: shopware/github-actions/versions@main
+        with:
+          github-token: ${{ github.token }}
+      - name: Get next minor
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # 9
+        id: next-milestone
+        env:
+          NEXT_MINOR: ${{ steps.versions.outputs.next-minor }}
+          NEXT_PATCH: ${{ steps.versions.outputs.next-patch }}
+          FREEZE_START: "${{ vars.FREEZE_START }}"
+          FROZEN_VERSION: "${{ vars.FROZEN_VERSION }}"
+        with:
+          result-encoding: string
+          script: |
+            const nextMinor = process.env.NEXT_MINOR.substring(1);
+            const nextPatch = process.env.NEXT_PATCH.substring(1);
 
-                const versionRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
-                const versionBaseRef = versionRegex.exec(context.payload.pull_request.base.ref);
+            const versionRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
+            const versionBaseRef = versionRegex.exec(context.payload.pull_request.base.ref);
 
-                // Use next minor if target is trunk or is an issue
-                if (context.payload.pull_request.base.ref == "trunk") {
-                  const nextMinorRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
-                  const nextMinorSplitted = nextMinorRegex.exec(nextMinor);
-                  const today = new Date();
-                  const freezeStart = new Date(process.env.FREEZE_START);
-                  const frozenVersion = process.env.FROZEN_VERSION;
-                  // Skip minor if it is in a frozen state
-                  if (today >= freezeStart && nextMinor == frozenVersion) {
-                    nextMinorSplitted[3]++;
-                    return `${nextMinorSplitted.slice(1, nextMinorSplitted.length -1).join(".")}.0`;
-                  }
-                  return nextMinor;
-                } else if (versionBaseRef !== null) {
-                    const refVersion = `${versionBaseRef.slice(1, versionBaseRef.length - 1).join(".")}.0`
-                    try {
-                        await github.rest.repos.getReleaseByTag({
-                            owner: "shopware",
-                            repo: "shopware",
-                            tag: `v${refVersion}`
-                        });
-                        // Use next patch if target is a version branch and the minor is released
-                        return nextPatch;
-                    } catch(err) {
-                        // Use next minor if target is a version branch and the minor is not released
-                        return `${refVersion}`;
-                    }
+            // Use next minor if target is trunk or is an issue
+            if (context.payload.pull_request.base.ref == "trunk") {
+              const nextMinorRegex = new RegExp(/^([0-9]+).([0-9]+).([0-9]+).([0-9]+|x)$/, "mg");
+              const nextMinorSplitted = nextMinorRegex.exec(nextMinor);
+              const today = new Date();
+              const freezeStart = new Date(process.env.FREEZE_START);
+              const frozenVersion = process.env.FROZEN_VERSION;
+              // Skip minor if it is in a frozen state
+              if (today >= freezeStart && nextMinor == frozenVersion) {
+                nextMinorSplitted[3]++;
+                return `${nextMinorSplitted.slice(1, nextMinorSplitted.length -1).join(".")}.0`;
+              }
+              return nextMinor;
+            } else if (versionBaseRef !== null) {
+                const refVersion = `${versionBaseRef.slice(1, versionBaseRef.length - 1).join(".")}.0`
+                try {
+                    await github.rest.repos.getReleaseByTag({
+                        owner: "shopware",
+                        repo: "shopware",
+                        tag: `v${refVersion}`
+                    });
+                    // Use next patch if target is a version branch and the minor is released
+                    return nextPatch;
+                } catch(err) {
+                    // Use next minor if target is a version branch and the minor is not released
+                    return `${refVersion}`;
                 }
+            }
 
-                // Skip if the PR doesn't target trunk or an version branch
-                core.warning("This PR doesn't target 'trunk' or a version branch");
-                return "skip";
+            // Skip if the PR doesn't target trunk or an version branch
+            core.warning("This PR doesn't target 'trunk' or a version branch");
+            return "skip";
 
-        - name: Set milestone label
-          if: ${{ steps.next-milestone.outputs.result != 'skip' }}
-          uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
-          env:
-            MILESTONE: ${{ steps.next-milestone.outputs.result }}
-          with:
-            script: |
-              const milestone = process.env.MILESTONE;
-              const issueNumber = context.payload.pull_request.number;
+      # An app token is required for the added label to trigger the `labeled` run of
+      # milestone-check.yml; a label added with GITHUB_TOKEN starts no workflow. If
+      # minting fails the label still lands, the check just re-runs on the next push.
+      - id: sts-label
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CreatePR
 
-              await github.rest.issues.addLabels({
-                ...context.repo,
-                issue_number: issueNumber,
-                labels: [`milestone/${milestone}`],
-              }).then(res => {
-                if (res.status !== 200) {
-                  throw new Error(`Failed to add label "milestone/${milestone}" to issue/pull request #${issueNumber}`);
-                } else {
-                  core.info(`Label "milestone/${milestone}" added to pull request #${issueNumber}`);
-                }
-              });
+      - name: Set milestone label
+        if: ${{ steps.next-milestone.outputs.result != 'skip' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # 9
+        env:
+          MILESTONE: ${{ steps.next-milestone.outputs.result }}
+        with:
+          github-token: ${{ steps.sts-label.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const milestone = process.env.MILESTONE;
+            const issueNumber = context.payload.pull_request.number;
+
+            await github.rest.issues.addLabels({
+              ...context.repo,
+              issue_number: issueNumber,
+              labels: [`milestone/${milestone}`],
+            }).then(res => {
+              if (res.status !== 200) {
+                throw new Error(`Failed to add label "milestone/${milestone}" to issue/pull request #${issueNumber}`);
+              } else {
+                core.info(`Label "milestone/${milestone}" added to pull request #${issueNumber}`);
+              }
+            });
+
+  fix_milestone_label_on_base_change:
+    name: Fix milestone label after a base branch change
+    # GitHub's own retargeting emits no event, so only manual base changes arrive
+    # here; milestone-check.yml gates the rest.
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'edited' && github.event.changes.base != null }}
+    runs-on: ubuntu-24.04
+    steps:
+      # The base ref, never the PR head: a fork PR must not be able to edit the
+      # module that relabels it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: .github/bin/js
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No milestone label rule on ${{ github.event.pull_request.base.ref }}, nothing to fix."
+          fi
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { reconcileMilestoneLabel } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await reconcileMilestoneLabel({ github, core, context })
+
+  reconcile_milestone_labels:
+    name: Reconcile milestone labels on open PRs
+    # Manual repair of many PRs at once, e.g. when a branch-off left labels behind.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
+      - id: rule
+        run: |
+          if [ -f .github/bin/js/milestone-label.ts ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No milestone label rule on the default branch of this repository, nothing to reconcile."
+          fi
+      - if: steps.rule.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          # Set the repository variable to "false" to let it actually relabel.
+          DRY_RUN: ${{ vars.MILESTONE_RECONCILE_DRY_RUN || 'true' }}
+        with:
+          script: |
+            const { reconcileOpenMilestoneLabels } = await import('${{ github.workspace }}/.github/bin/js/milestone-label.ts')
+            await reconcileOpenMilestoneLabels({ github, core, context }, process.env.DRY_RUN !== 'false')
 
   set_milestone:
     name: Set milestone
-    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
-      - shell: bash
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - id: automation
+        run: |
+          if [ -f .github/bin/js/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No .github/bin/js/package.json on ${{ github.event.pull_request.base.ref }}, nothing to set."
+          fi
+      - if: steps.automation.outputs.present == 'true'
+        shell: bash
         run: npm ci --prefix .github/bin/js/
       - name: Set milestone
-        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        if: steps.automation.outputs.present == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # 9
         with:
           script: |
             const { setMilestoneForPR } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')

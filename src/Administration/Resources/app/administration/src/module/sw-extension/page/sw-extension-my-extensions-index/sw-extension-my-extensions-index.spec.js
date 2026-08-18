@@ -4,13 +4,18 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(query = {}) {
     const wrapper = mount(
         await wrapTestComponent('sw-extension-my-extensions-index', {
             sync: true,
         }),
         {
             global: {
+                provide: {
+                    feature: {
+                        isActive: (flag) => (global.activeFeatureFlags ?? []).includes(flag),
+                    },
+                },
                 stubs: {
                     'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),
                     'sw-search-bar': true,
@@ -28,11 +33,11 @@ async function createWrapper() {
                 },
                 mocks: {
                     $route: {
-                        query: {
-                            term: '',
-                            limit: 5,
-                        },
+                        name: 'sw.extension.my-extensions.listing.app',
+                        params: {},
+                        query: { term: '', limit: 5, ...query },
                     },
+                    $router: { push: jest.fn(), replace: jest.fn() },
                 },
             },
             attachTo: document.body,
@@ -70,9 +75,14 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         });
     });
 
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     afterEach(() => {
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
         global.activeAclRoles = [];
+        global.activeFeatureFlags = [];
     });
 
     it('upload button should be there when allowed runtime extension management', async () => {
@@ -94,5 +104,33 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(false);
+    });
+
+    it('should preserve sorting when searching', async () => {
+        const wrapper = await createWrapper({ sorting: 'name-asc' });
+
+        wrapper.vm.onSearch('extension');
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.extension.my-extensions.listing.app',
+            params: {},
+            query: {
+                term: 'extension',
+                limit: 5,
+                page: 1,
+                sorting: 'name-asc',
+            },
+        });
+    });
+
+    it('should preserve sorting when switching listing tabs', async () => {
+        const wrapper = await createWrapper({ sorting: 'name-asc' });
+
+        expect(wrapper.vm.queryParams).toEqual({
+            term: undefined,
+            limit: 5,
+            page: 1,
+            sorting: 'name-asc',
+        });
     });
 });

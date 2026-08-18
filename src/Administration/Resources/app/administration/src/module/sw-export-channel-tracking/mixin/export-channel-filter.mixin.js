@@ -5,7 +5,6 @@
 
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Mixin.register('export-channel-filter', {
     inject: [
         'repositoryFactory',

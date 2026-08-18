@@ -28,7 +28,7 @@ class CheckShopIdCommandTest extends TestCase
             ->method('get')
             ->willReturnOnConsecutiveCalls(null, null);
 
-        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
 
         $commandTester = new CommandTester(
             new CheckShopIdCommand($systemConfigService, $fingerprintGenerator)

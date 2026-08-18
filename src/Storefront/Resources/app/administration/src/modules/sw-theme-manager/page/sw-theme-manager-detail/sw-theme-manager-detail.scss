@@ -5,6 +5,10 @@
         margin-bottom: 16px;
     }
 
+    .sw-theme-manager-detail__tabs {
+        margin-bottom: 16px;
+    }
+
     .sw-theme-manager-detail__inheritance {
         display: flex;
         padding: 20px;
@@ -184,6 +188,14 @@
 
     .mt-field {
         margin-bottom: 0;
+    }
+
+    .sw-field-id-sw-default-checkbox,
+    .sw-field-id-sw-custom-checkbox {
+        .mt-field--checkbox__container .mt-field--checkbox.mt-field--checkbox {
+            margin-top: var(--scale-size-24);
+            margin-bottom: var(--scale-size-22);
+        }
     }
 
     .sw-field-id-sw-default-switch,

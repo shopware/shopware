@@ -21,8 +21,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class CheckoutGatewayRouteTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -174,6 +174,8 @@ class CheckoutGatewayRouteTest extends TestCase
                 'name' => 'foo',
                 'privileges' => [
                     'checkout-gateway:read',
+                    // granted so AppCheckoutGateway is allowed to call the app
+                    'checkout_gateway',
                 ],
             ],
             'translations' => [

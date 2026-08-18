@@ -3,6 +3,7 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
+import ListingPaginationPlugin from 'src/plugin/listing/listing-pagination.plugin';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
@@ -140,22 +141,87 @@ export default class ListingPlugin extends Plugin {
     }
 
     /**
+     * Calls a method on a registered filter plugin without letting a broken third-party
+     * plugin break the entire listing update. Returns `fallback` if the method is missing
+     * or throws.
+     *
+     * @private
+     */
+    _callFilterPlugin(filterPlugin, method, fallback, ...args) {
+        if (typeof filterPlugin[method] !== 'function') {
+            return fallback;
+        }
+
+        try {
+            return filterPlugin[method](...args);
+        } catch (error) {
+            console.warn(`Listing filter plugin threw from ${method}(); skipping.`, error);
+
+            return fallback;
+        }
+    }
+
+    /**
+     * The built-in pagination plugin is authoritative for the single-valued `p` parameter.
+     * It is therefore merged last, so the last-value-wins rule in `_mapFilters()` resolves to
+     * its page regardless of the order in which third-party filters happened to register.
+     *
+     * @private
+     */
+    _getPrioritisedRegistry() {
+        const others = [];
+        const pagination = [];
+
+        this._registry.forEach((filterPlugin) => {
+            (filterPlugin instanceof ListingPaginationPlugin ? pagination : others).push(filterPlugin);
+        });
+
+        return [...others, ...pagination];
+    }
+
+    /**
+     * Merges the values reported by every registered filter plugin into a single map.
+     * Third-party plugins that throw from `getValues()` or return malformed shapes are
+     * skipped instead of breaking the entire listing update.
+     *
      * @private
      */
     _fetchValuesOfRegisteredFilters() {
         const filters = {};
 
-        this._registry.forEach((filterPlugin) => {
-            const values = filterPlugin.getValues();
+        this._getPrioritisedRegistry().forEach((filterPlugin) => {
+            const values = this._callFilterPlugin(filterPlugin, 'getValues', null);
+
+            if (!values) {
+                return;
+            }
 
             Object.keys(values).forEach((key) => {
-                if (Object.prototype.hasOwnProperty.call(filters, key)) {
-                    Object.values(values[key]).forEach((value) => {
-                        filters[key].push(value);
-                    });
+                const value = values[key];
+                let list;
+
+                if (Array.isArray(value)) {
+                    list = value;
+                } else if (value !== null && typeof value === 'object') {
+                    list = Object.values(value);
+                } else if (value !== null && value !== undefined) {
+                    list = [value];
                 } else {
-                    filters[key] = values[key];
+                    list = [];
                 }
+
+                if (!Object.prototype.hasOwnProperty.call(filters, key)) {
+                    filters[key] = [];
+                }
+
+                list.forEach((entry) => {
+                    // An inactive filter reports an empty string (e.g. an unchecked boolean
+                    // filter). Keeping it would produce separator-only values such as `|` once
+                    // the list is pipe-joined below, which the backend reads as an active filter.
+                    if (entry !== null && entry !== undefined && entry !== '') {
+                        filters[key].push(entry);
+                    }
+                });
             });
         });
 
@@ -163,20 +229,53 @@ export default class ListingPlugin extends Plugin {
     }
 
     /**
+     * Serialises the merged filter map into the request query parameter map.
+     *
+     * Note: the `singleValuedKeys` set tracks query parameters that the listing backend
+     * reads as a single value, either via `PagingListingProcessor` / `SortingListingProcessor`
+     * under `Core/Content/Product/SalesChannel/Listing/Processor/`, or via the scalar casts in
+     * the handlers under `Core/Content/Product/SalesChannel/Listing/Filter/` on the PHP side.
+     * Pipe-joining them produces either invalid queries like `p=1|2` (400 responses on
+     * `/widgets/cms/navigation/*`) or silently wrong filters like `rating=3|4`, which casts to
+     * `3`. Keep this in sync when the backend adds new single-valued listing params.
+     *
      * @private
      */
     _mapFilters(filters) {
+        const singleValuedKeys = new Set([
+            'p',
+            'order',
+            'limit',
+            'rating',
+            'shipping-free',
+            'min-price',
+            'max-price',
+        ]);
         const mapped = {};
+
         Object.keys(filters).forEach((key) => {
-            let value = filters[key];
+            const value = filters[key];
+            let resolved;
 
             if (Array.isArray(value)) {
-                value = value.join('|');
+                if (value.length === 0) {
+                    return;
+                }
+
+                if (singleValuedKeys.has(key)) {
+                    const last = value[value.length - 1];
+                    resolved = last === null || last === undefined ? '' : String(last);
+                } else {
+                    resolved = value.join('|');
+                }
+            } else if (value !== null && value !== undefined) {
+                resolved = singleValuedKeys.has(key) ? String(value) : value;
+            } else {
+                return;
             }
 
-            const string = `${value}`;
-            if (string.length) {
-                mapped[key] = value;
+            if (`${resolved}`.length) {
+                mapped[key] = resolved;
             }
         });
 
@@ -270,7 +369,7 @@ export default class ListingPlugin extends Plugin {
         let labelHtml = '';
 
         this._registry.forEach((filterPlugin) => {
-            const labels = filterPlugin.getLabels();
+            const labels = this._callFilterPlugin(filterPlugin, 'getLabels', []);
 
             if (labels.length) {
                 labels.forEach((label) => {
@@ -305,8 +404,12 @@ export default class ListingPlugin extends Plugin {
         const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector,
         );
 
-        resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));
-        resetAllButtonEl.addEventListener('click', this.resetAllFilter.bind(this));
+        if (!this._boundResetAllFilter) {
+            this._boundResetAllFilter = this.resetAllFilter.bind(this);
+        }
+
+        resetAllButtonEl.removeEventListener('click', this._boundResetAllFilter);
+        resetAllButtonEl.addEventListener('click', this._boundResetAllFilter);
 
         if (!this._showResetAll) {
             resetAllButtonEl.remove();
@@ -320,7 +423,7 @@ export default class ListingPlugin extends Plugin {
      */
     resetFilter(label) {
         this._registry.forEach((filterPlugin) => {
-            filterPlugin.reset(label.dataset.id);
+            this._callFilterPlugin(filterPlugin, 'reset', undefined, label.dataset.id);
         });
 
         this._buildRequest();
@@ -332,7 +435,7 @@ export default class ListingPlugin extends Plugin {
      */
     resetAllFilter() {
         this._registry.forEach((filterPlugin) => {
-            filterPlugin.resetAll();
+            this._callFilterPlugin(filterPlugin, 'resetAll', undefined);
         });
 
         this._buildRequest();
@@ -437,10 +540,33 @@ export default class ListingPlugin extends Plugin {
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
-            .then((response) => response.text())
+            .then((response) => {
+                if (response.ok) {
+                    return response.text();
+                }
+
+                const error = new Error('Could not fetch listing data.');
+                error.response = response;
+
+                throw error;
+            })
             .then((response) => {
                 this.renderResponse(response);
+            })
+            .catch((error) => {
+                if (error.response?.status === 403) {
+                    const loginPageUrl = this._getLoginPageUrl(filterParams);
 
+                    if (loginPageUrl) {
+                        this._navigateTo(loginPageUrl);
+                    }
+
+                    return;
+                }
+
+                throw error;
+            })
+            .finally(() => {
                 if (this._filterPanelActive) {
                     this.removeLoadingIndicatorClass();
                     this._updateAriaLive();
@@ -583,5 +709,55 @@ export default class ListingPlugin extends Plugin {
         }
 
         return url.toString();
+    }
+
+    /**
+     * @private
+     * @param {URLSearchParams} filterParams
+     * @return {string|null}
+     */
+    _getLoginPageUrl(filterParams) {
+        const loginPageUrl = window.router?.['frontend.account.login.page'];
+        const parameters = new URLSearchParams();
+
+        if (!loginPageUrl) {
+            return null;
+        }
+
+        if (!window.activeRoute) {
+            return loginPageUrl;
+        }
+
+        parameters.set('redirectTo', window.activeRoute);
+        parameters.set('redirectParameters', JSON.stringify(this._getLoginRedirectParameters(filterParams)));
+
+        return `${loginPageUrl}?${parameters.toString()}`;
+    }
+
+    /**
+     * @private
+     * @param {URLSearchParams} filterParams
+     * @return {Object}
+     */
+    _getLoginRedirectParameters(filterParams) {
+        let routeParameters = {};
+
+        try {
+            routeParameters = JSON.parse(window.activeRouteParameters || '{}');
+        } catch {
+            routeParameters = {};
+        }
+
+        return {
+            ...routeParameters,
+            ...Object.fromEntries(filterParams.entries()),
+        };
+    }
+
+    /**
+     * @private
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 }

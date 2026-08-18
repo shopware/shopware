@@ -67,7 +67,7 @@ class PrimaryKeyResolver
 
         $updateByField = $updatedBy->getMappedKey();
 
-        if (empty($updateByField) || $definition->getField($updateByField) instanceof IdField) {
+        if ($updateByField === null || $updateByField === '' || $definition->getField($updateByField) instanceof IdField) {
             return $record;
         }
 
@@ -212,7 +212,7 @@ class PrimaryKeyResolver
 
             $updateByField = $updatedBy->getMappedKey();
 
-            if (empty($updateByField) || $definition->getField($updateByField) instanceof IdField) {
+            if ($updateByField === null || $updateByField === '' || $definition->getField($updateByField) instanceof IdField) {
                 continue;
             }
 

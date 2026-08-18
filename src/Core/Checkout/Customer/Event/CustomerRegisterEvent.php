@@ -17,6 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Flow\SendMailActionTest
+ */
 #[Package('checkout')]
 class CustomerRegisterEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, FlowEventAware
 {
@@ -53,7 +58,7 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class));
     }
 
     public function getMailStruct(): MailRecipientStruct

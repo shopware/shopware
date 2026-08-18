@@ -2,6 +2,7 @@
 
 /**
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - The HMR mode will be removed. Use the Vite dev server instead.
  */
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const nodeServerHttp = require('node:http');
@@ -10,6 +11,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const createLiveReloadServer = require('./live-reload-server/index');
+const getBrowserUrl = require('./hmr-browser-url');
 
 const proxyPort = Number(process.env.STOREFRONT_PROXY_PORT) || 9998;
 const assetPort = Number(process.env.STOREFRONT_ASSETS_PORT) || 9999;
@@ -160,6 +162,18 @@ const server = createLiveReloadServer(sslOptions).catch((e) => {
     return createLiveReloadServer({});
 }).then(() => {
     console.log(`Watcher started at ${proxyUrlEnv.origin}`);
+
+    console.warn('\x1b[33m');
+    console.warn('');
+    console.warn('  ┌─────────────────────────────────────────────────────────────────────────────────┐');
+    console.warn('  │  ⚠  Old HMR mode is DEPRECATED as of Shopware v6.8.0                            │');
+    console.warn('  │                                                                                 │');
+    console.warn('  │  Please switch to the Vite dev server:                                          │');
+    console.warn('  │                                                                                 │');
+    console.warn('  │  $ composer storefront:dev-server                                               │');
+    console.warn('  │                                                                                 │');
+    console.warn('  └─────────────────────────────────────────────────────────────────────────────────┘');
+    console.warn('\x1b[0m');
 });
 
 server.then(() => {
@@ -196,7 +210,7 @@ server.then(() => {
     }
 
     if (!fs.existsSync('/.dockerenv')) {
-        openBrowserWithUrl(`${proxyUrlEnv.origin}`);
+        openBrowserWithUrl(getBrowserUrl(proxyUrlEnv, domainUrl));
     }
 
     // The "Watcher is running" message is printed by the webpack "done" hook in webpack.config.js

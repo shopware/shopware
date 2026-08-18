@@ -6,11 +6,13 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class MediaExtension extends AbstractExtension
 {
     /**

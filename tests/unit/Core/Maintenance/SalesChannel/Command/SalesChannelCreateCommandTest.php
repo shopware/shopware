@@ -7,56 +7,92 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelCreateCommand::class)]
 class SalesChannelCreateCommandTest extends TestCase
 {
     /**
-     * @param array<string, mixed> $inputMockValues
+     * @param array<string, string> $options
      */
     #[DataProvider('dataProviderTestExecuteSuccess')]
-    public function testExecuteSuccess(array $inputMockValues): void
+    public function testExecuteSuccess(array $options): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
 
-        $salesChannelCreatorMock = $this->createMock(SalesChannelCreator::class);
-        $salesChannelCreatorMock->method('createSalesChannel')
-            ->willReturn($accessKey);
+        $passedArguments = [];
 
-        $salesChannelCreateCmd = new SalesChannelCreateCommand($salesChannelCreatorMock);
+        $salesChannelCreator = $this->createMock(SalesChannelCreator::class);
+        $salesChannelCreator->expects($this->once())
+            ->method('createSalesChannel')
+            ->willReturnCallback(function (
+                string $id,
+                string $name,
+                string $typeId,
+                ?string $languageId,
+                ?string $currencyId,
+                ?string $paymentMethodId,
+                ?string $shippingMethodId,
+                ?string $countryId,
+                ?string $customerGroupId,
+                ?string $navigationCategoryId
+            ) use (&$passedArguments, $accessKey): string {
+                $passedArguments = [
+                    'id' => $id,
+                    'name' => $name,
+                    'typeId' => $typeId,
+                    'languageId' => $languageId,
+                    'currencyId' => $currencyId,
+                    'paymentMethodId' => $paymentMethodId,
+                    'shippingMethodId' => $shippingMethodId,
+                    'countryId' => $countryId,
+                    'customerGroupId' => $customerGroupId,
+                    'navigationCategoryId' => $navigationCategoryId,
+                ];
 
-        $refMethod = new \ReflectionMethod(SalesChannelCreateCommand::class, 'execute');
+                return $accessKey;
+            });
 
-        $inputMock = $this->createMock(InputInterface::class);
-        $inputMock->method('getOption')
-            ->willReturnOnConsecutiveCalls(...array_values($inputMockValues));
+        $commandTester = new CommandTester(new SalesChannelCreateCommand($salesChannelCreator));
 
-        $outputMock = $this->createMock(OutputInterface::class);
+        static::assertSame(Command::SUCCESS, $commandTester->execute($options));
 
-        $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
+        static::assertSame([
+            'id' => $options['--id'],
+            'name' => $options['--name'],
+            'typeId' => $options['--typeId'],
+            'languageId' => $options['--languageId'],
+            'currencyId' => $options['--currencyId'],
+            'paymentMethodId' => $options['--paymentMethodId'],
+            'shippingMethodId' => $options['--shippingMethodId'],
+            'countryId' => $options['--countryId'],
+            'customerGroupId' => $options['--customerGroupId'],
+            'navigationCategoryId' => $options['--navigationCategoryId'],
+        ], $passedArguments);
 
-        static::assertSame(Command::SUCCESS, $result);
+        static::assertStringContainsString('Sales channel has been created successfully.', $commandTester->getDisplay());
+        static::assertStringContainsString($accessKey, $commandTester->getDisplay());
     }
 
     /**
-     * @param array<string, mixed> $inputMockValues
+     * @param array<string, string> $options
      */
     #[DataProvider('dataProviderTestExecuteFailure')]
-    public function testExecuteFailure(array $inputMockValues): void
+    public function testExecuteFailure(array $options): void
     {
-        $constraintViolationMock = $this->createMock(ConstraintViolationInterface::class);
+        $constraintViolationMock = static::createStub(ConstraintViolationInterface::class);
         $constraintViolationMock->method('getPropertyPath')
             ->willReturn('Dummy');
 
@@ -65,47 +101,41 @@ class SalesChannelCreateCommandTest extends TestCase
 
         $constraintViolationListMock = new ConstraintViolationList([$constraintViolationMock]);
 
-        $writeConstraintViolationExceptionMock = $this->createMock(WriteConstraintViolationException::class);
+        $writeConstraintViolationExceptionMock = static::createStub(WriteConstraintViolationException::class);
         $writeConstraintViolationExceptionMock->method('getViolations')
             ->willReturn($constraintViolationListMock);
 
-        $writeExceptionMock = $this->createMock(WriteException::class);
+        $writeExceptionMock = static::createStub(WriteException::class);
         $writeExceptionMock->method('getExceptions')
             ->willReturn([$writeConstraintViolationExceptionMock]);
 
-        $salesChannelCreatorMock = $this->createMock(SalesChannelCreator::class);
+        $salesChannelCreatorMock = static::createStub(SalesChannelCreator::class);
         $salesChannelCreatorMock->method('createSalesChannel')
             ->willThrowException($writeExceptionMock);
 
-        $salesChannelCreateCmd = new SalesChannelCreateCommand($salesChannelCreatorMock);
+        $commandTester = new CommandTester(new SalesChannelCreateCommand($salesChannelCreatorMock));
 
-        $refMethod = new \ReflectionMethod(SalesChannelCreateCommand::class, 'execute');
+        static::assertSame(Command::SUCCESS, $commandTester->execute($options));
 
-        $inputMock = $this->createMock(InputInterface::class);
-        $inputMock->method('getOption')
-            ->willReturnOnConsecutiveCalls(...array_values($inputMockValues));
-
-        $outputMock = $this->createMock(OutputInterface::class);
-
-        $result = $refMethod->invoke($salesChannelCreateCmd, $inputMock, $outputMock);
-
-        static::assertSame(Command::SUCCESS, $result);
+        $display = $commandTester->getDisplay();
+        static::assertStringContainsString('Something went wrong.', $display);
+        static::assertStringContainsString('Dummy: Dummy Message', $display);
     }
 
     public static function dataProviderTestExecuteSuccess(): \Generator
     {
         yield 'Test execute success' => [
-            'inputMockValues' => [
-                'id' => Uuid::randomHex(),
-                'typeId' => Uuid::randomHex(),
-                'name' => 'Headless',
-                'languageId' => Uuid::randomHex(),
-                'currencyId' => Uuid::randomHex(),
-                'snippetSetId' => Uuid::randomHex(),
-                'paymentMethodId' => Uuid::randomHex(),
-                'shippingMethodId' => Uuid::randomHex(),
-                'customerGroupId' => Uuid::randomHex(),
-                'navigationCategoryId' => Uuid::randomHex(),
+            'options' => [
+                '--id' => Uuid::randomHex(),
+                '--typeId' => Uuid::randomHex(),
+                '--name' => 'Headless',
+                '--languageId' => Uuid::randomHex(),
+                '--currencyId' => Uuid::randomHex(),
+                '--paymentMethodId' => Uuid::randomHex(),
+                '--shippingMethodId' => Uuid::randomHex(),
+                '--countryId' => Uuid::randomHex(),
+                '--customerGroupId' => Uuid::randomHex(),
+                '--navigationCategoryId' => Uuid::randomHex(),
             ],
         ];
     }
@@ -113,17 +143,16 @@ class SalesChannelCreateCommandTest extends TestCase
     public static function dataProviderTestExecuteFailure(): \Generator
     {
         yield 'Test execute failure' => [
-            'inputMockValues' => [
-                'id' => Uuid::randomHex(),
-                'typeId' => Uuid::randomHex(),
-                'name' => 'Headless',
-                'languageId' => Uuid::randomHex(),
-                'currencyId' => Uuid::randomHex(),
-                'snippetSetId' => Uuid::randomHex(),
-                'paymentMethodId' => Uuid::randomHex(),
-                'shippingMethodId' => Uuid::randomHex(),
-                'customerGroupId' => Uuid::randomHex(),
-                'navigationCategoryId' => Uuid::randomHex(),
+            'options' => [
+                '--id' => Uuid::randomHex(),
+                '--typeId' => Uuid::randomHex(),
+                '--name' => 'Headless',
+                '--languageId' => Uuid::randomHex(),
+                '--currencyId' => Uuid::randomHex(),
+                '--paymentMethodId' => Uuid::randomHex(),
+                '--shippingMethodId' => Uuid::randomHex(),
+                '--customerGroupId' => Uuid::randomHex(),
+                '--navigationCategoryId' => Uuid::randomHex(),
             ],
         ];
     }

@@ -2,9 +2,10 @@ import template from './sw-settings-storefront-configuration.html.twig';
 import './sw-settings-storefront-configuration.scss';
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed without replacement.
  * @sw-package framework
  */
-Shopware.Component.register('sw-settings-storefront-configuration', {
+export default {
     template,
 
     inject: ['feature'],
@@ -15,4 +16,4 @@ Shopware.Component.register('sw-settings-storefront-configuration', {
             required: true,
         },
     },
-});
+};

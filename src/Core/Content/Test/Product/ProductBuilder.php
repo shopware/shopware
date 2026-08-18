@@ -33,7 +33,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @phpstan-type CurrencyPrice array{gross: float, net: float, linked: bool, listPrice?: float|array{gross: float, net: float, linked: bool}, currencyId: string}
  * @phpstan-type Manufacturer array{id: string, name: string, translations: array<string, array{name: string}>}|null
  * @phpstan-type Tax array{id: string, name: string, taxRate: int}|null
- * @phpstan-type Price array{gross: float, net: float, linked: bool, listPrice: array{gross: float, net: float, linked: bool}}|array{}
+ * @phpstan-type Price array<string, CurrencyPrice>
  * @phpstan-type Properties array<array{id: string} | array{id: string, name: string, group: array{id: string, name: string}}>
  * @phpstan-type Visibilities array<string, array{salesChannelId: string, visibility: int}>
  * @phpstan-type ProductReviews array<array{title: string, content: string, points: float, languageId: string, salesChannelId: string, status: bool, customerId: string|null}>
@@ -51,6 +51,8 @@ class ProductBuilder
     public string $id;
 
     protected ?string $name;
+
+    protected ?string $description = null;
 
     /**
      * @var Manufacturer
@@ -189,7 +191,7 @@ class ProductBuilder
         protected string $productNumber,
         protected int $stock = 1,
         string $taxKey = 't1',
-        private string $type = ProductDefinition::TYPE_PHYSICAL
+        protected string $type = ProductDefinition::TYPE_PHYSICAL,
     ) {
         $this->ids = $ids;
         $this->id = $this->ids->create($productNumber);
@@ -224,6 +226,13 @@ class ProductBuilder
     public function name(?string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function description(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

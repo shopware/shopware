@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PagingListingProcessor::class)]
 class PagingListingProcessorTest extends TestCase
 {
@@ -217,7 +220,7 @@ class PagingListingProcessorTest extends TestCase
     #[DataProvider('provideTestPrepare')]
     public function testPrepare(Criteria $criteria, Request $request, int $page, int $limit, int $maxLimit = PagingListingProcessor::DEFAULT_MAX_LIMIT, ?int $configLimit = null): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService([
@@ -237,7 +240,7 @@ class PagingListingProcessorTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $request = new Request(['p' => 2]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService([
@@ -245,11 +248,185 @@ class PagingListingProcessorTest extends TestCase
             ])
         );
 
-        $result = new ProductListingResult('product', 10, new ProductCollection(), new AggregationResultCollection(), $criteria, Context::createDefaultContext());
+        $result = new ProductListingResult('product', 20, new ProductCollection(), new AggregationResultCollection(), $criteria, Context::createDefaultContext());
 
         $processor->process($request, $result, $context);
 
         static::assertSame(2, $result->getPage());
         static::assertSame(10, $result->getLimit());
+    }
+
+    public function testProcessThrowsWhenRequestedPageExceedsLastPage(): void
+    {
+        $criteria = (new Criteria())->setLimit(24);
+        $request = new Request(['p' => 99]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(
+            new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
+        );
+
+        // total=50, limit=24 -> lastPage=3; p=99 must throw
+        $result = new ProductListingResult(
+            'product',
+            50,
+            new ProductCollection(),
+            new AggregationResultCollection(),
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        $this->expectExceptionObject(ProductException::pageOutOfRange(99, 3));
+
+        $processor->process($request, $result, $context);
+    }
+
+    public static function provideOutOfRangeBoundaryCases(): \Generator
+    {
+        yield 'p=lastPage is allowed (50 products / 24 limit -> lastPage=3)' => [
+            'page' => 3,
+            'total' => 50,
+            'limit' => 24,
+            'shouldThrow' => false,
+        ];
+
+        yield 'p=lastPage+1 throws (50 products / 24 limit -> lastPage=3)' => [
+            'page' => 4,
+            'total' => 50,
+            'limit' => 24,
+            'shouldThrow' => true,
+        ];
+
+        yield 'very large p throws' => [
+            'page' => 99999,
+            'total' => 50,
+            'limit' => 24,
+            'shouldThrow' => true,
+        ];
+
+        yield 'exactly one full page, p=1 allowed' => [
+            'page' => 1,
+            'total' => 24,
+            'limit' => 24,
+            'shouldThrow' => false,
+        ];
+
+        yield 'exactly one full page, p=2 throws' => [
+            'page' => 2,
+            'total' => 24,
+            'limit' => 24,
+            'shouldThrow' => true,
+        ];
+
+        yield 'empty category, p=1 allowed' => [
+            'page' => 1,
+            'total' => 0,
+            'limit' => 24,
+            'shouldThrow' => false,
+        ];
+
+        yield 'empty category, p=2 throws' => [
+            'page' => 2,
+            'total' => 0,
+            'limit' => 24,
+            'shouldThrow' => true,
+        ];
+    }
+
+    #[DataProvider('provideOutOfRangeBoundaryCases')]
+    public function testProcessOverflowBoundaries(int $page, int $total, int $limit, bool $shouldThrow): void
+    {
+        $criteria = (new Criteria())->setLimit($limit);
+        $request = new Request(['p' => $page]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(
+            new StaticSystemConfigService(['core.listing.productsPerPage' => $limit])
+        );
+
+        $result = new ProductListingResult(
+            'product',
+            $total,
+            new ProductCollection(),
+            new AggregationResultCollection(),
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        if ($shouldThrow) {
+            $expectedLastPage = $total > 0 ? (int) ceil($total / $limit) : 1;
+            $this->expectExceptionObject(ProductException::pageOutOfRange($page, $expectedLastPage));
+        }
+
+        $processor->process($request, $result, $context);
+
+        if (!$shouldThrow) {
+            static::assertSame($page, $result->getPage());
+        }
+    }
+
+    public static function provideCoercedPageInputs(): \Generator
+    {
+        yield 'p=0 in URL is silently coerced to page 1, no exception' => ['p' => 0];
+        yield 'p=-1 in URL is silently coerced to page 1, no exception' => ['p' => -1];
+        yield 'no p in URL, page defaults to 1, no exception' => ['p' => null];
+    }
+
+    #[DataProvider('provideCoercedPageInputs')]
+    public function testProcessCoercedPageDoesNotThrowEvenOnEmptyResult(?int $p): void
+    {
+        $criteria = (new Criteria())->setLimit(24);
+        $request = $p === null ? new Request() : new Request(['p' => $p]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(
+            new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
+        );
+
+        $result = new ProductListingResult(
+            'product',
+            0,
+            new ProductCollection(),
+            new AggregationResultCollection(),
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        // Must not throw — these inputs are intentionally treated as page 1.
+        $processor->process($request, $result, $context);
+
+        static::assertSame(1, $result->getPage());
+        static::assertSame(24, $result->getLimit());
+    }
+
+    public function testProcessDoesNotThrowOnOnlyAggregationsRequestWithPageGreaterThanOne(): void
+    {
+        // BehaviorListingProcessor::prepare() runs last (priority -1000) and overwrites
+        // the criteria limit to 0 when only-aggregations=1 is requested. By the time
+        // PagingListingProcessor::process() reads the criteria, limit is already 0.
+        // process() must not throw a 404 for these requests even when ?p=N (N > 1) is
+        // still present in the URL (Storefront filter-panel AJAX forwards the current page).
+        $criteria = (new Criteria())->setLimit(0);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+        $request = new Request(['p' => 3, 'only-aggregations' => 1]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(
+            new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
+        );
+
+        $result = new ProductListingResult(
+            'product',
+            0,
+            new ProductCollection(),
+            new AggregationResultCollection(),
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        $processor->process($request, $result, $context);
+
+        static::assertSame(3, $result->getPage());
+        static::assertSame(0, $result->getLimit());
     }
 }

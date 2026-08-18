@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -37,8 +38,8 @@ class DeliveryNoteRendererTest extends TestCase
         $context = Context::createDefaultContext();
 
         $documentConfigLoaderMock = new DocumentConfigLoader(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class)
         );
 
         $order = $this->createOrder();
@@ -77,10 +78,11 @@ class DeliveryNoteRendererTest extends TestCase
         $deliveryNoteRenderer = new DeliveryNoteRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
-            $this->createMock(DocumentFileRendererRegistry::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            new NativeClock()
         );
 
         $operations = [

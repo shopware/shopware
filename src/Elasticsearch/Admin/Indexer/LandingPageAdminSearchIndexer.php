@@ -109,7 +109,18 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     name?: array<string, string>,
+     *     active?: bool,
+     *     tags?: list<array{
+     *         id: string,
+     *         _count: int
+     *     }>,
+     *     createdAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {
@@ -147,21 +158,23 @@ SQL,
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter([$row['name'] ?? '', $row['tags'] ?? '', $id]));
+            $translatedNames = $this->decodeTranslatedValues((string) ($row['translatedNames'] ?? ''));
+            $completion = $this->buildCompletion(array_values($translatedNames) ?: [(string) ($row['name'] ?? '')]);
 
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
             }
 
-            $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
-
             $mapped[$id] = [
                 'id' => $id,
                 'text' => \strtolower($text),
+                'completion' => $completion,
                 'name' => $translatedNames,
                 'active' => (bool) $row['active'],
                 'tags' => $this->parseTagIds($row),

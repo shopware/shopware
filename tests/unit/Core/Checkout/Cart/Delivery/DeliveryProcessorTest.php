@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -21,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -52,8 +56,8 @@ class DeliveryProcessorTest extends TestCase
             ->method('search')->willReturn($result);
 
         $processor = new DeliveryProcessor(
-            $this->createMock(DeliveryBuilder::class),
-            $this->createMock(DeliveryCalculator::class),
+            static::createStub(DeliveryBuilder::class),
+            static::createStub(DeliveryCalculator::class),
             $repository
         );
 
@@ -65,23 +69,19 @@ class DeliveryProcessorTest extends TestCase
 
     public function testProcessDeliveryCost(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $calculator = $this->createMock(DeliveryCalculator::class);
         $calculator
             ->expects($this->once())
             ->method('calculate');
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $newCosts = null;
-        $delivery
-            ->expects($this->atLeastOnce())
-            ->method('setShippingCosts')
-            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
-                $newCosts = $costsParameter;
-            });
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
 
         $builder = $this->createMock(DeliveryBuilder::class);
         $builder
@@ -89,15 +89,17 @@ class DeliveryProcessorTest extends TestCase
             ->method('build')
             ->willReturn(new DeliveryCollection([$delivery]));
 
-        $processor = new DeliveryProcessor($builder, $calculator, $this->createMock(EntityRepository::class));
+        $processor = new DeliveryProcessor($builder, $calculator, static::createStub(EntityRepository::class));
 
+        $manualShippingCosts = new CalculatedPrice(10.00, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $original = new Cart('test');
-        $original->addExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS, new CalculatedPrice(10.00, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $original->addExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS, $manualShippingCosts);
 
         $toCalculate = new Cart('calculate');
         $processor->process(new CartDataCollection(), $original, $toCalculate, $context, new CartBehavior());
 
-        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
+        // the processor applied the manual shipping costs to the built delivery
+        static::assertSame($manualShippingCosts, $delivery->getShippingCosts());
         static::assertNotEmpty($toCalculate->getDeliveries());
     }
 }

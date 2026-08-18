@@ -2,46 +2,40 @@
 
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppInstalledEvent;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  *
- * Resolver used when apps should be reinstalled
- * and the shopId should be regenerated, meaning the old shops and old apps work like before
- * apps in the current installation may lose historical data
+ * Resolver used when apps should be re-registered with a new shopId,
+ * meaning the old shop and its apps continue to work like before,
+ * while this installation registers as a brand-new shop at the app servers
  *
  * Will run through the registration process for all apps again
- * with the new appUrl and new shopId and throw installed events for every app
+ * with the new appUrl and new shopId and replay the install lifecycle events for every app
  */
 #[Package('framework')]
-class ReinstallAppsStrategy extends AbstractShopIdChangeStrategy
+class ReinstallAppsStrategy implements ShopIdChangeStrategy
 {
     final public const STRATEGY_NAME = 'reinstall-apps';
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
-        SourceResolver $sourceResolver,
-        EntityRepository $appRepository,
-        AppSecretRotationService $appSecretRotationService,
+        private readonly EntityRepository $appRepository,
+        private readonly AppManager $appManager,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly LoggerInterface $logger
     ) {
-        parent::__construct($sourceResolver, $appRepository, $appSecretRotationService);
-    }
-
-    public function getDecorated(): AbstractShopIdChangeStrategy
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function getName(): string
@@ -58,11 +52,26 @@ class ReinstallAppsStrategy extends AbstractShopIdChangeStrategy
     {
         $this->shopIdProvider->deleteShopId();
 
-        $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
-            $this->reRegisterApp($manifest, $app, $context);
-            $this->eventDispatcher->dispatch(
-                new AppInstalledEvent($app, $manifest, $context)
-            );
-        });
+        // Re-registering contacts external app servers. If one app is unreachable we still want the
+        // remaining apps to learn about the shop change, then report all failed apps together.
+        /** @var list<string> $failedApps */
+        $failedApps = [];
+
+        foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
+            try {
+                $this->appManager->reregister($app, $context);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to re-register app after shop ID change.', [
+                    'appName' => $app->getName(),
+                    'exception' => $e,
+                ]);
+
+                $failedApps[] = $app->getName();
+            }
+        }
+
+        if ($failedApps !== []) {
+            throw AppException::reinstallAppsFailed($failedApps);
+        }
     }
 }

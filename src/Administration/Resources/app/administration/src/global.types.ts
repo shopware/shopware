@@ -9,8 +9,9 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
@@ -30,6 +31,7 @@ import type ShopIdChangeService from 'src/core/service/api/shop-id-change.servic
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
+import type { LegacyConditionCaseOptions } from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
 import type {
     Store,
     mapActions as mapVuexActions,
@@ -68,11 +70,15 @@ import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
+import type DocumentV2ApiService from './core/service/api/documentV2.api.service';
+import type DocumentV2Service from './module/sw-order/service/documentV2.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
 import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
+import type NotificationTranslationMixin from './app/mixin/notification-translation.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -84,11 +90,13 @@ import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
 import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
+import type SnackbarService from './app/service/snackbar.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -238,6 +246,7 @@ declare global {
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
         businessEventService: BusinessEventsApiService;
+        cacheService: CacheService;
         cartStoreService: CartStoreService;
         checkoutStoreService: CheckoutStoreService;
         cmsBlockFavorites: cmsBlockFavoritesService;
@@ -249,6 +258,8 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService;
         customFieldDataProviderService: $TSFixMe;
         customSnippetApiService: CustomSnippetApiService;
+        documentV2ApiService: DocumentV2ApiService;
+        documentV2Service: DocumentV2Service;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;
@@ -268,6 +279,7 @@ declare global {
         loginService: LoginService;
         mediaDefaultFolderService: $TSFixMe;
         menuService: $TSFixMe;
+        numberRangeService: $TSFixMe;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;
@@ -278,6 +290,7 @@ declare global {
         searchRankingService: $TSFixMe;
         searchTypeService: $TSFixMe;
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        snackbarService: SnackbarService;
         shortcutService: $TSFixMe;
         snippetService: SnippetApiService;
         stateStyleDataProviderService: StateStyleService;
@@ -303,6 +316,8 @@ declare global {
         validation: typeof ValidationMixin;
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
+        'translate-with-fallback': typeof TranslateWithFallbackMixin;
+        'notification-translation': typeof NotificationTranslationMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -316,12 +331,13 @@ declare global {
         'generic-condition': typeof GenericConditionMixin;
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
+        'rule-between-operator': typeof RuleBetweenOperatorMixin;
     }
 
     interface InitContainer extends SubContainer<'init'> {
         state: $TSFixMe; // has to be removed once we moved to vite
         router: $TSFixMe;
-        httpClient: AxiosInstance;
+        httpClient: HttpClient;
     }
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {
@@ -519,7 +535,41 @@ interface CustomProperties extends ServiceContainer {
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
-    $dataScope: () => ComponentInternalInstance['proxy'];
+    $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
+    $dataScope: ComponentInternalInstance['proxy'];
+    /**
+     * Starts a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockIf('sw_card:0', isVisible, {
+     *     segmentCaseIndex: 0,
+     *     renderOrderSegment: 'defaultSlot',
+     * });
+     */
+    $swLegacyBlockIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Continues a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else-if` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
+     *     segmentCaseIndex: 1,
+     *     renderOrderSegment: 'shimExtension',
+     * });
+     */
+    $swLegacyBlockElseIf: (chainKey: string, expression: unknown, options: LegacyConditionCaseOptions) => boolean;
+    /**
+     * Finishes a generated legacy block condition chain on the current Vue component instance.
+     * Use it only from transformed `v-else` code emitted by the legacy block condition rewrite.
+     *
+     * @example
+     * this.$swLegacyBlockElse('sw_card:0', {
+     *     segmentCaseIndex: 2,
+     *     renderOrderSegment: 'nativeExtension',
+     * });
+     */
+    $swLegacyBlockElse: (chainKey: string, options: LegacyConditionCaseOptions) => boolean;
 }
 
 declare module '@vue/runtime-core' {

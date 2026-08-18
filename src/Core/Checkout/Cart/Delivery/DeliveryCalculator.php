@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,7 +44,8 @@ class DeliveryCalculator
      */
     public function __construct(
         private readonly QuantityPriceCalculator $priceCalculator,
-        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
+        private readonly CashRounding $cashRounding
     ) {
     }
 
@@ -154,14 +157,27 @@ class DeliveryCalculator
 
         $start = $shippingMethodPrice->getQuantityStart();
         $end = $shippingMethodPrice->getQuantityEnd();
+        $calculation = $shippingMethodPrice->getCalculation();
 
-        $value = match ($shippingMethodPrice->getCalculation()) {
+        $value = match ($calculation) {
             self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->getTotalPriceAmount(),
             self::CALCULATION_BY_LINE_ITEM_COUNT => $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity(),
             self::CALCULATION_BY_WEIGHT => $delivery->getPositions()->getWithoutDeliveryFree()->getWeight(),
             self::CALCULATION_BY_VOLUME => $delivery->getPositions()->getWithoutDeliveryFree()->getVolume(),
             default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->getTotalPriceAmount() / 100,
         };
+
+        if ($calculation === self::CALCULATION_BY_PRICE && Feature::isActive('SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION')) {
+            $currencyFactor = $context->getContext()->getCurrencyFactor();
+
+            if ($start !== null) {
+                $start *= $currencyFactor;
+            }
+
+            if ($end !== null) {
+                $end *= $currencyFactor;
+            }
+        }
 
         // $end (optional) exclusive
         return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
@@ -188,7 +204,7 @@ class DeliveryCalculator
             default:
                 $rules = $this->percentageTaxRuleBuilder->buildCollectionRules(
                     $calculatedLineItems->getPrices()->getCalculatedTaxes(),
-                    $calculatedLineItems->getPrices()->getTotalPriceAmount(),
+                    $this->cashRounding->mathRound($calculatedLineItems->getPrices()->getTotalPriceAmount(), $context->getTotalRounding()),
                 );
         }
 

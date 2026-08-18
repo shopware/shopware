@@ -25,6 +25,8 @@ class WebhookEventLogDefinition extends EntityDefinition
 
     final public const STATUS_RUNNING = 'running';
 
+    final public const STATUS_PENDING_RETRY = 'pending_retry';
+
     final public const STATUS_FAILED = 'failed';
 
     final public const STATUS_SUCCESS = 'success';
@@ -77,6 +79,7 @@ class WebhookEventLogDefinition extends EntityDefinition
             new BoolField('only_live_version', 'onlyLiveVersion'),
             (new BlobField('serialized_webhook_message', 'serializedWebhookMessage'))->removeFlag(ApiAware::class)->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
+            (new IntField('sequence', 'sequence'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
 }

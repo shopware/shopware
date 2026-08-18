@@ -7,6 +7,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_6\Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPage;
@@ -14,6 +15,7 @@ use Shopware\Core\Migration\V6_6\Migration1729843381AddDefaultSettingConfigValue
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPage::class)]
 class Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPageTest extends TestCase
 {
@@ -21,6 +23,11 @@ class Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPageTest
     use KernelTestBehaviour;
 
     private const CONFIG_KEY = 'core.listing.reviewsPerPage';
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1729843381, (new Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPage())->getCreationTimestamp());
+    }
 
     public function testCreationTimestamp(): void
     {

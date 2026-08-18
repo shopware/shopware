@@ -16,6 +16,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -25,6 +26,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
@@ -40,6 +42,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -322,9 +325,74 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-page-loaded', $traces);
+    }
+
+    public function testProductJsonLdContainsMerchantListingData(): void
+    {
+        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
+
+        $salesChannel = static::getContainer()->get('sales_channel.repository')
+            ->search(new Criteria([$this->getSalesChannelId()]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        $parentCategoryId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        static::getContainer()->get('category.repository')->create([
+            [
+                'id' => $parentCategoryId,
+                'name' => 'Women',
+                'parentId' => $salesChannel->getNavigationCategoryId(),
+            ],
+            [
+                'id' => $categoryId,
+                'name' => 'Dresses',
+                'parentId' => $parentCategoryId,
+            ],
+        ], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'ean' => '00123456',
+            'categories' => [['id' => $categoryId]],
+            'mainCategories' => [[
+                'id' => Uuid::randomHex(),
+                'categoryId' => $categoryId,
+                'salesChannelId' => $this->getSalesChannelId(),
+            ]],
+            'price' => [[
+                'currencyId' => Defaults::CURRENCY,
+                'gross' => 10,
+                'net' => 9,
+                'listPrice' => ['gross' => 15, 'net' => 13.5, 'linked' => false],
+                'linked' => false,
+            ]],
+        ]);
+
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler((string) $response->getContent());
+        $productJsonLd = null;
+
+        foreach ($crawler->filter('script[type="application/ld+json"]') as $script) {
+            $data = \json_decode($script->textContent, true, 512, \JSON_THROW_ON_ERROR);
+            if (($data['@type'] ?? null) === 'Product') {
+                $productJsonLd = $data;
+                break;
+            }
+        }
+
+        static::assertIsArray($productJsonLd);
+        static::assertSame('00123456', $productJsonLd['gtin8']);
+        static::assertSame(['Women > Dresses'], $productJsonLd['category']);
+        static::assertSame(15.0, $productJsonLd['offers']['priceSpecification']['price']);
+        static::assertSame('https://schema.org/StrikethroughPrice', $productJsonLd['offers']['priceSpecification']['priceType']);
+        static::assertSame('EUR', $productJsonLd['offers']['priceSpecification']['priceCurrency']);
     }
 
     public function testProductPageDepthMicrodataUsesDepthItemProp(): void
@@ -346,6 +414,74 @@ class ProductControllerTest extends TestCase
         static::assertStringContainsString('<meta itemprop="depth"', $content);
         static::assertStringContainsString('content="12 mm"', $content);
         static::assertStringNotContainsString('itemprop="length"', $content);
+    }
+
+    public function testSeparateProductGalleryCmsElementRendersImageMicrodata(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $cmsPageId = Uuid::randomHex();
+
+        static::getContainer()->get('cms_page.repository')->create([
+            [
+                'id' => $cmsPageId,
+                'type' => 'product_detail',
+                'sections' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'type' => 'default',
+                        'position' => 0,
+                        'blocks' => [
+                            [
+                                'id' => Uuid::randomHex(),
+                                'type' => 'image-gallery',
+                                'position' => 0,
+                                'sectionPosition' => 'main',
+                                'slots' => [
+                                    [
+                                        'id' => Uuid::randomHex(),
+                                        'type' => 'image-gallery',
+                                        'slot' => 'imageGallery',
+                                        'config' => [
+                                            'sliderItems' => ['source' => 'mapped', 'value' => 'product.media'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'cmsPageId' => $cmsPageId,
+            'media' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'position' => 0,
+                    'media' => [
+                        'fileName' => 'gallery-image',
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filter('img.gallery-slider-image[itemprop="image"]'));
     }
 
     public function testReferencePriceIsRenderedWithSingleCalculatedPrice(): void
@@ -420,9 +556,47 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testProductQuickViewManufacturerIsNotLinkedWithoutUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'no-link-manufacturer']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(0, $manufacturerLink);
+
+        $manufacturer = $crawler->filter('span.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturer);
+        static::assertStringContainsString('no-link-manufacturer', $manufacturer->text());
+    }
+
+    public function testProductQuickViewManufacturerIsLinkedWithUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => 'shopware.com']]);
+
+        $response = $this->request('GET', '/quickview/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
+        static::assertCount(1, $manufacturerLink);
+        static::assertSame('https://shopware.com', $manufacturerLink->attr('href'));
+        static::assertStringContainsString('linked-manufacturer', $manufacturerLink->text());
+
+        static::assertCount(0, $crawler->filter('span.quickview-minimal-product-manufacturer'));
     }
 
     public function testProductReviewsLoadedScriptsAreExecuted(): void
@@ -437,7 +611,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductReviewsWidgetLoadedHook::HOOK_NAME, $traces);
 
@@ -534,19 +708,19 @@ class ProductControllerTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'testuser@example.com',
+            'email' => $customerId . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         $repo = static::getContainer()->get('customer.repository');
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

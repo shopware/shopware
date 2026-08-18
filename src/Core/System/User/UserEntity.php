@@ -47,6 +47,11 @@ class UserEntity extends Entity
 
     protected bool $admin;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $mcpAllowlist = null;
+
     protected ?AclRoleCollection $aclRoles = null;
 
     protected ?LocaleEntity $locale = null;
@@ -276,6 +281,22 @@ class UserEntity extends Entity
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getMcpAllowlist(): ?array
+    {
+        return $this->mcpAllowlist;
+    }
+
+    /**
+     * @param array<string, mixed>|null $mcpAllowlist
+     */
+    public function setMcpAllowlist(?array $mcpAllowlist): void
+    {
+        $this->mcpAllowlist = $mcpAllowlist;
     }
 
     public function getAclRoles(): ?AclRoleCollection

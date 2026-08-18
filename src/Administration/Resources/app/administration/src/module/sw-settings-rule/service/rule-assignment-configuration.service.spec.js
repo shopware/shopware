@@ -4,9 +4,19 @@ import createRuleAssignmentConfigService from 'src/module/sw-settings-rule/servi
  * @sw-package fundamentals@after-sales
  */
 describe('src/module/sw-settings-rule/service/rule-assignment-configuration.service.js', () => {
-    it('should contain configurations', () => {
-        const configuration = createRuleAssignmentConfigService().getConfiguration();
+    const configuration = createRuleAssignmentConfigService().getConfiguration();
 
+    const configurationMap = Object.entries(configuration).map(
+        ([
+            key,
+            entityConfig,
+        ]) => ({
+            key,
+            gridColumns: entityConfig.gridColumns,
+        }),
+    );
+
+    it('should contain configurations', () => {
         const expectedConfig = {
             product: {
                 id: 'product',
@@ -51,6 +61,27 @@ describe('src/module/sw-settings-rule/service/rule-assignment-configuration.serv
             expect(config).toBeDefined();
 
             expect(config.id).toBe(expectedConfig[key].id);
+        });
+    });
+
+    describe('column configuration', () => {
+        it.each(configurationMap)('should use valid snippet keys for column labels in $key', ({ gridColumns }) => {
+            gridColumns.forEach((col) => {
+                expect(Shopware.Snippet.te(col.label)).toBeTruthy();
+            });
+        });
+
+        it.each(configurationMap)('should have valid routerParameters structure in $key', ({ gridColumns }) => {
+            gridColumns.forEach((col) => {
+                if (!col.routerParameters) {
+                    return;
+                }
+
+                col.routerParameters.forEach((param) => {
+                    expect(typeof param.key).toBe('string');
+                    expect(typeof param.path).toBe('string');
+                });
+            });
         });
     });
 });

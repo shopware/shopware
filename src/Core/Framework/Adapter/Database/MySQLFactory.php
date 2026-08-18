@@ -56,7 +56,7 @@ class MySQLFactory
         $parameters['driverOptions'] = [
             \PDO::ATTR_STRINGIFY_FETCHES => true,
             \PDO::ATTR_TIMEOUT => 5,
-        ] + $dsnParameters['driverOptions'];
+        ] + ($dsnParameters['driverOptions'] ?? []);
 
         $initCommands = [
             'SET @@session.time_zone = \'+00:00\'',
@@ -78,7 +78,7 @@ class MySQLFactory
             $parameters['driverOptions'][Mysql::ATTR_SSL_KEY] = $sslCertKey;
         }
 
-        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
+        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT') && \defined('\Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
             $parameters['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
@@ -100,12 +100,14 @@ class MySQLFactory
             $parameters['primary'] = array_merge([
                 'charset' => $parameters['charset'],
             ], $dsnParameters);
-            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + $dsnParameters['driverOptions'];
+            unset($parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
+            $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + ($dsnParameters['driverOptions'] ?? []);
 
             $parameters['replica'] = [];
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
                 $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
+                unset($replicaParams['primary'], $replicaParams['replica'], $replicaParams['keepReplica']);
 
                 $parameters['replica'][$i] = array_merge([
                     'charset' => $parameters['charset'],
@@ -118,7 +120,7 @@ class MySQLFactory
     }
 
     /**
-     * @return Params&array{driverOptions: array<mixed>}
+     * @return Params
      */
     private static function parseDsn(DsnParser $dsnParser, string $url): array
     {

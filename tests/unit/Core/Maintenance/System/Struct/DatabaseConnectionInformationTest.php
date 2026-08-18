@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Struct;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -12,6 +13,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseConnectionInformation::class)]
 class DatabaseConnectionInformationTest extends TestCase
 {
@@ -189,8 +191,7 @@ class DatabaseConnectionInformationTest extends TestCase
         static::assertSame('root', $info->getPassword());
         static::assertSame('shopware', $info->getDatabaseName());
 
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('Provided database connection information is not valid. Missing parameter "hostname"');
+        $this->expectExceptionObject(MaintenanceException::dbConnectionParameterMissing('hostname'));
         $info->validate();
     }
 
@@ -363,12 +364,11 @@ class DatabaseConnectionInformationTest extends TestCase
      * @param array<string, string|bool> $env
      */
     #[DataProvider('invalidEnvProvider')]
-    public function testFromEnvWithInvalidEnv(array $env, string $expectedException): void
+    public function testFromEnvWithInvalidEnv(array $env, MaintenanceException $expectedException): void
     {
         $this->setEnvVars($env);
 
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage($expectedException);
+        $this->expectExceptionObject($expectedException);
         DatabaseConnectionInformation::fromEnv();
     }
 
@@ -378,21 +378,21 @@ class DatabaseConnectionInformationTest extends TestCase
             [
                 'DATABASE_URL' => '',
             ],
-            'Environment variable "DATABASE_URL" is not defined.',
+            MaintenanceException::environmentVariableNotDefined('DATABASE_URL'),
         ];
 
         yield 'invalid database url' => [
             [
                 'DATABASE_URL' => 'invalid',
             ],
-            'Environment variable "DATABASE_URL" with value "invalid" is not valid: Not a valid DSN.',
+            MaintenanceException::environmentVariableNotValid('DATABASE_URL', 'invalid', 'Not a valid DSN'),
         ];
 
         yield 'Database name not set' => [
             [
                 'DATABASE_URL' => 'mysql://root:root@localhost:3306',
             ],
-            'Environment variable "DATABASE_URL" with value "mysql://root:root@localhost:3306" is not valid: Not a valid DSN.',
+            MaintenanceException::environmentVariableNotValid('DATABASE_URL', 'mysql://root:root@localhost:3306', 'Not a valid DSN'),
         ];
     }
 }

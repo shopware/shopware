@@ -104,6 +104,10 @@ class ConsentServiceTest extends TestCase
 
     public function testGetConsentStatusThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
     {
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));
 
         $service = $this->createService(null, [
@@ -166,8 +170,11 @@ class ConsentServiceTest extends TestCase
     {
         $service = $this->createService(null, []);
 
-        $this->expectException(ConsentException::class);
-        $this->expectExceptionMessage('Consent with name "non-existent" not found.');
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->expectExceptionObject(ConsentException::notFound('non-existent'));
 
         $service->getConsentState('non-existent', Context::createDefaultContext());
     }
@@ -368,8 +375,15 @@ class ConsentServiceTest extends TestCase
     {
         $service = $this->createService(null, []);
 
-        $this->expectException(ConsentException::class);
-        $this->expectExceptionMessage('Consent with name "non-existent" not found.');
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $this->expectExceptionObject(ConsentException::notFound('non-existent'));
 
         $source = new AdminApiSource('user-123');
         $context = Context::createDefaultContext($source);
@@ -465,8 +479,15 @@ class ConsentServiceTest extends TestCase
     {
         $service = $this->createService(null, []);
 
-        $this->expectException(ConsentException::class);
-        $this->expectExceptionMessage('Consent with name "non-existent" not found.');
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $this->expectExceptionObject(ConsentException::notFound('non-existent'));
 
         $source = new AdminApiSource('user-123');
         $context = Context::createDefaultContext($source);
@@ -480,8 +501,15 @@ class ConsentServiceTest extends TestCase
             new TestDefinition('consent-1', ConsentScope\System::NAME, ['permission-1', 'missing-1', 'missing-2']),
         ]);
 
-        $this->expectException(ConsentException::class);
-        $this->expectExceptionMessage('Missing required permission to update consent "consent-1". Missing permissions: missing-1, missing-2');
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $this->expectExceptionObject(ConsentException::insufficientPermissions('consent-1', ['missing-1', 'missing-2']));
 
         $source = new AdminApiSource('user-123');
         $source->setPermissions(['permission-1']);

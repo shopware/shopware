@@ -7,11 +7,22 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
+const userConfigServiceMock = {
+    search: jest.fn(),
+    upsert: jest.fn(),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+
 describe('app/service/filter.service.js', () => {
     let filterService;
     let filterData;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
+        userConfigServiceMock.search.mockReset();
+        userConfigServiceMock.upsert.mockReset();
+
         const router = createRouter({
             history: createWebHashHistory(),
             routes: [
@@ -57,25 +68,31 @@ describe('app/service/filter.service.js', () => {
         ]);
 
         Shopware.Store.get('session').setCurrentUser({
-            currentUser: {
-                id: '123',
-            },
+            id: '123',
         });
 
-        filterService = new FilterService({
-            userConfigRepository: {
-                create: () =>
-                    Promise.resolve({
-                        key: 'test',
-                        userId: '123',
-                    }),
-                search: () => Promise.resolve(filterData),
-                save: (criteria) => {
-                    filterData = criteria;
-                    return Promise.resolve();
+        userConfigServiceMock.search.mockImplementation(() =>
+            Promise.resolve({
+                data: filterData.length
+                    ? {
+                          [filterData.first().key]: filterData.first().value,
+                      }
+                    : {},
+            }),
+        );
+        userConfigServiceMock.upsert.mockImplementation((values) => {
+            filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [
+                {
+                    key: 'test',
+                    userId: '123',
+                    value: values.test,
                 },
-            },
+            ]);
+
+            return Promise.resolve();
         });
+
+        filterService = new FilterService();
     });
 
     it('getStoredFilters when there is no data from url, no data from database', async () => {
@@ -109,6 +126,14 @@ describe('app/service/filter.service.js', () => {
 
         const query = JSON.parse(decodeURIComponent(Shopware.Application.view.router.currentRoute.value.query.test));
         expect(query).toEqual(filterResult);
+    });
+
+    it('reuses cached stored filters for the same store key', async () => {
+        await filterService.getStoredFilters('test');
+        await filterService.getStoredFilters('test');
+
+        expect(userConfigServiceMock.search).toHaveBeenCalledTimes(1);
+        expect(userConfigServiceMock.search).toHaveBeenCalledWith(['test']);
     });
 
     it('getStoredFilters when there is no data from database, has data from url', async () => {
@@ -198,6 +223,66 @@ describe('app/service/filter.service.js', () => {
             { type: 'equalsAny', field: 'salutation.id', value: 'filter1' },
             { type: 'equalsAny', field: 'salutation.id', value: 'filter2' },
         ]);
+    });
+
+    it('saveFilters should resolve after the user config save finished', async () => {
+        await filterService.getStoredFilters('test');
+
+        const filters = {
+            filter1: {
+                value: 'filter1',
+                criteria: [
+                    {
+                        type: 'equalsAny',
+                        field: 'salutation.id',
+                        value: 'filter1',
+                    },
+                ],
+            },
+        };
+
+        let resolveSave;
+        const savePromise = new Promise((resolve) => {
+            resolveSave = resolve;
+        });
+
+        userConfigServiceMock.upsert.mockReturnValueOnce(savePromise);
+
+        const saveFiltersPromise = filterService.saveFilters('test', filters);
+        let resolved = false;
+        const resolutionMarker = saveFiltersPromise.then(() => {
+            resolved = true;
+        });
+
+        await flushPromises();
+
+        expect(resolved).toBe(false);
+
+        resolveSave();
+
+        await resolutionMarker;
+        await expect(saveFiltersPromise).resolves.toEqual(filters);
+    });
+
+    it('saveFilters should resolve with current filters when the user config save fails', async () => {
+        await filterService.getStoredFilters('test');
+
+        const filters = {
+            filter1: {
+                value: 'filter1',
+                criteria: [
+                    {
+                        type: 'equalsAny',
+                        field: 'salutation.id',
+                        value: 'filter1',
+                    },
+                ],
+            },
+        };
+
+        userConfigServiceMock.upsert.mockRejectedValueOnce(new Error('Save failed'));
+
+        await expect(filterService.saveFilters('test', filters)).resolves.toEqual(filters);
     });
 
     it('mergeWithStoredFilters when there is no cache data', async () => {

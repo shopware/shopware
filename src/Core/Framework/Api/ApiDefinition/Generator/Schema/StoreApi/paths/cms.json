@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/cms/{id}": {
@@ -8,7 +8,7 @@
                     "Content"
                 ],
                 "summary": "Fetch and resolve a CMS page",
-                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.\n\n**Available Associations:**\n- `sections` - Content sections within the CMS page (layout blocks containing slots)\n- `previewMedia` - Preview image for the CMS page in admin panel and page selection\n- `landingPages` - Landing pages using this CMS layout",
                 "operationId": "readCms",
                 "parameters": [
                     {
@@ -16,16 +16,6 @@
                         "in": "path",
                         "description": "Identifier of the CMS page to be resolved",
                         "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
@@ -44,6 +34,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -79,6 +72,10 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "404": {
                         "$ref": "#/components/responses/404"
                     }
@@ -94,7 +91,7 @@
                     "Content"
                 ],
                 "summary": "Fetch and resolve a CMS page",
-                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "description": "Loads a content management page by its identifier and resolve the slot data. This could be media files, product listing and so on.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.\n\n**Available Associations:**\n- `sections` - Content sections within the CMS page (layout blocks containing slots)\n- `previewMedia` - Preview image for the CMS page in admin panel and page selection\n- `landingPages` - Landing pages using this CMS layout",
                 "operationId": "readCmsGet",
                 "parameters": [
                     {
@@ -102,16 +99,6 @@
                         "in": "path",
                         "description": "Identifier of the CMS page to be resolved",
                         "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
@@ -139,6 +126,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "404": {
                         "$ref": "#/components/responses/404"

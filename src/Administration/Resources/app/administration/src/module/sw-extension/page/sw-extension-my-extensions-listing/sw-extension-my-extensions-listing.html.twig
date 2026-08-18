@@ -71,7 +71,6 @@
             </p>
 
             <mt-button
-                ghost
                 variant="secondary"
                 @click="isThemeRoute ? openThemesStore() : openStore()"
             >
@@ -84,6 +83,7 @@
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
                 <sw-extension-my-extensions-listing-controls
+                    :sorting-option="sortingOption"
                     @update:active-state="changeActiveState"
                     @update:sorting-option="changeSortingOption"
                 />

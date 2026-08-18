@@ -43,7 +43,7 @@ class StructEncoder implements ResetInterface
     public function reset(): void
     {
         $this->protections = [];
-        $this->blockedCustomFields = [];
+        $this->blockedCustomFields = null;
     }
 
     /**
@@ -94,7 +94,7 @@ class StructEncoder implements ResetInterface
                 $entities = [];
 
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entity = $struct->getAt($index);
+                    $entity = $struct->getEntities()->getAt($index);
                     if (!$entity instanceof Struct) {
                         throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }
@@ -143,7 +143,7 @@ class StructEncoder implements ResetInterface
             if ($property === 'extensions') {
                 $data[$property] = $this->encodeExtensions($struct, $fields, $value);
 
-                if (empty($data[$property])) {
+                if ($data[$property] === []) {
                     unset($data[$property]);
                 }
 

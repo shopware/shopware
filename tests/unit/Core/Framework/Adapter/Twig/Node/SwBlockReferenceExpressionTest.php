@@ -32,7 +32,7 @@ class SwBlockReferenceExpressionTest extends TestCase
 
     public function testGetTag(): void
     {
-        $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinder::class));
+        $extension = new TwigFeaturesWithInheritanceExtension(static::createStub(TemplateFinder::class));
         $functionNames = \array_map(
             static fn (TwigFunction $function) => $function->getName(),
             $extension->getFunctions(),
@@ -56,7 +56,7 @@ class SwBlockReferenceExpressionTest extends TestCase
         ]));
         $twig->addExtension(new NodeExtension(
             $templateFinder,
-            $this->createMock(TemplateScopeDetector::class),
+            static::createStub(TemplateScopeDetector::class),
         ));
         $twig->addExtension(new TwigFeaturesWithInheritanceExtension($templateFinder));
 

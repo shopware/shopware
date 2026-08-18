@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Log\Package;
 
@@ -21,6 +22,7 @@ class PrivateHandshake implements AppHandshakeInterface
         private readonly string $appName,
         private readonly string $shopId,
         private readonly string $shopwareVersion,
+        private readonly ClockInterface $clock,
         #[\SensitiveParameter]
         private readonly ?string $currentAppSecret = null
     ) {
@@ -28,13 +30,12 @@ class PrivateHandshake implements AppHandshakeInterface
 
     public function assembleRequest(): RequestInterface
     {
-        $date = new \DateTime();
         $uri = new Uri($this->appEndpoint);
 
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => (string) $date->getTimestamp(),
+            'timestamp' => (string) $this->clock->now()->getTimestamp(),
         ]);
 
         $signature = hash_hmac('sha256', $uri->getQuery(), $this->secret);

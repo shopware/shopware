@@ -52,6 +52,9 @@ class ProductExportHydrator extends EntityHydrator
         if (\array_key_exists($root . '.provider', $row)) {
             $entity->provider = $row[$root . '.provider'];
         }
+        if (\array_key_exists($root . '.feedLabel', $row)) {
+            $entity->feedLabel = $row[$root . '.feedLabel'];
+        }
         if (isset($row[$root . '.includeVariants'])) {
             $entity->includeVariants = (bool) $row[$root . '.includeVariants'];
         }
@@ -63,6 +66,9 @@ class ProductExportHydrator extends EntityHydrator
         }
         if (isset($row[$root . '.generatedAt'])) {
             $entity->generatedAt = new \DateTimeImmutable($row[$root . '.generatedAt']);
+        }
+        if (isset($row[$root . '.nextGenerationAt'])) {
+            $entity->nextGenerationAt = new \DateTimeImmutable($row[$root . '.nextGenerationAt']);
         }
         if (isset($row[$root . '.interval'])) {
             $entity->interval = (int) $row[$root . '.interval'];

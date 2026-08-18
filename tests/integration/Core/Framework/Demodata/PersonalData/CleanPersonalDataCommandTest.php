@@ -14,10 +14,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -27,6 +29,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 /**
  * @internal
  */
+#[Package('framework')]
 class CleanPersonalDataCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -351,7 +354,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private function getCommand(): CleanPersonalDataCommand
     {
-        return new CleanPersonalDataCommand($this->connection, $this->customerRepository);
+        return new CleanPersonalDataCommand($this->connection, $this->customerRepository, new NativeClock());
     }
 
     private function getArrayInput(): ArrayInput

@@ -12,22 +12,29 @@
       "columnType": "Type",
       "columnAssignment": "Assignment",
       "buttonAddDocument": "Add document",
-      "contextMenuEdit": "Edit",
       "messageDeleteSuccess": "Document \"{name}\" has been deleted.",
-      "buttonDelete": "Delete",
       "global": "Global"
     },
     "detail": {
       "displayTitle": "Display:",
       "textHeadline": "New document",
       "configCard": "Settings",
+      "filenameCard": "File naming",
+      "displayedContentCard": "Displayed content",
+      "displayedContentCardSubtitle": "Select which content should be displayed in the document.",
       "companyCard": "Company settings",
+      "companySettingsMovedBannerTitle": "Company settings has moved",
+      "companySettingsMovedBannerDescription": "Company settings for documents are now managed in Settings > Basic information > Company information.",
       "assignmentCard": "Assignment",
       "labelName": "Technical name",
       "labelFileNamePrefix": "Filename prefix",
       "placeholderFileNamePrefix": "Enter prefix...",
       "labelFileNameSuffix": "Filename suffix",
       "placeholderFileNameSuffix": "Enter suffix...",
+      "placeholderFileNameInfix": "Enter infix...",
+      "filenamePattern": "Filename pattern: <prefix><documentNumber><infix><suffix>.<fileExtension>",
+      "filenameInfixHeadline": "Filename infix",
+      "filenameInfixHelpText": "Add an infix to each document format to prevent naming conflicts between different versions of the same document.",
       "labelDisplayPrices": "Prices",
       "labelDisplayHeader": "Header",
       "labelDisplayLineItems": "Line items",
@@ -49,8 +56,8 @@
       },
       "labelItemsPerPage": "Items per page",
       "placeholderItemsPerPage": "Enter number of items per page...",
-      "labelDisplayCompanyAddress": "Display company address",
-      "labelDisplayReturnAddress": "Display return address",
+      "labelDisplayCompanyAddress": "Company address",
+      "labelDisplayReturnAddress": "Return address",
       "labelCompanyCity": "City",
       "labelCompanyCountry": "Country",
       "labelCompanyName": "Company Name",
@@ -78,7 +85,6 @@
       "labelDisplayAdditionalNoteDelivery": "\"intra-Community delivery\" label",
       "labelDisplayCustomerVatId": "Customer VAT-ID",
       "placeholderName": "Enter name...",
-      "buttonSave": "Save",
       "disabledSalesChannel": "There is already another document of the same type in this Sales Channel.",
       "disabledSalesChannelSelect": "Choose a document type first.",
       "disabledTypeSelect": "The type of global documents cannot be changed.",
@@ -86,6 +92,7 @@
       "labelDisplayDivergentDeliveryAddress": "Divergent delivery address",
       "helpTextDisplayDocumentInCustomerAccount": "The document is displayed under \"Orders\" in the respective customer account. Note that only documents that have actually been sent to the customer are displayed in the customer account.",
       "helpTextDisplayAdditionalNoteDelivery": "Eligible only for EU member states, see also \"Settings > Countries\".",
+      "helpTextPaymentDueDate": "Uses a relative date modifier based on the document date, for example \"+14 days\".",
       "labelFileTypes": "File formats",
       "placeholderFileTypes": "Select file formats...",
       "placeholderCompanyName": "Enter company name...",
@@ -106,6 +113,9 @@
       "placeholderPlaceOfFulfillment": "Enter place of fulfillment...",
       "placeholderExecutiveDirector": "Enter business executive...",
       "placeholderPaymentDueDate": "Enter payment due date..."
+    },
+    "errors": {
+      "invalidDueDateFormat": "The date modifier is invalid."
     }
   },
   "sw-privileges": {
@@ -116,4 +126,3 @@
     }
   }
 }
-

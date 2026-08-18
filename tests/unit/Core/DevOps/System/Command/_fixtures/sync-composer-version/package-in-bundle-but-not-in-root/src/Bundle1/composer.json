@@ -1,0 +1,8 @@
+{
+    "require": {
+        "symfony/symfony": "5.3.0",
+        "foo/bar": "1.0.0",
+        "test/package": "1.0.0",
+        "not/in-root": "1.0.0"
+    }
+}

@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Elasticsearch\Profiler\ClientProfiler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Profiler\DataCollector;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchProfileCompilerPass::class)]
 class ElasticsearchProfileCompilerPassTest extends TestCase
 {
@@ -44,10 +45,12 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
 
         $def = new Definition(Client::class);
         $def->setPublic(true);
+        $def->setLazy(true);
         $container->setDefinition(Client::class, $def);
 
         $def = new Definition(Client::class);
         $def->setPublic(true);
+        $def->setLazy(true);
         $container->setDefinition('admin.openSearch.client', $def);
 
         $container->setParameter('kernel.debug', true);
@@ -59,7 +62,7 @@ class ElasticsearchProfileCompilerPassTest extends TestCase
 
         static::assertTrue($container->hasDefinition(Client::class));
         static::assertTrue($container->hasDefinition('admin.openSearch.client'));
-        static::assertSame(ClientProfiler::class, $container->getDefinition(Client::class)->getClass());
-        static::assertSame(ClientProfiler::class, $container->getDefinition('admin.openSearch.client')->getClass());
+        static::assertFalse($container->getDefinition(Client::class)->isLazy());
+        static::assertFalse($container->getDefinition('admin.openSearch.client')->isLazy());
     }
 }

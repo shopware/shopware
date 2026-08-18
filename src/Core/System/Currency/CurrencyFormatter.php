@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\Locale\Util\BackwardCompatibleNumberFormatter;
 use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('fundamentals@framework')]
@@ -49,6 +50,6 @@ class CurrencyFormatter implements ResetInterface
             return $this->formatter[$locale];
         }
 
-        return $this->formatter[$locale] = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
+        return $this->formatter[$locale] = new BackwardCompatibleNumberFormatter($locale, \NumberFormatter::CURRENCY);
     }
 }

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
@@ -27,6 +28,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductAdminSearchIndexer::class)]
 class ProductAdminSearchIndexerTest extends TestCase
 {
@@ -35,10 +37,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -62,7 +64,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $product = new ProductEntity();
         $product->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -77,10 +79,10 @@ class ProductAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -102,9 +104,9 @@ class ProductAdminSearchIndexerTest extends TestCase
 
         $indexer = new ProductAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -117,8 +119,9 @@ class ProductAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('tag 809c1844f4734243b6aa04aba860cd45', $document['text']);
-        static::assertSame('product sw1000299 keywords', $document['textBoosted']);
+        static::assertSame('tag sw1000299 4572324423421 m-100 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('sw1000299 keywords', $document['textBoosted']);
+        static::assertSame(['product'], $document['completion']);
         static::assertSame('SW1000299', $document['productNumber']);
         static::assertTrue($document['active']);
         static::assertSame(10, $document['sales']);
@@ -138,10 +141,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -163,10 +166,10 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGlobalCriteria(): void
     {
         $indexer = new ProductAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -177,22 +180,31 @@ class ProductAdminSearchIndexerTest extends TestCase
         $boolQueryArray = $boolQuery->toArray();
         $shouldQueries = $boolQueryArray['bool']['should'];
 
-        static::assertCount(2, $shouldQueries);
+        static::assertCount(4, $shouldQueries);
 
-        $matchQuery = null;
+        $exactIdentifierQueries = [];
+        $prefixIdentifierQueries = [];
+        $exactIdentifierBoosts = [];
         $simpleQueryStringQuery = null;
         foreach ($shouldQueries as $query) {
-            if (isset($query['match']['textBoosted.ngram'])) {
-                $matchQuery = $query['match']['textBoosted.ngram'];
+            if (isset($query['term'])) {
+                $field = array_key_first($query['term']);
+                $exactIdentifierQueries[] = $field;
+                $exactIdentifierBoosts[] = $query['term'][$field]['boost'];
+            } elseif (isset($query['prefix'])) {
+                $prefixIdentifierQueries[] = array_key_first($query['prefix']);
             } elseif (isset($query['simple_query_string'])) {
                 $simpleQueryStringQuery = $query['simple_query_string'];
             }
         }
 
-        static::assertNotNull($matchQuery, 'MatchQuery for textBoosted.ngram should be present');
-        static::assertSame('test', $matchQuery['query']);
-        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $matchQuery['boost']);
-
+        static::assertSame(['ean', 'productNumber', 'manufacturerNumber'], $exactIdentifierQueries);
+        static::assertSame([
+            SearchRanking::HIGH_SEARCH_RANKING,
+            SearchRanking::HIGH_SEARCH_RANKING,
+            SearchRanking::HIGH_SEARCH_RANKING,
+        ], $exactIdentifierBoosts);
+        static::assertSame([], $prefixIdentifierQueries);
         static::assertNotNull($simpleQueryStringQuery, 'SimpleQueryStringQuery for textBoosted should be present');
         static::assertSame(['textBoosted'], $simpleQueryStringQuery['fields']);
         static::assertSame('test*', $simpleQueryStringQuery['query']);
@@ -200,9 +212,28 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertTrue($simpleQueryStringQuery['lenient']);
     }
 
+    public function testGlobalCriteriaDoesNotAddIdentifierPrefixes(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        foreach (['457', '457232'] as $term) {
+            $result = $indexer->globalCriteria($term, new Search());
+
+            foreach ($result->getQueries()->toArray()['bool']['should'] as $query) {
+                static::assertArrayNotHasKey('prefix', $query);
+            }
+        }
+    }
+
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(
@@ -220,6 +251,8 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'tags' => 'Tag',
                     'tagIds' => 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
                     'productNumber' => 'SW1000299',
+                    'ean' => '4572324423421',
+                    'manufacturerNumber' => 'M-100',
                     'active' => 1,
                     'available' => 1,
                     'parentId' => null,

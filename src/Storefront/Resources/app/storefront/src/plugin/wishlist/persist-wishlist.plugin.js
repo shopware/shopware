@@ -15,32 +15,19 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
     }
 
     load() {
-        this._merge(() => {
-            fetch(this.options.listPath, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json',
-                },
-            })
-                .then(response => response.json())
-                .then(response => {
-                    this.products = response;
-
-                    super.load();
-                });
-        });
+        this._merge(() => this._loadProducts())
+            .catch(error => this._handleRequestError(error));
     }
 
     add(productId, router) {
-        fetch(router.path, {
+        this._fetchJson(router.path, {
             method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json',
-            },
         })
-            .then(response => response.json())
             .then(response => {
+                if (response === null) {
+                    return;
+                }
+
                 if (response.success) {
                     super.add(productId);
 
@@ -48,32 +35,33 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 }
 
                 console.warn('unable to add product to wishlist');
-            });
+            })
+            .catch(error => this._handleRequestError(error));
     }
 
     remove(productId, router) {
-        fetch(router.path, {
+        this._fetchJson(router.path, {
             method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json',
-            },
         })
-            .then(response => response.json())
             .then(response => {
+                if (response === null) {
+                    return;
+                }
+
                 if (Object.prototype.hasOwnProperty.call(response, 'success')) {
                     if (response.success === false) {
                         console.warn('unable to remove product to wishlist');
                     }
                     super.remove(productId);
                 }
-            });
+            })
+            .catch(error => this._handleRequestError(error));
     }
 
     /**
      * @private
      */
-    _merge(callback) {
+    async _merge(callback) {
         this.storage = Storage;
         const key = 'wishlist-' + (window.salesChannelId || '');
 
@@ -81,54 +69,131 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
 
         const products = JSON.parse(productStr);
 
+        let mergePromise = Promise.resolve();
+
         if (products) {
-            fetch(this.options.mergePath, {
-                method: 'POST',
-                body: JSON.stringify({ 'productIds': Object.keys(products) }),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json',
-                },
-            })
-                .then(response => response.text())
-                .then(response => {
-                    if (!response) {
-                        throw new Error('Unable to merge product wishlist from anonymous user');
-                    }
-
-                    this.$emitter.publish('Wishlist/onProductMerged', {
-                        products: products,
-                    });
-
-                    this.storage.removeItem(key);
-                    this._block = document.querySelector('.flashbags');
-                    this._block.innerHTML = response;
-                    this._pagelet();
-                    callback();
-                });
+            mergePromise = this._mergeProducts(products, key, callback);
         }
-        callback();
+
+        await callback();
+        await mergePromise;
     }
 
     /**
      * @private
      */
-    _pagelet() {
-        fetch(this.options.pageletPath, {
-            method: 'POST',
+    async _pagelet() {
+        try {
+            const response = await this._fetchText(this.options.pageletPath, {
+                method: 'POST',
+            });
+
+            if (response === null || response === '') {
+                return;
+            }
+
+            this._block = document.querySelector('.cms-listing-row');
+            this._block.innerHTML = response;
+        } catch (error) {
+            this._handleRequestError(error);
+        }
+    }
+
+    /**
+     * @private
+     */
+    async _loadProducts() {
+        try {
+            const response = await this._fetchJson(this.options.listPath);
+
+            if (response === null) {
+                return;
+            }
+
+            this.products = response;
+
+            super.load();
+        } catch (error) {
+            this._handleRequestError(error);
+        }
+    }
+
+    /**
+     * @private
+     */
+    async _mergeProducts(products, key, callback) {
+        try {
+            const response = await this._fetchText(this.options.mergePath, {
+                method: 'POST',
+                body: JSON.stringify({ productIds: Object.keys(products) }),
+            });
+
+            if (response === null) {
+                return;
+            }
+
+            if (response === '') {
+                throw new Error('Unable to merge product wishlist from anonymous user');
+            }
+
+            this.$emitter.publish('Wishlist/onProductMerged', {
+                products: products,
+            });
+
+            this.storage.removeItem(key);
+            this._block = document.querySelector('.flashbags');
+            this._block.innerHTML = response;
+            await this._pagelet();
+            await callback();
+        } catch (error) {
+            this._handleRequestError(error);
+        }
+    }
+
+    /**
+     * @private
+     */
+    async _fetchJson(path, options = {}) {
+        const response = await fetch(path, this._createRequestOptions(options));
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return response.json();
+    }
+
+    /**
+     * @private
+     */
+    async _fetchText(path, options = {}) {
+        const response = await fetch(path, this._createRequestOptions(options));
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return response.text();
+    }
+
+    /**
+     * @private
+     */
+    _createRequestOptions(options = {}) {
+        return {
+            ...options,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Content-Type': 'application/json',
+                ...options.headers,
             },
-        })
-            .then(response => response.text())
-            .then(response => {
-                if (!response) {
-                    return;
-                }
+        };
+    }
 
-                this._block = document.querySelector('.cms-listing-row');
-                this._block.innerHTML = response;
-            });
+    /**
+     * @private
+     */
+    _handleRequestError(error) {
+        console.warn(error);
     }
 }

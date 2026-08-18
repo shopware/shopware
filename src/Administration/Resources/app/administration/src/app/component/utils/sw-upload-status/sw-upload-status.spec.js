@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -28,10 +30,10 @@ const snippetData = {
         return `Uploading files (${params.processed}/${params.total})`;
     },
     'global.sw-media-upload.snackbar.errorMessage': (params) => `${params.count} upload(s) failed`,
+    'global.sw-media-upload.notification.failure.message': () => 'Error while uploading file.',
     'global.sw-media-upload.notification.illegalFilename.message': (params) => `Illegal filename: ${params.fileName}`,
     'global.sw-media-upload.notification.illegalFileUrl.message': (params) => `Illegal file URL: ${params.fileName}`,
-    'global.sw-media-upload.notification.fileTypeNotSupported.message': (params) =>
-        `File type not supported: ${params.fileName}`,
+    'global.sw-media-upload.notification.illegalFileType.message': (params) => `File type not supported: ${params.fileName}`,
     'global.sw-media-upload.notification.requestCanceled.message': (params) => `Request canceled: ${params.fileName}`,
     'global.sw-media-upload.notification.payloadTooLarge.message': (params) => `Payload too large: ${params.fileName}`,
     'global.sw-media-upload.notification.transportError.message': (params) => `Transport error: ${params.fileName}`,
@@ -530,6 +532,34 @@ describe('src/app/component/utils/sw-upload-status', () => {
         });
 
         expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+    });
+
+    it('should show the backend error detail when no specific message is available', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const error = createError('CONTENT__MEDIA_SVG_ACTIVE_CONTENT', 'SVG files with active content are not allowed.');
+        wrapper.vm.showErrorNotification({
+            fileName: 'test.svg',
+            error,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'SVG files with active content are not allowed.',
+        });
+    });
+
+    it('should show a generic error notification when no specific message or detail is available', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const error = createError('CONTENT__MEDIA_UNKNOWN', '');
+        wrapper.vm.showErrorNotification({
+            fileName: 'test.jpg',
+            error,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Error while uploading file.',
+        });
     });
 
     it('should show multiple error notifications for multiple errors', async () => {

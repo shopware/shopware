@@ -43,6 +43,9 @@ class ProductSearchRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
+        $this->searchBuilder->expects($this->never())->method('build');
+        $this->listingLoader->expects($this->never())->method('load');
+
         static::expectException(DecorationPatternException::class);
 
         $this->getProductSearchRoute()->getDecorated();
@@ -74,7 +77,7 @@ class ProductSearchRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSearchRoute()->load(
@@ -105,7 +108,7 @@ class ProductSearchRouteTest extends TestCase
                 Context::createDefaultContext()
             ));
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->getProductSearchRoute()->load(

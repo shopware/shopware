@@ -46,14 +46,12 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class AccountOrderController extends StorefrontController
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
      */
     public function __construct(
         private readonly AccountOrderPageLoader $orderPageLoader,
@@ -63,6 +61,9 @@ class AccountOrderController extends StorefrontController
         private readonly AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         private readonly AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
         private readonly EventDispatcherInterface $eventDispatcher,
+        /**
+         * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
+         */
         private readonly AccountOrderDetailPageLoader $orderDetailPageLoader,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly SalesChannelContextServiceInterface $contextService,
@@ -210,7 +211,7 @@ class AccountOrderController extends StorefrontController
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         try {
-            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
+            $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->getEntities()->first();
         } catch (InvalidUuidException) {
             $order = null;
         }
@@ -313,7 +314,7 @@ class AccountOrderController extends StorefrontController
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
-        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
+        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->getEntities()->first();
 
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);

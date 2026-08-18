@@ -10,6 +10,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         viewer: {
             privileges: [
                 'product:read',
+                'product_translation:read',
                 'product_download:read',
                 'product_media:read',
                 'product_manufacturer:read',
@@ -103,6 +104,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_feature_set:delete',
                 'user_config:create',
                 'user_config:update',
+                'seo_url:update',
             ],
             dependencies: [
                 'product.viewer',

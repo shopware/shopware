@@ -26,6 +26,12 @@ export default {
             type: Array,
             required: true,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -41,8 +47,27 @@ export default {
 
     methods: {
         createdComponent() {
-            this.isDefaultShippingAddressId = this.customer.defaultShippingAddressId === this.address.id;
-            this.isDefaultBillingAddressId = this.customer.defaultBillingAddressId === this.address.id;
+            this.isDefaultShippingAddressId = this.isDefaultAddress(this.customer.defaultShippingAddressId);
+            this.isDefaultBillingAddressId = this.isDefaultAddress(this.customer.defaultBillingAddressId);
+        },
+
+        isDefaultAddress(defaultAddressId) {
+            if (!defaultAddressId) {
+                return false;
+            }
+
+            if (defaultAddressId === this.address.id) {
+                return true;
+            }
+
+            // Order addresses are snapshots with their own id; match them to the default by content hash.
+            if (this.customer.addresses?.has(this.address.id)) {
+                return false;
+            }
+
+            const defaultAddress = this.customer.addresses?.get(defaultAddressId);
+
+            return Boolean(this.address.hash && defaultAddress?.hash === this.address.hash);
         },
 
         onChangeDefaultShippingAddress(active) {

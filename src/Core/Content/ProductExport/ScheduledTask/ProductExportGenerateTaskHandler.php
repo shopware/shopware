@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -17,8 +19,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 #[Package('inventory')]
+#[AsMessageHandler(handles: ProductExportGenerateTask::class)]
 final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -31,6 +33,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         LoggerInterface $logger,
         private readonly Connection $connection,
         private readonly MessageBusInterface $messageBus,
+        private readonly ClockInterface $clock,
         private readonly int $staleMinSeconds = 300,
         private readonly float $staleIntervalFactor = 2.0
     ) {
@@ -39,14 +42,14 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
+        $now = $this->clock->now();
+
         foreach ($this->fetchSalesChannelIds() as $salesChannelId) {
             $productExports = $this->fetchProductExports($salesChannelId);
 
             if ($productExports === []) {
                 continue;
             }
-
-            $now = new \DateTimeImmutable('now');
 
             foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {
@@ -69,11 +72,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             <<<'SQL'
                 SELECT LOWER(HEX(id))
                 FROM `sales_channel`
-                WHERE `type_id` = :typeId
+                WHERE `type_id` IN (:typeIds)
                   AND `active` = 1
             SQL,
-            ['typeId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)],
-            ['typeId' => ParameterType::BINARY]
+            ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
+            ['typeIds' => ArrayParameterType::BINARY]
         );
     }
 
@@ -89,6 +92,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 SELECT
                     LOWER(HEX(product_export.id)) AS id,
                     product_export.generated_at,
+                    product_export.next_generation_at,
                     product_export.interval,
                     product_export.is_running,
                     product_export.updated_at,
@@ -146,6 +150,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
         if ($productExport['generated_at'] === null) {
             return true;
+        }
+
+        $nextGenerationAt = $productExport['next_generation_at'];
+        if (\is_string($nextGenerationAt)) {
+            return $now >= new \DateTimeImmutable($nextGenerationAt);
         }
 
         $generatedAt = new \DateTimeImmutable($productExport['generated_at']);

@@ -24,6 +24,11 @@ class Migration1752750171AddIndexToOrderAddressCreateAndUpdateTest extends TestC
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1752750171, (new Migration1752750171AddIndexToOrderAddressCreateAndUpdate())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1752750171AddIndexToOrderAddressCreateAndUpdate();

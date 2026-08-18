@@ -27,6 +27,7 @@ use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeUserInstaller;
 use Shopware\Tests\Integration\Core\Framework\Sso\Helper\ValidUserServiceCreator;
 use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -70,9 +71,10 @@ class ShopwareGrantTypeTest extends TestCase
         $session->set('sso_proof_key_verifier', 'proofKeyVerifier');
 
         $shopwareGrantType = new ShopwareGrantType(
-            new RefreshTokenRepository($this->connection),
+            new RefreshTokenRepository($this->connection, new NativeClock()),
             $this->userService,
             $this->createExternalTokenService($idToken),
+            new NativeClock()
         );
 
         $shopwareGrantType->setClientRepository($this->getContainer()->get(ClientRepository::class));
@@ -139,7 +141,6 @@ class ShopwareGrantTypeTest extends TestCase
                 'client_secret' => 'client_secret',
                 'redirect_uri' => 'http://redirect.uri',
                 'base_url' => 'http://base.uri',
-                'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
                 'jwks_path' => '/jwks.json',

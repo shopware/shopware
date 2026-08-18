@@ -1,0 +1,127 @@
+version: "1"
+
+skill: ..
+
+defaults:
+    agent: claude
+    provider: local
+    trials: 1
+    timeout: 900
+    threshold: 0.8
+
+_anchors:
+    - &skill_runner |
+        You are testing the Shopware PR-review skill.
+
+        1. Read input.json. Its `persona` field (single slug) means worker mode;
+           `personas` (array) or neither key means orchestrator mode. The skill
+           SCHEMA.md is authoritative for the output shape.
+        2. Invoke the review skill (Skill tool, name "sw-review") with that payload
+           wrapped in `<input_json>…</input_json>`. The diff is at diff.patch and
+           is referenced by `diff_path`.
+        3. Write the skill's JSON output verbatim to a file called output.json
+           in the current directory.
+        4. Do not modify the JSON. Do not add prose. The grader reads
+           output.json and only output.json.
+    - &lib { src: _lib.sh, dest: _lib.sh }
+
+tasks:
+    - name: persona-security-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/security/catch/input.json, dest: input.json }
+          - { src: persona/security/catch/diff.patch, dest: diff.patch }
+          - { src: persona/security/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-security-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/security/ignore/input.json, dest: input.json }
+          - { src: persona/security/ignore/diff.patch, dest: diff.patch }
+          - { src: persona/security/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-architecture-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/architecture/catch/input.json, dest: input.json }
+          - { src: persona/architecture/catch/diff.patch, dest: diff.patch }
+          - { src: persona/architecture/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-architecture-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/architecture/ignore/input.json, dest: input.json }
+          - { src: persona/architecture/ignore/diff.patch, dest: diff.patch }
+          - { src: persona/architecture/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-code-style-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/code-style/catch/input.json, dest: input.json }
+          - { src: persona/code-style/catch/diff.patch, dest: diff.patch }
+          - { src: persona/code-style/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-code-style-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/code-style/ignore/input.json, dest: input.json }
+          - { src: persona/code-style/ignore/diff.patch, dest: diff.patch }
+          - { src: persona/code-style/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-ux-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/ux/catch/input.json, dest: input.json }
+          - { src: persona/ux/catch/diff.patch, dest: diff.patch }
+          - { src: persona/ux/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-ux-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/ux/ignore/input.json, dest: input.json }
+          - { src: persona/ux/ignore/diff.patch, dest: diff.patch }
+          - { src: persona/ux/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-open-source-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/open-source/catch/input.json, dest: input.json }
+          - { src: persona/open-source/catch/diff.patch, dest: diff.patch }
+          - { src: persona/open-source/catch/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }
+
+    - name: persona-open-source-ignore
+      instruction: *skill_runner
+      workspace:
+          - { src: persona/open-source/ignore/input.json, dest: input.json }
+          - { src: persona/open-source/ignore/diff.patch, dest: diff.patch }
+          - { src: persona/open-source/ignore/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }

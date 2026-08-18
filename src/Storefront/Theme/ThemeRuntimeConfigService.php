@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -12,7 +13,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigService
 {
     /**
@@ -35,6 +36,7 @@ class ThemeRuntimeConfigService
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly ThemeMergedConfigBuilder $mergedConfigBuilder,
         private readonly ThemeRuntimeConfigStorage $storage,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -98,13 +100,20 @@ class ThemeRuntimeConfigService
 
     /**
      * Refreshes the whole ThemeRuntimeConfig object.
+     *
+     * @param array{
+     *     imports: array<string, string>,
+     *     scopes?: array<string, array<string, string>>,
+     *     styles?: list<string>
+     * }|null $importMap
      */
     public function refreshRuntimeConfig(
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         Context $context,
         bool $failOnFileResolveError = false,
-        ?StorefrontPluginConfigurationCollection $configCollection = null
+        ?StorefrontPluginConfigurationCollection $configCollection = null,
+        ?array $importMap = null,
     ): ThemeRuntimeConfig {
         if ($configCollection === null) {
             $configCollection = $this->pluginRegistry->getConfigurations();
@@ -120,14 +129,20 @@ class ThemeRuntimeConfigService
             }
         }
 
+        // On a non-compile refresh preserve the existing importMap from the database.
+        if ($importMap === null) {
+            $importMap = $this->storage->getById($themeId)?->importMap;
+        }
+
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
-            'technicalName' => $themeConfig->getTechnicalName(),
+            'technicalName' => $this->storage->getOwnThemeTechnicalName($themeId),
             'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context),
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $scriptFiles,
             'iconSets' => $this->prepareIconSets($themeConfig),
-            'updatedAt' => new \DateTime(),
+            'importMap' => $importMap,
+            'updatedAt' => $this->clock->now(),
         ]);
 
         $this->storage->save($runtimeConfig);
@@ -140,7 +155,7 @@ class ThemeRuntimeConfigService
                 'themeId' => $copyId,
                 'technicalName' => null,
                 'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($copyId, $context),
-                'updatedAt' => new \DateTime(),
+                'updatedAt' => $this->clock->now(),
             ]);
 
             $this->storage->save($copyConfig);
@@ -201,7 +216,7 @@ class ThemeRuntimeConfigService
         $mergedConfig = $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context);
         $updatedRuntimeConfig = $runtimeConfig->with([
             'resolvedConfig' => $mergedConfig,
-            'updatedAt' => new \DateTime(),
+            'updatedAt' => $this->clock->now(),
         ]);
 
         $this->storage->save($updatedRuntimeConfig);

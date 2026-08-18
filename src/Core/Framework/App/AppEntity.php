@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -24,7 +27,7 @@ use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
- * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
+ * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}
  * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
  *
  * @phpstan-import-type SourceConfig from AppDefinition
@@ -99,6 +102,15 @@ class AppEntity extends Entity
      */
     protected ?string $appSecret = null;
 
+    /**
+     * @internal
+     *
+     * The uncommitted secrets the app might still hold, most-recent first.
+     *
+     * @var list<string>|null
+     */
+    protected ?array $unconfirmedAppSecrets = null;
+
     protected string $integrationId;
 
     protected bool $active;
@@ -146,6 +158,12 @@ class AppEntity extends Entity
      * @var EntityCollection<AppShippingMethodEntity>|null
      */
     protected ?EntityCollection $appShippingMethods = null;
+
+    protected ?AppMcpToolCollection $mcpTools = null;
+
+    protected ?AppMcpPromptCollection $mcpPrompts = null;
+
+    protected ?AppMcpResourceCollection $mcpResources = null;
 
     protected int $templateLoadPriority;
 
@@ -466,6 +484,28 @@ class AppEntity extends Entity
         $this->appSecret = $appSecret;
     }
 
+    /**
+     * @internal
+     *
+     * @return list<string>|null
+     */
+    public function getUnconfirmedAppSecrets(): ?array
+    {
+        $this->checkIfPropertyAccessIsAllowed('unconfirmedAppSecrets');
+
+        return $this->unconfirmedAppSecrets;
+    }
+
+    /**
+     * @internal
+     *
+     * @param list<string>|null $unconfirmedAppSecrets
+     */
+    public function setUnconfirmedAppSecrets(#[\SensitiveParameter] ?array $unconfirmedAppSecrets): void
+    {
+        $this->unconfirmedAppSecrets = $unconfirmedAppSecrets;
+    }
+
     public function isActive(): bool
     {
         return $this->active;
@@ -632,6 +672,36 @@ class AppEntity extends Entity
     public function setAppShippingMethods(EntityCollection $appShippingMethods): void
     {
         $this->appShippingMethods = $appShippingMethods;
+    }
+
+    public function getMcpTools(): ?AppMcpToolCollection
+    {
+        return $this->mcpTools;
+    }
+
+    public function setMcpTools(AppMcpToolCollection $mcpTools): void
+    {
+        $this->mcpTools = $mcpTools;
+    }
+
+    public function getMcpPrompts(): ?AppMcpPromptCollection
+    {
+        return $this->mcpPrompts;
+    }
+
+    public function setMcpPrompts(AppMcpPromptCollection $mcpPrompts): void
+    {
+        $this->mcpPrompts = $mcpPrompts;
+    }
+
+    public function getMcpResources(): ?AppMcpResourceCollection
+    {
+        return $this->mcpResources;
+    }
+
+    public function setMcpResources(AppMcpResourceCollection $mcpResources): void
+    {
+        $this->mcpResources = $mcpResources;
     }
 
     public function jsonSerialize(): array

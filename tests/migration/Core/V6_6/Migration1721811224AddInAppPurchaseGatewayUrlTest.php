@@ -13,8 +13,8 @@ use Shopware\Core\Migration\V6_6\Migration1721811224AddInAppPurchaseGatewayUrl;
 /**
  * @internal
  */
-#[CoversClass(Migration1721811224AddInAppPurchaseGatewayUrl::class)]
 #[Package('checkout')]
+#[CoversClass(Migration1721811224AddInAppPurchaseGatewayUrl::class)]
 class Migration1721811224AddInAppPurchaseGatewayUrlTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -24,6 +24,11 @@ class Migration1721811224AddInAppPurchaseGatewayUrlTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1721811224, (new Migration1721811224AddInAppPurchaseGatewayUrl())->getCreationTimestamp());
     }
 
     public function testMigrate(): void

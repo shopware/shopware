@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -26,17 +27,20 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class SearchController extends StorefrontController
 {
     /**
      * @internal
+     *
+     * @param list<string> $redirectOnSingleHitFields
      */
     public function __construct(
         private readonly SearchPageLoader $searchPageLoader,
         private readonly SuggestPageLoader $suggestPageLoader,
-        private readonly AbstractProductSearchRoute $productSearchRoute
+        private readonly AbstractProductSearchRoute $productSearchRoute,
+        private readonly array $redirectOnSingleHitFields = ['productNumber', 'ean', 'manufacturerNumber']
     ) {
     }
 
@@ -157,13 +161,34 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        $product = $page->getListing()->first();
+        $product = $page->getListing()->getEntities()->first();
         if (!$product instanceof ProductEntity) {
             return null;
         }
 
-        if ($request->query->get('search') === mb_strtolower($product->getProductNumber())) {
-            return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
+        $search = $request->query->get('search');
+        if (!\is_string($search)) {
+            return null;
+        }
+
+        $search = mb_strtolower(trim($search));
+        if ($search === '') {
+            return null;
+        }
+
+        foreach ($this->redirectOnSingleHitFields as $field) {
+            if (!$product->has($field)) {
+                continue;
+            }
+
+            $value = $product->get($field);
+            if (!\is_string($value) || $value === '') {
+                continue;
+            }
+
+            if ($search === mb_strtolower(trim($value))) {
+                return $this->redirectToRoute(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $product->getId()]);
+            }
         }
 
         return null;

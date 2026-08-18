@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
@@ -24,10 +25,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(ContainerFacade::class)]
-#[CoversClass(DiscountTrait::class)]
-#[CoversClass(SurchargeTrait::class)]
 #[Package('checkout')]
+#[CoversClass(ContainerFacade::class)]
+#[CoversTrait(DiscountTrait::class)]
+#[CoversTrait(SurchargeTrait::class)]
 class ContainerFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -94,8 +95,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Absolute discount my-discount requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object');
+        $this->expectExceptionObject(CartException::missingDefaultPriceCollectionForDiscount('my-discount'));
 
         $facade->discount('my-discount', 'absolute', new PriceCollection([new Price(Uuid::randomHex(), 5, 5, false)]), 'my-discount');
     }
@@ -104,8 +104,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Discount type "foo" is not supported');
+        $this->expectExceptionObject(CartException::discountTypeNotSupported('my-discount', 'foo'));
 
         $facade->discount('my-discount', 'foo', 10, 'my-discount');
     }
@@ -158,8 +157,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Absolute surcharge my-surcharge requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object');
+        $this->expectExceptionObject(CartException::missingDefaultPriceCollectionForSurcharge('my-surcharge'));
 
         $facade->surcharge('my-surcharge', 'absolute', new PriceCollection([new Price(Uuid::randomHex(), 5, 5, false)]), 'my-surcharge');
     }
@@ -168,8 +166,7 @@ class ContainerFacadeTest extends TestCase
     {
         $facade = $this->rampUpFacade();
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Surcharge type "foo" is not supported');
+        $this->expectExceptionObject(CartException::surchargeTypeNotSupported('my-surcharge', 'foo'));
 
         $facade->surcharge('my-surcharge', 'foo', 10, 'my-surcharge');
     }
@@ -178,9 +175,9 @@ class ContainerFacadeTest extends TestCase
     {
         $container = new LineItem('container', 'container', 'container');
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
-        $helper = $this->createMock(CartFacadeHelper::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $helper = static::createStub(CartFacadeHelper::class);
+        $context = static::createStub(SalesChannelContext::class);
         $facade = new ContainerFacade($container, $stubs, $helper, $context);
 
         $facade->add(

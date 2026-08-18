@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -35,6 +36,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(OrderStockSubscriber::class)]
 class OrderStockSubscriberTest extends TestCase
 {
@@ -64,6 +66,8 @@ class OrderStockSubscriberTest extends TestCase
     #[TestDox('subscribes to state machine transitions and entity write events')]
     public function testGetSubscribedEvents(): void
     {
+        $this->stockStorage->expects($this->never())->method('alter');
+
         $events = OrderStockSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(StateMachineTransitionEvent::class, $events);
@@ -401,23 +405,21 @@ class OrderStockSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{fromStateName: string, toStateName: string, quantityBefore: int, quantityAfter: int}>
+     * @return iterable<string, array{fromStateName: string, toStateName: string, quantityBefore: int, quantityAfter: int}>
      */
-    public static function orderStateTransitionProvider(): array
+    public static function orderStateTransitionProvider(): iterable
     {
-        return [
-            'order-cancelled' => [
-                'fromStateName' => OrderStates::STATE_OPEN,
-                'toStateName' => OrderStates::STATE_CANCELLED,
-                'quantityBefore' => 10,
-                'quantityAfter' => 0,
-            ],
-            'order-reopened' => [
-                'fromStateName' => OrderStates::STATE_CANCELLED,
-                'toStateName' => OrderStates::STATE_OPEN,
-                'quantityBefore' => 0,
-                'quantityAfter' => 10,
-            ],
+        yield 'order-cancelled' => [
+            'fromStateName' => OrderStates::STATE_OPEN,
+            'toStateName' => OrderStates::STATE_CANCELLED,
+            'quantityBefore' => 10,
+            'quantityAfter' => 0,
+        ];
+        yield 'order-reopened' => [
+            'fromStateName' => OrderStates::STATE_CANCELLED,
+            'toStateName' => OrderStates::STATE_OPEN,
+            'quantityBefore' => 0,
+            'quantityAfter' => 10,
         ];
     }
 

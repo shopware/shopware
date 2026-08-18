@@ -12,7 +12,7 @@ https://getbootstrap.com/docs/5.2/forms/overview
         .was-validated &:#{$state},
         &.is-#{$state} {
             @if $enable-validation-icons {
-                background-position: 97% 50%;
+                background-position: right 0.75rem center;
             }
         }
     }

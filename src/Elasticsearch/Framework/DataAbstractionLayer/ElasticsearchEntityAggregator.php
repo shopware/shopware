@@ -57,7 +57,6 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
-                'track_total_hits' => false,
                 'body' => $searchArray,
                 'search_type' => $this->searchType,
             ]);
@@ -89,6 +88,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $this->helper->addTerm($criteria, $search, $context, $definition);
         $this->helper->handleIds($definition, $criteria, $search, $context);
         $search->setSize(0);
+        $search->setTrackTotalHits(false);
 
         return $search;
     }

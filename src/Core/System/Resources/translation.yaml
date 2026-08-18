@@ -1,5 +1,8 @@
 repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
 metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
+community-translations-url: https://translate.shopware.com
+documentation-url-snippet-key: sw-settings-language.addModal.docsUrl
+completeness-threshold: 90
 
 plugins: [
     'PluginPublisher',
@@ -15,11 +18,15 @@ plugins: [
 
 excluded-locales: ['de-DE', 'en-GB']
 
+pseudo-locales: ['ach-UG']
+
 plugin-mapping:
   - plugin: 'SwagPublisher'
     name: 'PluginPublisher'
 
 languages:
+  - name: 'Acholi (Pseudo Language)'
+    locale: 'ach-UG'
   - name: 'Afrikaans'
     locale: 'af-ZA'
   - name: 'العربية'

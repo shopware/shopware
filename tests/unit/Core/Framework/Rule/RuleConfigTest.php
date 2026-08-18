@@ -27,7 +27,7 @@ class RuleConfigTest extends TestCase
     {
         $ruleConfig = new RuleConfig();
 
-        $ruleConfig->field('foo', 'int', []);
+        $ruleConfig->field('foo', 'int');
 
         $field = $ruleConfig->getField('foo');
 
@@ -40,8 +40,8 @@ class RuleConfigTest extends TestCase
     {
         $ruleConfig = new RuleConfig();
 
-        $ruleConfig->field('foo', 'int', []);
-        $ruleConfig->field('foo', 'string', []);
+        $ruleConfig->field('foo', 'int');
+        $ruleConfig->field('foo', 'string');
 
         $field = $ruleConfig->getField('foo');
 
@@ -54,7 +54,7 @@ class RuleConfigTest extends TestCase
     {
         $ruleConfig = new RuleConfig();
 
-        $ruleConfig->numberField('foo', []);
+        $ruleConfig->numberField('foo');
 
         $field = $ruleConfig->getField('foo');
 

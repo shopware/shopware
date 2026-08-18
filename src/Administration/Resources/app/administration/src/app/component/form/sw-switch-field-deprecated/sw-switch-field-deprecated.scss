@@ -1,9 +1,3 @@
-@import "~scss/variables";
-
-$sw-field--switch-color-border: var(--color-border-primary-default);
-$sw-field--switch-color-background: var(--color-icon-static-default);
-$sw-field--switch-color-text: var(--color-text-primary-default);
-$sw-field--switch-color-focus: var(--color-interaction-primary-default);
 $sw-field--switch-color-error: var(--color-interaction-critical-default);
 
 .sw-field--switch {
@@ -37,12 +31,12 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
         display: grid;
         grid-template-columns: 24px 1fr auto;
         align-items: center;
-        color: $sw-field--switch-color-text;
+        color: var(--color-text-primary-default);
     }
 
     &.sw-field--switch-bordered .sw-field--switch__content {
         border-radius: 4px;
-        border: 1px solid $sw-field--switch-color-border;
+        border: 1px solid var(--color-border-secondary-default);
         padding: 0 16px;
         min-height: 46px;
     }
@@ -84,7 +78,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
             }
 
             &:checked ~ .sw-field__switch-state {
-                background: $sw-field--switch-color-focus;
+                background: var(--color-interaction-primary-default);
 
                 .sw-field__switch-state-knob {
                     left: 10px;
@@ -112,7 +106,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
                 position: absolute;
                 top: 3px;
                 left: 3px;
-                background: $sw-field--switch-color-background;
+                background: var(--color-static-white);
                 border-radius: 7px;
             }
         }
@@ -161,7 +155,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
                 background: $sw-field--switch-color-error;
 
                 .sw-field__switch-state-knob {
-                    background: var(--color-icon-static-default);
+                    background: var(--color-static-white);
                 }
             }
 
@@ -196,7 +190,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
     &.is--inherited {
         input[type="checkbox"] {
             &:checked ~ .sw-field__switch-state {
-                background: $sw-field--switch-color-border;
+                background: var(--color-border-primary-default);
             }
         }
     }
@@ -204,7 +198,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
     &:focus-within {
         .sw-field__switch-state {
             outline-offset: var(--scale-size-2);
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
         }
     }
 

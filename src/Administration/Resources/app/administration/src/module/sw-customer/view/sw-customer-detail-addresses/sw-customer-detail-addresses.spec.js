@@ -7,6 +7,19 @@ import { mount } from '@vue/test-utils';
 const { ShopwareError } = Shopware.Classes;
 
 async function createWrapper() {
+    // The grid pages server side, so it keeps its own records. This address sits on a later page
+    // and is therefore not part of the pre-loaded customer.addresses collection.
+    const addressOnLaterPage = {
+        id: 'address-on-later-page',
+        customerId: '1',
+        countryId: 'country-id',
+        lastName: 'Mustermann',
+        firstName: 'Max',
+        city: 'Schoeppingen',
+        street: 'Ebbinghoff 10',
+        zipcode: '48624',
+    };
+
     return mount(
         await wrapTestComponent('sw-customer-detail-addresses', {
             sync: true,
@@ -25,9 +38,27 @@ async function createWrapper() {
                         template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
                     },
                     'sw-field': true,
-                    'sw-modal': true,
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
                     'sw-one-to-many-grid': {
                         props: ['collection'],
+                        data() {
+                            return {
+                                records: {
+                                    get: (id) => {
+                                        if (id === addressOnLaterPage.id) {
+                                            return addressOnLaterPage;
+                                        }
+
+                                        return this.collection.find((address) => address.id === id);
+                                    },
+                                },
+                            };
+                        },
+                        methods: {
+                            load() {},
+                        },
                         template: `
                     <table>
                         <tbody>
@@ -43,8 +74,16 @@ async function createWrapper() {
                         emits: ['click'],
                         template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
                     },
-                    'sw-customer-address-form': true,
-                    'sw-customer-address-form-options': true,
+                    'sw-customer-address-form': {
+                        name: 'sw-customer-address-form',
+                        props: ['disabled'],
+                        template: '<div class="sw-customer-address-form"><slot></slot></div>',
+                    },
+                    'sw-customer-address-form-options': {
+                        name: 'sw-customer-address-form-options',
+                        props: ['disabled'],
+                        template: '<div class="sw-customer-address-form-options"></div>',
+                    },
                     'sw-radio-field': true,
                     'sw-address': true,
                 },
@@ -54,12 +93,13 @@ async function createWrapper() {
                         create: () => {
                             return {
                                 search: () => Promise.resolve([]),
-                                create: () => Promise.resolve({ id: '' }),
+                                create: () => ({ id: '' }),
                                 clone: jest.fn(() =>
                                     Promise.resolve({
                                         id: 'clone-address-id',
                                     }),
                                 ),
+                                save: jest.fn(() => Promise.resolve()),
                                 get: (id) => {
                                     if (id === 'clone-address-id') {
                                         return Promise.resolve({
@@ -175,7 +215,7 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         const contextMenus = wrapper.findAll('.sw-context-menu-item');
 
         expect(contextMenus).toHaveLength(5);
-        expect(contextMenus.at(1).text()).toBe('sw-customer.detailAddresses.contextMenuDuplicate');
+        expect(contextMenus.at(1).text()).toBe('global.default.duplicate');
 
         await contextMenus.at(1).trigger('click');
         await flushPromises();
@@ -186,5 +226,71 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
         expect(lines.at(1).find('a').exists()).toBeTruthy();
         expect(lines.at(1).text()).toContain('Thu');
+    });
+
+    it('should edit an address that the grid loaded on a later page', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        expect(
+            wrapper.vm.activeCustomer.addresses.find((address) => address.id === 'address-on-later-page'),
+        ).toBeUndefined();
+
+        wrapper.vm.onEditAddress('address-on-later-page');
+
+        expect(wrapper.vm.currentAddress).toEqual(
+            expect.objectContaining({
+                id: 'address-on-later-page',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                street: 'Ebbinghoff 10',
+            }),
+        );
+    });
+
+    it('should save an address that the grid loaded on a later page', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+
+        wrapper.vm.onEditAddress('address-on-later-page');
+        wrapper.vm.currentAddress.city = 'Berlin';
+
+        wrapper.vm.onSaveAddress();
+        await flushPromises();
+
+        expect(wrapper.vm.customerAddressRepository.save).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'address-on-later-page',
+                city: 'Berlin',
+            }),
+        );
+        expect(wrapper.vm.currentAddress).toBeNull();
+    });
+
+    it('should disable address form options when edit mode is off', async () => {
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(true);
+        expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(true);
+    });
+
+    it('should enable address form options when edit mode is on', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(false);
+        expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(false);
     });
 });

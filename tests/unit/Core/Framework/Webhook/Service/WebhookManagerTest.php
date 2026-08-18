@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 
-use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -11,7 +10,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -24,32 +22,37 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookManager::class)]
+#[DisabledFeatures(['WEBHOOKS_REWORK'])]
 class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
-
-    private EventDispatcherInterface&MockObject $eventDispatcher;
-
-    private Connection&MockObject $connection;
 
     private MockHandler $clientMock;
 
@@ -59,18 +62,25 @@ class WebhookManagerTest extends TestCase
 
     private CollectingMessageBus $bus;
 
+    private WebhookOutboxStore&MockObject $webhookOutboxStore;
+
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
-        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
-        $this->webhookClient = new WebhookClient($guzzle);
+        $this->webhookClient = new WebhookClient($guzzle, new NativeClock());
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
+        $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);
+        $this->webhookOutboxStore->method('markRunning')->willReturn(new OutboxEntry(
+            webhookEventId: 'stub',
+            sequence: 1,
+            executionCount: 1,
+            deliveryStatus: 'running',
+        ));
     }
 
     public function testDispatchesTwoConsecutiveEventsCorrectly(): void
@@ -82,6 +92,9 @@ class WebhookManagerTest extends TestCase
             ->expects($this->exactly(2))
             ->method('createHookablesFor')
             ->willReturn([$event1], [$event2]);
+
+        // only the second dispatch matches a webhook and is delivered synchronously
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess');
 
         $webhookManager = $this->getWebhookManager(true);
         $webhookManager->dispatch($event1);
@@ -97,13 +110,59 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
+            ->with(
+                static::isInstanceOf(OutboxEntry::class),
+                static::anything(),
+            );
+
         $this->assertSyncWebhookIsSent($webhook, $event);
+    }
+
+    public function testSyncDispatchMarksFailedOnNonUtf8FailureBody(): void
+    {
+        $event = $this->prepareEvent();
+        $this->prepareWebhook($event->getName());
+
+        $this->clientMock->reset();
+        $this->clientMock->append(new Response(500, [], pack('C*', 0xB1)));
+
+        $this->webhookOutboxStore->expects($this->once())->method('markFailed')
+            ->with(
+                static::isInstanceOf(OutboxEntry::class),
+                static::callback(static fn (DeliveryResponse $r): bool => $r->responseContent === null && $r->responseStatusCode === 500),
+            )
+            ->willReturn(true);
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+
+        $this->getWebhookManager(true)->dispatch($event);
+    }
+
+    public function testSyncDispatchMarksSuccessOnNonUtf8ResponseHeaders(): void
+    {
+        $event = $this->prepareEvent();
+        $this->prepareWebhook($event->getName());
+
+        $this->clientMock->reset();
+        $this->clientMock->append(new Response(200, ['x-bad' => pack('C*', 0xB1)], '{}'));
+
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
+            ->with(
+                static::isInstanceOf(OutboxEntry::class),
+                static::callback(static fn (DeliveryResponse $r): bool => $r->responseContent === null && $r->responseStatusCode === 200),
+            )
+            ->willReturn(true);
+        $this->webhookOutboxStore->expects($this->never())->method('markFailed');
+
+        $this->getWebhookManager(true)->dispatch($event);
     }
 
     public function testDispatchWithWebhooksAsync(): void
     {
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -144,6 +203,8 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $this->prepareWebhook($event->getName(), true);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -159,6 +220,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -177,9 +240,53 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written', true, []);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
         static::assertEmpty($messages);
+    }
+
+    public function testWebhookCacheKeepsInactiveAppStateUntilCleared(): void
+    {
+        $event = new AppFlowActionEvent('commercial_license.provided', [], ['foo' => 'bar']);
+        $inactiveWebhook = $this->getWebhook($event->getName(), appActive: false);
+        $activeWebhook = $this->getWebhook($event->getName());
+
+        $this->eventFactory
+            ->expects($this->exactly(3))
+            ->method('createHookablesFor')
+            ->with($event)
+            ->willReturn([$event]);
+
+        $this->webhookLoader->expects($this->exactly(2))
+            ->method('getWebhooks')
+            ->willReturn([$inactiveWebhook], [$activeWebhook]);
+
+        $this->webhookLoader
+            ->method('getPrivilegesForRoles')
+            ->willReturnCallback(static function (array $roleIds): array {
+                $privileges = [];
+                foreach ($roleIds as $roleId) {
+                    $privileges[$roleId] = new AclPrivilegeCollection([]);
+                }
+
+                return $privileges;
+            });
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
+        $webhookManager = $this->getWebhookManager(false);
+
+        $webhookManager->dispatch($event);
+        static::assertCount(0, $this->bus->getMessages());
+
+        $webhookManager->dispatch($event);
+        static::assertCount(0, $this->bus->getMessages());
+
+        $webhookManager->clearInternalWebhookCache();
+        $webhookManager->dispatch($event);
+        static::assertCount(1, $this->bus->getMessages());
     }
 
     public function testWebhooksForLiveVersionOnlyAreIgnoredIfPayloadHasDifferentVersion(): void
@@ -192,6 +299,8 @@ class WebhookManagerTest extends TestCase
         ]);
 
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -217,6 +326,8 @@ class WebhookManagerTest extends TestCase
 
         $this->prepareWebhook('customer.written', true, ['customer:read']);
 
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
@@ -232,6 +343,8 @@ class WebhookManagerTest extends TestCase
     {
         $event = $this->prepareHookableEvent();
         $this->prepareWebhook('product.written');
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -261,6 +374,8 @@ class WebhookManagerTest extends TestCase
 
         $event = $this->prepareHookableEvent($payloads);
         $this->prepareWebhook('product.written', true);
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -296,6 +411,8 @@ class WebhookManagerTest extends TestCase
 
         $event = $this->prepareHookableEvent($payloads);
         $this->prepareWebhook('product.written');
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $this->getWebhookManager(false)->dispatch($event);
 
@@ -334,6 +451,7 @@ class WebhookManagerTest extends TestCase
                     'shopId' => 'foobar',
                     'action' => $event->getName(),
                     'inAppPurchases' => null,
+                    'sequence' => 1,
                 ],
             ], \JSON_THROW_ON_ERROR)
         );
@@ -348,7 +466,19 @@ class WebhookManagerTest extends TestCase
 
         $headers = $request->getHeaders();
         static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);
-        unset($headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE], $headers['Content-Length'], $headers['User-Agent']);
+        static::assertArrayHasKey('X-Shopware-Event-Id', $headers);
+        static::assertArrayHasKey('X-Shopware-Sequence', $headers);
+        static::assertArrayHasKey('X-Shopware-Attempt', $headers);
+        static::assertSame(['1'], $headers['X-Shopware-Sequence']);
+        static::assertSame(['0'], $headers['X-Shopware-Attempt']);
+        unset(
+            $headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE],
+            $headers['Content-Length'],
+            $headers['User-Agent'],
+            $headers['X-Shopware-Event-Id'],
+            $headers['X-Shopware-Sequence'],
+            $headers['X-Shopware-Attempt'],
+        );
         static::assertEquals($expectedRequest->getHeaders(), $headers);
 
         $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
@@ -419,22 +549,55 @@ class WebhookManagerTest extends TestCase
 
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
+        $deliveryService = static::createStub(WebhookDeliveryService::class);
+        $deliveryService->method('buildRequest')->willReturnCallback(
+            fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
+        );
+
         return new WebhookManager(
             $this->webhookLoader,
-            $this->eventDispatcher,
-            $this->connection,
             $this->eventFactory,
-            $this->createMock(AppLocaleProvider::class),
+            static::createStub(AppLocaleProvider::class),
             $appPayloadServiceHelper,
             $this->webhookClient,
             $this->bus,
             'https://example.com',
             '0.0.0',
-            $isAdminWorkerEnabled
+            $isAdminWorkerEnabled,
+            $deliveryService,
+            $this->webhookOutboxStore,
+        );
+    }
+
+    private function buildWebhookRequestFromMessage(
+        WebhookEventMessage $message,
+        OutboxEntry $entry,
+        AppPayloadServiceHelper $helper,
+    ): WebhookRequest {
+        $payload = $message->getPayload();
+        if (isset($payload['source']) && \is_array($payload['source'])) {
+            $payload['source']['sequence'] = $entry->sequence;
+        }
+
+        $headers = $message->getWebhookHeaders();
+        $headers[WebhookDeliveryService::HEADER_EVENT_ID] = $message->getWebhookEventId();
+        $headers[WebhookDeliveryService::HEADER_SEQUENCE] = (string) $entry->sequence;
+        $headers[WebhookDeliveryService::HEADER_ATTEMPT] = (string) max(0, $entry->executionCount - 1);
+
+        return $helper->createWebhookRequest(
+            $payload,
+            $message->getUrl(),
+            $message->getShopwareVersion(),
+            WebhookClient::CONNECT_TIMEOUT,
+            WebhookClient::REQUEST_TIMEOUT,
+            $message->getSecret(),
+            $message->getLanguageId(),
+            $message->getUserLocale(),
+            $headers,
         );
     }
 
@@ -474,7 +637,7 @@ class WebhookManagerTest extends TestCase
         return new WebhookRequest(new Request('POST', $url, $headers, $jsonPayload), $headers, $jsonPayload, time(), $options);
     }
 
-    private function getWebhook(string $eventName, bool $onlyLiveVersion = false): Webhook
+    private function getWebhook(string $eventName, bool $onlyLiveVersion = false, bool $appActive = true): Webhook
     {
         return new Webhook(
             Uuid::randomHex(),
@@ -485,7 +648,7 @@ class WebhookManagerTest extends TestCase
             Uuid::randomHex(),
             'Cool App',
             'local',
-            true,
+            $appActive,
             '0.0.0',
             'verysecret',
             Uuid::randomHex()

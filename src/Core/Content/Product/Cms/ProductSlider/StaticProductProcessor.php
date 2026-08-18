@@ -77,6 +77,16 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
+        $criteriaIds = array_unique($searchResult->getCriteria()->getIds());
+        if ($criteriaIds !== [] && $searchResult->getCriteria()->getSorting() === []) {
+            $configuredIds = $slot->getFieldConfig()->get('products')?->getArrayValue() ?? [];
+            usort(
+                $criteriaIds,
+                static fn (string $a, string $b): int => array_search($a, $configuredIds, true) <=> array_search($b, $configuredIds, true)
+            );
+            $products->sortByIdArray($criteriaIds);
+        }
+
         $slider = new ProductSliderStruct();
         $slider->setProducts($products);
 

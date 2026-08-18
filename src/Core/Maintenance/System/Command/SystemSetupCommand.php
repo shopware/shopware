@@ -28,11 +28,11 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:setup',
     description: 'Setup the system',
 )]
-#[Package('framework')]
 class SystemSetupCommand extends Command
 {
     public function __construct(
@@ -226,7 +226,7 @@ class SystemSetupCommand extends Command
             $env['DATABASE_SSL_KEY'] = $dbSslKey;
         }
 
-        if ($dbSslDontVerify) {
+        if ($dbSslDontVerify && \defined('\Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
             $params['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
             $env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'] = '1';
         }

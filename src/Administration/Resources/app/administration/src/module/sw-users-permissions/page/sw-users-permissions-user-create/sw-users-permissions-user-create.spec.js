@@ -78,7 +78,7 @@ async function createWrapper(privileges = []) {
                         },
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },
@@ -127,6 +127,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
     it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
+            active: true,
             admin: false,
             localeId: '',
             username: '',
@@ -152,5 +153,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         await wrapper.setData({ isLoading: false });
 
         expect(wrapper.vm.user.admin).toBe(false);
+    });
+
+    it('should be active by default', async () => {
+        await wrapper.setData({ isLoading: false });
+
+        expect(wrapper.vm.user.active).toBe(true);
     });
 });

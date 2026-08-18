@@ -1,13 +1,11 @@
-@import "~scss/variables";
-
 .sw-settings-country-general {
     &__option-items.sw-field--switch {
         margin: 12px 0;
     }
 
     &__currency-dependent-modal {
-        color: $color-shopware-brand-500;
-        font-size: $font-size-xs;
+        color: var(--color-text-brand-default);
+        font-size: var(--font-size-xs);
         cursor: pointer;
         text-decoration: underline;
     }

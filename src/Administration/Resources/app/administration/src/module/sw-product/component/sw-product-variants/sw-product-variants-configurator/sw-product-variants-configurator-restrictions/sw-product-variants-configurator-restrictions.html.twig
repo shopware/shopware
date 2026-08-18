@@ -14,7 +14,6 @@
 
         {% block sw_product_variants_configurator_restrictions_buttons %}
         <mt-button
-            ghost
             size="small"
             variant="secondary"
             @click="addEmptyRestrictionCombination"
@@ -68,14 +67,14 @@
             >
                 {% block sw_product_variants_configurator_restrictions_data_grid_actions_items %}
                 <sw-context-menu-item @click="editRestrictionCombination(item)">
-                    {{ $t('sw-product.variations.configuratorModal.editRestriction') }}
+                    {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
 
                 <sw-context-menu-item
                     variant="danger"
                     @click="deleteRestrictionCombination(item)"
                 >
-                    {{ $t('sw-product.variations.configuratorModal.deleteRestriction') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -144,7 +143,7 @@
                 size="small"
                 @click="saveAddRestriction"
             >
-                {{ $t('sw-product.variations.configuratorModal.save') }}
+                {{ $t('global.default.save') }}
             </mt-button>
             {% endblock %}
         </template>

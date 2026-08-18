@@ -31,7 +31,7 @@ class PdfRendererTest extends TestCase
     {
         $pdfRenderer = new PdfRenderer(
             [],
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher(new EventDispatcher())
         );
@@ -44,7 +44,7 @@ class PdfRendererTest extends TestCase
         $dispatcher = new EventDispatcher();
         $renderer = new PdfRenderer(
             [],
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher($dispatcher),
         );
@@ -110,7 +110,7 @@ class PdfRendererTest extends TestCase
 
         $htmlRenderer = new PdfRenderer(
             [],
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher(new EventDispatcher()),
         );

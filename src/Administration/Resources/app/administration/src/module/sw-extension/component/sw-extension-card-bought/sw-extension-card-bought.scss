@@ -1,29 +1,27 @@
-@import "~scss/variables";
-
 .sw-extension-card-bought {
     .sw-extension-card-bought__info-price-subscription {
-        color: $color-darkgray-200;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-semibold);
     }
 
     .sw-extension-card-bought__info-price {
         margin-top: 4px;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 
     .sw-loader {
-        background-color: rgba($color-gray-50, 0.8);
+        background-color: var(--color-background-secondary-default);
     }
 
     .sw-extension-card-bought__info-subscription-expiry {
         display: inline-flex;
         align-items: center;
         margin-top: 2px;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
 
         .mt-icon {
             margin-right: 4px;
-            color: $color-pumpkin-spice-500;
+            color: var(--color-icon-attention-default);
         }
     }
 }

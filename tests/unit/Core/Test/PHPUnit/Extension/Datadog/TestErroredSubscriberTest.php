@@ -13,6 +13,7 @@ use PHPUnit\Event\Telemetry\Snapshot;
 use PHPUnit\Event\Test\Errored;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\Common\TimeKeeper;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayload;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayloadCollection;
@@ -21,6 +22,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestErroredSubscribe
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TestErroredSubscriber::class)]
 class TestErroredSubscriberTest extends TestCase
 {
@@ -63,14 +65,14 @@ class TestErroredSubscriberTest extends TestCase
             0,
             0,
             0,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            false,
+            false,
+            false,
+            0,
         );
         $snap = new Snapshot($time, $memory, $memory, $gc);
 

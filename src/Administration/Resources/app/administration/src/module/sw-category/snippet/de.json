@@ -7,7 +7,6 @@
       "headlineCategories": "Kategorien",
       "placeholderSearchBar": "Durchsuche alle Kategorien ...",
       "buttonCreate": "Kategorie erstellen",
-      "buttonSafeCategory": "Speichern",
       "descriptionLabel": "Beschreibung",
       "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Anzeigebild verwenden",
@@ -193,6 +192,7 @@
       "placeholderSearchBar": "Durchsuche alle Landingpages ...",
       "treeHeadSelected": "{count} ausgewählt",
       "buttonCreate": "Landingpage hinzufügen",
+      "buttonLoadMore": "Mehr laden",
       "treeHeadline": "Landingpages",
       "actions": {
         "actionsDisabledInLanguage": "Landingpages können nur in der Standardsprache erstellt werden."

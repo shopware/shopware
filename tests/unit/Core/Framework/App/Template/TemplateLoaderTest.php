@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TemplateLoader::class)]
 class TemplateLoaderTest extends TestCase
 {
@@ -34,7 +36,13 @@ class TemplateLoaderTest extends TestCase
         \sort($templates);
 
         static::assertSame(
-            ['storefront/layout/header/header.html.twig', 'storefront/layout/header/logo.html.twig', 'storefront/page/sitemap/sitemap.xml.twig'],
+            [
+                'components/Demo/Badge.html.twig',
+                'files/agentic/.well-known/ucp.json.twig',
+                'storefront/layout/header/header.html.twig',
+                'storefront/layout/header/logo.html.twig',
+                'storefront/page/sitemap/sitemap.xml.twig',
+            ],
             $templates
         );
     }

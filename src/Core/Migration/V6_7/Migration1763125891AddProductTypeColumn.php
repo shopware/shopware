@@ -30,7 +30,11 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
                 '\'physical\''
             );
 
-            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.type` ON `product` (`type`)');
+        }
+
+        if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
+            $this->executeDdlStatement($connection, 'CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
         $batchSize = 5000;
@@ -39,7 +43,8 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
             $affected = $connection->executeStatement(
                 "UPDATE `product`
                  SET `product`.`type` = 'digital'
-                 WHERE JSON_CONTAINS(states, '\"is-download\"')
+                 WHERE `type` <> 'digital' AND JSON_CONTAINS(states, '\"is-download\"')
+                 ORDER BY `id`
                  LIMIT {$batchSize};"
             );
         } while ($affected > 0);

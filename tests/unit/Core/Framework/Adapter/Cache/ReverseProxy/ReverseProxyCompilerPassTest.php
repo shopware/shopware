@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGatew
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -15,6 +16,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ReverseProxyCompilerPass::class)]
 class ReverseProxyCompilerPassTest extends TestCase
 {

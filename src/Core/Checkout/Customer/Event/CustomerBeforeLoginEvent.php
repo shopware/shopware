@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, ScalarValuesAware, FlowEventAware
 {
@@ -66,7 +69,7 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(FlowMailVariables::EMAIL, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct

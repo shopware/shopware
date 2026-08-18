@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -22,32 +21,17 @@ const mockData = [
     },
 ];
 
-async function createWrapper() {
-    const router = createRouter({
-        history: createWebHashHistory(),
-        routes: [
-            {
-                name: 'sw.settings.search.index.general',
-                path: '/sw/settings/search/index/general',
-                component: await wrapTestComponent('sw-settings-search', {
-                    sync: true,
-                }),
-            },
-            {
-                name: 'sw.settings.search.index.liveSearch',
-                path: '/sw/settings/search/index/live-search/',
-            },
-        ],
-    });
-
+async function createWrapper({
+    featureActive = false,
+    routeName = 'sw.settings.search.index.general',
+    routerPush = jest.fn(),
+} = {}) {
     return mount(
         await wrapTestComponent('sw-settings-search', {
             sync: true,
         }),
         {
             global: {
-                router,
-
                 provide: {
                     repositoryFactory: {
                         create: () => ({
@@ -64,6 +48,9 @@ async function createWrapper() {
                                 return {};
                             }),
                         }),
+                    },
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                     },
                 },
 
@@ -91,17 +78,54 @@ async function createWrapper() {
                     </div>
                 `,
                     },
-                    'sw-tabs': await wrapTestComponent('sw-tabs'),
-                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot></slot></div>',
+                        props: [
+                            'positionIdentifier',
+                        ],
+                    },
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        template: '<div class="sw-tabs-item"><slot></slot></div>',
+                        props: [
+                            'route',
+                        ],
+                    },
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),
                     'sw-modal': true,
                     'router-link': true,
                     'router-view': true,
                     'sw-skeleton': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs"></div>',
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'sw-extension-component-section': true,
+                },
+                mocks: {
+                    $route: {
+                        name: routeName,
+                    },
+                    $router: {
+                        push: routerPush,
+                    },
                 },
             },
         },
@@ -112,6 +136,72 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
+    });
+
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const tabItems = wrapper.findAllComponents({ name: 'sw-tabs-item' });
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+        expect(tabItems).toHaveLength(2);
+        expect(tabItems[0].props('route')).toStrictEqual({ name: 'sw.settings.search.index.general' });
+        expect(tabItems[0].text()).toBe('sw-settings-search.page.generalTab');
+        expect(tabItems[1].props('route')).toStrictEqual({ name: 'sw.settings.search.index.liveSearch' });
+        expect(tabItems[1].text()).toBe('sw-settings-search.page.liveSearchTab');
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({
+            featureActive: true,
+            routeName: 'sw.settings.search.index.liveSearch',
+        });
+        await wrapper.vm.$nextTick();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-search-header');
+        expect(tabs.props('defaultItem')).toBe('sw.settings.search.index.liveSearch');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-search.page.generalTab',
+                name: 'sw.settings.search.index.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-search.page.liveSearchTab',
+                name: 'sw.settings.search.index.liveSearch',
+                onClick: expect.any(Function),
+            }),
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should navigate when a meteor tab item is clicked', async () => {
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper({
+            featureActive: true,
+            routerPush,
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.getProductSearchConfigs = jest.fn();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const generalTab = tabs.props('items').find((item) => {
+            return item.name === 'sw.settings.search.index.general';
+        });
+        const liveSearchTab = tabs.props('items').find((item) => {
+            return item.name === 'sw.settings.search.index.liveSearch';
+        });
+
+        generalTab.onClick();
+        liveSearchTab.onClick();
+
+        expect(wrapper.vm.getProductSearchConfigs).toHaveBeenCalledTimes(1);
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.settings.search.index.general' });
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.settings.search.index.liveSearch' });
     });
 
     it('should not able to save product search config without editor privilege', async () => {

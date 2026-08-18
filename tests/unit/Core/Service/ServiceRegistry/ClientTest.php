@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\SaveConsentRequest;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceRegistryClient::class)]
 class ClientTest extends TestCase
 {
@@ -277,8 +279,7 @@ class ClientTest extends TestCase
             'v1.0'
         );
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('Unexpected response status code: 200');
+        $this->expectExceptionObject(ServiceException::consentSaveFailed('Unexpected response status code: 200'));
         $registryClient->saveConsent($saveConsentRequest);
     }
 
@@ -316,8 +317,7 @@ class ClientTest extends TestCase
 
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('Unexpected response status code: 200');
+        $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 200'));
         $registryClient->revokeConsent('service-123');
     }
 

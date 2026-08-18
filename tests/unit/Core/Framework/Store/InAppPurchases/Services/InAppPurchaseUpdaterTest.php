@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -76,12 +77,13 @@ class InAppPurchaseUpdaterTest extends TestCase
                 $systemConfig,
                 new JWTDecoder(),
                 new KeyFetcher(
-                    $this->createMock(ClientInterface::class),
-                    $this->createMock(StoreRequestOptionsProvider::class),
+                    static::createStub(ClientInterface::class),
+                    static::createStub(StoreRequestOptionsProvider::class),
                     $systemConfig,
-                    $this->createMock(LoggerInterface::class)
+                    static::createStub(LoggerInterface::class)
                 ),
-                $this->createMock(LoggerInterface::class)
+                static::createStub(LoggerInterface::class),
+                new NativeClock()
             )
         );
 
@@ -93,7 +95,7 @@ class InAppPurchaseUpdaterTest extends TestCase
             $iap,
             $eventDispatcher,
             $connection,
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
         $service->update($context);
 
@@ -128,7 +130,7 @@ class InAppPurchaseUpdaterTest extends TestCase
 
         $context = Context::createDefaultContext();
         $appId = Uuid::randomHex();
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -140,12 +142,13 @@ class InAppPurchaseUpdaterTest extends TestCase
                 $systemConfig,
                 new JWTDecoder(),
                 new KeyFetcher(
-                    $this->createMock(ClientInterface::class),
-                    $this->createMock(StoreRequestOptionsProvider::class),
+                    static::createStub(ClientInterface::class),
+                    static::createStub(StoreRequestOptionsProvider::class),
                     $systemConfig,
-                    $this->createMock(LoggerInterface::class)
+                    static::createStub(LoggerInterface::class)
                 ),
-                $this->createMock(LoggerInterface::class)
+                static::createStub(LoggerInterface::class),
+                new NativeClock()
             )
         );
 
@@ -157,7 +160,7 @@ class InAppPurchaseUpdaterTest extends TestCase
             $iap,
             $eventDispatcher,
             $connection,
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
         );
         $service->update($context);
 

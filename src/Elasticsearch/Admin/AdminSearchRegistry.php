@@ -6,7 +6,9 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\OpenSearchException;
+use OpenSearch\Exception\OpenSearchExceptionInterface;
+use Psr\Clock\ClockInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -14,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -54,7 +55,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
         private readonly LoggerInterface $logger,
         array $config,
         private readonly array $mapping,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly ClockInterface $clock,
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -145,7 +147,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         if ($this->adminEsHelper->getRefreshIndices()) {
             try {
                 $this->refreshIndices();
-            } catch (OpenSearchException $e) {
+            } catch (ClientExceptionInterface|OpenSearchExceptionInterface $e) {
                 $this->logger->error('Could not refresh indices. Run "bin/console es:admin:mapping:update" & "bin/console es:admin:index" to update indices and reindex. Error: ' . $e->getMessage());
 
                 return;
@@ -157,6 +159,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
         if ($indices === []) {
             return;
         }
+
+        $isSalesChannelSource = $event->getContext()->getSource() instanceof SalesChannelApiSource;
 
         foreach ($indexers as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
@@ -170,10 +174,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, $deletedIds);
 
             // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
-            if ($event->getContext()->getSource() instanceof SalesChannelApiSource) {
+            if ($isSalesChannelSource) {
                 $this->queue->dispatch($msg);
 
-                return;
+                continue;
             }
 
             // otherwise we invoke the message handler directly
@@ -257,7 +261,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $documents[] = ['index' => ['_id' => $id]];
 
             $documents[] = \array_replace(
-                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => ''],
+                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => '', 'completion' => []],
                 $document
             );
         }
@@ -294,7 +298,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         foreach ($entities as $entityName) {
             $indexer = $this->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
-            $index = $alias . '_' . time();
+            $index = $alias . '_' . $this->clock->now()->getTimestamp();
 
             if ($this->client->indices()->exists(['index' => $index])) {
                 continue;
@@ -342,7 +346,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 continue;
             }
 
-            $index = $alias . '_' . time();
+            $index = $alias . '_' . $this->clock->now()->getTimestamp();
             $this->create($indexer, $index, $alias);
 
             $entities[] = $indexer->getEntity();
@@ -392,7 +396,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     /**
      * @param array<string, array<array<string, mixed>>> $result
      *
-     * @return array<array{reason: string}|string>
+     * @return list<array{index: string, id: string, type: string, reason: string}>
      */
     private function parseErrors(array $result): array
     {
@@ -433,7 +437,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             if (!$this->client->indices()->existsAlias(['name' => $alias])) {
                 $this->putAlias($index, $alias);
 
-                return;
+                continue;
             }
 
             $current = $this->client->indices()->getAlias(['name' => $alias]);
@@ -467,17 +471,13 @@ class AdminSearchRegistry implements EventSubscriberInterface
         $properties = [
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'textBoosted' => AbstractAdminIndexer::SEARCH_FIELD,
-                'text' => AbstractAdminIndexer::SEARCH_FIELD,
+                'textBoosted' => AbstractAdminIndexer::TEXT_FIELD,
+                'text' => AbstractAdminIndexer::TEXT_FIELD,
+                'completion' => AbstractAdminIndexer::COMPLETION_FIELD,
                 'entityName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parameters' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ],
         ];
-
-        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-            $properties['properties']['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-            $properties['properties']['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-        }
 
         $mapping = $indexer->mapping($properties);
 

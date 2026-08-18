@@ -91,4 +91,20 @@ class AtsContextCacheTraceTest extends TestCase
         $trace->cacheBuildStarted('base', 'cache-key');
         $trace->cacheBuildCompleted('base', 'cache-key', 3);
     }
+
+    public function testLogsWhenInvalidationPreventsCachingTheFreshValue(): void
+    {
+        $this->setEnvVars(['ATS_CACHE_TRACE' => '1']);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('ATS sales channel context cache trace.', [
+                'event' => 'context-cache-build-not-saved',
+                'cacheKey' => Hasher::hash('cache-key', 'sha256'),
+            ]);
+
+        $trace = new AtsContextCacheTrace($logger);
+        $trace->cacheBuildNotSaved('cache-key');
+    }
 }

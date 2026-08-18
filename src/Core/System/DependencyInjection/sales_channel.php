@@ -284,7 +284,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(InvalidationRaceAwareCache::class)
-        ->args([service('cache.object')]);
+        ->args([
+            service('cache.object'),
+            service(AtsContextCacheTrace::class),
+        ]);
 
     $services->set(AtsContextCacheTrace::class)
         ->args([

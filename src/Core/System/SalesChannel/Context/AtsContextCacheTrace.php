@@ -44,6 +44,13 @@ class AtsContextCacheTrace
         ]);
     }
 
+    public function cacheBuildNotSaved(string $cacheKey): void
+    {
+        $this->trace('context-cache-build-not-saved', [
+            'cacheKey' => $this->hashCacheKey($cacheKey),
+        ]);
+    }
+
     public function cacheAccess(string $factory, string $cacheKey, bool $cacheMiss, int $taxRuleCount): void
     {
         $this->trace('context-cache-access', [

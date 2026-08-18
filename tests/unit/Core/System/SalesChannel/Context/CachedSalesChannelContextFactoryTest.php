@@ -39,7 +39,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
 
         $factory = new CachedSalesChannelContextFactory(
             $inner,
-            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class)),
             static::createStub(AtsContextCacheTrace::class),
         );
 
@@ -57,7 +57,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
             ->with('token', 'sales-channel-id', $options)
             ->willReturn($context);
 
-        $cache = new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()));
+        $cache = new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class));
 
         $factory = new CachedSalesChannelContextFactory($inner, $cache, static::createStub(AtsContextCacheTrace::class));
 
@@ -91,7 +91,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
                 return $secondContext;
             });
 
-        $factory = new CachedSalesChannelContextFactory($inner, new InvalidationRaceAwareCache($cache), static::createStub(AtsContextCacheTrace::class));
+        $factory = new CachedSalesChannelContextFactory($inner, new InvalidationRaceAwareCache($cache, static::createStub(AtsContextCacheTrace::class)), static::createStub(AtsContextCacheTrace::class));
 
         static::assertSame($firstContext, $factory->create('token', 'sales-channel-id'));
         static::assertSame($secondContext, $factory->create('another-token', 'sales-channel-id'));
@@ -109,7 +109,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
 
         $factory = new CachedSalesChannelContextFactory(
             $decorated,
-            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class)),
             static::createStub(AtsContextCacheTrace::class),
         );
 

@@ -36,7 +36,7 @@ class CachedBaseSalesChannelContextFactoryTest extends TestCase
 
         $factory = new CachedBaseSalesChannelContextFactory(
             $decorated,
-            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()), static::createStub(AtsContextCacheTrace::class)),
             static::createStub(AtsContextCacheTrace::class),
         );
 
@@ -62,7 +62,7 @@ class CachedBaseSalesChannelContextFactoryTest extends TestCase
                 return $secondContext;
             });
 
-        $factory = new CachedBaseSalesChannelContextFactory($decorated, new InvalidationRaceAwareCache($cache), static::createStub(AtsContextCacheTrace::class));
+        $factory = new CachedBaseSalesChannelContextFactory($decorated, new InvalidationRaceAwareCache($cache, static::createStub(AtsContextCacheTrace::class)), static::createStub(AtsContextCacheTrace::class));
 
         static::assertSame($firstContext, $factory->create('sales-channel-id'));
         static::assertSame($secondContext, $factory->create('sales-channel-id'));

@@ -1,13 +1,15 @@
 # Custom Event Listeners
 
-The plugin-facing authoring guide for a hydration-lifecycle listener: the two events, the element API a listener works against, and the priority ranges an extension may claim.
+The plugin-facing authoring guide for a hydration-lifecycle listener: the two events, where each one sits in the pipeline, and the element API a listener works against.
 
 Listeners modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
 
-| Event                      | When             | Purpose                                  |
-|----------------------------|------------------|------------------------------------------|
-| `PreContentHydrationEvent` | Before hydration | Modify layout tree, resolve placeholders |
-| `PostHydrationEvent`       | After hydration  | Enrich data, transform structure         |
+| Event                      | When                                       | Purpose                                  |
+|----------------------------|--------------------------------------------|------------------------------------------|
+| `PreContentHydrationEvent` | Before every pipeline step and before data loading | Modify layout tree, resolve placeholders |
+| `PostHydrationEvent`       | After data loading and every pipeline step | Enrich data, transform structure         |
+
+`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `PreContentHydrationEvent` listener sees the raw loaded layout, before the virtual-root wrap, placeholder resolution, redistribute expansion and the partial prune. A `PostHydrationEvent` listener sees the finished tree, after the virtual-root unwrap and the partial extract.
 
 Both events expose the same properties. Only `elements` is mutable:
 
@@ -37,7 +39,7 @@ Both events expose the same properties. Only `elements` is mutable:
 ## Example: Reading Time Listener
 
 ```php
-#[AsEventListener(event: PostHydrationEvent::class, priority: 500)]
+#[AsEventListener(event: PostHydrationEvent::class)]
 class ReadingTimeSubscriber
 {
     private const WORDS_PER_MINUTE = 200;
@@ -56,6 +58,8 @@ class ReadingTimeSubscriber
 }
 ```
 
+Symfony reads `#[AsEventListener]` only on an **autoconfigured** service definition, so the attribute above registers nothing unless your `services.xml` carries `<defaults autoconfigure="true"/>` (or the definition sets `autoconfigure` itself). Without it the class is registered as an ordinary service and never called — and `priority` on it is inert for the same reason.
+
 ## Cache Context in Subscribers
 
 Subscribers can add cache tags or disable caching via `$event->cacheContext`:
@@ -68,13 +72,8 @@ $event->cacheContext->addTags(['my-plugin-weather-' . $location]);
 $event->cacheContext->disable();
 ```
 
-## Priority Guidelines
+## Priorities
 
-| Range                | Usage                              |
-|----------------------|------------------------------------|
-| `>= 6000`            | Run BEFORE core processing         |
-| `< 6000 and >= 1000` | **Reserved for core** - do not use |
-| `< 1000 and >= 0`    | Run AFTER core processing          |
-| `< 0`                | Run after all other subscribers    |
+Core reserves no priority band. Priority only orders your listener against other extensions' listeners on the same event; every core step already runs after the pre-hydration event and before the post-hydration one. Omit `priority` unless you are sequencing against another plugin.
 
-Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
+> **If you wrote a listener against the old bands, re-check it.** The `>= 6000` / `< 6000 and >= 1000` / `< 1000 and >= 0` contract documented here never worked, and it was *inverted*: core's listeners were all registered at priority 0, because their `#[AsEventListener(priority: …)]` attributes were never processed — those services were not autoconfigured. An autoconfigured plugin service's attribute, on the other hand, is processed, so a plugin listener at `6000`, meaning "before core", did run before core — but so did one at `1`, and so did one at `500` that meant "after core". Only a negative priority ran after core. Core no longer occupies the event at all, so both bands are meaningless now; a priority chosen to sit before or after a core step should be removed.

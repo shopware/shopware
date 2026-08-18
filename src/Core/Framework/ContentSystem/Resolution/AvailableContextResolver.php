@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * Computes the context available at an element's position by simulating the redistribution chain top-down
  * along the located ancestor path. Each ancestor exposes to its direct children only the declared providers
  * that resolve on it (Level 2) plus the redistribute consumers whose key actually flows into it. This mirrors
- * runtime delivery (RedistributeExpansionSubscriber expanding redistribute flags into broadcast providers +
+ * runtime delivery (ContentPipeline's redistribute-expansion step turning redistribute flags into broadcast providers +
  * ContextResolutionVisitor distributing to direct children only), so the gate honors the rule that context
  * travels past direct children solely via explicit redistribution. A top-level element sees the bound source's
  * root-ambient context. Section-agnostic: the root-ambient set is passed in (entity assignment yields the page

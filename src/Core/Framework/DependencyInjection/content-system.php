@@ -38,12 +38,6 @@ use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PostHydration\PartialRenderingExtractionSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PostHydration\VirtualRootCleanupSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\PartialRenderingPreparationSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\PlaceholderResolutionSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\RedistributeExpansionSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\VirtualRootPreparationSubscriber;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
@@ -131,39 +125,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextDependencyAnalyzer::class),
             service(SubTreeExtractor::class),
         ]);
-
-    // Event Listeners (Hydration Pipeline)
-    // Pre-Hydration Listeners
-    $services->set(VirtualRootPreparationSubscriber::class)
-        ->args([
-            service(VirtualRootWrapper::class),
-        ])
-        ->tag('kernel.event_listener');
-
-    $services->set(PlaceholderResolutionSubscriber::class)
-        ->tag('kernel.event_listener');
-
-    $services->set(RedistributeExpansionSubscriber::class)
-        ->tag('kernel.event_listener');
-
-    $services->set(PartialRenderingPreparationSubscriber::class)
-        ->args([
-            service(PartialRenderer::class),
-        ])
-        ->tag('kernel.event_listener');
-
-    // Post-Hydration Listeners
-    $services->set(VirtualRootCleanupSubscriber::class)
-        ->args([
-            service(VirtualRootWrapper::class),
-        ])
-        ->tag('kernel.event_listener');
-
-    $services->set(PartialRenderingExtractionSubscriber::class)
-        ->args([
-            service(PartialRenderer::class),
-        ])
-        ->tag('kernel.event_listener');
 
     // Field Serializers
     $services->set(StoredElementListFieldSerializer::class)
@@ -326,6 +287,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentElementHydrator::class),
             service('event_dispatcher'),
+            service(VirtualRootWrapper::class),
+            service(PartialRenderer::class),
         ]);
 
     // Rendering Specification Factory

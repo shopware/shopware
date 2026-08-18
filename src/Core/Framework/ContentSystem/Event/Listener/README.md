@@ -1,6 +1,6 @@
 # Listener
 
-Event-driven pipeline transformations for the content hydration lifecycle. Listeners modify `$event->elements` (the only mutable property) before and after data loading.
+Event-driven extension points for the content hydration lifecycle. Listeners modify `$event->elements` (the only mutable property) before and after data loading.
 
 ## Guides
 
@@ -8,25 +8,22 @@ Event-driven pipeline transformations for the content hydration lifecycle. Liste
 
 ## Execution Order
 
-**PreHydration** (before data loading):
-1. `VirtualRootPreparationSubscriber` (5000) — Wraps roots with temporary container for layout-level context
-2. `RedistributeExpansionSubscriber` (4000) — Expands `redistribute: true` into broadcast providers
-3. `PlaceholderResolutionSubscriber` (3000) — Resolves `{{variable}}` placeholders from specification
-4. `PartialRenderingPreparationSubscriber` (1000) — Prunes tree when `targetElementId` specified
+Core ships no listener on either event. `ContentPipeline::load()` (module root) calls its preparation and finishing steps directly, in this order:
 
-**PostHydration** (after data loading):
-1. `VirtualRootCleanupSubscriber` (5000) — Removes virtual root wrapper
-2. `PartialRenderingExtractionSubscriber` (1000) — Extracts target subtree for response
+**Before hydration**, after `PreContentHydrationEvent` is dispatched:
+1. Virtual-root wrap — wraps roots with a temporary container for layout-level context (`Layout/Scaffolding/VirtualRootWrapper`)
+2. Placeholder resolution — resolves `{{variable}}` placeholders from the specification
+3. Redistribute expansion — expands `redistribute: true` into broadcast providers
+4. Partial prune — prunes the tree when `targetElementId` is specified (`Output/PartialRenderer`)
 
-Higher priority numbers execute first.
+**After hydration**, before `PostHydrationEvent` is dispatched:
+1. Virtual-root unwrap — removes the virtual root wrapper
+2. Partial extract — extracts the target subtree for the response
 
-## Priority Ranges
+So a `PreContentHydrationEvent` listener always sees the raw loaded tree, and a `PostHydrationEvent` listener always sees the finished one — at any priority.
 
-**Extensions:** `>= 6000` (before core), `< 1000` and `>= 0` (after core), `< 0` (absolute last)
+## Priorities
 
-**Core (RESERVED):** `>= 5000` (structure), `>= 3000` (transform), `>= 1000` (pruning)
+There are no reserved bands. Priority only orders extension listeners against each other on the same event.
 
-## Subdirectories
-
-- **PreHydration/** - Listeners that prepare layout structure before data loading
-- **PostHydration/** - Listeners that finalize layout structure after data loading
+Until this became true, the documented bands were not merely unenforced but *inverted*: every core listener was registered at priority 0 (the `#[AsEventListener(priority: …)]` attributes never took effect, because these services were not autoconfigured), so a plugin listener at any priority above 0 ran BEFORE all of core and only a negative priority ran after. A plugin written to the old `>= 6000` / `< 1000` guidance got the opposite of what it intended. Both bands are gone; re-check any listener whose priority was chosen to sit before or after a core step.

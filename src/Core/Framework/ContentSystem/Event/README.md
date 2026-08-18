@@ -10,7 +10,14 @@ Lifecycle events dispatched during content hydration. Both events share identica
 ## Lifecycle
 
 ```
-PreContentHydrationEvent → Hydration (FULL mode only) → PostHydrationEvent
+PreContentHydrationEvent
+  → virtual-root wrap → placeholder resolution → redistribute expansion → partial prune
+  → Hydration (FULL mode only)
+  → virtual-root unwrap → partial extract
+→ PostHydrationEvent
 ```
 
-Priority ranges and extension guidelines are documented in Event/Listener/ and in the event PHPDoc.
+The six steps are private methods on `ContentPipeline`, not listeners, so a listener cannot interleave with
+them: the pre-event sees the tree before every preparation step, and the post-event sees it after every
+finishing step. Core claims no priority band. See [Listener/docs/custom-listeners.md](Listener/docs/custom-listeners.md)
+for what a listener may do at each position.

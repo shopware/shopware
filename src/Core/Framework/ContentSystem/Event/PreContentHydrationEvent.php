@@ -15,22 +15,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * Dispatched before content hydration to allow layout preparation.
  *
- * Replaces scaffolding and refinery processes. Subscribers can modify
- * the elements array before data loading begins.
+ * Listeners see the layout exactly as it was loaded, before `ContentPipeline` runs any of its
+ * preparation steps (virtual-root wrap, placeholder resolution, redistribute expansion, partial
+ * prune), and can modify the elements array before those steps and data loading run.
  *
- * ## Priority Ranges
- *
- * Subscriber priorities determine execution order (higher = earlier).
- *
- * **Extensions:**
- * - >= 6000: Run BEFORE core processing
- * - < 1000 and >= 0: Run AFTER core processing
- * - < 0: Absolute last (use sparingly)
- *
- * **Core (RESERVED - do not use in extensions):**
- * - >= 5000: Structure (e.g. scaffolding, wrapping)
- * - >= 3000: Transform (e.g. overrides, placeholders)
- * - >= 1000: Pruning (e.g. filtering, partial render)
+ * Core claims no priority band on this event: the pipeline owns its steps directly, so a listener
+ * at any priority runs before all of them.
  *
  * @final
  */

@@ -107,14 +107,13 @@ class SeoUrlPersister
 
             $updatedFks[] = $fk;
 
-            if (!empty($seoUrl['error'])) {
+            if (($seoUrl['error'] ?? '') !== '') {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
 
-            if ($existing) {
+            if ($existing !== null) {
                 // entity has override or does not change
-                /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
                 if ($this->skipUpdate($existing, $seoUrl, $overwrite)) {
                     continue;
                 }
@@ -176,14 +175,14 @@ class SeoUrlPersister
 
     /**
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
-     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     * @param array<string, mixed> $seoUrl the raw seo url as generated/handed in, so its keys are not statically typed
      */
     private function skipUpdate(array $existing, array $seoUrl, bool $overwrite = false): bool
     {
         // Write-protection guard: automatic template regeneration (overwrite=false)
         // must never replace a manually modified (isModified=1) SEO URL that still
         // has a non-empty path.
-        if (!$overwrite && $existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
+        if (!$overwrite && $existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim((string) ($seoUrl['seoPathInfo'] ?? '')) !== '') {
             return true;
         }
 

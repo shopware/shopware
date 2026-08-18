@@ -81,10 +81,6 @@ class ChildCountUpdater
             array_keys($ids)
         );
 
-        if ($cases === []) {
-            return;
-        }
-
         $params = array_merge($params, ...array_column($cases, 'params'));
 
         $this->connection->executeStatement(

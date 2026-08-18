@@ -46,10 +46,6 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
-        if ($customerId !== null) {
-            $parameters[SalesChannelContextService::CUSTOMER_ID] = $customerId;
-        }
-
         $this->connection->executeStatement(
             'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
                 VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
@@ -91,14 +87,10 @@ class SalesChannelContextPersister
 
         if ($affected === 0) {
             $customer = $context->getCustomer();
-            $payload = [];
-            if ($customer !== null) {
-                $payload[SalesChannelContextService::CUSTOMER_ID] = $customer->getId();
-            }
 
             $this->connection->insert('sales_channel_api_context', [
                 'token' => $newToken,
-                'payload' => json_encode($payload, \JSON_THROW_ON_ERROR),
+                'payload' => json_encode([]),
                 'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannelId()),
                 'customer_id' => $customer ? Uuid::fromHexToBytes($customer->getId()) : null,
                 'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -164,6 +156,13 @@ class SalesChannelContextPersister
         }
 
         $payload['token'] = $context['token'];
+
+        if (!isset($payload[SalesChannelContextService::CUSTOMER_ID])
+            && \is_string($context['customer_id'] ?? null)
+            && $context['customer_id'] !== ''
+        ) {
+            $payload[SalesChannelContextService::CUSTOMER_ID] = Uuid::fromBytesToHex($context['customer_id']);
+        }
 
         return $payload;
     }

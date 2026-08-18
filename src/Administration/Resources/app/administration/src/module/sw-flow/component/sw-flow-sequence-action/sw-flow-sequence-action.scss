@@ -148,6 +148,10 @@
         .entity {
             text-transform: capitalize;
         }
+
+        .sw-flow-sequence-action__file-formats {
+            font-size: var(--font-size-2xs);
+        }
     }
 
     &__select {

@@ -171,14 +171,12 @@ export default {
             }
 
             if (!this.isChild && this.showModeSetting) {
-                tabs.push(
-                    createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'),
-                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
-                );
+                tabs.push(createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'));
             }
 
             if (this.showModeSetting) {
                 tabs.push(
+                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
                     createRouteTab('sw-product.detail.tabSeo', 'sw.product.detail.seo'),
                     createRouteTab('sw-product.detail.tabCrossSelling', 'sw.product.detail.crossSelling', {
                         hasError: this.swProductDetailCrossSellingError,
@@ -544,6 +542,11 @@ export default {
                     Shopware.Store.get('context').resetLanguageToDefault();
                 }
             }
+
+            Shopware.Store.get('swProductDetail').setLoading([
+                'product',
+                true,
+            ]);
 
             await this.initProductMeasurementUnits();
 
@@ -1568,9 +1571,15 @@ export default {
         },
 
         async getPreferredMeasurementUnits() {
-            return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
-                'measurement.preferenceUnits'
-            ];
+            try {
+                return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
+                    'measurement.preferenceUnits'
+                ];
+            } catch {
+                // the product must not stay in its loading state when the preferences cannot be read,
+                // initProductMeasurementUnits() falls back to the default units instead
+                return null;
+            }
         },
 
         savePreferenceUnits() {

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -40,6 +41,7 @@ class AclEnforcementTest extends TestCase
             static::createStub(RequestCriteriaBuilder::class),
             $this->createDeniedContextProvider(),
             static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
 
         $this->assertAclDenied(($tool)('product'), 'product:read');
@@ -52,6 +54,7 @@ class AclEnforcementTest extends TestCase
             static::createStub(RequestCriteriaBuilder::class),
             $this->createDeniedContextProvider(),
             static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
 
         $this->assertAclDenied(($tool)('product', 'some-id'), 'product:read');
@@ -117,6 +120,7 @@ class AclEnforcementTest extends TestCase
             $this->createRegistryWithEntity(),
             static::createStub(RequestCriteriaBuilder::class),
             $this->createDeniedContextProvider(),
+            static::createStub(AclCriteriaValidator::class),
         );
 
         $this->assertAclDenied(($tool)('product', '[]'), 'product:read');

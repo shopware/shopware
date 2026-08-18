@@ -259,6 +259,48 @@ describe('module/sw-product/page/sw-product-detail', () => {
         });
     });
 
+    it('should flag the product as loading before awaiting the measurement units', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        let resolveSearch;
+        Shopware.Service('userConfigService').search.mockReturnValue(
+            new Promise((resolve) => {
+                resolveSearch = resolve;
+            }),
+        );
+
+        Shopware.Store.get('swProductDetail').$reset();
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
+
+        wrapper = await createWrapper();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(true);
+
+        resolveSearch({ data: {} });
+        await flushPromises();
+    });
+
+    it('should not keep the product loading when the measurement units cannot be loaded', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        Shopware.Service('userConfigService').search.mockImplementation((keys) => {
+            if (keys.includes('measurement.preferenceUnits')) {
+                return Promise.reject(new Error('Request failed'));
+            }
+
+            return Promise.resolve({ data: {} });
+        });
+
+        Shopware.Store.get('swProductDetail').$reset();
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
+    });
+
     it('should redirect to product listing when product no longer exists', async () => {
         await wrapper.unmount();
 
@@ -357,7 +399,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
     });
 
-    it('should omit meteor tabs hidden for variant products', async () => {
+    it('should show the layout meteor tab for variant products', async () => {
         wrapper.unmount();
         wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
         await flushPromises();
@@ -373,9 +415,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
             .map((item) => item.name);
 
         expect(tabNames).toContain('sw.product.detail.prices');
+        expect(tabNames).toContain('sw.product.detail.layout');
         expect(tabNames).toContain('sw.product.detail.seo');
         expect(tabNames).not.toContain('sw.product.detail.variants');
-        expect(tabNames).not.toContain('sw.product.detail.layout');
     });
 
     it('should navigate when a meteor route tab is selected', async () => {
@@ -451,6 +493,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(contextButton.exists()).toBeFalsy();
 
         const visibleTabItem = [
+            '.sw-product-detail__tab-layout',
             '.sw-product-detail__tab-seo',
             '.sw-product-detail__tab-cross-selling',
             '.sw-product-detail__tab-reviews',
@@ -458,7 +501,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         const invisibleTabItem = [
             '.sw-product-detail__tab-variants',
-            '.sw-product-detail__tab-layout',
         ];
 
         visibleTabItem.forEach((item) => {
@@ -662,6 +704,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.previousWeightUnit).toBe('g');
         expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('cm');
         expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('g');
+    });
+
+    it('should initialize with default units when the preferences cannot be loaded', async () => {
+        Shopware.Service('userConfigService').search.mockRejectedValue(new Error('Request failed'));
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('mm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('kg');
     });
 
     it('should save preferences only when units have changed', async () => {

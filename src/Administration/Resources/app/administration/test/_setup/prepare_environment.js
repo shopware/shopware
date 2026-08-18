@@ -21,6 +21,7 @@ import {
     MtDatepicker,
     MtDropdownMenuPortal,
     MtDropdownMenuRoot,
+    MtDropdownMenuSub,
     MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
@@ -56,6 +57,8 @@ import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import CacheService from '../../src/app/service/cache.service';
+
+const defaultFeatureFlags = [...global.activeFeatureFlags];
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -254,6 +257,7 @@ config.global.stubs = {
     'mt-datepicker': MtDatepicker,
     'mt-dropdown-menu-portal': MtDropdownMenuPortal,
     'mt-dropdown-menu-root': MtDropdownMenuRoot,
+    'mt-dropdown-menu-sub': MtDropdownMenuSub,
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
@@ -647,7 +651,7 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = [];
+    global.activeFeatureFlags = [...defaultFeatureFlags];
 
     if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {
         return;

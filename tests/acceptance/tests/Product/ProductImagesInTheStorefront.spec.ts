@@ -42,7 +42,7 @@ test(
 
         await test.step('Logged-In shop customer should be able to see the cover image on the product listing page.', async () => {
             await ShopCustomer.expects(async () => {
-                if (InstanceMeta.isSaaS) {
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
                     await TestDataService.clearCaches();
                 }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);

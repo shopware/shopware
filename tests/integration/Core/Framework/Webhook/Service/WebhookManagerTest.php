@@ -1600,7 +1600,6 @@ class WebhookManagerTest extends TestCase
 
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
-            static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),

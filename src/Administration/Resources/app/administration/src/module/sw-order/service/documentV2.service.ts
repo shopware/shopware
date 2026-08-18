@@ -192,4 +192,18 @@ export default class DocumentV2Service {
 
         return translationKey ?? format;
     }
+
+    public getDocumentTypeSnippet(technicalName: string): string {
+        const translationKey = (
+            {
+                [DOCUMENT_TYPES.INVOICE]: 'sw-order.components.createDocumentModal.documentTypes.invoice',
+                [DOCUMENT_TYPES.CREDIT_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.creditNote',
+                [DOCUMENT_TYPES.CANCELLATION_INVOICE]:
+                    'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
+                [DOCUMENT_TYPES.DELIVERY_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
+            } as Record<string, string>
+        )[technicalName];
+
+        return translationKey ?? technicalName;
+    }
 }

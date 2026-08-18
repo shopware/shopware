@@ -174,6 +174,8 @@ class CheckoutGatewayRouteTest extends TestCase
                 'name' => 'foo',
                 'privileges' => [
                     'checkout-gateway:read',
+                    // granted so AppCheckoutGateway is allowed to call the app
+                    'checkout_gateway',
                 ],
             ],
             'translations' => [

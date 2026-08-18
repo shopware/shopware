@@ -125,12 +125,6 @@ $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Mail/Service/MailAttachmentsBuilder.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
     'path' => __DIR__ . '/src/Core/Content/MeasurementSystem/Field/MeasurementUnitsFieldSerializer.php',
 ];
 $ignoreErrors[] = [

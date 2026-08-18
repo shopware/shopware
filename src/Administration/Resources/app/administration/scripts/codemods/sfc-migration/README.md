@@ -10,6 +10,11 @@ Converts Options API Administration components (`index.js` + `*.html.twig`) into
 Replacing an entry point is a separate, explicit operation; Twig files are retained for a later
 human-reviewed cleanup.
 
+`--write` requires the target directory to be clean in git (`git status --porcelain -- <path>`
+empty): a run is undone with `git checkout`, which only works when nothing else was uncommitted.
+A dirty target aborts the run before anything is written. Outside a git working tree the check does
+not apply. Dry runs never check.
+
 ```bash
 # Dry run (default): prints a per-component report, writes nothing
 npm run codemod:sfc-migration -- src/app/component/base
@@ -42,10 +47,10 @@ the existing draft and leave it untouched.
 
 ### Write failures
 
-Each component's writes are guarded on their own. A failure reports that component as `error`,
-names what is on disk, and the run continues so the report still covers everything else. Files are
-staged in the target directory, completed before an atomic rename, and cleaned deterministically.
-The legacy entry point remains available until its replacement succeeds; Twig is never deleted.
+Each component's writes are guarded on their own. A failure reports that component as `error` and
+the run continues, so the report still covers everything else. Twig is never deleted. Recovery is
+`git checkout` on the target directory — which is exactly what the clean-tree requirement above
+buys, so the writes themselves are plain `fs.writeFileSync` calls.
 
 ## Registration classes
 
@@ -108,9 +113,8 @@ Each file answers exactly one question:
 
 | File | Answers |
 | --- | --- |
-| `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, file writes, report |
+| `run-sfc-migration.ts` | How does a batch run work? CLI entry, clean-tree guard, discovery, file writes, report |
 | `component-source-model.ts` | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree |
-| `migration-writer.ts` | How are validated drafts and explicit replacements staged, renamed, and recovered? |
 | `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
 | `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates) |
 | `template-ast.ts` | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate |

@@ -15,6 +15,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { spawnSync } from 'child_process';
 import { convertComponent, type ConvertResult } from './convert-component';
 import {
     collectComponentSourceIndex,
@@ -23,7 +24,6 @@ import {
     type RegistrationKind,
     type SourceDiagnostic,
 } from './component-source-model';
-import { writeMigration } from './migration-writer';
 
 type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
 
@@ -110,7 +110,10 @@ function describeExistingSfc(vuePath: string, name: string): string {
 
 /**
  * Ordinary writes publish only the validated Vue draft. Replacing the legacy entry point is a
- * separate explicit phase and uses the isolated staged writer; Twig is never deleted.
+ * separate explicit phase; Twig is never deleted.
+ *
+ * `--write` runs against a clean working tree (see `findDirtyPaths`), so `git checkout` undoes
+ * everything a partial run left behind — nothing here needs its own transaction.
  */
 function writeComponent(input: {
     sfc: string;
@@ -121,37 +124,47 @@ function writeComponent(input: {
     jsSource: string;
     name: string;
 }): { ok: boolean; reasons: string[] } {
-    let originalIndexBytes: Buffer;
-
     try {
-        originalIndexBytes = fs.readFileSync(input.indexFile);
+        fs.writeFileSync(input.vuePath, input.sfc);
+
+        if (input.full && input.replaceOriginals) {
+            fs.writeFileSync(input.indexFile, buildIndexShim(input.jsSource, input.name));
+
+            return { ok: true, reasons: [`index.js replaced; ${input.name}.html.twig retained`] };
+        }
+
+        return { ok: true, reasons: [] };
     } catch (error) {
-        return { ok: false, reasons: [`write failed at preflight: ${errorText(error)} (originals unchanged)`] };
+        return { ok: false, reasons: [`write failed: ${errorText(error)} (originals unchanged)`] };
+    }
+}
+
+/**
+ * Every write happens in a git working tree, so `git checkout` is the undo button — but only for a
+ * tree that carried nothing else. Uncommitted work under the target would become indistinguishable
+ * from what this run produced, so `--write` refuses it. Scoped to the target, and skipped entirely
+ * outside a work tree, where there is nothing to protect.
+ */
+function findDirtyPaths(targetDir: string): string[] {
+    const status = spawnSync(
+        'git',
+        [
+            'status',
+            '--porcelain',
+            '--',
+            targetDir,
+        ],
+        {
+            cwd: targetDir,
+            encoding: 'utf8',
+        },
+    );
+
+    if (status.status !== 0) {
+        return [];
     }
 
-    const migration = writeMigration({
-        vuePath: input.vuePath,
-        indexPath: input.indexFile,
-        vueBytes: Buffer.from(input.sfc),
-        originalIndexBytes,
-        replacementIndexBytes: Buffer.from(buildIndexShim(input.jsSource, input.name)),
-        mode: input.full && input.replaceOriginals ? 'replace-originals' : 'draft',
-    });
-
-    if (migration.error) {
-        return {
-            ok: false,
-            reasons: [
-                `write failed at ${migration.error.stage}: ${migration.error.message}`,
-                `writer state: ${migration.state}/${migration.recovery}; originals remain available`,
-            ],
-        };
-    }
-
-    return {
-        ok: true,
-        reasons: migration.state === 'replaced' ? [`index.js replaced atomically; ${input.name}.html.twig retained`] : [],
-    };
+    return status.stdout.split('\n').filter((line) => line.trim() !== '');
 }
 
 async function runMigration(
@@ -436,6 +449,20 @@ function main(): void {
         console.error(`Not a directory: ${targetDir}`);
         process.exitCode = 1;
         return;
+    }
+
+    if (write) {
+        const dirtyPaths = findDirtyPaths(targetDir);
+
+        if (dirtyPaths.length > 0) {
+            console.error(
+                `Refusing to write into a dirty working tree. Commit or stash these first:\n${dirtyPaths
+                    .map((line) => `  ${line}`)
+                    .join('\n')}`,
+            );
+            process.exitCode = 1;
+            return;
+        }
     }
 
     runMigration(targetDir, { write, replaceOriginals })

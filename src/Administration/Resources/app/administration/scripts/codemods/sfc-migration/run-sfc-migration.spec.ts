@@ -48,6 +48,10 @@ const registerAll = (root: string, ...names: string[]): void =>
 const reportOf = (result: MigrationResult, name: string): MigrationResult['reports'][number] | undefined =>
     result.reports.find((entry) => entry.name === name);
 
+/** The working tree without git's own bookkeeping, which `git status` may refresh on its own. */
+const trackedManifest = (root: string): Record<string, Buffer> =>
+    Object.fromEntries(Object.entries(manifest(root)).filter(([file]) => !file.startsWith('.git/')));
+
 describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
     describe('CLI', () => {
         let tmpDir: string;
@@ -111,6 +115,35 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
             expect(result.status).toBe(1);
             expect(result.output).toContain('Not a directory:');
         });
+
+        // `git checkout` is the undo button for a written run, which only works while the tree
+        // carries nothing else — so the second run, dirtied by the first run's own draft, refuses.
+        it('refuses to write into a target directory with uncommitted changes', () => {
+            const git = (...args: string[]): void => {
+                const result = spawnSync('git', args, { cwd: tmpDir, encoding: 'utf8' });
+
+                expect(result.status).toBe(0);
+            };
+
+            writeComponent(tmpDir, 'sw-alpha-item');
+            registerAll(tmpDir, 'sw-alpha-item');
+            git('init');
+            git('add', '.');
+            git('-c', 'user.name=codemod', '-c', 'user.email=codemod@example.com', 'commit', '-m', 'baseline');
+
+            const clean = runCli(tmpDir, '--write');
+
+            expect(clean.status).toBe(0);
+            expect(fs.existsSync(path.join(tmpDir, 'sw-alpha-item', 'sw-alpha-item.vue'))).toBe(true);
+
+            const before = trackedManifest(tmpDir);
+            const dirty = runCli(tmpDir, '--write');
+
+            expect(dirty.status).toBe(1);
+            expect(dirty.output).toContain('Refusing to write into a dirty working tree');
+            expect(dirty.output).toContain('sw-alpha-item.vue');
+            expect(trackedManifest(tmpDir)).toEqual(before);
+        }, 120000);
     });
 
     describe('writing a synthesized component tree', () => {

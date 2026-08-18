@@ -4,25 +4,32 @@ The plugin-facing authoring guide for a hydration-lifecycle listener: the two ev
 
 Listeners modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
 
-| Event                      | When                                       | Purpose                                  |
-|----------------------------|--------------------------------------------|------------------------------------------|
-| `PreContentHydrationEvent` | Before every pipeline step and before data loading | Modify layout tree, resolve placeholders |
-| `PostHydrationEvent`       | After data loading and every pipeline step | Enrich data, transform structure         |
+| Event                         | When                                               | Purpose                                  |
+|-------------------------------|----------------------------------------------------|------------------------------------------|
+| `ContentTreePreparationEvent` | Before every pipeline step and before data loading | Modify layout tree, resolve placeholders |
+| `PostHydrationEvent`          | After data loading and every pipeline step         | Enrich data, transform structure         |
 
-`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `PreContentHydrationEvent` listener sees the raw loaded layout, before the virtual-root wrap, placeholder resolution, redistribute expansion and the partial prune. A `PostHydrationEvent` listener sees the finished tree, after the virtual-root unwrap and the partial extract.
+`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before placeholder resolution, the lowering onto `ContentElement`, the virtual-root wrap, redistribute expansion and the partial prune. A `PostHydrationEvent` listener sees the finished tree, after the virtual-root unwrap and the partial extract.
 
-Both events expose the same properties. Only `elements` is mutable:
+The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back:
 
-- `elements` — `list<ContentElement>`, mutable
-- `layout` — `LayoutReference` exposing `id`, `name`, `version` of the rendered layout (readonly)
-- `specification` — `RenderingSpecification` (readonly)
-- `mode` — `RenderingMode` (readonly)
-- `salesChannelContext` — `SalesChannelContext` (readonly)
+- `ContentTreePreparationEvent::tree()` — `list<StoredElement>`; a replacement goes back through `replaceTree()`, because a stored element is immutable and an edit produces new instances
+- `PostHydrationEvent::$elements` — `list<ContentElement>`, mutable in place
+
+Both expose the same remaining properties, all readonly:
+
+- `layout` — `LayoutReference` exposing `id`, `name`, `version` of the rendered layout
+- `specification` — `RenderingSpecification`
+- `salesChannelContext` — `SalesChannelContext`
 - `cacheContext` — `RenderingCacheContext`, for cache tag management (readonly reference, but methods mutate state)
+
+`PostHydrationEvent` additionally exposes `mode` — `RenderingMode`. `ContentTreePreparationEvent` does not: it is dispatched at the same position in both modes.
+
+Placeholder resolution runs in FULL mode only, and it runs after this event either way, so a listener that introduces a `{{token}}` resolves it itself rather than expecting the pipeline to.
 
 ## Working with ContentElement
 
-`ContentElement` is the tree node in the layout. In event listeners, access and modify element data through these methods:
+`ContentElement` is the tree node a `PostHydrationEvent` listener works against (a `ContentTreePreparationEvent` listener works against the immutable `StoredElement` instead). Access and modify element data through these methods:
 
 | Method                                         | Purpose                                          |
 |------------------------------------------------|--------------------------------------------------|

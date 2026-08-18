@@ -11,14 +11,11 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
-use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\OrderTrackingVisitor;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -214,56 +211,6 @@ class ContentElementTest extends TestCase
         static::assertSame($consumer, $result[0]);
     }
 
-    #[TestDox('substitutes placeholder tokens in string properties with resolved values')]
-    public function testReplacePlaceholdersSubstitutesValuesInStringProperties(): void
-    {
-        $element = ContentElementBuilder::create('test-component')
-            ->withProperty('title', 'Hello {{name}}!')
-            ->withProperty('description', 'Product: {{productId}}')
-            ->build();
-
-        $specification = $this->createRenderingSpecification(['name' => 'World', 'productId' => 'abc123']);
-
-        $element->replacePlaceholders($specification);
-
-        static::assertSame('Hello World!', $element->getProperty('title'));
-        static::assertSame('Product: abc123', $element->getProperty('description'));
-    }
-
-    #[TestDox('leaves non-string property values unchanged during placeholder replacement')]
-    public function testReplacePlaceholdersIgnoresNonStringProperties(): void
-    {
-        $element = ContentElementBuilder::create('test-component')
-            ->withProperty('count', 42)
-            ->withProperty('enabled', true)
-            ->build();
-
-        $specification = $this->createRenderingSpecification(['count' => 'replaced']);
-
-        $element->replacePlaceholders($specification);
-
-        static::assertSame(42, $element->getProperty('count'));
-        static::assertTrue($element->getProperty('enabled'));
-    }
-
-    #[TestDox('recursively replaces placeholders in children within slots')]
-    public function testReplacePlaceholdersRecursesIntoSlotChildren(): void
-    {
-        $child = ContentElementBuilder::create('child-component')
-            ->withProperty('label', 'Item: {{itemId}}')
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent-component')
-            ->withSlot('default', [$child])
-            ->build();
-
-        $specification = $this->createRenderingSpecification(['itemId' => '42']);
-
-        $parent->replacePlaceholders($specification);
-
-        static::assertSame('Item: 42', $child->getProperty('label'));
-    }
-
     #[TestDox('merges struct and non-struct properties into properties key and excludes internal arrays')]
     public function testJsonSerializeExposesPropertiesKeyAndHidesInternalArrays(): void
     {
@@ -395,17 +342,5 @@ class ContentElementTest extends TestCase
             ->withProperty('myStruct', $struct)
             ->withProperty('myScalar', 'hello')
             ->build();
-    }
-
-    /**
-     * @param array<string, string|int|bool|float> $values
-     */
-    private function createRenderingSpecification(array $values): RenderingSpecification
-    {
-        return new RenderingSpecification(
-            [],
-            PlaceholderValues::from($values),
-            new Request(),
-        );
     }
 }

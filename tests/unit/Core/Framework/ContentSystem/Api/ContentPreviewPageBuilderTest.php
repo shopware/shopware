@@ -13,7 +13,6 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
@@ -36,16 +35,16 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewPageBuilder::class)]
 class ContentPreviewPageBuilderTest extends TestCase
 {
-    #[TestDox('checks the decoded stored tree while rendering its lowered counterpart through the pipeline in full mode, returning the page and synthesized context')]
-    public function testBuildChecksStoredTreeAndRendersLoweredLayoutThroughThePipeline(): void
+    #[TestDox('checks the decoded stored tree and hands the same tree to the pipeline in full mode, returning the page and synthesized context')]
+    public function testBuildChecksStoredTreeAndRendersItThroughThePipeline(): void
     {
         $specification = $this->specification();
         $salesChannelContext = Generator::generateSalesChannelContext();
         $contentPage = new ContentPage('preview-layout', [], 'preview', null);
         $stored = [new StoredElement('e1', 'Sw:Content:Heading')];
 
-        // The two halves of the split: the check reads the stored tree as decoded, the render path gets the
-        // lowered one. Each expectation fails if the builder feeds the other model to its side.
+        // Both halves read the decoded stored tree: the check takes it directly, and the pipeline takes it
+        // wrapped in a preview-labelled RenderableLayout, lowering it itself once its stored steps have run.
         $checker = static::createMock(DraftLayoutChecker::class);
         $checker->expects($this->once())
             ->method('check')
@@ -56,11 +55,8 @@ class ContentPreviewPageBuilderTest extends TestCase
         $pipeline->expects($this->once())
             ->method('load')
             ->with(
-                // RenderableLayout::$elements is typed list<ContentElement>, so reaching this callback at all
-                // is the render half's proof that the lowered tree, not the stored one, was handed over.
-                static::callback(static function (RenderableLayout $layout): bool {
-                    static::assertCount(1, $layout->elements);
-                    static::assertSame('e1', $layout->elements[0]->getId());
+                static::callback(static function (RenderableLayout $layout) use ($stored): bool {
+                    static::assertSame($stored, $layout->elements);
                     static::assertSame('preview', $layout->reference->name);
                     static::assertNull($layout->reference->version);
 
@@ -77,7 +73,6 @@ class ContentPreviewPageBuilderTest extends TestCase
             $this->contextService($salesChannelContext),
             $this->resolverReturning($specification),
             $this->decoderReturning($stored),
-            new ContentElementLowering(),
             $checker,
             $pipeline,
         );
@@ -99,7 +94,6 @@ class ContentPreviewPageBuilderTest extends TestCase
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
             $this->decoderReturning([new StoredElement('e1', 'Sw:Unknown:Widget')]),
-            new ContentElementLowering(),
             $this->checker($violations),
             static::createStub(ContentPipeline::class),
         );
@@ -120,7 +114,6 @@ class ContentPreviewPageBuilderTest extends TestCase
             $this->contextService(Generator::generateSalesChannelContext()),
             $resolver,
             static::createStub(DraftLayoutDecoder::class),
-            new ContentElementLowering(),
             static::createStub(DraftLayoutChecker::class),
             static::createStub(ContentPipeline::class),
         );
@@ -142,7 +135,6 @@ class ContentPreviewPageBuilderTest extends TestCase
             $contextService,
             static::createStub(RenderingSpecificationResolver::class),
             static::createStub(DraftLayoutDecoder::class),
-            new ContentElementLowering(),
             static::createStub(DraftLayoutChecker::class),
             static::createStub(ContentPipeline::class),
         );

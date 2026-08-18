@@ -3,14 +3,16 @@
 namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
@@ -27,10 +29,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ContentPipeline
 {
     public function __construct(
-        private readonly ContentElementHydrator $hydrationService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly StoredTreePreparer $storedTreePreparer,
+        private readonly ContentElementLowering $lowering,
         private readonly VirtualRootWrapper $virtualRootWrapper,
-        private readonly PartialRenderer $partialRenderer
+        private readonly PartialRenderer $partialRenderer,
+        private readonly ContentElementHydrator $hydrationService,
     ) {
     }
 
@@ -41,16 +45,17 @@ class ContentPipeline
         RenderingMode $mode,
         SalesChannelContext $salesChannelContext,
     ): ContentPage {
-        $preHydrationEvent = new PreContentHydrationEvent(
+        $preparationEvent = new ContentTreePreparationEvent(
             $layout->elements,
             $layout->reference,
             $specification,
-            $mode,
             $salesChannelContext,
             $cacheContext,
         );
-        $this->eventDispatcher->dispatch($preHydrationEvent);
-        $elements = $preHydrationEvent->elements;
+        $this->eventDispatcher->dispatch($preparationEvent);
+
+        $storedTree = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
+        $elements = $this->lowering->lowerTree($storedTree);
 
         $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $elements);
 
@@ -58,7 +63,6 @@ class ContentPipeline
             $elements = [$this->virtualRootWrapper->wrap($elements, $specification)];
         }
 
-        $this->resolvePlaceholders($elements, $specification);
         $this->expandRedistribution($elements);
 
         $extractTargetId = $this->extractTargetId($specification);
@@ -130,22 +134,6 @@ class ContentPipeline
         }
 
         return $targetElementId;
-    }
-
-    /**
-     * Resolves `{{variable}}` placeholders in element properties.
-     *
-     * Single-pass only, no recursive resolution. Placeholders are replaced
-     * with values from the RenderingSpecification before hydration starts.
-     *
-     * @param list<ContentElement> $elements
-     */
-    private function resolvePlaceholders(array $elements, RenderingSpecification $specification): void
-    {
-        // ContentElement is mutable, so changes happen in place
-        foreach ($elements as $element) {
-            $element->replacePlaceholders($specification);
-        }
     }
 
     /**

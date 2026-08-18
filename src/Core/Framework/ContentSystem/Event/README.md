@@ -1,25 +1,29 @@
 # Event
 
-Lifecycle events dispatched during content hydration. Both events share identical structure — `elements` (mutable `list<ContentElement>`) is the only writable property.
+Lifecycle events dispatched around content hydration. The two carry the tree in the model of their own
+position: the preparation event carries the stored forest, the post-hydration event the rendered
+`list<ContentElement>`. Each exposes exactly one way to put a changed tree back — `replaceTree()` on the
+preparation event, whose elements are immutable, and the mutable `elements` property on the other.
 
 ## Key Classes
 
-- `PreContentHydrationEvent` - Dispatched before hydration; allows layout preparation
+- `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
 - `PostHydrationEvent` - Dispatched after hydration; allows layout finalization
 
 ## Lifecycle
 
 ```
-PreContentHydrationEvent
-  → virtual-root wrap → placeholder resolution → redistribute expansion → partial prune
+ContentTreePreparationEvent
+  → placeholder resolution (FULL mode only) → lowering onto ContentElement
+  → virtual-root wrap → redistribute expansion → partial prune
   → Hydration (FULL mode only)
   → virtual-root unwrap → partial extract
 → PostHydrationEvent
 ```
 
-The six steps run inside `ContentPipeline::load()`, not as listeners, so a listener cannot interleave with
-them: the pre-event sees the tree before every preparation step, and the post-event sees it after every
-finishing step. Core claims no priority band. See [Listener/docs/custom-listeners.md](Listener/docs/custom-listeners.md)
+The steps run inside `ContentPipeline::load()`, not as listeners, so a listener cannot interleave with
+them: the preparation event sees the tree before every preparation step, and the post-event sees it after
+every finishing step. Core claims no priority band. See [Listener/docs/custom-listeners.md](Listener/docs/custom-listeners.md)
 for what a listener may do at each position.
 
 Whether the unwrap runs is decided during preparation, not rediscovered afterwards: `load()` assembles a

@@ -7,9 +7,9 @@
 - **Entity Specification Sources**: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource`, `Content/Category/Aggregate/CategoryContentLayout/CategorySpecificationSource`, `Content/LandingPage/Aggregate/LandingPageContentLayout/LandingPageSpecificationSource`
 - **Header/Footer Sources**: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 - **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config)
-- **Events**: `Event/PreContentHydrationEvent`, `Event/PostHydrationEvent`
+- **Events**: `Event/ContentTreePreparationEvent`, `Event/PostHydrationEvent`
 - **Pipeline**: `ContentPipeline` (steps 3-5), `RenderingMode` (FULL vs SKELETON)
-- **Layout Value Objects**: `RenderableLayout` (reference + elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
+- **Layout Value Objects**: `RenderableLayout` (reference + stored elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
 - **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
 - **Admin Preview API**: `Api/ContentPreviewController` — `POST /api/_action/content-system/preview/entity` renders an unsaved draft layout against real entity data (assignment-free); `POST /api/_action/content-system/preview/entity/url` stores the same envelope behind a short-lived token (`Api/ContentPreviewPayloadStore`, five-minute cache TTL) and returns a Storefront preview URL (`frontend.content-system.preview`). Both admit the draft through the one `Api/ContentPreviewPageBuilder::build()`; the url route discards the page it builds, so an unrenderable draft is a 400 and never becomes a token. See [Api/docs/preview.md](Api/docs/preview.md) and [Api/docs/preview-url.md](Api/docs/preview-url.md)
 - **Resolution & Diagnostics**: `Resolution/ElementResolver` + `Resolution/AvailableContextResolver` (kernel), `Diagnostics/LayoutDiagnostics` (`analyze(tree, rootContext)` → `LayoutAnalysis`: per-element `PropertyResolution`s + a `DiagnosticsReport`), `Diagnostics/RootContextMapper` (bound source → root-ambient context). `ViolationCode` resolves a violation's scope (intrinsic/binding) + severity
@@ -36,7 +36,7 @@
 ## Constraints
 
 - `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
-- `ContentPipeline::load()`: receives a loaded `RenderableLayout` → PreHydration events → hydration (FULL mode only) → PostHydration events
+- `ContentPipeline::load()`: receives a loaded `RenderableLayout` (stored elements) → `ContentTreePreparationEvent` → stored preparation (`Layout/Scaffolding/StoredTreePreparer`) → lowering onto `ContentElement` → hydration (FULL mode only) → PostHydration events
 - Specification resolution and layout-entity loading happen in `ContentRoute`, NOT in `ContentPipeline`
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
 - Data loader type introspection: `ContentSystemDataLoaderMapResolver` assembles the source→capability map at runtime from each loader's `producibleTypes()` (memoized per kernel runtime); `ContentSystemDataLoaderCompilerPass` only validates at build time (dry-runs `AbstractContentDataLoader::extendsDescriptor()`, so loaders MUST have `@extends AbstractContentDataLoader<T>` PHPDoc, and dry-runs each loader's `configSpecification()` on a constructor-less instance, failing the build on duplicate keys, value types outside `ConfigKeySpecification::TYPES`, non-string `propertyReference`/`entityName` keys, incoherent defaults (including a default on a required key), invalid `referencedType`/`mergesInto` declarations, or the reserved names `loader`/`config` used as source or config key); wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live registry (so plugin/app/custom entities appear on the next kernel boot without a container rebuild)

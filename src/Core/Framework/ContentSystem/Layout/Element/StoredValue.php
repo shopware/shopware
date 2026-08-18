@@ -134,6 +134,11 @@ final readonly class StoredValue implements \JsonSerializable
         return $this->variant === self::VARIANT_NULL;
     }
 
+    public function isString(): bool
+    {
+        return $this->variant === self::VARIANT_STRING;
+    }
+
     public function asString(): string
     {
         if (!\is_string($this->scalar)) {

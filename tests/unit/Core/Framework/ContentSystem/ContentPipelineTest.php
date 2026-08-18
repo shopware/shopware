@@ -9,8 +9,8 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
+use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Event\PreContentHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
@@ -21,10 +21,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
@@ -37,7 +40,6 @@ use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -69,7 +71,7 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('dispatches pre- and post-hydration lifecycle events in order in FULL mode')]
+    #[TestDox('dispatches preparation and post-hydration lifecycle events in order in FULL mode')]
     public function testLoadDispatchesLifecycleEventsInFullMode(): void
     {
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
@@ -88,16 +90,16 @@ class ContentPipelineTest extends TestCase
 
         $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
 
-        static::assertSame([PreContentHydrationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
+        static::assertSame([ContentTreePreparationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
     }
 
     #[TestDox('distributes provider context into consumer children in FULL mode')]
     public function testLoadHydratesElementsInFullMode(): void
     {
-        $consumer = ContentElementBuilder::create('text', 'consumer-id')
+        $consumer = StoredElementBuilder::create('text', 'consumer-id')
             ->withConsumer('product', ContextType::Single)
             ->build();
-        $provider = ContentElementBuilder::create('section', 'provider-id')
+        $provider = StoredElementBuilder::create('section', 'provider-id')
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withProperty('product', 'product-payload')
             ->withSlot('default', [$consumer])
@@ -108,17 +110,17 @@ class ContentPipelineTest extends TestCase
         );
 
         // Fixture guard: only a consumer that is still unfilled makes the hydration branch observable.
-        static::assertArrayHasKey('product', $consumer->getAcceptsContext());
-        static::assertNull($consumer->getProperty('product'));
+        static::assertArrayHasKey('product', $consumer->contextDefinitions->getAllConsumers());
+        static::assertNull($consumer->property('product'));
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
 
-        static::assertSame('product-payload', $consumer->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
     }
 
     #[TestDox('returns content page with original elements and layout metadata in SKELETON mode')]
@@ -143,22 +145,22 @@ class ContentPipelineTest extends TestCase
     }
 
     #[DataProvider('renderingModeProvider')]
-    #[TestDox('renders elements mutated by a PreContentHydration subscriber instead of the original layout')]
-    public function testLoadRendersElementsMutatedDuringPreHydration(RenderingMode $mode): void
+    #[TestDox('renders the forest a preparation subscriber put back instead of the loaded layout')]
+    public function testLoadRendersTreeReplacedDuringPreparation(RenderingMode $mode): void
     {
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
 
         // Fixture guard: the layout must not already contain the injected element.
         static::assertSame([], array_filter(
-            $this->collectIds($layout->elements),
+            $this->collectStoredIds($layout->elements),
             static fn (string $id): bool => $id === 'injected-id'
         ));
 
-        $injected = ContentElementBuilder::create('injected', 'injected-id')->build();
+        $injected = StoredElementBuilder::create('injected', 'injected-id')->build();
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             function (object $event) use ($injected) {
-                if ($event instanceof PreContentHydrationEvent) {
-                    $event->elements = [$injected];
+                if ($event instanceof ContentTreePreparationEvent) {
+                    $event->replaceTree([$injected]);
                 }
 
                 return $event;
@@ -186,10 +188,10 @@ class ContentPipelineTest extends TestCase
         ];
     }
 
-    #[TestDox('exposes the layout roots to PreContentHydration subscribers, before the virtual-root wrap')]
-    public function testPreHydrationSubscribersSeeTheRootsBeforeVirtualRootWrapping(): void
+    #[TestDox('exposes the layout roots to preparation subscribers, before the virtual-root wrap')]
+    public function testPreparationSubscribersSeeTheRootsBeforeVirtualRootWrapping(): void
     {
-        $layout = $this->createSingleRootLayout(ContentElementBuilder::create('section', 'root-id')->build());
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('section', 'root-id')->build());
         $specification = new RenderingSpecification(
             [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
             PlaceholderValues::from([]),
@@ -197,13 +199,13 @@ class ContentPipelineTest extends TestCase
         );
 
         // Fixture guard: without page-level data requirements the pipeline never wraps at all.
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $this->lower($layout->elements)));
 
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             function (object $event) use (&$observed) {
-                if ($event instanceof PreContentHydrationEvent) {
-                    $observed = $this->collectIds($event->elements);
+                if ($event instanceof ContentTreePreparationEvent) {
+                    $observed = $this->collectStoredIds($event->tree());
                 }
 
                 return $event;
@@ -221,10 +223,10 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['root-id'], $observed);
     }
 
-    #[TestDox('exposes unresolved placeholders to PreContentHydration subscribers')]
-    public function testPreHydrationSubscribersSeeUnresolvedPlaceholders(): void
+    #[TestDox('exposes unresolved placeholders to preparation subscribers')]
+    public function testPreparationSubscribersSeeUnresolvedPlaceholders(): void
     {
-        $root = ContentElementBuilder::create('text', 'root-id')
+        $root = StoredElementBuilder::create('text', 'root-id')
             ->withProperty('title', '{{productId}}')
             ->build();
         $layout = $this->createSingleRootLayout($root);
@@ -237,31 +239,32 @@ class ContentPipelineTest extends TestCase
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static function (object $event) use (&$observed) {
-                if ($event instanceof PreContentHydrationEvent) {
-                    $observed = $event->elements[0]->getProperty('title');
+                if ($event instanceof ContentTreePreparationEvent) {
+                    $observed = $event->tree()[0]->property('title')?->asString();
                 }
 
                 return $event;
             }
         );
 
-        $this->createPipeline()->load(
+        $result = $this->createPipeline()->load(
             $layout,
             $specification,
             new RenderingCacheContext(),
-            RenderingMode::SKELETON,
+            RenderingMode::FULL,
             Generator::generateSalesChannelContext()
         );
 
         static::assertSame('{{productId}}', $observed);
         // Fixture guard: the placeholder really was resolvable, so the step ran after the dispatch.
-        static::assertSame('resolved-product', $root->getProperty('title'));
+        $elements = iterator_to_array($result->elements, false);
+        static::assertSame('resolved-product', $elements[0]->getProperty('title'));
     }
 
-    #[TestDox('exposes unexpanded redistribute consumers to PreContentHydration subscribers')]
-    public function testPreHydrationSubscribersSeeUnexpandedRedistributeConsumers(): void
+    #[TestDox('exposes unexpanded redistribute consumers to preparation subscribers')]
+    public function testPreparationSubscribersSeeUnexpandedRedistributeConsumers(): void
     {
-        $root = ContentElementBuilder::create('section', 'root-id')
+        $root = StoredElementBuilder::create('section', 'root-id')
             ->withConsumer('product', ContextType::Single, redistribute: true)
             ->build();
         $layout = $this->createSingleRootLayout($root);
@@ -269,15 +272,15 @@ class ContentPipelineTest extends TestCase
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static function (object $event) use (&$observed) {
-                if ($event instanceof PreContentHydrationEvent) {
-                    $observed = array_keys($event->elements[0]->getProvidesContext());
+                if ($event instanceof ContentTreePreparationEvent) {
+                    $observed = array_keys($event->tree()[0]->contextDefinitions->getAllProviders());
                 }
 
                 return $event;
             }
         );
 
-        $this->createPipeline()->load(
+        $result = $this->createPipeline()->load(
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
@@ -287,17 +290,18 @@ class ContentPipelineTest extends TestCase
 
         static::assertSame([], $observed);
         // Fixture guard: the consumer really did redistribute, so the step ran after the dispatch.
-        static::assertArrayHasKey('product', $root->getProvidesContext());
+        $elements = iterator_to_array($result->elements, false);
+        static::assertArrayHasKey('product', $elements[0]->getProvidesContext());
     }
 
-    #[TestDox('exposes the unpruned layout tree to PreContentHydration subscribers, before the partial prune')]
-    public function testPreHydrationSubscribersSeeTheUnprunedTree(): void
+    #[TestDox('exposes the unpruned layout tree to preparation subscribers, before the partial prune')]
+    public function testPreparationSubscribersSeeTheUnprunedTree(): void
     {
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             function (object $event) use (&$observed) {
-                if ($event instanceof PreContentHydrationEvent) {
-                    $observed = $this->collectIds($event->elements);
+                if ($event instanceof ContentTreePreparationEvent) {
+                    $observed = $this->collectStoredIds($event->tree());
                 }
 
                 return $event;
@@ -321,7 +325,7 @@ class ContentPipelineTest extends TestCase
     #[TestDox('exposes the layout roots to PostHydration subscribers, after the virtual-root unwrap')]
     public function testPostHydrationSubscribersSeeTheRootsAfterVirtualRootUnwrapping(): void
     {
-        $layout = $this->createSingleRootLayout(ContentElementBuilder::create('section', 'root-id')->build());
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('section', 'root-id')->build());
         $specification = new RenderingSpecification(
             [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
             PlaceholderValues::from([]),
@@ -329,7 +333,7 @@ class ContentPipelineTest extends TestCase
         );
 
         // Fixture guard: without page-level data requirements there is no virtual root to unwrap.
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $this->lower($layout->elements)));
 
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -360,7 +364,7 @@ class ContentPipelineTest extends TestCase
 
         // Fixture guard: the target consumes context, so the prune keeps its ancestor and the
         // extract has an ancestor left to remove.
-        $target = $this->findChild($layout->elements[0], 'target-id');
+        $target = $this->findChild($this->lower($layout->elements)[0], 'target-id');
         static::assertNotNull($target);
         static::assertTrue((new ContextDependencyAnalyzer())->requiresParentData($target));
 
@@ -391,8 +395,8 @@ class ContentPipelineTest extends TestCase
     #[TestDox('serves only the partial-render target when the prune already removed the virtual root')]
     public function testPartialRenderWhoseTargetNeedsNoPageContextDropsTheVirtualRoot(): void
     {
-        $target = ContentElementBuilder::create('text', 'target-id')->build();
-        $root = ContentElementBuilder::create('section', 'root-id')
+        $target = StoredElementBuilder::create('text', 'target-id')->build();
+        $root = StoredElementBuilder::create('section', 'root-id')
             ->withSlot('default', [$target])
             ->build();
         $layout = $this->createSingleRootLayout($root);
@@ -403,14 +407,18 @@ class ContentPipelineTest extends TestCase
             'target-id'
         );
 
+        $lowered = $this->lower($layout->elements);
+        $loweredTarget = $this->findChild($lowered[0], 'target-id');
+        static::assertNotNull($loweredTarget);
+
         // Fixture guard: the page-level data requirement really does make the pipeline wrap ...
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $lowered));
         // ... the target really does need no parent data ...
-        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
+        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($loweredTarget));
         // ... and so the prune really does cut the virtual root away above it, rather than there
         // never having been one.
         static::assertSame('target-id', (new ElementTreePruner())->pruneToPathAndDescendants(
-            (new VirtualRootWrapper())->wrap($layout->elements, $specification),
+            (new VirtualRootWrapper())->wrap($lowered, $specification),
             'target-id',
             new ContextDependencyAnalyzer(),
         )->getId());
@@ -431,7 +439,7 @@ class ContentPipelineTest extends TestCase
     #[TestDox('delivers a page-level data requirement to a consuming root through the virtual root')]
     public function testPageLevelDataRequirementReachesAConsumingRootThroughTheVirtualRoot(): void
     {
-        $root = ContentElementBuilder::create('section', 'root-id')
+        $root = StoredElementBuilder::create('section', 'root-id')
             ->withConsumer('language', ContextType::Single)
             ->build();
         $layout = $this->createSingleRootLayout($root);
@@ -443,8 +451,8 @@ class ContentPipelineTest extends TestCase
 
         // Fixture guard: the layout itself provides nothing and holds no value under the consumed key,
         // so the virtual root the pipeline wraps around it is the only possible source.
-        static::assertSame([], $root->getProvidesContext());
-        static::assertNull($root->getProperty('language'));
+        static::assertSame([], $root->contextDefinitions->getAllProviders());
+        static::assertNull($root->property('language'));
 
         $pageData = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
@@ -458,7 +466,7 @@ class ContentPipelineTest extends TestCase
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
-        $this->createPipeline()->load(
+        $result = $this->createPipeline()->load(
             $layout,
             $specification,
             new RenderingCacheContext(),
@@ -466,20 +474,23 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame($pageData, $root->getProperty('language'));
+        $elements = iterator_to_array($result->elements, false);
+        static::assertSame($pageData, $elements[0]->getProperty('language'));
     }
 
     private function createPipeline(): ContentPipeline
     {
         return new ContentPipeline(
-            $this->hydrator,
             $this->eventDispatcher,
+            new StoredTreePreparer(),
+            new ContentElementLowering(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            $this->hydrator,
         );
     }
 
-    private function createSingleRootLayout(ContentElement $root): RenderableLayout
+    private function createSingleRootLayout(StoredElement $root): RenderableLayout
     {
         return RenderableLayout::create(
             LayoutReference::create($this->ids->get('layout'), 'Single Root Layout', '1.0'),
@@ -489,11 +500,11 @@ class ContentPipelineTest extends TestCase
 
     private function createPartialRenderLayout(): RenderableLayout
     {
-        $target = ContentElementBuilder::create('text', 'target-id')
+        $target = StoredElementBuilder::create('text', 'target-id')
             ->withConsumer('product', ContextType::Single)
             ->build();
-        $sibling = ContentElementBuilder::create('text', 'sibling-id')->build();
-        $root = ContentElementBuilder::create('section', 'root-id')
+        $sibling = StoredElementBuilder::create('text', 'sibling-id')->build();
+        $root = StoredElementBuilder::create('section', 'root-id')
             ->withSlot('default', [$target, $sibling])
             ->build();
 
@@ -503,11 +514,51 @@ class ContentPipelineTest extends TestCase
         );
     }
 
+    /**
+     * @param list<StoredElement> $tree
+     *
+     * @return list<ContentElement>
+     */
+    private function lower(array $tree): array
+    {
+        return (new ContentElementLowering())->lowerTree($tree);
+    }
+
     private function findChild(ContentElement $parent, string $childId): ?ContentElement
     {
         foreach ($parent->allSlotElements() as $child) {
             if ($child->getId() === $childId) {
                 return $child;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param iterable<ContentElement> $elements
+     */
+    private function renderedElement(iterable $elements, string $childId): ContentElement
+    {
+        $found = $this->findRenderedElement($elements, $childId);
+        static::assertNotNull($found, \sprintf('No rendered element with id "%s" in the result.', $childId));
+
+        return $found;
+    }
+
+    /**
+     * @param iterable<ContentElement> $elements
+     */
+    private function findRenderedElement(iterable $elements, string $childId): ?ContentElement
+    {
+        foreach ($elements as $element) {
+            if ($element->getId() === $childId) {
+                return $element;
+            }
+
+            $found = $this->findRenderedElement($element->allSlotElements(), $childId);
+            if ($found !== null) {
+                return $found;
             }
         }
 
@@ -525,6 +576,24 @@ class ContentPipelineTest extends TestCase
         foreach ($elements as $element) {
             $ids[] = $element->getId();
             $ids = $this->collectIds($element->allSlotElements(), $ids);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param list<StoredElement> $tree
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
+    private function collectStoredIds(array $tree, array $ids = []): array
+    {
+        foreach ($tree as $element) {
+            $ids[] = $element->id;
+            foreach ($element->slots as $children) {
+                $ids = $this->collectStoredIds($children, $ids);
+            }
         }
 
         return $ids;

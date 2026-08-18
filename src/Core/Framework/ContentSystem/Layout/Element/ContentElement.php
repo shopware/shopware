@@ -10,8 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\ElementVisitor;
-use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -264,19 +262,6 @@ class ContentElement extends Struct
         return $consumers;
     }
 
-    public function replacePlaceholders(RenderingSpecification $specification): void
-    {
-        foreach ($this->nonStructProperties as $key => $value) {
-            if (\is_string($value)) {
-                $this->nonStructProperties[$key] = $this->resolvePlaceholder($value, $specification->placeholderValues);
-            }
-        }
-
-        foreach ($this->allSlotElements() as $child) {
-            $child->replacePlaceholders($specification);
-        }
-    }
-
     /**
      * @codeCoverageIgnore
      */
@@ -347,15 +332,5 @@ class ContentElement extends Struct
         }
 
         return $data;
-    }
-
-    private function resolvePlaceholder(string $input, PlaceholderValues $values): string
-    {
-        foreach ($values->all() as $key => $value) {
-            $placeholder = '{{' . $key . '}}';
-            $input = \str_replace($placeholder, (string) $value, $input);
-        }
-
-        return $input;
     }
 }

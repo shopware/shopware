@@ -68,6 +68,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
@@ -117,6 +118,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     // Scaffolding Services
+    $services->set(StoredTreePreparer::class);
     $services->set(VirtualRootWrapper::class);
 
     // Output Services
@@ -157,8 +159,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StyleOptionConstraintDeriver::class),
         ]);
 
-    // One-way conversion from the stored element model onto the older one, for the two rendering seams that still
-    // read it: serving (RenderableLayout) and the draft preview render (ContentPreviewPageBuilder)
+    // One-way conversion from the stored element model onto the older one, for the single rendering seam that
+    // still reads it: the pipeline, once its stored preparation steps have run
     $services->set(ContentElementLowering::class);
 
     // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
@@ -289,10 +291,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentPipeline::class)
         ->public()
         ->args([
-            service(ContentElementHydrator::class),
             service('event_dispatcher'),
+            service(StoredTreePreparer::class),
+            service(ContentElementLowering::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
+            service(ContentElementHydrator::class),
         ]);
 
     // Rendering Specification Factory
@@ -607,7 +611,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextService::class),
             service(RenderingSpecificationResolver::class),
             service(DraftLayoutDecoder::class),
-            service(ContentElementLowering::class),
             service(DraftLayoutChecker::class),
             service(ContentPipeline::class),
         ]);

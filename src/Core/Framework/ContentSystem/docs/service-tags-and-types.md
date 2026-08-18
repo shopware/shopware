@@ -51,7 +51,7 @@ Key types extension developers encounter when working with the ContentSystem:
 
 | Class                      | Purpose                     |
 |----------------------------|-----------------------------|
-| `PreContentHydrationEvent` | Dispatched before hydration |
+| `ContentTreePreparationEvent` | Dispatched over the stored tree before every preparation step |
 | `PostHydrationEvent`       | Dispatched after hydration  |
 
 ### Layout / Response

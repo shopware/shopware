@@ -90,7 +90,9 @@ describe('repository.data.ts', () => {
             },
         });
 
-        const repository = repositoryFactory.create('product');
+        const repository = repositoryFactory.create('product', null, {
+            useAxiosV1: false,
+        });
 
         const criteriaWithoutTitle = new Criteria();
         const criteriaWithTitle = new Criteria();
@@ -107,6 +109,24 @@ describe('repository.data.ts', () => {
 
         expect(clientMock.history.post[2].url).toBe('/search/product?title=ImmaTest');
         expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
+    });
+
+    it('should use axios v1 for repository requests regardless of repository options', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const repository = repositoryFactory.create('product');
+
+        await repository.search(new Criteria());
+
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].useAxiosV1).toBe(true);
     });
 
     it('should build the correct headers', async () => {

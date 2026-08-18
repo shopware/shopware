@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -59,7 +60,42 @@ class VariantListingUpdater
             $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.parent_id), 256) WHERE product.parent_id = :id AND product.version_id = :versionId')
         );
 
+        $displayGroupMapping = $this->connection->fetchAllKeyValue(
+            'SELECT id, display_group FROM product WHERE id IN (:ids) AND version_id = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'versionId' => $versionBytes,
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        // Number of variants per parent whose display_group does not match the value the
+        // `$singleVariant` statement would write. Counting in SQL is required: a parent has many
+        // variants and they can hold diverging values, so a single sampled row cannot tell us
+        // whether the update is still needed. `<=>` is the NULL safe comparison.
+        $outdatedVariantCount = $this->connection->fetchAllKeyValue(
+            'SELECT parent_id, COUNT(*) FROM product
+                WHERE parent_id IN (:ids)
+                    AND version_id = :versionId
+                    AND NOT (display_group <=> SHA2(HEX(parent_id), 256))
+                GROUP BY parent_id',
+            [
+                'ids' => array_keys($listingConfiguration),
+                'versionId' => $versionBytes,
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
         foreach ($listingConfiguration as $parentId => $config) {
+            $parentId = (string) $parentId;
+            $currentDisplayGroup = $displayGroupMapping[$parentId] ?? null;
+            // must mirror the `SHA2(HEX(...), 256)` expressions used by the update statements above
+            $displayGroupValue = Hasher::hash(strtoupper(Uuid::fromBytesToHex($parentId)), 'sha256');
+
             $childCount = (int) $config['child_count'];
             $groups = $config['groups'];
 
@@ -69,15 +105,21 @@ class VariantListingUpdater
 
             if ($childCount <= 0) {
                 // display parent in listing
-                $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                if ($currentDisplayGroup !== $displayGroupValue) {
+                    $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                }
             } else {
                 // hide parent
-                $hideParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                if ($currentDisplayGroup !== null) {
+                    $hideParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                }
             }
 
             if ($groups === []) {
                 // display single variant in listing
-                $singleVariant->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                if ((int) ($outdatedVariantCount[$parentId] ?? 0) > 0) {
+                    $singleVariant->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                }
 
                 continue;
             }

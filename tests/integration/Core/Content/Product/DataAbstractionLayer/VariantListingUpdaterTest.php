@@ -194,6 +194,71 @@ class VariantListingUpdaterTest extends TestCase
         );
     }
 
+    public function testUpdateRepairsSingleVariantWhoseDisplayGroupWasLost(): void
+    {
+        $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $parentId = Uuid::randomBytes();
+        $parentHex = strtolower(bin2hex($parentId));
+        $expected = hash('sha256', strtoupper($parentHex));
+
+        $variantIds = [Uuid::randomBytes(), Uuid::randomBytes(), Uuid::randomBytes()];
+
+        // no configuratorGroupConfig, so all variants share the parent based display group
+        $this->connection->insert('product', [
+            'id' => $parentId,
+            'version_id' => $liveVersion,
+            'product_number' => 'vl-repair-parent',
+            'stock' => 10,
+            'variant_listing_config' => json_encode([
+                'displayParent' => null,
+                'mainVariantId' => null,
+                'configuratorGroupConfig' => [],
+            ], \JSON_THROW_ON_ERROR),
+            'display_group' => null,
+        ]);
+
+        foreach ($variantIds as $index => $variantId) {
+            $this->connection->insert('product', [
+                'id' => $variantId,
+                'version_id' => $liveVersion,
+                'parent_id' => $parentId,
+                'parent_version_id' => $liveVersion,
+                'product_number' => 'vl-repair-variant-' . $index,
+                'stock' => 10,
+                'display_group' => null,
+            ]);
+        }
+
+        $this->updater->update([$parentHex], Context::createDefaultContext());
+
+        // one variant loses its display group, e.g. because it was created after the last indexing run
+        $brokenId = $variantIds[0];
+        $this->connection->executeStatement(
+            'UPDATE product SET display_group = NULL WHERE id = :id AND version_id = :version',
+            ['id' => $brokenId, 'version' => $liveVersion]
+        );
+
+        $this->updater->update([$parentHex], Context::createDefaultContext());
+
+        $displayGroups = $this->connection->fetchAllKeyValue(
+            'SELECT product_number, display_group FROM product WHERE id IN (:ids) AND version_id = :version',
+            ['ids' => $variantIds, 'version' => $liveVersion],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame(
+            ['vl-repair-variant-0' => $expected, 'vl-repair-variant-1' => $expected, 'vl-repair-variant-2' => $expected],
+            $displayGroups
+        );
+
+        $this->connection->executeStatement(
+            'DELETE FROM product WHERE id IN (:ids)',
+            ['ids' => [...$variantIds, $parentId]],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+    }
+
     /**
      * @param list<string> $productIds
      * @param list<string> $optionIds

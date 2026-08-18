@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -348,6 +349,42 @@ class ProductStreamUpdaterTest extends TestCase
         $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
 
         $this->assertProductIsInStream($productId, $streamId);
+    }
+
+    public function testUpdateProductsRemovesMappingOfStreamThatIsNoLongerEvaluated(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        // a stream that was valid when the mapping was written, but has been invalidated since
+        $streamId = Uuid::randomBytes();
+        $connection->insert('product_stream', [
+            'id' => $streamId,
+            'invalid' => 1,
+            'api_filter' => json_encode([[
+                'type' => 'equals',
+                'field' => 'product.active',
+                'value' => '1',
+            ]], \JSON_THROW_ON_ERROR),
+            'created_at' => '2000-01-01 00:00:00.000',
+        ]);
+
+        $connection->insert('product_stream_mapping', [
+            'product_id' => Uuid::fromHexToBytes($productId),
+            'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'product_stream_id' => $streamId,
+        ]);
+
+        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
+
+        $remaining = $connection->fetchOne(
+            'SELECT COUNT(*) FROM product_stream_mapping WHERE product_id = :productId AND product_stream_id = :streamId',
+            ['productId' => Uuid::fromHexToBytes($productId), 'streamId' => $streamId]
+        );
+
+        static::assertSame(0, (int) $remaining);
     }
 
     private function createProduct(string $productId): void

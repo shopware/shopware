@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteR
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -189,7 +190,26 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $languageContexts = $this->getLanguageContexts($context);
+        // Every existing mapping of these products, across all streams: mappings of streams that are
+        // not evaluated below (invalid, deleted, unparsable filter) have to be removed as well.
+        /** @var list<array<string, string>> $result */
+        $result = $this->connection->fetchAllAssociative(
+            'SELECT product_stream_id, LOWER(HEX(product_id)) as product_id FROM product_stream_mapping WHERE product_id IN (:productIds)',
+            ['productIds' => Uuid::fromHexToBytesList($ids)],
+            ['productIds' => ArrayParameterType::BINARY]
+        );
+
+        $oldMatches = FetchModeHelper::group(
+            $result,
+            static fn (array $row): string => (string) $row['product_id']
+        );
+
+        $languageContexts = $streams === [] ? [] : $this->getLanguageContexts($context);
+
+        $evaluatedStreamIds = [];
+        $hasInserts = false;
+        /** @var array<string, list<string>> $deletesByStream */
+        $deletesByStream = [];
 
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
@@ -197,6 +217,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
+            $oldMatchesOfStream = $oldMatches[$stream['id']] ?? [];
             $criteria = $this->getCriteria($filter, $ids);
 
             if ($criteria === null) {
@@ -211,21 +232,48 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
-            foreach ($matchedIds as $id) {
+            $evaluatedStreamIds[] = $stream['id'];
+
+            $toBeDeleted = array_values(array_diff($oldMatchesOfStream, $matchedIds));
+            $toBeAdded = array_values(array_diff($matchedIds, $oldMatchesOfStream));
+
+            foreach ($toBeAdded as $id) {
+                $hasInserts = true;
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
                     'product_stream_id' => $stream['id'],
                 ]);
             }
+
+            if ($toBeDeleted !== []) {
+                $deletesByStream[$stream['id']] = Uuid::fromHexToBytesList($toBeDeleted);
+            }
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => ArrayParameterType::BINARY]
-            );
+        // mappings of streams that were not evaluated above no longer apply to any of the products
+        foreach (array_diff(array_keys($oldMatches), $evaluatedStreamIds) as $obsoleteStreamId) {
+            $deletesByStream[$obsoleteStreamId] = Uuid::fromHexToBytesList($ids);
+        }
+
+        if ($deletesByStream === [] && !$hasInserts) {
+            return;
+        }
+
+        // deleting and inserting in one transaction keeps readers from seeing a product that is
+        // temporarily missing from a stream it still belongs to
+        RetryableTransaction::retryable($this->connection, function () use ($deletesByStream, $insert): void {
+            foreach ($deletesByStream as $streamId => $productIds) {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => $productIds,
+                        'streamId' => $streamId,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            }
+
             $insert->execute();
         });
     }
@@ -324,7 +372,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function replaceCheapestPriceFilters(array $filters): array
     {
         foreach ($filters as $key => $filter) {
-            if (!empty($filter['queries'])) {
+            if (\is_array($filter['queries'] ?? null) && $filter['queries'] !== []) {
                 $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
             }
 

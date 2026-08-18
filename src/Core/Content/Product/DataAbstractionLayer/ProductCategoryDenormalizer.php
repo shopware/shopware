@@ -13,6 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizerTest
+ */
 #[Package('framework')]
 class ProductCategoryDenormalizer
 {
@@ -29,7 +34,6 @@ class ProductCategoryDenormalizer
     public function update(array $ids, Context $context): void
     {
         $ids = array_unique(\array_filter($ids));
-        $allIds = [];
 
         if ($ids === []) {
             return;
@@ -42,9 +46,22 @@ class ProductCategoryDenormalizer
 
         $inserts = [];
         $updates = [];
+        $deletes = [];
+
+        $oldTreesByProductId = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)), LOWER(HEX(category_id)) as category_id FROM product_category_tree WHERE product_id IN (:ids) AND product_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList(array_keys($categories)), 'version' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $oldTreesByProductId = FetchModeHelper::group(
+            $oldTreesByProductId,
+            static fn (array $row): string => (string) $row['category_id']
+        );
+
         foreach ($categories as $productId => $mapping) {
+            $oldTrees = $oldTreesByProductId[$productId] ?? [];
             $productId = Uuid::fromHexToBytes($productId);
-            $allIds[] = $productId;
             $categoryIds = $this->mapCategories($mapping);
 
             $json = null;
@@ -52,13 +69,18 @@ class ProductCategoryDenormalizer
                 $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
-            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
+            $toBeDeleted = array_values(array_diff($oldTrees, $categoryIds));
+            $toBeAdded = array_values(array_diff($categoryIds, $oldTrees));
 
-            if ($categoryIds === []) {
+            // The rows and the denormalized column are written independently, so the column is also
+            // compared: it has to be repaired when it drifted even though the rows are up to date.
+            if ($toBeDeleted === [] && $toBeAdded === [] && $this->treeColumnMatches($mapping['tree'] ?? null, $categoryIds)) {
                 continue;
             }
 
-            foreach ($categoryIds as $id) {
+            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
+
+            foreach ($toBeAdded as $id) {
                 $inserts[] = [
                     'product_id' => $productId,
                     'product_version_id' => $versionId,
@@ -66,15 +88,13 @@ class ProductCategoryDenormalizer
                     'category_version_id' => $liveVersionId,
                 ];
             }
+
+            foreach ($toBeDeleted as $id) {
+                $deletes[] = ['product_id' => $productId, 'category_id' => Uuid::fromHexToBytes($id)];
+            }
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($allIds, $versionId): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
-                ['ids' => $allIds, 'version' => $versionId],
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        });
+        $this->deleteTree($deletes, $versionId);
 
         RetryableTransaction::retryable($this->connection, function () use ($updates): void {
             $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
@@ -85,6 +105,66 @@ class ProductCategoryDenormalizer
         });
 
         $this->insertTree($inserts);
+    }
+
+    /**
+     * The order of the stored ids is not significant, `category_tree` is only read with contains
+     * checks, and the order the ids are collected in is not stable. Comparing the encoded strings
+     * would therefore report a difference on every run and rewrite the column each time.
+     *
+     * @param array<int, string> $categoryIds
+     */
+    private function treeColumnMatches(?string $storedTree, array $categoryIds): bool
+    {
+        if ($categoryIds === []) {
+            return $storedTree === null;
+        }
+
+        if ($storedTree === null) {
+            return false;
+        }
+
+        $stored = json_decode($storedTree, true);
+
+        if (!\is_array($stored)) {
+            return false;
+        }
+
+        return array_diff($stored, $categoryIds) === [] && array_diff($categoryIds, $stored) === [];
+    }
+
+    /**
+     * `category_version_id` is intentionally not constrained: the inserts always write the live
+     * category version, so matching it against `$versionId` would never delete anything in a non
+     * live version context.
+     *
+     * @param list<array{product_id: string, category_id: string}> $deletes
+     */
+    private function deleteTree(array $deletes, string $versionId): void
+    {
+        if ($deletes === []) {
+            return;
+        }
+
+        foreach (array_chunk($deletes, 250) as $chunk) {
+            // one placeholder pair per row to delete, so the whole chunk is a single statement
+            $tuples = implode(', ', array_fill(0, \count($chunk), '(?, ?)'));
+
+            $parameters = [$versionId];
+            foreach ($chunk as $delete) {
+                $parameters[] = $delete['product_id'];
+                $parameters[] = $delete['category_id'];
+            }
+
+            RetryableTransaction::retryable($this->connection, function () use ($tuples, $parameters): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_category_tree
+                        WHERE `product_version_id` = ?
+                            AND (`product_id`, `category_id`) IN (' . $tuples . ')',
+                    $parameters
+                );
+            });
+        }
     }
 
     /**
@@ -106,7 +186,7 @@ class ProductCategoryDenormalizer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, array<string, string|null>>
      */
     private function fetchMapping(array $ids, Context $context): array
     {
@@ -115,6 +195,8 @@ class ProductCategoryDenormalizer
             'LOWER(HEX(product.id)) as product_id',
             'GROUP_CONCAT(category.path SEPARATOR \'\') as paths',
             'GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR \'|\') as ids',
+            // carried along so the denormalized column can be repaired when it drifted from the rows
+            'product.category_tree as tree',
         );
         $query->from('product');
         $query->leftJoin(
@@ -152,7 +234,7 @@ class ProductCategoryDenormalizer
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, array<string, string>> $unique */
+        /** @var array<string, array<string, string|null>> $unique */
         $unique = FetchModeHelper::groupUnique($rows);
 
         return $unique;

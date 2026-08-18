@@ -15,8 +15,10 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -114,8 +116,6 @@ class SearchKeywordUpdater implements ResetInterface
 
         $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
-
         $keywords = [];
         $dictionary = [];
 
@@ -131,10 +131,54 @@ class SearchKeywordUpdater implements ResetInterface
 
         $this->assignParentProducts($existingProducts, $configFields, $context);
 
+        $oldKeywordsByProductId = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)) as product_id, keyword, ranking FROM product_search_keyword WHERE language_id = :languageId AND product_id IN (:productIds) AND product_version_id = :version',
+            [
+                'languageId' => $languageId,
+                'productIds' => Uuid::fromHexToBytesList(array_keys($existingProducts)),
+                'version' => $versionId,
+            ],
+            [
+                'productIds' => ArrayParameterType::BINARY,
+            ],
+        );
+
+        $oldKeywordsByProductId = FetchModeHelper::group($oldKeywordsByProductId);
+
+        $productIdsToRewrite = [];
+        $analyzedKeywordPool = [];
+
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
 
+            $storedKeywords = [];
+            foreach ($oldKeywordsByProductId[$product->getId()] ?? [] as $row) {
+                if (!isset($row['keyword'], $row['ranking'])) {
+                    continue;
+                }
+
+                $storedKeywords[$row['keyword']] = (float) $row['ranking'];
+            }
+
+            $analyzedKeywords = [];
+            foreach ($analyzed as $keyword) {
+                $analyzedKeywords[$keyword->getKeyword()] = $keyword->getRanking();
+            }
+
+            // collected for every product, also the ones skipped below: a keyword needs its
+            // dictionary row regardless of whether the product's own rows are up to date
+            $analyzedKeywordPool += $analyzedKeywords;
+
+            ksort($storedKeywords);
+            ksort($analyzedKeywords);
+
+            // neither the keywords nor their rankings changed, leave the stored rows untouched
+            if ($storedKeywords === $analyzedKeywords) {
+                continue;
+            }
+
             $productId = Uuid::fromHexToBytes($product->getId());
+            $productIdsToRewrite[] = $productId;
 
             foreach ($analyzed as $keyword) {
                 $keywords[] = [
@@ -147,17 +191,36 @@ class SearchKeywordUpdater implements ResetInterface
                     'ranking' => $keyword->getRanking(),
                     'created_at' => $now,
                 ];
-                $key = $keyword->getKeyword() . $languageId;
-                $dictionary[$key] = [
-                    'id' => Uuid::randomBytes(),
-                    'language_id' => $languageId,
-                    'keyword' => $keyword->getKeyword(),
-                ];
             }
         }
 
-        $this->insertKeywords($keywords);
-        $this->insertDictionary($dictionary);
+        // The dictionary is part of what a rebuild used to write, so it is part of what has to be
+        // compared: only the rows that are actually absent are written, which also repairs a
+        // dictionary that was emptied out of band (migrations do exactly that and then reindex).
+        $missingKeywords = $this->fetchMissingDictionaryKeywords(
+            array_map(strval(...), array_keys($analyzedKeywordPool)),
+            $languageId
+        );
+
+        foreach ($missingKeywords as $missingKeyword) {
+            $dictionary[$missingKeyword] = [
+                'id' => Uuid::randomBytes(),
+                'language_id' => $languageId,
+                'keyword' => $missingKeyword,
+            ];
+        }
+
+        if ($productIdsToRewrite === [] && $dictionary === []) {
+            return $existingProducts;
+        }
+
+        // One transaction for all three writes, so an interrupted run cannot leave a product
+        // indexed without the dictionary rows its keywords imply.
+        RetryableTransaction::retryable($this->connection, function () use ($productIdsToRewrite, $languageId, $versionId, $keywords, $dictionary): void {
+            $this->deleteKeywords($productIdsToRewrite, $languageId, $versionId);
+            $this->insertKeywords($keywords);
+            $this->insertDictionary($dictionary);
+        });
 
         return $existingProducts;
     }
@@ -181,23 +244,55 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $keywords
+     *
+     * @return list<string>
      */
-    private function delete(array $ids, string $languageId, string $versionId): void
+    private function fetchMissingDictionaryKeywords(array $keywords, string $languageId): array
     {
-        $bytes = Uuid::fromHexToBytesList($ids);
+        if ($keywords === []) {
+            return [];
+        }
 
-        $params = [
-            'ids' => $bytes,
-            'language' => Uuid::fromHexToBytes($languageId),
-            'versionId' => Uuid::fromHexToBytes($versionId),
-        ];
+        $existing = [];
 
-        RetryableQuery::retryable($this->connection, function () use ($params): void {
+        foreach (array_chunk($keywords, 500) as $chunk) {
+            $existing = [
+                ...$existing,
+                ...$this->connection->fetchFirstColumn(
+                    'SELECT keyword FROM product_keyword_dictionary WHERE language_id = :languageId AND keyword IN (:keywords)',
+                    ['languageId' => $languageId, 'keywords' => $chunk],
+                    ['keywords' => ArrayParameterType::STRING]
+                ),
+            ];
+        }
+
+        return array_values(array_diff($keywords, $existing));
+    }
+
+    /**
+     * Products whose keywords changed are rewritten as a whole, so their stored rows are removed in
+     * a single statement instead of one per product.
+     *
+     * @param list<string> $productIds
+     */
+    private function deleteKeywords(array $productIds, string $languageId, string $versionId): void
+    {
+        if ($productIds === []) {
+            return;
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($productIds, $languageId, $versionId): void {
             $this->connection->executeStatement(
-                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
-                $params,
-                ['ids' => ArrayParameterType::BINARY]
+                'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :languageId AND product_version_id = :versionId',
+                [
+                    'ids' => $productIds,
+                    'languageId' => $languageId,
+                    'versionId' => $versionId,
+                ],
+                [
+                    'ids' => ArrayParameterType::BINARY,
+                ]
             );
         });
     }

@@ -30,10 +30,7 @@ const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'feature',
-        'systemConfigApiService',
-    ],
+    inject: ['systemConfigApiService'],
 
     /** @public */
     provide() {

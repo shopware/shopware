@@ -13,9 +13,6 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * Suppresses a storefront submission that re-submits an already consumed context token.
  *
- * Callers name their own scope, e.g. RegisterController::DOUBLE_SUBMIT_SCOPE, so that unrelated
- * forms never spend each other's token: the scope prefixes both the marker and the lock key.
- *
  * The marker records only that a token is spent, never what it became: a stale token is what a
  * fixated session presents, so anything derived from it would reach an attacker just as easily.
  *
@@ -41,10 +38,10 @@ class DoubleSubmitGuard
     }
 
     /**
-     * @param string $scope names the guarded submission and must be a valid cache key
+     * @param string $scope prefixes the marker and the lock key, e.g. RegisterController::DOUBLE_SUBMIT_SCOPE
      * @param \Closure(): void $submit
      *
-     * @return bool whether the submission ran, false only when it was suppressed as a double submit
+     * @return bool false only when the submission was suppressed as a double submit
      */
     public function guard(string $scope, SalesChannelContext $context, \Closure $submit): bool
     {

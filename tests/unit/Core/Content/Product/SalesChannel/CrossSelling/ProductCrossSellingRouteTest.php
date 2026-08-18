@@ -280,7 +280,8 @@ class ProductCrossSellingRouteTest extends TestCase
             static::createStub(SystemConfigService::class),
             $listingLoader,
             static::createStub(AbstractProductCloseoutFilterFactory::class),
-            $this->cacheTagCollector
+            $this->cacheTagCollector,
+            $this->connection
         );
 
         $element = $route

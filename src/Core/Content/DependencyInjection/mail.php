@@ -105,6 +105,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media.repository'),
             service(DocumentGenerator::class),
             service(Connection::class),
+            service('document.repository'),
+            service('monolog.logger.business_events'),
         ]);
 
     $services->set(MailPayloadFactory::class);

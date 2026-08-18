@@ -1,4 +1,5 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import type { SnippetRegistry } from 'src/core/factory/locale.factory';
 import type LocaleFactory from 'src/core/factory/locale.factory';
@@ -18,7 +19,7 @@ type InstalledLocales = Record<string, string>;
  * @sw-package discovery
  */
 class SnippetApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'snippet') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'snippet') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'snippetService';
     }

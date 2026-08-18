@@ -55,13 +55,14 @@ class ContentPipeline
         $this->eventDispatcher->dispatch($preparationEvent);
 
         $storedTree = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
-        $elements = $this->lowering->lowerTree($storedTree);
 
-        $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $elements);
+        $virtualRootWrapped = $this->virtualRootWrapper->requiresWrapping($specification, $storedTree);
 
         if ($virtualRootWrapped) {
-            $elements = [$this->virtualRootWrapper->wrap($elements, $specification)];
+            $storedTree = [$this->virtualRootWrapper->wrap($storedTree, $specification)];
         }
+
+        $elements = $this->lowering->lowerTree($storedTree);
 
         $this->expandRedistribution($elements);
 

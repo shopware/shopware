@@ -8,17 +8,26 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * The wrapper straddles the two element models, so the fixtures do too: the wrap half takes stored
+ * elements, the unwrap half takes the lowered ones the pipeline reaches it with. Where a test needs
+ * both halves it lowers the wrap output the way the pipeline does, rather than hand-building a second
+ * wrapper that could drift from the real one.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -35,7 +44,7 @@ class VirtualRootWrapperTest extends TestCase
     #[TestDox('returns true when specification has data requirements and elements exist')]
     public function testRequiresWrapping(): void
     {
-        $element = ContentElementBuilder::create('Sw:Text')->build();
+        $element = StoredElementBuilder::create('Sw:Text')->build();
 
         static::assertTrue($this->wrapper->requiresWrapping($this->specificationWithLanguageRequirement(), [$element]));
     }
@@ -49,7 +58,7 @@ class VirtualRootWrapperTest extends TestCase
             new Request(),
         );
 
-        $element = ContentElementBuilder::create('Sw:Text')->build();
+        $element = StoredElementBuilder::create('Sw:Text')->build();
 
         static::assertFalse($this->wrapper->requiresWrapping($specification, [$element]));
     }
@@ -60,30 +69,56 @@ class VirtualRootWrapperTest extends TestCase
         static::assertFalse($this->wrapper->requiresWrapping($this->specificationWithLanguageRequirement(), []));
     }
 
-    #[TestDox('creates virtual root with correct identity, broadcast providers, and slot contents')]
-    public function testWrapCreatesVirtualRootWithBroadcastProvidersAndSlotContents(): void
+    #[TestDox('creates virtual root with correct identity and broadcast providers')]
+    public function testWrapCreatesVirtualRootWithBroadcastProviders(): void
     {
-        $root1 = ContentElementBuilder::create('Sw:Text')->build();
-        $root2 = ContentElementBuilder::create('Sw:Image')->build();
+        $virtualRoot = $this->wrapper->wrap(
+            [StoredElementBuilder::create('Sw:Text')->build()],
+            $this->specificationWithLanguageRequirement(),
+        );
+
+        static::assertSame('__page_context_root__', $virtualRoot->id);
+        static::assertSame('Sw:Internal:PageContext', $virtualRoot->component);
+        static::assertArrayHasKey('language', $virtualRoot->contextDefinitions->getAllProviders());
+    }
+
+    #[TestDox('holds the actual roots as a plain list under the page roots slot')]
+    public function testWrapHoldsTheActualRootsAsAPlainList(): void
+    {
+        $root1 = StoredElementBuilder::create('Sw:Text', 'root-a')->build();
+        $root2 = StoredElementBuilder::create('Sw:Image', 'root-b')->build();
 
         $virtualRoot = $this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement());
 
-        static::assertSame('__page_context_root__', $virtualRoot->getId());
-        static::assertSame('Sw:Internal:PageContext', $virtualRoot->getComponent());
-        static::assertArrayHasKey('language', $virtualRoot->getProvidesContext());
+        static::assertSame(['__page_roots__' => [$root1, $root2]], $virtualRoot->slots);
+    }
 
-        $slots = $virtualRoot->getSlots();
-        static::assertArrayHasKey('__page_roots__', $slots);
-        static::assertCount(2, iterator_to_array($slots['__page_roots__']->getIterator()));
+    #[TestDox('carries the placeholder values as wrapped stored property values')]
+    public function testWrapCarriesPlaceholderValuesAsStoredValues(): void
+    {
+        $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
+        $specification = new RenderingSpecification(
+            [$requirement],
+            PlaceholderValues::from(['productId' => 'product-a', 'page' => 2]),
+            new Request(),
+        );
+
+        $virtualRoot = $this->wrapper->wrap([StoredElementBuilder::create('Sw:Text')->build()], $specification);
+
+        $properties = $virtualRoot->properties();
+        static::assertSame(['productId', 'page'], array_keys($properties));
+        static::assertContainsOnlyInstancesOf(StoredValue::class, $properties);
+        static::assertSame('product-a', $properties['productId']->asString());
+        static::assertSame(2, $properties['page']->asInt());
     }
 
     #[TestDox('returns true when element is the virtual page context root')]
     public function testIsVirtualRootReturnsTrueForVirtualRoot(): void
     {
-        $virtualRoot = $this->wrapper->wrap(
-            [ContentElementBuilder::create('Sw:Text')->build()],
+        $virtualRoot = $this->lower($this->wrapper->wrap(
+            [StoredElementBuilder::create('Sw:Text')->build()],
             $this->specificationWithLanguageRequirement(),
-        );
+        ));
 
         static::assertTrue($this->wrapper->isVirtualRoot($virtualRoot));
     }
@@ -99,10 +134,10 @@ class VirtualRootWrapperTest extends TestCase
     #[TestDox('extracts original roots from a valid virtual root wrapper')]
     public function testUnwrapExtractsOriginalRoots(): void
     {
-        $root1 = ContentElementBuilder::create('Sw:Section', 'root-a')->build();
-        $root2 = ContentElementBuilder::create('Sw:Container', 'root-b')->build();
+        $root1 = StoredElementBuilder::create('Sw:Section', 'root-a')->build();
+        $root2 = StoredElementBuilder::create('Sw:Container', 'root-b')->build();
 
-        $virtualRoot = $this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement());
+        $virtualRoot = $this->lower($this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement()));
         $extractedRoots = $this->wrapper->unwrap($virtualRoot);
 
         static::assertCount(2, $extractedRoots);
@@ -155,6 +190,14 @@ class VirtualRootWrapperTest extends TestCase
                 'an empty slot'
             ),
         ];
+    }
+
+    /**
+     * Takes a wrap result across to the model the unwrap half speaks, exactly as the pipeline does.
+     */
+    private function lower(StoredElement $element): ContentElement
+    {
+        return (new ContentElementLowering())->lower($element);
     }
 
     private function specificationWithLanguageRequirement(): RenderingSpecification

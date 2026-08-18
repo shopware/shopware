@@ -199,7 +199,7 @@ class ContentPipelineTest extends TestCase
         );
 
         // Fixture guard: without page-level data requirements the pipeline never wraps at all.
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $this->lower($layout->elements)));
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
 
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -333,7 +333,7 @@ class ContentPipelineTest extends TestCase
         );
 
         // Fixture guard: without page-level data requirements there is no virtual root to unwrap.
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $this->lower($layout->elements)));
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
 
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -412,13 +412,14 @@ class ContentPipelineTest extends TestCase
         static::assertNotNull($loweredTarget);
 
         // Fixture guard: the page-level data requirement really does make the pipeline wrap ...
-        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $lowered));
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
         // ... the target really does need no parent data ...
         static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($loweredTarget));
         // ... and so the prune really does cut the virtual root away above it, rather than there
-        // never having been one.
+        // never having been one. The wrap runs on the stored tree and the pruner reads the lowered
+        // one, so the guard lowers in between exactly as the pipeline does.
         static::assertSame('target-id', (new ElementTreePruner())->pruneToPathAndDescendants(
-            (new VirtualRootWrapper())->wrap($lowered, $specification),
+            (new ContentElementLowering())->lower((new VirtualRootWrapper())->wrap($layout->elements, $specification)),
             'target-id',
             new ContextDependencyAnalyzer(),
         )->getId());

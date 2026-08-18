@@ -9,7 +9,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefiniti
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,6 +19,13 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Virtual root is a temporary structural modification (scaffolding) that wraps actual layout
  * roots to enable page-level data requirements to be distributed as broadcast context.
+ *
+ * The two halves deliberately speak different element models. `requiresWrapping()` and `wrap()` take
+ * {@see StoredElement}, because `ContentSystem\ContentPipeline::load()` wraps while the tree is still
+ * the storage model and lowers afterwards. `unwrap()` and `isVirtualRoot()` still take
+ * {@see ContentElement}, because the pipeline reaches them at its far end, on a tree the lowering has
+ * long since taken across. The split signature is the seam moving through this class, not a mistake;
+ * both halves meet again on the storage model once the finishing steps move too.
  *
  * @internal
  */
@@ -33,7 +41,7 @@ final class VirtualRootWrapper
      *
      * Virtual root is needed when page-level data requirements exist and layout has content roots to wrap.
      *
-     * @param array<ContentElement> $elements
+     * @param list<StoredElement> $elements
      */
     public function requiresWrapping(RenderingSpecification $specification, array $elements): bool
     {
@@ -54,16 +62,20 @@ final class VirtualRootWrapper
      * Virtual root contains layout-level data requirements, exposes loaded data
      * as broadcast context providers, and has actual roots as children in a single slot.
      *
-     * @param array<ContentElement> $actualRoots
+     * The placeholder values arrive as raw scalars and are wrapped here, which makes this one of the
+     * sanctioned {@see StoredValue} mint sites. Their keys can never be numeric: `PlaceholderValues::from()`
+     * rejects a non-string key, and PHP casts a numeric-string key to an int before it gets there.
+     *
+     * @param list<StoredElement> $actualRoots
      */
-    public function wrap(array $actualRoots, RenderingSpecification $specification): ContentElement
+    public function wrap(array $actualRoots, RenderingSpecification $specification): StoredElement
     {
-        return new ContentElement(
+        return new StoredElement(
             self::VIRTUAL_ROOT_ID,
             self::VIRTUAL_ROOT_TYPE,
             $this->indexDataRequirements($specification->dataRequirements),
-            $specification->placeholderValues->all(),
-            [self::VIRTUAL_ROOT_SLOT_NAME => new SlotContent($actualRoots)],
+            array_map(StoredValue::fromDecoded(...), $specification->placeholderValues->all()),
+            [self::VIRTUAL_ROOT_SLOT_NAME => $actualRoots],
             $this->createContextDefinitions($specification->dataRequirements)
         );
     }

@@ -14,8 +14,8 @@ preparation event, whose elements are immutable, and the mutable `elements` prop
 
 ```
 ContentTreePreparationEvent
-  → placeholder resolution (FULL mode only) → lowering onto ContentElement
-  → virtual-root wrap → redistribute expansion → partial prune
+  → placeholder resolution (FULL mode only) → virtual-root wrap
+  → lowering onto ContentElement → redistribute expansion → partial prune
   → Hydration (FULL mode only)
   → virtual-root unwrap → partial extract
 → PostHydrationEvent

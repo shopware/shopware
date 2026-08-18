@@ -12,13 +12,13 @@ Core ships no listener on either event. `ContentPipeline::load()` (module root) 
 
 **Before hydration**, after `ContentTreePreparationEvent` is dispatched:
 1. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only (`Layout/Scaffolding/StoredTreePreparer`)
-2. Lowering — takes the stored tree onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
-3. Virtual-root wrap — wraps roots with a temporary container for layout-level context (`Layout/Scaffolding/VirtualRootWrapper`)
+2. Virtual-root wrap — wraps the stored roots with a temporary container for layout-level context (`Layout/Scaffolding/VirtualRootWrapper`)
+3. Lowering — takes the stored tree onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
 4. Redistribute expansion — expands `redistribute: true` into broadcast providers
 5. Partial prune — prunes the tree when `targetElementId` is specified (`Output/PartialRenderer`)
 
 **After hydration**, before `PostHydrationEvent` is dispatched:
-1. Virtual-root unwrap — removes the virtual root wrapper
+1. Virtual-root unwrap — removes the virtual root wrapper, on the lowered tree
 2. Partial extract — extracts the target subtree for the response
 
 So a `ContentTreePreparationEvent` listener always sees the raw loaded tree, and a `PostHydrationEvent` listener always sees the finished one — at any priority.

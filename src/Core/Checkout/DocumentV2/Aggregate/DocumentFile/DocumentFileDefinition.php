@@ -25,6 +25,8 @@ use Shopware\Core\Framework\Log\Package;
  * only exist during rendering are not stored here.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class DocumentFileDefinition extends EntityDefinition

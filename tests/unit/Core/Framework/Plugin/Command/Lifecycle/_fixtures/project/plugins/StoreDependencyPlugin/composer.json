@@ -1,0 +1,9 @@
+{
+    "name": "z-vendor/store-dependency-plugin",
+    "description": "Plugin install command test fixture",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "extra": {
+        "shopware-plugin-class": "StoreDependencyPlugin\\StoreDependencyPlugin"
+    }
+}

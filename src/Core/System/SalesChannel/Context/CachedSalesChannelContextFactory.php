@@ -40,13 +40,21 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
         $key = implode('-', [$name, Hasher::hash($options)]);
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
+        $fresh = null;
+
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options, &$fresh) {
             $item->tag([$name, self::ALL_TAG]);
 
-            return CacheValueCompressor::compress(
-                $this->decorated->create($token, $salesChannelId, $options)
-            );
+            $fresh = $this->decorated->create($token, $salesChannelId, $options);
+
+            return CacheValueCompressor::compress($fresh);
         });
+
+        // the context was built in this call, return it directly instead of
+        // uncompressing the cache payload that was just compressed from it
+        if ($fresh instanceof SalesChannelContext) {
+            return $fresh;
+        }
 
         $context = CacheValueCompressor::uncompress($value);
 

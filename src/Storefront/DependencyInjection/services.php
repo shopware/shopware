@@ -67,6 +67,7 @@ use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
+use Shopware\Storefront\Checkout\DoubleSubmitGuard;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
@@ -239,6 +240,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('session.factory'),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(DoubleSubmitGuard::class)
+        ->args([
+            service('lock.factory'),
+            service('cache.double_submit'),
+            service('logger'),
+        ]);
 
     $services->set(StorefrontScriptResponseFactoryFacadeHookFactory::class)
         ->public()

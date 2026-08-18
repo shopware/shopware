@@ -36,7 +36,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
+use Shopware\Storefront\Checkout\DoubleSubmitGuard;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -719,7 +719,7 @@ class RegisterControllerTest extends TestCase
             $container->get('sales_channel_domain.repository'),
             $container->get(HeaderPageletLoader::class),
             $container->get(FooterPageletLoader::class),
-            $container->get(RegistrationDoubleSubmitGuard::class),
+            $container->get(DoubleSubmitGuard::class),
         );
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Checkout\Customer;
+namespace Shopware\Tests\Unit\Storefront\Checkout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,7 +14,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
+use Shopware\Storefront\Checkout\DoubleSubmitGuard;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -23,14 +23,16 @@ use Symfony\Component\Lock\SharedLockInterface;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(RegistrationDoubleSubmitGuard::class)]
-class RegistrationDoubleSubmitGuardTest extends TestCase
+#[CoversClass(DoubleSubmitGuard::class)]
+class DoubleSubmitGuardTest extends TestCase
 {
+    private const SCOPE = 'storefront-registration';
+
     private const TOKEN = 'context-token';
 
     private const WINNER_TOKEN = 'winner-context-token';
 
-    public function testFirstSubmissionRegistersUnderTheLock(): void
+    public function testFirstSubmissionRunsUnderTheLock(): void
     {
         $cache = new ArrayAdapter();
         $lock = $this->createAcquiredLock();
@@ -40,17 +42,18 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $logger->expects($this->never())->method('warning');
 
         $context = $this->createContext();
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $logger)->guard(
+            self::SCOPE,
             $context,
-            static function () use (&$registerCalls, $context): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls, $context): void {
+                ++$submitCalls;
                 $context->assign(['token' => self::WINNER_TOKEN]);
             }
         );
 
-        static::assertSame(1, $registerCalls);
+        static::assertSame(1, $submitCalls);
         static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
@@ -71,6 +74,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $context = $this->createContext();
 
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
+            self::SCOPE,
             $context,
             static function () use ($context): void {
                 $context->assign(['token' => self::WINNER_TOKEN]);
@@ -89,6 +93,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $context = $this->createContext();
 
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
+            self::SCOPE,
             $context,
             static function () use ($context): void {
                 $context->assign(['token' => self::WINNER_TOKEN]);
@@ -103,42 +108,95 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         }
     }
 
-    public function testARegistrationThatKeepsItsTokenStillSpendsIt(): void
+    public function testASubmissionThatKeepsItsTokenStillSpendsIt(): void
     {
         $cache = new ArrayAdapter();
         $lock = $this->createAcquiredLock();
         $lock->expects($this->once())->method('release');
 
         $context = $this->createContext();
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
+            self::SCOPE,
             $context,
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(1, $registerCalls);
+        static::assertSame(1, $submitCalls);
         static::assertSame(self::TOKEN, $context->getToken());
         static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
-    public function testAConsumedTokenSuppressesTheRegistration(): void
+    public function testAConsumedTokenSuppressesTheSubmission(): void
     {
         $cache = new ArrayAdapter();
         $this->seedMarker($cache);
 
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())->guard(
+            self::SCOPE,
             $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(0, $registerCalls);
+        static::assertSame(0, $submitCalls);
+    }
+
+    public function testAScopeOnlySpendsItsOwnToken(): void
+    {
+        $cache = new ArrayAdapter();
+        $this->seedMarker($cache);
+
+        $otherScope = 'storefront-contact-form';
+
+        $lock = $this->createAcquiredLock();
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with($otherScope . '-lock-' . hash('sha256', self::TOKEN), 30.0, false)
+            ->willReturn($lock);
+
+        $submitCalls = 0;
+
+        $this->createGuard($lockFactory, $cache, new NullLogger())->guard(
+            $otherScope,
+            $this->createContext(),
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
+            }
+        );
+
+        static::assertSame(1, $submitCalls);
+        static::assertTrue($cache->getItem($otherScope . '-' . hash('sha256', self::TOKEN))->isHit());
+    }
+
+    public function testTheGuardReportsWhetherTheSubmissionRan(): void
+    {
+        $cache = new ArrayAdapter();
+
+        $lock = $this->createAcquiredLock();
+        $lock->expects($this->once())->method('release');
+
+        $submitted = $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())
+            ->guard(self::SCOPE, $this->createContext(), static function (): void {
+            });
+
+        static::assertTrue($submitted);
+
+        $suppressed = $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
+            ->guard(self::SCOPE, $this->createContext(), static function (): void {
+                static::fail('The double submit must not run a second time.');
+            });
+
+        static::assertFalse($suppressed);
     }
 
     public function testEveryResubmissionStaysSuppressedWhileTheMarkerLives(): void
@@ -149,8 +207,8 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $guard = $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger());
 
         for ($resubmission = 0; $resubmission < 3; ++$resubmission) {
-            $guard->guard($this->createContext(), static function (): void {
-                static::fail('The double submit must not register a second time.');
+            $guard->guard(self::SCOPE, $this->createContext(), static function (): void {
+                static::fail('The double submit must not run a second time.');
             });
         }
 
@@ -171,12 +229,12 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $lock->expects($this->once())->method('release');
 
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The double submit must not register a second time.');
+            ->guard(self::SCOPE, $this->createContext(), static function (): void {
+                static::fail('The double submit must not run a second time.');
             });
     }
 
-    public function testARejectedRegistrationDoesNotSpendTheToken(): void
+    public function testARejectedSubmissionDoesNotSpendTheToken(): void
     {
         $cache = new ArrayAdapter();
 
@@ -187,7 +245,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $rejection = new \RuntimeException('the submitted data is invalid');
 
         try {
-            $guard->guard($this->createContext(), static function () use ($rejection): void {
+            $guard->guard(self::SCOPE, $this->createContext(), static function () use ($rejection): void {
                 throw $rejection;
             });
 
@@ -199,7 +257,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertFalse($cache->getItem(self::markerKey())->isHit());
     }
 
-    public function testAMarkerWrittenWhileWaitingForTheLockStillSuppressesTheRegistration(): void
+    public function testAMarkerWrittenWhileWaitingForTheLockStillSuppressesTheSubmission(): void
     {
         $cache = new ArrayAdapter();
 
@@ -214,14 +272,14 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $lock->expects($this->once())->method('release');
 
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The registration must not run a second time.');
+            ->guard(self::SCOPE, $this->createContext(), static function (): void {
+                static::fail('The double submit must not run a second time.');
             });
 
         static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
-    public function testAnUncreatableLockRegistersUnguarded(): void
+    public function testAnUncreatableLockSubmitsUnguarded(): void
     {
         $cache = new ArrayAdapter();
 
@@ -231,21 +289,23 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
             ->willThrowException(new \RuntimeException('lock store unreachable'));
 
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
-        $this->createGuard($lockFactory, $cache, $this->createWarningCollector($warnings))->guard(
+        $submitted = $this->createGuard($lockFactory, $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration lock could not be created, registering unguarded.', $warnings);
+        static::assertTrue($submitted, 'a guard that fails open must report the submission as run');
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit lock could not be created, submitting unguarded.', $warnings);
         static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
-    public function testAFailingAcquireReleasesTheLockAndRegistersUnguarded(): void
+    public function testAFailingAcquireReleasesTheLockAndSubmitsUnguarded(): void
     {
         $cache = new ArrayAdapter();
 
@@ -254,21 +314,22 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $lock->expects($this->once())->method('release');
 
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration lock could not be acquired, registering unguarded.', $warnings);
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit lock could not be acquired, submitting unguarded.', $warnings);
         static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
-    public function testAMarkerWrittenWhileTheLockDeadlineExpiresSuppressesTheRegistration(): void
+    public function testAMarkerWrittenWhileTheLockDeadlineExpiresSuppressesTheSubmission(): void
     {
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->expects($this->exactly(2))
@@ -281,19 +342,20 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $lock->expects($this->once())->method('acquire')->willReturn(false);
         $lock->expects($this->never())->method('release');
 
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
+            self::SCOPE,
             $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(0, $registerCalls);
+        static::assertSame(0, $submitCalls);
     }
 
-    public function testAMissedLockDeadlineWithoutAMarkerRegistersUnguarded(): void
+    public function testAMissedLockDeadlineWithoutAMarkerSubmitsUnguarded(): void
     {
         $cache = new ArrayAdapter();
 
@@ -302,17 +364,18 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $lock->expects($this->never())->method('release');
 
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration lock was not acquired within the wait deadline, registering unguarded.', $warnings);
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit lock was not acquired within the wait deadline, submitting unguarded.', $warnings);
         static::assertTrue($cache->getItem(self::markerKey())->isHit());
     }
 
@@ -325,19 +388,20 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('warning');
 
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), new ArrayAdapter(), $logger, lockWaitTimeout: 0.05)->guard(
+            self::SCOPE,
             $this->createContext(),
-            static function () use (&$registerCalls): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls): void {
+                ++$submitCalls;
             }
         );
 
-        static::assertSame(1, $registerCalls);
+        static::assertSame(1, $submitCalls);
     }
 
-    public function testAnUnreadableMarkerStillRegistersUnderTheLock(): void
+    public function testAnUnreadableMarkerStillRunsUnderTheLock(): void
     {
         $cache = static::createStub(CacheItemPoolInterface::class);
         $cache->method('getItem')->willThrowException(new \RuntimeException('cache backend down'));
@@ -347,22 +411,23 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $context = $this->createContext();
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $context,
-            static function () use (&$registerCalls, $context): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls, $context): void {
+                ++$submitCalls;
                 $context->assign(['token' => self::WINNER_TOKEN]);
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration marker could not be read.', $warnings);
-        static::assertContains('Registration marker could not be saved.', $warnings);
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit marker could not be read.', $warnings);
+        static::assertContains('Double submit marker could not be saved.', $warnings);
     }
 
-    public function testAnUnsavedMarkerIsLoggedWithoutFailingTheRegistration(): void
+    public function testAnUnsavedMarkerIsLoggedWithoutFailingTheSubmission(): void
     {
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createMissedMarker());
@@ -373,21 +438,22 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $context = $this->createContext();
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $context,
-            static function () use (&$registerCalls, $context): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls, $context): void {
+                ++$submitCalls;
                 $context->assign(['token' => self::WINNER_TOKEN]);
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration marker could not be saved.', $warnings);
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit marker could not be saved.', $warnings);
     }
 
-    public function testAThrowingMarkerSaveIsLoggedWithoutFailingTheRegistration(): void
+    public function testAThrowingMarkerSaveIsLoggedWithoutFailingTheSubmission(): void
     {
         $cache = $this->createMock(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn($this->createMissedMarker());
@@ -398,18 +464,19 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $context = $this->createContext();
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $context,
-            static function () use (&$registerCalls, $context): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls, $context): void {
+                ++$submitCalls;
                 $context->assign(['token' => self::WINNER_TOKEN]);
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration marker could not be saved.', $warnings);
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit marker could not be saved.', $warnings);
     }
 
     #[DataProvider('oddMarkerPayloadProvider')]
@@ -421,8 +488,8 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $cache->save($item);
 
         $this->createGuard($this->createUnusedLockFactory(), $cache, new NullLogger())
-            ->guard($this->createContext(), static function (): void {
-                static::fail('The registration must not run a second time.');
+            ->guard(self::SCOPE, $this->createContext(), static function (): void {
+                static::fail('The double submit must not run a second time.');
             });
 
         static::assertTrue($cache->getItem(self::markerKey())->isHit());
@@ -441,23 +508,23 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         yield 'a numeric payload' => [42];
     }
 
-    public function testTheLockIsReleasedWhenTheRegistrationThrows(): void
+    public function testTheLockIsReleasedWhenTheSubmissionThrows(): void
     {
         $lock = $this->createAcquiredLock();
         $lock->expects($this->once())->method('release');
 
-        $exception = new \RuntimeException('registration failed');
+        $exception = new \RuntimeException('the submission failed');
 
         $guard = $this->createGuard($this->createLockFactory($lock), new ArrayAdapter(), new NullLogger());
 
         $this->expectExceptionObject($exception);
 
-        $guard->guard($this->createContext(), static function () use ($exception): void {
+        $guard->guard(self::SCOPE, $this->createContext(), static function () use ($exception): void {
             throw $exception;
         });
     }
 
-    public function testATokenRotatedBeforeTheRegistrationThrewIsStillSpent(): void
+    public function testATokenRotatedBeforeTheSubmissionThrewIsStillSpent(): void
     {
         $cache = new ArrayAdapter();
 
@@ -470,7 +537,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         $guard = $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger());
 
         try {
-            $guard->guard($context, static function () use ($context, $exception): void {
+            $guard->guard(self::SCOPE, $context, static function () use ($context, $exception): void {
                 $context->assign(['token' => self::WINNER_TOKEN]);
 
                 throw $exception;
@@ -484,7 +551,7 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
-    public function testAFailingReleaseAfterASuccessfulRegistrationIsLoggedOnly(): void
+    public function testAFailingReleaseAfterASuccessfulSubmissionIsLoggedOnly(): void
     {
         $cache = new ArrayAdapter();
 
@@ -493,29 +560,30 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
 
         $context = $this->createContext();
         $warnings = [];
-        $registerCalls = 0;
+        $submitCalls = 0;
 
         $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
+            self::SCOPE,
             $context,
-            static function () use (&$registerCalls, $context): void {
-                ++$registerCalls;
+            static function () use (&$submitCalls, $context): void {
+                ++$submitCalls;
                 $context->assign(['token' => self::WINNER_TOKEN]);
             }
         );
 
-        static::assertSame(1, $registerCalls);
-        static::assertContains('Registration lock could not be released.', $warnings);
+        static::assertSame(1, $submitCalls);
+        static::assertContains('Double submit lock could not be released.', $warnings);
         static::assertTrue($cache->getItem(self::markerKey())->get());
     }
 
     private static function markerKey(): string
     {
-        return 'storefront-registration-' . hash('sha256', self::TOKEN);
+        return self::SCOPE . '-' . hash('sha256', self::TOKEN);
     }
 
     private static function lockKey(): string
     {
-        return 'storefront-registration-lock-' . hash('sha256', self::TOKEN);
+        return self::SCOPE . '-lock-' . hash('sha256', self::TOKEN);
     }
 
     private function createContext(): SalesChannelContext
@@ -528,8 +596,8 @@ class RegistrationDoubleSubmitGuardTest extends TestCase
         CacheItemPoolInterface $cache,
         LoggerInterface $logger,
         float $lockWaitTimeout = 0.0,
-    ): RegistrationDoubleSubmitGuard {
-        return new RegistrationDoubleSubmitGuard($lockFactory, $cache, $logger, $lockWaitTimeout);
+    ): DoubleSubmitGuard {
+        return new DoubleSubmitGuard($lockFactory, $cache, $logger, $lockWaitTimeout);
     }
 
     private function createLockFactory(SharedLockInterface $lock): LockFactory

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
+use Shopware\Storefront\Checkout\DoubleSubmitGuard;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -389,7 +389,7 @@ class RegisterControllerTest extends TestCase
         $customerRepository = static::createStub(EntityRepository::class);
         $domainRepository = static::createStub(EntityRepository::class);
 
-        $doubleSubmitGuard = new RegistrationDoubleSubmitGuard(
+        $doubleSubmitGuard = new DoubleSubmitGuard(
             new LockFactory(new InMemoryStore()),
             new ArrayAdapter(),
             new NullLogger(),

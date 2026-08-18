@@ -25,7 +25,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Checkout\Customer\RegistrationDoubleSubmitGuard;
+use Shopware\Storefront\Checkout\DoubleSubmitGuard;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -54,6 +54,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class RegisterController extends StorefrontController
 {
     /**
+     * Scopes the double submit marker and lock of the registration submission.
+     */
+    public const DOUBLE_SUBMIT_SCOPE = 'storefront-registration';
+
+    /**
      * @internal
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
@@ -71,7 +76,7 @@ class RegisterController extends StorefrontController
         private readonly EntityRepository $domainRepository,
         private readonly HeaderPageletLoaderInterface $headerPageletLoader,
         private readonly FooterPageletLoaderInterface $footerPageletLoader,
-        private readonly RegistrationDoubleSubmitGuard $doubleSubmitGuard,
+        private readonly DoubleSubmitGuard $doubleSubmitGuard,
     ) {
     }
 
@@ -222,7 +227,7 @@ class RegisterController extends StorefrontController
 
             $additionalValidationDefinitions = $this->getAdditionalRegisterValidationDefinitions($data, $context);
 
-            $this->doubleSubmitGuard->guard($context, function () use ($data, $context, $additionalValidationDefinitions): void {
+            $this->doubleSubmitGuard->guard(self::DOUBLE_SUBMIT_SCOPE, $context, function () use ($data, $context, $additionalValidationDefinitions): void {
                 $this->registerRoute->register(
                     $data->toRequestDataBag(),
                     $context,

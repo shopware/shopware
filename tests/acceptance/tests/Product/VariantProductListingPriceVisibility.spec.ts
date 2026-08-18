@@ -1,21 +1,21 @@
 import type { Locator } from '@playwright/test';
 import { test, expect, PropertyGroup, getCurrencyCodeFromLocale, formatPrice } from '@fixtures/AcceptanceTest';
 
-type StorefrontListingLocators = {
+interface StorefrontListingLocators {
     productName: Locator;
     productPrice: Locator;
     productListingPrice: Locator;
     productListingPricePercentage: Locator;
     productListingPriceBadge: Locator;
-};
+}
 
-type StorefrontHomeLike = {
+interface StorefrontHomeLike {
     page: {
         getByRole: (role: string, options: { name: string }) => Locator;
     };
     productListItems: Locator;
     getListingItemByProductName: (productListingName: string) => Promise<StorefrontListingLocators>;
-};
+}
 
 const createPriceCollection = (currencyId: string, defaultCurrencyId: string, gross: number, listPriceGross?: number) => {
     const createPrice = (currentCurrencyId: string) => {
@@ -42,7 +42,7 @@ const createPriceCollection = (currencyId: string, defaultCurrencyId: string, gr
         };
 
         if (listPriceGross !== undefined) {
-            const percentage = Number((100 - gross / listPriceGross * 100).toFixed(2));
+            const percentage = Number((100 - (gross / listPriceGross) * 100).toFixed(2));
 
             price.listPrice = {
                 currencyId: currentCurrencyId,
@@ -59,7 +59,10 @@ const createPriceCollection = (currencyId: string, defaultCurrencyId: string, gr
         return price;
     };
 
-    return [currencyId, defaultCurrencyId].map(createPrice);
+    return [
+        currencyId,
+        defaultCurrencyId,
+    ].map(createPrice);
 };
 
 const refreshProductIndex = async (
@@ -97,16 +100,15 @@ const getListingCardLocators = async (storefrontHome: StorefrontHomeLike, produc
     };
 };
 
-const createTwoOptionPropertyGroup = async (
-    testDataService: {
-        createTextPropertyGroup: (overrides?: { options: Array<{ name: string }> }) => Promise<PropertyGroup>;
-    },
-) => testDataService.createTextPropertyGroup({
-    options: [
-        { name: 'One' },
-        { name: 'Two' },
-    ],
-});
+const createTwoOptionPropertyGroup = async (testDataService: {
+    createTextPropertyGroup: (overrides?: { options: { name: string }[] }) => Promise<PropertyGroup>;
+}) =>
+    testDataService.createTextPropertyGroup({
+        options: [
+            { name: 'One' },
+            { name: 'Two' },
+        ],
+    });
 
 test(
     'should show the same discounted price and badge on the parent listing and variant detail pages when all variants share the same discounted price',
@@ -139,7 +141,10 @@ test(
             price: prices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await TestDataService.clearCaches();
 
@@ -169,13 +174,16 @@ test(
                 );
             }
         });
-    }
+    },
 );
 
 test(
     'should show from price, concrete cheapest list price, and discount badge when equally priced variants have different valid list prices',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -190,7 +198,10 @@ test(
             price: prices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one equally priced variant to a different valid list price.', async () => {
             const variantToUpdate = variantProducts[1]!;
@@ -203,7 +214,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for the parent listing with differing valid list prices to be visible.', async () => {
@@ -213,7 +227,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating equally priced variants with different valid list prices still keep the cheapest concrete list price.', async () => {
@@ -225,13 +242,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show plain cheapest price without from price or discount UI when equally priced variants have no displayable list prices',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -246,7 +266,10 @@ test(
             price: prices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for equally priced undiscounted child variants to be visible on storefront.', async () => {
@@ -256,7 +279,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating equally priced undiscounted variants show a plain price without discount UI.', async () => {
@@ -268,13 +294,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).not.toBeVisible();
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).not.toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'should show from price, concrete cheapest list price, and discount badge when differently priced variants have the same valid list price',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -289,7 +318,10 @@ test(
             price: parentPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one variant to a higher discounted price so the range comes from child variants.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -302,7 +334,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for discounted variant parent to be visible on storefront.', async () => {
@@ -312,7 +347,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating from price, list price and badge are rendered together on the product card.', async () => {
@@ -324,13 +362,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show from price, concrete cheapest list price, and discount badge when differently priced variants have different valid list prices',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -345,7 +386,10 @@ test(
             price: parentPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one variant to a higher discounted price with a different list price.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -358,7 +402,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for the parent listing with differing list prices to be visible.', async () => {
@@ -368,7 +415,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating the cheapest concrete list price still renders together with from price and badge.', async () => {
@@ -380,13 +430,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show plain cheapest price without from price when only the parent price differs from equally priced variants',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -402,7 +455,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for equally priced child variants to be visible on storefront.', async () => {
@@ -412,7 +468,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating parent-only price differences do not trigger from price.', async () => {
@@ -421,13 +480,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productPriceWrapper).not.toContainText('From');
             await ShopCustomer.expects(productItemLocators.productPrice).toContainText(formatPrice(12.0));
         });
-    }
+    },
 );
 
 test(
     'should show from price, concrete cheapest list price, and discount badge when equally priced variants mix discounted and non-discounted states and the displayed cheapest variant is discounted',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -443,7 +505,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one equally priced child variant to a discounted list price.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -456,7 +521,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for mixed list price variant parent to be visible on storefront.', async () => {
@@ -466,7 +534,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating mixed list price states still show the discounted cheapest list price.', async () => {
@@ -478,13 +549,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(40% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show from price, concrete cheapest list price, and discount badge when equally priced variants mix discounted and non-discounted states regardless of variant order',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -500,7 +574,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set the later equally priced child variant to a discounted list price.', async () => {
             const variantToUpdate = variantProducts[1]!;
@@ -513,7 +590,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for the mixed equally priced parent listing to be visible on storefront.', async () => {
@@ -523,7 +603,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating the discounted concrete list price is selected even when the discounted variant is created later.', async () => {
@@ -535,13 +618,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(40% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show plain cheapest price without from price or discount UI when equally priced variants only differ between zero-percent and missing list prices',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -557,7 +643,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one equally priced child variant to a zero-percent list price.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -570,7 +659,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for zero-percent list price parent to be visible on storefront.', async () => {
@@ -580,7 +672,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating zero-percent list prices do not trigger from price or discount UI.', async () => {
@@ -592,13 +687,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).not.toBeVisible();
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).not.toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'should show from price without discount UI when differently priced variants have no displayable list prices',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -614,7 +712,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one child variant to a higher undiscounted price.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -627,7 +728,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for differently priced undiscounted variants to be visible on storefront.', async () => {
@@ -637,7 +741,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating differently priced undiscounted variants only show from price and the cheapest selling price.', async () => {
@@ -649,13 +756,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).not.toBeVisible();
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).not.toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'should show from price, concrete cheapest list price, and discount badge when differently priced variants have a discounted cheapest variant and a non-discounted higher variant',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -671,7 +781,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set the displayed cheapest child variant to a discounted price and the sibling to a higher plain price.', async () => {
             const cheapestVariantPatchResponse = await AdminApiContext.patch(`product/${variantProducts[0]!.id}`, {
@@ -691,7 +804,10 @@ test(
             expect(higherVariantPatchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for the differently priced parent listing with a discounted cheapest variant to be visible on storefront.', async () => {
@@ -701,7 +817,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating the cheapest discounted variant keeps its concrete list price while the listing stays in from mode.', async () => {
@@ -713,13 +832,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show from price and discount badge without a concrete list price when differently priced variants have a discounted higher variant and a non-discounted cheapest variant',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -735,7 +857,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one child variant to a higher discounted price.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -748,7 +873,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for the differently priced mixed discount parent listing to be visible on storefront.', async () => {
@@ -758,7 +886,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating only the badge remains when the cheapest displayed variant is not discounted.', async () => {
@@ -770,13 +901,16 @@ test(
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).not.toBeVisible();
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
-    }
+    },
 );
 
 test(
     'should show from price without discount UI when differently priced variants only differ between zero-percent and missing list prices',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, SalesChannelBaseConfig, AdminApiContext }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -792,7 +926,10 @@ test(
             price: variantPrices,
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await test.step('Set one child variant to a higher zero-percent list price.', async () => {
             const variantToUpdate = variantProducts[0]!;
@@ -805,7 +942,10 @@ test(
             expect(patchResponse.ok()).toBeTruthy();
         });
 
-        await refreshProductIndex(AdminApiContext, [parentProduct.id, ...variantProducts.map(({ id }) => id)]);
+        await refreshProductIndex(AdminApiContext, [
+            parentProduct.id,
+            ...variantProducts.map(({ id }) => id),
+        ]);
 
         await ShopCustomer.expects(async () => {
             await test.step('Wait for the differently priced zero-percent parent listing to be visible on storefront.', async () => {
@@ -815,7 +955,10 @@ test(
                 await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
             });
         }).toPass({
-            intervals: [1_000, 2_500],
+            intervals: [
+                1_000,
+                2_500,
+            ],
         });
 
         await test.step('Validating zero-percent list prices stay invisible while the from state still comes from the real child price range.', async () => {

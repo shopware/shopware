@@ -18,7 +18,6 @@ use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -115,10 +114,10 @@ class VirtualRootWrapperTest extends TestCase
     #[TestDox('returns true when element is the virtual page context root')]
     public function testIsVirtualRootReturnsTrueForVirtualRoot(): void
     {
-        $virtualRoot = $this->lower($this->wrapper->wrap(
+        $virtualRoot = $this->wrapper->wrap(
             [StoredElementBuilder::create('Sw:Text')->build()],
             $this->specificationWithLanguageRequirement(),
-        ));
+        );
 
         static::assertTrue($this->wrapper->isVirtualRoot($virtualRoot));
     }
@@ -126,7 +125,7 @@ class VirtualRootWrapperTest extends TestCase
     #[TestDox('returns false when element is a regular non-virtual element')]
     public function testIsVirtualRootReturnsFalseForRegularElement(): void
     {
-        $element = ContentElementBuilder::create('Sw:Text', 'some-id')->build();
+        $element = StoredElementBuilder::create('Sw:Text', 'some-id')->build();
 
         static::assertFalse($this->wrapper->isVirtualRoot($element));
     }
@@ -151,9 +150,11 @@ class VirtualRootWrapperTest extends TestCase
         ContentElement $malformedWrapper,
         ContentSystemException $expectedException
     ): void {
-        // Fixture guard: the element really passes the identity check the caller performs, so the
-        // rejection below is about the roots slot and nothing else.
-        static::assertTrue($this->wrapper->isVirtualRoot($malformedWrapper));
+        // Fixture guard: the element really carries the wrapper identity the caller establishes before
+        // it unwraps, so the rejection below is about the roots slot and nothing else. The check itself
+        // (`isVirtualRoot()`) runs earlier in the pipeline, on the stored model, so it cannot be called
+        // on this lowered fixture.
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $malformedWrapper->getId());
 
         $this->expectExceptionObject($expectedException);
 

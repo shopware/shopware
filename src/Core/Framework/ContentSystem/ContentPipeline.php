@@ -65,11 +65,11 @@ class ContentPipeline
 
         $storedTree = $this->expandRedistribution($storedTree);
 
-        $elements = $this->lowering->lowerTree($storedTree);
-
         $extractTargetId = $this->extractTargetId($specification);
-        $elements = $this->pruneToTarget($elements, $extractTargetId);
-        $scaffolding = $this->deriveScaffolding($elements, $extractTargetId, $virtualRootWrapped);
+        $storedTree = $this->pruneToTarget($storedTree, $extractTargetId);
+        $scaffolding = $this->deriveScaffolding($storedTree, $extractTargetId, $virtualRootWrapped);
+
+        $elements = $this->lowering->lowerTree($storedTree);
 
         if ($mode === RenderingMode::FULL) {
             $hydratedElementsGenerator = $this->hydrationService->hydrate(
@@ -113,7 +113,7 @@ class ContentPipeline
      * so pruning leaves at most one surviving root whenever a target is set and the first root
      * decides. `$extractTargetId` is passed in already normalised — the prune ran on it.
      *
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      */
     private function deriveScaffolding(array $elements, ?string $extractTargetId, bool $virtualRootWrapped): RenderScaffolding
     {
@@ -265,9 +265,12 @@ class ContentPipeline
      * Pre-hydration tree pruning keeps context-dependent ancestors to preserve data flow;
      * `extractPartialTarget()` removes those ancestors after hydration.
      *
-     * @param list<ContentElement> $elements
+     * It runs on the stored forest, after the redistribute expansion and before the lowering, so the
+     * discarded subtrees never reach the render model at all.
      *
-     * @return list<ContentElement>
+     * @param list<StoredElement> $elements
+     *
+     * @return list<StoredElement>
      */
     private function pruneToTarget(array $elements, ?string $extractTargetId): array
     {

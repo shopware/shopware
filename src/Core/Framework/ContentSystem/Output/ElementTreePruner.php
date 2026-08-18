@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Prunes a content-element tree to a target element's path plus its descendants: the pre-hydration optimization for
+ * Prunes a stored element tree to a target element's path plus its descendants: the pre-hydration optimization for
  * partial rendering, which drops the siblings along the path because context flows parent to child only.
  *
  * @internal
@@ -21,38 +18,29 @@ use Shopware\Core\Framework\Log\Package;
 class ElementTreePruner
 {
     /**
-     * @return list<string> Element IDs from root to target (inclusive), empty array if not found
-     */
-    public function findPathToElement(ContentElement $root, string $targetId): array
-    {
-        $visitor = new PathFinderVisitor($targetId);
-        $root->traverse($visitor);
-
-        return $visitor->getPath();
-    }
-
-    /**
      * Pre-hydration optimization: discards siblings at each level since context flows
      * parent→child only, not between siblings.
+     *
+     * A target that is not in this root is not an error: the forest has other roots to try, and the
+     * caller decides what an exhausted forest means. `null` is that answer.
      */
     public function pruneToPathAndDescendants(
-        ContentElement $root,
+        StoredElement $root,
         string $targetId,
         ContextDependencyAnalyzer $dependencyAnalyzer
-    ): ContentElement {
+    ): ?StoredElement {
         $resolved = $this->resolvePath($root, $targetId);
 
         if ($resolved === null) {
-            throw ContentSystemException::elementNotFound($targetId);
+            return null;
         }
 
         [$pathElements, $slotNames] = $resolved;
-        $dataRootIndex = $dependencyAnalyzer->findDataRootIndex($pathElements);
 
-        return $this->reconstructPrunedTree(
+        return $this->reconstructFromBottom(
             $pathElements,
             $slotNames,
-            $dataRootIndex,
+            $dependencyAnalyzer->findDataRootIndex($pathElements),
             \count($pathElements) - 1
         );
     }
@@ -66,20 +54,20 @@ class ElementTreePruner
      * but a raw-SQL or migration write can put the same id in two slots, and re-locating a step by id
      * would then be free to pick the sibling the search did not walk through.
      *
-     * Pre-order, first match wins, slot order — the order {@see findPathToElement} reports.
+     * Pre-order, first match wins, slot order.
      *
-     * @return array{list<ContentElement>, list<string>}|null The path elements and, per element, the
-     *                                                        slot holding its successor; null when the
-     *                                                        target is not in this tree
+     * @return array{list<StoredElement>, list<string>}|null The path elements and, per element, the
+     *                                                       slot holding its successor; null when the
+     *                                                       target is not in this tree
      */
-    private function resolvePath(ContentElement $element, string $targetId): ?array
+    private function resolvePath(StoredElement $element, string $targetId): ?array
     {
-        if ($element->getId() === $targetId) {
+        if ($element->id === $targetId) {
             return [[$element], []];
         }
 
-        foreach ($element->getSlots() as $slotName => $slotContent) {
-            foreach ($slotContent as $child) {
+        foreach ($element->slots as $slotName => $children) {
+            foreach ($children as $child) {
                 $resolved = $this->resolvePath($child, $targetId);
 
                 if ($resolved === null) {
@@ -96,25 +84,12 @@ class ElementTreePruner
     }
 
     /**
-     * @param list<ContentElement> $pathElements
-     * @param list<string> $slotNames
-     */
-    private function reconstructPrunedTree(
-        array $pathElements,
-        array $slotNames,
-        int $startIndex,
-        int $targetIndex
-    ): ContentElement {
-        if ($startIndex === $targetIndex) {
-            return clone $pathElements[$targetIndex];
-        }
-
-        // Build from bottom up (target to context root) to handle immutability
-        return $this->reconstructFromBottom($pathElements, $slotNames, $startIndex, $targetIndex);
-    }
-
-    /**
-     * @param list<ContentElement> $pathElements
+     * Rebuilds the kept path from the target upwards, each ancestor carrying only the one slot that leads
+     * on. It rebuilds through {@see StoredElement::withSlots()} rather than through the constructor, the
+     * same idiom `Layout/StoredTree`'s surgery uses: a field added to the element later rides across on its
+     * own, where a hand-written constructor call would drop it without anything failing.
+     *
+     * @param list<StoredElement> $pathElements
      * @param list<string> $slotNames
      */
     private function reconstructFromBottom(
@@ -122,26 +97,13 @@ class ElementTreePruner
         array $slotNames,
         int $currentIndex,
         int $targetIndex
-    ): ContentElement {
+    ): StoredElement {
         if ($currentIndex === $targetIndex) {
-            return clone $pathElements[$targetIndex];
+            return $pathElements[$targetIndex];
         }
 
         $child = $this->reconstructFromBottom($pathElements, $slotNames, $currentIndex + 1, $targetIndex);
 
-        $currentElement = $pathElements[$currentIndex];
-
-        return new ContentElement(
-            $currentElement->getId(),
-            $currentElement->getComponent(),
-            $currentElement->getDataRequirements(),
-            $currentElement->getProperties(),
-            [$slotNames[$currentIndex] => new SlotContent([$child])],
-            new ContextDefinitions(
-                $currentElement->getProvidesContext(),
-                $currentElement->getAcceptsContext()
-            ),
-            $currentElement->getStyle(),
-        );
+        return $pathElements[$currentIndex]->withSlots([$slotNames[$currentIndex] => [$child]]);
     }
 }

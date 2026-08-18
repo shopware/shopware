@@ -11,7 +11,7 @@ Example: A product page with title, price, and images all showing the same produ
 - `ContextProvider` - Defines what context an element exposes to descendants
 - `ContextConsumer` - Defines what context an element receives from ancestors
 - `ContextDefinitions` - Container holding providers and consumers for an element
-- `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning
+- `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning, on `StoredElement`s (the prune runs before the lowering)
 
 ## Configuration Reference
 

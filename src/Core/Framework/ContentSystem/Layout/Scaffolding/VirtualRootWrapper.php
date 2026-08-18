@@ -20,12 +20,12 @@ use Shopware\Core\Framework\Log\Package;
  * Virtual root is a temporary structural modification (scaffolding) that wraps actual layout
  * roots to enable page-level data requirements to be distributed as broadcast context.
  *
- * The two halves deliberately speak different element models. `requiresWrapping()` and `wrap()` take
- * {@see StoredElement}, because `ContentSystem\ContentPipeline::load()` wraps while the tree is still
- * the storage model and lowers afterwards. `unwrap()` and `isVirtualRoot()` still take
- * {@see ContentElement}, because the pipeline reaches them at its far end, on a tree the lowering has
- * long since taken across. The split signature is the seam moving through this class, not a mistake;
- * both halves meet again on the storage model once the finishing steps move too.
+ * All of this class speaks {@see StoredElement} except `unwrap()`. `requiresWrapping()`, `wrap()` and
+ * `isVirtualRoot()` run while `ContentSystem\ContentPipeline::load()` still holds the storage model —
+ * the wrap before the lowering, the identity check on the post-prune stored forest. `unwrap()` alone
+ * still takes {@see ContentElement}, because the pipeline reaches it at its far end, on a tree the
+ * lowering has long since taken across. The lone split signature is the seam moving through this class,
+ * not a mistake; it closes once the finishing steps move too.
  *
  * @internal
  */
@@ -113,9 +113,9 @@ final class VirtualRootWrapper
     /**
      * Checks if element is the virtual root wrapper.
      */
-    public function isVirtualRoot(ContentElement $element): bool
+    public function isVirtualRoot(StoredElement $element): bool
     {
-        return $element->getId() === self::VIRTUAL_ROOT_ID;
+        return $element->id === self::VIRTUAL_ROOT_ID;
     }
 
     /**

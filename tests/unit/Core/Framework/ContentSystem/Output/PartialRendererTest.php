@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -34,30 +35,32 @@ class PartialRendererTest extends TestCase
     #[TestDox('prunes to the target element, skipping the roots that do not contain it')]
     public function testPruneToTargetSkipsRootsWithoutTheTarget(): void
     {
-        $root1 = ContentElementBuilder::create('section', 'r1')
-            ->withSlot('default', [ContentElementBuilder::create('text', 'bystander')->build()])
+        $root1 = StoredElementBuilder::create('section', 'r1')
+            ->withSlot('default', [StoredElementBuilder::create('text', 'bystander')->build()])
             ->build();
 
-        $target = ContentElementBuilder::create('text', 'target')->build();
-        $root2 = ContentElementBuilder::create('section', 'r2')
+        $target = StoredElementBuilder::create('text', 'target')->build();
+        $root2 = StoredElementBuilder::create('section', 'r2')
             ->withSlot('default', [$target])
             ->build();
 
         // Fixture guard: the first root is populated but target-free, so only a search for the target
         // itself can decide to skip it — "has no children" would keep it.
-        static::assertTrue($root1->hasSlots());
-        static::assertSame([], (new ElementTreePruner())->findPathToElement($root1, 'target'));
+        static::assertNotSame([], $root1->slots);
+        static::assertNull(
+            (new ElementTreePruner())->pruneToPathAndDescendants($root1, 'target', new ContextDependencyAnalyzer())
+        );
 
         $result = $this->renderer->pruneToTarget([$root1, $root2], 'target');
 
         static::assertCount(1, $result);
-        static::assertSame('target', $result[0]->getId());
+        static::assertSame('target', $result[0]->id);
     }
 
     #[TestDox('returns empty array when target not found in any root during pruning')]
     public function testPruneToTargetReturnsEmptyWhenNotFoundInAnyRoot(): void
     {
-        $root = ContentElementBuilder::create('section', 'r1')->build();
+        $root = StoredElementBuilder::create('section', 'r1')->build();
 
         $result = $this->renderer->pruneToTarget([$root], 'nonexistent');
 

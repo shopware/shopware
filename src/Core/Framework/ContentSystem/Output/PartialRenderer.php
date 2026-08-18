@@ -5,10 +5,14 @@ namespace Shopware\Core\Framework\ContentSystem\Output;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Handles partial rendering by pruning and extracting target elements.
+ *
+ * The two halves sit on either side of the lowering: `pruneToTarget()` runs while the tree is still the
+ * storage model, `extractTarget()` at the far end of the pipeline on a hydrated {@see ContentElement} tree.
  *
  * @internal
  *
@@ -33,9 +37,9 @@ class PartialRenderer
      * A target that is in no root at all leaves an empty forest here; `extractTarget()` is where that
      * turns into the `elementNotFound` the caller sees.
      *
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      *
-     * @return list<ContentElement> Pruned elements containing target
+     * @return list<StoredElement> Pruned elements containing target
      */
     public function pruneToTarget(array $elements, string $targetElementId): array
     {
@@ -43,15 +47,17 @@ class PartialRenderer
 
         // Try each root element - target may be in any root
         foreach ($elements as $element) {
-            if ($this->treePruner->findPathToElement($element, $targetElementId) === []) {
-                continue;
-            }
-
-            $prunedElements[] = $this->treePruner->pruneToPathAndDescendants(
+            $pruned = $this->treePruner->pruneToPathAndDescendants(
                 $element,
                 $targetElementId,
                 $this->dependencyAnalyzer
             );
+
+            if ($pruned === null) {
+                continue;
+            }
+
+            $prunedElements[] = $pruned;
         }
 
         return $prunedElements;

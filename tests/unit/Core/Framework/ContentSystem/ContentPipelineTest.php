@@ -490,7 +490,7 @@ class ContentPipelineTest extends TestCase
 
         // Fixture guard: the target consumes context, so the prune keeps its ancestor and the
         // extract has an ancestor left to remove.
-        $target = $this->findChild($this->lower($layout->elements)[0], 'target-id');
+        $target = $this->findStoredChild($layout->elements[0], 'target-id');
         static::assertNotNull($target);
         static::assertTrue((new ContextDependencyAnalyzer())->requiresParentData($target));
 
@@ -533,22 +533,23 @@ class ContentPipelineTest extends TestCase
             'target-id'
         );
 
-        $lowered = $this->lower($layout->elements);
-        $loweredTarget = $this->findChild($lowered[0], 'target-id');
-        static::assertNotNull($loweredTarget);
+        $storedTarget = $this->findStoredChild($layout->elements[0], 'target-id');
+        static::assertNotNull($storedTarget);
 
         // Fixture guard: the page-level data requirement really does make the pipeline wrap ...
         static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
         // ... the target really does need no parent data ...
-        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($loweredTarget));
+        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($storedTarget));
         // ... and so the prune really does cut the virtual root away above it, rather than there
-        // never having been one. The wrap runs on the stored tree and the pruner reads the lowered
-        // one, so the guard lowers in between exactly as the pipeline does.
-        static::assertSame('target-id', (new ElementTreePruner())->pruneToPathAndDescendants(
-            (new ContentElementLowering())->lower((new VirtualRootWrapper())->wrap($layout->elements, $specification)),
+        // never having been one. Wrap and prune both run on the stored tree, so the guard chains
+        // them exactly as the pipeline does.
+        $prunedWrapper = (new ElementTreePruner())->pruneToPathAndDescendants(
+            (new VirtualRootWrapper())->wrap($layout->elements, $specification),
             'target-id',
             new ContextDependencyAnalyzer(),
-        )->getId());
+        );
+        static::assertNotNull($prunedWrapper);
+        static::assertSame('target-id', $prunedWrapper->id);
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -561,6 +562,54 @@ class ContentPipelineTest extends TestCase
         );
 
         static::assertSame(['target-id'], $this->collectIds($result->elements));
+    }
+
+    #[TestDox('never loads the data a subtree the partial prune discards would have required')]
+    public function testPartialRenderDoesNotHydrateThePrunedAwaySibling(): void
+    {
+        $target = StoredElementBuilder::create('text', 'target-id')->build();
+        $discarded = StoredElementBuilder::create('text', 'discarded-id')
+            ->withDataRequirement('language', 'language', new LanguageLoaderConfig())
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withSlot('default', [$target, $discarded])
+                ->build()
+        );
+
+        // Fixture guard: the target needs no parent data, so the prune stops at it and the sibling
+        // carrying the requirement is what the prune drops.
+        static::assertFalse((new ContextDependencyAnalyzer())->requiresParentData($target));
+        static::assertArrayHasKey('language', $discarded->dataRequirements);
+
+        $loads = 0;
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+        $loader->method('load')->willReturnCallback(
+            function () use (&$loads): ContentDataLoaderResult {
+                ++$loads;
+
+                return ContentDataLoaderResult::cached(new StubStruct(), 'language-1');
+            }
+        );
+        $this->hydrator = new ContentElementHydrator(
+            new DataLoaderProvider(new ServiceLocator(['language' => static fn (): AbstractContentDataLoader => $loader])),
+            new LoaderInputResolver(),
+            new DataContextResolver(new ContextPathResolver()),
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id'),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame(['target-id'], $this->collectIds($result->elements));
+        static::assertSame(0, $loads);
     }
 
     #[TestDox('delivers a page-level data requirement to a consuming root through the virtual root')]
@@ -641,21 +690,13 @@ class ContentPipelineTest extends TestCase
         );
     }
 
-    /**
-     * @param list<StoredElement> $tree
-     *
-     * @return list<ContentElement>
-     */
-    private function lower(array $tree): array
+    private function findStoredChild(StoredElement $parent, string $childId): ?StoredElement
     {
-        return (new ContentElementLowering())->lowerTree($tree);
-    }
-
-    private function findChild(ContentElement $parent, string $childId): ?ContentElement
-    {
-        foreach ($parent->allSlotElements() as $child) {
-            if ($child->getId() === $childId) {
-                return $child;
+        foreach ($parent->slots as $children) {
+            foreach ($children as $child) {
+                if ($child->id === $childId) {
+                    return $child;
+                }
             }
         }
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,13 +18,13 @@ class ContextDependencyAnalyzer
     /**
      * These elements need their ancestors processed first to receive context data.
      */
-    public function requiresParentData(ContentElement $element): bool
+    public function requiresParentData(StoredElement $element): bool
     {
-        return $element->getAcceptsContext() !== [];
+        return $this->consumers($element) !== [];
     }
 
     /**
-     * @param list<ContentElement> $pathElements Ordered from root to target
+     * @param list<StoredElement> $pathElements Ordered from root to target
      *
      * @return int Index in path where context root is located (0 = root)
      */
@@ -39,5 +39,16 @@ class ContextDependencyAnalyzer
 
         // All elements require parent data, must keep from root
         return 0;
+    }
+
+    /**
+     * Reaching through `contextDefinitions` here rather than on {@see StoredElement} itself: one consumer
+     * does not earn a shortcut on the storage model's public surface.
+     *
+     * @return array<string, ContextConsumer>
+     */
+    private function consumers(StoredElement $element): array
+    {
+        return $element->contextDefinitions->getAllConsumers();
     }
 }

@@ -9,7 +9,7 @@ Listeners modify elements before or after hydration—computing derived values, 
 | `ContentTreePreparationEvent` | Before every pipeline step and before data loading | Modify layout tree, resolve placeholders |
 | `PostHydrationEvent`          | After data loading and every pipeline step         | Enrich data, transform structure         |
 
-`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before placeholder resolution, the virtual-root wrap, redistribute expansion, the lowering onto `ContentElement` and the partial prune. A `PostHydrationEvent` listener sees the finished tree, after the virtual-root unwrap and the partial extract.
+`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before placeholder resolution, the virtual-root wrap, redistribute expansion, the partial prune and the lowering onto `ContentElement`. A `PostHydrationEvent` listener sees the finished tree, after the virtual-root unwrap and the partial extract.
 
 The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back:
 

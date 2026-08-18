@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 import { DOCUMENT_TYPES } from '../../../module/sw-order/service/documentV2.service';
@@ -58,7 +58,7 @@ type DocumentFileResponse = {
  * @extends ApiService
  */
 export default class DocumentV2ApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'document-v2') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'document-v2') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'documentV2ApiService';
     }
@@ -125,7 +125,7 @@ export default class DocumentV2ApiService extends ApiService {
             mediaId,
         };
 
-        let request: Promise<AxiosResponse<DocumentCreateResponse>>;
+        let request: Promise<HttpResponse<DocumentCreateResponse>>;
 
         if (typeof File !== 'undefined' && file instanceof File) {
             headers['Content-Type'] = file.type;

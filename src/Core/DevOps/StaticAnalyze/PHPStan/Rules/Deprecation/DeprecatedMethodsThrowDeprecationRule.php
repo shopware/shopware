@@ -53,6 +53,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:factory-for-deprecation',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
+        // Sync FK resolvers are matched by getName() across all resolvers, so that method must stay silent.
+        'reason:remove-fk-resolver',
     ];
 
     public function __construct(private readonly ServiceMap $serviceMap)

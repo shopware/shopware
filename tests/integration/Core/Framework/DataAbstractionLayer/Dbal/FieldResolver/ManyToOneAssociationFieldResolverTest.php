@@ -8,6 +8,10 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinitio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -22,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,7 +36,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 
 /**
  * @internal
@@ -39,7 +44,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 #[Package('framework')]
 class ManyToOneAssociationFieldResolverTest extends TestCase
 {
-    use DocumentTrait;
+    use DocumentV2Trait;
     use KernelTestBehaviour;
 
     protected ManyToOneAssociationFieldResolver $resolver;
@@ -228,7 +233,16 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         static::assertInstanceOf(OrderEntity::class, $order);
 
         // 2. Generate a document attached to the order
-        $this->createDocument('invoice', $orderId, [], $this->context);
+        if (Feature::isActive('v6.9.0.0')) {
+            $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+            static::getContainer()->get(DocumentV2Generator::class)->generate(
+                new DocumentGenerationRequest($orderId, DocumentType::INVOICE, [DocumentFormat::PDF]),
+                $this->context,
+            );
+        } else {
+            Feature::silent('v6.9.0.0', fn () => $this->createDocument('invoice', $orderId, [], $this->context));
+        }
 
         // 3. Set created order version to be lexicographically smaller than the live version
         $this->connection->executeStatement(

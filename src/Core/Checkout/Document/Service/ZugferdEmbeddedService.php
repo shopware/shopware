@@ -11,10 +11,13 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.9.0 - Will be removed.
  */
 #[Package('after-sales')]
 final class ZugferdEmbeddedService
@@ -38,6 +41,8 @@ final class ZugferdEmbeddedService
         AbstractDocumentRenderer $zugferdRenderer,
         string $shopwareVersion,
     ): RendererResult {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'ZugferdEmbeddedService is deprecated and will be removed with document generation v1.');
+
         $this->setSuccessDocumentNumbers($baseDocument->getSuccess(), $operations);
 
         $renderResult = new RendererResult();
@@ -104,6 +109,8 @@ final class ZugferdEmbeddedService
      */
     public function setSuccessDocumentNumbers(array $successes, array $operations): void
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'ZugferdEmbeddedService is deprecated and will be removed with document generation v1.');
+
         foreach ($successes as $orderId => $document) {
             $operation = $operations[$orderId] ?? null;
 

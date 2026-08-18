@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
+ *
+ * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use {@link RenderResult} instead.
  */
 #[Package('after-sales')]
 class DocumentGenerationResult extends Struct

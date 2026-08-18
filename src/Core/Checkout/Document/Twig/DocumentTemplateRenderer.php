@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -17,6 +18,9 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+/**
+ * @deprecated tag:v6.9.0 - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer} instead.
+ */
 #[Package('after-sales')]
 class DocumentTemplateRenderer
 {
@@ -47,6 +51,8 @@ class DocumentTemplateRenderer
         ?string $languageId = null,
         ?string $locale = null
     ): string {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentTemplateRenderer is deprecated and will be removed with document generation v1.');
+
         $salesChannelContext = null;
 
         // If parameters for specific language setting provided, inject to translator

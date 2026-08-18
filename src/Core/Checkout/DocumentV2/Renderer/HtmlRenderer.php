@@ -47,12 +47,12 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
         $meta = $input->requireData(
-            DocumentMetaProvider::KEY,
+            DocumentMetaProvider::KEY->value,
             DocumentMetaRenderData::class,
         );
 
         $typeData = $input->getAllData();
-        unset($typeData[DocumentMetaProvider::KEY]);
+        unset($typeData[DocumentMetaProvider::KEY->value]);
 
         $configuration = new TemplateContext($meta, $typeData);
 

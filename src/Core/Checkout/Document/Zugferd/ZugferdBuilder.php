@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.9.0 - Will be removed.
+ */
 #[Package('after-sales')]
 class ZugferdBuilder
 {
@@ -40,6 +43,8 @@ class ZugferdBuilder
         DocumentConfiguration $config,
         Context $context,
     ): string {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'ZugferdBuilder is deprecated and will be removed with document generation v1.');
+
         return $this->build($order, $config, $context, ZugferdInvoiceType::INVOICE);
     }
 
@@ -53,11 +58,15 @@ class ZugferdBuilder
         string $documentType,
         ?array $invoiceReference = null,
     ): string {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'ZugferdBuilder is deprecated and will be removed with document generation v1.');
+
         return $this->build($order, $config, $context, $documentType, $invoiceReference);
     }
 
     protected function addLineItems(ZugferdDocument $document, ?OrderLineItemCollection $lineItems, string $parentPosition = ''): self
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'ZugferdBuilder is deprecated and will be removed with document generation v1.');
+
         if (!$lineItems) {
             return $this;
         }
@@ -72,6 +81,8 @@ class ZugferdBuilder
 
     protected function matchByType(ZugferdDocument $document, OrderLineItemEntity $lineItem, string $parentPosition = ''): void
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'ZugferdBuilder is deprecated and will be removed with document generation v1.');
+
         match ($lineItem->getType()) {
             LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
             LineItem::PROMOTION_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),

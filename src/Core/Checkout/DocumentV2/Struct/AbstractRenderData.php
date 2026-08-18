@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * input instead of reaching back into the data loading layer. The base holds no state: shared data
  * lives in {@see \Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData}
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  *

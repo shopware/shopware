@@ -3,10 +3,14 @@
 namespace Shopware\Core\Checkout\Document\Struct;
 
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use {@link DocumentGenerationRequest} instead.
+ */
 #[Package('after-sales')]
 final class DocumentGenerateOperation extends Struct
 {

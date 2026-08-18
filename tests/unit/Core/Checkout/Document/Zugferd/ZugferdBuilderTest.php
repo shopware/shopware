@@ -28,6 +28,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -50,6 +51,11 @@ class ZugferdBuilderTest extends TestCase
     private int $position = 0;
 
     private float $totalAmount = 0.0;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
 
     protected function tearDown(): void
     {

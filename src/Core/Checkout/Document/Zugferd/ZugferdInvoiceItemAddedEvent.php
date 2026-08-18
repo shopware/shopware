@@ -8,6 +8,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed.
  */
 #[Package('after-sales')]
 class ZugferdInvoiceItemAddedEvent extends Event

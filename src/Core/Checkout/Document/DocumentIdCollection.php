@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<DocumentIdStruct>
  *
+ * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

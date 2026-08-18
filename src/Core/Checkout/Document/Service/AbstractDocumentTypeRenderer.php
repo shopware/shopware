@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.9.0 reason:remove-decorator - Will be removed. Use {@link AbstractDocumentRenderer} instead
+ */
 #[Package('after-sales')]
 abstract class AbstractDocumentTypeRenderer
 {

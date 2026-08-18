@@ -17,11 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvider
 {
-    final public const KEY = 'delivery_note';
+    final public const KEY = DocumentDataProviderKey::DELIVERY_NOTE;
 
     public function getKey(): string
     {
-        return self::KEY;
+        return self::KEY->value;
     }
 
     public function supports(string $documentType): bool

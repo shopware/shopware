@@ -3,16 +3,18 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.9.0 - Will be removed.
+ */
 #[Package('after-sales')]
 class DocumentConfigurationFactory
 {
     private function __construct()
     {
-        // Factory is Static
     }
 
     /**
@@ -20,6 +22,8 @@ class DocumentConfigurationFactory
      */
     public static function createConfiguration(array $specificConfig, ?DocumentBaseConfigEntity ...$configs): DocumentConfiguration
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentConfigurationFactory is removed with document generation v1.');
+
         $configs = array_filter($configs);
         $documentConfiguration = new DocumentConfiguration();
         foreach ($configs as $config) {
@@ -34,6 +38,8 @@ class DocumentConfigurationFactory
      */
     public static function mergeConfiguration(DocumentConfiguration $baseConfig, DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig): DocumentConfiguration
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentConfigurationFactory is removed with document generation v1.');
+
         $additionalConfigArray = [];
         if (\is_array($additionalConfig)) {
             $additionalConfigArray = $additionalConfig;

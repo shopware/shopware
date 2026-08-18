@@ -20,11 +20,14 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
  * Renderers pass only the view path, the {@see RenderInput} and any format-specific extras
  * (e.g. an HTML pagination counter or PDF configuration).
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 final readonly class DocumentTemplateRenderer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private TemplateFinder $templateFinder,
         private TwigEnvironment $twig,

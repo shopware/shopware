@@ -21,6 +21,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -56,6 +57,8 @@ class DeliveryNoteRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();

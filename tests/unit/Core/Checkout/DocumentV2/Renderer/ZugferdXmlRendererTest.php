@@ -138,7 +138,7 @@ class ZugferdXmlRendererTest extends TestCase
                 '12345',
                 $this->createOrder(),
                 [
-                    DocumentMetaProvider::KEY => $this->createMeta(),
+                    DocumentMetaProvider::KEY->value => $this->createMeta(),
                     DocumentType::CREDIT_NOTE->value => $this->createRenderData(),
                 ],
             ),
@@ -161,7 +161,7 @@ class ZugferdXmlRendererTest extends TestCase
                 '../invoice',
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $this->createRenderData()],
+                [InvoiceDataProvider::KEY->value => $this->createRenderData()],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -183,7 +183,7 @@ class ZugferdXmlRendererTest extends TestCase
         );
 
         $this->expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY->value, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString(
@@ -224,8 +224,8 @@ class ZugferdXmlRendererTest extends TestCase
             '12345',
             $this->createOrder(),
             [
-                DocumentMetaProvider::KEY => $meta,
-                InvoiceDataProvider::KEY => $data,
+                DocumentMetaProvider::KEY->value => $meta,
+                InvoiceDataProvider::KEY->value => $data,
             ],
         );
     }

@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -57,6 +58,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class InvoiceRendererTest extends TestCase
 {
     private const COUNTRY_ID = 'country-id';
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
 
     /**
      * @param OrderSettings $orderSettings

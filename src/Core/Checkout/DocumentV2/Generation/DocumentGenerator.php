@@ -25,12 +25,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
+ *
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
-final readonly class DocumentGenerator
+readonly class DocumentGenerator
 {
     /**
+     * @internal
+     *
      * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(

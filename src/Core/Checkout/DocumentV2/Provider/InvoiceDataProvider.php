@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('after-sales')]
 final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 {
-    final public const KEY = 'invoice';
+    final public const KEY = DocumentDataProviderKey::INVOICE;
 
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
@@ -43,7 +43,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 
     public function getKey(): string
     {
-        return self::KEY;
+        return self::KEY->value;
     }
 
     public function supports(string $documentType): bool

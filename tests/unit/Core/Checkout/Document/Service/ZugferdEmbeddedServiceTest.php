@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -25,6 +26,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+
         $this->service = new ZugferdEmbeddedService();
     }
 

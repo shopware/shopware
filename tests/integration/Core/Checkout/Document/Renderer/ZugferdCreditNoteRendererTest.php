@@ -58,6 +58,8 @@ class ZugferdCreditNoteRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+
         $this->context = Context::createDefaultContext();
 
         $priceRuleId = Uuid::randomHex();

@@ -12,6 +12,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.9.0 reason:remove-subscriber - Will be removed.
  */
 #[Package('after-sales')]
 class DocumentBaseConfigValidator implements EventSubscriberInterface

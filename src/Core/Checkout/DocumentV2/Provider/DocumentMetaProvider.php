@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class DocumentMetaProvider extends AbstractDocumentDataProvider
 {
-    final public const KEY = 'meta';
+    final public const KEY = DocumentDataProviderKey::META;
 
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
@@ -27,7 +27,7 @@ final readonly class DocumentMetaProvider extends AbstractDocumentDataProvider
 
     public function getKey(): string
     {
-        return self::KEY;
+        return self::KEY->value;
     }
 
     public function supports(string $documentType): bool

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class PaginationCounter
+final class PaginationCounter
 {
     private int $counter = 0;
 

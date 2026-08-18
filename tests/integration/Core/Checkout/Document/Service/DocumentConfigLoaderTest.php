@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,6 +38,8 @@ class DocumentConfigLoaderTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this);
+
         parent::setUp();
 
         $this->context = Context::createDefaultContext();

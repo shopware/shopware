@@ -70,6 +70,8 @@ class DocumentRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+
         $this->ids = new IdsCollection();
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);

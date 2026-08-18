@@ -14,6 +14,10 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
+use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -28,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -43,6 +48,7 @@ use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBeha
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,11 +59,14 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class OrderRouteTest extends TestCase
 {
+    use DocumentV2Trait;
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
-    use SalesChannelApiTestBehaviour;
+    use SalesChannelApiTestBehaviour {
+        SalesChannelApiTestBehaviour::createCustomer insteadof DocumentV2Trait;
+    }
 
     private KernelBrowser $browser;
 
@@ -694,6 +703,27 @@ class OrderRouteTest extends TestCase
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteRenderer::TYPE));
+
+        if (Feature::isActive('v6.9.0.0')) {
+            $this->context = Context::createDefaultContext();
+            $this->seedDemoBaseConfig(DeliveryNoteDataProvider::KEY->value);
+
+            $documentId = static::getContainer()->get(DocumentV2Generator::class)->generate(
+                new DocumentGenerationRequest($orderId, DeliveryNoteDataProvider::KEY->value, [DocumentFormat::PDF], '1001'),
+                Context::createDefaultContext(),
+            )->getId();
+
+            // v2 has no displayInCustomerAccount input, set it on the row so the store api filter matches v1.
+            static::getContainer()->get('document.repository')->update([
+                [
+                    'id' => $documentId,
+                    'sent' => $sent,
+                    'config' => ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
+                ],
+            ], Context::createDefaultContext());
+
+            return;
+        }
 
         $operation = new DocumentGenerateOperation(
             $orderId,

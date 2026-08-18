@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
  * for HTML and PDF output for the same document number. Intermediate dependency formats that
  * only exist during rendering are not stored here.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

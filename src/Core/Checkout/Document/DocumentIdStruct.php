@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed.
  */
 #[Package('after-sales')]
 class DocumentIdStruct extends Struct

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
@@ -16,6 +17,11 @@ use Shopware\Core\System\Country\CountryEntity;
 #[CoversClass(DocumentConfigurationFactory::class)]
 class DocumentConfigurationFactoryTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
+
     public function testMergeConfigurationConvertsArrayToEntityObjectAndUseSetterMethod(): void
     {
         $baseConfig = new DocumentConfiguration();

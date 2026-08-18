@@ -18,6 +18,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.9.0 reason:remove-subscriber - Will be removed without replacement.
  */
 #[Package('after-sales')]
 class DocumentDeleteSubscriber implements EventSubscriberInterface

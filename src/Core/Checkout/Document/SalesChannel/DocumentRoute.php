@@ -31,6 +31,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @deprecated tag:v6.9.0 reason:remove-route - Will be removed. A DocumentV2 download route will replace it.
+ */
 #[Package('after-sales')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 final class DocumentRoute extends AbstractDocumentRoute
@@ -326,12 +329,12 @@ final class DocumentRoute extends AbstractDocumentRoute
         $document = null;
 
         foreach ($fileTypes as $fileType) {
-            $document = $this->documentGenerator->readDocument(
+            $document = Feature::silent('v6.9.0.0', fn () => $this->documentGenerator->readDocument(
                 $documentId,
                 $context,
                 $deepLinkCode,
                 $fileType
-            );
+            ));
 
             if ($document !== null) {
                 break;

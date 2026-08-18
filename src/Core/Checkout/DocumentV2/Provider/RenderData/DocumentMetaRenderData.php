@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * info, display options and document identity. Provided once per generation run by
  * {@see \Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider}
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

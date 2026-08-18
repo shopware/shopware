@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Framework\Feature;
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @deprecated tag:v6.9.0 reason:remove-exception - Will be removed. Document generation will throw {@link DocumentV2Exception} instead.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

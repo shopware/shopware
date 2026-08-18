@@ -47,7 +47,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $input = new RenderInput(DocumentType::INVOICE->value, '12345', $this->createOrder(), []);
 
         $this->expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY->value, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString($input, new RenderState(), Context::createDefaultContext());
@@ -104,7 +104,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
             DocumentType::INVOICE->value,
             '12345',
             $this->createOrder(),
-            [DocumentMetaProvider::KEY => $this->createMeta()],
+            [DocumentMetaProvider::KEY->value => $this->createMeta()],
         );
     }
 

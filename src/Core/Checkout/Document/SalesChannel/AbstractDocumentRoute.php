@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * This route is used to get the generated document from a documentId
+ *
+ * @deprecated tag:v6.9.0 reason:remove-route - Will be removed. A DocumentV2 download route will replace it.
  */
 #[Package('after-sales')]
 abstract class AbstractDocumentRoute

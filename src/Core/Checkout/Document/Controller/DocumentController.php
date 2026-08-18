@@ -7,9 +7,11 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -20,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @deprecated tag:v6.9.0 reason:remove-route - Will be removed. Use {@link DocumentV2Controller} instead.
+ */
 #[Package('after-sales')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class DocumentController extends AbstractController
@@ -44,7 +49,7 @@ class DocumentController extends AbstractController
         $download = $request->query->getBoolean('download');
         $fileType = $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
 
-        $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode, $fileType);
+        $generatedDocument = Feature::silent('v6.9.0.0', fn () => $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode, $fileType));
 
         if ($generatedDocument === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
@@ -80,7 +85,7 @@ class DocumentController extends AbstractController
 
         $operation = new DocumentGenerateOperation($orderId, $fileType, $config, $referencedDocumentId, false, true);
 
-        $generatedDocument = $this->documentGenerator->preview($documentTypeName, $operation, $deepLinkCode, $context);
+        $generatedDocument = Feature::silent('v6.9.0.0', fn () => $this->documentGenerator->preview($documentTypeName, $operation, $deepLinkCode, $context));
 
         return $this->createResponse(
             $generatedDocument->getName(),
@@ -105,7 +110,7 @@ class DocumentController extends AbstractController
         }
 
         $download = $request->query->getBoolean('download', true);
-        $combinedDocument = $this->documentMerger->merge($documentIds, $context);
+        $combinedDocument = Feature::silent('v6.9.0.0', fn () => $this->documentMerger->merge($documentIds, $context));
 
         if ($combinedDocument === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

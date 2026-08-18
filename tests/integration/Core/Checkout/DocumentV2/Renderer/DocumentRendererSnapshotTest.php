@@ -331,14 +331,14 @@ class DocumentRendererSnapshotTest extends TestCase
         $companyCountry = $withoutCompanyCountry ? new CountryEntity() : $this->companyCountry;
 
         $data = [
-            DocumentMetaProvider::KEY => $this->buildMeta($companyCountry, $itemsPerPage),
+            DocumentMetaProvider::KEY->value => $this->buildMeta($companyCountry, $itemsPerPage),
         ];
 
         $data += match ($documentType) {
-            DocumentType::INVOICE => [InvoiceDataProvider::KEY => $this->buildInvoiceRenderData($order)],
-            DocumentType::CANCELLATION_INVOICE => [CancellationInvoiceDataProvider::KEY => $this->buildCancellationInvoiceRenderData($order)],
-            DocumentType::CREDIT_NOTE => [CreditNoteDataProvider::KEY => $this->buildCreditNoteRenderData($order)],
-            DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY => $this->buildDeliveryNoteRenderData()],
+            DocumentType::INVOICE => [InvoiceDataProvider::KEY->value => $this->buildInvoiceRenderData($order)],
+            DocumentType::CANCELLATION_INVOICE => [CancellationInvoiceDataProvider::KEY->value => $this->buildCancellationInvoiceRenderData($order)],
+            DocumentType::CREDIT_NOTE => [CreditNoteDataProvider::KEY->value => $this->buildCreditNoteRenderData($order)],
+            DocumentType::DELIVERY_NOTE => [DeliveryNoteDataProvider::KEY->value => $this->buildDeliveryNoteRenderData()],
         };
 
         return $data;

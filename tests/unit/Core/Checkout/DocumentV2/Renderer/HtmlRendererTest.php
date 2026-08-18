@@ -90,8 +90,8 @@ class HtmlRendererTest extends TestCase
             $meta->documentNumber,
             $this->createOrder(),
             [
-                DocumentMetaProvider::KEY => $meta,
-                InvoiceDataProvider::KEY => $renderData,
+                DocumentMetaProvider::KEY->value => $meta,
+                InvoiceDataProvider::KEY->value => $renderData,
             ],
         );
 
@@ -130,7 +130,7 @@ class HtmlRendererTest extends TestCase
                 DocumentType::CREDIT_NOTE->value,
                 '12345',
                 $this->createOrder(),
-                [DocumentMetaProvider::KEY => $this->createMeta()],
+                [DocumentMetaProvider::KEY->value => $this->createMeta()],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -151,7 +151,7 @@ class HtmlRendererTest extends TestCase
                 '../invoice',
                 '12345',
                 $this->createOrder(),
-                [InvoiceDataProvider::KEY => $this->createRenderData()],
+                [InvoiceDataProvider::KEY->value => $this->createRenderData()],
             ),
             new RenderState(),
             Context::createDefaultContext(),
@@ -173,7 +173,7 @@ class HtmlRendererTest extends TestCase
         );
 
         $this->expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY->value, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString(

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,6 +33,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @final
+ *
+ * @deprecated tag:v6.9.0 - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator} instead.
  */
 #[Package('after-sales')]
 class DocumentGenerator
@@ -57,6 +60,8 @@ class DocumentGenerator
         string $deepLinkCode = '',
         ?string $fileType = PdfRenderer::FILE_EXTENSION
     ): ?RenderedDocument {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentGenerator is deprecated and will be removed. Use the Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator instead.');
+
         $criteria = (new Criteria([$documentId]))
             ->addAssociations([
                 'documentMediaFile',
@@ -95,6 +100,8 @@ class DocumentGenerator
 
     public function preview(string $documentType, DocumentGenerateOperation $operation, string $deepLinkCode, Context $context): RenderedDocument
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentGenerator is deprecated and will be removed. Use the Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator instead.');
+
         $config = new DocumentRendererConfig();
         $config->deepLinkCode = $deepLinkCode;
 
@@ -118,6 +125,8 @@ class DocumentGenerator
      */
     public function generate(string $documentType, array $operations, Context $context): DocumentGenerationResult
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentGenerator is deprecated and will be removed. Use the Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator instead.');
+
         $documentTypeId = $this->getDocumentTypeByName($documentType);
 
         if ($documentTypeId === null) {
@@ -179,6 +188,8 @@ class DocumentGenerator
 
     public function upload(string $documentId, Context $context, Request $uploadedFileRequest): DocumentIdStruct
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentGenerator is deprecated and will be removed. Use the Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator instead.');
+
         $criteria = (new Criteria([$documentId]))
             ->addAssociation('documentMediaFile');
 

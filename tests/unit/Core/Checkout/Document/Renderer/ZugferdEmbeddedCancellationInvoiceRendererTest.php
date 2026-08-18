@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCancellationInvoiceR
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,6 +22,11 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ZugferdEmbeddedCancellationInvoiceRenderer::class)]
 class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
+
     public function testSupports(): void
     {
         $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider implements ReferencesDocument
 {
-    final public const KEY = 'credit_note';
+    final public const KEY = DocumentDataProviderKey::CREDIT_NOTE;
 
     public function __construct(
         private InvoiceDataProvider $invoiceDataProvider,
@@ -29,7 +29,7 @@ final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider
 
     public function getKey(): string
     {
-        return self::KEY;
+        return self::KEY->value;
     }
 
     public function supports(string $documentType): bool

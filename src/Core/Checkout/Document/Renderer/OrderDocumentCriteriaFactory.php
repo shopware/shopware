@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.9.0 - Will be removed.
+ */
 #[Package('after-sales')]
 final class OrderDocumentCriteriaFactory
 {
@@ -23,6 +26,8 @@ final class OrderDocumentCriteriaFactory
      */
     public static function create(array $ids, string $deepLinkCode = '', ?string $documentType = null): Criteria
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'OrderDocumentCriteriaFactory is deprecated and will be removed with document generation v1.');
+
         $criteria = new Criteria($ids);
 
         $criteria->addAssociations([

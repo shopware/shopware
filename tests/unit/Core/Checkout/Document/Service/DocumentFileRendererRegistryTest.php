@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -23,6 +24,11 @@ use Shopware\Core\System\Locale\LocaleEntity;
 #[CoversClass(DocumentFileRendererRegistry::class)]
 class DocumentFileRendererRegistryTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
+
     #[DataProvider('documentTypeRendererProvider')]
     public function testRender(RenderedDocument $document, \Closure $expectsClosure): void
     {

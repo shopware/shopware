@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDataProvider implements RendersReferencedSnapshot
 {
-    final public const KEY = 'storno';
+    final public const KEY = DocumentDataProviderKey::CANCELLATION_INVOICE;
 
     public function __construct(
         private InvoiceDataProvider $invoiceDataProvider,
@@ -25,7 +25,7 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
 
     public function getKey(): string
     {
-        return self::KEY;
+        return self::KEY->value;
     }
 
     public function supports(string $documentType): bool

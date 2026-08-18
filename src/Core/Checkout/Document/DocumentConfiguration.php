@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -9,6 +12,8 @@ use Shopware\Core\System\Country\CountryEntity;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.9.0 reason:remove-getter-setter - Will be removed. Use {@link DocumentConfig}, {@link DocumentCompanyInfo} and {@link DocumentDisplayOptions} instead.
  */
 #[Package('after-sales')]
 #[\AllowDynamicProperties]

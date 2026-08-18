@@ -17,6 +17,10 @@ shopware:
         default: false
         major: true
         toggleable: false
+      - name: v6.9.0.0
+        default: false
+        major: true
+        toggleable: false
       - name: DISABLE_VUE_COMPAT
         default: true
         major: true
@@ -37,10 +41,10 @@ shopware:
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
       - name: DOCUMENT_GENERATION_REWORK
-        default: false
+        default: false # ""default: true" in v6.8.0.0
         major: true
         toggleable: true
-        description: "Experimental! Enable the new document generation implementation and its accompanying UI changes."
+        description: "Experimental! Enable the new document generation implementation and its accompanying UI changes. Will become enabled by default with the next major 6.8"
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true

@@ -117,7 +117,7 @@ class PdfRendererTest extends TestCase
         );
 
         $this->expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY->value, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString($input, $state, Context::createDefaultContext());
@@ -193,7 +193,7 @@ class PdfRendererTest extends TestCase
             DocumentType::INVOICE->value,
             $meta->documentNumber,
             $this->createOrder(),
-            [DocumentMetaProvider::KEY => $meta],
+            [DocumentMetaProvider::KEY->value => $meta],
         );
     }
 

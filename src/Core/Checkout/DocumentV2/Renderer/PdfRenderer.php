@@ -55,7 +55,7 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
         $html = $state->require(DocumentFormat::HTML->value)->content;
 
         $meta = $input->requireData(
-            DocumentMetaProvider::KEY,
+            DocumentMetaProvider::KEY->value,
             DocumentMetaRenderData::class,
         );
 

@@ -53,6 +53,11 @@ class DocumentRouteTest extends TestCase
         ZugferdRenderer::FILE_EXTENSION => ZugferdRenderer::FILE_CONTENT_TYPE,
     ];
 
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
+
     public function testDownloadWithDocumentNotFound(): void
     {
         $generator = static::createStub(DocumentGenerator::class);

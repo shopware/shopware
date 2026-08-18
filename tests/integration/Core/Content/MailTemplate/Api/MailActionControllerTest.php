@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -25,6 +28,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -35,6 +39,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -46,6 +51,7 @@ use Symfony\Component\Serializer\Serializer;
 class MailActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use DocumentV2Trait;
     use IntegrationTestBehaviour;
 
     public function testSendSuccess(): void
@@ -345,10 +351,21 @@ class MailActionControllerTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
-        $documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        if (Feature::isActive('v6.9.0.0')) {
+            $this->context = $context;
+            $this->seedDemoBaseConfig($documentType);
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
-        $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
+            return static::getContainer()->get(DocumentV2Generator::class)->generate(
+                new DocumentGenerationRequest($orderId, $documentType, [DocumentFormat::PDF]),
+                $context,
+            )->getId();
+        }
+
+        $document = Feature::silent('v6.9.0.0', static fn () => static::getContainer()->get(DocumentGenerator::class)->generate(
+            $documentType,
+            [$orderId => new DocumentGenerateOperation($orderId, FileTypes::PDF, [])],
+            $context,
+        )->getSuccess()->first());
 
         static::assertNotNull($document);
 

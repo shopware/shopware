@@ -19,6 +19,9 @@ use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -61,6 +64,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
@@ -71,6 +75,7 @@ use Symfony\Component\Mime\Part\DataPart;
 #[Package('after-sales')]
 class SendMailActionTest extends TestCase
 {
+    use DocumentV2Trait;
     use IntegrationTestBehaviour;
 
     /**
@@ -1129,10 +1134,21 @@ class SendMailActionTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context, string $documentType = InvoiceRenderer::TYPE): string
     {
-        $documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        if (Feature::isActive('v6.9.0.0')) {
+            $this->context = $context;
+            $this->seedDemoBaseConfig($documentType);
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
-        $document = $documentGenerator->generate($documentType, [$orderId => $operation], $context)->getSuccess()->first();
+            return static::getContainer()->get(DocumentV2Generator::class)->generate(
+                new DocumentGenerationRequest($orderId, $documentType, [DocumentFormat::PDF]),
+                $context,
+            )->getId();
+        }
+
+        $document = Feature::silent('v6.9.0.0', static fn () => static::getContainer()->get(DocumentGenerator::class)->generate(
+            $documentType,
+            [$orderId => new DocumentGenerateOperation($orderId, FileTypes::PDF, [])],
+            $context,
+        )->getSuccess()->first());
 
         static::assertNotNull($document);
 

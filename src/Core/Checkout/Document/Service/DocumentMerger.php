@@ -15,11 +15,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @deprecated tag:v6.9.0 - Will be removed.
+ */
 #[Package('after-sales')]
 final class DocumentMerger
 {
@@ -49,6 +53,8 @@ final class DocumentMerger
      */
     public function merge(array $documentIds, Context $context): ?RenderedDocument
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'DocumentMerger is deprecated and will be removed with document generation v1.');
+
         if ($documentIds === []) {
             return null;
         }

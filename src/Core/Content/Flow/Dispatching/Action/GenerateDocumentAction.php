@@ -110,7 +110,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
 
         $operation = new DocumentGenerateOperation($orderId, $fileType, $config, null, $static);
 
-        $result = $this->documentGenerator->generate($documentType, [$orderId => $operation], $context);
+        $result = Feature::silent('v6.9.0.0', fn () => $this->documentGenerator->generate($documentType, [$orderId => $operation], $context));
 
         foreach ($result->getErrors() as $error) {
             $this->logger->error($error->getMessage());

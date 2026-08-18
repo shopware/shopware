@@ -32,6 +32,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -44,6 +45,11 @@ use Symfony\Component\Clock\NativeClock;
 #[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.9.0.0', $this); // tested class will be removed
+    }
+
     #[DataProvider('readDataProvider')]
     public function testReadDocument(string $fileType, RenderedDocument $resultRenderer, \Closure $expectClosure): void
     {

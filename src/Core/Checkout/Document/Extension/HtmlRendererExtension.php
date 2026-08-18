@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Extension;
 
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Extensions\Extension;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  *
  * @extends Extension<string>
+ *
+ * @deprecated tag:v6.9.0 - Will be removed.
  */
 #[Package('checkout')]
 final class HtmlRendererExtension extends Extension
@@ -27,5 +30,6 @@ final class HtmlRendererExtension extends Extension
      */
     public function __construct(public readonly RenderedDocument $document)
     {
+        Feature::triggerDeprecationOrThrow('v6.9.0.0', 'HtmlRendererExtension is deprecated and will be removed with document generation v1.');
     }
 }

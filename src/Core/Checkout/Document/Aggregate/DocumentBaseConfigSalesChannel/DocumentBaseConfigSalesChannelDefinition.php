@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[NamespaceChange(version: 'v6.9.0', newLocation: 'Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition')]
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'document_base_config_sales_channel';

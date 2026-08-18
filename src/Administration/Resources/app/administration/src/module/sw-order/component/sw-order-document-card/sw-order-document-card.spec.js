@@ -204,6 +204,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 documentV2Service: {
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
+                    sortFileFormats: (formats) => [...formats],
                 },
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: '1000' }),
@@ -457,6 +458,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should download a V2 archive when using the download all action with the feature flag active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        global.activeAclRoles = ['document.viewer'];
         URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
         const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
@@ -479,7 +481,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
+        await wrapper.find('.sw-order-document-card__actions-button').trigger('click');
+        await flushPromises();
+
+        // The download-formats action is a nested sub-menu teleported into document.body, opened by
+        // clicking its parent trigger - it cannot be reached via wrapper.find().
+        document.body.querySelector('.sw-order-document-card__context-button-download-pdf')?.click();
+        await flushPromises();
+
+        document.body.querySelector('.sw-order-document-card__context-button-download-all-formats')?.click();
+        await flushPromises();
 
         expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['document1']);
         dispatchEventSpy.mockRestore();

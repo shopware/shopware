@@ -111,13 +111,23 @@ export default Component.wrapComponentConfig({
         },
 
         referencedDocumentNumberErrorMessage(): { detail: string } | null {
-            if ((!this.isCreditNoteDocument && !this.isStornoDocument) || this.referencedDocumentNumber) {
+            if (!this.isCreditNoteDocument && !this.isStornoDocument) {
                 return null;
             }
 
-            return {
-                detail: this.$t('global.notification.notificationSaveErrorMessageRequiredField'),
-            };
+            if (!this.referencedDocumentNumber) {
+                return {
+                    detail: this.$t('global.notification.notificationSaveErrorMessageRequiredField'),
+                };
+            }
+
+            if (this.isCreditNoteDocument && this.creditItems.length === 0) {
+                return {
+                    detail: this.$t('sw-order.documentModal.errorInvoiceMissingCreditItem'),
+                };
+            }
+
+            return null;
         },
 
         documentTypeOptions(): { label: string; value: string }[] {

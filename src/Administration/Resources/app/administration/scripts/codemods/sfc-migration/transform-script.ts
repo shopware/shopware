@@ -15,6 +15,7 @@
  * initializers, watchers, the inlined created() body) come after everything they may reference.
  */
 
+import { traverse } from '@babel/core';
 import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
 import MagicString from 'magic-string';
@@ -53,6 +54,7 @@ function transformScript(
     const ctx: Ctx = {
         source,
         ms: new MagicString(source),
+        paths: new Map(),
         componentName,
         bindings: new Map(),
         templateRefs: new Set(),
@@ -124,6 +126,13 @@ function transformScript(
 
     // --- rewrite pass ---------------------------------------------------------------------------
 
+    // Classification collects bare AST nodes; the rewrite needs their paths to read Babel's scope.
+    traverse(ast, {
+        enter(path) {
+            ctx.paths.set(path.node, path);
+        },
+    });
+
     if (collected.createdFn) {
         collected.rewriteFns.push(collected.createdFn);
     }
@@ -139,11 +148,11 @@ function transformScript(
     // Data initializers and foreign nodes are spliced in at the top level, so no function frame
     // encloses them.
     for (const entry of collected.dataEntries) {
-        rewriteThis(ctx, entry.valueNode, true, null);
+        rewriteThis(ctx, entry.valueNode, true);
     }
 
     for (const node of collected.foreignNodes) {
-        rewriteThis(ctx, node, false, null);
+        rewriteThis(ctx, node, false);
     }
 
     if (ctx.blockers.size > 0) {

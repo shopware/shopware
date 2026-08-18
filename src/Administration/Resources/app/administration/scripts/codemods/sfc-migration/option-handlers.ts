@@ -13,9 +13,10 @@
  * generic TODO fallback.
  */
 
+import { traverseFast } from '@babel/types';
 import type * as t from '@babel/types';
 import { LIFECYCLE_HOOKS, SKIP_OPTIONS, TODO_OPTIONS, type MemberKind } from './tables';
-import { type Ctx, type FnLike, IDENTIFIER, arrowText, asFunction, keyName, raw, snip, todo, visitChildren } from './ast';
+import { type Ctx, type FnLike, IDENTIFIER, arrowText, asFunction, keyName, raw, snip, todo } from './ast';
 
 type NamedText = { name: string; text: () => string };
 
@@ -39,19 +40,10 @@ type Collected = {
 type OptionHandler = (prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, collected: Collected) => boolean;
 
 function containsThisAccess(node: t.Node): boolean {
-    if (node.type === 'ThisExpression') {
-        return true;
-    }
-
-    if (node.type === 'MemberExpression' && node.object.type === 'ThisExpression') {
-        return true;
-    }
-
     let found = false;
-    visitChildren(node, (child) => {
-        if (!found && containsThisAccess(child)) {
-            found = true;
-        }
+
+    traverseFast(node, (descendant) => {
+        found = found || descendant.type === 'ThisExpression';
     });
 
     return found;

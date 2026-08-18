@@ -14,9 +14,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse, type ParserPlugin } from '@babel/parser';
+import { traverseFast } from '@babel/types';
 import type * as t from '@babel/types';
 import { globSync } from 'glob';
-import { keyName, unwrapExpression, unwrapOptions, walk } from './ast';
+import { keyName, unwrapExpression, unwrapOptions } from './ast';
 
 type SourceRange = {
     start: number;
@@ -349,7 +350,7 @@ function extractRegistrations(
     const registrations: RegistrationReference[] = [];
     const diagnostics: SourceDiagnostic[] = [];
 
-    walk(ast, (node) => {
+    traverseFast(ast, (node) => {
         if (node.type !== 'CallExpression') {
             return;
         }

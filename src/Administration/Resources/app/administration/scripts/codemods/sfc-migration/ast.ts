@@ -8,7 +8,7 @@
  * and every helper is agnostic to which option it serves.
  */
 
-import { VISITOR_KEYS } from '@babel/types';
+import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
 import type MagicString from 'magic-string';
 import type { MemberKind, HelperName, TodoEntry } from './tables';
@@ -16,6 +16,8 @@ import type { MemberKind, HelperName, TodoEntry } from './tables';
 type Ctx = {
     source: string;
     ms: MagicString;
+    /** Every parsed node keyed to its @babel/traverse path, so the rewrite pass can ask for scope. */
+    paths: Map<t.Node, NodePath>;
     componentName: string;
     bindings: Map<string, MemberKind>;
     templateRefs: Set<string>;
@@ -103,140 +105,6 @@ function asFunction(prop: t.ObjectMethod | t.ObjectProperty | t.SpreadElement): 
     }
 
     return null;
-}
-
-function visitChildren(node: t.Node, visit: (child: t.Node) => void): void {
-    const keys = VISITOR_KEYS[node.type] ?? [];
-
-    for (const key of keys) {
-        const child = (node as unknown as Record<string, unknown>)[key];
-
-        if (Array.isArray(child)) {
-            for (const entry of child) {
-                if (entry && typeof (entry as t.Node).type === 'string') {
-                    visit(entry as t.Node);
-                }
-            }
-        } else if (child && typeof (child as t.Node).type === 'string') {
-            visit(child as t.Node);
-        }
-    }
-}
-
-/** Depth-first visit of `node` and every descendant. */
-function walk(node: t.Node, visit: (node: t.Node) => void): void {
-    visit(node);
-    visitChildren(node, (child) => walk(child, visit));
-}
-
-/** One function's own bindings, chained to its enclosing functions. Block scopes are not modelled. */
-type LocalScope = { names: Set<string>; parent: LocalScope | null };
-
-const FUNCTION_TYPES = new Set<string>([
-    'FunctionExpression',
-    'FunctionDeclaration',
-    'ArrowFunctionExpression',
-    'ObjectMethod',
-    'ClassMethod',
-    'ClassPrivateMethod',
-]);
-
-/** Every name a binding pattern introduces: identifiers, destructuring, rest elements, defaults. */
-function collectPatternNames(node: t.Node | null | undefined, names: Set<string>): void {
-    if (!node) {
-        return;
-    }
-
-    switch (node.type) {
-        case 'Identifier':
-            names.add(node.name);
-            return;
-        case 'ObjectPattern':
-            for (const property of node.properties) {
-                // A computed key is an expression, never a binding — only the value side binds.
-                collectPatternNames(property.type === 'ObjectProperty' ? property.value : property.argument, names);
-            }
-
-            return;
-        case 'ArrayPattern':
-            for (const element of node.elements) {
-                collectPatternNames(element, names);
-            }
-
-            return;
-        case 'RestElement':
-            collectPatternNames(node.argument, names);
-            return;
-        case 'AssignmentPattern':
-            collectPatternNames(node.left, names);
-            return;
-        case 'TSParameterProperty':
-            collectPatternNames(node.parameter, names);
-            return;
-        default:
-            return;
-    }
-}
-
-/** Collects declarations of one function body, without descending into nested function frames. */
-function collectBodyBindings(node: t.Node, names: Set<string>): void {
-    visitChildren(node, (child) => {
-        switch (child.type) {
-            case 'VariableDeclarator':
-                collectPatternNames(child.id, names);
-                break;
-            // The name is hoisted into this frame, the interior belongs to its own frame.
-            case 'FunctionDeclaration':
-            case 'ClassDeclaration':
-                collectPatternNames(child.id, names);
-                return;
-            case 'CatchClause':
-                collectPatternNames(child.param, names);
-                break;
-            default:
-                break;
-        }
-
-        if (!FUNCTION_TYPES.has(child.type) && child.type !== 'ClassBody') {
-            collectBodyBindings(child, names);
-        }
-    });
-}
-
-/**
- * The names `fnNode` binds in its own scope: its parameters, its own name when it is a named
- * function expression, and every declaration in its body. Declarations after the reference site
- * count too — `var` shadows outright, `let`/`const` produce a temporal dead zone.
- */
-function functionScope(fnNode: t.Node, parent: LocalScope | null): LocalScope {
-    const names = new Set<string>();
-
-    if ('params' in fnNode) {
-        for (const param of fnNode.params) {
-            collectPatternNames(param, names);
-        }
-    }
-
-    if (fnNode.type === 'FunctionExpression' || fnNode.type === 'FunctionDeclaration') {
-        collectPatternNames(fnNode.id, names);
-    }
-
-    if ('body' in fnNode && fnNode.body && typeof (fnNode.body as t.Node).type === 'string') {
-        collectBodyBindings(fnNode.body as t.Node, names);
-    }
-
-    return { names, parent };
-}
-
-/** True when a bare `name` emitted here would resolve to a local binding instead of the setup one. */
-function isShadowed(scope: LocalScope | null, name: string): boolean {
-    for (let current = scope; current !== null; current = current.parent) {
-        if (current.names.has(name)) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 function isThisMember(node: t.Node): node is t.MemberExpression {
@@ -340,19 +208,13 @@ function unwrapOptions(declaration: t.Node): t.ObjectExpression | null {
 export {
     type Ctx,
     type FnLike,
-    type LocalScope,
     IDENTIFIER,
-    FUNCTION_TYPES,
     snip,
     raw,
     overwrite,
     todo,
     keyName,
     asFunction,
-    visitChildren,
-    walk,
-    functionScope,
-    isShadowed,
     isThisMember,
     memberName,
     arrowText,

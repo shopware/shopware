@@ -18,12 +18,14 @@ const documentTypeOrder = [
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderDocumentApiService',
-        'documentV2ApiService',
-        'feature',
-    ],
+    inject: {
+        repositoryFactory: {},
+        orderDocumentApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
+        feature: {},
+    },
 
     emits: [
         'title-set',

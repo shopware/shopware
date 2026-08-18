@@ -271,6 +271,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         },
                     },
                     documentV2Service: {},
+                    documentV2ApiService: {
+                        getAvailableTypes: () => Promise.resolve({ documentTypes: {} }),
+                    },
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},

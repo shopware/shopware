@@ -13,6 +13,7 @@ export default {
         repositoryFactory: {},
         feature: {},
         documentV2ApiService: {},
+        documentV2Service: {},
     },
 
     mixins: [
@@ -60,18 +61,16 @@ export default {
 
             try {
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2ApiService) {
-                    const [
-                        availableTypesResponse,
-                        documentTypeCollection,
-                    ] = await Promise.all([
-                        this.documentV2ApiService.getAvailableTypes(),
-                        this.documentTypeRepository.search(this.documentTypeCriteria),
-                    ]);
+                    const availableTypesResponse = await this.documentV2ApiService.getAvailableTypes();
                     const supportedDocumentTypes = availableTypesResponse.documentTypes ?? {};
 
-                    this.documentTypes = documentTypeCollection.filter(
-                        (documentType) => documentType.technicalName in supportedDocumentTypes,
-                    );
+                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => {
+                        return {
+                            id: technicalName,
+                            technicalName,
+                            name: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                        };
+                    });
                     this.documentTypes.total = this.documentTypes.length;
                 } else {
                     this.documentTypes = await this.documentTypeRepository.search(this.documentTypeCriteria);

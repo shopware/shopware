@@ -16,7 +16,9 @@ export default {
         repositoryFactory: {},
         syncService: {},
         feature: {},
-        documentV2ApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
     },
 
     mixins: [

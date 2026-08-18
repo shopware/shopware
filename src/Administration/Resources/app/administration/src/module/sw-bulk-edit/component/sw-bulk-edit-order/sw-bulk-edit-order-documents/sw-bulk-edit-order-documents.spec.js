@@ -33,6 +33,10 @@ async function createWrapper() {
                         },
                     }),
                 },
+                documentV2Service: {
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
+                },
             },
         },
         props: {
@@ -99,9 +103,9 @@ describe('sw-bulk-edit-order-documents', () => {
 
         expect(wrapper.vm.documentTypes).toEqual([
             {
-                id: 'invoice-id',
+                id: 'invoice',
                 technicalName: 'invoice',
-                name: 'Invoice',
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
             },
         ]);
     });

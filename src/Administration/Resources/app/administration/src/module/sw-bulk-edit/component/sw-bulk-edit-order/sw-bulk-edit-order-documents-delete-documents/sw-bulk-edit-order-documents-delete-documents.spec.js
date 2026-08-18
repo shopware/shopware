@@ -69,6 +69,10 @@ async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
                     }),
                     ...documentV2ApiServiceOverrides,
                 },
+                documentV2Service: {
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
+                },
             },
         },
     });
@@ -123,9 +127,9 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
-                id: 'invoice-id',
+                id: 'invoice',
                 technicalName: 'invoice',
-                translated: { name: 'Invoice' },
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
                 selected: false,
             },
         ]);

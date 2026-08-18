@@ -2,7 +2,7 @@ import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 import Hammer from 'hammerjs';
 
 /**
- * @package storefront
+ * @package discovery
  */
 describe('ImageZoomPlugin tests', () => {
     let plugin = undefined;

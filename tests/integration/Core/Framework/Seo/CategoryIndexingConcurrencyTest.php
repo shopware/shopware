@@ -37,7 +37,7 @@ use Shopware\Core\Test\PHPUnit\CompletionGuard\CompletionGuard;
  *
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 #[Group('quarantined')]
 class CategoryIndexingConcurrencyTest extends TestCase
 {

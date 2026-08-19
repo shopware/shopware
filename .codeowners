@@ -1,5 +1,13 @@
-# Use this file for more fine-grained control over code ownership, if the default CODEOWNERS file is not sufficient.
+# Single source of truth for code ownership in this repository, evaluated by the codeowners-plus action
+# (see .github/workflows/codeowner.yml). GitHub's native .github/CODEOWNERS is intentionally left empty.
 # See the docs for more information: https://github.com/marketplace/actions/codeowners-plus#codeowners-file-spec
+#
+# Prefixes:
+#   (none) required owner - a review from this team is required
+#   &      additional required owner on top of the resolved owner
+#   ?      optional owner - team is pinged in a comment, but does not block the merge
+#
+# Note: patterns are relative to the directory of this file, so recursive matches need `**`.
 
 # discovery
 ? src/Administration/Resources/app/administration/src/module/sw-category/** @shopware/product-cc-discovery
@@ -43,3 +51,9 @@
 ? src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/** @shopware/product-cc-after-sales
 tests/integration/Core/Checkout/Document/Renderer/_snapshots/** @shopware/product-cc-after-sales
 tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/** @shopware/product-cc-after-sales
+
+# product-operations
+.github/** @shopware/product-operations
+
+# ctrl-alt-elite
+src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite

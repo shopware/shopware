@@ -59,6 +59,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
@@ -157,6 +158,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->booleanNode('path_cache_buster')->defaultTrue()->end()
                 ->arrayNode('fastly')
                     ->children()
                         ->scalarNode('api_key')->end()
@@ -344,6 +346,16 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->booleanNode('enable')->end()
                         ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                        ->arrayNode('fallback_sizes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([])
+                            ->arrayPrototype()
+                                ->children()
+                                    ->integerNode('width')->isRequired()->min(1)->end()
+                                    ->integerNode('height')->isRequired()->min(1)->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->scalarNode('thumbnail_processor')
@@ -1613,6 +1625,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createProductExportSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_export');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('read_buffer_size')
+                    ->info('Number of products read and rendered per product export batch. Higher values reduce per-batch overhead but increase peak worker memory, as each batch hydrates and renders that many full product entities.')
+                    ->min(1)
+                    ->defaultValue(200)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createMcpSection(): ArrayNodeDefinition
     {
         $rootNode = (new TreeBuilder('mcp'))->getRootNode();
@@ -1687,6 +1717,9 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('community_translations_url')->defaultNull()->end()
+                ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
+                ->integerNode('completeness_threshold')->defaultNull()->end()
                 // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
                 ->arrayNode('plugins')
                     ->defaultNull()
@@ -1694,6 +1727,11 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->cannotBeEmpty()->end()
                 ->end()
                 ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('pseudo_locales')
                     ->defaultNull()
                     ->performNoDeepMerging()
                     ->scalarPrototype()->cannotBeEmpty()->end()
@@ -1716,6 +1754,13 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
                             ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
                         ->end()
+                    ->end()
+                ->end()
+                ->booleanNode('use_local_filesystem')->defaultFalse()->end()
+                ->arrayNode('scheduled_task')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
                     ->end()
                 ->end()
             ->end();

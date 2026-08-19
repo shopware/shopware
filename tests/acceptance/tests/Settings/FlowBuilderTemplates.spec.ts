@@ -3,7 +3,13 @@ import { getFlowId, compareFlowTemplateWithFlow } from '@shopware-ag/acceptance-
 
 test(
     'As an admin, I want to create new flows from templates, so that I can easily create new ones based on the default flows.',
-    { tag: '@Flow' },
+    {
+        tag: '@Flow',
+        annotation: {
+            type: 'issue',
+            description: 'https://github.com/shopware/shopware/issues/19378',
+        },
+    },
     async ({
         ShopAdmin,
         AdminFlowBuilderTemplates,
@@ -11,20 +17,46 @@ test(
         AdminFlowBuilderDetail,
         IdProvider,
         AdminApiContext,
+        InstanceMeta,
     }) => {
+        test.skip(
+            InstanceMeta.isSaaS,
+            'Test is skipped in SaaS due to search issue with Advanced Search. See https://github.com/shopware/shopware/issues/19378 ',
+        );
+
         const flowTemplateName = 'Order placed';
         const flowTemplateSingleTerms = flowTemplateName.split(' ');
         const flowTemplateSearchTerm = flowTemplateSingleTerms[flowTemplateSingleTerms.length - 2];
         const uniqueId = IdProvider.getIdPair().uuid;
         const flowName = 'Test flow - ' + uniqueId;
 
+        const getFlowTemplateRow = async () => {
+            const searchResponse = AdminFlowBuilderTemplates.page.waitForResponse((response) => {
+                if (!response.url().includes('/api/search/flow-template') || response.request().method() !== 'POST') {
+                    return false;
+                }
+
+                const requestData = response.request().postDataJSON() as { term?: string } | null;
+
+                return requestData?.term === flowTemplateSearchTerm;
+            });
+
+            await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
+            await searchResponse;
+
+            const row = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
+            await ShopAdmin.expects(row.lineItem).toBeVisible();
+
+            return row;
+        };
+
         await test.step('Go to flow template detail page and retrieve template UUID', async () => {
-            // todo: add search term to url() method as soon as NEXT-40094 is resolved
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
-            await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
-            const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
-            await adminFlowBuilderTemplatesRow.templateDetailLink.click();
+            const adminFlowBuilderTemplatesRow = await getFlowTemplateRow();
+            await adminFlowBuilderTemplatesRow.lineItem
+                .locator('.sw-flow-list-my-flows__content__update-flow-template-link')
+                .click();
             await ShopAdmin.expects(AdminFlowBuilderDetail.generalTab).toBeVisible();
             await ShopAdmin.expects(AdminFlowBuilderDetail.templateName).toHaveValue(flowTemplateName);
             await ShopAdmin.expects(AdminFlowBuilderDetail.alertWarning).toContainText('Flow templates cannot be edited.');
@@ -35,9 +67,8 @@ test(
             const flowTemplateId = flowTemplateUrl[flowTemplateUrl.length - 2];
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
-            await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
-            const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
-            await adminFlowBuilderTemplatesRow.createFlowLink.click();
+            const adminFlowBuilderTemplatesRow = await getFlowTemplateRow();
+            await adminFlowBuilderTemplatesRow.lineItem.locator('.sw-flow-list-my-flows__content__create-flow-link').click();
             await ShopAdmin.expects(AdminFlowBuilderCreate.smartBarHeader).toContainText(flowTemplateName);
             await AdminFlowBuilderCreate.nameField.fill(flowName);
             await AdminFlowBuilderCreate.saveButton.click();

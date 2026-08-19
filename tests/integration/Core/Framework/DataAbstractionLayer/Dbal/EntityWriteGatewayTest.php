@@ -425,7 +425,6 @@ class EntityWriteGatewayTest extends TestCase
             array_merge(
                 $realConnection->getParams(),
                 [
-                    'url' => $_SERVER['DATABASE_URL'],
                     'dbname' => $realConnection->getDatabase() ?? '',
                 ]
             ),

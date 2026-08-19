@@ -35,7 +35,7 @@ class EntityNotExists extends Constraint
     protected string $primaryProperty = 'id';
 
     /**
-     * @param array{entity: string, context: Context, criteria?: Criteria, primaryProperty?: string}|null $options
+     * @param array{entity?: string, context?: Context, criteria?: Criteria, primaryProperty?: string}|null $options
      *
      * The `$entity`, `$context`, `$primaryProperty` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *
@@ -90,7 +90,7 @@ class EntityNotExists extends Constraint
                 throw FrameworkException::missingOptions(\sprintf('Option "context" must be given for constraint %s', self::class));
             }
 
-            if (!($options['criteria'] ?? null) instanceof Criteria) {
+            if (!$options['criteria'] instanceof Criteria) {
                 throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
             }
 

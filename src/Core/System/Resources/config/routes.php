@@ -12,6 +12,7 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Snippet/**/*Controller.php', 'attribute');
     $routes->import('../../CustomField/**/*Controller.php', 'attribute');
     $routes->import('../../SystemConfig/**/*Controller.php', 'attribute');
+    $routes->import('../../SystemConfig/SalesChannel/**/*Route.php', 'attribute');
     $routes->import('../../NumberRange/**/*Controller.php', 'attribute');
     $routes->import('../../SalesChannel/SalesChannel/**/*Controller.php', 'attribute');
     $routes->import('../../SalesChannel/SalesChannel/**/*Route.php', 'attribute');

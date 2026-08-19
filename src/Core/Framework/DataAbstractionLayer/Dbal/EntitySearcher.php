@@ -21,6 +21,10 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * The dbal entity searcher only joins and select fields which defined in sorting, filter or query classes.
  * Fields which are not necessary to determines which ids are affected are not fetched.
  *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\EntitySearcherTest
+ *
  * @internal
  */
 #[Package('framework')]
@@ -192,7 +196,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $query->setMaxResults((int) $criteria->getLimit() * 6 + 1);
+        $query->setMaxResults($criteria->getNextPagesLimit());
     }
 
     /**

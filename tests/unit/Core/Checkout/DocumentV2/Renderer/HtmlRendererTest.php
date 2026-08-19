@@ -50,11 +50,6 @@ class HtmlRendererTest extends TestCase
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
-        static::assertSame([
-            DocumentType::INVOICE->value,
-            DocumentType::CANCELLATION_INVOICE->value,
-            DocumentType::DELIVERY_NOTE->value,
-        ], $renderer->getDocumentTypes());
     }
 
     public function testRenderToString(): void
@@ -112,7 +107,7 @@ class HtmlRendererTest extends TestCase
         static::assertSame($rendered, $result->content);
         static::assertSame('html', $result->fileExtension);
         static::assertSame('text/html', $result->mimeType);
-        static::assertSame('invoice_12345_html', $result->fileName);
+        static::assertSame('invoice_12345', $result->fileName);
     }
 
     public function testResolvesTemplateByDocumentType(): void
@@ -125,7 +120,7 @@ class HtmlRendererTest extends TestCase
             ->with($expectedTemplate)
             ->willReturn($expectedTemplate);
 
-        $env = $this->createMock(TwigEnvironment::class);
+        $env = static::createStub(TwigEnvironment::class);
         $env->method('renderWithTimezoneOverride')->willReturn('<html>rendered</html>');
 
         $renderer = $this->createRenderer($finder, $env);

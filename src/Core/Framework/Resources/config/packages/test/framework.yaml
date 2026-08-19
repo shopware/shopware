@@ -15,6 +15,14 @@ framework:
         app: cache.adapter.array
         system: cache.adapter.array
         pools:
+            # These pools must survive a kernel service reset (e.g. worker mode
+            # runtimes), so they cannot be stored in process memory.
+            cache.object:
+                adapter: cache.adapter.filesystem
+            cache.http:
+                adapter: cache.adapter.filesystem
+            cache.rate_limiter:
+                adapter: cache.adapter.filesystem
             cache.serializer:
                 adapter: cache.adapter.array
             cache.annotations:

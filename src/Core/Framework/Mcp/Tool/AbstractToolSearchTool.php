@@ -6,6 +6,7 @@ use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\McpToolSchemaNormalizer;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\Framework\Util\Json;
 
@@ -53,6 +54,11 @@ abstract class AbstractToolSearchTool extends McpToolResponse
         foreach ($this->search->search($tools, $query, min($maxResults, 20)) as $result) {
             $toolData = json_decode(Json::encode($result->tool), true, 512, \JSON_THROW_ON_ERROR);
             \assert(\is_array($toolData));
+
+            // Encoding the Tool and decoding as an associative array collapses an empty
+            // `properties` object to `[]`; re-establish the JSON Schema object invariant so the
+            // embedded definition stays valid for strict clients (same fix as the transport).
+            $toolData = McpToolSchemaNormalizer::normalizeTool($toolData);
 
             $results[] = [
                 'tool' => $toolData,

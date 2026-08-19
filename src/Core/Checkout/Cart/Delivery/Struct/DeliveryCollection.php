@@ -12,6 +12,10 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Delivery>
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Cart\CartSerializationCleanerTest
  */
 #[Package('checkout')]
 class DeliveryCollection extends Collection

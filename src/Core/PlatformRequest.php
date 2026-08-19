@@ -76,12 +76,15 @@ final class PlatformRequest
     public const ATTRIBUTE_CAPTCHA = '_captcha';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
     public const ATTRIBUTE_ENTITY = '_entity';
+    public const ATTRIBUTE_OPENAPI = '_openapi';
     public const ATTRIBUTE_NO_STORE = '_noStore';
     public const ATTRIBUTE_HTTP_CACHE = '_httpCache';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
+
+    public const ATTRIBUTE_CLEAR_SITE_DATA = '_clearSiteData';
 
     public const ATTRIBUTE_INTERNAL_ROUTE_PARAMS = [
         self::ATTRIBUTE_CAPTCHA,

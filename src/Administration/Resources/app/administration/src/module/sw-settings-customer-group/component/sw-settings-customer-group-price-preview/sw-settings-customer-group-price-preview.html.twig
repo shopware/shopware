@@ -1,0 +1,85 @@
+{% block sw_settings_customer_group_price_preview %}
+<div class="sw-settings-customer-group-price-preview">
+
+    {% block sw_settings_customer_group_price_preview_intro %}
+    <p class="sw-settings-customer-group-price-preview__intro">
+        {{ $t('sw-settings-customer-group.priceDisplay.preview.intro', {
+            netPrice: formatPrice(netPrice),
+            grossPrice: formatPrice(grossPrice)
+        }) }}
+    </p>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_price_preview_countries %}
+    <div class="sw-settings-customer-group-price-preview__countries">
+        <div
+            v-for="example in examples"
+            :key="example.key"
+            class="sw-settings-customer-group-price-preview__country"
+        >
+            {% block sw_settings_customer_group_price_preview_country_header %}
+            <div class="sw-settings-customer-group-price-preview__country-header">
+                <span class="sw-settings-customer-group-price-preview__country-name">{{ example.countryLabel }}</span>
+                <span class="sw-settings-customer-group-price-preview__country-tax-rate">
+                    {{ $t('sw-settings-customer-group.priceDisplay.preview.taxRate', { rate: example.taxRate }) }}
+                </span>
+            </div>
+            {% endblock %}
+
+            {% block sw_settings_customer_group_price_preview_country_rows %}
+            <div class="sw-settings-customer-group-price-preview__rows">
+                {% block sw_settings_customer_group_price_preview_row_displayed_price %}
+                <div class="sw-settings-customer-group-price-preview__row sw-settings-customer-group-price-preview__row--displayed">
+                    <span class="sw-settings-customer-group-price-preview__row-label">
+                        {{ $t('sw-settings-customer-group.priceDisplay.preview.rowCustomerSees') }}
+                    </span>
+                    <span class="sw-settings-customer-group-price-preview__row-value">
+                        {{ formatPrice(example.displayedPrice) }}
+                        <span class="sw-settings-customer-group-price-preview__row-note">{{ displayedPriceNote }}</span>
+                    </span>
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_customer_group_price_preview_row_tax %}
+                <div class="sw-settings-customer-group-price-preview__row sw-settings-customer-group-price-preview__row--tax">
+                    <span class="sw-settings-customer-group-price-preview__row-label">
+                        {{ $t('sw-settings-customer-group.priceDisplay.preview.rowTax') }}
+                    </span>
+                    <span class="sw-settings-customer-group-price-preview__row-value">{{ formatPrice(example.taxAmount) }}</span>
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_customer_group_price_preview_row_total %}
+                <div
+                    class="sw-settings-customer-group-price-preview__row sw-settings-customer-group-price-preview__row--total"
+                    :class="rowClasses('total')"
+                >
+                    <span class="sw-settings-customer-group-price-preview__row-label">
+                        {{ $t('sw-settings-customer-group.priceDisplay.preview.rowCustomerPays') }}
+                    </span>
+                    <span class="sw-settings-customer-group-price-preview__row-value">{{ formatPrice(example.totalPrice) }}</span>
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_customer_group_price_preview_row_merchant %}
+                <div
+                    class="sw-settings-customer-group-price-preview__row sw-settings-customer-group-price-preview__row--merchant"
+                    :class="rowClasses('merchant')"
+                >
+                    <span class="sw-settings-customer-group-price-preview__row-label">
+                        {{ $t('sw-settings-customer-group.priceDisplay.preview.rowMerchantReceives') }}
+                    </span>
+                    <span class="sw-settings-customer-group-price-preview__row-value">{{ formatPrice(example.merchantPrice) }}</span>
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_customer_group_price_preview_hint %}
+    <p class="sw-settings-customer-group-price-preview__hint">{{ hint }}</p>
+    {% endblock %}
+</div>
+{% endblock %}

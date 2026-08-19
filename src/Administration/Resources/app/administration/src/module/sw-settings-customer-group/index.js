@@ -12,6 +12,10 @@ Shopware.Component.extend(
     'sw-settings-customer-group-detail',
     () => import('./page/sw-settings-customer-group-create'),
 );
+Shopware.Component.register(
+    'sw-settings-customer-group-price-preview',
+    () => import('./component/sw-settings-customer-group-price-preview'),
+);
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;

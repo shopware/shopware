@@ -1,0 +1,104 @@
+.sw-settings-customer-group-price-preview {
+    &__intro {
+        margin-bottom: var(--scale-size-12);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+
+    &__countries {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--scale-size-16);
+    }
+
+    &__country {
+        overflow: hidden;
+        background: var(--color-background-primary-default);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+    }
+
+    &__country-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--scale-size-8);
+        padding: var(--scale-size-10) var(--scale-size-12);
+        background: var(--color-background-secondary-default);
+        border-bottom: 1px solid var(--color-border-primary-default);
+    }
+
+    &__country-name {
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__country-tax-rate {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+    }
+
+    &__rows {
+        padding: var(--scale-size-4) var(--scale-size-4) var(--scale-size-6);
+    }
+
+    &__row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--scale-size-8);
+        padding: var(--scale-size-6) var(--scale-size-8);
+        border-radius: var(--border-radius-xs);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+
+    &__row-label {
+        color: var(--color-text-secondary-default);
+    }
+
+    &__row-value {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    &__row-note {
+        display: block;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+    }
+
+    &__row--total,
+    &__row--merchant {
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__row.is--fixed {
+        background: var(--color-background-positive-default);
+        color: var(--color-text-positive-default);
+
+        .sw-settings-customer-group-price-preview__row-label {
+            color: var(--color-text-positive-default);
+        }
+    }
+
+    &__row.is--varying {
+        background: var(--color-background-attention-default);
+        color: var(--color-text-attention-default);
+
+        .sw-settings-customer-group-price-preview__row-label {
+            color: var(--color-text-attention-default);
+        }
+    }
+
+    &__hint {
+        margin-top: var(--scale-size-12);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+    }
+}

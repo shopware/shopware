@@ -384,7 +384,7 @@ class CriteriaQueryBuilder
     private function joinsOfAccessor(EntityDefinition $definition, string $accessor, Context $context): array
     {
         $parts = explode('.', str_replace('extensions.', '', $accessor));
-        if (($parts[0] ?? null) === $definition->getEntityName()) {
+        if ($parts[0] === $definition->getEntityName()) {
             array_shift($parts);
         }
 

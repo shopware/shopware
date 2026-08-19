@@ -9,7 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
@@ -19,7 +23,11 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -29,6 +37,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -181,6 +190,152 @@ class ProductCrossSellingRouteTest extends TestCase
             });
 
         $this->createRoute(listingLoader: $listingLoader)->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
+    }
+
+    public function testLoadByStreamIgnoresPartialFieldSelection(): void
+    {
+        $productId = Uuid::randomHex();
+        $crossSellingProductId = Uuid::randomHex();
+
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
+        $crossSelling->setProductStreamId(Uuid::randomHex());
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                1,
+                new ProductCrossSellingCollection([$crossSelling]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $listingLoader = $this->createMock(ProductListingLoader::class);
+        $listingLoader->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static fn (Criteria $criteria): EntitySearchResult => self::searchProducts($criteria, $crossSellingProductId));
+
+        $element = $this->createRoute(listingLoader: $listingLoader)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), (new Criteria())->addFields(['id', 'name']))
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$crossSellingProductId], array_values($element->getProducts()->getIds()));
+        static::assertSame(1, $element->getTotal());
+    }
+
+    public function testLoadDropsThePartialFieldSelectionBeforeTheCriteriaEvents(): void
+    {
+        $productId = Uuid::randomHex();
+        $crossSellingProductId = Uuid::randomHex();
+
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
+        $crossSelling->setProductStreamId(Uuid::randomHex());
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                1,
+                new ProductCrossSellingCollection([$crossSelling]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $listingLoader = $this->createMock(ProductListingLoader::class);
+        $listingLoader->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static fn (Criteria $criteria): EntitySearchResult => self::searchProducts($criteria, $crossSellingProductId));
+
+        // excludeFields() is the documented way to drop heavy columns, but it rejects a criteria that
+        // still carries an addFields() selection, so the subscriber must not see one
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            ProductCrossSellingStreamCriteriaEvent::class,
+            static function (ProductCrossSellingStreamCriteriaEvent $event): void {
+                $event->getCriteria()->excludeFields(['description']);
+            }
+        );
+
+        $route = new ProductCrossSellingRoute(
+            $this->crossSellingRepository,
+            $eventDispatcher,
+            $this->productStreamBuilder,
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(SystemConfigService::class),
+            $listingLoader,
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
+            $this->cacheTagCollector,
+            $this->connection
+        );
+
+        $element = $route
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), (new Criteria())->addFields(['id', 'name']))
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$crossSellingProductId], array_values($element->getProducts()->getIds()));
+    }
+
+    public function testLoadByIdsIgnoresPartialFieldSelection(): void
+    {
+        $productId = Uuid::randomHex();
+        $crossSellingProductId = Uuid::randomHex();
+
+        $assignedProduct = new ProductCrossSellingAssignedProductsEntity();
+        $assignedProduct->setUniqueIdentifier(Uuid::randomHex());
+        $assignedProduct->setProductId($crossSellingProductId);
+        $assignedProduct->setPosition(1);
+
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_LIST);
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+        $crossSelling->setAssignedProducts(new ProductCrossSellingAssignedProductsCollection([$assignedProduct]));
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                1,
+                new ProductCrossSellingCollection([$crossSelling]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static fn (Criteria $criteria): EntitySearchResult => self::searchProducts($criteria, $crossSellingProductId));
+
+        $element = $this->createRoute(productRepository: $productRepository)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), (new Criteria())->addFields(['id', 'name']))
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$crossSellingProductId], array_values($element->getProducts()->getIds()));
+        static::assertSame(1, $element->getTotal());
     }
 
     public function testLoadAlwaysAddsStreamTagForStreamCrossSelling(): void
@@ -392,13 +547,53 @@ class ProductCrossSellingRouteTest extends TestCase
         return $streamCriteria;
     }
 
-    private function createRoute(?CacheTagCollector $cacheTagCollector = null, ?ProductListingLoader $listingLoader = null, ?Connection $connection = null): ProductCrossSellingRoute
+    /**
+     * Emulates the reader: an allowlist field selection hydrates PartialEntity instances into a generic
+     * EntityCollection, which the cross selling elements are not typed against.
+     *
+     * @return EntitySearchResult<covariant EntityCollection<Entity>>
+     */
+    private static function searchProducts(Criteria $criteria, string $productId): EntitySearchResult
     {
+        if ($criteria->getFields() !== []) {
+            $partial = new PartialEntity();
+            $partial->setUniqueIdentifier($productId);
+            $partial->assign(['id' => $productId]);
+            $partial->internalSetEntityData(ProductDefinition::ENTITY_NAME, new FieldVisibility([]));
+
+            $products = new EntityCollection([$partial]);
+        } else {
+            $product = new ProductEntity();
+            $product->setUniqueIdentifier($productId);
+            $product->setId($productId);
+
+            $products = new ProductCollection([$product]);
+        }
+
+        return new EntitySearchResult(
+            'product',
+            1,
+            $products,
+            null,
+            $criteria,
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @param SalesChannelRepository<ProductCollection>|null $productRepository
+     */
+    private function createRoute(
+        ?CacheTagCollector $cacheTagCollector = null,
+        ?ProductListingLoader $listingLoader = null,
+        ?SalesChannelRepository $productRepository = null,
+        ?Connection $connection = null,
+    ): ProductCrossSellingRoute {
         return new ProductCrossSellingRoute(
             $this->crossSellingRepository,
             static::createStub(EventDispatcherInterface::class),
             $this->productStreamBuilder,
-            static::createStub(SalesChannelRepository::class),
+            $productRepository ?? static::createStub(SalesChannelRepository::class),
             static::createStub(SystemConfigService::class),
             $listingLoader ?? $this->listingLoader,
             static::createStub(AbstractProductCloseoutFilterFactory::class),

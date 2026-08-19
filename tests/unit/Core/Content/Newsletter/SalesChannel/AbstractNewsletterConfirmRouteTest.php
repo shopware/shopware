@@ -16,8 +16,8 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
- * Covers what a decorating extension has to implement, and what it must not implement, while
- * confirm() is deprecated and confirmWithResponse() is on its way to becoming abstract.
+ * Covers what a decorating extension implements while confirm() is deprecated and
+ * confirmWithResponse() is on its way to becoming abstract.
  *
  * @internal
  */
@@ -80,8 +80,8 @@ class AbstractNewsletterConfirmRouteTest extends TestCase
     }
 
     /**
-     * An override may declare the concrete response class instead of StoreApiResponse. Both
-     * spellings have to keep working, otherwise one extension release cannot serve 6.7 and 6.8.
+     * An override may declare the concrete response class instead of StoreApiResponse, so one
+     * extension release serves 6.7 and 6.8 whichever spelling it picks.
      */
     public function testOverrideMayDeclareTheConcreteResponseClass(): void
     {
@@ -107,38 +107,6 @@ class AbstractNewsletterConfirmRouteTest extends TestCase
         static::assertInstanceOf(NoContentResponse::class, $response);
         static::assertSame(204, $response->getStatusCode());
         static::assertSame(1, $inner->calls, 'the decorator below must still run');
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - remove with confirm()
-     *
-     * A decorator that implements only confirm() may call its own route again while that call is
-     * still running, the way an event subscriber mirroring the operation would. Pins the fallback in
-     * the abstract class as stateless: a re-entry counter or lock there would break that decorator.
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testFallbackAllowsReEnteringTheRoute(): void
-    {
-        $inner = new ConfirmLegacyDecorator();
-        $route = new ConfirmReEnteringLegacyDecorator($inner);
-
-        $response = $route->confirmWithResponse($this->dataBag, $this->context);
-
-        static::assertInstanceOf(NoContentResponse::class, $response);
-        static::assertSame(2, $inner->calls, 'both the original and the mirrored call must reach the decorated route');
-    }
-
-    /**
-     * Narrowing this return type is what would break extensions: an override declaring
-     * StoreApiResponse would stop loading, so no single extension release could cover 6.7 and 6.8.
-     * ConfirmWideDecorator below is the live proof - it fails to load as soon as the type is narrowed.
-     */
-    public function testTheDeclaredReturnTypeStaysWide(): void
-    {
-        $returnType = (new \ReflectionMethod(AbstractNewsletterConfirmRoute::class, 'confirmWithResponse'))->getReturnType();
-
-        static::assertInstanceOf(\ReflectionNamedType::class, $returnType);
-        static::assertSame(StoreApiResponse::class, $returnType->getName());
     }
 }
 
@@ -188,10 +156,9 @@ class ConfirmWideDecorator extends AbstractNewsletterConfirmRoute
     }
 
     /**
-     * Still required in 6.7. It has to answer with NoContentResponse, exactly as the core route
-     * does: an older decorator above this one declares that as its own return type, so handing it
-     * the response from confirmWithResponse() would be a TypeError inside that extension. Removed in 6.8,
-     * where the method is gone from the abstract class.
+     * Still required in 6.7, and it answers with NoContentResponse exactly as the core route does,
+     * which is the return type an older decorator above this one declares. Removed in 6.8, where
+     * the method is gone from the abstract class.
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
@@ -220,10 +187,9 @@ class ConfirmExactDecorator extends AbstractNewsletterConfirmRoute
     }
 
     /**
-     * Still required in 6.7. It has to answer with NoContentResponse, exactly as the core route
-     * does: an older decorator above this one declares that as its own return type, so handing it
-     * the response from confirmWithResponse() would be a TypeError inside that extension. Removed in 6.8,
-     * where the method is gone from the abstract class.
+     * Still required in 6.7, and it answers with NoContentResponse exactly as the core route does,
+     * which is the return type an older decorator above this one declares. Removed in 6.8, where
+     * the method is gone from the abstract class.
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
@@ -256,39 +222,6 @@ class ConfirmForwardingLegacyDecorator extends AbstractNewsletterConfirmRoute
         $response = $this->decorated->confirm($dataBag, $context);
 
         \assert($response instanceof NoContentResponse);
-
-        return $response;
-    }
-}
-
-/**
- * An untouched pre-6.7 decorator that calls its own route a second time while the first call is
- * still running, the way an event subscriber mirroring the operation would.
- *
- * @internal
- */
-#[Package('after-sales')]
-class ConfirmReEnteringLegacyDecorator extends AbstractNewsletterConfirmRoute
-{
-    private bool $mirrored = false;
-
-    public function __construct(private readonly AbstractNewsletterConfirmRoute $decorated)
-    {
-    }
-
-    public function getDecorated(): AbstractNewsletterConfirmRoute
-    {
-        return $this->decorated;
-    }
-
-    public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
-    {
-        $response = $this->decorated->confirm($dataBag, $context);
-
-        if (!$this->mirrored) {
-            $this->mirrored = true;
-            $this->confirmWithResponse($dataBag, $context);
-        }
 
         return $response;
     }

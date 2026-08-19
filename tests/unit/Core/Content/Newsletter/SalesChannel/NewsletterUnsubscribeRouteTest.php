@@ -108,34 +108,27 @@ class NewsletterUnsubscribeRouteTest extends TestCase
 
     /**
      * "0" is a submitted email, not a missing parameter, so it passes the guard and fails at the
-     * recipient lookup instead.
+     * recipient lookup like any other unknown address.
      */
-    public function testUnsubscribeWithTheStringZeroAsEmail(): void
+    #[DataProvider('unknownEmailProvider')]
+    public function testUnsubscribeWithNotFoundEmail(string $email): void
     {
         $requestData = new RequestDataBag();
-        $requestData->add(['email' => '0']);
+        $requestData->add(['email' => $email]);
 
         $route = $this->createRoute(new StaticEntityRepository([
             new NewsletterRecipientCollection([]),
         ]));
 
-        $this->expectExceptionObject(NewsletterException::recipientNotFound('email', '0'));
+        $this->expectExceptionObject(NewsletterException::recipientNotFound('email', $email));
 
         $route->unsubscribeWithResponse($requestData, $this->salesChannelContext);
     }
 
-    public function testUnsubscribeWithNotFoundEmail(): void
+    public static function unknownEmailProvider(): \Generator
     {
-        $requestData = new RequestDataBag();
-        $requestData->add(['email' => 'test@example.com']);
-
-        $route = $this->createRoute(new StaticEntityRepository([
-            new NewsletterRecipientCollection([]),
-        ]));
-
-        $this->expectExceptionObject(NewsletterException::recipientNotFound('email', 'test@example.com'));
-
-        $route->unsubscribeWithResponse($requestData, $this->salesChannelContext);
+        yield 'unknown address' => ['email' => 'test@example.com'];
+        yield 'the string zero' => ['email' => '0'];
     }
 
     public function testUnsubscribeRateLimiterIsCalled(): void

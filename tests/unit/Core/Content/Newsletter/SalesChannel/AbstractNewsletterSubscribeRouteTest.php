@@ -23,8 +23,8 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Covers what a decorating extension has to implement, and what it must not implement, while
- * subscribe() is deprecated and subscribeWithResponse() is on its way to becoming abstract.
+ * Covers what a decorating extension implements while subscribe() is deprecated and
+ * subscribeWithResponse() is on its way to becoming abstract.
  *
  * @internal
  */
@@ -89,8 +89,8 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
     }
 
     /**
-     * An override may declare the concrete response class instead of StoreApiResponse. Both
-     * spellings have to keep working, otherwise one extension release cannot serve 6.7 and 6.8.
+     * An override may declare the concrete response class instead of StoreApiResponse, so one
+     * extension release serves 6.7 and 6.8 whichever spelling it picks.
      */
     public function testOverrideMayDeclareTheConcreteResponseClass(): void
     {
@@ -119,29 +119,9 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.8.0 - remove with subscribe()
-     *
-     * A decorator that implements only subscribe() may call its own route again while that call is
-     * still running, the way an event subscriber mirroring the operation would. Pins the fallback in
-     * the abstract class as stateless: a re-entry counter or lock there would break that decorator.
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testFallbackAllowsReEnteringTheRoute(): void
-    {
-        $inner = new LegacyDecorator();
-        $route = new ReEnteringLegacyDecorator($inner);
-
-        $response = $route->subscribeWithResponse($this->dataBag, $this->context, false);
-
-        static::assertInstanceOf(NoContentResponse::class, $response);
-        static::assertSame(2, $inner->calls, 'both the original and the mirrored call must reach the decorated route');
-    }
-
-    /**
      * A decorator that does not override subscribeWithResponse() inherits a signature without a
-     * default for $validateStorefrontUrl, which the argument resolver cannot fill on its own. The
-     * route default supplies it. The default cannot move into the abstract signature instead: PHP
-     * rejects an override that drops a parent default.
+     * default for $validateStorefrontUrl. The route default supplies the value, which keeps the
+     * parameter optional for every decorator shape without touching the abstract signature.
      */
     public function testRouteSuppliesTheArgumentADecoratorDoesNotDefault(): void
     {
@@ -167,19 +147,6 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
         $arguments = $resolver->getArguments($request, $decorator->subscribeWithResponse(...));
 
         static::assertSame([$this->dataBag, $this->context, true], $arguments);
-    }
-
-    /**
-     * Narrowing this return type is what would break extensions: an override declaring
-     * StoreApiResponse would stop loading, so no single extension release could cover 6.7 and 6.8.
-     * WideDecorator below is the live proof - it fails to load as soon as the type is narrowed.
-     */
-    public function testTheDeclaredReturnTypeStaysWide(): void
-    {
-        $returnType = (new \ReflectionMethod(AbstractNewsletterSubscribeRoute::class, 'subscribeWithResponse'))->getReturnType();
-
-        static::assertInstanceOf(\ReflectionNamedType::class, $returnType);
-        static::assertSame(StoreApiResponse::class, $returnType->getName());
     }
 }
 
@@ -229,10 +196,9 @@ class WideDecorator extends AbstractNewsletterSubscribeRoute
     }
 
     /**
-     * Still required in 6.7. It has to answer with NoContentResponse, exactly as the core route
-     * does: an older decorator above this one declares that as its own return type, so handing it
-     * the response from subscribeWithResponse() would be a TypeError inside that extension. Removed in 6.8,
-     * where the method is gone from the abstract class.
+     * Still required in 6.7, and it answers with NoContentResponse exactly as the core route does,
+     * which is the return type an older decorator above this one declares. Removed in 6.8, where
+     * the method is gone from the abstract class.
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse
     {
@@ -261,10 +227,9 @@ class ExactDecorator extends AbstractNewsletterSubscribeRoute
     }
 
     /**
-     * Still required in 6.7. It has to answer with NoContentResponse, exactly as the core route
-     * does: an older decorator above this one declares that as its own return type, so handing it
-     * the response from subscribeWithResponse() would be a TypeError inside that extension. Removed in 6.8,
-     * where the method is gone from the abstract class.
+     * Still required in 6.7, and it answers with NoContentResponse exactly as the core route does,
+     * which is the return type an older decorator above this one declares. Removed in 6.8, where
+     * the method is gone from the abstract class.
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse
     {
@@ -297,39 +262,6 @@ class ForwardingLegacyDecorator extends AbstractNewsletterSubscribeRoute
         $response = $this->decorated->subscribe($dataBag, $context, $validateStorefrontUrl);
 
         \assert($response instanceof NoContentResponse);
-
-        return $response;
-    }
-}
-
-/**
- * An untouched pre-6.7 decorator that calls its own route a second time while the first call is
- * still running, the way an event subscriber mirroring the operation would.
- *
- * @internal
- */
-#[Package('after-sales')]
-class ReEnteringLegacyDecorator extends AbstractNewsletterSubscribeRoute
-{
-    private bool $mirrored = false;
-
-    public function __construct(private readonly AbstractNewsletterSubscribeRoute $decorated)
-    {
-    }
-
-    public function getDecorated(): AbstractNewsletterSubscribeRoute
-    {
-        return $this->decorated;
-    }
-
-    public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse
-    {
-        $response = $this->decorated->subscribe($dataBag, $context, $validateStorefrontUrl);
-
-        if (!$this->mirrored) {
-            $this->mirrored = true;
-            $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
-        }
 
         return $response;
     }

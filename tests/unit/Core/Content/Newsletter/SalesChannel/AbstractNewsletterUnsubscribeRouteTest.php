@@ -16,8 +16,8 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
- * Covers what a decorating extension has to implement, and what it must not implement, while
- * unsubscribe() is deprecated and unsubscribeWithResponse() is on its way to becoming abstract.
+ * Covers what a decorating extension implements while unsubscribe() is deprecated and
+ * unsubscribeWithResponse() is on its way to becoming abstract.
  *
  * @internal
  */
@@ -80,8 +80,8 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
     }
 
     /**
-     * An override may declare the concrete response class instead of StoreApiResponse. Both
-     * spellings have to keep working, otherwise one extension release cannot serve 6.7 and 6.8.
+     * An override may declare the concrete response class instead of StoreApiResponse, so one
+     * extension release serves 6.7 and 6.8 whichever spelling it picks.
      */
     public function testOverrideMayDeclareTheConcreteResponseClass(): void
     {
@@ -107,38 +107,6 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
         static::assertInstanceOf(NoContentResponse::class, $response);
         static::assertSame(204, $response->getStatusCode());
         static::assertSame(1, $inner->calls, 'the decorator below must still run');
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - remove with unsubscribe()
-     *
-     * A decorator that implements only unsubscribe() may call its own route again while that call is
-     * still running, the way an event subscriber mirroring the operation would. Pins the fallback in
-     * the abstract class as stateless: a re-entry counter or lock there would break that decorator.
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testFallbackAllowsReEnteringTheRoute(): void
-    {
-        $inner = new UnsubscribeLegacyDecorator();
-        $route = new UnsubscribeReEnteringLegacyDecorator($inner);
-
-        $response = $route->unsubscribeWithResponse($this->dataBag, $this->context);
-
-        static::assertInstanceOf(NoContentResponse::class, $response);
-        static::assertSame(2, $inner->calls, 'both the original and the mirrored call must reach the decorated route');
-    }
-
-    /**
-     * Narrowing this return type is what would break extensions: an override declaring
-     * StoreApiResponse would stop loading, so no single extension release could cover 6.7 and 6.8.
-     * UnsubscribeWideDecorator below is the live proof - it fails to load as soon as the type is narrowed.
-     */
-    public function testTheDeclaredReturnTypeStaysWide(): void
-    {
-        $returnType = (new \ReflectionMethod(AbstractNewsletterUnsubscribeRoute::class, 'unsubscribeWithResponse'))->getReturnType();
-
-        static::assertInstanceOf(\ReflectionNamedType::class, $returnType);
-        static::assertSame(StoreApiResponse::class, $returnType->getName());
     }
 }
 
@@ -188,10 +156,9 @@ class UnsubscribeWideDecorator extends AbstractNewsletterUnsubscribeRoute
     }
 
     /**
-     * Still required in 6.7. It has to answer with NoContentResponse, exactly as the core route
-     * does: an older decorator above this one declares that as its own return type, so handing it
-     * the response from unsubscribeWithResponse() would be a TypeError inside that extension. Removed in 6.8,
-     * where the method is gone from the abstract class.
+     * Still required in 6.7, and it answers with NoContentResponse exactly as the core route does,
+     * which is the return type an older decorator above this one declares. Removed in 6.8, where
+     * the method is gone from the abstract class.
      */
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
@@ -220,10 +187,9 @@ class UnsubscribeExactDecorator extends AbstractNewsletterUnsubscribeRoute
     }
 
     /**
-     * Still required in 6.7. It has to answer with NoContentResponse, exactly as the core route
-     * does: an older decorator above this one declares that as its own return type, so handing it
-     * the response from unsubscribeWithResponse() would be a TypeError inside that extension. Removed in 6.8,
-     * where the method is gone from the abstract class.
+     * Still required in 6.7, and it answers with NoContentResponse exactly as the core route does,
+     * which is the return type an older decorator above this one declares. Removed in 6.8, where
+     * the method is gone from the abstract class.
      */
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
@@ -256,39 +222,6 @@ class UnsubscribeForwardingLegacyDecorator extends AbstractNewsletterUnsubscribe
         $response = $this->decorated->unsubscribe($dataBag, $context);
 
         \assert($response instanceof NoContentResponse);
-
-        return $response;
-    }
-}
-
-/**
- * An untouched pre-6.7 decorator that calls its own route a second time while the first call is
- * still running, the way an event subscriber mirroring the operation would.
- *
- * @internal
- */
-#[Package('after-sales')]
-class UnsubscribeReEnteringLegacyDecorator extends AbstractNewsletterUnsubscribeRoute
-{
-    private bool $mirrored = false;
-
-    public function __construct(private readonly AbstractNewsletterUnsubscribeRoute $decorated)
-    {
-    }
-
-    public function getDecorated(): AbstractNewsletterUnsubscribeRoute
-    {
-        return $this->decorated;
-    }
-
-    public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
-    {
-        $response = $this->decorated->unsubscribe($dataBag, $context);
-
-        if (!$this->mirrored) {
-            $this->mirrored = true;
-            $this->unsubscribeWithResponse($dataBag, $context);
-        }
 
         return $response;
     }

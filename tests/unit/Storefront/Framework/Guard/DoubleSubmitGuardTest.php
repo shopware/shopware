@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Checkout;
+namespace Shopware\Tests\Unit\Storefront\Framework\Guard;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,7 +14,7 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Checkout\DoubleSubmitGuard;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;

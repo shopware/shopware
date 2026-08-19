@@ -303,6 +303,7 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 `Settings > Basic information` offers a new "Shop owner's country" select above the shop owner's address, stored per sales channel as `core.basicInformation.sellerCountryId` and readable via `SystemConfigService::get('core.basicInformation.sellerCountryId', $salesChannelId)`.
 
 The value records the merchant's own country of establishment for upcoming tax handling. Nothing evaluates it yet, so setting or leaving it empty does not change tax calculation, document rendering, or storefront output.
+
 ### Cross-selling by dynamic product group excludes the whole variant family
 
 A cross-selling that uses a dynamic product group no longer returns the product it is displayed on. For variants, the complete variant family is excluded — the currently viewed variant, its parent, and all sibling variants — because variant grouping and main variant resolution would otherwise resolve a sibling back to the viewed product. Previously only the product the cross-selling is assigned to was excluded, which had no effect on variants that inherit their cross-sellings from the parent.

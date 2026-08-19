@@ -42,9 +42,12 @@ class ShippingMethodValidatorTest extends TestCase
 
     private ShippingMethodPriceDefinition $shippingMethodPriceDefinition;
 
+    private string $priceId;
+
     protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
+        $this->priceId = Uuid::randomHex();
 
         $registry = new StaticDefinitionInstanceRegistry(
             [ShippingMethodDefinition::class, PaymentMethodDefinition::class, ShippingMethodPriceDefinition::class],
@@ -152,7 +155,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $violation = $this->validatePrices(
             [$this->deletePriceCommand()],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
         );
 
@@ -167,7 +170,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertNull($this->validatePrices(
             [$this->deletePriceCommand()],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: true, priceCount: 2)],
         ));
     }
@@ -178,7 +181,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertNull($this->validatePrices(
             [$this->deletePriceCommand()],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: false, priceCount: 1)],
         ));
     }
@@ -192,7 +195,7 @@ class ShippingMethodValidatorTest extends TestCase
                 $this->deletePriceCommand(),
                 $this->insertPriceCommand($shippingMethodId),
             ],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
         ));
     }
@@ -212,7 +215,74 @@ class ShippingMethodValidatorTest extends TestCase
                     '/0/'
                 ),
             ],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
+    public function testMovingTheLastPriceAwayFromAnActiveShippingMethodIsRejected(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [$this->updatePriceCommand($this->priceId, [
+                'shipping_method_id' => Uuid::randomBytes(),
+            ])],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
+    public function testKeepingAPriceOnTheSameShippingMethodIsAllowed(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        static::assertNull($this->validatePrices(
+            [$this->updatePriceCommand($this->priceId, [
+                'shipping_method_id' => Uuid::fromHexToBytes($shippingMethodId),
+            ])],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        ));
+    }
+
+    public function testPriceInsertedAndDeletedInTheSameWriteDoesNotOffsetADeletion(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $temporaryPriceId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [
+                $this->insertPriceCommand($shippingMethodId, $temporaryPriceId),
+                $this->deletePriceCommand(),
+                $this->deletePriceCommand($temporaryPriceId),
+            ],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
+    public function testUpdatingADeletedPriceDoesNotRecreateIt(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [
+                $this->deletePriceCommand(),
+                $this->updatePriceCommand($this->priceId, [
+                    'shipping_method_id' => Uuid::fromHexToBytes($shippingMethodId),
+                ]),
+            ],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
         );
 
@@ -235,7 +305,7 @@ class ShippingMethodValidatorTest extends TestCase
                     '/0/'
                 ),
             ],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
         );
 
@@ -279,6 +349,20 @@ class ShippingMethodValidatorTest extends TestCase
         ));
     }
 
+    public function testDeactivatingWhileDeletingTheLastPriceIsAllowed(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        static::assertNull($this->validatePrices(
+            [
+                $this->updateActiveCommand($shippingMethodId, active: false),
+                $this->deletePriceCommand(),
+            ],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        ));
+    }
+
     public function testAnUpdateThatLeavesActiveUntouchedIsNotChecked(): void
     {
         $shippingMethodId = Uuid::randomHex();
@@ -309,7 +393,7 @@ class ShippingMethodValidatorTest extends TestCase
                 ),
                 $this->deletePriceCommand(),
             ],
-            priceOwners: [$shippingMethodId],
+            priceOwners: [$this->priceId => $shippingMethodId],
             states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
         ));
     }
@@ -329,21 +413,21 @@ class ShippingMethodValidatorTest extends TestCase
         ));
     }
 
-    private function deletePriceCommand(): DeleteCommand
+    private function deletePriceCommand(?string $priceId = null): DeleteCommand
     {
         return new DeleteCommand(
             $this->shippingMethodPriceDefinition,
-            ['id' => Uuid::randomBytes()],
+            ['id' => Uuid::fromHexToBytes($priceId ?? $this->priceId)],
             static::createStub(EntityExistence::class)
         );
     }
 
-    private function insertPriceCommand(string $shippingMethodId): InsertCommand
+    private function insertPriceCommand(string $shippingMethodId, ?string $priceId = null): InsertCommand
     {
         return new InsertCommand(
             $this->shippingMethodPriceDefinition,
             ['shipping_method_id' => Uuid::fromHexToBytes($shippingMethodId)],
-            ['id' => Uuid::randomBytes()],
+            ['id' => Uuid::fromHexToBytes($priceId ?? Uuid::randomHex())],
             static::createStub(EntityExistence::class),
             '/0/'
         );
@@ -361,6 +445,20 @@ class ShippingMethodValidatorTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $payload
+     */
+    private function updatePriceCommand(string $priceId, array $payload): UpdateCommand
+    {
+        return new UpdateCommand(
+            $this->shippingMethodPriceDefinition,
+            $payload,
+            ['id' => Uuid::fromHexToBytes($priceId)],
+            static::createStub(EntityExistence::class),
+            '/0/'
+        );
+    }
+
+    /**
      * @return array{id: string, active: int, price_count: int}
      */
     private function state(string $shippingMethodId, bool $active, int $priceCount): array
@@ -370,13 +468,15 @@ class ShippingMethodValidatorTest extends TestCase
 
     /**
      * @param list<WriteCommand> $commands
-     * @param list<string> $priceOwners shipping method id per price deleted in this write
+     * @param array<string, string> $priceOwners shipping method id keyed by price id
      * @param list<array{id: string, active: int, price_count: int}> $states
      */
     private function validatePrices(array $commands, array $priceOwners, array $states): ?ConstraintViolationInterface
     {
         $connection = new ShippingMethodStateConnection([]);
-        $connection->priceOwners = $priceOwners;
+        foreach ($priceOwners as $priceId => $shippingMethodId) {
+            $connection->priceOwners[] = [$priceId, $shippingMethodId];
+        }
         $connection->states = $states;
 
         $event = new PreWriteValidationEvent($this->context, $commands);
@@ -400,15 +500,15 @@ class ShippingMethodValidatorTest extends TestCase
 }
 
 /**
- * Answers the validator's two reads by operation instead of by SQL: `fetchFirstColumn` resolves the owners
- * of the deleted prices, `fetchAllAssociative` returns the current state of the affected shipping methods.
+ * Answers the validator's state reads by operation instead of by SQL: `fetchAllNumeric` resolves the owners
+ * of touched prices, while `fetchAllAssociative` returns the current state of affected shipping methods.
  *
  * @internal
  */
 class ShippingMethodStateConnection extends FakeConnection
 {
     /**
-     * @var list<string>
+     * @var list<array{string, string}>
      */
     public array $priceOwners = [];
 
@@ -417,7 +517,7 @@ class ShippingMethodStateConnection extends FakeConnection
      */
     public array $states = [];
 
-    public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
+    public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
         return $this->priceOwners;
     }

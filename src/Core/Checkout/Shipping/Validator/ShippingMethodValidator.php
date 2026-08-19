@@ -110,74 +110,11 @@ class ShippingMethodValidator implements EventSubscriberInterface
      */
     private function validateActiveMethodsHavePrices(PreWriteValidationEvent $event): void
     {
-        $deletedMethodIds = [];
-        $candidates = [];
-        $activeOverrides = [];
-        $deletedPriceIds = [];
-        $insertedPriceCounts = [];
+        [$deletedMethodIds, $activeOverrides] = $this->collectShippingMethodChanges($event);
+        $priceCountChanges = $this->getPriceCountChanges($event);
 
-        foreach ($event->getCommands() as $command) {
-            $entityName = $command->getEntityName();
-            if ($entityName !== ShippingMethodDefinition::ENTITY_NAME && $entityName !== ShippingMethodPriceDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            $id = $this->readIdFromPrimaryKey($command);
-            if ($id === null) {
-                continue;
-            }
-
-            if ($entityName === ShippingMethodDefinition::ENTITY_NAME) {
-                if ($command instanceof DeleteCommand) {
-                    $deletedMethodIds[$id] = true;
-
-                    continue;
-                }
-
-                if (!$command instanceof UpdateCommand) {
-                    continue;
-                }
-
-                $active = $command->getPayload()['active'] ?? null;
-                if ($active === null) {
-                    continue;
-                }
-
-                $activeOverrides[$id] = (bool) $active;
-
-                // Only switching a method to active can newly break it; switching it off cannot
-                if ($activeOverrides[$id]) {
-                    $candidates[$id] = true;
-                }
-
-                continue;
-            }
-
-            if ($command instanceof DeleteCommand) {
-                $deletedPriceIds[] = $id;
-
-                continue;
-            }
-
-            if (!$command instanceof InsertCommand) {
-                continue;
-            }
-
-            $shippingMethodId = $command->getPayload()['shipping_method_id'] ?? null;
-            if (!\is_string($shippingMethodId)) {
-                continue;
-            }
-
-            // Added prices never break a method, but they offset prices removed in the same write
-            $shippingMethodId = Uuid::fromBytesToHex($shippingMethodId);
-            $insertedPriceCounts[$shippingMethodId] = ($insertedPriceCounts[$shippingMethodId] ?? 0) + 1;
-        }
-
-        $deletedPriceCounts = [];
-        foreach ($this->fetchShippingMethodIdsOfPrices($deletedPriceIds) as $shippingMethodId) {
-            $candidates[$shippingMethodId] = true;
-            $deletedPriceCounts[$shippingMethodId] = ($deletedPriceCounts[$shippingMethodId] ?? 0) + 1;
-        }
+        $candidates = array_filter($activeOverrides)
+            + array_filter($priceCountChanges, static fn (int $change): bool => $change < 0);
 
         // A shipping method that is removed in the same write cascades its prices away with it
         $candidates = array_diff_key($candidates, $deletedMethodIds);
@@ -195,9 +132,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $priceCount = ($states[$id]['priceCount'] ?? 0)
-                - ($deletedPriceCounts[$id] ?? 0)
-                + ($insertedPriceCounts[$id] ?? 0);
+            $priceCount = ($states[$id]['priceCount'] ?? 0) + ($priceCountChanges[$id] ?? 0);
 
             if ($priceCount > 0) {
                 continue;
@@ -219,32 +154,159 @@ class ShippingMethodValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return array{array<string, true>, array<string, bool>}
+     */
+    private function collectShippingMethodChanges(PreWriteValidationEvent $event): array
+    {
+        $deletedMethodIds = [];
+        $activeOverrides = [];
+
+        foreach ($event->getCommandsForEntity(ShippingMethodDefinition::ENTITY_NAME) as $command) {
+            $id = $this->readIdFromPrimaryKey($command);
+            if ($id === null) {
+                continue;
+            }
+
+            if ($command instanceof DeleteCommand) {
+                $deletedMethodIds[$id] = true;
+
+                continue;
+            }
+
+            if (!$command instanceof UpdateCommand) {
+                continue;
+            }
+
+            $active = $command->getPayload()['active'] ?? null;
+            if ($active !== null) {
+                $activeOverrides[$id] = (bool) $active;
+            }
+        }
+
+        return [$deletedMethodIds, $activeOverrides];
+    }
+
+    /**
+     * Resolves the final owner of every touched price before calculating per-method count changes.
+     * This also covers moving an existing price and multiple commands for the same price in one sync operation.
+     *
+     * @return array<string, int>
+     */
+    private function getPriceCountChanges(PreWriteValidationEvent $event): array
+    {
+        $commands = array_values(array_filter(
+            $event->getCommandsForEntity(ShippingMethodPriceDefinition::ENTITY_NAME),
+            $this->changesPriceOwner(...)
+        ));
+        $priceIds = [];
+
+        foreach ($commands as $command) {
+            $id = $this->readIdFromPrimaryKey($command);
+            if ($id !== null) {
+                $priceIds[$id] = true;
+            }
+        }
+
+        if ($priceIds === []) {
+            return [];
+        }
+
+        $currentOwners = $this->fetchPriceOwners(array_keys($priceIds));
+        $finalOwners = $currentOwners;
+
+        foreach ($commands as $command) {
+            $this->applyPriceCommand($finalOwners, $command);
+        }
+
+        $changes = array_map(static fn (int $count): int => -$count, array_count_values($currentOwners));
+        foreach (array_count_values($finalOwners) as $shippingMethodId => $count) {
+            $changes[$shippingMethodId] = ($changes[$shippingMethodId] ?? 0) + $count;
+        }
+
+        return array_filter($changes);
+    }
+
+    private function changesPriceOwner(WriteCommand $command): bool
+    {
+        return $command instanceof DeleteCommand
+            || $command instanceof InsertCommand
+            || ($command instanceof UpdateCommand && $command->hasAnyField('shipping_method_id'));
+    }
+
+    /**
+     * @param array<string, string> $priceOwners
+     */
+    private function applyPriceCommand(array &$priceOwners, WriteCommand $command): void
+    {
+        $id = $this->readIdFromPrimaryKey($command);
+        if ($id === null) {
+            return;
+        }
+
+        if ($command instanceof DeleteCommand) {
+            unset($priceOwners[$id]);
+
+            return;
+        }
+
+        // An update after a delete does not recreate the row
+        if ($command instanceof UpdateCommand && !isset($priceOwners[$id])) {
+            return;
+        }
+
+        $shippingMethodId = $command->getPayload()['shipping_method_id'] ?? null;
+        if (\is_string($shippingMethodId)) {
+            $priceOwners[$id] = Uuid::fromBytesToHex($shippingMethodId);
+
+            return;
+        }
+
+        unset($priceOwners[$id]);
+    }
+
     private function readIdFromPrimaryKey(WriteCommand $command): ?string
     {
-        $id = $command->getPrimaryKey()['id'] ?? null;
+        $id = $command->getDecodedPrimaryKey()['id'] ?? null;
 
-        return \is_string($id) ? Uuid::fromBytesToHex($id) : null;
+        return \is_string($id) ? $id : null;
     }
 
     /**
      * @param list<string> $priceIds
      *
-     * @return list<string> one shipping method id per given price, so duplicates are meaningful
+     * @return array<string, string>
      */
-    private function fetchShippingMethodIdsOfPrices(array $priceIds): array
+    private function fetchPriceOwners(array $priceIds): array
     {
         if ($priceIds === []) {
             return [];
         }
 
-        /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(`shipping_method_id`)) FROM `shipping_method_price` WHERE `id` IN (:ids)',
+        sort($priceIds);
+
+        $rows = $this->connection->fetchAllNumeric(
+            'SELECT LOWER(HEX(`id`)), LOWER(HEX(`shipping_method_id`))
+             FROM `shipping_method_price`
+             WHERE `id` IN (:ids)
+             ORDER BY `id`
+             FOR UPDATE',
             ['ids' => Uuid::fromHexToBytesList($priceIds)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        return $ids;
+        $owners = [];
+        foreach ($rows as $row) {
+            $priceId = $row[0] ?? null;
+            $shippingMethodId = $row[1] ?? null;
+            if (!\is_string($priceId) || !\is_string($shippingMethodId)) {
+                continue;
+            }
+
+            $owners[$priceId] = $shippingMethodId;
+        }
+
+        return $owners;
     }
 
     /**
@@ -254,6 +316,17 @@ class ShippingMethodValidator implements EventSubscriberInterface
      */
     private function fetchShippingMethodStates(array $shippingMethodIds): array
     {
+        sort($shippingMethodIds);
+        $parameters = ['ids' => Uuid::fromHexToBytesList($shippingMethodIds)];
+        $types = ['ids' => ArrayParameterType::BINARY];
+
+        // Serialize checks for the same method, so concurrent deletions cannot both validate stale price counts
+        $this->connection->fetchFirstColumn(
+            'SELECT `id` FROM `shipping_method` WHERE `id` IN (:ids) ORDER BY `id` FOR UPDATE',
+            $parameters,
+            $types
+        );
+
         $rows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(`shipping_method`.`id`)) AS `id`,
                     `shipping_method`.`active` AS `active`,
@@ -262,9 +335,10 @@ class ShippingMethodValidator implements EventSubscriberInterface
              LEFT JOIN `shipping_method_price`
                  ON `shipping_method_price`.`shipping_method_id` = `shipping_method`.`id`
              WHERE `shipping_method`.`id` IN (:ids)
-             GROUP BY `shipping_method`.`id`, `shipping_method`.`active`',
-            ['ids' => Uuid::fromHexToBytesList($shippingMethodIds)],
-            ['ids' => ArrayParameterType::BINARY]
+             GROUP BY `shipping_method`.`id`, `shipping_method`.`active`
+             FOR UPDATE',
+            $parameters,
+            $types
         );
 
         $states = [];

@@ -26,7 +26,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
- * An active shipping method without a single price is offered in the storefront but blocked by the cart,
+ * An active shipping method without a price is offered in the storefront but blocked by the cart,
  * so the customer's selection is silently overridden on every attempt.
  *
  * @see https://github.com/shopware/shopware/issues/19001
@@ -145,6 +145,65 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertSame([$this->ids->get('replacement')], $this->fetchPriceIds());
     }
 
+    public function testPriceInsertedAndDeletedWithinOneSyncDoesNotOffsetTheLastPriceDeletion(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+
+        $operations = [
+            new SyncOperation(
+                'write-temporary-price',
+                ShippingMethodPriceDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_UPSERT,
+                [$this->pricePayload('temporary') + ['shippingMethodId' => $this->ids->get('shipping')]]
+            ),
+            new SyncOperation(
+                'delete-all-prices',
+                ShippingMethodPriceDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_DELETE,
+                [
+                    ['id' => $this->ids->get('price')],
+                    ['id' => $this->ids->get('temporary')],
+                ]
+            ),
+        ];
+
+        $exception = $this->write(fn () => static::getContainer()->get(SyncService::class)
+            ->sync($operations, $this->context, new SyncBehavior()));
+
+        static::assertNotNull($exception);
+        static::assertSame(
+            ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
+            $this->firstViolation($exception)->getCode()
+        );
+        static::assertSame([$this->ids->get('price')], $this->fetchPriceIds());
+    }
+
+    public function testDeletingAndUpsertingTheSamePriceWithinOneSyncKeepsThePrice(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+
+        $operations = [
+            new SyncOperation(
+                'delete-price',
+                ShippingMethodPriceDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_DELETE,
+                [['id' => $this->ids->get('price')]]
+            ),
+            new SyncOperation(
+                'upsert-deleted-price',
+                ShippingMethodPriceDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_UPSERT,
+                [$this->pricePayload('price') + ['shippingMethodId' => $this->ids->get('shipping')]]
+            ),
+        ];
+
+        $exception = $this->write(fn () => static::getContainer()->get(SyncService::class)
+            ->sync($operations, $this->context, new SyncBehavior()));
+
+        static::assertNull($exception);
+        static::assertSame([$this->ids->get('price')], $this->fetchPriceIds());
+    }
+
     public function testReplacingTheLastPriceInTwoSeparateWritesIsAllowed(): void
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);
@@ -192,6 +251,25 @@ class ShippingMethodValidatorTest extends TestCase
             $this->firstViolation($exception)->getCode()
         );
         static::assertSame([$this->ids->get('price')], $this->fetchPriceIds());
+    }
+
+    public function testMovingTheLastPriceAwayFromAnActiveShippingMethodIsRejected(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+        $this->createShippingMethod(active: true, priceKeys: [], key: 'target');
+
+        $exception = $this->write(fn () => $this->shippingMethodPriceRepository->update([[
+            'id' => $this->ids->get('price'),
+            'shippingMethodId' => $this->ids->get('target'),
+        ]], $this->context));
+
+        static::assertNotNull($exception);
+        static::assertSame(
+            ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
+            $this->firstViolation($exception)->getCode()
+        );
+        static::assertSame([$this->ids->get('price')], $this->fetchPriceIds());
+        static::assertSame([], $this->fetchPriceIds('target'));
     }
 
     public function testActivatingAShippingMethodWithoutPricesIsRejected(): void
@@ -244,13 +322,13 @@ class ShippingMethodValidatorTest extends TestCase
     /**
      * @param list<string> $priceKeys
      */
-    private function createShippingMethod(bool $active, array $priceKeys): void
+    private function createShippingMethod(bool $active, array $priceKeys, string $key = 'shipping'): void
     {
         $this->shippingMethodRepository->create([[
-            'id' => $this->ids->create('shipping'),
+            'id' => $this->ids->create($key),
             'active' => $active,
-            'name' => 'issue-19001',
-            'technicalName' => 'shipping_issue_19001',
+            'name' => 'issue-19001-' . $key,
+            'technicalName' => 'shipping_issue_19001_' . $key,
             'deliveryTime' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'testDeliveryTime',
@@ -315,10 +393,10 @@ class ShippingMethodValidatorTest extends TestCase
     /**
      * @return list<string>
      */
-    private function fetchPriceIds(): array
+    private function fetchPriceIds(string $shippingMethodKey = 'shipping'): array
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('shippingMethodId', $this->ids->get('shipping')));
+        $criteria->addFilter(new EqualsFilter('shippingMethodId', $this->ids->get($shippingMethodKey)));
 
         /** @var list<string> $ids */
         $ids = $this->shippingMethodPriceRepository->searchIds($criteria, $this->context)->getIds();

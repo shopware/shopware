@@ -105,9 +105,10 @@ Requests without `onlyAvailable` are unchanged and still return every active shi
 
 ### An active shipping method must keep at least one price
 
-Two writes are now rejected with a `400` and the constraint code `active_shipping_method_without_price`:
+The following writes are now rejected with a `400` and the constraint code `active_shipping_method_without_price`:
 
 * deleting the last `shipping_method_price` of an active shipping method,
+* moving the last `shipping_method_price` to another shipping method,
 * setting `active` to `true` on a shipping method that has no price.
 
 Creating a shipping method without prices is unchanged, so creating the method first and adding its prices in a follow-up request still works.
@@ -117,7 +118,7 @@ Integrations that replace a price matrix by deleting all rows and inserting new 
 ```json
 [
   { "key": "delete-prices", "entity": "shipping_method_price", "action": "delete", "payload": [{ "id": "…" }] },
-  { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [] }] }
+  { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [{ "currencyId": "…", "net": 0, "gross": 0, "linked": false }] }] }
 ]
 ```
 

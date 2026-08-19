@@ -21,6 +21,8 @@ class CustomerGroupEntity extends Entity
 
     final public const PRICE_BASIS_NET = 'net';
 
+    final public const PRICE_BASIS_GROSS = 'gross';
+
     protected ?string $name = null;
 
     protected bool $displayGross;

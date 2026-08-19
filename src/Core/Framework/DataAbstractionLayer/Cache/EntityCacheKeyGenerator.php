@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -27,11 +28,11 @@ class EntityCacheKeyGenerator
     }
 
     /**
-     * @return string|null the fingerprint of the resolved tax rates, or null when the customer group defines no price basis
+     * @return string|null the fingerprint of the resolved tax rates, or null when the customer group does not derive prices from them
      */
     public static function buildTaxRuleFingerprint(SalesChannelContext $context): ?string
     {
-        if ($context->getCurrentCustomerGroup()->getPriceBasis() === null) {
+        if ($context->getCurrentCustomerGroup()->getPriceBasis() !== CustomerGroupEntity::PRICE_BASIS_NET) {
             return null;
         }
 

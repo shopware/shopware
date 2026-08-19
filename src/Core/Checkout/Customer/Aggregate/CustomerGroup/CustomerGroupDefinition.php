@@ -21,12 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('discovery')]
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -54,11 +52,15 @@ class CustomerGroupDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        $priceBasisChoices = Feature::isActive('v6.8.0.0')
+            ? [CustomerGroupEntity::PRICE_BASIS_NET, CustomerGroupEntity::PRICE_BASIS_GROSS]
+            : [CustomerGroupEntity::PRICE_BASIS_NET];
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the customer\'s group.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new BoolField('display_gross', 'displayGross'))->addFlags(new ApiAware())->setDescription('If boolean value is `true` gross value is displayed else, net value will be displayed to the customer.'),
-            (new StringField('price_basis', 'priceBasis'))->addFlags(new ApiAware(), new Since('6.7.14.0'), new Choice([CustomerGroupEntity::PRICE_BASIS_NET], strict: true))->setDescription('Defines which stored price value is authoritative for the price calculation. With `net` the stored net value is always used, `null` lets the basis follow the display mode.'),
+            (new StringField('price_basis', 'priceBasis'))->addFlags(new ApiAware(), new Since('6.7.14.0'), new Choice($priceBasisChoices, strict: true))->setDescription('Defines which stored price value is authoritative for the price calculation. With `net` the stored net value is always used, `null` lets the basis follow the display mode.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             // Merchant Registration
             (new BoolField('registration_active', 'registrationActive'))->addFlags(new ApiAware())->setDescription('To enable the registration of partner customer group.'),

@@ -81,8 +81,29 @@ class PriceSelectorTest extends TestCase
             true,
         ];
 
+        yield 'gross basis takes the stored gross as final value for gross display' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS,
+            CartPrice::TAX_STATE_GROSS,
+            11.9,
+            true,
+        ];
+
+        yield 'gross basis takes the stored net as final value for net display' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS,
+            CartPrice::TAX_STATE_NET,
+            10.0,
+            true,
+        ];
+
+        yield 'gross basis takes the stored net as final value for tax free deliveries' => [
+            CustomerGroupEntity::PRICE_BASIS_GROSS,
+            CartPrice::TAX_STATE_FREE,
+            10.0,
+            true,
+        ];
+
         yield 'unknown basis falls back to the legacy display driven selection' => [
-            'gross',
+            'exact-net',
             CartPrice::TAX_STATE_GROSS,
             11.9,
             true,

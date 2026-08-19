@@ -25,10 +25,10 @@ class PriceSelector extends AbstractPriceSelector
     {
         $displayGross = $context->getTaxState() === CartPrice::TAX_STATE_GROSS;
 
-        if ($context->getCurrentCustomerGroup()->getPriceBasis() !== CustomerGroupEntity::PRICE_BASIS_NET) {
-            return new SelectedPrice($displayGross ? $price->getGross() : $price->getNet(), isCalculated: true);
-        }
-
-        return new SelectedPrice($price->getNet(), isCalculated: !$displayGross);
+        return match ($context->getCurrentCustomerGroup()->getPriceBasis()) {
+            CustomerGroupEntity::PRICE_BASIS_NET => new SelectedPrice($price->getNet(), isCalculated: !$displayGross),
+            CustomerGroupEntity::PRICE_BASIS_GROSS => new SelectedPrice($displayGross ? $price->getGross() : $price->getNet(), isCalculated: true),
+            default => new SelectedPrice($displayGross ? $price->getGross() : $price->getNet(), isCalculated: true),
+        };
     }
 }

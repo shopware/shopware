@@ -158,6 +158,24 @@ class EntityCacheKeyGeneratorTest extends TestCase
         );
     }
 
+    public function testTaxRatesAreIgnoredForTheGrossBasis(): void
+    {
+        $generator = new EntityCacheKeyGenerator();
+
+        $germany = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setTaxRulesFluent(self::taxes(19.0));
+
+        $austria = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setTaxRulesFluent(self::taxes(20.0));
+
+        static::assertSame(
+            $generator->getSalesChannelContextHash($germany),
+            $generator->getSalesChannelContextHash($austria)
+        );
+    }
+
     public function testTaxRatesSeparateTheHashWhenAPriceBasisIsSet(): void
     {
         $generator = new EntityCacheKeyGenerator();
@@ -192,10 +210,32 @@ class EntityCacheKeyGeneratorTest extends TestCase
         );
     }
 
+    public function testFingerprintIsBuiltForTheNetBasis(): void
+    {
+        static::assertNotNull(
+            EntityCacheKeyGenerator::buildTaxRuleFingerprint(
+                (new DummyContext())
+                    ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_NET)
+                    ->setTaxRulesFluent(self::taxes(19.0))
+            )
+        );
+    }
+
     public function testFingerprintIsNullWithoutAPriceBasis(): void
     {
         static::assertNull(
             EntityCacheKeyGenerator::buildTaxRuleFingerprint((new DummyContext())->setTaxRulesFluent(self::taxes(19.0)))
+        );
+    }
+
+    public function testFingerprintIsNullForTheGrossBasis(): void
+    {
+        static::assertNull(
+            EntityCacheKeyGenerator::buildTaxRuleFingerprint(
+                (new DummyContext())
+                    ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+                    ->setTaxRulesFluent(self::taxes(19.0))
+            )
         );
     }
 

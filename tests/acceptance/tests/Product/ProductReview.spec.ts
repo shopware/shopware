@@ -3,11 +3,7 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'As a shop customer, I want to see reviews of a product.',
     {
-        tag: [
-            '@Product',
-            '@Reviews',
-            '@Storefront',
-        ],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail }) => {
         const productWithRating1 = await TestDataService.createBasicProduct();
@@ -27,11 +23,7 @@ test(
 test(
     'As a shop customer, I want to submit a review, so that I can share my experience with the product',
     {
-        tag: [
-            '@Product',
-            '@Reviews',
-            '@Storefront',
-        ],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, LoginViaReviewsTab, Logout, InstanceMeta }) => {
         const product = await TestDataService.createBasicProduct();
@@ -69,33 +61,18 @@ test(
 
             const starRatingPoints = await StorefrontProductDetail.reviewRatingPoints.count();
             for (let i = 0; i < starRatingPoints; i++) {
-                //cannot use Actor.selectsRadioButton() until issue #13219 is resolved
-                await StorefrontProductDetail.reviewRatingPoints.nth(i).click();
-                await ShopCustomer.expects(StorefrontProductDetail.reviewRatingPoints.nth(i)).toHaveClass(
-                    'product-detail-review-form-star is-active',
-                );
-                await ShopCustomer.expects(
-                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
-                ).not.toHaveClass('d-none');
-                await ShopCustomer.expects(
-                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
-                ).toBeVisible();
-                const expectedTexts = [
-                    'Unsatisfactory',
-                    'Acceptable',
-                    'Good',
-                    'Very good',
-                    'Excellent',
-                ];
-                await ShopCustomer.expects(
-                    StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
-                ).toHaveText(expectedTexts[i]);
+                const expectedTexts = ['Unsatisfactory', 'Acceptable', 'Good', 'Very good', 'Excellent'];
+                await ShopCustomer.selectsRadioButton(StorefrontProductDetail.reviewRatingPoints, expectedTexts[i], true);
+                await ShopCustomer.expects(async () => {
+                    await ShopCustomer.expects(
+                        StorefrontProductDetail.reviewRatingText.nth(starRatingPoints - (i + 1)),
+                    ).toHaveText(expectedTexts[i]);
+                }).toPass();
             }
         });
 
         await test.step('Create a review and validate the submitted review.', async () => {
-            //cannot use Actor.selectsRadioButton() until issue #13219 is resolved
-            await StorefrontProductDetail.reviewRatingPoints.nth(3).click();
+            await ShopCustomer.selectsRadioButton(StorefrontProductDetail.reviewRatingPoints, 'Very good');
             const reviewContent = {
                 title: `${product.name} is a great choice`,
                 content: `${product.name} has a perfect shape and it is easy to use. I can recommend!`,
@@ -140,11 +117,7 @@ test(
 test(
     'As a shop customer, I want to filter reviews, so that I can find the content of a specific rating',
     {
-        tag: [
-            '@Product',
-            '@Reviews',
-            '@Storefront',
-        ],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, SelectProductReviewOption }) => {
         const productWithRating1 = await TestDataService.createBasicProduct();
@@ -172,7 +145,8 @@ test(
             await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionText).toHaveText('Acceptable (2)');
             await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionPercentage).toHaveText('67%');
 
-            const reviewFilterUnsatisfactory = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
+            const reviewFilterUnsatisfactory =
+                await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
             await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeEnabled();
             await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionText).toHaveText('Unsatisfactory (1)');
             await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionPercentage).toHaveText('33%');
@@ -184,16 +158,17 @@ test(
             await ShopCustomer.attemptsTo(SelectProductReviewOption('Acceptable'));
             await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).toBeChecked();
             await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(2);
-            
+
             await ShopCustomer.attemptsTo(SelectProductReviewOption('Acceptable'));
             await ShopCustomer.expects(reviewFilterAcceptable.reviewFilterOptionCheckbox).not.toBeChecked();
 
-            const reviewFilterUnsatisfactory = await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
+            const reviewFilterUnsatisfactory =
+                await StorefrontProductDetail.getReviewFilterRowOptionsByName('Unsatisfactory');
             await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).not.toBeChecked();
             await ShopCustomer.attemptsTo(SelectProductReviewOption('Unsatisfactory'));
             await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).toBeChecked();
             await ShopCustomer.expects(StorefrontProductDetail.reviewListingItems).toHaveCount(1);
-            
+
             await ShopCustomer.attemptsTo(SelectProductReviewOption('Unsatisfactory'));
             await ShopCustomer.expects(reviewFilterUnsatisfactory.reviewFilterOptionCheckbox).not.toBeChecked();
 
@@ -205,11 +180,7 @@ test(
 test(
     'As a shop customer, I want to filter reviews by rating, log in and come back to the product detail page.',
     {
-        tag: [
-            '@Product',
-            '@Reviews',
-            '@Storefront',
-        ],
+        tag: ['@Product', '@Reviews', '@Storefront'],
     },
     async ({ ShopCustomer, TestDataService, StorefrontProductDetail, LoginViaReviewsTab }) => {
         const customer = await TestDataService.createCustomer();

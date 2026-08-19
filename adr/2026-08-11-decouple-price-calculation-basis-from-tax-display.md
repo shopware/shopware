@@ -8,311 +8,108 @@ status: proposed
 
 ## Context
 
-Shopware stores every product price as a gross/net pair (`Price` struct), and a single string — the tax state
-(`CartPrice::TAX_STATE_GROSS` / `TAX_STATE_NET` / `TAX_STATE_FREE`, resolved by `TaxDetector` from
-`customer_group.display_gross` and the tax-free rules) — currently does triple duty:
+Every product price stores a gross and a net value. A single tax state (`gross` / `net` / `tax-free`,
+derived from `customer_group.display_gross`) decides three things at once: which stored value is used,
+how taxes are calculated, and whether the customer sees "incl. VAT" or "excl. VAT".
 
-1. **Price selection** — which stored value is authoritative
-   (`ProductPriceCalculator::getPriceForTaxState()`, `DeliveryCalculator`, `CurrencyPriceCalculator`,
-   the DAL/Elasticsearch price accessors).
-2. **Tax math** — whether taxes are extracted from the price (`GrossPriceCalculator`) or added on top
-   (`NetPriceCalculator`), and how `AmountCalculator` builds the cart total.
-3. **Presentation** — which "incl./excl. VAT" labels the storefront, documents, and admin render.
+Because of this coupling, gross display always means "fixed gross price". The included tax depends on the
+customer's country, so the merchant's net proceeds vary per country. Merchants want the opposite
+combination: calculate from the fixed net price (same proceeds everywhere) while still showing gross
+prices to B2C customers.
 
-The economic consequence of this coupling: a merchant with gross display (B2C) sells at a **fixed gross**
-price. The included tax depends on the destination country's rate, so the merchant's net proceeds vary per
-country (net 10.00 € stored, gross 11.90 € fixed → an Austrian order at 20 % nets only 9.92 €). A merchant
-with net display (B2B) gets a fixed net, but customers see net prices.
+Two code facts shape the solution:
 
-Merchants have asked for the combination **"fixed net proceeds + gross display"**: calculate from the net
-price so the merchant always earns the same amount, while B2C customers still see tax-inclusive prices.
-
-Two findings from the current code shape this decision:
-
-- **There is no display layer.** `CalculatedPrice` carries a single `unitPrice`/`totalPrice` in the
-  context's tax state. Storefront templates print these numbers verbatim; only the VAT *labels* branch on
-  the tax state (5 template spots on `context.taxState`, 4 on `price.taxStatus`). The Store API likewise
-  exposes only the resolved value. "Display" is therefore not a place in the code we can toggle — it is
-  whatever the calculation produced.
-- **The conversion primitive already exists.** `QuantityPriceDefinition::$isCalculated = false` tells
-  `GrossPriceCalculator` that the given value is net and must be grossed up via
-  `TaxCalculator::calculateGross()` before taxes are extracted from it
-  (`GrossPriceCalculator::getUnitPrice()`, also honored for list and regulation prices). Today this path is
-  almost unreachable (`ProductPriceCalculator` always sets `isCalculated = true`); the admin's
-  `PriceActionController` is its main consumer.
-
-## Requirements
-
-- A merchant can configure that the **net price is the authoritative calculation basis** while customers
-  see **gross prices** (and symmetrically, the design should not preclude a fixed-gross basis with net
-  display).
-- Merchants opting in accept that displayed gross prices are **derived**: they vary with the destination
-  country's tax rate and are generally not "psychological" prices (net 10.00 € → 11.90 € in DE, 12.00 € in AT).
-- The change must be **non-breaking**: default behavior stays byte-identical, the new behavior is opt-in,
-  and all extension surfaces (`AbstractTaxDetector`, price calculators, Store API schema, Twig blocks,
-  order/document rendering, app scripts) keep their contracts.
-- Orders, documents, tax reporting, and order recalculation must remain self-consistent — a customer must
-  never see a gross line total that disagrees with the amount charged.
+1. There is no display layer. `CalculatedPrice` carries one number, already in the right tax state.
+   Templates, Store API, documents and admin print it as-is; only the VAT labels branch on the tax state.
+   The display value has to come out of the calculation correct, we cannot convert it at the end.
+2. The conversion we need already exists. `QuantityPriceDefinition::$isCalculated = false` tells
+   `GrossPriceCalculator` "this value is net, gross it up with the tax rules first". Today almost nothing
+   sets that flag.
 
 ## Decision
 
-We introduce a **price basis** setting that decouples *which stored price value is authoritative* from the
-tax (display) state, and we implement it at the **price-selection stage** using the existing
-`isCalculated` mechanism — not as a second tax state threaded through calculation and display.
+We add a price basis setting that decides which stored value is authoritative. The tax state keeps its
+current meaning (tax math flavor + labels), so `display_gross` finally means what its name says.
 
-### Concept
+- New nullable field `customer_group.price_basis`: `'net'`, `'gross'` or `NULL`.
+  - `NULL` (default): everything works exactly as today, the basis follows the display mode.
+  - `'net'`: the stored net value is always used. With gross display, the price definition is passed with
+    `isCalculated = false`, so the gross price is derived live from net and the shipping country's tax
+    rules. With net or tax-free display the net value is used as-is.
+  - `'gross'`: reserved for the symmetric case (fixed gross, net display). Deferred, because
+    `NetPriceCalculator` ignores `isCalculated` and needs its own rounding analysis first.
+- A new decoratable `AbstractPriceSelector` service replaces the four duplicated gross-vs-net branches
+  (`ProductPriceCalculator`, `DeliveryCalculator`, `CurrencyPriceCalculator`, the app-script price
+  facades). It returns the selected value plus the `isCalculated` flag.
+- Nothing downstream changes. Cart math, orders, documents, tax reporting, rules, recalculation, both API
+  schemas and all storefront templates keep their current shape, because the derived gross enters the
+  pipeline at the same point a stored gross does today.
 
-- The tax state keeps its current meaning end to end: it decides the tax math flavor and the presentation
-  (gross display ⇒ `TAX_STATE_GROSS`, exactly as today). `customer_group.display_gross` finally means what
-  its name says.
-- A new nullable enum field `customer_group.price_basis` (`'net'` | `'gross'` | `NULL`) declares which
-  stored price value is authoritative:
-  - `NULL` (default): legacy behavior — the basis follows the tax state. Nothing changes.
-  - `'net'`: the stored **net** value is always selected. When the tax state is gross, the price definition
-    is handed to the calculators with `isCalculated = false`, so `GrossPriceCalculator` derives the gross
-    price live from the net value and the tax rules of the customer's shipping country
-    (`gross = cashRound(net × (1 + rate))`), then extracts taxes from that gross — identical math to a
-    merchant who had maintained that gross value by hand. When the tax state is net or tax-free, the net
-    value is used verbatim, as today.
-  - `'gross'`: reserved for the symmetric case (fixed gross, net display). Out of scope for the first
-    iteration because `NetPriceCalculator` intentionally ignores `isCalculated`; see "Extendability".
-- Because the derivation happens *before* the cart math, everything downstream is untouched and stays
-  internally consistent: `unitPrice × quantity == totalPrice` per line, `AmountCalculator` totals, order
-  persistence (`taxStatus` remains `gross`), documents, ZUGFeRD, tax reporting, promotions, rules, the
-  admin order module, and every Store API response keep their exact current shape and invariants.
+How exact is "fixed net"? The displayed gross must be a valid cash amount, so it gets rounded, and the
+merchant's realized net is the stored net plus/minus at most half a rounding unit per unit sold. That
+shrinks the per-country variance from full VAT percentage points to sub-cent noise. Net exact to the cent
+would need net-authoritative totals with per-surface gross derivation and visible penny mismatches
+(Alternative A). We accept the sub-cent variance.
 
-### Precision of the "fixed net" guarantee
+Loose ends handled:
 
-The merchant's realized net per unit is `g / (1 + r)` where `g = cashRound(net × (1 + r))` — i.e. the
-stored net plus/minus at most half a rounding unit (default: half a cent) per unit, because the customer
-facing gross must be a valid cash amount. This reduces the per-country variance from full percentage
-points (today's fixed-gross behavior) to sub-cent rounding noise. An *exact* net-to-the-cent guarantee is
-only achievable by making the whole cart net-authoritative and deriving gross figures per display surface,
-which produces visible penny mismatches (displayed gross unit × quantity ≠ charged total) — see
-Alternatives. We accept the sub-cent variance.
+- **Caching**: derived gross prices depend on the country's tax rates, not just the tax state. When a
+  customer group sets a basis, the HTTP cache cookie and the entity cache hash additionally include a
+  fingerprint of the context's tax rules.
+- **Sorting and filtering** keep using the stored gross column (a per-country gross cannot be indexed).
+  For linked prices that matches the derived gross at the product's home tax rate; other countries drift
+  by the rate delta.
+- **Admin**: the customer group detail page gets a "price basis" select plus a hint that manually
+  maintained gross values are ignored in net-basis mode.
 
-### Affected technical domains
-
-**Core / DAL — new field.**
-`CustomerGroupDefinition` gets `(new StringField('price_basis', 'priceBasis'))->addFlags(new ApiAware(),
-new Since('6.7.x.0'))` with constants `CustomerGroupEntity::PRICE_BASIS_NET / PRICE_BASIS_GROSS`, plus a
-non-destructive migration adding a nullable column (precedent:
-`Migration1782308630AddBusinessTimeZoneToSalesChannel`). Values are validated by a write-command validator
-or an `EnumField`-style allowlist.
-
-**Cart / price selection — one new decoratable service.**
-The gross-vs-net selection branch is currently duplicated across `ProductPriceCalculator`
-(`getPriceForTaxState()`, also for list, regulation, and cheapest prices), `DeliveryCalculator`,
-`CurrencyPriceCalculator`, and the app-script facades (`PriceFacade`, `PriceCollectionFacade`). We
-consolidate these call sites onto a new `AbstractPriceSelector` service:
-
-- Input: the stored `Price` (or currency price collection) and the `SalesChannelContext`.
-- Output: the selected float value plus a `requiresGrossConversion` flag that the call site maps to
-  `QuantityPriceDefinition::$isCalculated = false`.
-- Default implementation: legacy behavior for `priceBasis = NULL`; for `priceBasis = 'net'` it returns the
-  net value, with conversion required only when the tax state is gross.
-
-`QuantityPriceCalculator`, `GrossPriceCalculator`, `NetPriceCalculator`, `AmountCalculator`,
-`TaxCalculator`, and `CartRuleLoader` are **not modified**. The tax-free threshold re-detection in
-`CartRuleLoader::validateTaxFree()` keeps working: when it flips the context to `TAX_STATE_FREE` and
-re-processes, the selector serves the net value verbatim for the re-run — which is precisely the fixed-net
-semantics.
-
-**Order persistence & recalculation — no change.**
-Orders persist `price.taxStatus = 'gross'` and the line items' `QuantityPriceDefinition` including
-`isCalculated` and the resolved tax rules, so `RecalculationService` reproduces the same amounts.
-Newly added line items during recalculation go through the same selector with the order-pinned context.
-
-**Storefront — no template changes.**
-Displayed values are already the calculated ones; the VAT labels already follow the tax state, which is
-unchanged. The only follow-up is documentation: with `priceBasis = 'net'`, the stored gross value is not
-displayed anywhere (it remains in use for sorting/filtering, see Consequences).
-
-**Store API / Admin API — additive only.**
-`customer_group.priceBasis` appears in both APIs (`ApiAware`); `context.taxState`, `CalculatedPrice`, and
-`CartPrice` schemas are untouched. Headless frontends need no adaptation.
-
-**Administration.**
-`sw-settings-customer-group-detail` gets a "Price basis" single-select (Follows display mode [default] /
-Always net / Always gross [disabled until implemented]) next to the existing gross-display toggle, with
-help text explaining the derived-gross consequences. The product price fields get a hint when at least one
-customer group overrides the basis, since manually maintained (unlinked) gross values are then ignored at
-runtime.
-
-**HTTP & entity cache — the one genuinely sharp edge.**
-Today, gross prices are country-independent, so the cache hash (`CacheHeadersService` cookie,
-`EntityCacheKeyGenerator::getSalesChannelContextHash()`) only carries the tax *state*. With a derived
-gross, rendered prices additionally depend on the applicable tax **rates** of the shipping country. When
-any customer group of the sales channel defines a `priceBasis`, both hashes must include a fingerprint of
-the context's resolved tax rules (e.g. a hash over `SalesChannelContext::$taxRules` rates); countries with
-identical rates keep sharing cache entries. This is an additive cache-key component, conditionally applied,
-so existing shops see no cache fragmentation.
-
-**Rules, promotions, app scripts — semantics unchanged, documented.**
-`CartTaxDisplayRule` keeps matching the tax state. Absolute promotion values, custom line item prices, and
-app-script price manipulations remain denominated in the display state (gross for B2C), as today; a
-merchant's "10 € off" therefore stays 10 € gross. The `PriceFacade`/`PriceCollectionFacade` accessors
-route through the selector so scripted price reads respect the basis.
-
-### Extendability
-
-- `AbstractPriceSelector` is the public extension point: plugins can decorate it to implement, e.g.,
-  per-country basis strategies or charm-price rounding of the derived gross (rounding the derived value up
-  to `x.90` — a frequently requested follow-up that this design enables cheaply).
-- The `'gross'` basis (fixed gross, net display) is specified but deferred: it requires
-  `NetPriceCalculator` to honor a net-conversion flag, which is a behavior change to a stable calculator
-  and needs its own rounding analysis. The enum and selector are designed so this lands without schema
-  changes.
-- A future exact-net mode (Alternative B) could be introduced as a third basis value without conflicting
-  with this design.
-- **The `NULL` state is transitional.** At the next major (v6.8), a migration backfills `price_basis`
-  from `display_gross` (`'gross'` where the display is gross, `'net'` otherwise), the column becomes
-  `NOT NULL`, and the two fields become fully orthogonal: toggling the display mode then never changes the
-  calculation basis again. This requires an UPGRADE entry (the display toggle changes meaning) and has the
-  `'gross'` basis implementation as a prerequisite — after the backfill, switching a gross-display group
-  to net display yields the gross-basis/net-display combination. Doing this backfill already in a 6.7
-  minor was rejected, see Alternative D.
-
-### Backwards compatibility assessment
-
-- New nullable column + entity field: non-destructive, BC-safe (`Since` flag, migration test).
-- New service + interface: additive. The replaced private selection methods are internal.
-- `isCalculated = false` on gross calculation: existing, tested behavior of `GrossPriceCalculator`.
-- No change to `Context::$taxState`, `AbstractTaxDetector`, calculator signatures, `CalculatedPrice`,
-  `CartPrice`, order schema, document templates, or Twig blocks.
-- Cache-key component: conditional on opt-in, additive event constant on `HttpCacheCookieEvent`.
-- No feature flag required: with `priceBasis = NULL` everywhere, every code path resolves to today's
-  behavior. Development can still hide the admin UI behind a named (toggleable, non-major) flag until the
-  feature is complete.
+End state: `NULL` is transitional. With v6.8 a migration backfills `price_basis` from `display_gross`,
+the column becomes `NOT NULL`, and the two fields are fully orthogonal from then on (UPGRADE entry;
+requires the `'gross'` basis to be implemented). Until then `NULL` keeps the old coupling alive for every
+writer that does not know the field: old core during blue-green, plugins, ERP syncs, API clients.
 
 ## Alternatives considered
 
-### A) Full dual tax state ("calculation state" + "display state" on the context)
+**A) Second tax state on the context**: calculate net-authoritative, derive gross per display surface.
+Exact net to the cent, but the displayed gross unit price times quantity no longer matches the charged
+total (up to a cent per line), it cannot reconcile with vertical tax calculation at all, and it touches
+`CalculatedPrice`, both API schemas, ~30 templates and every headless client. Not doable without a major.
 
-Thread two states through `Context`/`SalesChannelContext`: calculate everything net-authoritative, widen
-`CalculatedPrice` (and its field serializer, order schema, and Store API schema) with gross counterparts,
-and teach every display surface (≈30 storefront templates, checkout summary, documents, admin order
-module, headless clients) to pick the display-side value.
+**B) Display-only decoration in the product layer** (listing shows gross, cart stays net). Rejected:
+listing and cart would show different prices.
 
-Rejected because:
-- It guarantees exact net proceeds but **breaks display consistency**: the displayed gross unit price must
-  be rounded, so `displayed unit × quantity` differs from the charged total by up to a cent per line
-  (e.g. net 4.20 €, 19 %, qty 3 → displayed 3 × 5.00 € = 15.00 € vs charged 14.99 €), and the sum of line
-  grosses cannot reconcile with the vertical tax calculation mode at all.
-- The blast radius is the entire price pipeline plus both API schemas; headless frontends must adopt new
-  fields; ~100 test files touch `taxStatus`/`TAX_STATE_*`. Not deliverable without a major, and arguably
-  not without breaking the implicit contract that a `CalculatedPrice` is one number.
-- Shopware 6's dual stored price was a deliberate correction of Shopware 5's derived-price rounding
-  problems; reintroducing derivation *at every display edge* re-creates that problem class in a worse
-  place (after calculation instead of before).
+**C) Global system config switch.** Cannot express mixed setups (B2C gross display + B2B net display,
+both on a fixed net basis), and the display toggle already lives on the customer group.
 
-### B) Display-only decoration at the product layer
-
-Keep the cart net, decorate `ProductPriceCalculator` (or use `ProductPriceCalculationExtension`) to attach
-gross display prices in listings/detail pages.
-
-Rejected: the cart, checkout, and order confirmation would show net values while the listing shows gross —
-the exact mismatch customers notice and merchants cannot ship.
-
-### C) Global system-config switch instead of a customer-group field
-
-Simplest storage, but it cannot express the common mixed setup (B2C group with gross display + B2B group
-with net display, both on a fixed net basis — which this design supports naturally), and the customer
-group is where the existing display toggle lives; keeping both toggles on one entity keeps the mental
-model coherent.
-
-### D) Backfill `price_basis` from `display_gross` immediately instead of a nullable legacy state
-
-Ship the new column `NOT NULL` and migrate every customer group to an explicit basis
-(`display_gross ? 'gross' : 'net'`) right away, avoiding the tri-state.
-
-Rejected for a 6.7 minor because the backfill turns the **live coupling** into a **snapshot** and thereby
-destroys information that cannot be reconstructed later — "this group never made an explicit choice, keep
-following the display toggle":
-
-- Toggling `display_gross` becomes a silent, money-affecting behavior change: flipping a backfilled group
-  from net to gross display produces gross display on a net basis — derived gross prices instead of the
-  stored (possibly hand-maintained) gross values — without the merchant ever opting into fixed-net
-  semantics.
-- The reverse flip (gross display → net display on a backfilled `'gross'` basis) lands in exactly the
-  combination this ADR defers, forcing the `NetPriceCalculator` conversion into scope immediately.
-- Blue-green deployment undermines `NOT NULL` anyway: field-unaware writers (old core during the rollout
-  window, plugins, ERP syncs, Admin API clients) keep inserting customer groups without the field, so the
-  column needs a single static DB default — which is necessarily wrong for half of those rows. `NULL` as
-  "coupled" is self-healing for every field-unaware writer.
-
-The backfill is the right move **at the next major**, where the semantics change is announced instead of
-silent — see Extendability.
+**D) Backfill `price_basis` from `display_gross` right away, no `NULL`.** Rejected for a minor: the
+backfill freezes the coupling as a snapshot, so flipping `display_gross` afterwards silently changes
+charged amounts; it forces the deferred `'gross'` basis into scope immediately; and blue-green needs a
+static DB default that is wrong for half the rows written by field-unaware code. Right move at the major,
+see end state above.
 
 ## Consequences
 
-- Merchants can opt into fixed net proceeds with gross display per customer group. Their realized net
-  varies only by sub-cent rounding instead of by the spread of EU VAT rates.
-- Displayed gross prices become **country-dependent and non-psychological**; this is inherent to the
-  requested economics and must be prominent in the admin help text and merchant documentation.
-- With `priceBasis = 'net'`, the stored gross value is no longer displayed or charged. It **remains the
-  sorting/filtering key** in DAL and Elasticsearch (`PriceFieldAccessorBuilder`, cheapest-price accessors,
-  price listing filter), because a per-country derived gross cannot be indexed. For linked prices the
-  stored gross equals the derived gross at the product's home tax rate, so sort order and filter bounds
-  stay accurate for the default market and drift only by the rate delta for others (e.g. ~0.8 % for
-  DE→AT). Merchants who unlink and hand-maintain gross values in this mode get misleading filter bounds —
-  documented, and surfaced by the admin hint.
-- The HTTP/entity cache becomes tax-rate-aware for opted-in shops (slightly finer-grained cache) and is
-  untouched otherwise.
-- `GrossPriceCalculator`'s `isCalculated = false` path becomes load-bearing and needs its test coverage
-  promoted accordingly (list price, regulation price, reference price, zero-decimal and 0.05-interval cash
-  rounding).
-- The duplicated tax-state price-selection branches collapse into one decoratable service, removing four
-  copies of the same `if`.
-- Follow-ups enabled but not included: charm-price rounding of derived gross prices, the symmetric fixed
-  gross basis, and an exact-net mode as a third basis value.
-- The `NULL` legacy state is scheduled to end with the next major: v6.8 backfills `price_basis` from
-  `display_gross`, makes the column `NOT NULL`, and decouples the two fields for good (UPGRADE entry
-  required; `'gross'` basis support is a prerequisite). Until then, `NULL` preserves the old coupling for
-  every writer that does not know the field.
-- Release documentation: RELEASE_INFO feature entry and changelog required; no UPGRADE entry (no
-  third-party action needed).
+- Merchants can opt into fixed net proceeds with gross display, per customer group.
+- Derived gross prices vary by country and are not psychological prices (net 10.00 € shows as 11.90 € in
+  DE, 12.00 € in AT). Needs prominent admin help text and merchant docs.
+- `GrossPriceCalculator`'s `isCalculated = false` path becomes load-bearing and needs promoted test
+  coverage (list, regulation and reference prices, cash rounding intervals).
+- Fully backwards compatible: nullable column, additive service, additive API field, no template or
+  schema changes, no feature flag needed.
+- Release docs: RELEASE_INFO entry and changelog, no UPGRADE entry for this iteration.
+- Enabled follow-ups: charm-price rounding of derived gross prices, the `'gross'` basis, an exact-net
+  mode as a third basis value.
 
 ## Pseudo-code
 
 ```php
-// CustomerGroupEntity
-public const PRICE_BASIS_NET = 'net';
-public const PRICE_BASIS_GROSS = 'gross';
-protected ?string $priceBasis = null;
+// PriceSelector::select(Price $price, SalesChannelContext $context): SelectedPrice
+$basis = $context->getCurrentCustomerGroup()->getPriceBasis();
+$displayGross = $context->getTaxState() === CartPrice::TAX_STATE_GROSS;
 
-// Core/Checkout/Cart/Price/AbstractPriceSelector
-abstract class AbstractPriceSelector
-{
-    abstract public function select(Price $price, SalesChannelContext $context): SelectedPrice;
+if ($basis === null) { // legacy: basis follows display mode
+    return new SelectedPrice($displayGross ? $price->getGross() : $price->getNet(), isCalculated: true);
 }
 
-class PriceSelector extends AbstractPriceSelector
-{
-    public function select(Price $price, SalesChannelContext $context): SelectedPrice
-    {
-        $basis = $context->getCurrentCustomerGroup()->getPriceBasis();
-        $displayGross = $context->getTaxState() === CartPrice::TAX_STATE_GROSS;
-
-        if ($basis === null) {
-            return new SelectedPrice(
-                $displayGross ? $price->getGross() : $price->getNet(),
-                isCalculated: true // legacy: stored value is authoritative
-            );
-        }
-
-        // PRICE_BASIS_NET: net value is authoritative
-        return new SelectedPrice(
-            $price->getNet(),
-            // gross display: let GrossPriceCalculator derive gross = net * (1 + rate)
-            isCalculated: !$displayGross
-        );
-    }
-}
-
-// ProductPriceCalculator::buildDefinition() (analogous in DeliveryCalculator, CurrencyPriceCalculator)
-$selected = $this->priceSelector->select($price, $context);
-
-$definition = new QuantityPriceDefinition($selected->getValue(), $taxRules, $quantity);
-$definition->setIsCalculated($selected->isCalculated());
+// PRICE_BASIS_NET: net is authoritative, gross display derives the gross live
+return new SelectedPrice($price->getNet(), isCalculated: !$displayGross);
 ```

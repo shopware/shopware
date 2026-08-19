@@ -117,13 +117,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             )
         );
 
-        $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+        $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
     #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]

@@ -69,13 +69,9 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
             )
         );
 
-        $response = $this->unsubscribeWithResponse($dataBag, $context);
+        $this->unsubscribeWithResponse($dataBag, $context);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]

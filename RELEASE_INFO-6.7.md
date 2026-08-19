@@ -315,6 +315,16 @@ A cross-selling that uses a dynamic product group no longer returns the product 
 
 Cross-sellings with a manual product assignment are unchanged. Extensions that need the old result can adjust the criteria in `ProductCrossSellingStreamCriteriaEvent`.
 
+### Newsletter route methods keep the `StoreApiResponse` return type
+
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
+`StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
+This withdraws the return type change announced with 6.7.9.0.
+
+A decorator that puts its logic in these methods answers with the response containing the `status`
+field, and keeps working on 6.8, where the deprecated `subscribe()`, `confirm()` and `unsubscribe()`
+are removed. Those are still required in 6.7 and have to answer with `NoContentResponse`.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

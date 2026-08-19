@@ -310,6 +310,7 @@ class ControllerRateLimiterTest extends TestCase
 
         $newsletterRequestRoute = $this->createMock(NewsletterUnsubscribeRoute::class);
         $newsletterRequestRoute->method('unsubscribe')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
+        $newsletterRequestRoute->method('unsubscribeWithResponse')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             static::getContainer()->get(ContactFormRoute::class),

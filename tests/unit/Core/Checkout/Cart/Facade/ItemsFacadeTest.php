@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
@@ -25,12 +26,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[Package('checkout')]
 #[CoversClass(ItemsFacade::class)]
-#[CoversClass(ItemsAddTrait::class)]
-#[CoversClass(ItemsHasTrait::class)]
-#[CoversClass(ItemsRemoveTrait::class)]
-#[CoversClass(ItemsCountTrait::class)]
-#[CoversClass(ItemsGetTrait::class)]
-#[CoversClass(ItemsIteratorTrait::class)]
+#[CoversTrait(ItemsAddTrait::class)]
+#[CoversTrait(ItemsHasTrait::class)]
+#[CoversTrait(ItemsRemoveTrait::class)]
+#[CoversTrait(ItemsCountTrait::class)]
+#[CoversTrait(ItemsGetTrait::class)]
+#[CoversTrait(ItemsIteratorTrait::class)]
 class ItemsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

@@ -34,6 +34,8 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
     # core-only until the commercial repositories have swept their own reflection backlogs
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
+    # core-only: the commercial repositories carry their own package values and routing
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversPackageMatchRule
 
 services:
     -

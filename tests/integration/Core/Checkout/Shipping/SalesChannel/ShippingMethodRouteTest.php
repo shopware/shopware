@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -121,6 +122,47 @@ class ShippingMethodRouteTest extends TestCase
             ],
             $ids
         );
+    }
+
+    /**
+     * A shipping method without any price can never resolve shipping costs, so the cart blocks it while
+     * the storefront keeps offering it and silently swaps the customer's selection out again.
+     *
+     * @see https://github.com/shopware/shopware/issues/19001
+     */
+    public function testOnlyAvailableExcludesShippingMethodsWithoutAnyPrice(): void
+    {
+        static::getContainer()->get('shipping_method.repository')->update([[
+            'id' => $this->ids->get('shipping'),
+            'prices' => [
+                [
+                    'id' => $this->ids->create('price'),
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 10,
+                            'gross' => 11,
+                            'linked' => false,
+                        ],
+                    ],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/shipping-method', ['onlyAvailable' => true]);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame([$this->ids->get('shipping')], array_column($response['elements'], 'id'));
+
+        // without the flag the full list is still returned, so the Administration keeps seeing them
+        $this->browser->request('POST', '/store-api/shipping-method', []);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame(3, $response['total']);
     }
 
     public function testIncludes(): void

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -63,9 +64,16 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     {
         $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()));
 
+        $onlyAvailable = $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable');
+
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
+
+        if ($onlyAvailable) {
+            // A method without any price can never resolve shipping costs, so the cart would block it
+            $criteria->addFilter(new NotEqualsFilter('prices.id', null));
+        }
 
         if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
@@ -76,7 +84,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         $shippingMethods = $result->getEntities();
         $shippingMethods->sortShippingMethodsByPreference($context);
 
-        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
+        if ($onlyAvailable) {
             $shippingMethods = $this->ruleIdMatcher->filterCollection($shippingMethods, $context->getRuleIds());
         }
 
@@ -84,7 +92,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $this->scriptExecutor->execute(new ShippingMethodRouteHook(
             $shippingMethods,
-            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
+            $onlyAvailable,
             $context,
         ));
 

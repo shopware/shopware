@@ -95,7 +95,33 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
 
+### Store API no longer offers shipping methods without a price
+
+`GET`/`POST /store-api/shipping-method` with `onlyAvailable=1` no longer returns active shipping methods that have no price at all. Such a method can never resolve shipping costs, so the cart blocked it while it stayed selectable in the storefront and the customer was silently switched to a different method on every attempt.
+
+Requests without `onlyAvailable` are unchanged and still return every active shipping method, so the Administration and integrations that manage shipping methods keep seeing the full list. Headless frontends that build their shipping selection from `onlyAvailable=1` need no change.
+
 ## Core
+
+### An active shipping method must keep at least one price
+
+Two writes are now rejected with a `400` and the constraint code `active_shipping_method_without_price`:
+
+* deleting the last `shipping_method_price` of an active shipping method,
+* setting `active` to `true` on a shipping method that has no price.
+
+Creating a shipping method without prices is unchanged, so creating the method first and adding its prices in a follow-up request still works.
+
+Integrations that replace a price matrix by deleting all rows and inserting new ones must send both operations in one request, so the method is never priceless in between:
+
+```json
+[
+  { "key": "delete-prices", "entity": "shipping_method_price", "action": "delete", "payload": [{ "id": "…" }] },
+  { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [] }] }
+]
+```
+
+To remove a price matrix without replacing it, deactivate the shipping method in an **earlier** request and delete the prices afterwards. Deactivating and deleting within one Administration save is not enough, because the Administration sends association deletions before the shipping method update.
 
 ### E-invoice line positions state the correct price base quantity
 

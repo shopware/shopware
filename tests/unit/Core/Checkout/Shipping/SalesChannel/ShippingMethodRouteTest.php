@@ -12,12 +12,15 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -94,6 +97,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $expectedCriteria = clone $criteria;
         $expectedCriteria->addFilter(new EqualsFilter('active', true));
+        $expectedCriteria->addFilter(new NotEqualsFilter('prices.id', null));
         $expectedCriteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
         $expectedCriteria->addAssociation('media');
 
@@ -142,5 +146,97 @@ class ShippingMethodRouteTest extends TestCase
 
         static::assertCount(1, $shippingMethods);
         static::assertSame('rule_2', $shippingMethods->first()?->getUniqueIdentifier());
+    }
+
+    /**
+     * A shipping method without any price can never resolve shipping costs, so offering it as a
+     * selectable option would let the customer pick a method the cart then blocks.
+     *
+     * @see https://github.com/shopware/shopware/issues/19001
+     */
+    public function testOnlyAvailableExcludesShippingMethodsWithoutAnyPrice(): void
+    {
+        $request = new Request();
+        $request->query->set('onlyAvailable', true);
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+
+        $usedCriteria = null;
+
+        $repo = $this->createMock(SalesChannelRepository::class);
+        $repo
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria, SalesChannelContext $context) use (&$usedCriteria) {
+                $usedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'shipping_method',
+                    0,
+                    new ShippingMethodCollection([]),
+                    null,
+                    $criteria,
+                    $context->getContext()
+                );
+            });
+
+        $route = new ShippingMethodRoute(
+            $repo,
+            static::createStub(CacheTagCollector::class),
+            static::createStub(ScriptExecutor::class),
+            new RuleIdMatcher()
+        );
+
+        $route->load($request, $context, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $usedCriteria);
+        static::assertContainsEquals(
+            new NotEqualsFilter('prices.id', null),
+            $usedCriteria->getFilters(),
+        );
+    }
+
+    public function testLoadDoesNotRestrictPricesWithoutOnlyAvailable(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+
+        $usedCriteria = null;
+
+        $repo = $this->createMock(SalesChannelRepository::class);
+        $repo
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria, SalesChannelContext $context) use (&$usedCriteria) {
+                $usedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'shipping_method',
+                    0,
+                    new ShippingMethodCollection([]),
+                    null,
+                    $criteria,
+                    $context->getContext()
+                );
+            });
+
+        $route = new ShippingMethodRoute(
+            $repo,
+            static::createStub(CacheTagCollector::class),
+            static::createStub(ScriptExecutor::class),
+            new RuleIdMatcher()
+        );
+
+        $route->load($request, $context, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $usedCriteria);
+
+        $priceFilters = array_filter(
+            $usedCriteria->getFilters(),
+            static fn (Filter $filter) => $filter instanceof NotEqualsFilter && $filter->getField() === 'prices.id',
+        );
+
+        static::assertSame([], $priceFilters);
     }
 }

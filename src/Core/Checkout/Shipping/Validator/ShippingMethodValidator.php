@@ -2,11 +2,15 @@
 
 namespace Shopware\Core\Checkout\Shipping\Validator;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +30,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
     final public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';
 
     final public const VIOLATION_TAX_ID_REQUIRED = NotBlank::IS_BLANK_ERROR;
+
+    final public const VIOLATION_ACTIVE_WITHOUT_PRICE = 'active_shipping_method_without_price';
+
     private const ALLOWED_TAX_TYPES = [
         ShippingMethodEntity::TAX_TYPE_FIXED,
         ShippingMethodEntity::TAX_TYPE_AUTO,
@@ -92,6 +99,183 @@ class ShippingMethodValidator implements EventSubscriberInterface
                 $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
             }
         }
+
+        $this->validateActiveMethodsHavePrices($event);
+    }
+
+    /**
+     * An active shipping method without any price can never resolve shipping costs: the cart blocks it while
+     * the storefront still offers it. Rejects removing the last price and activating a priceless method;
+     * creation stays allowed. Prices whose rules never match fail alike, but depend on the cart.
+     */
+    private function validateActiveMethodsHavePrices(PreWriteValidationEvent $event): void
+    {
+        $deletedMethodIds = [];
+        $candidates = [];
+        $activeOverrides = [];
+        $deletedPriceIds = [];
+        $insertedPriceCounts = [];
+
+        foreach ($event->getCommands() as $command) {
+            $entityName = $command->getEntityName();
+            if ($entityName !== ShippingMethodDefinition::ENTITY_NAME && $entityName !== ShippingMethodPriceDefinition::ENTITY_NAME) {
+                continue;
+            }
+
+            $id = $this->readIdFromPrimaryKey($command);
+            if ($id === null) {
+                continue;
+            }
+
+            if ($entityName === ShippingMethodDefinition::ENTITY_NAME) {
+                if ($command instanceof DeleteCommand) {
+                    $deletedMethodIds[$id] = true;
+
+                    continue;
+                }
+
+                if (!$command instanceof UpdateCommand) {
+                    continue;
+                }
+
+                $active = $command->getPayload()['active'] ?? null;
+                if ($active === null) {
+                    continue;
+                }
+
+                $activeOverrides[$id] = (bool) $active;
+
+                // Only switching a method to active can newly break it; switching it off cannot
+                if ($activeOverrides[$id]) {
+                    $candidates[$id] = true;
+                }
+
+                continue;
+            }
+
+            if ($command instanceof DeleteCommand) {
+                $deletedPriceIds[] = $id;
+
+                continue;
+            }
+
+            if (!$command instanceof InsertCommand) {
+                continue;
+            }
+
+            $shippingMethodId = $command->getPayload()['shipping_method_id'] ?? null;
+            if (!\is_string($shippingMethodId)) {
+                continue;
+            }
+
+            // Added prices never break a method, but they offset prices removed in the same write
+            $shippingMethodId = Uuid::fromBytesToHex($shippingMethodId);
+            $insertedPriceCounts[$shippingMethodId] = ($insertedPriceCounts[$shippingMethodId] ?? 0) + 1;
+        }
+
+        $deletedPriceCounts = [];
+        foreach ($this->fetchShippingMethodIdsOfPrices($deletedPriceIds) as $shippingMethodId) {
+            $candidates[$shippingMethodId] = true;
+            $deletedPriceCounts[$shippingMethodId] = ($deletedPriceCounts[$shippingMethodId] ?? 0) + 1;
+        }
+
+        // A shipping method that is removed in the same write cascades its prices away with it
+        $candidates = array_diff_key($candidates, $deletedMethodIds);
+        if ($candidates === []) {
+            return;
+        }
+
+        $states = $this->fetchShippingMethodStates(array_keys($candidates));
+
+        $violations = new ConstraintViolationList();
+
+        foreach (array_keys($candidates) as $id) {
+            $active = $activeOverrides[$id] ?? $states[$id]['active'] ?? ShippingMethodEntity::ACTIVE_DEFAULT;
+            if (!$active) {
+                continue;
+            }
+
+            $priceCount = ($states[$id]['priceCount'] ?? 0)
+                - ($deletedPriceCounts[$id] ?? 0)
+                + ($insertedPriceCounts[$id] ?? 0);
+
+            if ($priceCount > 0) {
+                continue;
+            }
+
+            $violations->add(
+                $this->buildViolation(
+                    'The shipping method {{ id }} is active and must therefore have at least one price.',
+                    ['{{ id }}' => $id],
+                    '/prices',
+                    $id,
+                    self::VIOLATION_ACTIVE_WITHOUT_PRICE
+                )
+            );
+        }
+
+        if ($violations->count() > 0) {
+            $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
+    }
+
+    private function readIdFromPrimaryKey(WriteCommand $command): ?string
+    {
+        $id = $command->getPrimaryKey()['id'] ?? null;
+
+        return \is_string($id) ? Uuid::fromBytesToHex($id) : null;
+    }
+
+    /**
+     * @param list<string> $priceIds
+     *
+     * @return list<string> one shipping method id per given price, so duplicates are meaningful
+     */
+    private function fetchShippingMethodIdsOfPrices(array $priceIds): array
+    {
+        if ($priceIds === []) {
+            return [];
+        }
+
+        /** @var list<string> $ids */
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(`shipping_method_id`)) FROM `shipping_method_price` WHERE `id` IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($priceIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $ids;
+    }
+
+    /**
+     * @param list<string> $shippingMethodIds
+     *
+     * @return array<string, array{active: bool, priceCount: int}>
+     */
+    private function fetchShippingMethodStates(array $shippingMethodIds): array
+    {
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(`shipping_method`.`id`)) AS `id`,
+                    `shipping_method`.`active` AS `active`,
+                    COUNT(`shipping_method_price`.`id`) AS `price_count`
+             FROM `shipping_method`
+             LEFT JOIN `shipping_method_price`
+                 ON `shipping_method_price`.`shipping_method_id` = `shipping_method`.`id`
+             WHERE `shipping_method`.`id` IN (:ids)
+             GROUP BY `shipping_method`.`id`, `shipping_method`.`active`',
+            ['ids' => Uuid::fromHexToBytesList($shippingMethodIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $states = [];
+        foreach ($rows as $row) {
+            $states[(string) $row['id']] = [
+                'active' => (bool) $row['active'],
+                'priceCount' => (int) $row['price_count'],
+            ];
+        }
+
+        return $states;
     }
 
     /**

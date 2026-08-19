@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -50,6 +51,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SystemConfigService $systemConfigService,
         private readonly SalesChannelRepository $productRepository,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
     ) {
     }
 
@@ -128,7 +130,18 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            $slider->setProducts($this->handleProductStream($streamResult, $resolverContext->getSalesChannelContext(), $entitySearchResult->getCriteria()));
+            $salesChannelContext = $resolverContext->getSalesChannelContext();
+
+            $products = $this->handleProductStream($streamResult, $salesChannelContext, $entitySearchResult->getCriteria());
+
+            // Safety net: handleProductStream() can remap stream hits to their display
+            // parent or main variant, which may itself be a hidden closeout product even
+            // though the stream criteria already filtered unavailable closeout products.
+            if ($this->hideUnavailableProducts($salesChannelContext)) {
+                $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
+            }
+
+            $slider->setProducts($products);
             $slider->setStreamId($productConfig->getStringValue());
         }
     }
@@ -140,16 +153,30 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-        if ($this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $saleschannelContext->getSalesChannelId())) {
+        if ($this->hideUnavailableProducts($saleschannelContext)) {
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
         $slider->setProducts($products);
     }
 
+    private function hideUnavailableProducts(SalesChannelContext $context): bool
+    {
+        return $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
+    }
+
     private function filterOutOutOfStockHiddenCloseoutProducts(ProductCollection $products): ProductCollection
     {
         return $products->filter(function (ProductEntity $product) {
+            // Variant parents are represented by their children; the parent's own stock
+            // is not meaningful, so never hide a product that still has children.
+            if ($product->getChildCount() > 0) {
+                return true;
+            }
+
             if ($product->getIsCloseout() && $product->getStock() <= 0) {
                 return false;
             }
@@ -183,6 +210,14 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
+
+        // Exclude unavailable closeout products before the limit is applied, so they
+        // do not consume slider slots (same handling as listing and cross-selling).
+        $salesChannelContext = $resolverContext->getSalesChannelContext();
+        if ($this->hideUnavailableProducts($salesChannelContext)) {
+            $criteria->addFilter($this->productCloseoutFilterFactory->create($salesChannelContext));
+        }
+
         $criteria->setLimit($elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT);
 
         if (!Feature::isActive('v6.7.0.0')) {

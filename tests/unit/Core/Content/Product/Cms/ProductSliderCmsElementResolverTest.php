@@ -33,6 +33,8 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
@@ -54,11 +56,11 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,16 +75,16 @@ class ProductSliderCmsElementResolverTest extends TestCase
 
     private string $productStreamId;
 
-    private MockObject&SystemConfigService $systemConfig;
+    private StaticSystemConfigService $systemConfig;
 
     private MockObject&SalesChannelRepository $productRepository;
 
     protected function setUp(): void
     {
-        $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->systemConfig = new StaticSystemConfigService();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
 
-        $this->sliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig, $this->productRepository);
+        $this->sliderResolver = $this->createResolver();
 
         $this->productStreamId = Uuid::randomHex();
     }
@@ -267,6 +269,38 @@ class ProductSliderCmsElementResolverTest extends TestCase
         }
     }
 
+    public function testCollectAddsCloseoutFilterToStreamCriteriaWhenHideCloseoutEnabled(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $this->enableHideCloseout($salesChannelContext->getSalesChannelId());
+
+        $criteria = $this->collectStreamCriteria($salesChannelContext);
+
+        $closeoutFilters = array_filter(
+            $criteria->getFilters(),
+            static fn ($filter) => $filter instanceof ProductCloseoutFilter
+        );
+
+        static::assertCount(
+            1,
+            $closeoutFilters,
+            'Closeout filter must be part of the stream criteria so hidden products do not consume the slider limit'
+        );
+    }
+
+    public function testCollectDoesNotAddCloseoutFilterToStreamCriteriaWhenHideCloseoutDisabled(): void
+    {
+        // $this->systemConfig is left at its empty default: hide closeout off.
+        $criteria = $this->collectStreamCriteria(Generator::generateSalesChannelContext());
+
+        $closeoutFilters = array_filter(
+            $criteria->getFilters(),
+            static fn ($filter) => $filter instanceof ProductCloseoutFilter
+        );
+
+        static::assertCount(0, $closeoutFilters);
+    }
+
     public function testCollectWithMappedConfigButEmptyManyToManyRelation(): void
     {
         $category = new CategoryEntity();
@@ -363,11 +397,11 @@ class ProductSliderCmsElementResolverTest extends TestCase
     #[DataProvider('enrichDataProvider')]
     public function testEnrich(bool $closeout, bool $hidden, int $availableStock): void
     {
-        if ($hidden) {
-            $this->systemConfig->method('get')->willReturn(true);
-        }
-
         $salesChannelId = 'f3489c46df62422abdea4aa1bb03511c';
+
+        if ($hidden) {
+            $this->enableHideCloseout($salesChannelId);
+        }
 
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
@@ -382,7 +416,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $productSliderResolver = new ProductSliderCmsElementResolver($this->createMock(ProductStreamBuilder::class), $this->systemConfig, $this->productRepository);
+        $productSliderResolver = $this->createResolver();
         $resolverContext = new ResolverContext($salesChannelContext, new Request());
         $result = new ElementDataCollection();
         $result->add('product-slider_product_id', new EntitySearchResult(
@@ -554,6 +588,68 @@ class ProductSliderCmsElementResolverTest extends TestCase
         ];
     }
 
+    public function testEnrichFiltersOutOfStockCloseoutMainVariantFromStream(): void
+    {
+        $variantId = Uuid::randomHex();
+        $mainVariantId = Uuid::randomHex();
+
+        $variant = self::createProduct($variantId, Uuid::randomHex(), new VariantListingConfig(false, $mainVariantId, []));
+
+        // The main variant is not part of the stream result, so the closeout filter on
+        // the stream criteria never saw it; only the post-search filter can hide it.
+        $mainVariant = self::createProduct($mainVariantId, null);
+        $mainVariant->setIsCloseout(true);
+        $mainVariant->setStock(0);
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $this->enableHideCloseout($salesChannelContext->getSalesChannelId());
+
+        $products = $this->enrichStreamSlider($salesChannelContext, [$variant], [$variant, $mainVariant]);
+
+        static::assertCount(0, $products);
+    }
+
+    public function testEnrichKeepsDisplayParentWithChildrenFromStream(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $variant = self::createProduct($variantId, $parentId, new VariantListingConfig(true, null, []));
+
+        // A display parent carries its own stock, which says nothing about the
+        // availability of its children, so it must not be filtered out.
+        $parent = self::createProduct($parentId, null);
+        $parent->setIsCloseout(true);
+        $parent->setStock(0);
+        $parent->setChildCount(1);
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $this->enableHideCloseout($salesChannelContext->getSalesChannelId());
+
+        $products = $this->enrichStreamSlider($salesChannelContext, [$variant], [$variant, $parent]);
+
+        static::assertCount(1, $products);
+        static::assertTrue($products->has($parentId));
+    }
+
+    public function testEnrichKeepsOutOfStockCloseoutProductsFromStreamWhenHideCloseoutDisabled(): void
+    {
+        $variantId = Uuid::randomHex();
+        $mainVariantId = Uuid::randomHex();
+
+        $variant = self::createProduct($variantId, Uuid::randomHex(), new VariantListingConfig(false, $mainVariantId, []));
+
+        $mainVariant = self::createProduct($mainVariantId, null);
+        $mainVariant->setIsCloseout(true);
+        $mainVariant->setStock(0);
+
+        // $this->systemConfig is left at its empty default: hide closeout off.
+        $products = $this->enrichStreamSlider(Generator::generateSalesChannelContext(), [$variant], [$variant, $mainVariant]);
+
+        static::assertCount(1, $products);
+        static::assertTrue($products->has($mainVariantId));
+    }
+
     private static function createManufacturer(string $id, string $name): ProductManufacturerEntity
     {
         $manufacturer = new ProductManufacturerEntity();
@@ -573,6 +669,83 @@ class ProductSliderCmsElementResolverTest extends TestCase
         $product->setManufacturerId($manufacturerId);
 
         return $product;
+    }
+
+    private function collectStreamCriteria(SalesChannelContext $salesChannelContext): Criteria
+    {
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, $this->productStreamId));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->createResolver()->collect($slot, new ResolverContext($salesChannelContext, new Request()));
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $criteria = $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        return $criteria;
+    }
+
+    /**
+     * @param SalesChannelProductEntity[] $streamProducts products the stream itself matched
+     * @param SalesChannelProductEntity[] $repositoryProducts products the follow-up read can resolve
+     */
+    private function enrichStreamSlider(
+        SalesChannelContext $salesChannelContext,
+        array $streamProducts,
+        array $repositoryProducts
+    ): ProductCollection {
+        $this->configureProductRepositoryMock($repositoryProducts);
+
+        $entitySearchResult = $this->createMock(EntitySearchResult::class);
+        $entitySearchResult->method('getEntities')->willReturn(new ProductCollection($streamProducts));
+        $entitySearchResult->method('getCriteria')->willReturn(new Criteria());
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, $this->productStreamId));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('product_id');
+        $slot->setType('product-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $elementDataCollection = new ElementDataCollection();
+        $elementDataCollection->add('product-slider-entity-fallback_product_id', $entitySearchResult);
+
+        $this->createResolver()->enrich($slot, new ResolverContext($salesChannelContext, new Request()), $elementDataCollection);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+
+        $products = $slider->getProducts();
+        static::assertInstanceOf(ProductCollection::class, $products);
+
+        return $products;
+    }
+
+    /**
+     * Scoped to the sales channel so a resolver that looked the setting up globally,
+     * or under a different key, would still read `false` here.
+     */
+    private function enableHideCloseout(string $salesChannelId): void
+    {
+        $this->systemConfig = new StaticSystemConfigService([
+            $salesChannelId => ['core.listing.hideCloseoutProductsWhenOutOfStock' => true],
+        ]);
+    }
+
+    private function createResolver(): ProductSliderCmsElementResolver
+    {
+        return new ProductSliderCmsElementResolver(
+            $this->createMock(ProductStreamBuilder::class),
+            $this->systemConfig,
+            $this->productRepository,
+            new ProductCloseoutFilterFactory()
+        );
     }
 
     /**

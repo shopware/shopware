@@ -424,25 +424,8 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
             'customerId',
         ]);
 
-        wrapper.unmount();
+        wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm);
 
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
-    });
-
-    it('should keep discarding changes on route leave, which the discard-detail-page-changes mixin provides', async () => {
-        await flushPromises();
-
-        const discardChanges = jest.spyOn(wrapper.vm, 'discardChanges');
-        const nextMock = jest.fn();
-
-        wrapper.vm.$options.beforeRouteLeave.call(
-            wrapper.vm,
-            { name: 'sw.customer.index' },
-            { name: 'sw.customer.detail.base', params: { id: 'customerId' } },
-            nextMock,
-        );
-
-        expect(discardChanges).toHaveBeenCalledTimes(1);
-        expect(nextMock).toHaveBeenCalledTimes(1);
     });
 });

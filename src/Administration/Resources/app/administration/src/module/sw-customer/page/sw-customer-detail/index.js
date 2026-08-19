@@ -204,9 +204,7 @@ export default {
         },
     },
 
-    // Use `beforeUnmount` instead of `beforeRouteLeave`, because a `beforeRouteLeave` here would
-    // shadow the one provided by the `discard-detail-page-changes` mixin.
-    beforeUnmount() {
+    beforeRouteLeave() {
         Shopware.Store.get('shopwareApps').selectedIds = [];
     },
 

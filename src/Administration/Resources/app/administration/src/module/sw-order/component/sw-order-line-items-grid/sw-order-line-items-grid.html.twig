@@ -178,7 +178,19 @@
                     v-else
                     class="sw-order-line-items-grid__item-payload-options"
                 >
-                    <span class="sw-order-line-items-grid__item-label">
+                    <sw-product-variant-info
+                        v-if="item.payload && item.payload.options"
+                        :variations="item.payload.options"
+                    >
+                        <span class="sw-order-line-items-grid__item-label">
+                            {{ item.label }}
+                        </span>
+                    </sw-product-variant-info>
+
+                    <span
+                        v-else
+                        class="sw-order-line-items-grid__item-label"
+                    >
                         {{ item.label }}
                     </span>
                 </div>

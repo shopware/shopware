@@ -87,8 +87,6 @@ final readonly class DocumentPersister
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
-                    // Read by the storefront's OrderRoute to decide whether the document is
-                    // visible in the customer account - mirrors the merchant's document type setting.
                     'displayInCustomerAccount' => (bool) ($meta->legacyConfig['displayInCustomerAccount'] ?? false),
                 ],
             ],

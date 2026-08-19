@@ -3,13 +3,6 @@
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
                 {% if document.documentFiles is not empty %}
-                    {# document v2 stores one media file per format in documentFiles, already named via the
-                       document type's filename settings - so the stored file name is used as-is. The exact
-                       DocumentFormat value (not the file extension) is passed so DocumentRoute can tell apart
-                       formats that share one extension, e.g. pdf and zugferd_embedded_pdf are both ".pdf".
-                       Mirrors DocumentRoute::download(), which branches on the same document.documentFiles
-                       state - not the feature flag - so documents generated before the flag was enabled keep
-                       rendering their legacy links and stay downloadable. #}
                     {% for documentFile in document.documentFiles|filter(file => file.media is not null) %}
                         {% set documentLink = path('frontend.account.order.single.document', {
                             documentId: document.id,

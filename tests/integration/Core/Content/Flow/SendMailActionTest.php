@@ -1139,7 +1139,7 @@ class SendMailActionTest extends TestCase
             $this->seedDemoBaseConfig($documentType);
 
             return static::getContainer()->get(DocumentV2Generator::class)->generate(
-                new DocumentGenerationRequest($orderId, $documentType, [DocumentFormat::PDF]),
+                new DocumentGenerationRequest($orderId, $documentType, [DocumentFormat::PDF], deliveryDate: self::DOCUMENT_DATE),
                 $context,
             )->getId();
         }

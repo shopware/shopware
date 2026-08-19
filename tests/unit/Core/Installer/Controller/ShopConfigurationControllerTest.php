@@ -11,6 +11,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
@@ -241,13 +242,16 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->with($connectionInfo, $expectedShopInfo);
         $this->shopConfigService->expects($this->once())->method('updateShop')->with($expectedShopInfo, $this->connection);
 
+        $localeId = Uuid::randomHex();
+        $this->connection->method('fetchOne')->willReturn($localeId);
+
         $expectedAdmin = [
             'email' => 'test@test.com',
             'username' => 'admin',
             'firstName' => 'first',
             'lastName' => 'last',
             'password' => 'shopware',
-            'locale' => 'de-DE',
+            'localeId' => $localeId,
         ];
         $this->adminConfigService->expects($this->once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
@@ -289,6 +293,7 @@ class ShopConfigurationControllerTest extends TestCase
                 ['iso3' => 'GBR', 'iso' => 'GB'],
                 ['iso3' => 'USA', 'iso' => 'US'],
             ]);
+        $this->connection->method('fetchOne')->willReturn('not-relevant');
 
         $this->router->expects($this->never())->method('generate');
         $this->shopConfigService->expects($this->never())->method('updateShop');
@@ -364,6 +369,7 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->connection->method('fetchAllAssociative')
             ->willReturn($countries);
+        $this->connection->method('fetchOne')->willReturn('not-relevant');
 
         $this->router->expects($this->never())->method('generate');
         $this->shopConfigService->expects($this->never())->method('updateShop');

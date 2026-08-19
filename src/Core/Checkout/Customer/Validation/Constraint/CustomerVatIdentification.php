@@ -29,7 +29,7 @@ class CustomerVatIdentification extends Constraint
     protected bool $shouldCheck = false;
 
     /**
-     * @param ?array{countryId: string, shouldCheck?: bool} $options
+     * @param array{countryId?: string, shouldCheck?: bool}|null $options
      *
      * The `$shouldCheck` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *

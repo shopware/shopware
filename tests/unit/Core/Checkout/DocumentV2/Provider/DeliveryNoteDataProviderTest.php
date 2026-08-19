@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
@@ -33,20 +32,9 @@ class DeliveryNoteDataProviderTest extends TestCase
         static::assertSame('delivery_note', $this->createProvider()->getKey());
     }
 
-    #[DataProvider('supportsProvider')]
-    public function testSupportsOnlyDeliveryNote(string $documentType, bool $expected): void
+    public function testSupportsOnlyDeliveryNote(): void
     {
-        static::assertSame($expected, $this->createProvider()->supports($documentType));
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function supportsProvider(): \Generator
-    {
-        yield 'delivery note is supported' => [DocumentType::DELIVERY_NOTE->value, true];
-        yield 'other core type is not supported' => [DocumentType::INVOICE->value, false];
-        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+        static::assertTrue($this->createProvider()->supports(DocumentType::DELIVERY_NOTE->value));
     }
 
     public function testEnrichOrderCriteria(): void

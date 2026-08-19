@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
@@ -18,7 +17,6 @@ class WebhookHealthService
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly RelatedWebhooks $relatedWebhooks,
     ) {
     }
 
@@ -42,11 +40,11 @@ class WebhookHealthService
             ? ['error_count' => 0, 'active' => 0]
             : ['error_count' => $newCount];
 
-        $this->relatedWebhooks->updateRelated($webhookId, $params, Context::createDefaultContext());
+        $this->connection->update('webhook', $params, ['id' => Uuid::fromHexToBytes($webhookId)]);
     }
 
     public function resetErrorCount(string $webhookId): void
     {
-        $this->relatedWebhooks->updateRelated($webhookId, ['error_count' => 0], Context::createDefaultContext());
+        $this->connection->update('webhook', ['error_count' => 0], ['id' => Uuid::fromHexToBytes($webhookId)]);
     }
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,6 +45,7 @@ final readonly class DocumentPersister
         private EntityRepository $documentFileRepository,
         private EntityRepository $documentTypeRepository,
         private MediaService $mediaService,
+        private FileNameProvider $fileNameProvider,
     ) {
     }
 
@@ -124,14 +126,23 @@ final readonly class DocumentPersister
 
             $persisted[$format] = $context->scope(
                 Context::SYSTEM_SCOPE,
-                fn (Context $scoped): string => $this->mediaService->saveFile(
-                    $result->content,
-                    $result->fileExtension,
-                    $result->mimeType,
-                    $result->fileName,
-                    $scoped,
-                    self::MEDIA_FOLDER,
-                ),
+                function (Context $scoped) use ($result): string {
+                    $fileName = $this->fileNameProvider->provide(
+                        $result->fileName,
+                        $result->fileExtension,
+                        null,
+                        $scoped,
+                    );
+
+                    return $this->mediaService->saveFile(
+                        $result->content,
+                        $result->fileExtension,
+                        $result->mimeType,
+                        $fileName,
+                        $scoped,
+                        self::MEDIA_FOLDER,
+                    );
+                },
             );
         }
 

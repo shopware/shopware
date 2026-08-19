@@ -8,27 +8,35 @@ const ruleTester = new RuleTester({
     },
 });
 
+// Handcrafted list of stabilized flag names, mirroring the ESLint config shape.
+const FLAGS = [
+    'v6.7.0.0',
+    'STABLE_FEATURE',
+];
+
+const options = [{ stabilizedFlags: FLAGS }];
+
 ruleTester.run('stabilize-feature-flag', rule, {
     valid: [
         {
-            name: 'leaves other active feature flags unchanged',
+            name: 'keeps a flag that is not in the stabilized list',
+            code: "it.activeFeatureFlags(['v6.8.0.0'])('runs with a feature flag', () => {});",
+            options,
+        },
+        {
+            name: 'keeps an experimental flag that is not in the stabilized list',
             code: "it.activeFeatureFlags(['EXPERIMENTAL_FEATURE'])('runs with a feature flag', () => {});",
-            options: ['STABLE_FEATURE'],
+            options,
         },
         {
             name: 'leaves other test functions unchanged',
             code: "test.activeFeatureFlags(['STABLE_FEATURE'])('runs with a feature flag', () => {});",
-            options: ['STABLE_FEATURE'],
-        },
-        {
-            name: 'leaves dynamic feature flag lists unchanged',
-            code: "it.activeFeatureFlags(activeFeatureFlags)('runs with feature flags', () => {});",
-            options: ['STABLE_FEATURE'],
+            options,
         },
     ],
     invalid: [
         {
-            name: 'removes the stabilized feature flag from tests with other active flags',
+            name: 'removes a stabilized flag and keeps the remaining ones',
             code: `it.activeFeatureFlags(['STABLE_FEATURE', 'EXPERIMENTAL_FEATURE'])(
     'runs with feature flags',
     () => {},
@@ -37,61 +45,43 @@ ruleTester.run('stabilize-feature-flag', rule, {
     'runs with feature flags',
     () => {},
 );`,
-            options: ['STABLE_FEATURE'],
+            options,
             errors: [{ messageId: 'stabilizedFeatureFlag' }],
         },
         {
-            name: 'turns the helper into a regular test when no active flags remain',
+            name: 'turns the helper into a regular test when only stabilized flags remain',
             code: "it.activeFeatureFlags(['STABLE_FEATURE'])('runs with a feature flag', () => {});",
             output: "it('runs with a feature flag', () => {});",
-            options: ['STABLE_FEATURE'],
+            options,
             errors: [{ messageId: 'stabilizedFeatureFlag' }],
         },
         {
-            name: 'turns a table-driven helper into a regular it.each when no active flags remain',
+            name: 'normalizes flag notation before matching the config',
+            code: "it.activeFeatureFlags(['V6_7_0_0'])('runs with a feature flag', () => {});",
+            output: "it('runs with a feature flag', () => {});",
+            options,
+            errors: [{ messageId: 'stabilizedFeatureFlag' }],
+        },
+        {
+            name: 'turns a table-driven helper into a regular it.each',
             code: "it.activeFeatureFlags(['STABLE_FEATURE']).each(rows)('runs with %s', () => {});",
             output: "it.each(rows)('runs with %s', () => {});",
-            options: ['STABLE_FEATURE'],
+            options,
             errors: [{ messageId: 'stabilizedFeatureFlag' }],
         },
         {
-            name: 'keeps the remaining flags on a table-driven helper',
-            code: "it.activeFeatureFlags(['STABLE_FEATURE', 'EXPERIMENTAL_FEATURE']).each(rows)('runs with %s', () => {});",
-            output: "it.activeFeatureFlags(['EXPERIMENTAL_FEATURE']).each(rows)('runs with %s', () => {});",
-            options: ['STABLE_FEATURE'],
-            errors: [{ messageId: 'stabilizedFeatureFlag' }],
+            name: 'requires an inline array literal',
+            code: "it.activeFeatureFlags(activeFeatureFlags)('runs with feature flags', () => {});",
+            output: null,
+            options,
+            errors: [{ messageId: 'arrayLiteralRequired' }],
         },
         {
-            name: 'removes every duplicate occurrence of the stabilized feature flag',
-            code: "it.activeFeatureFlags(['STABLE_FEATURE', 'STABLE_FEATURE'])('runs with a feature flag', () => {});",
-            output: "it('runs with a feature flag', () => {});",
-            options: ['STABLE_FEATURE'],
-            errors: [{ messageId: 'stabilizedFeatureFlag' }],
-        },
-        {
-            name: 'updates every matching test and leaves unrelated calls unchanged',
-            code: `it.activeFeatureFlags(['STABLE_FEATURE'])('first test', () => {});
-it.activeFeatureFlags(['OTHER_FEATURE'])('second test', () => {});
-test.activeFeatureFlags(['STABLE_FEATURE'])('third test', () => {});`,
-            output: `it('first test', () => {});
-it.activeFeatureFlags(['OTHER_FEATURE'])('second test', () => {});
-test.activeFeatureFlags(['STABLE_FEATURE'])('third test', () => {});`,
-            options: ['STABLE_FEATURE'],
-            errors: [{ messageId: 'stabilizedFeatureFlag' }],
-        },
-        {
-            name: 'preserves comments for remaining feature flags',
-            code: `it.activeFeatureFlags([
-    'STABLE_FEATURE',
-    // This flag is still experimental.
-    'EXPERIMENTAL_FEATURE',
-])('runs with feature flags', () => {});`,
-            output: `it.activeFeatureFlags([
-    // This flag is still experimental.
-    'EXPERIMENTAL_FEATURE',
-])('runs with feature flags', () => {});`,
-            options: ['STABLE_FEATURE'],
-            errors: [{ messageId: 'stabilizedFeatureFlag' }],
+            name: 'requires the array to contain only string literals',
+            code: "it.activeFeatureFlags([flag])('runs with feature flags', () => {});",
+            output: null,
+            options,
+            errors: [{ messageId: 'arrayLiteralRequired' }],
         },
     ],
 });

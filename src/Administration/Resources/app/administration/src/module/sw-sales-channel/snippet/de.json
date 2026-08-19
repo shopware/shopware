@@ -103,6 +103,8 @@
             "labelInputCurrency": "Währung",
             "labelInputLanguage": "Sprache",
             "labelInputSnippet": "Textbaustein-Set",
+            "labelIsExternalStorefront": "Externes Storefront",
+            "helpTextIsExternalStorefront": "SEO-URLs werden nur für Domains generiert, die auf ein externes Storefront verweisen. Pro Sprache kann nur ein externes Storefront für einen einzelnen Verkaufskanal festgelegt werden.",
             "buttonDeleteDomain": "Domain löschen",
             "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
             "foreignKeyDelete": "Dieser Verkaufskanal kann nicht gelöscht werden, da er noch von {assignment} verwendet wird.",
@@ -204,8 +206,9 @@
                     "518400": "6 Tage",
                     "604800": "1 Woche"
                 },
-                "storefront": "Storefront-Verkaufskanal",
-                "storefrontDomain": "Storefront-Domain",
+                "storefront": "Verkaufskanal",
+                "storefrontDomain": "Domain",
+                "storefrontDomainHelpText": "Bei Headless-Verkaufskanälen sind hier nur Domains auswählbar, die als externes Storefront markiert sind. Markiere eine Domain in den Domain-Einstellungen des Verkaufskanals als externes Storefront.",
                 "storefrontDomainLanguage": {
                     "label": "Sprache",
                     "help": "Auf Basis der Storefront-Domain automatisch gewählt"

@@ -24,6 +24,8 @@ class SeoUrlTemplateEntity extends Entity
 
     protected bool $isValid;
 
+    protected bool $isHeadless = false;
+
     protected ?SalesChannelEntity $salesChannel = null;
 
     public function getSalesChannelId(): ?string
@@ -74,6 +76,16 @@ class SeoUrlTemplateEntity extends Entity
     public function setIsValid(bool $isValid): void
     {
         $this->isValid = $isValid;
+    }
+
+    public function getIsHeadless(): bool
+    {
+        return $this->isHeadless;
+    }
+
+    public function setIsHeadless(bool $isHeadless): void
+    {
+        $this->isHeadless = $isHeadless;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

@@ -74,7 +74,7 @@ final class DocumentV2Controller extends AbstractController
     {
         $documentTypes = [];
 
-        foreach ($this->documentTypeRegistry->getDocumentTypes() as $documentType) {
+        foreach ($this->documentTypeRegistry->getTechnicalNames() as $documentType) {
             $documentTypes[$documentType] = [
                 'formats' => $this->documentTypeRegistry->getSupportedFormats($documentType),
             ];
@@ -180,12 +180,9 @@ final class DocumentV2Controller extends AbstractController
                 'orderVersionId' => $this->requirePayloadString($payload, 'orderVersionId'),
                 'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
                 'documentMediaFileId' => $mediaId,
-                'referencedDocumentId' => $payload->getString('referencedDocumentId') ?: null,
                 'static' => true,
                 'deepLinkCode' => $deepLinkCode,
                 'config' => [
-                    'documentComment' => $payload->getString('documentComment'),
-                    'documentDate' => $payload->getString('documentDate') ?: null,
                     'documentNumber' => $payload->getString('documentNumber'),
                 ],
             ],

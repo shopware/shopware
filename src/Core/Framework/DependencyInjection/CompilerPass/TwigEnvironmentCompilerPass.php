@@ -17,6 +17,8 @@ class TwigEnvironmentCompilerPass implements CompilerPassInterface
         $twigEnvironment->setPublic(true);
         $twigEnvironment->setClass(TwigEnvironment::class);
 
+        $twigEnvironment->addTag('kernel.reset', ['method' => 'reset']);
+
         // The twig extension directly compiles the config into the service, there is no other way to get it @see \Symfony\Bundle\TwigBundle\DependencyInjection\TwigExtension::load
         $twigOptions = $twigEnvironment->getArgument(1);
         \assert(\is_array($twigOptions));

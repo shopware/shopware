@@ -95,7 +95,7 @@ class UserController extends AbstractController
             throw ApiException::userNotLoggedIn();
         }
 
-        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
         if (array_diff(array_keys($request->request->all()), $allowedChanges) !== []) {
             throw ApiException::missingPrivileges(['user:update']);
@@ -273,7 +273,7 @@ class UserController extends AbstractController
         $data = $request->request->all();
 
         if (!isset($data['id'])) {
-            $data['id'] = $roleId ?? null;
+            $data['id'] = $roleId;
         }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));

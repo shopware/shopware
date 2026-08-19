@@ -21,6 +21,7 @@ import {
     MtDatepicker,
     MtDropdownMenuPortal,
     MtDropdownMenuRoot,
+    MtDropdownMenuSub,
     MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
@@ -57,9 +58,6 @@ import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import CacheService from '../../src/app/service/cache.service';
 
-// The runner's baseline flags, snapshotted before any test can mutate them. Kept on a symbol-keyed
-// global rather than a module-scoped const because feature-flag-test-environment.js runs in its own
-// module context and has to read the same value to restore the baseline after each test.
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
 
@@ -287,6 +285,7 @@ config.global.stubs = {
     'mt-datepicker': MtDatepicker,
     'mt-dropdown-menu-portal': MtDropdownMenuPortal,
     'mt-dropdown-menu-root': MtDropdownMenuRoot,
+    'mt-dropdown-menu-sub': MtDropdownMenuSub,
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,

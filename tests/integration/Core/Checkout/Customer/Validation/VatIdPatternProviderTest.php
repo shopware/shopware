@@ -31,7 +31,6 @@ class VatIdPatternProviderTest extends TestCase
     public function testEveryEuMemberStateShipsAPatternThatCompiles(): void
     {
         $provider = static::getContainer()->get(VatIdPatternProvider::class);
-        $provider->reset();
 
         static::assertSame(self::EU_COUNTRY_ISO, array_keys($provider->getEuPatterns()));
     }

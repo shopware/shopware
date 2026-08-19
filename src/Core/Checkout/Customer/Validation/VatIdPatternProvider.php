@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Reads the VAT ID format patterns configured in Settings > Countries and matches VAT IDs against them,
@@ -14,13 +13,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * @internal
  */
 #[Package('checkout')]
-class VatIdPatternProvider implements ResetInterface
+class VatIdPatternProvider
 {
-    /**
-     * @var array<string, string>|null ISO code => VAT ID format pattern
-     */
-    private ?array $euPatterns = null;
-
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -32,7 +26,26 @@ class VatIdPatternProvider implements ResetInterface
      */
     public function getEuPatterns(): array
     {
-        return $this->euPatterns ??= $this->loadEuPatterns();
+        $sql = <<<'SQL'
+            SELECT `iso`, `vat_id_pattern`
+            FROM `country`
+            WHERE `is_eu` = 1 AND `vat_id_pattern` IS NOT NULL AND `vat_id_pattern` != ''
+            ORDER BY `iso`;
+        SQL;
+
+        /** @var list<array{iso: string, vat_id_pattern: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($sql);
+
+        $patterns = [];
+        foreach ($rows as $row) {
+            // Merchants can edit the patterns, so they are not guaranteed to compile. A single broken
+            // pattern would WARN on every VAT ID that has to be checked against the whole list.
+            if ($this->compiles($row['vat_id_pattern'])) {
+                $patterns[$row['iso']] = $row['vat_id_pattern'];
+            }
+        }
+
+        return $patterns;
     }
 
     /**
@@ -78,50 +91,18 @@ class VatIdPatternProvider implements ResetInterface
 
     public function matches(string $pattern, string $vatId): bool
     {
-        return preg_match(self::toRegex($pattern), $vatId) === 1;
+        return preg_match($this->toRegex($pattern), $vatId) === 1;
     }
 
-    public function reset(): void
+    private function compiles(string $pattern): bool
     {
-        $this->euPatterns = null;
-    }
-
-    /**
-     * @return array<string, string> ISO code => VAT ID format pattern
-     */
-    private function loadEuPatterns(): array
-    {
-        $sql = <<<'SQL'
-            SELECT `iso`, `vat_id_pattern`
-            FROM `country`
-            WHERE `is_eu` = 1 AND `vat_id_pattern` IS NOT NULL AND `vat_id_pattern` != ''
-            ORDER BY `iso`;
-        SQL;
-
-        /** @var list<array{iso: string, vat_id_pattern: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative($sql);
-
-        $patterns = [];
-        foreach ($rows as $row) {
-            // Merchants can edit the patterns, so they are not guaranteed to compile. A single broken
-            // pattern would WARN on every VAT ID that has to be checked against the whole list.
-            if (self::compiles($row['vat_id_pattern'])) {
-                $patterns[$row['iso']] = $row['vat_id_pattern'];
-            }
-        }
-
-        return $patterns;
-    }
-
-    private static function compiles(string $pattern): bool
-    {
-        return @preg_match(self::toRegex($pattern), '') !== false;
+        return @preg_match($this->toRegex($pattern), '') !== false;
     }
 
     /**
      * The pattern is anchored, so a merchant pattern cannot match a substring of a longer VAT ID.
      */
-    private static function toRegex(string $pattern): string
+    private function toRegex(string $pattern): string
     {
         return '/^' . $pattern . '$/';
     }

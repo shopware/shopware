@@ -50,35 +50,6 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
-    public function testReadsThePatternsOnlyOncePerRequest(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
-
-        $provider = new VatIdPatternProvider($connection);
-
-        static::assertSame($provider->getEuPatterns(), $provider->getEuPatterns());
-        static::assertSame('NL', $provider->matchEuVatId('NL123456789B01'));
-    }
-
-    public function testResetReloadsThePatterns(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->exactly(2))
-            ->method('fetchAllAssociative')
-            ->willReturn([['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
-
-        $provider = new VatIdPatternProvider($connection);
-
-        $provider->getEuPatterns();
-        $provider->reset();
-        $provider->getEuPatterns();
-    }
-
     public function testMatchEuVatIdReturnsTheMemberStateItBelongsTo(): void
     {
         $provider = $this->createProvider([

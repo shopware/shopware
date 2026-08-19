@@ -98,8 +98,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'group' => ElasticsearchFieldBuilder::nested(),
             ]),
             'parentId' => self::KEYWORD_FIELD,
-            // keyed by currency (`c_<currencyId>`), so the prices themselves are mapped dynamically
-            'price' => ['type' => 'object', 'dynamic' => true],
+            'price' => $this->buildPriceMapping(),
             'active' => self::BOOLEAN_FIELD,
             'available' => self::BOOLEAN_FIELD,
             'isCloseout' => self::BOOLEAN_FIELD,
@@ -613,6 +612,40 @@ SQL;
         }
 
         return $mapped;
+    }
+
+    /**
+     * A price is indexed per currency, as `price.c_<currencyId>.<taxState>`. Mapping the currencies explicitly
+     * rather than leaving them to the dynamic detection keeps a price a `double`: a price that is indexed
+     * before the mapping of an existing index was updated would be detected as a 32 bit float, which cannot
+     * hold every price to the cent, and Elasticsearch keeps a field at the type it was detected as. The
+     * dynamic template of the mapping still covers a currency that is created after the index was built.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildPriceMapping(): array
+    {
+        $properties = [];
+
+        /** @var list<string> $currencyIds */
+        $currencyIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM `currency`');
+
+        foreach ($currencyIds as $currencyId) {
+            $properties['c_' . $currencyId] = [
+                'properties' => [
+                    'gross' => self::FLOAT_FIELD,
+                    'net' => self::FLOAT_FIELD,
+                ],
+            ];
+        }
+
+        $mapping = ['type' => 'object', 'dynamic' => true];
+
+        if ($properties !== []) {
+            $mapping['properties'] = $properties;
+        }
+
+        return $mapping;
     }
 
     /**

@@ -289,6 +289,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([Defaults::CURRENCY, 'c0d2554b0ce847cd82f3ac9bd1c0dfca']);
 
         $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
         $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
@@ -313,7 +314,24 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'price' => ['type' => 'object', 'dynamic' => true],
+                'price' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'c_' . Defaults::CURRENCY => [
+                            'properties' => [
+                                'gross' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                                'net' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                            ],
+                        ],
+                        'c_c0d2554b0ce847cd82f3ac9bd1c0dfca' => [
+                            'properties' => [
+                                'gross' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                                'net' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                            ],
+                        ],
+                    ],
+                ],
                 'parent' => [
                     'type' => 'nested',
                     'properties' => [

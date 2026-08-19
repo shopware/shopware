@@ -1,11 +1,13 @@
 .sw-experience-studio-media-collection-field {
     display: flex;
     flex-direction: column;
-    gap: var(--mt-spacing-xs);
 
-    &__label {
-        color: var(--color-darkgray-200);
-        font-size: var(--mt-font-size-xs);
-        font-weight: var(--mt-font-weight-medium);
+    // More dense appearance for media upload so it fits in the sidebar
+    .sw-media-upload-v2 .sw-media-upload-v2__button {
+        min-width: 0;
+    }
+
+    .sw-media-upload-v2__dropzone.is--multi {
+        padding: var(--scale-size-16);
     }
 }

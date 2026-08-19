@@ -74,6 +74,33 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame(DistributionStrategy::Broadcast, $available[0]->distribution);
     }
 
+    #[TestDox('exposes a backed ancestor provider under its consumer alias, the key the serving path matches children on')]
+    public function testAliasedProviderExposesConsumerAlias(): void
+    {
+        // Mirrors ContextDistributor's child matching ($config->getConsumerAlias() ?? $contextKey): a provider
+        // keyed by the alias at serving must be judged available under the alias at the write gate too.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item'))],
+                [],
+            ),
+        );
+
+        $available = $this->resolver()->resolve('child-1', [$root], []);
+
+        static::assertCount(1, $available);
+        static::assertSame('item', $available[0]->contextKey);
+        static::assertSame(SalesChannelProductEntity::class, $available[0]->fqcn);
+        static::assertSame('root-1', $available[0]->providerElementId);
+        static::assertSame(DistributionStrategy::Broadcast, $available[0]->distribution);
+    }
+
     #[TestDox('excludes a top-level sibling root-ambient context from a nested element')]
     public function testNestedDoesNotReceiveRootAmbient(): void
     {

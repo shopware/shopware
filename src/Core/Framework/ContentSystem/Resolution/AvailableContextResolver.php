@@ -86,7 +86,7 @@ class AvailableContextResolver
             }
 
             $exposed[] = new ProvidedContext(
-                contextKey: (string) $contextKey,
+                contextKey: $provider->distributionConfig->getConsumerAlias() ?? (string) $contextKey,
                 fqcn: $fqcn,
                 contextType: $provider->type,
                 providerElementId: $element->id,

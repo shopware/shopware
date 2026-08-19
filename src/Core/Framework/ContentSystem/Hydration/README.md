@@ -18,8 +18,6 @@ Data resolution MUST complete over the WHOLE forest before any distribution star
 
 In SKELETON mode no loader runs and no delivery is computed — the mint is handed an empty index and an empty loader-value map, and produces structure only. The traversal that shapes the tree is one code path in both modes.
 
-`ContentElementHydrator` and `DataContext/DataContextResolver` are the pre-split two-phase implementation. Neither is on the serving path any more; nothing but their DI registrations references them.
-
 ## Subdirectories
 
 - **[DataLoader/](DataLoader/README.md)** - Data fetching (`AbstractContentDataLoader` implementations)

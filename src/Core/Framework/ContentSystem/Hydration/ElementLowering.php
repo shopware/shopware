@@ -27,13 +27,12 @@ use Symfony\Component\HttpFoundation\Request;
  * there yet. That is why {@see ContextDeliveryResolver::resolve()} takes the loader values as an argument
  * rather than resolving them itself, and this class is what fills that argument.
  *
- * The data walk visits an element before the elements under it and descends slot by slot, which is the order
- * {@see ContentElementHydrator}'s own loading walk runs in. What that order buys is narrower than it looks:
+ * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
+ * each slot's children load in declaration order. What that order buys is narrower than it looks:
  * {@see RenderingCacheContext::disable()} is an irreversible flag and {@see RenderingCacheContext::addTags()}
  * dedupes, so neither the disabled state nor the tag SET depends on it — only the tag list's first-occurrence
- * order does, along with whatever order a loader's own side effects are sensitive to. The order is kept
- * because reordering loads is a change this split has no reason to make, not because the module's own output
- * would otherwise differ.
+ * order does, along with whatever order a loader's own side effects are sensitive to. Those two are what the
+ * order is fixed for; nothing else in the module's output depends on it.
  *
  * @internal
  */

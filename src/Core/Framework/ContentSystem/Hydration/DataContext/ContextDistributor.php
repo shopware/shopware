@@ -15,9 +15,9 @@ use Shopware\Core\Framework\Struct\Struct;
  * parent and the children it already has, it computes what each of them receives and returns that. Whoever
  * owns the traversal calls this per parent.
  *
- * This is {@see ContextResolutionVisitor} lifted off the mutable model — same providers, same consumer
- * matching, same five distribution strategies, same throws — but it returns
- * {@see ContextDelivery}s instead of writing into the children.
+ * It writes into no child: the providers, the consumer matching, the five distribution strategies and the
+ * throws all resolve here, and what each child is to receive comes back as a {@see ContextDelivery} for the
+ * caller to mint from.
  *
  * Order decides two things, and both come from the arguments rather than from anything derived here:
  *
@@ -26,8 +26,9 @@ use Shopware\Core\Framework\Struct\Struct;
  *   provider that throws stops the round, so provider order is also throw order.
  * - Consumer order is the order of `$children`. An indexed or sliced strategy hands out positions against
  *   the pool of matching children in exactly that sequence, so the caller flattening slots in a different
- *   order changes which child gets which item. The caller owns that ordering — pass children in
- *   slot-then-index order to reproduce the live path.
+ *   order changes which child gets which item. The caller owns that ordering — the serving path passes
+ *   children in slot-then-index order, which {@see ContextDeliveryResolver::childrenInDeliveryOrder()}
+ *   produces.
  *
  * @internal
  */

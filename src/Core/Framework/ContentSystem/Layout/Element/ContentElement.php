@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -231,35 +230,6 @@ class ContentElement extends Struct
     public function setContextDefinitions(ContextDefinitions $contextDefinitions): void
     {
         $this->contextDefinitions = $contextDefinitions;
-    }
-
-    public function acceptsContext(string $key, ContextPathResolver $pathResolver): bool
-    {
-        $acceptedKeys = array_keys($this->contextDefinitions->getAllConsumers());
-
-        foreach ($acceptedKeys as $acceptedKey) {
-            if ($pathResolver->matches($key, $acceptedKey)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return array<ContentElement>
-     */
-    public function collectConsumers(string $contextKey, ContextPathResolver $pathResolver): array
-    {
-        $consumers = [];
-
-        foreach ($this->allSlotElements() as $child) {
-            if ($child->acceptsContext($contextKey, $pathResolver)) {
-                $consumers[] = $child;
-            }
-        }
-
-        return $consumers;
     }
 
     /**

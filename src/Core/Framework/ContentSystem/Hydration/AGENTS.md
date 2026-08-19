@@ -10,4 +10,3 @@
 - A requirement whose loader found nothing yields a PRESENT `null`; `RenderedElementFactory` reads the map with `array_key_exists`, so present-null renders as null while an absent key never renders at all
 - `ElementLowering::lower()` returns `list<RenderedElement>` and owns the mode split: SKELETON resolves no data, computes no deliveries, and mints from an empty index and an empty loader-value map
 - Uncacheable loader result disables page caching entirely via `RenderingCacheContext::disable()`
-- `ContentElementHydrator` and `DataContext/DataContextResolver` are off the serving path — only their DI registrations still reference them; do not extend them

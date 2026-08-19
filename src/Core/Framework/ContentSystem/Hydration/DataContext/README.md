@@ -9,8 +9,6 @@ Context resolution and distribution. Providers expose data as context, consumers
 - `ContextDeliveryIndex` / `ContextDelivery` - What every element of that forest received, by element id; computed once, read back afterwards
 - `ContextPathResolver` - Resolves dot-notation paths on Struct objects
 
-`DataContextResolver` and `ContextResolutionVisitor` are the pre-split implementation, which wrote context into mutable `ContentElement`s. Neither is on the serving path any more.
-
 ## Distribution
 
 `ContextDistributor` distributes context ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`acceptsContext` + `providesContext`). The forest walk is separate and belongs to `ContextDeliveryResolver`; it runs top-down, so a container that receives context and re-provides it distributes what it was given.

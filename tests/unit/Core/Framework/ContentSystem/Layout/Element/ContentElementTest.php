@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -174,43 +173,6 @@ class ContentElementTest extends TestCase
         );
     }
 
-    #[DataProvider('acceptsContextProvider')]
-    #[TestDox('returns $expected when checking if element accepts context key "$providerKey" with consumer "$consumerKey"')]
-    public function testAcceptsContextReturnsTrueForExactAndPrefixMatchFalseForUnrelated(
-        string $providerKey,
-        string $consumerKey,
-        bool $expected
-    ): void {
-        $element = ContentElementBuilder::create('test-component')
-            ->withConsumer($consumerKey, ContextType::Single)
-            ->build();
-
-        $pathResolver = new ContextPathResolver();
-
-        static::assertSame($expected, $element->acceptsContext($providerKey, $pathResolver));
-    }
-
-    #[TestDox('returns only direct children that accept the given context key')]
-    public function testCollectConsumersReturnsDirectChildrenMatchingContextKey(): void
-    {
-        $consumer = ContentElementBuilder::create('consumer-element')
-            ->withConsumer('product', ContextType::Single)
-            ->build();
-
-        $nonConsumer = ContentElementBuilder::create('non-consumer-element')
-            ->build();
-
-        $parent = ContentElementBuilder::create('parent')
-            ->withSlot('default', [$consumer, $nonConsumer])
-            ->build();
-
-        $pathResolver = new ContextPathResolver();
-        $result = $parent->collectConsumers('product', $pathResolver);
-
-        static::assertCount(1, $result);
-        static::assertSame($consumer, $result[0]);
-    }
-
     #[TestDox('merges struct and non-struct properties into properties key and excludes internal arrays')]
     public function testJsonSerializeExposesPropertiesKeyAndHidesInternalArrays(): void
     {
@@ -323,17 +285,6 @@ class ContentElementTest extends TestCase
         yield 'existing scalar property' => ['label', true];
         yield 'existing struct property' => ['myStruct', true];
         yield 'missing property' => ['nonexistent', false];
-    }
-
-    /**
-     * @return \Generator<string, array{string, string, bool}>
-     */
-    public static function acceptsContextProvider(): \Generator
-    {
-        yield 'exact key match returns true' => ['product', 'product', true];
-        yield 'prefix path match returns true' => ['product', 'product.cover', true];
-        yield 'unrelated key returns false' => ['product', 'category', false];
-        yield 'partial prefix without dot returns false' => ['product', 'productName', false];
     }
 
     private function buildElementWithMixedProperties(StubStruct $struct): ContentElement

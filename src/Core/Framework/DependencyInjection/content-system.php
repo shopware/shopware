@@ -39,11 +39,9 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
-use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
@@ -238,12 +236,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Config canonicalization for structural comparison (dedup hash, attribution reconciliation)
     $services->set(ConfigCanonicalizer::class);
 
-    // Data Context Resolution
-    $services->set(DataContextResolver::class)
-        ->args([
-            service(ContextPathResolver::class),
-        ]);
-
     // Context Path Resolver
     $services->set(ContextPathResolver::class);
 
@@ -266,13 +258,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Hydration Services
     $services->set(LoaderInputResolver::class);
-
-    $services->set(ContentElementHydrator::class)
-        ->args([
-            service(DataLoaderProvider::class),
-            service(LoaderInputResolver::class),
-            service(DataContextResolver::class),
-        ]);
 
     // Render Layers (stored forest -> rendered forest)
     $services->set(RenderedElementFactory::class)

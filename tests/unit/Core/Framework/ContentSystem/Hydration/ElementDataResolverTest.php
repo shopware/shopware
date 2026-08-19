@@ -68,9 +68,9 @@ class ElementDataResolverTest extends TestCase
     }
 
     /**
-     * The one deliberate difference from `ContentElementHydrator`, which writes nothing for a `notFound()`.
-     * The rendered side reads this map with `array_key_exists`, so an omitted key would render nothing at
-     * all while a present null renders as the null that means "a loader ran and found nothing".
+     * A `notFound()` writes its key rather than omitting it, which is deliberate. The rendered side reads
+     * this map with `array_key_exists`, so an omitted key would render nothing at all while a present null
+     * renders as the null that means "a loader ran and found nothing".
      */
     #[TestDox('carries an explicit null under the requirement key of a loader that found nothing')]
     public function testNotFoundYieldsAPresentNull(): void

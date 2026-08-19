@@ -15,20 +15,19 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Runs one {@see StoredElement}'s data requirements and hands back what they resolved to, keyed by
- * requirement key. This is the data-loading half of {@see ContentElementHydrator::hydrate()} lifted onto the
- * storage model: same provider, same input resolver, same cache-tag rule, but it returns values instead of
- * writing them into the element, so nothing it touches is mutable and the caller decides what the values
- * become. {@see RenderedElementFactory::create()} is that caller, and takes this map as its
+ * requirement key. It is the data-loading half of the render step and nothing more: it goes through the
+ * loader provider and the input resolver, applies the cache-tag rule below, and returns the values rather
+ * than writing them into the element, so nothing it touches is mutable and the caller decides what the
+ * values become. {@see RenderedElementFactory::create()} is that caller, and takes this map as its
  * `$resolvedLoaderValues`.
  *
  * Every requirement key appears in the returned map — with the loaded data when the loader found some, and
- * with `null` when it did not. That differs from the hydrator, which writes nothing for a
- * {@see ContentDataLoaderResult::notFound()}, and the difference is the point: on the rendered side a
- * present `null` means "a loader ran and found nothing" while an absent key means the property never
- * existed. The factory reads this map with `array_key_exists`, so a key omitted here is a property that
- * never renders and a key held here at `null` is one that renders as null.
+ * with `null` when it did not. A {@see ContentDataLoaderResult::notFound()} still writes its key, and that
+ * is the point: on the rendered side a present `null` means "a loader ran and found nothing" while an
+ * absent key means the property never existed. The factory reads this map with `array_key_exists`, so a key
+ * omitted here is a property that never renders and a key held here at `null` is one that renders as null.
  *
- * Cacheability propagates exactly as it does today: a result that is not cache-aware disables the
+ * Cacheability propagates as follows: a result that is not cache-aware disables the
  * {@see RenderingCacheContext} and contributes no tags, and any other result adds its tags. `disable()` is
  * irreversible by design, so a later cache-aware requirement adds its tags without lifting the disable.
  *

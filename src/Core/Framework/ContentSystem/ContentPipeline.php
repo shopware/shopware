@@ -239,7 +239,7 @@ class ContentPipeline
      *
      * The provider is keyed by the property the consumer actually writes its received value to
      * (`propertyAlias ?? contextKey`), because a provider's key is the property
-     * {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextResolutionVisitor} reads the
+     * {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDistributor} reads the
      * value from. The name children receive it under is a separate concern, carried by the broadcast
      * config's `consumerAlias` — the same selection mechanism an authored provider uses. Keying the
      * provider by `consumerAlias` instead would name a property the element never wrote, so a chained

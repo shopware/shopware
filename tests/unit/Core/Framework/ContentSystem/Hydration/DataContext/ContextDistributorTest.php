@@ -23,10 +23,9 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 
 /**
- * The expectations here are taken from `ContextResolutionVisitorTest`, which pins the live implementation,
- * so the two are demonstrably the same rule. Where that file asserts presence and value separately through
- * `hasProperty()` plus `assertNull()`, this one asserts the whole delivered map with `assertSame` — which
- * states presence, absence and value in one expression, and is the distinction the whole module turns on.
+ * Every expectation here asserts the whole delivered map with `assertSame` rather than checking presence and
+ * value separately: one expression then states presence, absence and value together, and the difference
+ * between a delivered null and a key that was never delivered is the distinction the whole module turns on.
  *
  * @internal
  */

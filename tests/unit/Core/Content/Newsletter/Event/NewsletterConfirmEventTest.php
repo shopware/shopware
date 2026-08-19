@@ -27,8 +27,7 @@ class NewsletterConfirmEventTest extends TestCase
 
         static::assertSame(['jane@example.com' => 'Jane Doe'], $event->getMailStruct()->getRecipients());
 
-        // the struct is a snapshot taken on first access: later recipient
-        // changes must not leak into it
+        // the struct is a snapshot taken on first access: later recipient changes must not leak into it
         $recipient->setFirstName('Changed');
 
         static::assertSame(['jane@example.com' => 'Jane Doe'], $event->getMailStruct()->getRecipients());

@@ -90,7 +90,12 @@
 
             <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
             <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
-            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
+            <!-- Static-analysis tooling; the Danger rules stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze/PHPStan</directory>
+            <file>src/Core/DevOps/StaticAnalyze/StaticAnalyzeKernel.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/console-application.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
             <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
 
             <directory suffix="Definition.php">src/Storefront/Checkout</directory>
@@ -131,7 +136,8 @@
 
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <!-- Only the test fixtures under DevOps/Test; the tooling classes stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Migration/Traits</directory>

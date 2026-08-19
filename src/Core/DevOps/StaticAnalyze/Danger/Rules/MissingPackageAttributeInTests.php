@@ -123,7 +123,7 @@ class MissingPackageAttributeInTests
         foreach ($srcFiles as $srcFile) {
             $package = $this->extractPackage($srcFile->getContents());
             if ($package !== null) {
-                ++$votes[$package];
+                $votes[$package] = ($votes[$package] ?? 0) + 1;
             }
         }
 

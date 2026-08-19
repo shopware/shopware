@@ -340,6 +340,45 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
     });
 
+    it('should immediately show the data grid when a calculation type is selected, without saving', async () => {
+        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+            id: '12345',
+            prices: [
+                {
+                    id: 'a1',
+                    ruleId: null,
+                    quantityStart: 0,
+                    quantityEnd: null,
+                    shippingMethodId: 123,
+                    calculation: null,
+                    calculationRuleId: null,
+                    currencyPrice: [
+                        {
+                            currencyId: 'euro',
+                            gross: 0,
+                            net: 0,
+                            linked: false,
+                        },
+                    ],
+                },
+            ],
+        });
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const matrix = wrapper.findComponent('.sw-settings-shipping-price-matrix');
+
+        expect(matrix.find('.sw-settings-shipping-price-matrix__empty').exists()).toBe(true);
+        expect(matrix.findComponent('.sw-data-grid').exists()).toBe(false);
+
+        matrix.vm.onCalculationChange(3);
+        await flushPromises();
+
+        expect(matrix.findComponent('.sw-data-grid').exists()).toBe(true);
+        expect(matrix.find('.sw-settings-shipping-price-matrix__empty').exists()).toBe(false);
+    });
+
     it('should set quantityStart to 0 when creating a new price group', async () => {
         const wrapper = await createWrapper();
         const shippingMethod = {

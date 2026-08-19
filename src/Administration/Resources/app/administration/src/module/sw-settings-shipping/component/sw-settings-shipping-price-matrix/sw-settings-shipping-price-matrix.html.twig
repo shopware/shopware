@@ -234,7 +234,7 @@
 
     {% block sw_settings_shipping_price_matrix_empty %}
     <div
-        v-else
+        v-if="!showDataGrid"
         class="sw-settings-shipping-price-matrix__empty"
     >
         {% block sw_settings_shipping_price_matrix_empty_text %}
@@ -250,7 +250,7 @@
             <sw-single-select
                 class="sw-settings-shipping-price-matrix__empty--select-property"
                 :options="calculationTypes"
-                :value="priceGroup.calculation"
+                :value="currentCalculation"
                 :disabled="disabled"
                 size="small"
                 show-clearable-button

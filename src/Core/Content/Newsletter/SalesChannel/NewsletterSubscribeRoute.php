@@ -122,6 +122,8 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
+    // Decorators that do not override this method inherit a signature without a default, and the
+    // route then fails with "Could not resolve argument $validateStorefrontUrl".
     #[Route(
         path: '/store-api/newsletter/subscribe',
         name: 'store-api.newsletter.subscribe',

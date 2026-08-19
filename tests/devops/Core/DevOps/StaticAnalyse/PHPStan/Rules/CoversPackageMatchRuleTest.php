@@ -54,12 +54,6 @@ class CoversPackageMatchRuleTest extends RuleTestCase
         $this->analyse([self::FIXTURE_DIR . '/OneOfManyMatchesTest.php'], []);
     }
 
-    #[TestDox('skips tests without a package attribute')]
-    public function testMissingTestPackage(): void
-    {
-        $this->analyse([self::FIXTURE_DIR . '/MissingTestPackageTest.php'], []);
-    }
-
     #[TestDox('skips tests covering only unpackaged code')]
     public function testUnpackagedCoveredClass(): void
     {

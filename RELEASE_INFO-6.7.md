@@ -99,6 +99,12 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
 
+### Sales channel language list validation compares against the incoming default language
+
+Assigning a new `languageId` to a sales channel and removing the previous default language from its `languages` list in the same write is now accepted. It previously failed with `SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID`, and the two steps had to be sent as separate requests.
+
+Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
+
 ## Core
 
 ### E-invoice line positions state the correct price base quantity

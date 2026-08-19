@@ -29,7 +29,7 @@ class FormController extends StorefrontController
 {
     final public const SUBSCRIBE = 'subscribe';
     /**
-     * @deprecated tag:v6.8.0 - Will be removed with the next major.
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
      */
     final public const UNSUBSCRIBE = 'unsubscribe';
 

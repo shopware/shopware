@@ -83,7 +83,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 
         $data = $dataBag->only('email');
 
-        if (empty($data['email']) || !\is_string($data['email'])) {
+        if (!isset($data['email']) || !\is_string($data['email']) || $data['email'] === '') {
             throw NewsletterException::missingEmailParameter();
         }
 

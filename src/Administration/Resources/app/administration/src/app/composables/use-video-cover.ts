@@ -26,10 +26,6 @@ export interface UseVideoCoverOptions {
     item: () => VideoCoverMedia | null | undefined;
 }
 
-type MediaService = {
-    assignVideoCover: (videoId: string, coverMediaId: string | null) => Promise<unknown>;
-};
-
 /**
  * Composable alternative to the `video-cover` mixin: assigns and removes the poster image of a video
  * media item. The mixin stays in place for Options API components.
@@ -108,7 +104,7 @@ export default function useVideoCover(options: UseVideoCoverOptions): {
         item.isLoading = true;
 
         try {
-            await (Shopware.Service('mediaService') as MediaService).assignVideoCover(item.id, coverMediaId);
+            await Shopware.Service('mediaService').assignVideoCover(item.id, coverMediaId);
 
             const snippetKey = coverMediaId
                 ? 'global.sw-media-media-item.notification.coverSaveSuccess.message'

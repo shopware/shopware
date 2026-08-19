@@ -841,7 +841,9 @@ class EntityReader implements EntityReaderInterface
         $collectionClass = $referenceClass->getCollectionClass();
 
         if ($ids !== []) {
-            $criteria->setIds($ids);
+            if ($criteria->getIds() === []) {
+                $criteria->setIds($ids);
+            }
 
             $data = $this->_read(
                 $criteria,
@@ -1044,7 +1046,9 @@ class EntityReader implements EntityReaderInterface
         if ($ids !== []) {
             // only read data when we have found mapped IDs
             // otherwise we would load the whole reference table
-            $fieldCriteria->setIds($ids);
+            if ($fieldCriteria->getIds() === []) {
+                $fieldCriteria->setIds($ids);
+            }
 
             $data = $this->_read(
                 $fieldCriteria,

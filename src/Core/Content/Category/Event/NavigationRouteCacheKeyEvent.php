@@ -59,6 +59,11 @@ class NavigationRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 
     public function getDepth(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->depth;
     }
 }

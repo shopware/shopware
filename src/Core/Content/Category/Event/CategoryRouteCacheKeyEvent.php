@@ -27,6 +27,11 @@ class CategoryRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
         SalesChannelContext $context,
         ?Criteria $criteria
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         parent::__construct($parts, $request, $context, $criteria);
     }
 

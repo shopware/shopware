@@ -25,9 +25,7 @@ class NewsletterRegisterEventTest extends TestCase
 
         $event = new NewsletterRegisterEvent(Context::createDefaultContext(), $recipient, 'https://shop.example/confirm', 'sales-channel-id');
 
-        $mailStruct = $event->getMailStruct();
-
-        static::assertSame(['jane@example.com' => 'Jane Doe'], $mailStruct->getRecipients());
+        static::assertSame(['jane@example.com' => 'Jane Doe'], $event->getMailStruct()->getRecipients());
 
         // the struct is a snapshot taken on first access: later recipient
         // changes must not leak into it

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Hydration\DataContext;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
@@ -34,6 +35,19 @@ final readonly class ContextDeliveryIndex
     public function has(string $elementId): bool
     {
         return \array_key_exists($elementId, $this->deliveries);
+    }
+
+    /**
+     * Throws rather than answering "received nothing" for an id it does not know, because those are
+     * different facts and only one of them is a bug. An element of the forest that received nothing has an
+     * entry holding an empty {@see ContextDelivery}; an id with no entry at all did not come from this
+     * forest, which means the caller is rendering a tree this index was not built from.
+     *
+     * @throws ContentSystemException
+     */
+    public function deliveryFor(string $elementId): ContextDelivery
+    {
+        return $this->deliveries[$elementId] ?? throw ContentSystemException::contextDeliveryMissing($elementId);
     }
 
     /**

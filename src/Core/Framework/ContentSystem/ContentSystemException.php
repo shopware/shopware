@@ -26,6 +26,7 @@ class ContentSystemException extends HttpException
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
     public const ELEMENT_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_NOT_FOUND';
+    public const CONTEXT_DELIVERY_MISSING = 'CONTENT_SYSTEM__CONTEXT_DELIVERY_MISSING';
     public const NO_FACTORY_CAN_HANDLE = 'CONTENT_SYSTEM__NO_FACTORY_CAN_HANDLE';
     public const INVALID_ENTITY_PATH = 'CONTENT_SYSTEM__INVALID_ENTITY_PATH';
     public const CONTEXT_PATH_NOT_RESOLVABLE = 'CONTENT_SYSTEM__CONTEXT_PATH_NOT_RESOLVABLE';
@@ -253,6 +254,22 @@ class ContentSystemException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::ELEMENT_NOT_FOUND,
             'Element with ID "{{ elementId }}" not found in layout',
+            ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * An internal fault, never client input: a context delivery index is total over the forest it was built
+     * from, so a missing element id means the index and the tree being rendered came from different forests.
+     * Deliberately not a 404 and deliberately absent from {@see self::CLIENT_DEFECT_CODES} — no layout a
+     * client can send produces this.
+     */
+    public static function contextDeliveryMissing(string $elementId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTEXT_DELIVERY_MISSING,
+            'No context delivery recorded for element "{{ elementId }}"; the delivery index was built from a different forest',
             ['elementId' => $elementId]
         );
     }

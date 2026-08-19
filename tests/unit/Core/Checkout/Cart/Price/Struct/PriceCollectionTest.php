@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -183,5 +184,59 @@ class PriceCollectionTest extends TestCase
         $collection->remove(1);
         static::assertNull($collection->get(0));
         static::assertNull($collection->get(1));
+    }
+
+    public function testGetTaxRulesMergesTheRulesOfAllPrices(): void
+    {
+        $collection = new PriceCollection([
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection([new TaxRule(19)])),
+            new CalculatedPrice(20, 20, new CalculatedTaxCollection(), new TaxRuleCollection([new TaxRule(7)])),
+        ]);
+
+        $rates = array_map(static fn (TaxRule $rule) => $rule->getTaxRate(), array_values($collection->getTaxRules()->getElements()));
+
+        static::assertSame([19.0, 7.0], $rates);
+    }
+
+    public function testGetHighestTaxRuleReturnsTheHighestRateAtFullPercentage(): void
+    {
+        $collection = new PriceCollection([
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection([new TaxRule(7)])),
+            new CalculatedPrice(20, 20, new CalculatedTaxCollection(), new TaxRuleCollection([new TaxRule(19, 50)])),
+        ]);
+
+        $highest = $collection->getHighestTaxRule();
+
+        static::assertCount(1, $highest);
+        $rule = $highest->first();
+        static::assertInstanceOf(TaxRule::class, $rule);
+        static::assertSame(19.0, $rule->getTaxRate());
+        static::assertSame(100.0, $rule->getPercentage());
+    }
+
+    public function testGetHighestTaxRuleIsEmptyWithoutPrices(): void
+    {
+        static::assertCount(0, (new PriceCollection())->getHighestTaxRule());
+    }
+
+    public function testMergeCombinesTwoCollectionsIntoANewOne(): void
+    {
+        $collection = new PriceCollection([
+            new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]);
+        $other = new PriceCollection([
+            new CalculatedPrice(20, 20, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]);
+
+        $merged = $collection->merge($other);
+
+        static::assertCount(2, $merged);
+        static::assertNotSame($collection, $merged);
+        static::assertSame(30.0, $merged->sum()->getTotalPrice());
+    }
+
+    public function testApiAlias(): void
+    {
+        static::assertSame('cart_price_collection', (new PriceCollection())->getApiAlias());
     }
 }

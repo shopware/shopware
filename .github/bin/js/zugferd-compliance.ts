@@ -12,11 +12,25 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 
+type Finding = { code: string; level: string; text: string };
+
+type ReportAssessment = { rejected: boolean; findings: Finding[] };
+
+type DocumentResult = { label: string; compliant: boolean; findings: Finding[] };
+
 const KOSIT_VALIDATOR_VERSION = "1.6.2";
 const KOSIT_VALIDATOR_JAR_SHA256 = "244978514ad48f67c7573acfffc8f4fd73d81feda6f276710033f9913579857e";
 const KOSIT_VALIDATOR_JAR_URL = `https://github.com/itplr-kosit/validator/releases/download/v${KOSIT_VALIDATOR_VERSION}/validator-${KOSIT_VALIDATOR_VERSION}-standalone.jar`;
 const KOSIT_CONFIG_RELEASES_API = "https://api.github.com/repos/itplr-kosit/validator-configuration-xrechnung/releases/latest";
 const KOSIT_USAGE_ERROR_EXIT = 254;
+
+const DATE_TOKEN = "[date]";
+const DATE_REPLACEMENT = "20240101";
+
+const ADVISORY_LEVELS = ["information"];
+
+// Findings appear as <rep:message id="…" level="warning" code="PEPPOL-EN16931-R120" …>text</rep:message>.
+const MESSAGE_PATTERN = /<(?:[\w.-]+:)?message\b([^>]*)>([\s\S]*?)<\/(?:[\w.-]+:)?message>/gi;
 
 const SNAPSHOT_DIRS = [
     {
@@ -29,10 +43,13 @@ const SNAPSHOT_DIRS = [
     },
 ];
 
-const DATE_TOKEN = "[date]";
-const DATE_REPLACEMENT = "20240101";
+export function isViolation(finding: Finding): boolean {
+    return !ADVISORY_LEVELS.includes(finding.level);
+}
 
-type DocumentResult = { label: string; compliant: boolean };
+function attribute(attributes: string, name: string): string {
+    return new RegExp(`\\b${name}="([^"]*)"`).exec(attributes)?.[1] ?? "";
+}
 
 function log(message: string): void {
     process.stdout.write(`${message}\n`);
@@ -40,6 +57,21 @@ function log(message: string): void {
 
 function sha256(file: string): string {
     return createHash("sha256").update(readFileSync(file)).digest("hex");
+}
+
+export function assessReport(reportXml: string): ReportAssessment {
+    const findings = [...reportXml.matchAll(MESSAGE_PATTERN)].map(
+        ([, attributes, text]) => ({
+            code: attribute(attributes, "code"),
+            level: attribute(attributes, "level"),
+            text: text.trim(),
+        }),
+    );
+
+    return {
+        rejected: /<(?:[\w.-]+:)?reject[\s/>]/i.test(reportXml),
+        findings,
+    };
 }
 
 async function downloadToFile(
@@ -221,12 +253,14 @@ function runValidator(
 function collectResults(reportDir: string): DocumentResult[] {
     return findFiles(reportDir, (name) => name.endsWith("-report.xml"))
         .map((report) => {
-            const content = readFileSync(report, "utf8");
-            const rejected = /<(?:[\w.-]+:)?reject[\s/>]/i.test(content);
+            const { rejected, findings } = assessReport(
+                readFileSync(report, "utf8"),
+            );
 
             return {
                 label: basename(report, "-report.xml").replace("__", " / "),
-                compliant: !rejected,
+                compliant: !rejected && !findings.some(isViolation),
+                findings,
             };
         })
         .sort((first, second) => first.label.localeCompare(second.label));
@@ -250,6 +284,15 @@ function buildSummary(
         )
         .join("\n");
 
+    const findingLines = results
+        .filter((result) => !result.compliant)
+        .flatMap((result) =>
+            result.findings.map(
+                (finding) =>
+                    `- ${result.label}: [${finding.level}] ${finding.code} — ${finding.text}`,
+            ),
+        );
+
     return [
         "## ZUGFeRD compliance",
         "",
@@ -260,6 +303,7 @@ function buildSummary(
         "| Document | Result |",
         "| --- | --- |",
         rows,
+        ...(findingLines.length > 0 ? ["", "### Findings", "", ...findingLines] : []),
     ].join("\n");
 }
 
@@ -327,6 +371,10 @@ async function main(): Promise<void> {
 
     for (const result of results) {
         log(`  ${result.compliant ? "PASS" : "FAIL"}  ${result.label}`);
+
+        for (const finding of result.findings) {
+            log(`        [${finding.level}] ${finding.code}: ${finding.text}`);
+        }
     }
 
     log("");
@@ -340,7 +388,15 @@ async function main(): Promise<void> {
     setStepOutput("failed_count", String(failed.length));
     setStepOutput(
         "failed_documents",
-        failed.map((result) => `- ${result.label}`).join("\n"),
+        failed
+            .map((result) => {
+                const codes = [
+                    ...new Set(result.findings.map((finding) => finding.code)),
+                ];
+
+                return `- ${result.label}${codes.length > 0 ? ` (${codes.join(", ")})` : ""}`;
+            })
+            .join("\n"),
     );
 
     if (failed.length === 0) {

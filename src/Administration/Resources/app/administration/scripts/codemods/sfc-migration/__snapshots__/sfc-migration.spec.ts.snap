@@ -335,6 +335,55 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-object-prototype-member 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "unmapped this.hasOwnProperty",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_object_prototype_member">
+        <div class="sw-object-prototype-member">
+            {{ mapped }}
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+const readOwn = function (key) {
+    return this.hasOwnProperty(key) ? mapping.value[key] : null;
+};
+
+const mapped = computed(
+    // \`hasOwnProperty\` and \`constructor\` resolve on Object.prototype, so a table lookup keyed by
+    // this name finds an inherited value unless the table has a null prototype.
+    function () {
+        return Object.prototype.hasOwnProperty.call(mapping.value, 'key');
+    },
+);
+
+const mapping = ref({});
+
+// TODO(sfc-migration): unmapped this.hasOwnProperty
+
+swDefinePublic({
+    mapping,
+    mapped,
+    readOwn,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-partial-todos 1`] = `
 {
   "outcome": "partial",

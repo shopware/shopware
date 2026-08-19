@@ -20,10 +20,19 @@ type TodoEntry = { reason: string; code?: string };
 /** The two ways the codemod says "I could not convert this": refuse the component, or leave a note. */
 type ReportKind = 'skip' | 'todo';
 
+/**
+ * A lookup table keyed by names read out of component source. The null prototype is what makes the
+ * lookup safe: a member or option called `constructor`, `hasOwnProperty`, `toString`, … would
+ * otherwise resolve to `Object.prototype`'s and be taken for a table entry.
+ */
+function sourceKeyed<T>(entries: Record<string, T>): Record<string, T> {
+    return Object.assign(Object.create(null) as Record<string, T>, entries);
+}
+
 // Tier for options no handler claims: 'skip' makes the whole component non-migratable, 'todo' keeps
 // the option as a comment. Anything absent from this table and unclaimed is an unknown option — also
 // a TODO, but under a different reason (see classifyOptions).
-const OPTION_TIERS: Record<string, ReportKind> = {
+const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
     mixins: 'skip',
     render: 'skip',
     renderError: 'skip',
@@ -43,7 +52,7 @@ const OPTION_TIERS: Record<string, ReportKind> = {
     beforeRouteEnter: 'todo',
     beforeRouteLeave: 'todo',
     beforeRouteUpdate: 'todo',
-};
+});
 
 // `this.$super` / `this.$parent` are structural — the component is skipped entirely.
 const SKIP_INSTANCE_PROPS = new Set([
@@ -52,7 +61,10 @@ const SKIP_INSTANCE_PROPS = new Set([
 ]);
 
 // `this.$xyz` → replacement identifier; `helper` requests the matching setup declaration/import.
-const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName }> = {
+const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName }> = sourceKeyed<{
+    replacement: string;
+    helper?: HelperName;
+}>({
     $t: { replacement: 't', helper: 't' },
     $tc: { replacement: 't', helper: 't' },
     $emit: { replacement: 'emit', helper: 'emit' },
@@ -62,7 +74,7 @@ const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName 
     $nextTick: { replacement: 'nextTick', helper: 'nextTick' },
     $slots: { replacement: 'slots', helper: 'slots' },
     $attrs: { replacement: 'attrs', helper: 'attrs' },
-};
+});
 
 const HELPER_SETUP_LINES: Record<HelperName, string | null> = {
     t: 'const { t } = useI18n();',
@@ -75,7 +87,7 @@ const HELPER_SETUP_LINES: Record<HelperName, string | null> = {
     props: null,
 };
 
-const LIFECYCLE_HOOKS: Record<string, string> = {
+const LIFECYCLE_HOOKS: Record<string, string> = sourceKeyed<string>({
     beforeMount: 'onBeforeMount',
     mounted: 'onMounted',
     beforeUpdate: 'onBeforeUpdate',
@@ -86,7 +98,7 @@ const LIFECYCLE_HOOKS: Record<string, string> = {
     destroyed: 'onUnmounted',
     activated: 'onActivated',
     deactivated: 'onDeactivated',
-};
+});
 
 // Top-level binding names the Shopware setup transform reserves or that would shadow a generated
 // helper. Producing one of these is a hard skip.
@@ -103,6 +115,7 @@ const GENERATED_HELPER_NAMES = new Set([
 ]);
 
 export {
+    sourceKeyed,
     type MemberKind,
     type HelperName,
     type TodoEntry,

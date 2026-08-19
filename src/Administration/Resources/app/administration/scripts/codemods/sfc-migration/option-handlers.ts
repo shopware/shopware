@@ -19,7 +19,7 @@
 
 import { traverseFast } from '@babel/types';
 import type * as t from '@babel/types';
-import { LIFECYCLE_HOOKS, OPTION_TIERS } from './tables';
+import { LIFECYCLE_HOOKS, OPTION_TIERS, sourceKeyed } from './tables';
 import { type Ctx, type FnLike, IDENTIFIER, arrowText, asFunction, keyName, raw, report, snip } from './ast';
 
 /** A collected `computed` / `methods` member, rendered by `renderMember()` after the rewrite pass. */
@@ -162,7 +162,7 @@ function handleLifecycleHook(prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, 
     }
 }
 
-const OPTION_HANDLERS: Record<string, OptionHandler> = {
+const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler>({
     // The template option is replaced by the SFC's own <template> section.
     template: () => {},
 
@@ -347,7 +347,7 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = {
             report(ctx, 'todo', 'created is not a plain function', prop);
         }
     },
-};
+});
 
 /** Classifies every top-level option into the collected state or a report. */
 function classifyOptions(ctx: Ctx, options: t.ObjectExpression): Collected {

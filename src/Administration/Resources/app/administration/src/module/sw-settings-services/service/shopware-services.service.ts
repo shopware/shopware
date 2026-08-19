@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 import type SystemConfigApiService from 'src/core/service/api/system-config.api.service';
@@ -45,7 +45,7 @@ export type CategorizedPermissions = { [key: string]: Array<{ entity: string; op
  */
 export default class ShopwareServicesService extends ApiService {
     constructor(
-        httpClient: AxiosInstance,
+        httpClient: HttpClient,
         loginService: LoginService,
         private readonly systemConfigService: SystemConfigApiService,
     ) {

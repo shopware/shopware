@@ -123,7 +123,7 @@ export default Component.wrapComponentConfig({
         documentTypeOptions(): { label: string; value: string }[] {
             return this.documentTypes.map((documentType) => {
                 return {
-                    label: documentType.translated?.name ?? '',
+                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(documentType.technicalName)),
                     value: documentType.id,
                 };
             });

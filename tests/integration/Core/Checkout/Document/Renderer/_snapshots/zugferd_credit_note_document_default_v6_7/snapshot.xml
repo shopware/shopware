@@ -25,7 +25,7 @@
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
-          <ram:ChargeAmount>93.46</ram:ChargeAmount>
+          <ram:ChargeAmount>93.4600</ram:ChargeAmount>
           <ram:BasisQuantity unitCode="H87">1.00</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
@@ -86,7 +86,13 @@
         </ram:URIUniversalCommunication>
       </ram:BuyerTradeParty>
     </ram:ApplicableHeaderTradeAgreement>
-    <ram:ApplicableHeaderTradeDelivery/>
+    <ram:ApplicableHeaderTradeDelivery>
+      <ram:ActualDeliverySupplyChainEvent>
+        <ram:OccurrenceDateTime>
+          <udt:DateTimeString format="102">[date]</udt:DateTimeString>
+        </ram:OccurrenceDateTime>
+      </ram:ActualDeliverySupplyChainEvent>
+    </ram:ApplicableHeaderTradeDelivery>
     <ram:ApplicableHeaderTradeSettlement>
       <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
       <ram:SpecifiedTradeSettlementPaymentMeans>

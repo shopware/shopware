@@ -77,6 +77,7 @@ class AppException extends HttpException
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
+    final public const CAPABILITY_NOT_GRANTED = 'FRAMEWORK__APP_CAPABILITY_NOT_GRANTED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -578,6 +579,16 @@ class AppException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::INTEGRATION_MISSING,
             'Forbidden. Not a valid integration source.',
+        );
+    }
+
+    public static function capabilityNotGranted(string $appName, string $permission): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CAPABILITY_NOT_GRANTED,
+            'App "{{ appName }}" has not been granted the "{{ permission }}" permission.',
+            ['appName' => $appName, 'permission' => $permission]
         );
     }
 

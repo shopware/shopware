@@ -135,6 +135,19 @@ export default {
             return criteria;
         },
 
+        priceBasisOptions() {
+            return [
+                {
+                    value: null,
+                    label: this.$t('sw-settings-customer-group.detail.fieldPriceBasisOptionDisplayMode'),
+                },
+                {
+                    value: 'net',
+                    label: this.$t('sw-settings-customer-group.detail.fieldPriceBasisOptionNet'),
+                },
+            ];
+        },
+
         entityDescription() {
             return this.placeholder(
                 this.customerGroup,

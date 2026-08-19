@@ -13,6 +13,7 @@ const customerGroupRepository = {
             id: '',
             name: '',
             displayGross: false,
+            priceBasis: null,
             isNew: () => true,
         };
     },
@@ -22,6 +23,7 @@ const customerGroupRepository = {
             id: '1',
             name: 'Net price customer group',
             displayGross: false,
+            priceBasis: null,
             registrationActive: true,
             registrationTitle: 'Foobar',
             registrationSalesChannels: new EntityCollection(
@@ -119,6 +121,7 @@ async function createWrapper(privileges = []) {
                     'sw-button-process': true,
 
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
@@ -298,6 +301,70 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 message: 'CTRL + S',
                 appearance: 'light',
             });
+        });
+    });
+
+    describe('price basis', () => {
+        let wrapper;
+
+        beforeEach(async () => {
+            wrapper = await createWrapper(['customer_groups.editor']);
+            await flushPromises();
+        });
+
+        it('should render the price basis select', async () => {
+            const priceBasis = wrapper.find('.sw-settings-customer-group-detail__price-basis');
+
+            expect(priceBasis.exists()).toBe(true);
+            expect(wrapper.vm.priceBasisOptions).toEqual([
+                {
+                    value: null,
+                    label: 'sw-settings-customer-group.detail.fieldPriceBasisOptionDisplayMode',
+                },
+                {
+                    value: 'net',
+                    label: 'sw-settings-customer-group.detail.fieldPriceBasisOptionNet',
+                },
+            ]);
+        });
+
+        it('should preselect the display mode option', async () => {
+            const priceBasis = wrapper.find('.sw-settings-customer-group-detail__price-basis');
+
+            expect(wrapper.vm.customerGroup.priceBasis).toBeNull();
+            expect(priceBasis.find('.sw-single-select__selection-text').text()).toBe(
+                'sw-settings-customer-group.detail.fieldPriceBasisOptionDisplayMode',
+            );
+        });
+
+        it('should offer exactly the display mode and the net option', async () => {
+            const priceBasis = wrapper.find('.sw-settings-customer-group-detail__price-basis');
+            await priceBasis.find('.sw-select__selection').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.findAll('.sw-select-result')).toHaveLength(2);
+            expect(wrapper.find('.sw-select-option--null').exists()).toBe(true);
+            expect(wrapper.find('.sw-select-option--net').exists()).toBe(true);
+        });
+
+        it('should write the selected price basis to the customer group', async () => {
+            const priceBasis = wrapper.find('.sw-settings-customer-group-detail__price-basis');
+            await priceBasis.find('.sw-select__selection').trigger('click');
+            await flushPromises();
+
+            await wrapper.find('.sw-select-option--net').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.vm.customerGroup.priceBasis).toBe('net');
+        });
+
+        it('should only be editable with edit permission', async () => {
+            expect(wrapper.find('.sw-settings-customer-group-detail__price-basis').classes()).not.toContain('is--disabled');
+
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-customer-group-detail__price-basis').classes()).toContain('is--disabled');
         });
     });
 

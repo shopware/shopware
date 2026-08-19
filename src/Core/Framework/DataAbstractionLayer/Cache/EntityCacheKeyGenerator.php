@@ -27,13 +27,32 @@ class EntityCacheKeyGenerator
     }
 
     /**
+     * @return string|null the fingerprint of the resolved tax rates, or null when the customer group defines no price basis
+     */
+    public static function buildTaxRuleFingerprint(SalesChannelContext $context): ?string
+    {
+        if ($context->getCurrentCustomerGroup()->getPriceBasis() === null) {
+            return null;
+        }
+
+        $rates = [];
+        foreach ($context->getTaxRules() as $tax) {
+            $rates[$tax->getId()] = $tax->getRules()?->first()?->getTaxRate() ?? $tax->getTaxRate();
+        }
+
+        ksort($rates);
+
+        return Hasher::hash($rates);
+    }
+
+    /**
      * @param string[] $areas
      */
     public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
     {
         $ruleIds = $context->getRuleIdsByAreas($areas);
 
-        return Hasher::hash([
+        $parts = [
             $context->getSalesChannelId(),
             $context->getDomainId(),
             $context->getLanguageIdChain(),
@@ -42,7 +61,14 @@ class EntityCacheKeyGenerator
             $context->getTaxState(),
             $context->getItemRounding(),
             $ruleIds,
-        ]);
+        ];
+
+        $taxRuleFingerprint = self::buildTaxRuleFingerprint($context);
+        if ($taxRuleFingerprint !== null) {
+            $parts[] = $taxRuleFingerprint;
+        }
+
+        return Hasher::hash($parts);
     }
 
     public function getCriteriaHash(Criteria $criteria): string

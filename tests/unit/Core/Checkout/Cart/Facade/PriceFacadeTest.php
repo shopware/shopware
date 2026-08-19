@@ -13,15 +13,18 @@ use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -44,7 +47,10 @@ class PriceFacadeTest extends TestCase
         $item = new LineItem('test', 'test', 'temp');
 
         $original = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $price = new PriceFacade($item, $original, static::createStub(ScriptPriceStubs::class), static::createStub(SalesChannelContext::class));
+        $stubs = static::createStub(ScriptPriceStubs::class);
+        $stubs->method('select')->willReturn(new SelectedPrice(2.0, isCalculated: true));
+
+        $price = new PriceFacade($item, $original, $stubs, static::createStub(SalesChannelContext::class));
 
         $price->change(new PriceCollection([
             new Price(Defaults::CURRENCY, 2, 2, false),
@@ -61,6 +67,7 @@ class PriceFacadeTest extends TestCase
         $item = new Entity();
         $original = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
         $stubs = static::createStub(ScriptPriceStubs::class);
+        $stubs->method('select')->willReturn(new SelectedPrice(2.0, isCalculated: true));
         $stubs->method('calculateQuantity')->willReturn(new CalculatedPrice(2, 2, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $price = new PriceFacade($item, $original, $stubs, static::createStub(SalesChannelContext::class));
@@ -200,7 +207,42 @@ class PriceFacadeTest extends TestCase
         yield 'Test net usd currency' => ['usd', CartPrice::TAX_STATE_NET, 9.0, 0.9];
     }
 
-    private function rampUpPriceFacade(IdsCollection $ids, string $currencyKey, string $taxState): PriceFacade
+    public function testChangeUsesTheStoredNetUnderANetPriceBasis(): void
+    {
+        $price = $this->rampUpPriceFacade(
+            new IdsCollection(['default' => Defaults::CURRENCY]),
+            'default',
+            CartPrice::TAX_STATE_GROSS,
+            CustomerGroupEntity::PRICE_BASIS_NET
+        );
+
+        $price->change(new PriceCollection([
+            new Price(Defaults::CURRENCY, 2, 5, false),
+        ]));
+
+        // 2.00 net grossed up with the 10% rate, the stored gross of 5.00 is ignored
+        static::assertSame(2.2, $price->getUnit());
+        static::assertSame(0.2, $price->getTaxes()->getAmount());
+    }
+
+    public function testPlusAddsTheDerivedGrossUnderANetPriceBasis(): void
+    {
+        $price = $this->rampUpPriceFacade(
+            new IdsCollection(['default' => Defaults::CURRENCY]),
+            'default',
+            CartPrice::TAX_STATE_GROSS,
+            CustomerGroupEntity::PRICE_BASIS_NET
+        );
+
+        $price->plus(new PriceCollection([
+            new Price(Defaults::CURRENCY, 2, 5, false),
+        ]));
+
+        // the 10.00 unit price plus the 2.20 gross derived from the 2.00 net
+        static::assertSame(12.2, $price->getUnit());
+    }
+
+    private function rampUpPriceFacade(IdsCollection $ids, string $currencyKey, string $taxState, ?string $priceBasis = null): PriceFacade
     {
         $entity = new Entity();
 
@@ -214,6 +256,7 @@ class PriceFacadeTest extends TestCase
             static::createStub(Connection::class),
             $quantityCalculator,
             new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder()),
+            new PriceSelector(),
         );
 
         $original = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(new TaxRuleCollection([new TaxRule(10)])));
@@ -227,6 +270,9 @@ class PriceFacadeTest extends TestCase
         // we also want to test different tax states (gross/net)
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
+        );
 
         return new PriceFacade($entity, $original, $stubs, $context);
     }

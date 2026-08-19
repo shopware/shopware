@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -103,6 +104,11 @@ class CacheHeadersService
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ];
+
+        $taxRuleFingerprint = EntityCacheKeyGenerator::buildTaxRuleFingerprint($context);
+        if ($taxRuleFingerprint !== null) {
+            $parts[HttpCacheCookieEvent::TAX_RULES] = $taxRuleFingerprint;
+        }
 
         // Storefront language is already encoded in the resolved domain URL, while Store API
         // can serve different languages for the same URL through the sw-language-id header.

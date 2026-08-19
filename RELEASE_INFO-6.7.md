@@ -10,6 +10,10 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 
 Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
 
+### Fixed net price basis per customer group
+
+Customer groups can now define a price basis (new nullable field `customer_group.priceBasis`, allowed value `net`) that decouples which stored product price value is authoritative from the gross/net display mode. With the basis set to `net` and gross display enabled, the stored net price is authoritative and gross prices are derived live per shipping country from the applicable tax rules, so merchants earn the same net amount regardless of the destination country's tax rate; manually maintained gross values are then not used for display or calculation (they remain the sorting/filtering key in listings). The default (unset) keeps the previous behavior in which the display mode decides the used price value. Plugins can decorate the new `Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector` to customize the selection, for example to apply charm-price rounding to derived gross prices. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+
 ## API
 
 ### Added new shop setting endpoint

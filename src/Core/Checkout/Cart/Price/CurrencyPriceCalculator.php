@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
@@ -20,7 +19,8 @@ class CurrencyPriceCalculator
      */
     public function __construct(
         private readonly QuantityPriceCalculator $priceCalculator,
-        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
+        private readonly AbstractPriceSelector $priceSelector
     ) {
     }
 
@@ -32,7 +32,8 @@ class CurrencyPriceCalculator
             throw CartException::invalidPriceDefinition();
         }
 
-        $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $currency->getGross() : $currency->getNet();
+        $selected = $this->priceSelector->select($currency, $context);
+        $value = $selected->getValue();
 
         if ($currency->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getCurrency()->getFactor();
@@ -40,6 +41,7 @@ class CurrencyPriceCalculator
 
         $taxRules = $this->percentageTaxRuleBuilder->buildCollectionRules($prices->getCalculatedTaxes(), $prices->getTotalPriceAmount());
         $definition = new QuantityPriceDefinition($value, $taxRules, $quantity);
+        $definition->setIsCalculated($selected->isCalculated());
 
         return $this->priceCalculator->calculate($definition, $context);
     }

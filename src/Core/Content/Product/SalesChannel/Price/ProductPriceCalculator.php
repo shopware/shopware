@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
+use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -39,6 +39,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         private readonly EntityRepository $unitRepository,
         private readonly QuantityPriceCalculator $calculator,
         private readonly ExtensionDispatcher $extensions,
+        private readonly AbstractPriceSelector $priceSelector,
     ) {
     }
 
@@ -197,7 +198,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $price = $this->getPriceValue($prices, $context);
 
         $taxId = $product->get('taxId');
-        $definition = new QuantityPriceDefinition($price, $context->buildTaxRules($taxId), $quantity);
+        $definition = new QuantityPriceDefinition($price->getValue(), $context->buildTaxRules($taxId), $quantity);
+        $definition->setIsCalculated($price->isCalculated());
         $definition->setReferencePriceDefinition(
             $this->buildReferencePriceDefinition($reference, $units)
         );
@@ -211,29 +213,23 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         return $definition;
     }
 
-    private function getPriceValue(PriceCollection $price, SalesChannelContext $context): float
+    private function getPriceValue(PriceCollection $price, SalesChannelContext $context): SelectedPrice
     {
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
         if ($currency === null) {
             throw ProductException::noPriceForCurrency($context->getCurrency());
         }
 
-        $value = $this->getPriceForTaxState($currency, $context);
+        $selected = $this->priceSelector->select($currency, $context);
 
         if ($currency->getCurrencyId() !== $context->getCurrencyId()) {
-            $value *= $context->getContext()->getCurrencyFactor();
+            return new SelectedPrice(
+                $selected->getValue() * $context->getContext()->getCurrencyFactor(),
+                $selected->isCalculated()
+            );
         }
 
-        return $value;
-    }
-
-    private function getPriceForTaxState(Price $price, SalesChannelContext $context): float
-    {
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            return $price->getGross();
-        }
-
-        return $price->getNet();
+        return $selected;
     }
 
     private function getListPrice(PriceCollection $prices, SalesChannelContext $context): ?float
@@ -243,7 +239,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             return null;
         }
 
-        $value = $this->getPriceForTaxState($price->getListPrice(), $context);
+        $value = $this->priceSelector->select($price->getListPrice(), $context)->getValue();
 
         if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
@@ -259,12 +255,11 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             return null;
         }
 
-        $taxPrice = $this->getPriceForTaxState($price, $context);
-        $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context);
-
-        if ($taxPrice === 0.0) {
+        if ($this->priceSelector->select($price, $context)->getValue() === 0.0) {
             return null;
         }
+
+        $value = $this->priceSelector->select($price->getRegulationPrice(), $context)->getValue();
 
         if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();

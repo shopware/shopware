@@ -19,9 +19,13 @@ class CustomerGroupEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    final public const PRICE_BASIS_NET = 'net';
+
     protected ?string $name = null;
 
     protected bool $displayGross;
+
+    protected ?string $priceBasis = null;
 
     protected ?CustomerGroupTranslationCollection $translations = null;
 
@@ -59,6 +63,16 @@ class CustomerGroupEntity extends Entity
     public function setDisplayGross(bool $displayGross): void
     {
         $this->displayGross = $displayGross;
+    }
+
+    public function getPriceBasis(): ?string
+    {
+        return $this->priceBasis;
+    }
+
+    public function setPriceBasis(?string $priceBasis): void
+    {
+        $this->priceBasis = $priceBasis;
     }
 
     public function getTranslations(): ?CustomerGroupTranslationCollection

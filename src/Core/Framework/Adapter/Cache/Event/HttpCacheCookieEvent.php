@@ -15,6 +15,7 @@ class HttpCacheCookieEvent
     public const CURRENCY_ID = 'currency-id';
     public const LANGUAGE_ID = 'language-id';
     public const TAX_STATE = 'tax-state';
+    public const TAX_RULES = 'tax-rules';
     public const LOGGED_IN_STATE = 'logged-in';
 
     public const NOT_CACHEABLE = 'not-cacheable';

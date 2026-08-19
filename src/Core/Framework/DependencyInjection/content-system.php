@@ -40,6 +40,8 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDeliveryResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
@@ -50,6 +52,10 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\ElementDataResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\ElementLowering;
+use Shopware\Core\Framework\ContentSystem\Hydration\RenderedElementFactory;
+use Shopware\Core\Framework\ContentSystem\Hydration\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -266,6 +272,40 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderProvider::class),
             service(LoaderInputResolver::class),
             service(DataContextResolver::class),
+        ]);
+
+    // Render Layers (stored forest -> rendered forest)
+    $services->set(RenderedElementFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+        ]);
+
+    $services->set(ElementDataResolver::class)
+        ->args([
+            service(DataLoaderProvider::class),
+            service(LoaderInputResolver::class),
+        ]);
+
+    $services->set(ContextDistributor::class)
+        ->args([
+            service(ContextPathResolver::class),
+        ]);
+
+    $services->set(ContextDeliveryResolver::class)
+        ->args([
+            service(ContextDistributor::class),
+        ]);
+
+    $services->set(RenderedTreeFactory::class)
+        ->args([
+            service(RenderedElementFactory::class),
+        ]);
+
+    $services->set(ElementLowering::class)
+        ->args([
+            service(ElementDataResolver::class),
+            service(ContextDeliveryResolver::class),
+            service(RenderedTreeFactory::class),
         ]);
 
     // Layout Context Utilities

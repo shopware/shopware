@@ -4,11 +4,9 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\Cov
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule\Covered\CheckoutService;
 
-#[Package('fundamentals@checkout')]
 #[CoversClass(CheckoutService::class)]
-class FundamentalsOnTestTest extends TestCase
+class MissingTestPackageFixture extends TestCase
 {
 }

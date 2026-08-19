@@ -9,6 +9,6 @@ use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPac
 
 #[Package('framework')]
 #[CoversTrait(CheckoutHelperTrait::class)]
-class MismatchedTraitTest extends TestCase
+class MismatchedTraitFixture extends TestCase
 {
 }

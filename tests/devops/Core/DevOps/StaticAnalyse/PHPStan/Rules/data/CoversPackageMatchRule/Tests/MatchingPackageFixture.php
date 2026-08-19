@@ -9,6 +9,6 @@ use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPac
 
 #[Package('checkout')]
 #[CoversClass(CheckoutService::class)]
-class MatchingPackageTest extends TestCase
+class MatchingPackageFixture extends TestCase
 {
 }

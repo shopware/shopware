@@ -22,13 +22,13 @@ class CoversPackageMatchRuleTest extends RuleTestCase
     #[TestDox('accepts a test whose package matches the covered class')]
     public function testMatchingPackage(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/MatchingPackageTest.php'], []);
+        $this->analyse([self::FIXTURE_DIR . '/MatchingPackageFixture.php'], []);
     }
 
     #[TestDox('rejects a test whose package differs from the covered class')]
     public function testMismatchedPackage(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/MismatchedPackageTest.php'], [
+        $this->analyse([self::FIXTURE_DIR . '/MismatchedPackageFixture.php'], [
             [
                 'The #[Package(\'framework\')] attribute of this test does not match the covered Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule\Covered\CheckoutService (checkout)',
                 10,
@@ -39,31 +39,37 @@ class CoversPackageMatchRuleTest extends RuleTestCase
     #[TestDox('treats fundamentals@<area> on the covered class as equal to <area>')]
     public function testFundamentalsOnCoveredClass(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/FundamentalsEquivalenceTest.php'], []);
+        $this->analyse([self::FIXTURE_DIR . '/FundamentalsEquivalenceFixture.php'], []);
     }
 
     #[TestDox('treats fundamentals@<area> on the test as equal to <area>')]
     public function testFundamentalsOnTest(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/FundamentalsOnTestTest.php'], []);
+        $this->analyse([self::FIXTURE_DIR . '/FundamentalsOnTestFixture.php'], []);
     }
 
     #[TestDox('accepts a test matching at least one of several covered classes')]
     public function testOneOfManyMatches(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/OneOfManyMatchesTest.php'], []);
+        $this->analyse([self::FIXTURE_DIR . '/OneOfManyMatchesFixture.php'], []);
+    }
+
+    #[TestDox('skips tests without a package attribute')]
+    public function testMissingTestPackage(): void
+    {
+        $this->analyse([self::FIXTURE_DIR . '/MissingTestPackageFixture.php'], []);
     }
 
     #[TestDox('skips tests covering only unpackaged code')]
     public function testUnpackagedCoveredClass(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/UnpackagedCoveredTest.php'], []);
+        $this->analyse([self::FIXTURE_DIR . '/UnpackagedCoveredFixture.php'], []);
     }
 
     #[TestDox('rejects a test whose package differs from the covered trait')]
     public function testMismatchedTrait(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/MismatchedTraitTest.php'], [
+        $this->analyse([self::FIXTURE_DIR . '/MismatchedTraitFixture.php'], [
             [
                 'The #[Package(\'framework\')] attribute of this test does not match the covered Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule\Covered\CheckoutHelperTrait (checkout)',
                 10,

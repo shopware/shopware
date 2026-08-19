@@ -5,10 +5,12 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\Cov
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule\Covered\CheckoutService;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule\Covered\FundamentalsFrameworkService;
 
-#[Package('framework')]
+#[Package('checkout')]
+#[CoversClass(CheckoutService::class)]
 #[CoversClass(FundamentalsFrameworkService::class)]
-class FundamentalsEquivalenceTest extends TestCase
+class OneOfManyMatchesFixture extends TestCase
 {
 }

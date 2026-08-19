@@ -27,17 +27,22 @@ use Shopware\Core\Framework\Log\Package;
  *
  * "Delivered" means delivered: a consumer key the element declares but which no ancestor fulfilled is not
  * a member, so it does not appear at all rather than appearing as null. An explicit null on a rendered
- * property means one thing only — a loader that ran and found nothing — and keeping those two apart is the
- * point of the distinction.
+ * property means a resolution ran and found nothing, and it has exactly two producers: a loader's
+ * {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult::notFound()},
+ * and a context delivery that resolved to nothing (an under-supplied distribution strategy handing an
+ * unmatched consumer null, or an optional dotted consumer key whose value cannot be traversed). Neither
+ * authoring nor non-delivery is among them — an authored null and an undelivered consumer key are both
+ * absent. Keeping present-null and key-absent apart is the point of the distinction.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored
  * null counts as no stored value for the same reason — the two stored-value members skip a null-variant
- * {@see StoredValue} rather than rendering it — which is what makes the reservation above hold without
- * exception.
+ * {@see StoredValue} rather than rendering it — which is what keeps authoring out of the producer set
+ * above.
  *
- * This is also the one place a {@see StoredValue} is unwrapped: a wrapped value must never reach the
- * rendered side.
+ * This is also where a {@see StoredValue} is unwrapped on the way to the rendered side: a wrapped value must
+ * never reach the rendered element. It is not the module's only unwrap — {@see ElementDataResolver} unwraps
+ * the same map to feed the loader input resolver — but it is the one this path goes through.
  *
  * @internal
  */
@@ -113,9 +118,9 @@ final readonly class RenderedElementFactory
 
     /**
      * The two stored-value tiers admit a key only when the stored map holds it and the value it holds is
-     * not the null variant. An authored null is no value, so it contributes no key, which is what leaves a
-     * loader's {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult::notFound()}
-     * as the one producer of a null on a rendered property. It is also the reading the resolvability gate
+     * not the null variant. An authored null is no value, so it contributes no key, which is what keeps
+     * authoring out of the producer set for a rendered null — that null always means some resolution ran
+     * and found nothing, never that someone typed one. It is also the reading the resolvability gate
      * already takes: {@see \Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics} counts a
      * required property holding an authored null as unresolved, so a value the gate refuses to call
      * satisfied must not render as a satisfied one.

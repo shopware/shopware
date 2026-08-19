@@ -3,6 +3,7 @@
  */
 
 import Feature from 'src/app/service/feature.service';
+import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
 
 /**
  * You can activate feature flags in the beforeAll method like this:
@@ -13,7 +14,11 @@ global.activeFeatureFlags = global.activeFeatureFlags ?? [];
 
 const featureMock = {
     isActive: (flagName) => {
-        return global.activeFeatureFlags.includes(flagName);
+        const normalizedFlagName = normalizeFeatureFlag(flagName);
+
+        return global.activeFeatureFlags.some((featureFlag) => {
+            return normalizeFeatureFlag(featureFlag) === normalizedFlagName;
+        });
     },
 };
 

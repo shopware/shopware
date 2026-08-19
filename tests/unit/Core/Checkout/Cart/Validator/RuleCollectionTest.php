@@ -14,7 +14,7 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[Package('fundamentals@after-sales')]
+#[Package('checkout')]
 #[CoversClass(RuleCollection::class)]
 class RuleCollectionTest extends TestCase
 {

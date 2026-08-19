@@ -18,7 +18,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(PaymentTokenRegisteredValidator::class)]
 class PaymentTokenRegisteredValidatorTest extends TestCase
 {

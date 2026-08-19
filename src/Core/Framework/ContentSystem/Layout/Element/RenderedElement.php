@@ -20,10 +20,10 @@ use Shopware\Core\Framework\Log\Package;
  * rendering listener transforms a tree with; {@see RenderedTreeEditor} applies one across a whole forest.
  * Unlike the storage model, the constructor carries no mint-site restriction: anything may build one.
  *
- * What the constructor does check is the slot shape, because a malformed slot map fails far from where it
- * was built — as a `TypeError` inside {@see RenderedTreeEditor} or as a Twig error while a `<twig:Slot>`
- * iterates the children. Property values stay unchecked on purpose: they are raw PHP values, hydrated
- * entities included, so there is nothing to check them against.
+ * What the constructor does check is the map keys and the slot shape. A malformed slot map fails far from
+ * where it was built — as a `TypeError` inside {@see RenderedTreeEditor} or as a Twig error while a
+ * `<twig:Slot>` iterates the children. Property *values* stay unchecked on purpose: they are raw PHP
+ * values, hydrated entities included, so there is nothing to check them against.
  */
 #[Package('framework')]
 final readonly class RenderedElement
@@ -39,6 +39,7 @@ final readonly class RenderedElement
         public array $slots = [],
         public ElementStyle $style = new ElementStyle(),
     ) {
+        $this->rejectNumericPropertyKeys($properties);
         $this->rejectMalformedSlots($slots);
     }
 
@@ -97,6 +98,24 @@ final readonly class RenderedElement
             $slots ?? $this->slots,
             $style ?? $this->style,
         );
+    }
+
+    /**
+     * PHP casts a numeric-string array key to an integer, so rejecting integer keys rejects both `12` and
+     * `'12'`. Property names are names, and unlike the slot map this one is not simply carried over from a
+     * stored tree that already rejects numeric keys: a rendered property key may come from an element-type
+     * declaration or from a context consumer's `propertyAlias`, neither of which is checked for numeric
+     * keys upstream. The ban is therefore re-stated here rather than inherited.
+     *
+     * @param array<array-key, mixed> $properties
+     */
+    private function rejectNumericPropertyKeys(array $properties): void
+    {
+        foreach (array_keys($properties) as $key) {
+            if (\is_int($key)) {
+                throw ContentSystemException::invalidMapKey('Rendered element property map', 'int');
+            }
+        }
     }
 
     /**

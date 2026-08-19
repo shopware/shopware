@@ -84,6 +84,19 @@ class RenderedElementTest extends TestCase
     }
 
     /**
+     * A rendered property key may come from an element-type declaration or from a context consumer's
+     * `propertyAlias`, neither of which is checked upstream, so both spellings of a numeric key are rejected
+     * here. PHP casts the numeric string to an integer before the constructor ever sees it.
+     *
+     * @return iterable<string, array{array<array-key, mixed>}>
+     */
+    public static function numericPropertyKeyProvider(): iterable
+    {
+        yield 'integer key' => [[0 => 'Hello']];
+        yield 'numeric string key' => [['12' => 'Hello']];
+    }
+
+    /**
      * @return iterable<string, array{callable(RenderedElement): RenderedElement, callable(RenderedElement): array<array-key, mixed>}>
      */
     public static function unnamedFieldProvider(): iterable
@@ -225,6 +238,42 @@ class RenderedElementTest extends TestCase
         $this->expectExceptionObject($expected);
 
         $element->withSlots($slots);
+    }
+
+    /**
+     * @param array<array-key, mixed> $properties
+     */
+    #[TestDox('rejects a numeric property key')]
+    #[DataProvider('numericPropertyKeyProvider')]
+    public function testConstructorRejectsANumericPropertyKey(array $properties): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
+
+        new RenderedElement('element-1', 'core:text', $properties);
+    }
+
+    /**
+     * @param array<array-key, mixed> $properties
+     */
+    #[TestDox('rejects a numeric property key when it arrives through withProperties')]
+    #[DataProvider('numericPropertyKeyProvider')]
+    public function testWithPropertiesRejectsANumericPropertyKey(array $properties): void
+    {
+        $element = new RenderedElement('element-1', 'core:text');
+
+        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
+
+        $element->withProperties($properties);
+    }
+
+    #[TestDox('rejects a numeric property name set through withProperty')]
+    public function testWithPropertyRejectsANumericPropertyName(): void
+    {
+        $element = new RenderedElement('element-1', 'core:text');
+
+        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
+
+        $element->withProperty('12', 'Hello');
     }
 
     #[TestDox('accepts a slot holding several rendered elements')]

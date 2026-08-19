@@ -107,7 +107,6 @@ class FormControllerTest extends TestCase
     public function testNewsletterSubscribeTranslatesViolationCode(): void
     {
         $subscribeRoute = static::createStub(AbstractNewsletterSubscribeRoute::class);
-        $subscribeRoute->method('subscribe')->willThrowException($this->createViolationException());
         $subscribeRoute->method('subscribeWithResponse')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(subscribeRoute: $subscribeRoute);

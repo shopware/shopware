@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -85,67 +86,56 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         ], $entityRepository->updates);
     }
 
-    public function testUnsubscribeWithoutEmail(): void
+    #[DataProvider('unusableEmailProvider')]
+    public function testUnsubscribeWithoutUsableEmail(mixed $email): void
     {
         $requestData = new RequestDataBag();
-        $requestData->add([
-            'email' => null,
-        ]);
+        $requestData->add(['email' => $email]);
 
-        $entityRepository = new StaticEntityRepository([]);
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher
-            ->expects($this->never())
-            ->method('dispatch')
-            ->willReturnOnConsecutiveCalls(
-                static::isInstanceOf(NewsletterUnsubscribeEvent::class),
-            );
-
-        $newsletterSubscribeRoute = new NewsletterUnsubscribeRoute(
-            $entityRepository,
-            static::createStub(DataValidator::class),
-            $eventDispatcher,
-            static::createStub(RateLimiter::class),
-            static::createStub(RequestStack::class),
-        );
+        $route = $this->createRoute(new StaticEntityRepository([]));
 
         $this->expectExceptionObject(NewsletterException::missingEmailParameter());
-        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
 
-        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $route->unsubscribeWithResponse($requestData, $this->salesChannelContext);
+    }
+
+    public static function unusableEmailProvider(): \Generator
+    {
+        yield 'not submitted' => ['email' => null];
+        yield 'empty string' => ['email' => ''];
+        yield 'integer from a JSON body' => ['email' => 0];
+    }
+
+    /**
+     * "0" is a submitted email, not a missing parameter, so it passes the guard and fails at the
+     * recipient lookup instead.
+     */
+    public function testUnsubscribeWithTheStringZeroAsEmail(): void
+    {
+        $requestData = new RequestDataBag();
+        $requestData->add(['email' => '0']);
+
+        $route = $this->createRoute(new StaticEntityRepository([
+            new NewsletterRecipientCollection([]),
+        ]));
+
+        $this->expectExceptionObject(NewsletterException::recipientNotFound('email', '0'));
+
+        $route->unsubscribeWithResponse($requestData, $this->salesChannelContext);
     }
 
     public function testUnsubscribeWithNotFoundEmail(): void
     {
         $requestData = new RequestDataBag();
-        $requestData->add([
-            'email' => 'test@example.com',
-        ]);
+        $requestData->add(['email' => 'test@example.com']);
 
-        $entityRepository = new StaticEntityRepository([
+        $route = $this->createRoute(new StaticEntityRepository([
             new NewsletterRecipientCollection([]),
-        ]);
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher
-            ->expects($this->never())
-            ->method('dispatch')
-            ->willReturnOnConsecutiveCalls(
-                static::isInstanceOf(NewsletterUnsubscribeEvent::class),
-            );
-
-        $newsletterSubscribeRoute = new NewsletterUnsubscribeRoute(
-            $entityRepository,
-            static::createStub(DataValidator::class),
-            $eventDispatcher,
-            static::createStub(RateLimiter::class),
-            static::createStub(RequestStack::class),
-        );
+        ]));
 
         $this->expectExceptionObject(NewsletterException::recipientNotFound('email', 'test@example.com'));
-        $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
-        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+
+        $route->unsubscribeWithResponse($requestData, $this->salesChannelContext);
     }
 
     public function testUnsubscribeRateLimiterIsCalled(): void
@@ -185,5 +175,22 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    /**
+     * @param StaticEntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
+     */
+    private function createRoute(StaticEntityRepository $newsletterRecipientRepository): NewsletterUnsubscribeRoute
+    {
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
+        return new NewsletterUnsubscribeRoute(
+            $newsletterRecipientRepository,
+            static::createStub(DataValidator::class),
+            $eventDispatcher,
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+        );
     }
 }

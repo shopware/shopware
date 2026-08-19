@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Feature\FeatureException;
@@ -36,7 +35,9 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
         $this->context = static::createStub(SalesChannelContext::class);
     }
 
-    // @deprecated tag:v6.8.0 - remove with unsubscribe()
+    /**
+     * @deprecated tag:v6.8.0 - remove with unsubscribe()
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testUnsubscribeWithResponseFallsBackToUnsubscribe(): void
     {
@@ -50,7 +51,9 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
         static::assertSame(204, $response->getStatusCode());
     }
 
-    // @deprecated tag:v6.8.0 - remove with unsubscribe()
+    /**
+     * @deprecated tag:v6.8.0 - remove with unsubscribe()
+     */
     public function testFallbackToUnsubscribeThrowsWhenV680IsActive(): void
     {
         $route = new UnsubscribeLegacyDecorator();
@@ -90,7 +93,9 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
         static::assertSame(['success' => true], $response->getObject()->getVars());
     }
 
-    // @deprecated tag:v6.8.0 - remove with unsubscribe()
+    /**
+     * @deprecated tag:v6.8.0 - remove with unsubscribe()
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testFallbackReachesAnInnerUnsubscribeWithResponseOverride(): void
     {
@@ -108,7 +113,8 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
      * @deprecated tag:v6.8.0 - remove with unsubscribe()
      *
      * A decorator that implements only unsubscribe() may call its own route again while that call is
-     * running, the way an event subscriber mirroring the operation would.
+     * still running, the way an event subscriber mirroring the operation would. Pins the fallback in
+     * the abstract class as stateless: a re-entry counter or lock there would break that decorator.
      */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testFallbackAllowsReEnteringTheRoute(): void
@@ -123,48 +129,16 @@ class AbstractNewsletterUnsubscribeRouteTest extends TestCase
     }
 
     /**
-     * PHP only accepts an override whose return type matches the declared one or narrows it. This
-     * is the whole reason unsubscribeWithResponse() keeps StoreApiResponse in v6.8.0.0: had it been narrowed,
-     * every extension declaring the wide type would fail to load, so no single extension release
-     * could cover 6.7 and 6.8.
-     *
-     * @param class-string<AbstractNewsletterUnsubscribeRoute> $decorator
-     * @param class-string<StoreApiResponse<covariant \Shopware\Core\Framework\Struct\Struct>> $announcedType
+     * Narrowing this return type is what would break extensions: an override declaring
+     * StoreApiResponse would stop loading, so no single extension release could cover 6.7 and 6.8.
+     * UnsubscribeWideDecorator below is the live proof - it fails to load as soon as the type is narrowed.
      */
-    #[DataProvider('announcedReturnTypeProvider')]
-    public function testOverrideReturnTypeMustBeCompatibleWithTheDeclaredOne(string $decorator, string $announcedType, bool $loads): void
+    public function testTheDeclaredReturnTypeStaysWide(): void
     {
-        $returnType = (new \ReflectionMethod($decorator, 'unsubscribeWithResponse'))->getReturnType();
+        $returnType = (new \ReflectionMethod(AbstractNewsletterUnsubscribeRoute::class, 'unsubscribeWithResponse'))->getReturnType();
 
         static::assertInstanceOf(\ReflectionNamedType::class, $returnType);
-        static::assertSame($loads, is_a($returnType->getName(), $announcedType, true));
-    }
-
-    public static function announcedReturnTypeProvider(): \Generator
-    {
-        yield 'announcing StoreApiResponse accepts an extension that declares the wide type' => [
-            'decorator' => UnsubscribeWideDecorator::class,
-            'announcedType' => StoreApiResponse::class,
-            'loads' => true,
-        ];
-
-        yield 'announcing StoreApiResponse accepts an extension that declares the concrete type' => [
-            'decorator' => UnsubscribeExactDecorator::class,
-            'announcedType' => StoreApiResponse::class,
-            'loads' => true,
-        ];
-
-        yield 'announcing the concrete type would reject an extension that declares the wide type' => [
-            'decorator' => UnsubscribeWideDecorator::class,
-            'announcedType' => SuccessResponse::class,
-            'loads' => false,
-        ];
-
-        yield 'announcing the concrete type only accepts an extension that declares it as well' => [
-            'decorator' => UnsubscribeExactDecorator::class,
-            'announcedType' => SuccessResponse::class,
-            'loads' => true,
-        ];
+        static::assertSame(StoreApiResponse::class, $returnType->getName());
     }
 }
 

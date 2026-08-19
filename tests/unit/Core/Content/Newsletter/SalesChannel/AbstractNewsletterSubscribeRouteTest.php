@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
@@ -16,6 +15,12 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver;
+use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Covers what a decorating extension has to implement, and what it must not implement, while
@@ -37,7 +42,9 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
         $this->context = static::createStub(SalesChannelContext::class);
     }
 
-    // @deprecated tag:v6.8.0 - remove with subscribe()
+    /**
+     * @deprecated tag:v6.8.0 - remove with subscribe()
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testSubscribeWithResponseFallsBackToSubscribe(): void
     {
@@ -51,7 +58,9 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
         static::assertSame(204, $response->getStatusCode());
     }
 
-    // @deprecated tag:v6.8.0 - remove with subscribe()
+    /**
+     * @deprecated tag:v6.8.0 - remove with subscribe()
+     */
     public function testFallbackToSubscribeThrowsWhenV680IsActive(): void
     {
         $route = new LegacyDecorator();
@@ -93,7 +102,9 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
         static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $response->getStatus());
     }
 
-    // @deprecated tag:v6.8.0 - remove with subscribe()
+    /**
+     * @deprecated tag:v6.8.0 - remove with subscribe()
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testFallbackReachesAnInnerSubscribeWithResponseOverride(): void
     {
@@ -111,7 +122,8 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
      * @deprecated tag:v6.8.0 - remove with subscribe()
      *
      * A decorator that implements only subscribe() may call its own route again while that call is
-     * running, the way an event subscriber mirroring the operation would.
+     * still running, the way an event subscriber mirroring the operation would. Pins the fallback in
+     * the abstract class as stateless: a re-entry counter or lock there would break that decorator.
      */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testFallbackAllowsReEnteringTheRoute(): void
@@ -126,48 +138,48 @@ class AbstractNewsletterSubscribeRouteTest extends TestCase
     }
 
     /**
-     * PHP only accepts an override whose return type matches the declared one or narrows it. This
-     * is the whole reason subscribeWithResponse() keeps StoreApiResponse in v6.8.0.0: had it been narrowed,
-     * every extension declaring the wide type would fail to load, so no single extension release
-     * could cover 6.7 and 6.8.
-     *
-     * @param class-string<AbstractNewsletterSubscribeRoute> $decorator
-     * @param class-string<StoreApiResponse<covariant \Shopware\Core\Framework\Struct\Struct>> $announcedType
+     * A decorator that does not override subscribeWithResponse() inherits a signature without a
+     * default for $validateStorefrontUrl, which the argument resolver cannot fill on its own. The
+     * route default supplies it. The default cannot move into the abstract signature instead: PHP
+     * rejects an override that drops a parent default.
      */
-    #[DataProvider('announcedReturnTypeProvider')]
-    public function testOverrideReturnTypeMustBeCompatibleWithTheDeclaredOne(string $decorator, string $announcedType, bool $loads): void
+    public function testRouteSuppliesTheArgumentADecoratorDoesNotDefault(): void
     {
-        $returnType = (new \ReflectionMethod($decorator, 'subscribeWithResponse'))->getReturnType();
+        $attributes = (new \ReflectionMethod(NewsletterSubscribeRoute::class, 'subscribeWithResponse'))
+            ->getAttributes(Route::class);
 
-        static::assertInstanceOf(\ReflectionNamedType::class, $returnType);
-        static::assertSame($loads, is_a($returnType->getName(), $announcedType, true));
+        static::assertCount(1, $attributes);
+
+        $request = new Request();
+        // The router adds the route defaults to the request attributes before argument resolution.
+        $request->attributes->add($attributes[0]->newInstance()->defaults);
+        // In a request these two come from Shopware's own resolvers; only the third one is at stake.
+        $request->attributes->set('dataBag', $this->dataBag);
+        $request->attributes->set('context', $this->context);
+
+        $resolver = new ArgumentResolver(
+            new ArgumentMetadataFactory(),
+            [new RequestAttributeValueResolver(), new DefaultValueResolver()]
+        );
+
+        $decorator = new LegacyDecorator();
+
+        $arguments = $resolver->getArguments($request, $decorator->subscribeWithResponse(...));
+
+        static::assertSame([$this->dataBag, $this->context, true], $arguments);
     }
 
-    public static function announcedReturnTypeProvider(): \Generator
+    /**
+     * Narrowing this return type is what would break extensions: an override declaring
+     * StoreApiResponse would stop loading, so no single extension release could cover 6.7 and 6.8.
+     * WideDecorator below is the live proof - it fails to load as soon as the type is narrowed.
+     */
+    public function testTheDeclaredReturnTypeStaysWide(): void
     {
-        yield 'announcing StoreApiResponse accepts an extension that declares the wide type' => [
-            'decorator' => WideDecorator::class,
-            'announcedType' => StoreApiResponse::class,
-            'loads' => true,
-        ];
+        $returnType = (new \ReflectionMethod(AbstractNewsletterSubscribeRoute::class, 'subscribeWithResponse'))->getReturnType();
 
-        yield 'announcing StoreApiResponse accepts an extension that declares the concrete type' => [
-            'decorator' => ExactDecorator::class,
-            'announcedType' => StoreApiResponse::class,
-            'loads' => true,
-        ];
-
-        yield 'announcing the concrete type would reject an extension that declares the wide type' => [
-            'decorator' => WideDecorator::class,
-            'announcedType' => NewsletterSubscribeRouteResponse::class,
-            'loads' => false,
-        ];
-
-        yield 'announcing the concrete type only accepts an extension that declares it as well' => [
-            'decorator' => ExactDecorator::class,
-            'announcedType' => NewsletterSubscribeRouteResponse::class,
-            'loads' => true,
-        ];
+        static::assertInstanceOf(\ReflectionNamedType::class, $returnType);
+        static::assertSame(StoreApiResponse::class, $returnType->getName());
     }
 }
 

@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -71,8 +71,8 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addAssociation('media');
 
         if ($onlyAvailable) {
-            // A method without any price can never resolve shipping costs, so the cart would block it
-            $criteria->addFilter(new NotEqualsFilter('prices.id', null));
+            // Require one price that resolves to a value; the bound only serves to exclude rows without currency values
+            $criteria->addFilter(new RangeFilter('prices.currencyPrice', [RangeFilter::GTE => -\PHP_INT_MAX]));
         }
 
         if ($criteria->getSorting() === []) {

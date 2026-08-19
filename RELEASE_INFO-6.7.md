@@ -95,23 +95,24 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
 
-### Store API no longer offers shipping methods without a price
+### Store API no longer offers shipping methods without a usable price
 
-`GET`/`POST /store-api/shipping-method` with `onlyAvailable=1` no longer returns active shipping methods that have no price at all. Such a method can never resolve shipping costs, so the cart blocked it while it stayed selectable in the storefront and the customer was silently switched to a different method on every attempt.
+`GET`/`POST /store-api/shipping-method` with `onlyAvailable=1` no longer returns active shipping methods that have no price the cart can use — neither an empty price matrix, nor one whose rows all lack currency values. Such a method can never resolve shipping costs, so the cart blocked it while it stayed selectable in the storefront and the customer was silently switched to a different method on every attempt. A method that has at least one row with currency values is still returned, even if further rows are incomplete.
 
 Requests without `onlyAvailable` are unchanged and still return every active shipping method, so the Administration and integrations that manage shipping methods keep seeing the full list. Headless frontends that build their shipping selection from `onlyAvailable=1` need no change.
 
 ## Core
 
-### An active shipping method must keep at least one price
+### An active shipping method must keep at least one usable price
 
-The following writes are now rejected with a `400` and the constraint code `active_shipping_method_without_price`:
+A price row only counts when it carries currency values, because the cart skips rows without them. The following writes are now rejected with a `400` and the constraint code `active_shipping_method_without_price`:
 
-* deleting the last `shipping_method_price` of an active shipping method,
-* moving the last `shipping_method_price` to another shipping method,
-* setting `active` to `true` on a shipping method that has no price.
+* deleting the last usable `shipping_method_price` of an active shipping method,
+* moving the last usable `shipping_method_price` to another shipping method,
+* clearing the `currencyPrice` of the last usable `shipping_method_price`,
+* setting `active` to `true` on a shipping method without a usable price.
 
-Creating a shipping method without prices is unchanged, so creating the method first and adding its prices in a follow-up request still works.
+Creating a shipping method without prices is unchanged, so creating the method first and adding its prices in a follow-up request still works. Until it has a usable price, the Store API keeps it out of the `onlyAvailable=1` list.
 
 Integrations that replace a price matrix by deleting all rows and inserting new ones must send both operations in one request, so the method is never priceless in between:
 

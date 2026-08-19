@@ -104,9 +104,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
     }
 
     /**
-     * An active shipping method without any price can never resolve shipping costs: the cart blocks it while
-     * the storefront still offers it. Rejects removing the last price and activating a priceless method;
-     * creation stays allowed. Prices whose rules never match fail alike, but depend on the cart.
+     * An active shipping method without a price that resolves to a value can never resolve shipping costs: the
+     * cart blocks it while the storefront still offers it. Rejects removing the last usable price and activating
+     * a method without one; creation stays allowed. Prices whose rules never match fail alike, but depend on the cart.
      */
     private function validateActiveMethodsHavePrices(PreWriteValidationEvent $event): void
     {
@@ -140,7 +140,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
 
             $violations->add(
                 $this->buildViolation(
-                    'The shipping method {{ id }} is active and must therefore have at least one price.',
+                    'The shipping method {{ id }} is active and must therefore have at least one price with currency values.',
                     ['{{ id }}' => $id],
                     '/prices',
                     $id,
@@ -197,7 +197,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
     {
         $commands = array_values(array_filter(
             $event->getCommandsForEntity(ShippingMethodPriceDefinition::ENTITY_NAME),
-            $this->changesPriceOwner(...)
+            $this->changesPriceAvailability(...)
         ));
         $priceIds = [];
 
@@ -212,32 +212,32 @@ class ShippingMethodValidator implements EventSubscriberInterface
             return [];
         }
 
-        $currentOwners = $this->fetchPriceOwners(array_keys($priceIds));
-        $finalOwners = $currentOwners;
+        $currentStates = $this->fetchPriceStates(array_keys($priceIds));
+        $finalStates = $currentStates;
 
         foreach ($commands as $command) {
-            $this->applyPriceCommand($finalOwners, $command);
+            $this->applyPriceCommand($finalStates, $command);
         }
 
-        $changes = array_map(static fn (int $count): int => -$count, array_count_values($currentOwners));
-        foreach (array_count_values($finalOwners) as $shippingMethodId => $count) {
+        $changes = array_map(static fn (int $count): int => -$count, array_count_values($this->ownersOfUsablePrices($currentStates)));
+        foreach (array_count_values($this->ownersOfUsablePrices($finalStates)) as $shippingMethodId => $count) {
             $changes[$shippingMethodId] = ($changes[$shippingMethodId] ?? 0) + $count;
         }
 
         return array_filter($changes);
     }
 
-    private function changesPriceOwner(WriteCommand $command): bool
+    private function changesPriceAvailability(WriteCommand $command): bool
     {
         return $command instanceof DeleteCommand
             || $command instanceof InsertCommand
-            || ($command instanceof UpdateCommand && $command->hasAnyField('shipping_method_id'));
+            || ($command instanceof UpdateCommand && $command->hasAnyField('shipping_method_id', 'currency_price'));
     }
 
     /**
-     * @param array<string, string> $priceOwners
+     * @param array<string, array{owner: string, usable: bool}> $priceStates
      */
-    private function applyPriceCommand(array &$priceOwners, WriteCommand $command): void
+    private function applyPriceCommand(array &$priceStates, WriteCommand $command): void
     {
         $id = $this->readIdFromPrimaryKey($command);
         if ($id === null) {
@@ -245,24 +245,53 @@ class ShippingMethodValidator implements EventSubscriberInterface
         }
 
         if ($command instanceof DeleteCommand) {
-            unset($priceOwners[$id]);
+            unset($priceStates[$id]);
 
             return;
         }
 
         // An update after a delete does not recreate the row
-        if ($command instanceof UpdateCommand && !isset($priceOwners[$id])) {
+        if ($command instanceof UpdateCommand && !isset($priceStates[$id])) {
             return;
         }
 
-        $shippingMethodId = $command->getPayload()['shipping_method_id'] ?? null;
-        if (\is_string($shippingMethodId)) {
-            $priceOwners[$id] = Uuid::fromBytesToHex($shippingMethodId);
+        $payload = $command->getPayload();
+
+        $owner = $priceStates[$id]['owner'] ?? null;
+        if (\array_key_exists('shipping_method_id', $payload)) {
+            $shippingMethodId = $payload['shipping_method_id'];
+            $owner = \is_string($shippingMethodId) ? Uuid::fromBytesToHex($shippingMethodId) : null;
+        }
+
+        if ($owner === null) {
+            unset($priceStates[$id]);
 
             return;
         }
 
-        unset($priceOwners[$id]);
+        $usable = $priceStates[$id]['usable'] ?? false;
+        if (\array_key_exists('currency_price', $payload)) {
+            $usable = $payload['currency_price'] !== null;
+        }
+
+        $priceStates[$id] = ['owner' => $owner, 'usable' => $usable];
+    }
+
+    /**
+     * @param array<string, array{owner: string, usable: bool}> $priceStates
+     *
+     * @return list<string>
+     */
+    private function ownersOfUsablePrices(array $priceStates): array
+    {
+        $owners = [];
+        foreach ($priceStates as $state) {
+            if ($state['usable']) {
+                $owners[] = $state['owner'];
+            }
+        }
+
+        return $owners;
     }
 
     private function readIdFromPrimaryKey(WriteCommand $command): ?string
@@ -275,9 +304,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
     /**
      * @param list<string> $priceIds
      *
-     * @return array<string, string>
+     * @return array<string, array{owner: string, usable: bool}>
      */
-    private function fetchPriceOwners(array $priceIds): array
+    private function fetchPriceStates(array $priceIds): array
     {
         if ($priceIds === []) {
             return [];
@@ -286,7 +315,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
         sort($priceIds);
 
         $rows = $this->connection->fetchAllNumeric(
-            'SELECT LOWER(HEX(`id`)), LOWER(HEX(`shipping_method_id`))
+            'SELECT LOWER(HEX(`id`)), LOWER(HEX(`shipping_method_id`)), `currency_price` IS NOT NULL
              FROM `shipping_method_price`
              WHERE `id` IN (:ids)
              ORDER BY `id`
@@ -295,7 +324,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $owners = [];
+        $states = [];
         foreach ($rows as $row) {
             $priceId = $row[0] ?? null;
             $shippingMethodId = $row[1] ?? null;
@@ -303,10 +332,10 @@ class ShippingMethodValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $owners[$priceId] = $shippingMethodId;
+            $states[$priceId] = ['owner' => $shippingMethodId, 'usable' => (bool) ($row[2] ?? false)];
         }
 
-        return $owners;
+        return $states;
     }
 
     /**
@@ -334,6 +363,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
              FROM `shipping_method`
              LEFT JOIN `shipping_method_price`
                  ON `shipping_method_price`.`shipping_method_id` = `shipping_method`.`id`
+                 AND `shipping_method_price`.`currency_price` IS NOT NULL
              WHERE `shipping_method`.`id` IN (:ids)
              GROUP BY `shipping_method`.`id`, `shipping_method`.`active`
              FOR UPDATE',

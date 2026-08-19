@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -97,7 +97,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $expectedCriteria = clone $criteria;
         $expectedCriteria->addFilter(new EqualsFilter('active', true));
-        $expectedCriteria->addFilter(new NotEqualsFilter('prices.id', null));
+        $expectedCriteria->addFilter(new RangeFilter('prices.currencyPrice', [RangeFilter::GTE => -\PHP_INT_MAX]));
         $expectedCriteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
         $expectedCriteria->addAssociation('media');
 
@@ -191,7 +191,7 @@ class ShippingMethodRouteTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $usedCriteria);
         static::assertContainsEquals(
-            new NotEqualsFilter('prices.id', null),
+            new RangeFilter('prices.currencyPrice', [RangeFilter::GTE => -\PHP_INT_MAX]),
             $usedCriteria->getFilters(),
         );
     }
@@ -234,7 +234,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $priceFilters = array_filter(
             $usedCriteria->getFilters(),
-            static fn (Filter $filter) => $filter instanceof NotEqualsFilter && $filter->getField() === 'prices.id',
+            static fn (Filter $filter) => $filter instanceof RangeFilter && $filter->getField() === 'prices.currencyPrice',
         );
 
         static::assertSame([], $priceFilters);

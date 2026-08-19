@@ -320,6 +320,78 @@ class ShippingMethodValidatorTest extends TestCase
     }
 
     /**
+     * A price row without currency values is skipped when the cart calculates shipping costs, so it cannot
+     * keep an active shipping method alive on its own.
+     */
+    public function testDeletingTheLastResolvingPriceIsRejectedWhileAPriceWithoutCurrencyValuesRemains(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+        $this->addPriceWithoutCurrencyValues('empty');
+
+        $exception = $this->deletePrices(['price']);
+
+        static::assertNotNull($exception);
+        static::assertSame(
+            ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
+            $this->firstViolation($exception)->getCode()
+        );
+        static::assertCount(2, $this->fetchPriceIds());
+    }
+
+    public function testDeletingAPriceWithoutCurrencyValuesIsAllowedWhileAResolvingPriceRemains(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+        $this->addPriceWithoutCurrencyValues('empty');
+
+        static::assertNull($this->deletePrices(['empty']));
+
+        static::assertSame([$this->ids->get('price')], $this->fetchPriceIds());
+    }
+
+    public function testClearingTheCurrencyValuesOfTheLastPriceIsRejected(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+
+        $exception = $this->write(fn () => $this->shippingMethodPriceRepository->update([[
+            'id' => $this->ids->get('price'),
+            'currencyPrice' => null,
+        ]], $this->context));
+
+        static::assertNotNull($exception);
+        static::assertSame(
+            ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
+            $this->firstViolation($exception)->getCode()
+        );
+    }
+
+    public function testActivatingAShippingMethodWhoseOnlyPriceHasNoCurrencyValuesIsRejected(): void
+    {
+        $this->createShippingMethod(active: false, priceKeys: []);
+        $this->addPriceWithoutCurrencyValues('empty');
+
+        $exception = $this->write(fn () => $this->shippingMethodRepository->update([[
+            'id' => $this->ids->get('shipping'),
+            'active' => true,
+        ]], $this->context));
+
+        static::assertNotNull($exception);
+        static::assertSame(
+            ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
+            $this->firstViolation($exception)->getCode()
+        );
+    }
+
+    private function addPriceWithoutCurrencyValues(string $key, string $shippingMethodKey = 'shipping'): void
+    {
+        $this->shippingMethodPriceRepository->create([[
+            'id' => $this->ids->create($key),
+            'shippingMethodId' => $this->ids->get($shippingMethodKey),
+            'calculation' => 1,
+            'quantityStart' => 2,
+        ]], $this->context);
+    }
+
+    /**
      * @param list<string> $priceKeys
      */
     private function createShippingMethod(bool $active, array $priceKeys, string $key = 'shipping'): void

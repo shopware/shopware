@@ -171,6 +171,29 @@ class ShippingMethodRouteTest extends TestCase
         static::assertSame(3, $response['total']);
     }
 
+    /**
+     * A price row without currency values resolves to nothing, so the cart skips it and blocks the method.
+     * Such a matrix must not keep the method selectable either.
+     *
+     * @see https://github.com/shopware/shopware/issues/19001
+     */
+    public function testOnlyAvailableExcludesShippingMethodsWhoseOnlyPricesHaveNoCurrencyValues(): void
+    {
+        static::getContainer()->get('shipping_method.repository')->update([[
+            'id' => $this->ids->get('shipping'),
+            'prices' => [
+                ['id' => $this->ids->create('empty1'), 'calculation' => 1, 'quantityStart' => 1],
+                ['id' => $this->ids->create('empty2'), 'calculation' => 1, 'quantityStart' => 2],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/shipping-method', ['onlyAvailable' => true]);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame([], array_column($response['elements'], 'id'));
+    }
+
     public function testIncludes(): void
     {
         $this->browser

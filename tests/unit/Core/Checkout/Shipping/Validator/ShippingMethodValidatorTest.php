@@ -34,6 +34,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ShippingMethodValidator::class)]
 class ShippingMethodValidatorTest extends TestCase
 {
+    private const CURRENCY_PRICE = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":10.0,"gross":11.0,"linked":false}}';
+
     private WriteContext $context;
 
     private ShippingMethodDefinition $shippingMethodDefinition;
@@ -413,6 +415,81 @@ class ShippingMethodValidatorTest extends TestCase
         ));
     }
 
+    /**
+     * A price row without currency values is skipped by the cart, so it cannot keep an active method alive.
+     */
+    public function testDeletingTheLastResolvingPriceIsRejectedWhileAPriceWithoutCurrencyValuesRemains(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $emptyPriceId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [$this->deletePriceCommand()],
+            priceOwners: [$this->priceId => $shippingMethodId, $emptyPriceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+            pricesWithoutCurrencyValues: [$emptyPriceId],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
+    public function testDeletingAPriceWithoutCurrencyValuesDoesNotChangeTheCount(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        static::assertNull($this->validatePrices(
+            [$this->deletePriceCommand()],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+            pricesWithoutCurrencyValues: [$this->priceId],
+        ));
+    }
+
+    public function testClearingTheCurrencyValuesOfTheLastPriceIsRejected(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [$this->updatePriceCommand($this->priceId, ['currency_price' => null])],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
+    public function testGivingCurrencyValuesToAPriceOffsetsTheDeletedOne(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $emptyPriceId = Uuid::randomHex();
+
+        static::assertNull($this->validatePrices(
+            [
+                $this->deletePriceCommand(),
+                $this->updatePriceCommand($emptyPriceId, ['currency_price' => self::CURRENCY_PRICE]),
+            ],
+            priceOwners: [$this->priceId => $shippingMethodId, $emptyPriceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+            pricesWithoutCurrencyValues: [$emptyPriceId],
+        ));
+    }
+
+    public function testActivatingAShippingMethodWhoseOnlyPriceHasNoCurrencyValuesIsRejected(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [$this->updateActiveCommand($shippingMethodId, active: true)],
+            priceOwners: [],
+            states: [$this->state($shippingMethodId, active: false, priceCount: 0)],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
     private function deletePriceCommand(?string $priceId = null): DeleteCommand
     {
         return new DeleteCommand(
@@ -426,7 +503,7 @@ class ShippingMethodValidatorTest extends TestCase
     {
         return new InsertCommand(
             $this->shippingMethodPriceDefinition,
-            ['shipping_method_id' => Uuid::fromHexToBytes($shippingMethodId)],
+            ['shipping_method_id' => Uuid::fromHexToBytes($shippingMethodId), 'currency_price' => self::CURRENCY_PRICE],
             ['id' => Uuid::fromHexToBytes($priceId ?? Uuid::randomHex())],
             static::createStub(EntityExistence::class),
             '/0/'
@@ -470,12 +547,14 @@ class ShippingMethodValidatorTest extends TestCase
      * @param list<WriteCommand> $commands
      * @param array<string, string> $priceOwners shipping method id keyed by price id
      * @param list<array{id: string, active: int, price_count: int}> $states
+     * @param list<string> $pricesWithoutCurrencyValues price ids that cannot resolve shipping costs
      */
-    private function validatePrices(array $commands, array $priceOwners, array $states): ?ConstraintViolationInterface
+    private function validatePrices(array $commands, array $priceOwners, array $states, array $pricesWithoutCurrencyValues = []): ?ConstraintViolationInterface
     {
         $connection = new ShippingMethodStateConnection([]);
         foreach ($priceOwners as $priceId => $shippingMethodId) {
-            $connection->priceOwners[] = [$priceId, $shippingMethodId];
+            $usable = \in_array($priceId, $pricesWithoutCurrencyValues, true) ? 0 : 1;
+            $connection->priceOwners[] = [$priceId, $shippingMethodId, $usable];
         }
         $connection->states = $states;
 
@@ -508,7 +587,7 @@ class ShippingMethodValidatorTest extends TestCase
 class ShippingMethodStateConnection extends FakeConnection
 {
     /**
-     * @var list<array{string, string}>
+     * @var list<array{string, string, int}>
      */
     public array $priceOwners = [];
 

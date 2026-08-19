@@ -113,6 +113,7 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -365,6 +366,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TaxAdjustment::class),
             service(TaxProviderRegistry::class),
             service(TaxProviderPayloadService::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(TaxProviderRegistry::class)

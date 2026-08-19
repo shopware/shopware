@@ -345,7 +345,7 @@ class ZugferdDocumentTest extends TestCase
     }
 
     #[DataProvider('basisQuantityProvider')]
-    public function testBasisQuantity(?int $purchaseUnit, string $expectedBasisQuantity): void
+    public function testBasisQuantityIsAlwaysOne(?int $purchaseUnit, string $expectedBasisQuantity): void
     {
         $order = new OrderEntity();
         $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
@@ -400,14 +400,55 @@ class ZugferdDocumentTest extends TestCase
      */
     public static function basisQuantityProvider(): \Generator
     {
-        yield 'with purchase unit' => [
+        yield 'purchase unit is ignored' => [
             'purchaseUnit' => 5,
-            'expectedBasisQuantity' => '5.00',
+            'expectedBasisQuantity' => '1.00',
         ];
         yield 'without purchase unit' => [
             'purchaseUnit' => null,
             'expectedBasisQuantity' => '1.00',
         ];
+    }
+
+    public function testUnitPriceIsWrittenWithFourDecimals(): void
+    {
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(69.93);
+        $order->setAmountNet(58.76);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId(Uuid::randomHex());
+        $lineItem->setLabel('Product ' . $lineItem->getId());
+        $lineItem->setQuantity(7);
+        $lineItem->setPosition(1);
+        $lineItem->setPrice(new CalculatedPrice(
+            9.99,
+            69.93,
+            new CalculatedTaxCollection([new CalculatedTax(11.17, 19.0, 69.93)]),
+            new TaxRuleCollection(),
+        ));
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withProductLineItem($lineItem, '');
+        $document->withPaidAmount(69.93);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $unitPrice = $document->getDomContent($order, $calculator)
+            ->getElementsByTagName('SupplyChainTradeTransaction')->item(0)
+            ?->getElementsByTagName('IncludedSupplyChainTradeLineItem')->item(0)
+            ?->getElementsByTagName('SpecifiedLineTradeAgreement')->item(0)
+            ?->getElementsByTagName('NetPriceProductTradePrice')->item(0)
+            ?->getElementsByTagName('ChargeAmount')->item(0);
+
+        static::assertSame('8.3943', $unitPrice?->nodeValue);
     }
 
     private function createDeliveryDocumentDom(float $shippingTotal, string $documentType): \DOMDocument

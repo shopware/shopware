@@ -156,7 +156,7 @@
             >
                 <sw-container
                     class="sw-settings-document-detail__settings_card-form"
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    columns="repeat(2, minmax(250px, 1fr))"
                     gap="0px 30px"
                 >
                     {% block sw_settings_document_detail_content_field_name %}
@@ -170,30 +170,6 @@
                             validation="required"
                             :error="documentConfigNameError"
                             required
-                        />
-                    </div>
-                    {% endblock %}
-
-                    {% block sw_settings_document_detail_content_field_file_name_prefix %}
-                    <div class="sw-settings-document-detail__field_file_name_prefix">
-                        <mt-text-field
-                            v-model="documentConfig.filenamePrefix"
-                            name="sw-field--documentConfig-filenamePrefix"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
-                            :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
-                        />
-                    </div>
-                    {% endblock %}
-
-                    {% block sw_settings_document_detail_content_field_file_name_suffix %}
-                    <div class="sw-settings-document-detail__field_file_name_suffix">
-                        <mt-text-field
-                            v-model="documentConfig.filenameSuffix"
-                            name="sw-field--documentConfig-filenameSuffix"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
-                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
                         />
                     </div>
                     {% endblock %}
@@ -236,6 +212,79 @@
                     {% endblock %}
                 </sw-container>
 
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_document_detail_filename_card %}
+            <mt-card
+                class="sw-settings-document-detail__filename_card"
+                position-identifier="sw-settings-document-detail-filename"
+                :title="$t('sw-settings-document.detail.filenameCard')"
+                :is-loading="isLoading"
+            >
+                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')">
+                    <p class="sw-settings-document-detail__filename_pattern">
+                        <mt-icon
+                            size="16"
+                            name="solid-info-circle"
+                        />
+                        <span>{{ $t('sw-settings-document.detail.filenamePattern') }}</span>
+                    </p>
+                </template>
+
+                <sw-container
+                    class="sw-settings-document-detail__filename_card-form"
+                    columns="repeat(2, minmax(250px, 1fr))"
+                    gap="0px 30px"
+                >
+                    {% block sw_settings_document_detail_content_field_file_name_prefix %}
+                    <mt-text-field
+                        v-model="documentConfig.filenamePrefix"
+                        name="sw-field--documentConfig-filenamePrefix"
+                        class="sw-settings-document-detail__field_file_name_prefix"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_file_name_suffix %}
+                    <mt-text-field
+                        v-model="documentConfig.filenameSuffix"
+                        name="sw-field--documentConfig-filenameSuffix"
+                        class="sw-settings-document-detail__field_file_name_suffix"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_settings_document_detail_filename_field_infixes %}
+                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && supportedFormats.length">
+                    <div class="sw-settings-document-detail__filename_infix_headline">
+                        <h3>{{ $t('sw-settings-document.detail.filenameInfixHeadline') }}</h3>
+                        <sw-help-text :text="$t('sw-settings-document.detail.filenameInfixHelpText')" />
+                    </div>
+
+                    <sw-container
+                        class="sw-settings-document-detail__filename_infix_fields"
+                        columns="repeat(2, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        <mt-text-field
+                            v-for="format in supportedFormats"
+                            :key="`filename-infix-${format}`"
+                            v-model="documentConfig.filenameInfixes[format]"
+                            :name="`sw-field--documentConfig-filenameInfixes-${format}`"
+                            class="sw-settings-document-detail__field_file_name_infix"
+                            :disabled="!acl.can('document.editor') || undefined"
+                            :label="formatLabels[format]"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameInfix')"
+                        />
+                    </sw-container>
+                </template>
+                {% endblock %}
             </mt-card>
             {% endblock %}
 

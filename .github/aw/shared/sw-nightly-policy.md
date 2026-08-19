@@ -7,8 +7,7 @@ rules. Loaded by both the interactive skill
 (`.github/aw/sw-nightly-policy.md`); the two mode files keep only their
 mode-specific invocation context and output format.
 
-The input is an auto-filed nightly tracking issue (parent or per-domain
-sub-issue) produced by `.github/workflows/report-phpunit-failures.yml`: a
+The input is an auto-filed per-domain nightly tracking issue produced by `.github/workflows/report-phpunit-failures.yml`: a
 domain-grouped list of failing PHPUnit tests from a scheduled run, grouped by
 `#[Package]` marker only — no clustering, no routing overrides applied. Your
 job is the analysis layer on top: collapse the test list into root-cause
@@ -54,7 +53,7 @@ execute them.
 
 1. **Read the tracking issue.** The failing-test list (grouped by domain) and
    the run link are in the issue body and its latest update comment. On a
-   per-domain sub-issue, scope your analysis to that domain's tests; note
+   per-domain issue, scope your analysis to that domain's tests; note
    suspected cross-domain causes but do not re-route other domains' tests.
 2. **Pull the failure detail.** Fetch the linked run's failing job logs and
    capture each test's first meaningful error line. Normalize noise (hex IDs,

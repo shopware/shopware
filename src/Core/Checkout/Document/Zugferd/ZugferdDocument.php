@@ -10,6 +10,7 @@ use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
+use horstoeko\zugferd\ZugferdSettings;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -39,6 +40,23 @@ class ZugferdDocument
     public const CHARGE_AMOUNT = 'chargeAmount';
     public const LINE_TOTAL_AMOUNT = 'lineTotalAmount';
     public const ALLOWANCE_AMOUNT = 'allowanceAmount';
+
+    /**
+     * BT-146 is written per billed unit, so the price base quantity (BT-149) must be 1,
+     * otherwise the PEPPOL-EN16931-R120 line amount calculation breaks.
+     */
+    private const PRICE_BASIS_QUANTITY = 1;
+
+    /**
+     * EN16931 caps most amounts at 2 decimals but exempts the unit price (BT-146):
+     * "Unit price amount does not set restrictions on number of decimals, as contrast to the Amount type"
+     * (https://docs.peppol.eu/poacc/billing/3.0/bis/#_unit_price_amount).
+     * 2 decimals violate PEPPOL-EN16931-R120 (slack 0.02) once the rounding error
+     * of the net unit price multiplies with higher quantities.
+     */
+    private const UNIT_PRICE_DECIMALS = 4;
+
+    private const UNIT_PRICE_NODE_PATH = '/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:IncludedSupplyChainTradeLineItem/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use mappedPrices instead
@@ -74,6 +92,10 @@ class ZugferdDocument
         protected readonly ZugferdDocumentBuilder $zugferdBuilder,
         protected readonly bool $isGross = false,
     ) {
+        ZugferdSettings::addSpecialDecimalPlacesMap(
+            self::UNIT_PRICE_NODE_PATH,
+            self::UNIT_PRICE_DECIMALS
+        );
     }
 
     /**
@@ -204,8 +226,8 @@ class ZugferdDocument
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
             ->setDocumentPositionNetPrice(
-                \round($totalNet / $lineItem->getQuantity(), 2),
-                $lineItem->getProduct()?->getPurchaseUnit() ?? 1,
+                \round($totalNet / $lineItem->getQuantity(), self::UNIT_PRICE_DECIMALS),
+                self::PRICE_BASIS_QUANTITY,
                 ZugferdUnitCodes::REC20_PIECE
             )
             ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)

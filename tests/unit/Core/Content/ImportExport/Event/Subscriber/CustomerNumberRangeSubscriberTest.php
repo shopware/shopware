@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -18,6 +17,7 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent
 use Shopware\Core\Content\ImportExport\Event\Subscriber\CustomerNumberRangeSubscriber;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangePatternMatcher;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Framework\Context;
@@ -46,11 +46,12 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             $clock,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
-        $subscriber->onAfterImportBatch($this->createBatchEvent($context, new EntityWriteResult(
+        $subscriber->onAfterImport($this->createBatchEvent($context, new EntityWriteResult(
             'customer-id',
             ['customerNumber' => '100014'],
             CustomerDefinition::ENTITY_NAME,
@@ -68,6 +69,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             $clock,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
@@ -79,7 +81,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
             EntityWriteResult::OPERATION_INSERT,
         ));
 
-        $subscriber->onAfterImportRecords(new ImportExportAfterImportRecordsEvent(
+        $subscriber->onAfterImport(new ImportExportAfterImportRecordsEvent(
             $batchEvent->getConfig(),
             $context,
             $batchEvent->getResult(),
@@ -94,11 +96,12 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
-        $subscriber->onAfterImportBatch($this->createBatchEvent($context, new EntityWriteResult(
+        $subscriber->onAfterImport($this->createBatchEvent($context, new EntityWriteResult(
             'customer-id',
             ['firstName' => 'Updated'],
             CustomerDefinition::ENTITY_NAME,
@@ -119,12 +122,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent(
+        $subscriber->onAfterImport($this->createBatchEvent(
             $context,
             new EntityWriteResult(
                 'customer-id-1',
@@ -165,12 +169,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$customer])]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent(
+        $subscriber->onAfterImport($this->createBatchEvent(
             $context,
             new EntityWriteResult(
                 'customer-id',
@@ -209,12 +214,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
                 $existingSalesChannelId => ['id' => Uuid::randomHex(), 'pattern' => '{n}'],
                 $updatedSalesChannelId => ['id' => $updatedConfigurationId, 'pattern' => '{n}'],
             ]),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$customer])]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent(
+        $subscriber->onAfterImport($this->createBatchEvent(
             $context,
             new EntityWriteResult(
                 'customer-id',
@@ -252,12 +258,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
                 $firstSalesChannelId => ['id' => $firstConfigurationId, 'pattern' => '{n}'],
                 $secondSalesChannelId => ['id' => $secondConfigurationId, 'pattern' => '{n}'],
             ]),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent(
+        $subscriber->onAfterImport($this->createBatchEvent(
             $context,
             new EntityWriteResult(
                 'customer-id-1',
@@ -293,12 +300,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent(
+        $subscriber->onAfterImport($this->createBatchEvent(
             $context,
             new EntityWriteResult(
                 'unknown-customer-id',
@@ -317,12 +325,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent(
+        $subscriber->onAfterImport($this->createBatchEvent(
             $context,
             new EntityWriteResult(
                 'customer-id',
@@ -346,6 +355,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $customerRepository = StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$existingCustomer])]);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             $customerRepository,
@@ -380,6 +390,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $customerRepository = StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$existingCustomer])]);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             $customerRepository,
@@ -403,25 +414,23 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         static::assertSame([], $customerRepository->searches);
     }
 
-    #[DataProvider('invalidCustomerNumberPatterns')]
-    public function testRejectsCustomerNumberThatDoesNotMatchTheConfiguredPattern(
-        string $pattern,
-        string $customerNumber,
-    ): void {
+    public function testRejectsCustomerNumberThatDoesNotMatchTheConfiguredPattern(): void
+    {
         $context = Context::createDefaultContext();
         $connection = static::createStub(Connection::class);
         $subscriber = new CustomerNumberRangeSubscriber(
-            $this->createPatternConfigService($pattern),
+            $this->createPatternConfigService('CUSTOMER-{n}-EU'),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
         $this->expectExceptionObject(ImportExportException::processingError(
-            \sprintf('Customer number "%s" does not match the configured customer number pattern.', $customerNumber)
+            'Customer number "CUSTOMER-100014-DE" does not match the configured customer number pattern.'
         ));
         $subscriber->onBeforeImportRecord(new ImportExportBeforeImportRecordEvent(
-            ['customerNumber' => $customerNumber],
+            ['customerNumber' => 'CUSTOMER-100014-DE'],
             [],
             new Config([], [
                 'sourceEntity' => CustomerDefinition::ENTITY_NAME,
@@ -432,37 +441,6 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         ));
     }
 
-    /**
-     * @return iterable<string, array{pattern: string, customerNumber: string}>
-     */
-    public static function invalidCustomerNumberPatterns(): iterable
-    {
-        yield 'literal suffix does not match' => [
-            'pattern' => 'CUSTOMER-{n}-EU',
-            'customerNumber' => 'CUSTOMER-100014-DE',
-        ];
-
-        yield 'missing increment' => [
-            'pattern' => 'CUSTOMER-{n}',
-            'customerNumber' => 'CUSTOMER-ABC',
-        ];
-
-        yield 'invalid date' => [
-            'pattern' => '{date}_{n}',
-            'customerNumber' => '2026-99-99_100014',
-        ];
-
-        yield 'missing increment placeholder' => [
-            'pattern' => 'CUSTOMER-{date}',
-            'customerNumber' => 'CUSTOMER-2026-08-12',
-        ];
-
-        yield 'unknown placeholder' => [
-            'pattern' => 'CUSTOMER-{external-value}-{n}',
-            'customerNumber' => 'CUSTOMER-value-100014',
-        ];
-    }
-
     public function testDoesNotSynchronizeUnknownPlaceholders(): void
     {
         $context = Context::createDefaultContext();
@@ -471,12 +449,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('C-{unknown}'),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent($context, new EntityWriteResult(
+        $subscriber->onAfterImport($this->createBatchEvent($context, new EntityWriteResult(
             'customer-id',
             ['customerNumber' => 'C-100014'],
             CustomerDefinition::ENTITY_NAME,
@@ -492,12 +471,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('C-{unknown}-{n}'),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
-        $subscriber->onAfterImportBatch($this->createBatchEvent($context, new EntityWriteResult(
+        $subscriber->onAfterImport($this->createBatchEvent($context, new EntityWriteResult(
             'customer-id',
             ['customerNumber' => 'C-any-content-100014'],
             CustomerDefinition::ENTITY_NAME,
@@ -511,6 +491,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $connection = static::createStub(Connection::class);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('C-{unknown}-{n}'),
+            new CustomerNumberRangePatternMatcher(),
             $connection,
             static::createStub(ClockInterface::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
@@ -530,118 +511,6 @@ class CustomerNumberRangeSubscriberTest extends TestCase
             ], []),
             $context,
         ));
-    }
-
-    public function testSynchronizesIncrementWhenDateFollowsIncrement(): void
-    {
-        $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with(
-                static::anything(),
-                static::callback(static fn (array $parameters): bool => $parameters['value'] === 100014),
-            );
-
-        $subscriber = new CustomerNumberRangeSubscriber(
-            $this->createPatternConfigService('C-{n}{date_Ymd}'),
-            $connection,
-            static::createStub(ClockInterface::class),
-            StaticEntityRepository::of(CustomerCollection::class, [[]]),
-        );
-
-        $subscriber->onAfterImportBatch($this->createBatchEvent($context, new EntityWriteResult(
-            'customer-id',
-            ['customerNumber' => 'C-10001420260811'],
-            CustomerDefinition::ENTITY_NAME,
-            EntityWriteResult::OPERATION_INSERT,
-        )));
-    }
-
-    #[DataProvider('customerNumberPatterns')]
-    public function testSynchronizesIncrementForDifferentCustomerNumberPatterns(
-        string $pattern,
-        string $customerNumber,
-        int $expectedIncrement,
-    ): void {
-        $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with(
-                static::anything(),
-                static::callback(static fn (array $parameters): bool => $parameters['value'] === $expectedIncrement),
-            );
-        $clock = static::createStub(ClockInterface::class);
-        $clock->method('now')->willReturn(new \DateTimeImmutable('2026-08-12 00:00:00'));
-
-        $subscriber = new CustomerNumberRangeSubscriber(
-            $this->createPatternConfigService($pattern),
-            $connection,
-            $clock,
-            StaticEntityRepository::of(CustomerCollection::class, [[]]),
-        );
-
-        $subscriber->onAfterImportBatch($this->createBatchEvent($context, new EntityWriteResult(
-            'customer-id',
-            ['customerNumber' => $customerNumber],
-            CustomerDefinition::ENTITY_NAME,
-            EntityWriteResult::OPERATION_INSERT,
-        )));
-    }
-
-    /**
-     * @return iterable<string, array{pattern: string, customerNumber: string, expectedIncrement: int}>
-     */
-    public static function customerNumberPatterns(): iterable
-    {
-        yield 'plain increment' => [
-            'pattern' => '{n}',
-            'customerNumber' => '100014',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'prefix and suffix' => [
-            'pattern' => 'CUSTOMER-{n}-EU',
-            'customerNumber' => 'CUSTOMER-100014-EU',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'increment before date' => [
-            'pattern' => '{n}-{date}',
-            'customerNumber' => '100014-2026-08-12',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'date before increment' => [
-            'pattern' => '{date}_{n}',
-            'customerNumber' => '2026-08-12_100014',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'custom date format' => [
-            'pattern' => 'DOC-{date_d.m.Y}/{n}',
-            'customerNumber' => 'DOC-12.08.2026/100014',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'whitespace and special characters' => [
-            'pattern' => 'Customer / {n} (EU) #1',
-            'customerNumber' => 'Customer / 100014 (EU) #1',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'multiple increment digits' => [
-            'pattern' => 'PREFIX-{n}{date_Ymd}',
-            'customerNumber' => 'PREFIX-10001420260812',
-            'expectedIncrement' => 100014,
-        ];
-
-        yield 'multiple increment digits and adds' => [
-            'pattern' => 'PREFIX-99{n}12{date_Ymd}42',
-            'customerNumber' => 'PREFIX-99100014122026081242',
-            'expectedIncrement' => 100014,
-        ];
     }
 
     private function createBatchEvent(Context $context, EntityWriteResult ...$writeResults): ImportExportAfterImportBatchEvent

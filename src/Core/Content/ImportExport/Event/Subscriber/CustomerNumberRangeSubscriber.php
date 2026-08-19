@@ -11,7 +11,7 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordsEvent
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
-use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangePatternMatcher;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -32,13 +32,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('fundamentals@after-sales')]
 final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
 {
-    private const DEFAULT_DATE_FORMAT = 'Y-m-d';
-
     /**
      * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly CustomerNumberRangeConfigService $numberPatternConfigService,
+        private readonly CustomerNumberRangePatternMatcher $numberPatternMatcher,
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
         private readonly EntityRepository $customerRepository,
@@ -49,8 +48,8 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
     {
         return [
             ImportExportBeforeImportRecordEvent::class => 'onBeforeImportRecord',
-            ImportExportAfterImportBatchEvent::class => 'onAfterImportBatch',
-            ImportExportAfterImportRecordsEvent::class => 'onAfterImportRecords',
+            ImportExportAfterImportBatchEvent::class => 'onAfterImport',
+            ImportExportAfterImportRecordsEvent::class => 'onAfterImport',
         ];
     }
 
@@ -72,7 +71,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($this->extractIncrement($patternConfig['pattern'], $customerNumber) === null) {
+        if ($this->numberPatternMatcher->extractIncrement($patternConfig['pattern'], $customerNumber) === null) {
             throw ImportExportException::processingError(\sprintf(
                 'Customer number "%s" does not match the configured customer number pattern.',
                 $customerNumber,
@@ -104,78 +103,55 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onAfterImportBatch(ImportExportAfterImportBatchEvent $event): void
+    public function onAfterImport(ImportExportAfterImportBatchEvent|ImportExportAfterImportRecordsEvent $event): void
     {
-        $this->processAfterImport($event->getConfig(), $event->getContext(), $event->getResult());
-    }
-
-    public function onAfterImportRecords(ImportExportAfterImportRecordsEvent $event): void
-    {
-        $this->processAfterImport($event->getConfig(), $event->getContext(), $event->getResult());
-    }
-
-    private function processAfterImport(Config $config, Context $context, ImportResult $result): void
-    {
-        if ($config->get('sourceEntity') !== CustomerDefinition::ENTITY_NAME) {
+        if ($event->getConfig()->get('sourceEntity') !== CustomerDefinition::ENTITY_NAME) {
             return;
         }
 
         /** @var array<string, int> $highestIncrements */
         $highestIncrements = [];
-        $salesChannelIdsForUpdatedCustomers = $this->getSalesChannelIdsForUpdatedCustomers($result, $context);
+        $salesChannelIdsForUpdatedCustomers = $this->getSalesChannelIdsForUpdatedCustomers($event->getResult(), $event->getContext());
 
-        foreach ($result->results as $writtenContainerEvent) {
-            $nestedEvents = $writtenContainerEvent->getEvents();
-            if ($nestedEvents === null) {
+        foreach ($this->customerWriteResults($event->getResult()) as $customerWriteResult) {
+            if (!\in_array($customerWriteResult->getOperation(), [
+                EntityWriteResult::OPERATION_INSERT,
+                EntityWriteResult::OPERATION_UPDATE,
+            ], true)) {
                 continue;
             }
 
-            foreach ($nestedEvents as $nestedEvent) {
-                if ($nestedEvent->getEntityName() !== CustomerDefinition::ENTITY_NAME) {
-                    continue;
-                }
-
-                foreach ($nestedEvent->getWriteResults() as $customerWriteResult) {
-                    if (!\in_array($customerWriteResult->getOperation(), [
-                        EntityWriteResult::OPERATION_INSERT,
-                        EntityWriteResult::OPERATION_UPDATE,
-                    ], true)) {
-                        continue;
-                    }
-
-                    $customerNumber = $customerWriteResult->getProperty('customerNumber');
-                    if (!\is_string($customerNumber)) {
-                        continue;
-                    }
-
-                    $salesChannelId = $customerWriteResult->getProperty('salesChannelId');
-                    if (!\is_string($salesChannelId) && $customerWriteResult->getOperation() === EntityWriteResult::OPERATION_UPDATE) {
-                        $customerId = $customerWriteResult->getPrimaryKey();
-                        $salesChannelId = \is_string($customerId) ? ($salesChannelIdsForUpdatedCustomers[$customerId] ?? null) : null;
-                    }
-
-                    if ($customerWriteResult->getOperation() === EntityWriteResult::OPERATION_UPDATE && !\is_string($salesChannelId)) {
-                        continue;
-                    }
-
-                    $salesChannelId = \is_string($salesChannelId) ? $salesChannelId : null;
-                    $configuration = $this->numberPatternConfigService->getPatternConfig($salesChannelId);
-                    if ($configuration === null) {
-                        continue;
-                    }
-
-                    $increment = $this->extractIncrement($configuration['pattern'], $customerNumber);
-                    if ($increment === null) {
-                        continue;
-                    }
-
-                    $configurationId = $configuration['id'];
-                    $highestIncrements[$configurationId] = \max(
-                        $highestIncrements[$configurationId] ?? 0,
-                        $increment,
-                    );
-                }
+            $customerNumber = $customerWriteResult->getProperty('customerNumber');
+            if (!\is_string($customerNumber)) {
+                continue;
             }
+
+            $salesChannelId = $customerWriteResult->getProperty('salesChannelId');
+            if (!\is_string($salesChannelId) && $customerWriteResult->getOperation() === EntityWriteResult::OPERATION_UPDATE) {
+                $customerId = $customerWriteResult->getPrimaryKey();
+                $salesChannelId = \is_string($customerId) ? ($salesChannelIdsForUpdatedCustomers[$customerId] ?? null) : null;
+            }
+
+            if ($customerWriteResult->getOperation() === EntityWriteResult::OPERATION_UPDATE && !\is_string($salesChannelId)) {
+                continue;
+            }
+
+            $salesChannelId = \is_string($salesChannelId) ? $salesChannelId : null;
+            $configuration = $this->numberPatternConfigService->getPatternConfig($salesChannelId);
+            if ($configuration === null) {
+                continue;
+            }
+
+            $increment = $this->numberPatternMatcher->extractIncrement($configuration['pattern'], $customerNumber);
+            if ($increment === null) {
+                continue;
+            }
+
+            $configurationId = $configuration['id'];
+            $highestIncrements[$configurationId] = \max(
+                $highestIncrements[$configurationId] ?? 0,
+                $increment,
+            );
         }
 
         foreach ($highestIncrements as $configurationId => $increment) {
@@ -186,11 +162,11 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, string|null>
+     * @return list<EntityWriteResult>
      */
-    private function getSalesChannelIdsForUpdatedCustomers(ImportResult $result, Context $context): array
+    private function customerWriteResults(ImportResult $result): array
     {
-        $customerIds = [];
+        $customerWriteResults = [];
 
         foreach ($result->results as $writtenContainerEvent) {
             $nestedEvents = $writtenContainerEvent->getEvents();
@@ -204,15 +180,29 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
                 }
 
                 foreach ($nestedEvent->getWriteResults() as $writeResult) {
-                    if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_UPDATE) {
-                        continue;
-                    }
-
-                    $customerId = $writeResult->getPrimaryKey();
-                    if (\is_string($customerId)) {
-                        $customerIds[] = $customerId;
-                    }
+                    $customerWriteResults[] = $writeResult;
                 }
+            }
+        }
+
+        return $customerWriteResults;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function getSalesChannelIdsForUpdatedCustomers(ImportResult $result, Context $context): array
+    {
+        $customerIds = [];
+
+        foreach ($this->customerWriteResults($result) as $writeResult) {
+            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_UPDATE) {
+                continue;
+            }
+
+            $customerId = $writeResult->getPrimaryKey();
+            if (\is_string($customerId)) {
+                $customerIds[] = $customerId;
             }
         }
 
@@ -278,172 +268,5 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
                 'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
-    }
-
-    private function extractIncrement(string $pattern, string $customerNumber): ?int
-    {
-        if (!\str_contains($pattern, '{n}')) {
-            return null;
-        }
-
-        $tokens = preg_split('/(\{[^{}]+\})/', $pattern, -1, \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY);
-        if ($tokens === false) {
-            return null;
-        }
-
-        $memo = [];
-
-        return $this->parsePatternTokens($tokens, $customerNumber, 0, 0, $memo);
-    }
-
-    /**
-     * @param list<string> $tokens
-     * @param array<string, int|null> $memoryArray
-     */
-    private function parsePatternTokens(
-        array $tokens,
-        string $customerNumber,
-        int $tokenIndex,
-        int $valueOffset,
-        array &$memoryArray,
-    ): ?int {
-        $memoKey = $tokenIndex . ':' . $valueOffset;
-        if (\array_key_exists($memoKey, $memoryArray)) {
-            return $memoryArray[$memoKey];
-        }
-
-        if ($tokenIndex === \count($tokens)) {
-            return $memoryArray[$memoKey] = $valueOffset === \strlen($customerNumber) ? 0 : null;
-        }
-
-        $token = $tokens[$tokenIndex];
-        if (!$this->isPlaceholder($token)) {
-            $tokenLength = \strlen($token);
-            if (\substr($customerNumber, $valueOffset, $tokenLength) !== $token) {
-                return $memoryArray[$memoKey] = null;
-            }
-
-            return $memoryArray[$memoKey] = $this->parsePatternTokens(
-                $tokens,
-                $customerNumber,
-                $tokenIndex + 1,
-                $valueOffset + $tokenLength,
-                $memoryArray,
-            );
-        }
-
-        $placeholder = \substr($token, 1, -1);
-        if ($placeholder === 'n') {
-            return $memoryArray[$memoKey] = $this->parseIncrementToken(
-                $tokens,
-                $customerNumber,
-                $tokenIndex,
-                $valueOffset,
-                $memoryArray,
-            );
-        }
-
-        if ($placeholder === 'date' || \str_starts_with($placeholder, 'date_')) {
-            return $memoryArray[$memoKey] = $this->parseDateToken(
-                $tokens,
-                $customerNumber,
-                $tokenIndex,
-                $valueOffset,
-                $placeholder === 'date' ? self::DEFAULT_DATE_FORMAT : \substr($placeholder, 5),
-                $memoryArray,
-            );
-        }
-
-        return $memoryArray[$memoKey] = null;
-    }
-
-    /**
-     * @param list<string> $tokens
-     * @param array<string, int|null> $memoryArray
-     */
-    private function parseIncrementToken(
-        array $tokens,
-        string $customerNumber,
-        int $tokenIndex,
-        int $valueOffset,
-        array &$memoryArray,
-    ): ?int {
-        $remaining = \strlen($customerNumber) - $valueOffset;
-        $maximumIncrement = null;
-
-        for ($length = 1; $length <= $remaining; ++$length) {
-            $value = \substr($customerNumber, $valueOffset, $length);
-            if (!\ctype_digit($value)) {
-                break;
-            }
-
-            $followingIncrement = $this->parsePatternTokens(
-                $tokens,
-                $customerNumber,
-                $tokenIndex + 1,
-                $valueOffset + $length,
-                $memoryArray,
-            );
-            if ($followingIncrement === null) {
-                continue;
-            }
-
-            $increment = (int) $value;
-            $maximumIncrement = $maximumIncrement === null ? $increment : \max($maximumIncrement, $increment, $followingIncrement);
-        }
-
-        return $maximumIncrement;
-    }
-
-    /**
-     * @param list<string> $tokens
-     * @param array<string, int|null> $memoryArray
-     */
-    private function parseDateToken(
-        array $tokens,
-        string $customerNumber,
-        int $tokenIndex,
-        int $valueOffset,
-        string $format,
-        array &$memoryArray,
-    ): ?int {
-        $remaining = \strlen($customerNumber) - $valueOffset;
-        $maximumIncrement = null;
-
-        for ($length = 1; $length <= $remaining; ++$length) {
-            $dateValue = \substr($customerNumber, $valueOffset, $length);
-            if (!$this->isValidDateValue($dateValue, $format)) {
-                continue;
-            }
-
-            $followingIncrement = $this->parsePatternTokens(
-                $tokens,
-                $customerNumber,
-                $tokenIndex + 1,
-                $valueOffset + $length,
-                $memoryArray,
-            );
-
-            if ($followingIncrement !== null) {
-                $maximumIncrement = $maximumIncrement === null ? $followingIncrement : \max($maximumIncrement, $followingIncrement);
-            }
-        }
-
-        return $maximumIncrement;
-    }
-
-    private function isValidDateValue(string $value, string $format): bool
-    {
-        $date = \DateTimeImmutable::createFromFormat($format, $value);
-        $errors = \DateTimeImmutable::getLastErrors();
-
-        return $date !== false
-            && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0))
-            && $date->format($format) === $value;
-    }
-
-    private function isPlaceholder(string $value): bool
-    {
-        return \strlen($value) > 2 && $value[0] === '{' && $value[-1] === '}';
     }
 }

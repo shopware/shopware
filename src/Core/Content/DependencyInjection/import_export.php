@@ -45,6 +45,7 @@ use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTask;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
 use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangePatternMatcher;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
@@ -97,11 +98,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerNumberRangeSubscriber::class)
         ->args([
             service(CustomerNumberRangeConfigService::class),
+            service(CustomerNumberRangePatternMatcher::class),
             service(Connection::class),
             service(ClockInterface::class),
             service('customer.repository'),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerNumberRangePatternMatcher::class);
 
     $services->set(CustomerNumberRangeConfigService::class)
         ->args([

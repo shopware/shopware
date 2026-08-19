@@ -1,0 +1,36 @@
+{
+    "title": "Sw/Media/Youtube",
+    "parameters": {
+        "server": {
+            "id": "Sw:Media:Youtube"
+        },
+        "template": "<twig:Sw:Media:Youtube :videoId=\"videoId\" :videoTitle=\"videoTitle\" :autoplay=\"autoplay\" :loop=\"loop\" :showControls=\"showControls\" :advancedPrivacyMode=\"advancedPrivacyMode\" :needsConfirmation=\"needsConfirmation\" :start=\"start\" :end=\"end\" />"
+    },
+    "argTypes": {
+        "videoId": { "control": "text", "description": "The YouTube video id, e.g. 'aqz-KE-bpKQ'." },
+        "videoTitle": { "control": "text", "description": "Accessible title for the video iframe." },
+        "autoplay": { "control": "boolean", "description": "Autoplay the video (muted)." },
+        "loop": { "control": "boolean", "description": "Loop the video." },
+        "showControls": { "control": "boolean", "description": "Show the player controls." },
+        "advancedPrivacyMode": { "control": "boolean", "description": "Use the youtube-nocookie host to prevent tracking until interaction." },
+        "needsConfirmation": { "control": "boolean", "description": "Load the video only after user confirmation (cookie consent)." },
+        "start": { "control": "number", "description": "Start playback at this offset in seconds (0 = from the beginning)." },
+        "end": { "control": "number", "description": "Stop playback at this offset in seconds (0 = play to the end)." }
+    },
+    "stories": [
+        {
+            "name": "Youtube",
+            "args": {
+                "videoId": "aqz-KE-bpKQ",
+                "videoTitle": "Big Buck Bunny",
+                "autoplay": false,
+                "loop": false,
+                "showControls": true,
+                "advancedPrivacyMode": false,
+                "needsConfirmation": false,
+                "start": 0,
+                "end": 0
+            }
+        }
+    ]
+}

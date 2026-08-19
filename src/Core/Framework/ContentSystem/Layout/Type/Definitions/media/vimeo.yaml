@@ -1,0 +1,92 @@
+meta:
+  label: "Vimeo Video"
+  description: "Embeds a Vimeo video with playback, privacy and consent options."
+  icon: "regular-vimeo"
+  category: "content"
+  copilot:
+    summary: "Vimeo video element."
+    hints:
+      - "Requires the numeric Vimeo video id."
+      - "Enable do-not-track and consent gating to avoid tracking before interaction."
+
+properties:
+  videoId:
+    type: string
+    required: true
+    title: "Video ID or URL"
+    description: "The numeric Vimeo video id (e.g. '76979871') or a full Vimeo URL — the id is extracted automatically."
+
+  videoTitle:
+    type: string
+    required: false
+    title: "Video Title"
+    description: "Accessible title for the video iframe."
+
+  autoplay:
+    type: boolean
+    title: "Autoplay"
+    description: "Start playback automatically (muted, as required by browsers)."
+    default: false
+
+  loop:
+    type: boolean
+    title: "Loop"
+    description: "Restart the video when it ends."
+    default: false
+
+  showControls:
+    type: boolean
+    title: "Show Controls"
+    description: "Display the player controls."
+    default: true
+
+  doNotTrack:
+    type: boolean
+    title: "Do Not Track"
+    description: "Enable Vimeo's do-not-track mode to block session tracking."
+    default: false
+
+  needsConfirmation:
+    type: boolean
+    title: "Load After Confirmation"
+    description: "Load the video only after the visitor accepts the privacy notice (cookie consent)."
+    default: false
+
+  showByline:
+    type: boolean
+    title: "Show Byline"
+    description: "Display the author's name on the video."
+    default: true
+
+  showTitle:
+    type: boolean
+    title: "Show Title"
+    description: "Display the video's title."
+    default: true
+
+  showPortrait:
+    type: boolean
+    title: "Show Portrait"
+    description: "Display the author's portrait on the video."
+    default: true
+
+  color:
+    type: string
+    required: false
+    title: "Accent Color"
+    description: "Color of the player controls."
+    default: null
+    adminUI:
+      component: "color"
+
+  previewMedia:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: false
+    title: "Preview Image"
+    description: "Poster image shown on the consent placeholder before the video loads."
+    resolvedBy: previewMediaId
+    adminUI:
+      component: "media-field"
+      visibleWhen:
+        field: "needsConfirmation"
+        equals: true

@@ -50,6 +50,8 @@
                     vertical
                     :price="currentValue.price"
                     :purchase-prices="currentValue.purchasePrices"
+                    :price-inherited="priceInherited"
+                    :purchase-prices-inherited="purchasePricesInherited"
                     :tax-rate="productTaxRate"
                     :disabled="isInherited || !allowEdit || undefined"
                     :error="productPriceError ? productPriceError[0] : null"

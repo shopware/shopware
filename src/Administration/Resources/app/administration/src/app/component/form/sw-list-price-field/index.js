@@ -29,6 +29,16 @@ export default {
             },
         },
 
+        priceInherited: {
+            type: Boolean,
+            default: false,
+        },
+
+        purchasePricesInherited: {
+            type: Boolean,
+            default: false,
+        },
+
         defaultPrice: {
             type: Object,
             required: false,

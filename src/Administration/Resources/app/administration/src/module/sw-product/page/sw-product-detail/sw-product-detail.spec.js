@@ -1183,7 +1183,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 5, linked: true, gross: 6 }]);
     });
 
-    it('should sync purchasePrices to null when price is inherited but purchasePrices is not', async () => {
+    it('should preserve purchasePrices when price is inherited', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             () =>
@@ -1210,10 +1210,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
+        expect(wrapper.vm.product.purchasePrices).toEqual([
+            { currencyId: undefined, net: 5, gross: 6, linked: true },
+        ]);
     });
 
-    it('should sync purchasePrices from parent when price is not inherited but purchasePrices is', async () => {
+    it('should preserve inherited purchasePrices when price is overridden', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             (id) => {
@@ -1241,9 +1243,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.purchasePrices).toEqual([
-            { currencyId: undefined, gross: 50, net: 42, linked: true },
-        ]);
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
     it('should ignore purchase price if its set', async () => {

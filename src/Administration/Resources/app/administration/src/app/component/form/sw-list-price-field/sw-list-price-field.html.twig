@@ -17,8 +17,9 @@
             :default-price="defaultPrice"
             :tax-rate="taxRate"
             :error="error"
-            :disabled="disabled || undefined"
+            :disabled="disabled || priceInherited || undefined"
             :enable-inheritance="enableInheritance"
+            :inherited="priceInherited"
             :label="label"
             :currency="currency"
         />
@@ -37,7 +38,9 @@
             :gross-label="$t('sw-product.priceForm.labelPurchasePriceGross')"
             :net-label="$t('sw-product.priceForm.labelPurchasePriceNet')"
             :tax-rate="taxRate"
-            :disabled="disabled || undefined"
+            :disabled="disabled || purchasePricesInherited || undefined"
+            :enable-inheritance="enableInheritance"
+            :inherited="purchasePricesInherited"
             :currency="currency"
         />
         {% endblock %}
@@ -51,7 +54,7 @@
             :value="listPrice"
             :default-price="defaultListPrice"
             :tax-rate="taxRate"
-            :disabled="disabled || undefined"
+            :disabled="disabled || priceInherited || undefined"
             allow-empty
             :gross-label="$t('global.sw-list-price-field.labelListPriceGross')"
             :gross-help-text="listPriceHelpText"
@@ -60,7 +63,7 @@
             :disable-suffix="disableSuffix"
             :label="label"
             :enable-inheritance="enableInheritance"
-            :inherited="isInherited"
+            :inherited="priceInherited"
             class="sw-list-price-field__list-price-field"
             :currency="currency"
             @change="listPriceChanged"
@@ -75,7 +78,7 @@
             :value="regulationPrice"
             :default-price="defaultRegulationPrice"
             :tax-rate="taxRate"
-            :disabled="disabled || undefined"
+            :disabled="disabled || priceInherited || undefined"
             allow-empty
             :gross-label="$t('global.sw-list-price-field.labelRegulationPriceGross')"
             :gross-help-text="regulationPriceHelpText"
@@ -84,7 +87,7 @@
             :disable-suffix="disableSuffix"
             :label="label"
             :enable-inheritance="enableInheritance"
-            :inherited="isInherited"
+            :inherited="priceInherited"
             class="sw-list-price-field__regulation-price-field"
             :currency="currency"
             @change="regulationPriceChanged"

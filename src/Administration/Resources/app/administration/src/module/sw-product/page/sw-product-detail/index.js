@@ -862,7 +862,6 @@ export default {
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
-                        this.syncVariantPriceInheritance();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -893,22 +892,6 @@ export default {
                 const productDetailStore = Shopware.Store.get('swProductDetail');
                 productDetailStore.product = {};
                 productDetailStore.parentProduct = {};
-            }
-        },
-
-        syncVariantPriceInheritance() {
-            const priceInherited = this.product.price === null;
-            const purchasePricesInherited = this.product.purchasePrices === null;
-
-            // Price is inherited — purchasePrices must also inherit
-            if (priceInherited) {
-                this.product.purchasePrices = null;
-                return;
-            }
-
-            // Price is overridden but purchasePrices still inherited — copy from parent
-            if (purchasePricesInherited) {
-                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
             }
         },
 

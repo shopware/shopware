@@ -59,6 +59,14 @@ export default {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
 
+        priceInherited() {
+            return !!this.parentProduct.id && this.product.price === null;
+        },
+
+        purchasePricesInherited() {
+            return !!this.parentProduct.id && this.product.purchasePrices === null;
+        },
+
         taxes() {
             return Shopware.Store.get('swProductDetail').taxes;
         },

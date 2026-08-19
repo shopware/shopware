@@ -190,6 +190,27 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
     });
 
+    it('should track price and purchase price inheritance independently', async () => {
+        wrapper = await createWrapper({
+            purchasePrices: [
+                {
+                    currencyId: '1',
+                    linked: true,
+                    gross: 50,
+                    net: 42,
+                },
+            ],
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.priceInherited).toBe(true);
+        expect(wrapper.vm.purchasePricesInherited).toBe(false);
+
+        const listPriceField = wrapper.find('sw-list-price-field-stub');
+        expect(listPriceField.props('priceInherited')).toBe(true);
+        expect(listPriceField.props('purchasePricesInherited')).toBe(false);
+    });
+
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button', async () => {
         wrapper = await createWrapper();
         await flushPromises();

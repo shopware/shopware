@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 /**
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it was not used anymore
+ *
+ * @codeCoverageIgnore
  */
 class CrossSellingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {

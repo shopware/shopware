@@ -8,13 +8,14 @@
 
             {% set listPrice = price.listPrice.percentage > 0 %}
             {% set hasRange = product.calculatedPrices.count > 1 %}
+            {% set showDiscountBadge = listPrice and not hasRange %}
 
             {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
             {% if displayParent %}
-                {% set displayFromVariants = displayParent and price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
+                {% set showDiscountBadge = product.calculatedCheapestPrice.hasDisplayableListPrice and not hasRange %}
             {% endif %}
 
-            {% if listPrice and not hasRange and not displayFromVariants %}
+            {% if showDiscountBadge %}
                 <span class="badge bg-danger badge-discount">
                     <span class="visually-hidden">{{ 'listing.boxLabelDiscount'|trans|sw_sanitize }}</span>
                     <span aria-hidden="true">&#37;</span>

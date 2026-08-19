@@ -95,6 +95,12 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
 
+### `calculatedCheapestPrice` exposes variant list price state
+
+`product.calculatedCheapestPrice` now contains two additional booleans, `hasListPriceRange` and `hasDisplayableListPrice`, alongside the existing `hasRange`. `hasListPriceRange` is `true` when the variants of a collapsed parent listing have differing displayable list prices, which makes the concrete list price of the cheapest variant unrepresentative. `hasDisplayableListPrice` is `true` when at least one variant has a list price with a discount greater than zero percent. Both are additive; existing fields and payloads are unchanged.
+
+Storefront themes that computed this state themselves can now read it from the price struct, for example `product.calculatedCheapestPrice.hasListPriceRange` instead of deriving it from `product.cheapestPriceContainer`.
+
 ## Core
 
 ### E-invoice line positions state the correct price base quantity

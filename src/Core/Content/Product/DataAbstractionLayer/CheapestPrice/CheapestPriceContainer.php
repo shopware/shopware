@@ -44,34 +44,7 @@ class CheapestPriceContainer extends Struct
 
     public function resolve(Context $context): ?CheapestPrice
     {
-        $ruleIds = $context->getRuleIds();
-        $ruleIds[] = 'default';
-
-        $prices = [];
-        $defaultWasAdded = false;
-        $source = $context->getSource();
-        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
-
-        foreach ($this->value as $variantId => $group) {
-            foreach ($ruleIds as $ruleId) {
-                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
-
-                if ($price === null) {
-                    continue;
-                }
-
-                // Check sales channel availability
-                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
-                    continue;
-                }
-
-                // overwrite the variantId in case the default price was added
-                $price['variant_id'] = $variantId;
-                $prices[] = $price;
-
-                break;
-            }
-        }
+        $prices = $this->getResolvedPrices($context);
 
         if ($prices === []) {
             return null;
@@ -83,8 +56,24 @@ class CheapestPriceContainer extends Struct
 
         $hasRange = (bool) $cheapest['is_ranged'];
 
+        $listPriceReference = $this->getDisplayableListPriceValue($cheapest, $context);
+        $hasListPriceRange = false;
+        $hasDisplayableListPrice = $listPriceReference !== null;
+
         // @codeCoverageIgnoreStart - This is covered randomly
         foreach ($prices as $price) {
+            // Evaluated before the null-price guard below, because a variant without a
+            // resolvable price still contributes to the list price range detection.
+            $currentListPrice = $this->getDisplayableListPriceValue($price, $context);
+
+            if ($currentListPrice !== $listPriceReference) {
+                $hasListPriceRange = true;
+            }
+
+            if ($currentListPrice !== null) {
+                $hasDisplayableListPrice = true;
+            }
+
             $current = $this->getPriceValue($price, $context);
 
             if ($current === null) {
@@ -95,7 +84,7 @@ class CheapestPriceContainer extends Struct
                 $hasRange = true;
             }
 
-            if ($current < $reference) {
+            if ($current < $reference || ($current === $reference && $this->shouldPreferCandidateForEqualPrice($price, $cheapest, $context))) {
                 $reference = $current;
                 $cheapest = $price;
             }
@@ -107,6 +96,8 @@ class CheapestPriceContainer extends Struct
         $object->setVariantId($cheapest['variant_id']);
         $object->setParentId($cheapest['parent_id']);
         $object->setHasRange($hasRange);
+        $object->setHasListPriceRange($hasListPriceRange);
+        $object->setHasDisplayableListPrice($hasDisplayableListPrice);
         $object->setPurchase($cheapest['purchase_unit'] ? (float) $cheapest['purchase_unit'] : null);
         $object->setReference($cheapest['reference_unit'] ? (float) $cheapest['reference_unit'] : null);
         $object->setUnitId($cheapest['unit_id'] ?? null);
@@ -247,6 +238,41 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
+     * @return list<array<mixed>>
+     */
+    private function getResolvedPrices(Context $context): array
+    {
+        $ruleIds = $context->getRuleIds();
+        $ruleIds[] = 'default';
+
+        $prices = [];
+        $defaultWasAdded = false;
+        $source = $context->getSource();
+        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
+
+        foreach ($this->value as $variantId => $group) {
+            foreach ($ruleIds as $ruleId) {
+                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
+
+                if ($price === null) {
+                    continue;
+                }
+
+                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
+                    continue;
+                }
+
+                $price['variant_id'] = $variantId;
+                $prices[] = $price;
+
+                break;
+            }
+        }
+
+        return $prices;
+    }
+
+    /**
      * @param array<mixed> $price
      */
     private function getPriceValue(array $price, Context $context): ?float
@@ -264,6 +290,50 @@ class CheapestPriceContainer extends Struct
         }
 
         return $value;
+    }
+
+    /**
+     * @param array<mixed> $price
+     */
+    private function getDisplayableListPriceValue(array $price, Context $context): ?float
+    {
+        $currency = $this->getCurrencyPrice($price['price'], $context->getCurrencyId());
+        if ($currency === null || !isset($currency['listPrice'])) {
+            return null;
+        }
+
+        $taxState = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? 'gross' : 'net';
+        if (($currency['percentage'][$taxState] ?? 0.0) <= 0) {
+            return null;
+        }
+
+        $value = (float) $currency['listPrice'][$taxState];
+
+        if ($currency['currencyId'] !== $context->getCurrencyId()) {
+            $value *= $context->getCurrencyFactor();
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<mixed> $candidate
+     * @param array<mixed> $currentCheapest
+     */
+    private function shouldPreferCandidateForEqualPrice(array $candidate, array $currentCheapest, Context $context): bool
+    {
+        $candidateListPrice = $this->getDisplayableListPriceValue($candidate, $context);
+        $currentCheapestListPrice = $this->getDisplayableListPriceValue($currentCheapest, $context);
+
+        if ($candidateListPrice === null) {
+            return false;
+        }
+
+        if ($currentCheapestListPrice === null) {
+            return true;
+        }
+
+        return $candidateListPrice < $currentCheapestListPrice;
     }
 
     /**

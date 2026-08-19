@@ -79,7 +79,7 @@
                                                     {% endif %}
 
                                                     {% if product.variantListingConfig.displayParent and product.parentId === null %}
-                                                        {% set displayFromVariants = price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
+                                                        {% set displayFromVariants = product.calculatedCheapestPrice.hasRange %}
                                                         {% set price = product.calculatedCheapestPrice %}
                                                     {% endif %}
 

@@ -5,8 +5,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +27,7 @@ final readonly class DocumentReader
     public function __construct(
         private EntityRepository $documentRepository,
         private MediaService $mediaService,
+        private DocumentRendererRegistry $documentRendererRegistry,
     ) {
     }
 
@@ -47,9 +49,17 @@ final readonly class DocumentReader
             throw DocumentV2Exception::documentNotFound($documentId);
         }
 
-        $media = $this->findMediaByFormat($document, $format);
-        if ($media === null) {
+        $documentFile = $this->findDocumentFileByFormat($document, $format);
+        $media = $documentFile?->getMedia();
+        if ($documentFile === null || $media === null) {
             throw DocumentV2Exception::documentFormatUnavailable($documentId, $format ?? 'default');
+        }
+
+        $resolvedFormat = $documentFile->getDocumentFormat();
+
+        $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($resolvedFormat);
+        if ($fileExtension === null) {
+            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $resolvedFormat);
         }
 
         $content = $context->scope(
@@ -58,9 +68,9 @@ final readonly class DocumentReader
         );
 
         $renderedDocument = new RenderedDocument(
-            name: $media->getFileName() . '.' . $media->getFileExtension(),
-            fileExtension: $media->getFileExtension() ?? (string) $format,
-            contentType: $media->getMimeType(),
+            name: ($media->getFileName() ?? $documentId) . '.' . $fileExtension,
+            fileExtension: $fileExtension,
+            contentType: $media->getMimeType() ?? 'application/octet-stream',
         );
 
         $renderedDocument->setContent($content);
@@ -68,7 +78,7 @@ final readonly class DocumentReader
         return $renderedDocument;
     }
 
-    private function findMediaByFormat(DocumentEntity $document, ?string $format): ?MediaEntity
+    private function findDocumentFileByFormat(DocumentEntity $document, ?string $format): ?DocumentFileEntity
     {
         $documentFiles = $document->getDocumentFiles();
         if ($documentFiles === null || $documentFiles->count() === 0) {
@@ -76,12 +86,12 @@ final readonly class DocumentReader
         }
 
         if ($format === null) {
-            return $documentFiles->first()?->getMedia();
+            return $documentFiles->first();
         }
 
         foreach ($documentFiles as $documentFile) {
             if ($documentFile->getDocumentFormat() === $format) {
-                return $documentFile->getMedia();
+                return $documentFile;
             }
         }
 

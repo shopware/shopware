@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
+use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -842,7 +843,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, $mediaService),
+            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([])),
             $documentRepository,
             new GuestAuthenticator(),
             new \ArrayIterator([]),
@@ -892,7 +893,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, static::createStub(MediaService::class)),
+            new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([])),
             $documentRepository,
             new GuestAuthenticator(),
             new \ArrayIterator([]),
@@ -951,6 +952,7 @@ class DocumentRouteTest extends TestCase
         return new DocumentReader(
             static::createStub(EntityRepository::class),
             static::createStub(MediaService::class),
+            new DocumentRendererRegistry([]),
         );
     }
 }

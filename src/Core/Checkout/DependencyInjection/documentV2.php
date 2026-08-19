@@ -212,6 +212,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service(MediaService::class),
+            service(DocumentRendererRegistry::class),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)
@@ -243,7 +244,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DocumentGenerator::class),
-            service(DocumentRendererRegistry::class),
+            service(DocumentReader::class),
             service(DocumentTypeRegistry::class),
             service(DocumentArchiveGenerator::class),
             service('document.repository'),

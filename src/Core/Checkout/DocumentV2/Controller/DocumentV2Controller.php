@@ -12,11 +12,10 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
@@ -53,7 +52,7 @@ final class DocumentV2Controller extends AbstractController
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
-        private readonly DocumentRendererRegistry $documentRendererRegistry,
+        private readonly DocumentReader $documentReader,
         private readonly DocumentTypeRegistry $documentTypeRegistry,
         private readonly DocumentArchiveGenerator $documentArchiveGenerator,
         private readonly EntityRepository $documentRepository,
@@ -215,35 +214,12 @@ final class DocumentV2Controller extends AbstractController
         string $format,
         Context $context,
     ): Response {
-        $document = $this->loadDocument($documentId, $context);
-
-        if (!$document instanceof DocumentEntity) {
-            throw DocumentV2Exception::documentNotFound($documentId);
-        }
-
-        $media = $this->findMediaByFormat($document, $format);
-
-        if (!$media instanceof MediaEntity) {
-            throw DocumentV2Exception::documentFormatUnavailable($documentId, $format);
-        }
-
-        $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($format);
-
-        if ($fileExtension === null) {
-            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format);
-        }
-
-        $content = $context->scope(
-            Context::SYSTEM_SCOPE,
-            fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),
-        );
-
-        $fileName = ($media->getFileName() ?? $documentId) . '.' . $fileExtension;
+        $document = $this->documentReader->read($documentId, $context, format: $format);
 
         return $this->createResponse(
-            $fileName,
-            $content,
-            $media->getMimeType() ?? 'application/octet-stream',
+            $document->getName(),
+            $document->getContent(),
+            $document->getContentType(),
             HeaderUtils::DISPOSITION_ATTACHMENT,
         );
     }
@@ -286,19 +262,6 @@ final class DocumentV2Controller extends AbstractController
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document instanceof DocumentEntity ? $document : null;
-    }
-
-    private function findMediaByFormat(DocumentEntity $document, string $format): ?MediaEntity
-    {
-        foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-            if ($documentFile->getDocumentFormat() !== $format) {
-                continue;
-            }
-
-            return $documentFile->getMedia();
-        }
-
-        return null;
     }
 
     /**

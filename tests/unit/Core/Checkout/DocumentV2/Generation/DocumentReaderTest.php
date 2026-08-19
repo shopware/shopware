@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
+use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 
 /**
  * @internal
@@ -43,6 +45,7 @@ class DocumentReaderTest extends TestCase
         $reader = new DocumentReader(
             $this->createDocumentRepository($document),
             $mediaService,
+            new DocumentRendererRegistry([]),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', 'pdf');
@@ -65,6 +68,7 @@ class DocumentReaderTest extends TestCase
         $reader = new DocumentReader(
             $this->createDocumentRepository($document),
             $mediaService,
+            new DocumentRendererRegistry([]),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', null);
@@ -79,6 +83,7 @@ class DocumentReaderTest extends TestCase
         $reader = new DocumentReader(
             $this->createDocumentRepository($document),
             static::createStub(MediaService::class),
+            new DocumentRendererRegistry([]),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'xml'));
@@ -93,6 +98,7 @@ class DocumentReaderTest extends TestCase
         $reader = new DocumentReader(
             $this->createDocumentRepository($document),
             static::createStub(MediaService::class),
+            new DocumentRendererRegistry([]),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'pdf'));
@@ -117,7 +123,7 @@ class DocumentReaderTest extends TestCase
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('loadFile')->willReturn('content');
 
-        $reader = new DocumentReader($this->createDocumentRepository($document, calls: 2), $mediaService);
+        $reader = new DocumentReader($this->createDocumentRepository($document, calls: 2), $mediaService, new DocumentRendererRegistry([]));
 
         $plainResult = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
         $zugferdResult = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::ZUGFERD_EMBEDDED_PDF->value);
@@ -126,13 +132,69 @@ class DocumentReaderTest extends TestCase
         static::assertSame('invoice_zugferd.pdf', $zugferdResult->getName());
     }
 
+    public function testReadFallsBackToRendererRegistryFileExtensionWhenMediaHasNone(): void
+    {
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('invoice');
+        $media->setMimeType('application/pdf');
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile(DocumentFormat::PDF->value, $media),
+        ]));
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('loadFile')->willReturn('content');
+
+        $reader = new DocumentReader(
+            $this->createDocumentRepository($document),
+            $mediaService,
+            new DocumentRendererRegistry([
+                new StaticDocumentRenderer(DocumentFormat::PDF, fileExtension: 'pdf'),
+            ]),
+        );
+
+        $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
+
+        static::assertSame('invoice.pdf', $renderedDocument->getName());
+        static::assertSame('pdf', $renderedDocument->getFileExtension());
+    }
+
+    public function testReadThrowsWhenNeitherMediaNorRendererRegistryProvideAFileExtension(): void
+    {
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('invoice');
+        $media->setMimeType('application/pdf');
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile(DocumentFormat::PDF->value, $media),
+        ]));
+
+        $reader = new DocumentReader(
+            $this->createDocumentRepository($document),
+            static::createStub(MediaService::class),
+            new DocumentRendererRegistry([]),
+        );
+
+        $this->expectExceptionObject(
+            DocumentV2Exception::documentFileExtensionUnavailable($document->getId(), DocumentFormat::PDF->value)
+        );
+
+        $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
+    }
+
     public function testReadThrowsWhenDocumentNotFound(): void
     {
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([]),
         ], new DocumentDefinition());
 
-        $reader = new DocumentReader($documentRepository, static::createStub(MediaService::class));
+        $reader = new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]));
 
         $this->expectExceptionObject(DocumentV2Exception::documentNotFound('unknown-id'));
 

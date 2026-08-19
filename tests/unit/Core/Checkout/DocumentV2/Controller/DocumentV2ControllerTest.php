@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
@@ -94,7 +95,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $typeRegistry,
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -139,7 +140,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId, $document),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -182,7 +183,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -223,7 +224,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -290,7 +291,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry([DocumentFormat::HTML->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -363,7 +364,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -441,7 +442,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -519,7 +520,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator($mediaService),
             $this->documentRepository,
@@ -571,7 +572,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -624,7 +625,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -655,7 +656,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -682,6 +683,15 @@ class DocumentV2ControllerTest extends TestCase
         return new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, $formats),
         ]);
+    }
+
+    private function createDocumentReader(DocumentRendererRegistry $rendererRegistry, ?MediaService $mediaService = null): DocumentReader
+    {
+        return new DocumentReader(
+            $this->documentRepository,
+            $mediaService ?? static::createStub(MediaService::class),
+            $rendererRegistry,
+        );
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator

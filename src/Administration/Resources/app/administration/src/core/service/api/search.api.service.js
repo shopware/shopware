@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 
-import { CanceledError } from 'axios';
 import ApiService from '../api.service';
 
 /**
@@ -40,7 +39,7 @@ class SearchApiService extends ApiService {
                 return ApiService.handleResponse(response);
             })
             .catch((error) => {
-                if (error instanceof CanceledError) {
+                if (this.httpClient.isCancel(error)) {
                     return {};
                 }
                 throw error;
@@ -76,7 +75,7 @@ class SearchApiService extends ApiService {
                 return ApiService.handleResponse(response);
             })
             .catch((error) => {
-                if (error instanceof CanceledError) {
+                if (this.httpClient.isCancel(error)) {
                     return {};
                 }
                 throw error;

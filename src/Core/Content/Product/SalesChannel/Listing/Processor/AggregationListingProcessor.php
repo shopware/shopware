@@ -102,18 +102,16 @@ class AggregationListingProcessor extends AbstractListingProcessor
 
         if (RequestParamHelper::get($request, 'reduce-aggregations') === null) {
             foreach ($filters as $filter) {
-                $aggregations = array_merge($aggregations, $filter->getAggregations());
+                $aggregations[] = $filter->getAggregations();
             }
 
-            return $aggregations;
+            return array_merge(...$aggregations);
         }
 
-        foreach ($filters as $filter) {
-            $excluded = $filters->filtered();
+        $base = $filters->filtered();
 
-            if ($filter->exclude()) {
-                $excluded = $excluded->blacklist($filter->getName());
-            }
+        foreach ($filters as $filter) {
+            $excluded = $filter->exclude() ? $base->blacklist($filter->getName()) : $base;
 
             foreach ($filter->getAggregations() as $aggregation) {
                 if ($aggregation instanceof FilterAggregation) {

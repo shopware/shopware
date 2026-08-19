@@ -6,7 +6,18 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### New app script hook `cookie-group-collect`
+
+Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
+
 ## API
+
+### Added new shop setting endpoint
+
+Added new Store API route `GET /store-api/shop-settings`, which exposes the UI- and validation-relevant, non-sensitive subset of the system configuration (grouped into `general`, `loginRegistration`, `cart`, `listing` and `newsletter`) resolved for the current sales channel, so headless frontends (e.g. Composable Frontends) can render the shop consistently with the administration settings.
+### Cache information includes registered indexers
+
+`GET /api/_action/cache_info` now returns an `indexers` map containing the registered normal-refresh indexers and their optional child updaters. Administration clients can use this metadata when offering cache-index refresh controls; post-update-only indexers are excluded.
 
 ### Order recalculation and conversion endpoints now require ACL privileges
 
@@ -80,7 +91,38 @@ The `sw-expect-packages` header is no longer evaluated on API endpoints that do 
 
 Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
+### Store API schema documents cart totals as a separate `CartPrice` component
+
+The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
+
 ## Core
+
+### E-invoice line positions state the correct price base quantity
+
+ZUGFeRD invoices previously wrote the product's purchase unit (`product.purchaseUnit`, the package content used for base price display) as the item price base quantity (BT-149). Recipients validating against EN16931 saw `PEPPOL-EN16931-R120` violations for every line whose product has a purchase unit other than 1, and Peppol access points may have rejected such invoices. Line positions now always state a base quantity of 1, matching the per-unit item net price. Additionally, the item net price (BT-146) is now written with 4 decimals instead of 2, so the line amount calculation stays within the rule's rounding tolerance for higher quantities.
+### New shop settings route classes
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\AbstractShopSettingsRoute` as a decoratable extension point.
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute`.
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRouteResponse` and the structs `ShopSettings`, `ShopGeneralSettings`, `ShopLoginRegistrationSettings`, `ShopCartSettings`, `ShopListingSettings`, `ShopNewsletterSettings` in the same namespace.
+### Plugins can customize version cleanup
+
+Plugins can subscribe to the new `CleanupVersionEvent` to protect version records from scheduled cleanup. The event provides the cleanup cutoff through `getCleanupTime()`, allowing plugins to apply retention rules consistently with the scheduled cleanup task.
+### Force thumbnail regeneration and deletion via `--force`
+
+The `media:generate-thumbnails` command now accepts a `--force` (`-f`) option that regenerates thumbnails for all configured sizes even when a thumbnail already exists — for example after changing the thumbnail quality or sizes of a media folder. The option works with both synchronous and `--async` execution. Previously, existing thumbnails were always skipped.
+
+Note that regenerated thumbnails are written to the same physical path, so their URLs do not change: browsers and CDNs may keep serving the previously cached files until their cache expires or is invalidated manually.
+
+The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) option that deletes all thumbnail records and files even when remote thumbnails are disabled — previously the command refused to run in that case. The command now removes the whole physical thumbnail directory, which also cleans up orphaned files without a database record (e.g. left behind after their media was uploaded again), and prints the number of deleted files. Note that the storefront is missing thumbnails until they are regenerated; prefer `media:generate-thumbnails --force` to replace them without such a gap.
+
+A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
+
+`ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
+### New `Criteria::resetFields()` and `Criteria::resetExcludedFields()`
+
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
+
+They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -275,8 +317,66 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Cross-selling by dynamic product group excludes the whole variant family
+
+A cross-selling that uses a dynamic product group no longer returns the product it is displayed on. For variants, the complete variant family is excluded — the currently viewed variant, its parent, and all sibling variants — because variant grouping and main variant resolution would otherwise resolve a sibling back to the viewed product. Previously only the product the cross-selling is assigned to was excluded, which had no effect on variants that inherit their cross-sellings from the parent.
+
+Cross-sellings with a manual product assignment are unchanged. Extensions that need the old result can adjust the criteria in `ProductCrossSellingStreamCriteriaEvent`.
+### Changing an SEO URL template regenerates the existing SEO URLs
+
+Writing the `template` field of a `seo_url_template` row now regenerates the SEO URLs of the affected route automatically, instead of leaving them on the old template until the SEO indexer is run manually. The new `SeoUrlTemplateChangeSubscriber` queues `SeoUrlTemplateIndexingMessage` on the `async` transport, and the handler walks the route's entities in batches of 250, chaining one message per batch.
+
+This affects every write path, not just Settings > Shop > SEO:
+
+- Both storefront routes (registered in the `SeoUrlRouteRegistry`) and headless store-api routes (tagged `shopware.entity.seo_url.route`) are covered.
+- Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
+- Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
+
 ## Administration
 
+### Admin Worker loads correctly when the Administration is hosted under a base path
+
+The Vite `asset-path-plugin` now also prefixes the literal `Worker`/`SharedWorker` script URLs that Vite bakes into the Administration bundle with `window.__sw__.assetPath`, the same prefix that is already applied to every other admin asset through the `assetsURL()` helper. Previously these worker URLs were emitted as absolute paths against the domain root (e.g. `new SharedWorker("/bundles/administration/administration/assets/adminWorker-*.js")`) and never passed through `assetsURL()`, so on any Shopware install served from a subdirectory / base path — including Shopware-hosted staging environments mounted under a subpath such as `/staging` — the Admin Worker's `SharedWorker` failed to load (404 against the domain root instead of the base path). This broke admin-worker-driven message-queue and scheduled-task processing in the Administration. Operators running the Administration under a base path now get a working Admin Worker; no action is required.
+
+### Vue Single File Components for Administration extensions
+
+Administration components can now be written as Vue Single File Components. `.vue` files were previously not supported at all: components were registered through the component factory with Twig templates, and there was no way to author or override one as an SFC.
+
+A build-time transform lowers these files onto the Composition-API extension system before Vue compiles them, so an override receives the base component's state instead of replacing its implementation. It runs in every extension build — no configuration needed in your plugin.
+
+Filename decides both identity and role: `sw-my-component.vue` (or `sw-my-component/index.vue`) declares the base component `sw-my-component`, and `sw-my-component.override.vue` overrides it. Two markers declare the extension surface, and both are mandatory in their mode — pass an empty object when there is nothing to declare:
+
+```vue
+<!-- sw-my-component.vue -->
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const count = ref(0);
+const internalValue = ref('private');
+
+swDefinePublic({ count });   // `count` is overrideable, `internalValue` is not
+</script>
+```
+
+```vue
+<!-- sw-my-component.override.vue -->
+<script setup lang="ts">
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const count = computed(() => previousState.count.value * 2);
+
+swDefineOverride({ count });
+</script>
+```
+
+A few things to know before you start:
+
+* **Every `.vue` file in your own source needs a `<script setup>` block.** A plain `<script>` (Options API) SFC or a template-only SFC is rejected at build time, because the markers that make a component extendable only exist in `<script setup>`. Options-API components continue to work as before through the component factory; this applies to `.vue` files only. SFCs inside `node_modules` are exempt — a dependency's components are not yours to make extendable.
+* **An override only works when the base component is itself native-setup.** `sw-my-component.override.vue` extends a base declared with `swDefinePublic()`; it cannot override a component registered through the component factory (Twig / Options API). The base must be authored as a native-setup SFC for `useSwPreviousState()` and the override to resolve.
+* **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
+
+Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
@@ -491,19 +591,6 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
-### Cookies can be bound to active payment methods
-
-Cookies declared in an app's `manifest.xml` were always shown in the storefront cookie consent manager, even on sales channels where the app's payment methods are not offered. A cookie (both standalone and inside a group's `<entries>`) can now reference payment methods of the app via the repeatable `<active-payment-method>` element:
-
-```xml
-<cookie>
-    <snippet-name>myApp.cookie.wallet</snippet-name>
-    <cookie>my-app-wallet</cookie>
-    <active-payment-method>wallet</active-payment-method>
-</cookie>
-```
-
-The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
 
 ## Hosting & Configuration
 
@@ -3372,10 +3459,13 @@ The Administration now supports axios 1.x alongside the existing axios 0.30.2 to
 **Current behavior (6.7.x):**
 - Default: axios 0.30.2 (backward compatible)
 - Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+- Repository requests use axios 1.x internally. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+- Existing `httpClient.interceptors` and `httpClient.defaults` customizations are mirrored to both internal clients, so extensions do not need version-specific setup.
+- The Shopware HTTP client remains structurally compatible with the previous `AxiosInstance` type and `axios-mock-adapter`, while new code can use Shopware's `HttpClient` contract.
 
 **Future behavior (6.8.0+):**
-- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
-- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+- Direct HTTP request default: axios 1.x (when `V6_8_0_0` feature flag is active)
+- Direct HTTP request opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
 
 **Key differences between versions:**
 - **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)

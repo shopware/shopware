@@ -44,7 +44,7 @@ Key types extension developers encounter when working with the ContentSystem:
 
 | Enum             | Values                     | Purpose                         |
 |------------------|----------------------------|---------------------------------|
-| `RenderingMode`  | `FULL`, `SKELETON`         | Controls whether hydration runs |
+| `RenderingMode`  | `FULL`, `SKELETON`         | Controls whether data and context are resolved |
 | `ContentSection` | `MAIN`, `HEADER`, `FOOTER` | Identifies content section      |
 
 ### Event Classes
@@ -52,7 +52,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | Class                      | Purpose                     |
 |----------------------------|-----------------------------|
 | `ContentTreePreparationEvent` | Dispatched over the stored tree before every preparation step |
-| `PostHydrationEvent`       | Dispatched after hydration  |
+| `PostHydrationEvent`       | Dispatched after the render step and the finishing steps |
 
 ### Layout / Response
 

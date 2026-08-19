@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
+use Shopware\Core\Framework\ContentSystem\Hydration\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -32,10 +32,10 @@ class ContentPipeline
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly StoredTreePreparer $storedTreePreparer,
-        private readonly ContentElementLowering $lowering,
+        private readonly ElementLowering $elementLowering,
+        private readonly ContentElementLowering $bridge,
         private readonly VirtualRootWrapper $virtualRootWrapper,
         private readonly PartialRenderer $partialRenderer,
-        private readonly ContentElementHydrator $hydrationService,
     ) {
     }
 
@@ -62,17 +62,15 @@ class ContentPipeline
 
         $storedTree = $this->deriveRedistribution($preparation->tree);
 
-        $elements = $this->lowering->lowerTree($storedTree);
+        $renderedTree = $this->elementLowering->lower(
+            $storedTree,
+            $mode,
+            $salesChannelContext,
+            $specification->request,
+            $cacheContext,
+        );
 
-        if ($mode === RenderingMode::FULL) {
-            $hydratedElementsGenerator = $this->hydrationService->hydrate(
-                $elements,
-                $salesChannelContext,
-                $specification->request,
-                $cacheContext,
-            );
-            $elements = array_values(iterator_to_array($hydratedElementsGenerator, false));
-        }
+        $elements = $this->bridge->lowerTree($storedTree, $renderedTree);
 
         $elements = $this->unwrapVirtualRoot($elements, $scaffolding);
         $elements = $this->extractPartialTarget($elements, $scaffolding);

@@ -12,15 +12,19 @@ use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDeliveryResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\ElementDataResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\ElementLowering;
+use Shopware\Core\Framework\ContentSystem\Hydration\RenderedElementFactory;
+use Shopware\Core\Framework\ContentSystem\Hydration\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
@@ -30,6 +34,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
@@ -39,8 +45,10 @@ use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -55,7 +63,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ContentPipeline::class)]
 class ContentPipelineTest extends TestCase
 {
-    private ContentElementHydrator $hydrator;
+    private ElementLowering $lowering;
 
     private EventDispatcherInterface&Stub $eventDispatcher;
 
@@ -64,11 +72,7 @@ class ContentPipelineTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->hydrator = new ContentElementHydrator(
-            new DataLoaderProvider(new ServiceLocator([])),
-            new LoaderInputResolver(),
-            new DataContextResolver(new ContextPathResolver()),
-        );
+        $this->lowering = $this->createLowering([]);
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
@@ -758,11 +762,7 @@ class ContentPipelineTest extends TestCase
                 return ContentDataLoaderResult::cached(new StubStruct(), 'language-1');
             }
         );
-        $this->hydrator = new ContentElementHydrator(
-            new DataLoaderProvider(new ServiceLocator(['language' => static fn (): AbstractContentDataLoader => $loader])),
-            new LoaderInputResolver(),
-            new DataContextResolver(new ContextPathResolver()),
-        );
+        $this->lowering = $this->createLowering(['language' => $loader]);
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -800,11 +800,7 @@ class ContentPipelineTest extends TestCase
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
         $loader->method('load')->willReturn(ContentDataLoaderResult::cached($pageData, 'language-1'));
-        $this->hydrator = new ContentElementHydrator(
-            new DataLoaderProvider(new ServiceLocator(['language' => static fn (): AbstractContentDataLoader => $loader])),
-            new LoaderInputResolver(),
-            new DataContextResolver(new ContextPathResolver()),
-        );
+        $this->lowering = $this->createLowering(['language' => $loader]);
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -828,11 +824,57 @@ class ContentPipelineTest extends TestCase
                 new VirtualRootWrapper(),
                 new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             ),
+            $this->lowering,
             new ContentElementLowering(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
-            $this->hydrator,
         );
+    }
+
+    /**
+     * The render layers are real below the loader seam and the element type registry: a real
+     * `ElementDataResolver` over a real `LoaderInputResolver`, a real `ContextDeliveryResolver` over a real
+     * `ContextDistributor`, and a real `RenderedTreeFactory` over a real `RenderedElementFactory`. Only the
+     * data loaders and the type registry are doubles, so what the pipeline serves is what those layers
+     * actually produced.
+     *
+     * @param array<string, AbstractContentDataLoader<Struct>> $loaders keyed by loader source
+     */
+    private function createLowering(array $loaders): ElementLowering
+    {
+        $factories = [];
+        foreach ($loaders as $source => $loader) {
+            $factories[$source] = static fn (): AbstractContentDataLoader => $loader;
+        }
+
+        return new ElementLowering(
+            new ElementDataResolver(new DataLoaderProvider(new ServiceLocator($factories)), new LoaderInputResolver()),
+            new ContextDeliveryResolver(new ContextDistributor(new ContextPathResolver())),
+            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+        );
+    }
+
+    /**
+     * A rendered property map is derived from the element's type, not copied from storage, so a stored key
+     * only renders where the type declares it. `text` therefore declares the one primitive whose stored
+     * value a test below reads back off the served element. Every other component these fixtures use stores
+     * nothing it serves and stays unregistered, which is also the shape the virtual root is in.
+     */
+    private function typeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = [
+            'text' => ContentSystemElementTypeSpecificationBuilder::create('text')
+                ->primitive('title', 'string')
+                ->build(),
+        ];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(
+            static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]
+        );
+
+        return $registry;
     }
 
     private function createSingleRootLayout(StoredElement $root): RenderableLayout

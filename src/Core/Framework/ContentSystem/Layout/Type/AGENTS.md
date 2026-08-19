@@ -7,7 +7,7 @@
 Type spec `properties` = schema for hydrated API output, NOT storage format
 - FQCN-typed property → filled by pipeline (data loader or context)
 - Primitive-typed property → set statically at design time
-- Shared key links: type spec property key = dataRequirements key = acceptsContext key = setProperty() key
+- Shared key links: type spec property key = dataRequirements key = acceptsContext key = the key `Hydration/RenderedElementFactory` writes the resolved value under
 
 ## Source Code References
 

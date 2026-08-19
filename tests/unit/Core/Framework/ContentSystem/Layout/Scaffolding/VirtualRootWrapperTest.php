@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -24,8 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * The wrapper straddles the two element models, so the fixtures do too: the wrap half takes stored
  * elements, the unwrap half takes the lowered ones the pipeline reaches it with. Where a test needs
- * both halves it lowers the wrap output the way the pipeline does, rather than hand-building a second
- * wrapper that could drift from the real one.
+ * both halves it carries the real wrap output across to the lowered model, rather than hand-building a
+ * second wrapper that could drift from the real one.
  *
  * @internal
  */
@@ -194,11 +193,22 @@ class VirtualRootWrapperTest extends TestCase
     }
 
     /**
-     * Takes a wrap result across to the model the unwrap half speaks, exactly as the pipeline does.
+     * Takes a wrap result across to the model the unwrap half speaks. `unwrap()` reads the roots slot and
+     * the ids inside it and nothing else, so the crossing is done here rather than through
+     * `ContentElementLowering`, which would need a parallel rendered forest this test has no use for.
+     * The wrapper identity and the slot name still come from the real `wrap()` output.
      */
     private function lower(StoredElement $element): ContentElement
     {
-        return (new ContentElementLowering())->lower($element);
+        $slots = [];
+        foreach ($element->slots as $name => $children) {
+            $slots[$name] = new SlotContent(array_map(
+                static fn (StoredElement $child): ContentElement => new ContentElement($child->id, $child->component),
+                $children
+            ));
+        }
+
+        return new ContentElement($element->id, $element->component, [], [], $slots);
     }
 
     private function specificationWithLanguageRequirement(): RenderingSpecification

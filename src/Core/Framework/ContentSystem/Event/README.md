@@ -8,7 +8,7 @@ preparation event, whose elements are immutable, and the mutable `elements` prop
 ## Key Classes
 
 - `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
-- `PostHydrationEvent` - Dispatched after hydration; allows layout finalization
+- `PostHydrationEvent` - Dispatched after the render step and the finishing steps; allows layout finalization
 
 ## Lifecycle
 
@@ -17,8 +17,9 @@ ContentTreePreparationEvent
   → StoredTreePreparer: placeholder resolution (FULL mode only)
       → virtual-root wrap → partial prune
   → wiring validation (on the pre-prune forest)
-  → redistribute derivation (on the pruned tree) → lowering onto ContentElement
-  → Hydration (FULL mode only)
+  → redistribute derivation (on the pruned tree)
+  → render step: ElementLowering (FULL resolves data and context;
+      SKELETON mints structure only) → bridge onto ContentElement
   → virtual-root unwrap → partial extract
 → PostHydrationEvent
 ```

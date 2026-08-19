@@ -21,7 +21,7 @@ The `redistribute` flag on an `acceptsContext` entry, which lets a container pas
 
 Both produce identical results. The container automatically passes data to all children.
 
-The broadcast provider that `redistribute: true` stands for is generated at runtime from `ContextConsumer::$redistribute` by `ContentPipeline`'s redistribute-derivation step, before hydration; it is never persisted with the layout. The rules below are enforced one step earlier, by the wiring validation, which judges the whole authored forest — including a subtree a partial render is about to discard.
+The broadcast provider that `redistribute: true` stands for is generated at runtime from `ContextConsumer::$redistribute` by `ContentPipeline`'s redistribute-derivation step, before the render step; it is never persisted with the layout. The rules below are enforced one step earlier, by the wiring validation, which judges the whole authored forest — including a subtree a partial render is about to discard.
 
 ## Consumer Alias with Redistribution
 

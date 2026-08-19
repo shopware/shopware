@@ -22,15 +22,15 @@ Data requirements declare external data via `DataRequirement` objects (`key`, `s
 
 ## Element Lifecycle
 
-ContentElement is a mutable object whose `properties` map changes between lifecycle stages:
+ContentElement is a mutable object, but on the serving path its `properties` map arrives complete. What the map holds depends on the stage the element is looked at:
 
 | Stage | `properties` contains | `dataRequirements` / `acceptsContext` |
 |---|---|---|
 | **Storage** (database JSON, via field serializer encode) | Static/config values only (scalars set at design time) | Loading and context instructions — how to fill FQCN-typed properties at runtime |
-| **Post-hydration** (runtime, after `ContentElementHydrator`) | Static values AND loaded data merged together | Still present as metadata; hydrator has already used them to populate properties |
-| **API output** (`jsonSerialize()`, Store API response) | Same as post-hydration — full merged map. Skeleton format strips properties entirely | Serialized alongside properties in full format; absent in skeleton format |
+| **Rendered** (runtime, built by `Layout/Element/ContentElementLowering` out of the `RenderedElement`) | Static values AND loaded data merged together | Still present as metadata, read off the stored element; the render step has already used them to resolve the values |
+| **API output** (`jsonSerialize()`, Store API response) | Same as rendered — full merged map. Skeleton format strips properties entirely | Serialized alongside properties in full format; absent in skeleton format |
 
-The hydrator writes loaded data into `properties` using the data requirement's key: `$element->setProperty($key, $result->data)`. Context resolution does the same: `$consumer->setProperty($propertyKey, $data)`. After hydration, there is no distinction between a property that was set statically at design time and one that was loaded by a data loader or received via context.
+The merge happens on the rendered side, in `Hydration/RenderedElementFactory`: a resolved loader value lands under its data requirement's key, and delivered context under the consumer key or its `propertyAlias`. `ContentElementLowering` copies that finished map onto the `ContentElement` it builds and adds nothing. In the resulting map there is no distinction between a property that was set statically at design time and one that was loaded by a data loader or received via context.
 
 Internally, `ContentElement` stores properties in two maps (`structProperties` for Struct instances, `nonStructProperties` for scalars/arrays). This is a serialization optimization — `jsonSerialize()` merges them back into a single `properties` key. The split is invisible to consumers.
 

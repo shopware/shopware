@@ -337,10 +337,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('event_dispatcher'),
             service(StoredTreePreparer::class),
+            service(ElementLowering::class),
             service(ContentElementLowering::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
-            service(ContentElementHydrator::class),
         ]);
 
     // Rendering Specification Factory

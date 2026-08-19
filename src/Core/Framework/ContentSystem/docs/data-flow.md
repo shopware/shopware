@@ -21,9 +21,9 @@ graph LR
     RES(["Full · Decomposed<br/>Skeleton · Data"])
 
     A -- "layout tree" --> B
-    D -- "hydrated tree" --> E
+    D -- "rendered tree" --> E
     E --> RES
-    A -. "skeleton: skip<br/>placeholders and hydration" .-> E
+    A -. "skeleton: skip placeholders,<br/>data loading and context" .-> E
 
     classDef io fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1
     classDef step fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20

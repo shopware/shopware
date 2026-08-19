@@ -84,6 +84,7 @@ use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -200,9 +201,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('validator.constraint_validator');
 
-    $services->set(CustomerVatIdentificationValidator::class)
+    $services->set(VatIdPatternProvider::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(CustomerVatIdentificationValidator::class)
+        ->args([
+            service(VatIdPatternProvider::class),
         ])
         ->tag('validator.constraint_validator');
 

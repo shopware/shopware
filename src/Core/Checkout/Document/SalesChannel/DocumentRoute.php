@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -66,7 +65,6 @@ final class DocumentRoute extends AbstractDocumentRoute
         methods: [Request::METHOD_GET, Request::METHOD_POST],
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME]
     )]
-    #[ParameterRemoval(version: 'v6.9.0', parameterName: 'fileType', description: 'Use $format instead.')]
     public function download(
         string $documentId,
         Request $request,

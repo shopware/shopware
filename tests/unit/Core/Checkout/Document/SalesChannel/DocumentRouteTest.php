@@ -865,6 +865,65 @@ class DocumentRouteTest extends TestCase
         static::assertSame('content', $response->getContent());
     }
 
+    public function testDownloadReturnsFirstFileForADocumentV2DocumentWhenNoFormatIsRequested(): void
+    {
+        $customerId = Uuid::randomHex();
+        $customer = $this->createCustomer($customerId, false);
+        $order = $this->createOrder($customerId);
+        $document = $this->createDocument($order);
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('invoice');
+        $media->setFileExtension('html');
+        $media->setMimeType('text/html');
+
+        // The document has no "pdf" format at all - the storefront controller defaults the
+        // legacy fileType param to "pdf", but that must never leak into the v2 lookup, or this
+        // would wrongly throw instead of falling back to the first available file.
+        $documentFile = new DocumentFileEntity();
+        $documentFile->setId(Uuid::randomHex());
+        $documentFile->setDocumentFormat(DocumentFormat::HTML->value);
+        $documentFile->setMediaId($media->getId());
+        $documentFile->setMedia($media);
+
+        $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
+
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+            new DocumentCollection([$document]), // DocumentRoute::loadDocument()
+            new DocumentCollection([$document]), // DocumentReader::read()
+        ], new DocumentDefinition());
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('loadFile')->willReturn('content');
+
+        $route = new DocumentRoute(
+            static::createStub(DocumentGenerator::class),
+            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([])),
+            $documentRepository,
+            new GuestAuthenticator(),
+            new \ArrayIterator([]),
+        );
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+        // $fileType simulates the storefront controller's own "pdf" default (applied when
+        // nothing was requested at all), while $format stays null - it must not inherit that
+        // default, or this would wrongly throw instead of falling back to the first file found.
+        $response = $route->download(
+            $document->getId(),
+            new Request(),
+            $context,
+            '',
+            PdfRenderer::FILE_EXTENSION,
+            null,
+        );
+
+        static::assertSame('content', $response->getContent());
+    }
+
     public function testDownloadThrowsForAnUnsupportedFormatForADocumentV2Document(): void
     {
         $customerId = Uuid::randomHex();

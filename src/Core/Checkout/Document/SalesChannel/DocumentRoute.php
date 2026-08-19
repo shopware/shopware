@@ -131,17 +131,10 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     /**
-     * @deprecated tag:v6.9.0 - will be removed in favor of DocumentReader::read() and the new document generation rework
-     *
      * @return list<string>
      */
     public function resolveRequest(Request $request, ?string $fileType): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.9.0.0',
-            'Method "resolveRequest()" is deprecated, use DocumentReader::read() with a format instead.',
-        );
-
         $supportedTypesMapping = $this->getSupportedFileTypes();
 
         /*

@@ -103,7 +103,16 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ### An active shipping method must keep at least one usable price
 
-Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. Replace a matrix in one request; to remove one, deactivate the method first.
+Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.
+
+Replace a matrix in a single request, so the method is never priceless in between:
+
+```json
+[
+  { "key": "delete-prices", "entity": "shipping_method_price", "action": "delete", "payload": [{ "id": "…" }] },
+  { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [{ "currencyId": "…", "net": 0, "gross": 0, "linked": false }] }] }
+]
+```
 
 ### E-invoice line positions state the correct price base quantity
 

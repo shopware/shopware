@@ -52,11 +52,19 @@
 
     .sw-settings-shipping-price-matrix__price {
         display: flex;
+        flex-direction: row;
         align-items: center;
+        gap: var(--scale-size-8);
+        width: 100%;
     }
 
     .sw-settings-shipping-price-matrix__price-inherit-icon {
-        margin-right: 5px;
+        flex: 0 0 auto;
+    }
+
+    .sw-settings-shipping-price-matrix__price-input {
+        flex: 1 1 0;
+        min-width: 0;
     }
 
     .sw-settings-shipping-price-matrix__top-container-rule-select .sw-field {

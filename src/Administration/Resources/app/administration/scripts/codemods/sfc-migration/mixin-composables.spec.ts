@@ -33,6 +33,7 @@ function classificationCtx(source: string, componentName: string): Ctx {
     return {
         source,
         ms: new MagicString(source),
+        paths: new Map(),
         componentName,
         bindings: new Map(),
         renamedBindings: new Map(),
@@ -40,8 +41,7 @@ function classificationCtx(source: string, componentName: string): Ctx {
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
-        todos: [],
-        blockers: new Set(),
+        reports: [],
     };
 }
 

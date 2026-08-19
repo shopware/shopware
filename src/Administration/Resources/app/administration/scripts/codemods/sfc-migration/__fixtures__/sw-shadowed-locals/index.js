@@ -70,7 +70,7 @@ export default {
             return this.items.length + total.length;
         },
 
-        // Block scope is not modelled: a binding anywhere in the function shadows the whole body.
+        // Block scope is modelled: a binding the reference never reaches is not shadowing.
         toggle() {
             if (this.title) {
                 const hidden = true;

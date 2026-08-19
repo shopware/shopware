@@ -3,37 +3,46 @@
  */
 
 /**
- * The scope-aware `this.*` rewrite pass. Walks collected member functions and overwrites every
- * component-bound `this` reference in the MagicString: data/computed → `x.value`, props →
- * `props.x`, methods/injects → `x`, instance properties via the INSTANCE_PROPS table. References
- * the tables cannot map become TODO entries — never a wrong rewrite.
+ * The scope-aware `this.*` rewrite pass. Traverses collected member functions with @babel/traverse
+ * and overwrites every component-bound `this` reference in the MagicString: data/computed →
+ * `x.value`, props → `props.x`, methods/injects → `x`, instance properties via the INSTANCE_PROPS
+ * table. References the tables cannot map become TODO entries — never a wrong rewrite.
  *
  * Every rewrite emits a bare root identifier, so it is only correct while no local binding of that
  * name is in scope at the emit site: `onChange(perPage) { this.perPage = perPage; }` must not become
- * `perPage.value = perPage`. The `LocalScope` chain carries the enclosing functions' own bindings so
- * a shadowed reference becomes a TODO instead.
+ * `perPage.value = perPage`. Babel's scope chain answers that, walked only up to the scope
+ * surrounding the pass root — above it live the component's own members, which are not shadowing.
  */
 
+import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
 import { INSTANCE_PROPS, SKIP_INSTANCE_PROPS } from './tables';
 import {
     type Ctx,
     type FnLike,
-    type LocalScope,
-    FUNCTION_TYPES,
     IDENTIFIER,
     bindingName,
-    functionScope,
-    isShadowed,
     isThisMember,
     memberName,
     overwrite,
-    raw,
-    todo,
-    todoFix,
-    visitChildren,
+    report,
+    reportFix,
 } from './ast';
 
+type Scope = NodePath['scope'];
+
+/** Nested non-arrow functions rebind `this`; a class owns its `this` in every position. */
+const REBINDS_THIS = new Set<string>([
+    'FunctionExpression',
+    'FunctionDeclaration',
+    'ObjectMethod',
+    'ClassMethod',
+    'ClassPrivateMethod',
+    'ClassDeclaration',
+    'ClassExpression',
+]);
+
+/** The boundaries of one rewrite pass, so the visitor is a pure function of the visited path. */
 /**
  * Second arguments of `$t` that mean the same to legacy `$t` and to Composition `t()`: an object of
  * named values, a list, or a plural count. A count is only recognized where it provably is a number —
@@ -86,138 +95,100 @@ function legacyI18nShape(call: t.CallExpression, name: string): { reason: string
     return null;
 }
 
-/**
- * Rewrites every component-bound `this.*` inside `node`. `thisIsComponent` is false inside nested
- * non-arrow functions, whose `this` is not the component — those references become TODOs instead of
- * wrong rewrites. `scope` is the chain of local bindings the enclosing functions declare.
- */
-function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponent: boolean, scope: LocalScope | null): void {
-    // `this.$emit('event', ...)`: infer the emits declaration from literal event names.
-    if (
-        node.type === 'CallExpression' &&
-        thisIsComponent &&
-        isThisMember(node.callee) &&
-        memberName(node.callee) === '$emit'
-    ) {
-        const event = node.arguments[0];
+type Pass = {
+    ctx: Ctx;
+    /** `this` semantics at the pass root — ancestors below `stopAt` can only revoke it. */
+    baseIsComponent: boolean;
+    /** Ancestor walks stop here: the first path whose `this` binding the pass does not own. */
+    stopAt: NodePath | null;
+    /** Scope walks stop here: bindings at or above it are the component's, not a local's. */
+    outerScope: Scope | null;
+};
 
-        if (event && event.type === 'StringLiteral') {
-            if (!ctx.inferredEmits.includes(event.value)) {
-                ctx.inferredEmits.push(event.value);
-            }
-        } else {
-            todo(ctx, 'dynamic $emit event name', raw(ctx, node));
+function thisIsComponent(pass: Pass, path: NodePath): boolean {
+    if (!pass.baseIsComponent) {
+        return false;
+    }
+
+    for (let ancestor = path.parentPath; ancestor && ancestor !== pass.stopAt; ancestor = ancestor.parentPath) {
+        if (REBINDS_THIS.has(ancestor.node.type)) {
+            return false;
         }
     }
 
-    if (node.type === 'CallExpression' && thisIsComponent && isThisMember(node.callee)) {
-        const calleeName = memberName(node.callee);
-        const legacyShape = calleeName === null ? null : legacyI18nShape(node, calleeName);
-
-        if (legacyShape !== null) {
-            todoFix(ctx, legacyShape.reason, legacyShape.explanation, raw(ctx, node));
-
-            // The callee is left as authored, so the draft shows the shape a human has to decide on.
-            // The arguments are ordinary component code and still rewrite.
-            for (const argument of node.arguments) {
-                rewriteThis(ctx, argument, thisIsComponent, scope);
-            }
-
-            return;
-        }
-    }
-
-    // `this.$refs.x` → `x.value` (handled on the outer member so the ref name is known).
-    if (node.type === 'MemberExpression' && isThisMember(node.object) && memberName(node.object) === '$refs') {
-        if (!thisIsComponent) {
-            todo(ctx, '`this.$refs` inside a nested function keeps its own `this`', raw(ctx, node));
-            return;
-        }
-
-        const refName = memberName(node);
-
-        if (refName && IDENTIFIER.test(refName) && !ctx.bindings.has(refName) && !isShadowed(scope, refName)) {
-            ctx.templateRefs.add(refName);
-            overwrite(ctx, node, `${refName}.value`);
-            return;
-        }
-
-        // The shadowed case must not register the ref either — transform-script would emit a
-        // `const x = ref(null)` that nothing ever assigns.
-        todo(
-            ctx,
-            refName
-                ? isShadowed(scope, refName)
-                    ? `template ref '${refName}' is shadowed by a local binding`
-                    : `template ref '${refName}' collides with an existing binding`
-                : 'dynamic this.$refs access',
-            raw(ctx, node),
-        );
-
-        if (node.computed) {
-            rewriteThis(ctx, node.property, thisIsComponent, scope);
-        }
-
-        return;
-    }
-
-    if (isThisMember(node)) {
-        rewriteThisMember(ctx, node, thisIsComponent, scope);
-        return;
-    }
-
-    if (node.type === 'ThisExpression') {
-        todo(ctx, thisIsComponent ? 'bare `this` usage' : '`this` inside a nested function');
-        return;
-    }
-
-    // Every class field, private member, static block and ordinary class method has class-local
-    // `this`. Computed keys can be evaluated in the surrounding scope, but treating the complete
-    // class conservatively avoids rewriting a class field as a component binding. Unsupported
-    // class-local references become TODOs instead of silently changing the receiver.
-    if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
-        visitChildren(node, (child) => rewriteThis(ctx, child, false, scope));
-        return;
-    }
-
-    // Nested non-arrow functions rebind `this`; arrows inherit the current binding.
-    const rebindsThis =
-        node.type === 'FunctionExpression' ||
-        node.type === 'FunctionDeclaration' ||
-        node.type === 'ObjectMethod' ||
-        node.type === 'ClassMethod' ||
-        node.type === 'ClassPrivateMethod';
-    const childScope = FUNCTION_TYPES.has(node.type) ? functionScope(node, scope) : scope;
-
-    visitChildren(node, (child) => rewriteThis(ctx, child, rebindsThis ? false : thisIsComponent, childScope));
+    return true;
 }
 
-function rewriteThisMember(ctx: Ctx, node: t.MemberExpression, thisIsComponent: boolean, scope: LocalScope | null): void {
+/** True when a bare `name` emitted here would resolve to a local binding instead of the setup one. */
+function isShadowed(pass: Pass, path: NodePath, name: string): boolean {
+    for (let scope: Scope | undefined = path.scope; scope && scope !== pass.outerScope; scope = scope.parent) {
+        if (scope.hasOwnBinding(name)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/** `this.$refs.x` → `x.value`, handled on the outer member so the ref name is known. */
+function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath, isComponent: boolean): boolean {
+    const { ctx } = pass;
+
+    if (!isComponent) {
+        report(ctx, 'todo', '`this.$refs` inside a nested function keeps its own `this`', node);
+        return false;
+    }
+
+    const refName = memberName(node);
+
+    if (refName && IDENTIFIER.test(refName) && !ctx.bindings.has(refName) && !isShadowed(pass, path, refName)) {
+        ctx.templateRefs.add(refName);
+        overwrite(ctx, node, `${refName}.value`);
+        return false;
+    }
+
+    // The shadowed case must not register the ref either — transform-script would emit a
+    // `const x = ref(null)` that nothing ever assigns.
+    report(
+        ctx,
+        'todo',
+        refName
+            ? isShadowed(pass, path, refName)
+                ? `template ref '${refName}' is shadowed by a local binding`
+                : `template ref '${refName}' collides with an existing binding`
+            : 'dynamic this.$refs access',
+        node,
+    );
+
+    return node.computed;
+}
+
+function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath, isComponent: boolean): boolean {
+    const { ctx } = pass;
     const name = memberName(node);
 
     if (!name) {
-        todo(ctx, 'dynamic `this[...]` access', raw(ctx, node));
-        rewriteThis(ctx, node.property, thisIsComponent, scope);
-        return;
+        report(ctx, 'todo', 'dynamic `this[...]` access', node);
+        return true;
     }
 
-    if (!thisIsComponent) {
-        todo(ctx, `\`this.${name}\` inside a nested function keeps its own \`this\``);
-        return;
+    if (!isComponent) {
+        report(ctx, 'todo', `\`this.${name}\` inside a nested function keeps its own \`this\``);
+        return false;
     }
 
     if (SKIP_INSTANCE_PROPS.has(name)) {
-        ctx.blockers.add(`this.${name}`);
-        return;
+        report(ctx, 'skip', `this.${name}`);
+        return false;
     }
 
     const instanceProp = INSTANCE_PROPS[name];
 
     if (instanceProp) {
         // Bail before registering the helper, so a shadowed reference does not declare an unused one.
-        if (isShadowed(scope, instanceProp.replacement)) {
-            todo(ctx, `this.${name} is shadowed by a local binding`);
-            return;
+        if (isShadowed(pass, path, instanceProp.replacement)) {
+            report(ctx, 'todo', `this.${name} is shadowed by a local binding`);
+            return false;
         }
 
         if (instanceProp.helper) {
@@ -225,22 +196,22 @@ function rewriteThisMember(ctx: Ctx, node: t.MemberExpression, thisIsComponent: 
         }
 
         overwrite(ctx, node, instanceProp.replacement);
-        return;
+        return false;
     }
 
     const kind = ctx.bindings.get(name);
 
     if (kind === undefined) {
-        todo(ctx, `unmapped this.${name}`);
-        return;
+        report(ctx, 'todo', `unmapped this.${name}`);
+        return false;
     }
 
     const binding = bindingName(ctx, name);
 
     // Props resolve through the `props` object, so only that name can shadow them.
-    if (isShadowed(scope, kind === 'prop' ? 'props' : binding)) {
-        todo(ctx, `this.${name} is shadowed by a local binding`);
-        return;
+    if (isShadowed(pass, path, kind === 'prop' ? 'props' : binding)) {
+        report(ctx, 'todo', `this.${name} is shadowed by a local binding`);
+        return false;
     }
 
     if (kind === 'prop') {
@@ -251,17 +222,123 @@ function rewriteThisMember(ctx: Ctx, node: t.MemberExpression, thisIsComponent: 
     } else {
         overwrite(ctx, node, binding);
     }
+
+    return false;
 }
 
 /**
- * Walks a member function's children with component `this` semantics. Arrow-function members never
+ * Handles one path and reports whether its subtree still needs visiting. A consumed reference
+ * returns false: its receiver (`this`, or `this.$refs`) belongs to the member handled here and must
+ * not be reported a second time.
+ */
+function visit(pass: Pass, path: NodePath): boolean {
+    const { ctx } = pass;
+    const { node, parent } = path;
+    const isReceiver = parent.type === 'MemberExpression' && parent.object === node;
+
+    if (isReceiver && (node.type === 'ThisExpression' || (isThisMember(node) && memberName(node) === '$refs'))) {
+        return false;
+    }
+
+    const isComponent = thisIsComponent(pass, path);
+
+    // `this.$emit('event', ...)`: infer the emits declaration from literal event names.
+    if (node.type === 'CallExpression' && isComponent && isThisMember(node.callee) && memberName(node.callee) === '$emit') {
+        const event = node.arguments[0];
+
+        if (event && event.type === 'StringLiteral') {
+            if (!ctx.inferredEmits.includes(event.value)) {
+                ctx.inferredEmits.push(event.value);
+            }
+        } else {
+            report(ctx, 'todo', 'dynamic $emit event name', node);
+        }
+    }
+
+    if (node.type === 'CallExpression' && isComponent && isThisMember(node.callee)) {
+        const calleeName = memberName(node.callee);
+        const legacyShape = calleeName === null ? null : legacyI18nShape(node, calleeName);
+
+        if (legacyShape !== null) {
+            reportFix(ctx, legacyShape.reason, legacyShape.explanation, node);
+        }
+    }
+
+    if (node.type === 'MemberExpression' && isThisMember(node.object) && memberName(node.object) === '$refs') {
+        return rewriteRefsAccess(pass, node, path, isComponent);
+    }
+
+    if (isThisMember(node)) {
+        const name = memberName(node);
+
+        // The callee of a legacy i18n call is left as authored, so the draft shows the shape a human
+        // has to decide on. Its arguments are ordinary component code and keep rewriting.
+        if (
+            isComponent &&
+            name !== null &&
+            parent.type === 'CallExpression' &&
+            parent.callee === node &&
+            legacyI18nShape(parent, name) !== null
+        ) {
+            return false;
+        }
+
+        return rewriteThisMember(pass, node, path, isComponent);
+    }
+
+    if (node.type === 'ThisExpression') {
+        report(ctx, 'todo', isComponent ? 'bare `this` usage' : '`this` inside a nested function');
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * `rootIsRewritten` distinguishes the two entry points: a spliced-in node is itself part of the
+ * rewritten region, so its own `this` rebinding applies, whereas a member function *is* the
+ * component frame and only its interior can rebind.
+ */
+function runPass(ctx: Ctx, root: NodePath, baseIsComponent: boolean, rootIsRewritten: boolean): void {
+    const pass: Pass = {
+        ctx,
+        baseIsComponent,
+        stopAt: rootIsRewritten ? root.parentPath : root,
+        outerScope: root.parentPath?.scope ?? null,
+    };
+
+    if (rootIsRewritten && !visit(pass, root)) {
+        return;
+    }
+
+    root.traverse({
+        enter(path) {
+            if (!visit(pass, path)) {
+                path.skip();
+            }
+        },
+    });
+}
+
+/** Rewrites every component-bound `this.*` inside `node`, which is spliced in as-is. */
+function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponentAtNode: boolean): void {
+    const root = ctx.paths.get(node);
+
+    if (root) {
+        runPass(ctx, root, thisIsComponentAtNode, true);
+    }
+}
+
+/**
+ * Rewrites a member function's body with component `this` semantics. Arrow-function members never
  * had component `this` in the Options API either, so their contents are treated as foreign.
  */
 function rewriteMemberFn(ctx: Ctx, fn: FnLike): void {
-    const thisIsComponent = fn.fnNode.type !== 'ArrowFunctionExpression';
-    const scope = functionScope(fn.fnNode, null);
+    const root = ctx.paths.get(fn.fnNode);
 
-    visitChildren(fn.fnNode, (child) => rewriteThis(ctx, child, thisIsComponent, scope));
+    if (root) {
+        runPass(ctx, root, fn.fnNode.type !== 'ArrowFunctionExpression', false);
+    }
 }
 
 export { rewriteThis, rewriteMemberFn };

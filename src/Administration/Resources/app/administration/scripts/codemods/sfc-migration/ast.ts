@@ -8,14 +8,17 @@
  * and every helper is agnostic to which option it serves.
  */
 
-import { VISITOR_KEYS } from '@babel/types';
+import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
+import { traverseFast } from '@babel/types';
 import type MagicString from 'magic-string';
-import type { MemberKind, HelperName, TodoEntry } from './tables';
+import type { MemberKind, HelperName, ReportKind, TodoEntry } from './tables';
 
 type Ctx = {
     source: string;
     ms: MagicString;
+    /** Every parsed node keyed to its @babel/traverse path, so the rewrite pass can ask for scope. */
+    paths: Map<t.Node, NodePath>;
     componentName: string;
     bindings: Map<string, MemberKind>;
     /** Members whose setup binding is not named after the member (composable collision renames). */
@@ -25,8 +28,8 @@ type Ctx = {
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
     inferredEmits: string[];
-    todos: TodoEntry[];
-    blockers: Set<string>;
+    /** Written through `report()`; a single `skip` entry refuses the component outright. */
+    reports: (TodoEntry & { kind: ReportKind })[];
 };
 
 type FnLike = {
@@ -54,37 +57,48 @@ function overwrite(ctx: Ctx, node: t.Node, text: string): void {
     ctx.ms.overwrite(node.start as number, node.end as number, text);
 }
 
-function pushTodo(ctx: Ctx, entry: TodoEntry): void {
-    if (!ctx.todos.some((existing) => existing.reason === entry.reason && existing.code === entry.code)) {
-        ctx.todos.push(entry);
+/** Recorded once per reason+code pair, so a repeated shape leaves a single entry. */
+function pushReport(ctx: Ctx, entry: TodoEntry & { kind: ReportKind }): void {
+    if (!ctx.reports.some((existing) => existing.reason === entry.reason && existing.code === entry.code)) {
+        ctx.reports.push(entry);
     }
 }
 
-function todo(ctx: Ctx, reason: string, code?: string): void {
-    pushTodo(ctx, { reason, code });
+/**
+ * The single channel for "I could not convert this". A `skip` refuses the whole component, a `todo`
+ * keeps the draft and leaves a comment quoting `node`'s original source.
+ */
+function report(ctx: Ctx, kind: ReportKind, reason: string, node?: t.Node): void {
+    pushReport(ctx, { kind, reason, code: node ? raw(ctx, node) : undefined });
 }
 
 /** A TODO about code the reader has to write, because the draft does not run as it stands. */
-function todoFix(ctx: Ctx, reason: string, explanation: string, code?: string): void {
-    pushTodo(ctx, { reason, explanation, code, mode: 'FIX' });
+function reportFix(ctx: Ctx, reason: string, explanation: string, node?: t.Node): void {
+    pushReport(ctx, { kind: 'todo', mode: 'FIX', reason, explanation, code: node ? raw(ctx, node) : undefined });
 }
 
 /**
  * A TODO about the emitted code as a whole rather than about one site in it: the conversion is
  * complete, what it means is what the checks ask the reader to confirm.
  */
-function todoReview(ctx: Ctx, reason: string, explanation: string, checks: string[]): void {
-    pushTodo(ctx, { reason, explanation, checks, mode: 'VERIFY' });
+function reportReview(ctx: Ctx, reason: string, explanation: string, checks: string[]): void {
+    pushReport(ctx, { kind: 'todo', mode: 'VERIFY', reason, explanation, checks });
 }
 
 /**
  * A VERIFY TODO about one declaration the caller emits itself. It is returned rather than only
  * recorded, because the section that writes that declaration is the one that renders the block.
  */
-function todoAtDeclaration(ctx: Ctx, reason: string, explanation: string): TodoEntry {
-    const entry: TodoEntry = { reason, explanation, mode: 'VERIFY', anchored: true };
+function reportAtDeclaration(ctx: Ctx, reason: string, explanation: string): TodoEntry {
+    const entry: TodoEntry & { kind: ReportKind } = {
+        kind: 'todo',
+        mode: 'VERIFY',
+        reason,
+        explanation,
+        anchored: true,
+    };
 
-    pushTodo(ctx, entry);
+    pushReport(ctx, entry);
 
     return entry;
 }
@@ -138,140 +152,6 @@ function asFunction(prop: t.ObjectMethod | t.ObjectProperty | t.SpreadElement): 
     return null;
 }
 
-function visitChildren(node: t.Node, visit: (child: t.Node) => void): void {
-    const keys = VISITOR_KEYS[node.type] ?? [];
-
-    for (const key of keys) {
-        const child = (node as unknown as Record<string, unknown>)[key];
-
-        if (Array.isArray(child)) {
-            for (const entry of child) {
-                if (entry && typeof (entry as t.Node).type === 'string') {
-                    visit(entry as t.Node);
-                }
-            }
-        } else if (child && typeof (child as t.Node).type === 'string') {
-            visit(child as t.Node);
-        }
-    }
-}
-
-/** Depth-first visit of `node` and every descendant. */
-function walk(node: t.Node, visit: (node: t.Node) => void): void {
-    visit(node);
-    visitChildren(node, (child) => walk(child, visit));
-}
-
-/** One function's own bindings, chained to its enclosing functions. Block scopes are not modelled. */
-type LocalScope = { names: Set<string>; parent: LocalScope | null };
-
-const FUNCTION_TYPES = new Set<string>([
-    'FunctionExpression',
-    'FunctionDeclaration',
-    'ArrowFunctionExpression',
-    'ObjectMethod',
-    'ClassMethod',
-    'ClassPrivateMethod',
-]);
-
-/** Every name a binding pattern introduces: identifiers, destructuring, rest elements, defaults. */
-function collectPatternNames(node: t.Node | null | undefined, names: Set<string>): void {
-    if (!node) {
-        return;
-    }
-
-    switch (node.type) {
-        case 'Identifier':
-            names.add(node.name);
-            return;
-        case 'ObjectPattern':
-            for (const property of node.properties) {
-                // A computed key is an expression, never a binding — only the value side binds.
-                collectPatternNames(property.type === 'ObjectProperty' ? property.value : property.argument, names);
-            }
-
-            return;
-        case 'ArrayPattern':
-            for (const element of node.elements) {
-                collectPatternNames(element, names);
-            }
-
-            return;
-        case 'RestElement':
-            collectPatternNames(node.argument, names);
-            return;
-        case 'AssignmentPattern':
-            collectPatternNames(node.left, names);
-            return;
-        case 'TSParameterProperty':
-            collectPatternNames(node.parameter, names);
-            return;
-        default:
-            return;
-    }
-}
-
-/** Collects declarations of one function body, without descending into nested function frames. */
-function collectBodyBindings(node: t.Node, names: Set<string>): void {
-    visitChildren(node, (child) => {
-        switch (child.type) {
-            case 'VariableDeclarator':
-                collectPatternNames(child.id, names);
-                break;
-            // The name is hoisted into this frame, the interior belongs to its own frame.
-            case 'FunctionDeclaration':
-            case 'ClassDeclaration':
-                collectPatternNames(child.id, names);
-                return;
-            case 'CatchClause':
-                collectPatternNames(child.param, names);
-                break;
-            default:
-                break;
-        }
-
-        if (!FUNCTION_TYPES.has(child.type) && child.type !== 'ClassBody') {
-            collectBodyBindings(child, names);
-        }
-    });
-}
-
-/**
- * The names `fnNode` binds in its own scope: its parameters, its own name when it is a named
- * function expression, and every declaration in its body. Declarations after the reference site
- * count too — `var` shadows outright, `let`/`const` produce a temporal dead zone.
- */
-function functionScope(fnNode: t.Node, parent: LocalScope | null): LocalScope {
-    const names = new Set<string>();
-
-    if ('params' in fnNode) {
-        for (const param of fnNode.params) {
-            collectPatternNames(param, names);
-        }
-    }
-
-    if (fnNode.type === 'FunctionExpression' || fnNode.type === 'FunctionDeclaration') {
-        collectPatternNames(fnNode.id, names);
-    }
-
-    if ('body' in fnNode && fnNode.body && typeof (fnNode.body as t.Node).type === 'string') {
-        collectBodyBindings(fnNode.body as t.Node, names);
-    }
-
-    return { names, parent };
-}
-
-/** True when a bare `name` emitted here would resolve to a local binding instead of the setup one. */
-function isShadowed(scope: LocalScope | null, name: string): boolean {
-    for (let current = scope; current !== null; current = current.parent) {
-        if (current.names.has(name)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 function isThisMember(node: t.Node): node is t.MemberExpression {
     return node.type === 'MemberExpression' && node.object.type === 'ThisExpression';
 }
@@ -290,15 +170,17 @@ function bindingName(ctx: Ctx, member: string): string {
  * foreign only costs an unused binding — missing one would drop the member.
  */
 function collectThisMemberNames(node: t.Node, names: Set<string>): void {
-    if (isThisMember(node)) {
-        const name = memberName(node);
+    traverseFast(node, (descendant) => {
+        if (!isThisMember(descendant)) {
+            return;
+        }
+
+        const name = memberName(descendant);
 
         if (name) {
             names.add(name);
         }
-    }
-
-    visitChildren(node, (child) => collectThisMemberNames(child, names));
+    });
 }
 
 /**
@@ -306,18 +188,24 @@ function collectThisMemberNames(node: t.Node, names: Set<string>): void {
  * Compound assignments and `++`/`--` count: all of them need the target to be assignable.
  */
 function collectAssignedThisMemberNames(node: t.Node, names: Set<string>): void {
-    const target =
-        node.type === 'AssignmentExpression' ? node.left : node.type === 'UpdateExpression' ? node.argument : null;
+    traverseFast(node, (descendant) => {
+        const target =
+            descendant.type === 'AssignmentExpression'
+                ? descendant.left
+                : descendant.type === 'UpdateExpression'
+                  ? descendant.argument
+                  : null;
 
-    if (target && isThisMember(target)) {
+        if (!target || !isThisMember(target)) {
+            return;
+        }
+
         const name = memberName(target);
 
         if (name) {
             names.add(name);
         }
-    }
-
-    visitChildren(node, (child) => collectAssignedThisMemberNames(child, names));
+    });
 }
 
 function memberName(node: t.MemberExpression): string | null {
@@ -417,23 +305,16 @@ function unwrapOptions(declaration: t.Node): t.ObjectExpression | null {
 export {
     type Ctx,
     type FnLike,
-    type LocalScope,
     IDENTIFIER,
-    FUNCTION_TYPES,
     snip,
     raw,
     overwrite,
-    todo,
-    todoFix,
-    todoReview,
-    todoAtDeclaration,
+    report,
+    reportFix,
+    reportReview,
+    reportAtDeclaration,
     keyName,
     asFunction,
-    visitChildren,
-    walk,
-    collectPatternNames,
-    functionScope,
-    isShadowed,
     isThisMember,
     bindingName,
     collectThisMemberNames,

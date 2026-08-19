@@ -2,9 +2,10 @@
  * @sw-package framework
  */
 
-import { SLOT_IN_BLOCK } from './assert-block-slots';
 import { convertComponent } from './convert-component';
+import { OPTION_HANDLERS } from './option-handlers';
 import { convertFixture, fixtureNames, templateImportRange } from './spec-helpers';
+import { LIFECYCLE_HOOKS, OPTION_TIERS } from './tables';
 import { TWIG_PARENT_BLOCKER, transformTemplate } from './transform-template';
 
 describe('scripts/codemods/sfc-migration', () => {
@@ -14,6 +15,17 @@ describe('scripts/codemods/sfc-migration', () => {
 
             expect(result).toMatchSnapshot();
         });
+    });
+
+    // classifyOptions() reads OPTION_TIERS before dispatching, so an option in both tables would
+    // never reach its handler.
+    it('assigns each option either a tier or a handler, never both', () => {
+        const dispatched = [
+            ...Object.keys(OPTION_HANDLERS),
+            ...Object.keys(LIFECYCLE_HOOKS),
+        ];
+
+        expect(dispatched.filter((option) => option in OPTION_TIERS)).toEqual([]);
     });
 
     describe('outcome expectations (guard the snapshots against silent regressions)', () => {
@@ -121,10 +133,38 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER] });
         });
 
-        it('skips a component whose twig block wraps a named slot', async () => {
+        // A `-->` in the body would close the generated comment early and spill the rest into
+        // rendered markup — output Vue parses happily, so nothing downstream would catch it.
+        it.each([
+            [
+                '{# see --> here #}',
+                '<!-- see -- > here -->',
+            ],
+            [
+                '{# see --!> here #}',
+                '<!-- see -- !> here -->',
+            ],
+            [
+                '{# arrow ---> tail #}',
+                '<!-- arrow --- > tail -->',
+            ],
+        ])('converts %s without letting the comment terminate early', (twig, expected) => {
+            const result = transformTemplate(`<div>${twig}<span>kept</span></div>`);
+
+            expect(result.blockers).toEqual([]);
+            expect(result.template).toBe(`<div>${expected}<span>kept</span></div>`);
+        });
+
+        // The block keeps its name and its position around the slot content, so an override still
+        // targets exactly what it targeted before the inversion.
+        it('hoists a named slot out of the twig block that wrapped it', async () => {
             const result = await convertFixture('sw-block-named-slot');
 
-            expect(result).toEqual({ outcome: 'skipped', reasons: [SLOT_IN_BLOCK], sfc: null });
+            expect(result.outcome).toBe('full');
+            expect(result.sfc).toContain('<template #modal-footer>');
+            expect(result.sfc?.indexOf('<template #modal-footer>')).toBeLessThan(
+                result.sfc!.indexOf('<sw-block name="sw_block_named_slot_footer">'),
+            );
         });
 
         it('skips a component whose twig uses {% parent %}', async () => {

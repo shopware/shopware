@@ -121,8 +121,6 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
                 <cookie>
                     <snippet-name>Lorem ipsum</snippet-name>
                     <cookie>swag.app.lorem-ipsum</cookie>
-                    <active-payment-method>myPaymentMethod</active-payment-method>
-                    <active-payment-method>myOtherPaymentMethod</active-payment-method>
                 </cookie>
             </entries>
         </group>

@@ -14,8 +14,8 @@
 import { NodeTypes } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import { parseExpression } from '@babel/parser';
+import { traverseFast } from '@babel/types';
 import type * as t from '@babel/types';
-import { walk } from './ast';
 import { elementChildren, isConvertedBlock, parseTemplate } from './template-ast';
 
 const ORPHANED_CONTINUATION = 'orphaned cross-block v-else (no preceding v-if)';
@@ -161,7 +161,7 @@ function isSideEffectFreeCondition(expression: string): boolean {
 
     let safe = true;
 
-    walk(parsed, (node) => {
+    traverseFast(parsed, (node) => {
         if (SIDE_EFFECTING_EXPRESSIONS.has(node.type)) {
             safe = false;
         }

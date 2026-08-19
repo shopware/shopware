@@ -30,11 +30,30 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-named-slot 1`] = `
 {
-  "outcome": "skipped",
-  "reasons": [
-    "named slot inside a twig block (<sw-block> renders only its default slot)",
-  ],
-  "sfc": null,
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_block_named_slot">
+        <sw-modal v-if="active">
+            <template #modal-footer>
+                <sw-block name="sw_block_named_slot_footer">
+                    <button class="sw-block-named-slot__cancel">Cancel</button>
+                </sw-block>
+            </template>
+        </sw-modal>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
 }
 `;
 
@@ -1306,6 +1325,55 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-object-prototype-member 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "unmapped this.hasOwnProperty",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_object_prototype_member">
+        <div class="sw-object-prototype-member">
+            {{ mapped }}
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+const readOwn = function (key) {
+    return this.hasOwnProperty(key) ? mapping.value[key] : null;
+};
+
+const mapped = computed(
+    // \`hasOwnProperty\` and \`constructor\` resolve on Object.prototype, so a table lookup keyed by
+    // this name finds an inherited value unless the table has a null prototype.
+    function () {
+        return Object.prototype.hasOwnProperty.call(mapping.value, 'key');
+    },
+);
+
+const mapping = ref({});
+
+// TODO(sfc-migration): unmapped this.hasOwnProperty
+
+swDefinePublic({
+    mapping,
+    mapped,
+    readOwn,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-partial-todos 1`] = `
 {
   "outcome": "partial",
@@ -1372,7 +1440,6 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
     "this.iconSvgData is shadowed by a local binding",
     "this.$route is shadowed by a local binding",
     "this.focussed is shadowed by a local binding",
-    "this.hidden is shadowed by a local binding",
     "template ref 'modalContent' is shadowed by a local binding",
   ],
   "sfc": "<template>
@@ -1426,7 +1493,7 @@ const countItems = // A binding in a sibling nested function must not block the 
         return items.value.length + total.length;
     };
 
-const toggle = // Block scope is not modelled: a binding anywhere in the function shadows the whole body.
+const toggle = // Block scope is modelled: a binding the reference never reaches is not shadowing.
     function () {
         if (props.title) {
             const hidden = true;
@@ -1434,7 +1501,7 @@ const toggle = // Block scope is not modelled: a binding anywhere in the functio
             return hidden;
         }
 
-        return this.hidden;
+        return hidden.value;
     };
 
 const openModal = function (modalContent) {
@@ -1478,8 +1545,6 @@ const items = ref([]);
 // TODO(sfc-migration): this.$route is shadowed by a local binding
 
 // TODO(sfc-migration): this.focussed is shadowed by a local binding
-
-// TODO(sfc-migration): this.hidden is shadowed by a local binding
 
 // TODO(sfc-migration): template ref 'modalContent' is shadowed by a local binding — original code:
 // this.$refs.modalContent

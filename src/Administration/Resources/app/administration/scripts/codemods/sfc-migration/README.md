@@ -10,6 +10,11 @@ Converts Options API Administration components (`index.js` + `*.html.twig`) into
 Replacing an entry point is a separate, explicit operation; Twig files are retained for a later
 human-reviewed cleanup.
 
+`--write` requires the target directory to be clean in git (`git status --porcelain -- <path>`
+empty): a run is undone with `git checkout`, which only works when nothing else was uncommitted.
+A dirty target aborts the run before anything is written. Outside a git working tree the check does
+not apply. Dry runs never check.
+
 ```bash
 # Dry run (default): prints a per-component report, writes nothing
 npm run codemod:sfc-migration -- src/app/component/base
@@ -23,17 +28,17 @@ npm run codemod:sfc-migration -- src/app/component/base --write --replace-origin
 
 ## Outcomes
 
-| Outcome | Meaning | `--write` behavior |
-| --- | --- | --- |
-| `full` | Everything converted, output validated | Writes `<dir>/<component-name>.vue`; with `--replace-originals`, an unambiguous plain registration may also replace `index.js` with a re-export shim. Twig is retained |
-| `partial` | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before |
-| `skipped` | Structural blocker | Writes nothing; the report names the reason |
-| `already-migrated` | A `.vue` with the component's name exists | Writes nothing; the reason says whether it is an earlier draft, a half-migration, or a file this codemod never wrote |
-| `error` | The conversion or a write threw | Reports what ended up on disk; the run continues and exits `1` |
+| Outcome            | Meaning                                          | `--write` behavior                                                                                                                                                     |
+| ------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `full`             | Everything converted, output validated           | Writes `<dir>/<component-name>.vue`; with `--replace-originals`, an unambiguous plain registration may also replace `index.js` with a re-export shim. Twig is retained |
+| `partial`          | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before                                                                  |
+| `skipped`          | Structural blocker                               | Writes nothing; the report names the reason                                                                                                                            |
+| `already-migrated` | A `.vue` with the component's name exists        | Writes nothing; the reason says whether it is an earlier draft, a half-migration, or a file this codemod never wrote                                                   |
+| `error`            | The conversion or a write threw                  | Reports what ended up on disk; the run continues and exits `1`                                                                                                         |
 
 Every generated SFC must pass the real build transform (`build/vue-setup-transform`) plus Vue's own
 `compileScript`/`compileTemplate` before it is written — a non-compiling file is never produced.
-That gate proves the output *compiles*, not that it *behaves the same*, so shapes that would compile
+That gate proves the output _compiles_, not that it _behaves the same_, so shapes that would compile
 into different behaviour are refused separately (see below).
 
 A component whose entry point was explicitly replaced is never rediscovered: its `index.js` is a
@@ -45,18 +50,18 @@ the existing draft and leave it untouched.
 A `TODO(sfc-migration)` in a draft says which of two things it asks of its reader, so neither has to be
 guessed from the wording:
 
-| Marker | Meaning |
-| --- | --- |
-| `TODO(sfc-migration) FIX:` | The emitted code does not run as it stands — the reader writes what the codemod refused to guess. The comment names what is left as authored and what to replace it with |
-| `TODO(sfc-migration) VERIFY:` | The conversion is complete and runs; what it cannot prove is that it behaves the same. The comment says why, and lists what to check |
-| `TODO(sfc-migration):` | Not classified into either mode yet |
+| Marker                        | Meaning                                                                                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `TODO(sfc-migration) FIX:`    | The emitted code does not run as it stands — the reader writes what the codemod refused to guess. The comment names what is left as authored and what to replace it with |
+| `TODO(sfc-migration) VERIFY:` | The conversion is complete and runs; what it cannot prove is that it behaves the same. The comment says why, and lists what to check                                     |
+| `TODO(sfc-migration):`        | Not classified into either mode yet                                                                                                                                      |
 
 ### Write failures
 
-Each component's writes are guarded on their own. A failure reports that component as `error`,
-names what is on disk, and the run continues so the report still covers everything else. Files are
-staged in the target directory, completed before an atomic rename, and cleaned deterministically.
-The legacy entry point remains available until its replacement succeeds; Twig is never deleted.
+Each component's writes are guarded on their own. A failure reports that component as `error` and
+the run continues, so the report still covers everything else. Twig is never deleted. Recovery is
+`git checkout` on the target directory — which is exactly what the clean-tree requirement above
+buys, so the writes themselves are plain `fs.writeFileSync` calls.
 
 ## Registration classes
 
@@ -68,12 +73,12 @@ from being reported.
 The class decides how far a component is migrated: only a plain `Component.register` takes the
 destructive path, because only its template stands on its own.
 
-| Class | Meaning | `--write` behaviour |
-| --- | --- | --- |
-| `register` | `Component.register('name', () => import('./dir'))` — the plain case | Writes a draft with `--write`; only the unambiguous full path may replace `index.js` with `--replace-originals` |
-| `extend` | `Component.extend('child', 'parent', () => import('./dir'))` — child of another component | Skipped; it renders against bindings its parent declares |
-| `override` | A directory registered through `Component.override('name', () => import('./dir'))` (none today, so the column is omitted) | Skipped; its template patches another component's markup |
-| `unregistered` | No registration resolves to the directory (helpers, dynamically registered or dead components) | Draft only — `index.js` and Twig are kept |
+| Class          | Meaning                                                                                                                   | `--write` behaviour                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `register`     | `Component.register('name', () => import('./dir'))` — the plain case                                                      | Writes a draft with `--write`; only the unambiguous full path may replace `index.js` with `--replace-originals` |
+| `extend`       | `Component.extend('child', 'parent', () => import('./dir'))` — child of another component                                 | Skipped; it renders against bindings its parent declares                                                        |
+| `override`     | A directory registered through `Component.override('name', () => import('./dir'))` (none today, so the column is omitted) | Skipped; its template patches another component's markup                                                        |
+| `unregistered` | No registration resolves to the directory (helpers, dynamically registered or dead components)                            | Draft only — `index.js` and Twig are kept                                                                       |
 
 Inline `Component.override('name', { … })` configs own no directory and never reach the component
 discovery. They are counted separately and reported as one info line — reporting only, the codemod
@@ -104,15 +109,15 @@ Only members the script or the template actually reads are destructured.
 
 A descriptor is data, not code. Its fields:
 
-| Field | Answers |
-| --- | --- |
-| `id`, `mixinNames` | Which registered mixin names does this cover, and what is it called in a message? |
-| `import` | Which composable replaces it? (a default export, so `name` is the local binding) |
-| `members` | Which `this.<member>` does it answer, and as what — `ref` (`.value` on rewrite), `value` or `method`? |
-| `internallyReferencedMembers` | Which of those does the composable call itself, so an override could no longer reach it? |
-| `unmappedMembers` | Which members did the mixin put on `this` that the composable does not return? |
-| `emits`, `propArgs`, `callbackArgs`, `providedProps` | What did the mixin take from — and give to — its host instance? (see below) |
-| `scaffold` | Was it a controller rather than a helper, so its output is a draft? (see below) |
+| Field                                                | Answers                                                                                               |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `id`, `mixinNames`                                   | Which registered mixin names does this cover, and what is it called in a message?                     |
+| `import`                                             | Which composable replaces it? (a default export, so `name` is the local binding)                      |
+| `members`                                            | Which `this.<member>` does it answer, and as what — `ref` (`.value` on rewrite), `value` or `method`? |
+| `internallyReferencedMembers`                        | Which of those does the composable call itself, so an override could no longer reach it?              |
+| `unmappedMembers`                                    | Which members did the mixin put on `this` that the composable does not return?                        |
+| `emits`, `propArgs`, `callbackArgs`, `providedProps` | What did the mixin take from — and give to — its host instance? (see below)                           |
+| `scaffold`                                           | Was it a controller rather than a helper, so its output is a draft? (see below)                       |
 
 Conversion is all-or-nothing per component: one mixin without a descriptor keeps the whole component
 on the Options API, because a half-converted `mixins` array has no safe meaning. Five more cases keep
@@ -172,7 +177,7 @@ const { selectedItems } = useMediaGridListener({
 Every argument defers its read, because the composable call is assembled above the member sections it
 points at.
 
-Travelling the other way, `providedProps` names the props the mixin *declared*, which every component
+Travelling the other way, `providedProps` names the props the mixin _declared_, which every component
 using it inherited. A composable cannot declare props, so the codemod merges them into the component's
 own `defineProps` literal — a component prop of the same name wins, mirroring Vue's option merge, and a
 `props` option that is not a plain object literal is refused. Unlike the dependencies above, these are
@@ -237,45 +242,44 @@ once per module load.
 
 Each file answers exactly one question:
 
-| File | Answers |
-| --- | --- |
-| `run-sfc-migration.ts` | How does a batch run work? CLI entry, discovery, file writes, report |
-| `component-source-model.ts` | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree |
-| `migration-writer.ts` | How are validated drafts and explicit replacements staged, renamed, and recovered? |
-| `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
-| `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates) |
-| `template-ast.ts` | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate |
-| `assert-block-slots.ts` | Does a converted block swallow content? Named-slot children of `<sw-block>` |
-| `normalize-cross-block-conditionals.ts` | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned |
-| `transform-script.ts` | In what order is the `<script setup>` assembled? Orchestrates parse → classify → rewrite → assemble |
-| `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
-| `rewrite-this.ts` | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope |
-| `tables.ts` | What converts to what? All conversion tables — the extension surface |
-| `composables/` | Which mixin has a composable, and which `this.<member>` does it answer? `descriptors/index.ts` assembles the registry, `types.ts` holds the descriptor shape, `descriptors/<id>.ts` one descriptor per mixin, `index.ts` the queries over them |
-| `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
-| `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
-| `sfc-migration.spec.ts` + `__fixtures__/` | What does one component convert into? A snapshot of every fixture through the full pipeline |
-| `mixin-composables.spec.ts` | Which mixin declarations resolve, and which cases keep the Options API? |
-| `run-sfc-migration.spec.ts` | What does the runner do to files? CLI exit codes, draft/replacement modes, name derivation, and existing-`.vue` behaviour |
-| `spec-helpers.ts` | Helpers shared by the specs: throwaway component trees, and the one way a fixture reaches the pipeline |
-| `runtime-equivalence-*.ts` | Does a supported shape execute equivalently, or stay conservative? |
+| File                                      | Answers                                                                                                                                                                                                                                        |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run-sfc-migration.ts`                    | How does a batch run work? CLI entry, clean-tree guard, discovery, file writes, report                                                                                                                                                         |
+| `component-source-model.ts`               | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree                                                                                                                                 |
+| `convert-component.ts`                    | What happens to one component? The pipeline: template + script transform → prettier → validation gate                                                                                                                                          |
+| `transform-template.ts`                   | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates)                                                                                                                      |
+| `template-ast.ts`                         | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate                                                                                                                                |
+| `assert-block-slots.ts`                   | Does a converted block swallow content? Named-slot children of `<sw-block>`                                                                                                                                                                    |
+| `normalize-cross-block-conditionals.ts`   | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned                                                                                                                              |
+| `transform-script.ts`                     | In what order is the `<script setup>` assembled? Orchestrates parse → collect → rewrite → render                                                                                                                                               |
+| `option-handlers.ts`                      | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …)                                                                                                                                                     |
+| `rewrite-this.ts`                         | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope                                                                                                                                        |
+| `tables.ts`                               | What converts to what? All conversion tables — the extension surface                                                                                                                                                                           |
+| `composables/`                            | Which mixin has a composable, and which `this.<member>` does it answer? `descriptors/index.ts` assembles the registry, `types.ts` holds the descriptor shape, `descriptors/<id>.ts` one descriptor per mixin, `index.ts` the queries over them |
+| `validate.ts`                             | Is the output safe to write? Real build transform + Vue compiler round-trip                                                                                                                                                                    |
+| `ast.ts`                                  | Shared transform context and generic AST/text helpers — no conversion policy                                                                                                                                                                   |
+| `sfc-migration.spec.ts` + `__fixtures__/` | What does one component convert into? A snapshot of every fixture through the full pipeline                                                                                                                                                    |
+| `mixin-composables.spec.ts`               | Which mixin declarations resolve, and which cases keep the Options API?                                                                                                                                                                        |
+| `run-sfc-migration.spec.ts`               | What does the runner do to files? CLI exit codes, draft/replacement modes, name derivation, and existing-`.vue` behaviour                                                                                                                      |
+| `spec-helpers.ts`                         | Helpers shared by the specs: throwaway component trees, and the one way a fixture reaches the pipeline                                                                                                                                         |
+| `runtime-equivalence-*.ts`                | Does a supported shape execute equivalently, or stay conservative?                                                                                                                                                                             |
 
 ## Extending the codemod
 
 The conversion rules are data tables plus one handler per option:
 
 - `tables.ts` — `INSTANCE_PROPS` (one entry per `this.$xyz` rewrite: replacement + required
-  helper/import) and the `TODO_OPTIONS` / `SKIP_OPTIONS` tier assignment for top-level options.
+  helper/import) and the `OPTION_TIERS` (`skip` / `todo`) assignment for top-level options.
 - `option-handlers.ts` — `OPTION_HANDLERS`, one small handler per supported option (`props`,
-  `data`, `computed`, `watch`, …). Promoting a feature means moving its key out of the TODO/SKIP
-  set and adding a handler; the classification loop, the `this.` rewrite pass (`rewrite-this.ts`)
-  and the assembly (`transform-script.ts`) stay untouched. A handler that creates instance members
-  also has to teach `collectOwnMemberNames()` about them, or the mixin override guard stops seeing
-  what it compares against — the ownership-superset invariant in `mixin-composables.spec.ts` fails
-  when it does not.
+  `data`, `computed`, `watch`, …). Promoting a feature means dropping its key from `OPTION_TIERS`
+  and adding a handler — never both, because the tier is read first; the classification loop, the
+  `this.` rewrite pass (`rewrite-this.ts`) and the render pass (`transform-script.ts`) stay untouched.
+  A handler that creates instance members also has to teach `collectOwnMemberNames()` about them, or
+  the mixin override guard stops seeing what it compares against — the ownership-superset invariant
+  in `mixin-composables.spec.ts` fails when it does not.
 - `composables/` — `COMPOSABLE_DESCRIPTORS`, assembled in `composables/descriptors/index.ts` from one
   file per mixin that has a composable. Supporting another mixin means writing the composable and adding
-  its descriptor; `resolveMixins()` and the assembly stay untouched. A new descriptor needs, in this order:
+  its descriptor; `resolveMixins()` and the render pass stay untouched. A new descriptor needs, in this order:
   the composable under `src/app/composables/` (a default export, `@private` and
   `@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES` — the layer is experimental
   until the next major, so a composable's shape may still change — with a cross-reference comment on

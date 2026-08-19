@@ -15,7 +15,10 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { convertComponent, type ConvertResult } from './convert-component';
+import { spawnSync } from 'child_process';
+import { parse } from '@babel/parser';
+import type * as t from '@babel/types';
+import { convertComponent, type ConvertResult, type Outcome } from './convert-component';
 import {
     collectComponentSourceIndex,
     isContained,
@@ -23,45 +26,27 @@ import {
     type RegistrationKind,
     type SourceDiagnostic,
 } from './component-source-model';
-import { writeMigration } from './migration-writer';
-
-type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
-
-type ComponentClass = RegistrationKind | 'unregistered' | 'ambiguous';
 
 type ComponentReport = {
     name: string;
     dir: string;
     outcome: Outcome;
-    registration: ComponentClass;
+    registration: RegistrationKind | 'unregistered' | 'ambiguous';
     reasons: string[];
 };
 
 type MigrationResult = {
     reports: ComponentReport[];
-    stats: Record<'full' | 'partial' | 'skipped' | 'alreadyMigrated' | 'error', number>;
+    stats: Record<Outcome, number>;
     inlineOverrides: InlineOverride[];
     diagnostics?: SourceDiagnostic[];
-};
-
-const STAT_KEY: Record<Outcome, keyof MigrationResult['stats']> = {
-    full: 'full',
-    partial: 'partial',
-    skipped: 'skipped',
-    'already-migrated': 'alreadyMigrated',
-    error: 'error',
 };
 
 const errorText = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
-const SCAN_ERROR_CODES = [
-    'read-failed',
-    'parse-failed',
-    'registration-path-outside-root',
-];
-const COMPONENT_CLASSES: ComponentClass[] = [
+const COMPONENT_CLASSES: ComponentReport['registration'][] = [
     'register',
     'extend',
     'override',
@@ -69,11 +54,36 @@ const COMPONENT_CLASSES: ComponentClass[] = [
     'ambiguous',
 ];
 
+const SW_PACKAGE = /@sw-package\s+(\S+)/;
+const PUBLIC_ANNOTATION = /@public\b/;
+
+/**
+ * The comments attached to the default export — the component's own docblock, which is where its
+ * visibility annotation lives. Reading it from anywhere else in the file picks up the `@public` on
+ * a prop's or method's JSDoc and would declare a `@private` component public.
+ */
+function exportDocblock(originalSource: string): string {
+    try {
+        const ast = parse(originalSource, { sourceType: 'module', plugins: ['typescript'] });
+        const exportDefault = ast.program.body.find(
+            (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
+        );
+
+        return (exportDefault?.leadingComments ?? []).map((comment) => comment.value).join('\n');
+    } catch {
+        return '';
+    }
+}
+
 function buildIndexShim(originalSource: string, componentName: string): string {
-    const packageMatch = originalSource.match(/@sw-package\s+([\w.-]+)/);
+    const sourceDocblock = exportDocblock(originalSource);
+    // `@sw-package` sits either in that docblock or in a file-level one above the imports, so it
+    // falls back to the whole file. Visibility never does: absent from the component's own docblock
+    // means @private.
+    const packageMatch = sourceDocblock.match(SW_PACKAGE) ?? originalSource.match(SW_PACKAGE);
     // sw-deprecation-rules/private-feature-declarations requires a visibility annotation on the
     // re-export; carry the original one over (components default to @private).
-    const visibility = originalSource.includes('@public') ? '@public' : '@private';
+    const visibility = PUBLIC_ANNOTATION.test(sourceDocblock) ? '@public' : '@private';
     const docblock = [
         '/**',
         ...(packageMatch
@@ -110,7 +120,10 @@ function describeExistingSfc(vuePath: string, name: string): string {
 
 /**
  * Ordinary writes publish only the validated Vue draft. Replacing the legacy entry point is a
- * separate explicit phase and uses the isolated staged writer; Twig is never deleted.
+ * separate explicit phase; Twig is never deleted.
+ *
+ * `--write` runs against a clean working tree (see `findDirtyPaths`), so `git checkout` undoes
+ * everything a partial run left behind — nothing here needs its own transaction.
  */
 function writeComponent(input: {
     sfc: string;
@@ -121,37 +134,47 @@ function writeComponent(input: {
     jsSource: string;
     name: string;
 }): { ok: boolean; reasons: string[] } {
-    let originalIndexBytes: Buffer;
-
     try {
-        originalIndexBytes = fs.readFileSync(input.indexFile);
+        fs.writeFileSync(input.vuePath, input.sfc);
+
+        if (input.full && input.replaceOriginals) {
+            fs.writeFileSync(input.indexFile, buildIndexShim(input.jsSource, input.name));
+
+            return { ok: true, reasons: [`index.js replaced; ${input.name}.html.twig retained`] };
+        }
+
+        return { ok: true, reasons: [] };
     } catch (error) {
-        return { ok: false, reasons: [`write failed at preflight: ${errorText(error)} (originals unchanged)`] };
+        return { ok: false, reasons: [`write failed: ${errorText(error)} (originals unchanged)`] };
+    }
+}
+
+/**
+ * Every write happens in a git working tree, so `git checkout` is the undo button — but only for a
+ * tree that carried nothing else. Uncommitted work under the target would become indistinguishable
+ * from what this run produced, so `--write` refuses it. Scoped to the target, and skipped entirely
+ * outside a work tree, where there is nothing to protect.
+ */
+function findDirtyPaths(targetDir: string): string[] {
+    const status = spawnSync(
+        'git',
+        [
+            'status',
+            '--porcelain',
+            '--',
+            targetDir,
+        ],
+        {
+            cwd: targetDir,
+            encoding: 'utf8',
+        },
+    );
+
+    if (status.status !== 0) {
+        return [];
     }
 
-    const migration = writeMigration({
-        vuePath: input.vuePath,
-        indexPath: input.indexFile,
-        vueBytes: Buffer.from(input.sfc),
-        originalIndexBytes,
-        replacementIndexBytes: Buffer.from(buildIndexShim(input.jsSource, input.name)),
-        mode: input.full && input.replaceOriginals ? 'replace-originals' : 'draft',
-    });
-
-    if (migration.error) {
-        return {
-            ok: false,
-            reasons: [
-                `write failed at ${migration.error.stage}: ${migration.error.message}`,
-                `writer state: ${migration.state}/${migration.recovery}; originals remain available`,
-            ],
-        };
-    }
-
-    return {
-        ok: true,
-        reasons: migration.state === 'replaced' ? [`index.js replaced atomically; ${input.name}.html.twig retained`] : [],
-    };
+    return status.stdout.split('\n').filter((line) => line.trim() !== '');
 }
 
 async function runMigration(
@@ -176,10 +199,9 @@ async function runMigration(
             full: 0,
             partial: 0,
             skipped: 0,
-            alreadyMigrated: 0,
-            error: index.diagnostics.filter(
-                (diagnostic) => !targetFiles.has(diagnostic.file) && SCAN_ERROR_CODES.includes(diagnostic.code),
-            ).length,
+            'already-migrated': 0,
+            error: index.diagnostics.filter((diagnostic) => !targetFiles.has(diagnostic.file) && diagnostic.isScanError)
+                .length,
         },
         inlineOverrides: index.inlineOverrides,
         diagnostics: index.diagnostics,
@@ -188,11 +210,11 @@ async function runMigration(
     // which matters once an outcome can still change after the conversion (a failing write).
     const report = (name: string, dir: string, outcome: Outcome, reasons: string[] = []): void => {
         const registrations = index.registrationsByDir.get(dir) ?? [];
-        const registration: ComponentClass =
+        const registration: ComponentReport['registration'] =
             registrations.length > 1 ? 'ambiguous' : (registrations[0]?.kind ?? 'unregistered');
 
         result.reports.push({ name, dir, outcome, registration, reasons });
-        result.stats[STAT_KEY[outcome]] += 1;
+        result.stats[outcome] += 1;
     };
 
     for (const indexFile of indexFiles) {
@@ -251,9 +273,7 @@ async function runMigration(
                 continue;
             }
 
-            const templateDiagnostics = component.diagnostics.filter((diagnostic) =>
-                diagnostic.code.startsWith('template-'),
-            );
+            const templateDiagnostics = component.diagnostics.filter((diagnostic) => diagnostic.isTemplateBinding);
 
             if (templateDiagnostics.length > 0) {
                 report(
@@ -348,7 +368,7 @@ async function runMigration(
 
 function printReport(result: MigrationResult, targetDir: string, write: boolean, replaceOriginals: boolean): void {
     const histogram = new Map<string, number>();
-    const classes = new Map<ComponentClass, number>();
+    const classes = new Map<ComponentReport['registration'], number>();
 
     for (const entry of result.reports) {
         const reasons = entry.reasons.length > 0 ? `  ${entry.reasons.join(', ')}` : '';
@@ -379,7 +399,7 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
     }
 
     const { stats } = result;
-    const total = stats.full + stats.partial + stats.skipped + stats.alreadyMigrated + stats.error;
+    const total = stats.full + stats.partial + stats.skipped + stats['already-migrated'] + stats.error;
     const split = COMPONENT_CLASSES.filter((componentClass) => classes.has(componentClass))
         .map((componentClass) => `${classes.get(componentClass)} ${componentClass}`)
         .join(' / ');
@@ -391,13 +411,13 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
 
     console.log(
         `\n${total} components${split ? ` (${split})` : ''}: ${stats.full} full, ${stats.partial} partial, ` +
-            `${stats.skipped} skipped, ${stats.alreadyMigrated} already migrated, ${stats.error} errors${mode}`,
+            `${stats.skipped} skipped, ${stats['already-migrated']} already migrated, ${stats.error} errors${mode}`,
     );
 
     if ((result.diagnostics ?? []).length > 0) {
         console.log('\nScan diagnostics:');
         result.diagnostics?.forEach((diagnostic) =>
-            console.log(`  ${diagnostic.stage}/${diagnostic.code}: ${diagnostic.file}: ${diagnostic.message}`),
+            console.log(`  ${diagnostic.label}: ${diagnostic.file}: ${diagnostic.message}`),
         );
     }
 
@@ -436,6 +456,20 @@ function main(): void {
         console.error(`Not a directory: ${targetDir}`);
         process.exitCode = 1;
         return;
+    }
+
+    if (write) {
+        const dirtyPaths = findDirtyPaths(targetDir);
+
+        if (dirtyPaths.length > 0) {
+            console.error(
+                `Refusing to write into a dirty working tree. Commit or stash these first:\n${dirtyPaths
+                    .map((line) => `  ${line}`)
+                    .join('\n')}`,
+            );
+            process.exitCode = 1;
+            return;
+        }
     }
 
     runMigration(targetDir, { write, replaceOriginals })

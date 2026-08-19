@@ -195,7 +195,7 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
 
         expect(index.registrationsByDir.get(path.join(tmpDir, 'sw-conflict'))).toHaveLength(2);
         expect(index.diagnostics).toEqual(
-            expect.arrayContaining([expect.objectContaining({ code: 'registration-ambiguous' })]),
+            expect.arrayContaining([expect.objectContaining({ label: 'registration/registration-ambiguous' })]),
         );
     });
 
@@ -273,7 +273,7 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
             "import template from './../outside.html.twig';\nexport default { template };\n",
             'template-path-outside-component',
         ],
-    ])('diagnoses %s template bindings', (name, source, diagnosticCode) => {
+    ])('diagnoses %s template bindings', (name, source, diagnosticLabel) => {
         const indexFile = writeComponent(`components/${name}`, source);
 
         writeFile('components/template.html.twig', '<div />\n');
@@ -282,7 +282,9 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
         const component = sourceFor(indexFile, collectComponentSourceIndex(tmpDir));
 
         expect(component.template).toBeNull();
-        expect(component.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: diagnosticCode })]));
+        expect(component.diagnostics).toEqual(
+            expect.arrayContaining([expect.objectContaining({ label: `template-binding/${diagnosticLabel}` })]),
+        );
     });
 
     it('reports an escaping registration without authorizing an outside directory', () => {
@@ -293,7 +295,7 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
 
         expect(index.registrationsByDir.size).toBe(0);
         expect(index.diagnostics).toEqual(
-            expect.arrayContaining([expect.objectContaining({ code: 'registration-path-outside-root' })]),
+            expect.arrayContaining([expect.objectContaining({ label: 'registration/registration-path-outside-root' })]),
         );
     });
 
@@ -314,7 +316,7 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
 
         expect(index.files.get(goodFile)).toEqual([]);
         expect(index.files.get(unreadableFile)).toEqual([
-            expect.objectContaining({ code: 'read-failed', file: unreadableFile }),
+            expect.objectContaining({ label: 'scan/read-failed', file: unreadableFile }),
         ]);
         expect(index.registrationsByDir.has(path.join(tmpDir, 'sw-good'))).toBe(true);
     });
@@ -325,7 +327,7 @@ describe('scripts/codemods/sfc-migration/component-source-model', () => {
         const index = collectComponentSourceIndex(tmpDir);
 
         expect(index.files.get(path.join(tmpDir, 'broken.js'))).toEqual([
-            expect.objectContaining({ code: 'parse-failed' }),
+            expect.objectContaining({ label: 'scan/parse-failed' }),
         ]);
     });
 });

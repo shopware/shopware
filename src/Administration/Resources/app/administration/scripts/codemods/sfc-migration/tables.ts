@@ -5,7 +5,7 @@
 /**
  * The codemod's conversion tables — its primary extension surface.
  *
- * SKIP_OPTIONS / TODO_OPTIONS decide an option's tier, INSTANCE_PROPS drives `this.$xyz` rewrites,
+ * OPTION_TIERS decides an unhandled option's tier, INSTANCE_PROPS drives `this.$xyz` rewrites,
  * LIFECYCLE_HOOKS maps hook names. Anything no table claims becomes a `// TODO(sfc-migration)`
  * comment (partial migration) or a blocker (component skipped) — never a silent guess. Supporting
  * a new feature usually means adding one entry here plus a handler in option-handlers.ts.
@@ -37,31 +37,41 @@ type TodoEntry = {
     anchored?: boolean;
 };
 
-// Options whose presence makes the whole component non-migratable.
-const SKIP_OPTIONS = new Set([
-    'render',
-    'renderError',
-]);
+/** The two ways the codemod says "I could not convert this": refuse the component, or leave a note. */
+type ReportKind = 'skip' | 'todo';
 
-// Options that are kept as TODO comments; everything unknown lands here too (see classifyOptions).
-const TODO_OPTIONS = new Set([
-    'metaInfo',
-    'shortcuts',
-    'provide',
-    'filters',
-    'compatConfig',
-    'components',
-    'directives',
-    'validations',
-    'model',
-    'expose',
-    'setup',
-    'i18n',
-    'beforeCreate',
-    'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
-]);
+/**
+ * A lookup table keyed by names read out of component source. The null prototype is what makes the
+ * lookup safe: a member or option called `constructor`, `hasOwnProperty`, `toString`, … would
+ * otherwise resolve to `Object.prototype`'s and be taken for a table entry.
+ */
+function sourceKeyed<T>(entries: Record<string, T>): Record<string, T> {
+    return Object.assign(Object.create(null) as Record<string, T>, entries);
+}
+
+// Tier for options no handler claims: 'skip' makes the whole component non-migratable, 'todo' keeps
+// the option as a comment. Anything absent from this table and unclaimed is an unknown option — also
+// a TODO, but under a different reason (see classifyOptions).
+const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
+    render: 'skip',
+    renderError: 'skip',
+    metaInfo: 'todo',
+    shortcuts: 'todo',
+    provide: 'todo',
+    filters: 'todo',
+    compatConfig: 'todo',
+    components: 'todo',
+    directives: 'todo',
+    validations: 'todo',
+    model: 'todo',
+    expose: 'todo',
+    setup: 'todo',
+    i18n: 'todo',
+    beforeCreate: 'todo',
+    beforeRouteEnter: 'todo',
+    beforeRouteLeave: 'todo',
+    beforeRouteUpdate: 'todo',
+});
 
 // `this.$super` / `this.$parent` are structural — the component is skipped entirely.
 const SKIP_INSTANCE_PROPS = new Set([
@@ -70,7 +80,10 @@ const SKIP_INSTANCE_PROPS = new Set([
 ]);
 
 // `this.$xyz` → replacement identifier; `helper` requests the matching setup declaration/import.
-const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName }> = {
+const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName }> = sourceKeyed<{
+    replacement: string;
+    helper?: HelperName;
+}>({
     $t: { replacement: 't', helper: 't' },
     $tc: { replacement: 't', helper: 't' },
     $emit: { replacement: 'emit', helper: 'emit' },
@@ -80,7 +93,7 @@ const INSTANCE_PROPS: Record<string, { replacement: string; helper?: HelperName 
     $nextTick: { replacement: 'nextTick', helper: 'nextTick' },
     $slots: { replacement: 'slots', helper: 'slots' },
     $attrs: { replacement: 'attrs', helper: 'attrs' },
-};
+});
 
 const HELPER_SETUP_LINES: Record<HelperName, string | null> = {
     t: 'const { t } = useI18n();',
@@ -93,7 +106,7 @@ const HELPER_SETUP_LINES: Record<HelperName, string | null> = {
     props: null,
 };
 
-const LIFECYCLE_HOOKS: Record<string, string> = {
+const LIFECYCLE_HOOKS: Record<string, string> = sourceKeyed<string>({
     beforeMount: 'onBeforeMount',
     mounted: 'onMounted',
     beforeUpdate: 'onBeforeUpdate',
@@ -104,7 +117,7 @@ const LIFECYCLE_HOOKS: Record<string, string> = {
     destroyed: 'onUnmounted',
     activated: 'onActivated',
     deactivated: 'onDeactivated',
-};
+});
 
 // Top-level binding names the Shopware setup transform reserves or that would shadow a generated
 // helper. Producing one of these is a hard skip.
@@ -121,11 +134,12 @@ const GENERATED_HELPER_NAMES = new Set([
 ]);
 
 export {
+    sourceKeyed,
     type MemberKind,
     type HelperName,
     type TodoEntry,
-    SKIP_OPTIONS,
-    TODO_OPTIONS,
+    type ReportKind,
+    OPTION_TIERS,
     SKIP_INSTANCE_PROPS,
     INSTANCE_PROPS,
     HELPER_SETUP_LINES,

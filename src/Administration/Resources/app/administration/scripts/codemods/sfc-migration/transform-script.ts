@@ -6,28 +6,48 @@
  * Converts an Options API component script into a native setup `<script setup>` body ending in
  * `swDefinePublic({ ... })`.
  *
- * Strategy: parse once with @babel/parser for positions, rewrite every component-bound `this.*`
- * reference in place via magic-string (rewrite-this.ts), then assemble the new script from
- * verbatim source slices. Conversion policy lives in tables.ts (tier tables, rewrite map) and
- * option-handlers.ts (one handler per supported option); indentation is left to prettier and
- * correctness to the validation gate (validate.ts). This module owns the orchestration and the
- * section ordering of the assembled script — the order is TDZ-driven: eager consumers (data
- * initializers, watchers, the inlined created() body) come after everything they may reference.
+ * Strategy: parse once with @babel/parser for positions, then run three phases in order.
+ *
+ * 1. collect — `classifyOptions()` / `collectWatchers()` turn the options object into plain
+ *    descriptors (option-handlers.ts). Nothing is rendered yet.
+ * 2. rewrite — every component-bound `this.*` reference is rewritten in place in the MagicString
+ *    (rewrite-this.ts).
+ * 3. render — `renderScript()` reads the rewritten text back out and assembles the new script from
+ *    verbatim source slices. It must not run earlier: a slice taken before the rewrite would still
+ *    carry `this.`.
+ *
+ * Conversion policy lives in tables.ts (tier table, rewrite map) and option-handlers.ts (one handler
+ * per supported option); indentation is left to prettier and correctness to the validation gate
+ * (validate.ts). This module owns the orchestration and the section ordering of the assembled
+ * script — the order is TDZ-driven: eager consumers (data initializers, watchers, the inlined
+ * created() body) come after everything they may reference.
  */
 
+import { traverse } from '@babel/core';
 import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
+import { getBindingIdentifiers } from '@babel/types';
 import MagicString from 'magic-string';
-import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type TodoEntry } from './tables';
-import { type Ctx, arrowText, collectPatternNames, snip, unwrapOptions } from './ast';
-import { type Collected, buildWatchers, classifyOptions, emitsEventNames, resolveMixins } from './option-handlers';
+import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type ReportKind, type TodoEntry } from './tables';
+import { type Ctx, arrowText, report, snip, unwrapOptions } from './ast';
+import {
+    type Collected,
+    type CollectedWatcher,
+    type ResolvedComposable,
+    classifyOptions,
+    collectWatchers,
+    emitsEventNames,
+    renderMember,
+    renderWatcher,
+    resolveMixins,
+} from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
 type ScriptResult = {
     script: string | null;
     moduleScript: string | null;
-    todos: string[];
-    blockers: string[];
+    /** The blockers that refused the script when it is null, otherwise the TODOs the draft carries. */
+    reasons: string[];
 };
 
 function todoBlock(entry: TodoEntry): string {
@@ -69,19 +89,8 @@ function collectTopLevelBindings(body: t.Statement[], exportDefault: t.Statement
             continue;
         }
 
-        const declaration =
-            statement.type === 'ExportNamedDeclaration' && statement.declaration ? statement.declaration : statement;
-
-        if (declaration.type === 'ImportDeclaration') {
-            for (const specifier of declaration.specifiers) {
-                names.add(specifier.local.name);
-            }
-        } else if (declaration.type === 'VariableDeclaration') {
-            for (const declarator of declaration.declarations) {
-                collectPatternNames(declarator.id, names);
-            }
-        } else if (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration') {
-            collectPatternNames(declaration.id, names);
+        for (const name of Object.keys(getBindingIdentifiers(statement))) {
+            names.add(name);
         }
     }
 
@@ -137,140 +146,16 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
     return `{\n${ownEntries}${separator}\n${provided.join('\n')}\n}`;
 }
 
-function transformScript(
-    source: string,
-    componentName: string,
-    transformOptions: {
-        templateImportRange: { start: number; end: number };
-        templateIdentifiers: ReadonlySet<string>;
-    },
-): ScriptResult {
-    const ctx: Ctx = {
-        source,
-        ms: new MagicString(source),
-        componentName,
-        bindings: new Map(),
-        renamedBindings: new Map(),
-        templateIdentifiers: transformOptions.templateIdentifiers,
-        templateRefs: new Set(),
-        helpers: new Set(),
-        inferredEmits: [],
-        todos: [],
-        blockers: new Set(),
-    };
-
-    let ast: t.File;
-
-    try {
-        ast = parse(source, { sourceType: 'module', plugins: ['typescript'] });
-    } catch (error) {
-        return {
-            script: null,
-            moduleScript: null,
-            todos: [],
-            blockers: [`script parse error: ${(error as Error).message}`],
-        };
-    }
-
-    const body = ast.program.body;
-    const exportDefault = body.find(
-        (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
-    );
-
-    if (!exportDefault) {
-        return { script: null, moduleScript: null, todos: [], blockers: ['no default export'] };
-    }
-
-    const options = unwrapOptions(exportDefault.declaration);
-
-    if (!options) {
-        return { script: null, moduleScript: null, todos: [], blockers: ['unsupported default export shape'] };
-    }
-
-    const collected = classifyOptions(ctx, options);
-    const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
-    const watchers = buildWatchers(ctx, collected);
-
-    // --- name safety checks --------------------------------------------------------------------
-
-    const setupBindingNames = [
-        ...collected.injects,
-        ...collected.dataEntries.map((entry) => entry.name),
-        ...collected.computeds.map((computedEntry) => computedEntry.name),
-        ...collected.methods.map((method) => method.name),
-    ];
-
-    for (const bindingName of setupBindingNames) {
-        if (RESERVED_BINDING.test(bindingName)) {
-            ctx.blockers.add(`binding '${bindingName}' uses a reserved name`);
-        }
-
-        if (GENERATED_HELPER_NAMES.has(bindingName)) {
-            ctx.blockers.add(`binding '${bindingName}' collides with a generated helper`);
-        }
-
-        // The runtime strips declared prop keys from returned setup state, so such a binding would
-        // silently render as `undefined`.
-        if (collected.propNames.has(bindingName)) {
-            ctx.blockers.add(`'${bindingName}' is declared as both a prop and a component member`);
-        }
-    }
-
-    if (ctx.blockers.size > 0) {
-        return { script: null, moduleScript: null, todos: [], blockers: [...ctx.blockers] };
-    }
-
-    // --- rewrite pass ---------------------------------------------------------------------------
-
-    if (collected.createdFn) {
-        collected.rewriteFns.push(collected.createdFn);
-    }
-
-    for (const { fn } of collected.hooks) {
-        collected.rewriteFns.push(fn);
-    }
-
-    for (const fn of collected.rewriteFns) {
-        rewriteMemberFn(ctx, fn);
-    }
-
-    // Data initializers and foreign nodes are spliced in at the top level, so no function frame
-    // encloses them.
-    for (const entry of collected.dataEntries) {
-        rewriteThis(ctx, entry.valueNode, true, null);
-    }
-
-    for (const composable of composables) {
-        for (const entry of composable.config) {
-            rewriteThis(ctx, entry.valueNode, true, null);
-        }
-    }
-
-    for (const node of collected.foreignNodes) {
-        rewriteThis(ctx, node, false, null);
-    }
-
-    if (ctx.blockers.size > 0) {
-        return { script: null, moduleScript: null, todos: [], blockers: [...ctx.blockers] };
-    }
-
-    // --- prelude (module-level code outside the component options) ------------------------------
-
-    const end = ctx.source.indexOf('\n', transformOptions.templateImportRange.end);
-    ctx.ms.remove(
-        transformOptions.templateImportRange.start,
-        end === -1 ? transformOptions.templateImportRange.end : end + 1,
-    );
-
-    // Keep the module prelude in a normal `<script>` block. `<script setup>` runs once per
-    // component instance, so even a getter, regex, live import, or apparently pure member read can
-    // change identity or evaluation timing when moved there.
-    const moduleMagicString = ctx.ms.clone();
-    moduleMagicString.remove(exportDefault.start as number, exportDefault.end as number);
-    const moduleScript = moduleMagicString.toString().trim() || null;
-
-    // --- assembly --------------------------------------------------------------------------------
-
+/**
+ * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
+ * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
+ */
+function renderScript(
+    ctx: Ctx,
+    collected: Collected,
+    watchers: CollectedWatcher[],
+    composables: ResolvedComposable[],
+): string {
     const usesEmit = ctx.helpers.has('emit');
     const usesProps = ctx.helpers.has('props');
     const vueImports = [
@@ -344,9 +229,23 @@ function transformScript(
         .join('\n');
     const refBlock = [...ctx.templateRefs].map((refName) => `const ${refName} = ref(null);`).join('\n');
 
+    const publicNames = [
+        ...collected.injects,
+        // The mixin's members were part of the instance surface an override could reach, so they stay
+        // public. A renamed one cannot: swDefinePublic only takes shorthand bindings, so exposing it
+        // would publish the generated name instead of the one the mixin had.
+        ...composables.flatMap(({ entries }) =>
+            entries.filter((entry) => entry.binding === entry.member).map((entry) => entry.binding),
+        ),
+        ...collected.dataEntries.map((entry) => entry.name),
+        ...ctx.templateRefs,
+        ...collected.computeds.map((computedEntry) => computedEntry.name),
+        ...collected.methods.map((method) => method.name),
+    ];
+
     // A review TODO is about the whole draft, so it leads the file instead of trailing the code its
     // checks are about. An anchored one was already emitted above the declaration it names.
-    const fileTodos = ctx.todos.filter((entry) => !entry.anchored);
+    const fileTodos = ctx.reports.filter((entry) => entry.kind === 'todo' && !entry.anchored);
     const reviewTodos = fileTodos.filter((entry) => entry.checks !== undefined);
     const siteTodos = fileTodos.filter((entry) => entry.checks === undefined);
 
@@ -369,41 +268,167 @@ function transformScript(
         // After the macro bindings a composable call can be handed, before the member sections that
         // read what it returns.
         composableBlock || null,
-        ...collected.methods.map((method) => method.text()),
-        ...collected.computeds.map((computedEntry) => computedEntry.text()),
+        ...collected.methods.map((method) => renderMember(ctx, method)),
+        ...collected.computeds.map((computedEntry) => renderMember(ctx, computedEntry)),
         dataBlock || null,
         refBlock || null,
-        ...watchers.map((watcher) => watcher()),
+        ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
         ...siteTodos.map(todoBlock),
+        publicNames.length > 0
+            ? `swDefinePublic({\n${publicNames.map((publicName) => `${publicName},`).join('\n')}\n});`
+            : 'swDefinePublic({});',
     ];
 
-    const publicNames = [
+    return sections.filter((section): section is string => Boolean(section)).join('\n\n');
+}
+
+function transformScript(
+    source: string,
+    componentName: string,
+    transformOptions: {
+        templateImportRange: { start: number; end: number };
+        templateIdentifiers: ReadonlySet<string>;
+    },
+): ScriptResult {
+    const ctx: Ctx = {
+        source,
+        ms: new MagicString(source),
+        paths: new Map(),
+        componentName,
+        bindings: new Map(),
+        renamedBindings: new Map(),
+        templateIdentifiers: transformOptions.templateIdentifiers,
+        templateRefs: new Set(),
+        helpers: new Set(),
+        inferredEmits: [],
+        reports: [],
+    };
+
+    const reasonsOf = (kind: ReportKind): string[] =>
+        ctx.reports.filter((entry) => entry.kind === kind).map((entry) => entry.reason);
+
+    let ast: t.File;
+
+    try {
+        ast = parse(source, { sourceType: 'module', plugins: ['typescript'] });
+    } catch (error) {
+        return { script: null, moduleScript: null, reasons: [`script parse error: ${(error as Error).message}`] };
+    }
+
+    const body = ast.program.body;
+    const exportDefault = body.find(
+        (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
+    );
+
+    if (!exportDefault) {
+        return { script: null, moduleScript: null, reasons: ['no default export'] };
+    }
+
+    const options = unwrapOptions(exportDefault.declaration);
+
+    if (!options) {
+        return { script: null, moduleScript: null, reasons: ['unsupported default export shape'] };
+    }
+
+    // --- collect ----------------------------------------------------------------------------------
+
+    const collected = classifyOptions(ctx, options);
+    const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
+    const watchers = collectWatchers(ctx, collected);
+
+    // --- name safety checks --------------------------------------------------------------------
+
+    const setupBindingNames = [
         ...collected.injects,
-        // The mixin's members were part of the instance surface an override could reach, so they stay
-        // public. A renamed one cannot: swDefinePublic only takes shorthand bindings, so exposing it
-        // would publish the generated name instead of the one the mixin had.
-        ...composables.flatMap(({ entries }) =>
-            entries.filter((entry) => entry.binding === entry.member).map((entry) => entry.binding),
-        ),
         ...collected.dataEntries.map((entry) => entry.name),
-        ...ctx.templateRefs,
         ...collected.computeds.map((computedEntry) => computedEntry.name),
         ...collected.methods.map((method) => method.name),
     ];
-    const publicText =
-        publicNames.length > 0
-            ? `swDefinePublic({\n${publicNames.map((publicName) => `${publicName},`).join('\n')}\n});`
-            : 'swDefinePublic({});';
 
-    sections.push(publicText);
+    for (const bindingName of setupBindingNames) {
+        if (RESERVED_BINDING.test(bindingName)) {
+            report(ctx, 'skip', `binding '${bindingName}' uses a reserved name`);
+        }
+
+        if (GENERATED_HELPER_NAMES.has(bindingName)) {
+            report(ctx, 'skip', `binding '${bindingName}' collides with a generated helper`);
+        }
+
+        // The runtime strips declared prop keys from returned setup state, so such a binding would
+        // silently render as `undefined`.
+        if (collected.propNames.has(bindingName)) {
+            report(ctx, 'skip', `'${bindingName}' is declared as both a prop and a component member`);
+        }
+    }
+
+    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
+        return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
+    }
+
+    // --- rewrite pass ---------------------------------------------------------------------------
+
+    // Classification collects bare AST nodes; the rewrite needs their paths to read Babel's scope.
+    traverse(ast, {
+        enter(path) {
+            ctx.paths.set(path.node, path);
+        },
+    });
+
+    if (collected.createdFn) {
+        collected.rewriteFns.push(collected.createdFn);
+    }
+
+    for (const { fn } of collected.hooks) {
+        collected.rewriteFns.push(fn);
+    }
+
+    for (const fn of collected.rewriteFns) {
+        rewriteMemberFn(ctx, fn);
+    }
+
+    // Data initializers and foreign nodes are spliced in at the top level, so no function frame
+    // encloses them.
+    for (const entry of collected.dataEntries) {
+        rewriteThis(ctx, entry.valueNode, true);
+    }
+
+    for (const composable of composables) {
+        for (const entry of composable.config) {
+            rewriteThis(ctx, entry.valueNode, true);
+        }
+    }
+
+    for (const node of collected.foreignNodes) {
+        rewriteThis(ctx, node, false);
+    }
+
+    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
+        return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
+    }
+
+    // --- prelude (module-level code outside the component options) ------------------------------
+
+    const end = ctx.source.indexOf('\n', transformOptions.templateImportRange.end);
+    ctx.ms.remove(
+        transformOptions.templateImportRange.start,
+        end === -1 ? transformOptions.templateImportRange.end : end + 1,
+    );
+
+    // Keep the module prelude in a normal `<script>` block. `<script setup>` runs once per
+    // component instance, so even a getter, regex, live import, or apparently pure member read can
+    // change identity or evaluation timing when moved there.
+    const moduleMagicString = ctx.ms.clone();
+    moduleMagicString.remove(exportDefault.start as number, exportDefault.end as number);
+    const moduleScript = moduleMagicString.toString().trim() || null;
+
+    // --- render ------------------------------------------------------------------------------------
 
     return {
-        script: sections.filter((section): section is string => Boolean(section)).join('\n\n'),
+        script: renderScript(ctx, collected, watchers, composables),
         moduleScript,
-        todos: ctx.todos.map((entry) => entry.reason),
-        blockers: [],
+        reasons: reasonsOf('todo'),
     };
 }
 

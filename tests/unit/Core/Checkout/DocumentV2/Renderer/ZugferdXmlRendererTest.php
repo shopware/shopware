@@ -94,7 +94,7 @@ class ZugferdXmlRendererTest extends TestCase
         static::assertStringContainsString('<root/>', $result->content);
         static::assertSame('xml', $result->fileExtension);
         static::assertSame('application/xml', $result->mimeType);
-        static::assertSame('zugferd_invoice_12345_zugferd_xml', $result->fileName);
+        static::assertSame('zugferd_invoice_12345', $result->fileName);
     }
 
     public function testRenderToStringThrowsWhenTemplateProducesMalformedXml(): void

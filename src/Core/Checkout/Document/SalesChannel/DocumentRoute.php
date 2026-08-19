@@ -5,12 +5,14 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -45,6 +48,7 @@ final class DocumentRoute extends AbstractDocumentRoute
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
+        private readonly DocumentReader $documentReader,
         private readonly EntityRepository $documentRepository,
         private readonly GuestAuthenticator $guestAuthenticator,
         private readonly iterable $renderers,
@@ -62,14 +66,18 @@ final class DocumentRoute extends AbstractDocumentRoute
         methods: [Request::METHOD_GET, Request::METHOD_POST],
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME]
     )]
+    #[ParameterRemoval(version: 'v6.9.0', parameterName: 'fileType', description: 'Use $format instead.')]
     public function download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        ?string $fileType = null
+        ?string $fileType = null,
+        ?string $format = null,
     ): Response {
-        $this->checkAuth($documentId, $request, $context);
+        $documentEntity = $this->loadDocument($documentId, $context->getContext());
+
+        $this->checkAuth($documentEntity, $request, $context);
 
         $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
         if ($isGuest && $deepLinkCode === '') {
@@ -78,29 +86,43 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $download = $request->query->getBoolean('download');
 
-        $fileTypes = $this->resolveRequest($request, $fileType);
+        $documentFiles = $documentEntity->getDocumentFiles();
+        $isDocumentV2 = $documentFiles !== null && $documentFiles->count() > 0;
 
-        $document = $this->readDocument(
-            $documentId,
-            $context->getContext(),
-            $deepLinkCode,
-            $fileTypes,
-        );
+        if (!$isDocumentV2) {
+            $fileTypes = $this->resolveRequest($request, $fileType);
 
-        if ($document === null) {
-            if (!Feature::isActive('v6.8.0.0')) {
-                /*
-                 * this response code needs to be removed also in the api-schema-docs:
-                 * src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths/document.json
-                 */
-                return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+            $document = $this->readDocument(
+                $documentId,
+                $context->getContext(),
+                $deepLinkCode,
+                $fileTypes,
+            );
+
+            if ($document === null) {
+                if (!Feature::isActive('v6.8.0.0')) {
+                    /*
+                     * this response code needs to be removed also in the api-schema-docs:
+                     * src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths/document.json
+                     */
+                    return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+                }
+
+                throw DocumentException::documentFileTypeUnavailable(
+                    $documentId,
+                    $fileTypes
+                );
             }
 
-            throw DocumentException::documentFileTypeUnavailable(
-                $documentId,
-                $fileTypes
+            return $this->createResponse(
+                $document->getName(),
+                $document->getContent(),
+                $download,
+                $document->getContentType()
             );
         }
+
+        $document = $this->documentReader->read($documentId, $context->getContext(), $deepLinkCode, $format);
 
         return $this->createResponse(
             $document->getName(),
@@ -111,10 +133,17 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     /**
+     * @deprecated tag:v6.9.0 - will be removed in favor of DocumentReader::read() and the new document generation rework
+     *
      * @return list<string>
      */
     public function resolveRequest(Request $request, ?string $fileType): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            'Method "resolveRequest()" is deprecated, use DocumentReader::read() with a format instead.',
+        );
+
         $supportedTypesMapping = $this->getSupportedFileTypes();
 
         /*
@@ -178,16 +207,21 @@ final class DocumentRoute extends AbstractDocumentRoute
         return $response;
     }
 
-    private function checkAuth(string $documentId, Request $request, SalesChannelContext $context): void
+    private function loadDocument(string $documentId, Context $context): DocumentEntity
     {
         $criteria = (new Criteria([$documentId]))
-            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
+            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress', 'documentFiles']);
 
-        $document = $this->documentRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
+        return $document;
+    }
+
+    private function checkAuth(DocumentEntity $document, Request $request, SalesChannelContext $context): void
+    {
         $order = $document->getOrder();
         if (!$order) {
             throw DocumentException::orderNotFound($document->getOrderId());

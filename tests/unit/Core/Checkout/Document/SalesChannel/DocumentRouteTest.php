@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -18,14 +19,23 @@ use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +45,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('after-sales')]
 #[CoversClass(DocumentRoute::class)]
+#[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
 class DocumentRouteTest extends TestCase
 {
     private const DUMMY_DOCUMENT_ID = 'documentId';
@@ -63,6 +74,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             static::createStub(EntityRepository::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -91,6 +103,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -118,6 +131,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -153,6 +167,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -199,6 +214,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -244,6 +260,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -289,6 +306,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -337,6 +355,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -383,6 +402,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -416,6 +436,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock
@@ -466,6 +487,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generatorMock,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -517,6 +539,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderers,
@@ -581,6 +604,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock
@@ -648,6 +672,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock
@@ -698,6 +723,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock
@@ -751,6 +777,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
+            $this->createDocumentReaderStub(),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock
@@ -782,6 +809,112 @@ class DocumentRouteTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
+    public function testDownloadResolvesTheGivenFormatForADocumentV2Document(): void
+    {
+        $customerId = Uuid::randomHex();
+        $customer = $this->createCustomer($customerId, false);
+        $order = $this->createOrder($customerId);
+        $document = $this->createDocument($order);
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('invoice');
+        $media->setFileExtension('pdf');
+        $media->setMimeType('application/pdf');
+
+        // pdf and zugferd_embedded_pdf are both ".pdf" - the format name alone, not a file
+        // extension or mime type, is what picks the exact one, with nothing left to disambiguate.
+        $documentFile = new DocumentFileEntity();
+        $documentFile->setId(Uuid::randomHex());
+        $documentFile->setDocumentFormat(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value);
+        $documentFile->setMediaId($media->getId());
+        $documentFile->setMedia($media);
+
+        $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
+
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+            new DocumentCollection([$document]), // DocumentRoute::loadDocument()
+            new DocumentCollection([$document]), // DocumentReader::read()
+        ], new DocumentDefinition());
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('loadFile')->willReturn('content');
+
+        $route = new DocumentRoute(
+            static::createStub(DocumentGenerator::class),
+            new DocumentReader($documentRepository, $mediaService),
+            $documentRepository,
+            new GuestAuthenticator(),
+            new \ArrayIterator([]),
+        );
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $response = $route->download(
+            $document->getId(),
+            new Request(),
+            $context,
+            '',
+            null,
+            DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
+        );
+
+        static::assertSame('content', $response->getContent());
+    }
+
+    public function testDownloadThrowsForAnUnsupportedFormatForADocumentV2Document(): void
+    {
+        $customerId = Uuid::randomHex();
+        $customer = $this->createCustomer($customerId, false);
+        $order = $this->createOrder($customerId);
+        $document = $this->createDocument($order);
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setFileName('invoice');
+        $media->setFileExtension('pdf');
+        $media->setMimeType('application/pdf');
+
+        $documentFile = new DocumentFileEntity();
+        $documentFile->setId(Uuid::randomHex());
+        $documentFile->setDocumentFormat(DocumentFormat::PDF->value);
+        $documentFile->setMediaId($media->getId());
+        $documentFile->setMedia($media);
+
+        $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
+
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+            new DocumentCollection([$document]), // DocumentRoute::loadDocument()
+            new DocumentCollection([$document]), // DocumentReader::read()
+        ], new DocumentDefinition());
+
+        $route = new DocumentRoute(
+            static::createStub(DocumentGenerator::class),
+            new DocumentReader($documentRepository, static::createStub(MediaService::class)),
+            $documentRepository,
+            new GuestAuthenticator(),
+            new \ArrayIterator([]),
+        );
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $this->expectExceptionObject(
+            DocumentV2Exception::documentFormatUnavailable($document->getId(), DocumentFormat::ZUGFERD_XML->value)
+        );
+
+        $route->download(
+            $document->getId(),
+            new Request(),
+            $context,
+            '',
+            null,
+            DocumentFormat::ZUGFERD_XML->value,
+        );
+    }
+
     private function createCustomer(string $customerId, bool $isGuest): CustomerEntity
     {
         $customer = new CustomerEntity();
@@ -811,5 +944,13 @@ class DocumentRouteTest extends TestCase
         $document->setOrder($order);
 
         return $document;
+    }
+
+    private function createDocumentReaderStub(): DocumentReader
+    {
+        return new DocumentReader(
+            static::createStub(EntityRepository::class),
+            static::createStub(MediaService::class),
+        );
     }
 }

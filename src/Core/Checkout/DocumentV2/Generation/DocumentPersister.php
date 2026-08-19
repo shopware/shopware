@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -73,6 +75,8 @@ final readonly class DocumentPersister
             $context,
         );
 
+        $meta = $input->requireData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class);
+
         $this->documentRepository->create([
             [
                 'id' => $documentId,
@@ -83,6 +87,9 @@ final readonly class DocumentPersister
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
+                    // Read by the storefront's OrderRoute to decide whether the document is
+                    // visible in the customer account - mirrors the merchant's document type setting.
+                    'displayInCustomerAccount' => (bool) ($meta->legacyConfig['displayInCustomerAccount'] ?? false),
                 ],
             ],
         ], $context);

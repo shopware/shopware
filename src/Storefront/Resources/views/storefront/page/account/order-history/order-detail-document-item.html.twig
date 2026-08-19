@@ -2,26 +2,47 @@
     <li class="row order-detail-content-row">
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
+                {% if document.documentFiles is not empty %}
+                    {# document v2 stores one media file per format in documentFiles, already named via the
+                       document type's filename settings - so the stored file name is used as-is. The exact
+                       DocumentFormat value (not the file extension) is passed so DocumentRoute can tell apart
+                       formats that share one extension, e.g. pdf and zugferd_embedded_pdf are both ".pdf".
+                       Mirrors DocumentRoute::download(), which branches on the same document.documentFiles
+                       state - not the feature flag - so documents generated before the flag was enabled keep
+                       rendering their legacy links and stay downloadable. #}
+                    {% for documentFile in document.documentFiles|filter(file => file.media is not null) %}
+                        {% set documentLink = path('frontend.account.order.single.document', {
+                            documentId: document.id,
+                            deepLinkCode: document.deepLinkCode,
+                            fileType: documentFile.documentFormat,
+                        }) %}
 
-                {% for media in documentMediaFiles|filter(media => media is not null) %}
-                    {% set documentLink = path('frontend.account.order.single.document', {
-                        documentId: document.id,
-                        deepLinkCode: document.deepLinkCode,
-                        fileType: media.fileExtension,
-                    }) %}
-
-                    <a href="{{ documentLink }}"
-                       target="_blank">
-                        {% block page_account_order_document_item_detail_file_name_icon %}
+                        <a href="{{ documentLink }}"
+                           target="_blank">
                             <span class="icon icon-xs">{% sw_icon 'file' %}</span>
-                        {% endblock %}
+                            {{ documentFile.media.fileName }}.{{ documentFile.media.fileExtension }}
+                        </a><br>
+                    {% endfor %}
+                {% else %}
+                    {% for media in [document.documentMediaFile, document.documentA11yMediaFile]|filter(media => media is not null) %}
+                        {% set documentLink = path('frontend.account.order.single.document', {
+                            documentId: document.id,
+                            deepLinkCode: document.deepLinkCode,
+                            fileType: media.fileExtension,
+                        }) %}
 
-                        {% block page_account_order_document_item_detail_file_name_value %}
-                            {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
-                        {% endblock %}
-                    </a><br>
-                {% endfor %}
+                        <a href="{{ documentLink }}"
+                           target="_blank">
+                            {% block page_account_order_document_item_detail_file_name_icon %}
+                                <span class="icon icon-xs">{% sw_icon 'file' %}</span>
+                            {% endblock %}
+
+                            {% block page_account_order_document_item_detail_file_name_value %}
+                                {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
+                            {% endblock %}
+                        </a><br>
+                    {% endfor %}
+                {% endif %}
             </div>
         {% endblock %}
 

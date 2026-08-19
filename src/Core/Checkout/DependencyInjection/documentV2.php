@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\CreditNoteDataProvider;
@@ -205,6 +206,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_type.repository'),
             service(MediaService::class),
             service(FileNameProvider::class),
+        ]);
+
+    $services->set(DocumentReader::class)
+        ->args([
+            service('document.repository'),
+            service(MediaService::class),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)

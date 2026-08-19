@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -749,7 +750,7 @@ class DocumentV2ControllerTest extends TestCase
 
         return new DocumentGenerator(
             new DocumentDataProviderRegistry([
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value]),
+                new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
             ]),
             $rendererRegistry,
             new DocumentNumberGenerator(static::createStub(NumberRangeValueGeneratorInterface::class)),

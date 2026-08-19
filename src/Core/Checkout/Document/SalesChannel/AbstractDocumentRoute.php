@@ -21,6 +21,7 @@ abstract class AbstractDocumentRoute
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        string $fileType = PdfRenderer::FILE_EXTENSION
+        string $fileType = PdfRenderer::FILE_EXTENSION,
+        ?string $format = null,
     ): Response;
 }

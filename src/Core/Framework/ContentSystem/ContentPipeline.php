@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Hydration\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -239,7 +239,7 @@ class ContentPipeline
      *
      * The provider is keyed by the property the consumer actually writes its received value to
      * (`propertyAlias ?? contextKey`), because a provider's key is the property
-     * {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDistributor} reads the
+     * {@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor} reads the
      * value from. The name children receive it under is a separate concern, carried by the broadcast
      * config's `consumerAlias` — the same selection mechanism an authored provider uses. Keying the
      * provider by `consumerAlias` instead would name a property the element never wrote, so a chained

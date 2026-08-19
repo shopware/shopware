@@ -16,7 +16,7 @@ ContentElement tree structure. Elements nest via named slots, traverse via visit
 
 ## Context and Data
 
-Elements provide/consume context via string keys matched between `ContextProvider` and `ContextConsumer`. Context flows down tree only. See Context/ for definitions and Hydration/DataContext/ for distribution.
+Elements provide/consume context via string keys matched between `ContextProvider` and `ContextConsumer`. Context flows down tree only. See Context/ for definitions and Rendering/ for distribution.
 
 Data requirements declare external data via `DataRequirement` objects (`key`, `source`, `config`). See Hydration/DataLoader/ for loaders.
 
@@ -30,7 +30,7 @@ ContentElement is a mutable object, but on the serving path its `properties` map
 | **Rendered** (runtime, built by `Layout/Element/ContentElementLowering` out of the `RenderedElement`) | Static values AND loaded data merged together | Still present as metadata, read off the stored element; the render step has already used them to resolve the values |
 | **API output** (`jsonSerialize()`, Store API response) | Same as rendered — full merged map. Skeleton format strips properties entirely | Serialized alongside properties in full format; absent in skeleton format |
 
-The merge happens on the rendered side, in `Hydration/RenderedElementFactory`: a resolved loader value lands under its data requirement's key, and delivered context under the consumer key or its `propertyAlias`. `ContentElementLowering` copies that finished map onto the `ContentElement` it builds and adds nothing. In the resulting map there is no distinction between a property that was set statically at design time and one that was loaded by a data loader or received via context.
+The merge happens on the rendered side, in `Rendering/RenderedElementFactory`: a resolved loader value lands under its data requirement's key, and delivered context under the consumer key or its `propertyAlias`. `ContentElementLowering` copies that finished map onto the `ContentElement` it builds and adds nothing. In the resulting map there is no distinction between a property that was set statically at design time and one that was loaded by a data loader or received via context.
 
 Internally, `ContentElement` stores properties in two maps (`structProperties` for Struct instances, `nonStructProperties` for scalars/arrays). This is a serialization optimization — `jsonSerialize()` merges them back into a single `properties` key. The split is invisible to consumers.
 

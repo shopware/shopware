@@ -12,6 +12,6 @@ Distribution strategy value objects. Each implements `DistributionConfig` with a
 - `SlicedDistributionConfig` - Data chunked across consumers
 - `IteratorDistributionConfig` - Round-robin
 
-See Hydration/DataContext/ for how strategies are invoked during context resolution.
+See Rendering/ for how strategies are invoked during context resolution.
 
 For the `distribution` values these objects back, see [../docs/distribution-strategies.md](../docs/distribution-strategies.md).

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * {@see \Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage} and the Storefront components — still
  * speaks the older model.
  *
- * Property values come from the rendered side alone. {@see \Shopware\Core\Framework\ContentSystem\Hydration\RenderedElementFactory}
+ * Property values come from the rendered side alone. {@see \Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory}
  * has already derived the render namespace, unwrapped every {@see StoredValue} and merged the loaded and the
  * delivered values into it, so this class unwraps nothing itself and adds nothing to that map.
  *

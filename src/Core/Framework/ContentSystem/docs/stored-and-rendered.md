@@ -17,7 +17,7 @@ So a contributor does not have to re-decide. These paths, and the examples on [R
 - `Layout/Element/StoredElement` — one authored element.
 - `Layout/Element/StoredValue` — one wrapped property value.
 - `Layout/StoredTree` — the forest of stored roots, and the algebra over it.
-- `Layout/Element/RenderedElement` — one element as a response serializes it. It sits beside `StoredElement` rather than under `Output/Struct/`, because it is not a `Struct` and does not pass through `StructEncoder`.
+- `Rendering/RenderedElement` — one element as a response serializes it. It lives in `Rendering/`, with the classes that mint it, rather than under `Output/Struct/`, because it is not a `Struct` and does not pass through `StructEncoder`.
 - `Output/Struct/ContentPage` — a rendered page.
 - `Layout/Codec/` — the codecs between a wire shape and the stored model.
 

@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\ContentSystem\Hydration;
+namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDeliveryIndex;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;

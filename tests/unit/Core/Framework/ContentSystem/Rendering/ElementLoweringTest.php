@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration;
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDeliveryResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -16,15 +14,17 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\ElementDataResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\ElementLowering;
-use Shopware\Core\Framework\ContentSystem\Hydration\RenderedElementFactory;
-use Shopware\Core\Framework\ContentSystem\Hydration\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;

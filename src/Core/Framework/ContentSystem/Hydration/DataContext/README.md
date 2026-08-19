@@ -1,19 +1,11 @@
 # DataContext
 
-Context resolution and distribution. Providers expose data as context, consumers receive it in properties. Intermediate elements don't need to know about context passing through them.
+Context path resolution. `ContextPathResolver` resolves consumer paths on Struct objects; `ContextType` classifies a context entry as `Single` or `Collection`. The distribution of context between elements — `ContextDeliveryResolver`, `ContextDistributor`, `ContextDeliveryIndex` / `ContextDelivery` — lives in [Rendering/](../../Rendering/README.md).
 
 ## Key Classes
 
-- `ContextDeliveryResolver` - Entry point, walks the stored forest top-down and returns a `ContextDeliveryIndex`
-- `ContextDistributor` - The rule for ONE parent and its direct children: computes what each child receives and returns it
-- `ContextDeliveryIndex` / `ContextDelivery` - What every element of that forest received, by element id; computed once, read back afterwards
 - `ContextPathResolver` - Resolves dot-notation paths on Struct objects
-
-## Distribution
-
-`ContextDistributor` distributes context ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`acceptsContext` + `providesContext`). The forest walk is separate and belongs to `ContextDeliveryResolver`; it runs top-down, so a container that receives context and re-provides it distributes what it was given.
-
-The five strategies `ContextDistributor` dispatches on are declared in `Layout/Element/Context/Distribution/`: Broadcast, Indexed, Keyed, Sliced, Iterator. What each one means, and the context-flow rules bounding how far a distributed context reaches, are owned by [Layout/Element/Context/docs/distribution-strategies.md](../../Layout/Element/Context/docs/distribution-strategies.md).
+- `ContextType` - Enum: `Single` / `Collection`, classifying the shape of a context entry on providers, consumers and resolution results
 
 ## Path Resolution
 

@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration;
+namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDelivery;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextDeliveryIndex;
-use Shopware\Core\Framework\ContentSystem\Hydration\RenderedElementFactory;
-use Shopware\Core\Framework\ContentSystem\Hydration\RenderedTreeFactory;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDelivery;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Test\Stub\ContentSystem;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 

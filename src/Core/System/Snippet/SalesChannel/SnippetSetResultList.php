@@ -12,10 +12,13 @@ use Shopware\Core\Framework\Struct\Struct;
 final class SnippetSetResultList extends Struct
 {
     /**
-     * @param list<SnippetSetResult> $sets
+     * @var list<SnippetSetResult>
      */
-    public function __construct(public array $sets)
+    public array $sets;
+
+    public function __construct(SnippetSetResult ...$sets)
     {
+        $this->sets = array_values($sets);
     }
 
     public function getApiAlias(): string

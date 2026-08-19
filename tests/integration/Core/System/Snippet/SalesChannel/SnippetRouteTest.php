@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\Snippet\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -157,6 +158,104 @@ class SnippetRouteTest extends TestCase
         }
     }
 
+    public function testLanguagesSharingOneLocaleResolveTheirOwnSnippetSets(): void
+    {
+        $context = Context::createDefaultContext();
+        $deDeLanguageId = $this->getDeDeLanguageId();
+
+        $deDeSnippetSetId = $this->getSnippetSetIdForLocale('de-DE');
+        static::assertNotNull($deDeSnippetSetId);
+
+        // a child language without an own translation code inherits the parent's locale (de-DE)
+        $informalLanguageId = Uuid::randomHex();
+        static::getContainer()->get('language.repository')->create([
+            [
+                'id' => $informalLanguageId,
+                'name' => 'German (informal)',
+                'parentId' => $deDeLanguageId,
+                'localeId' => $this->getLocaleIdByCode('de-DE'),
+            ],
+        ], $context);
+
+        // an own snippet set for the informal variant, same iso as the default de-DE set
+        $informalSnippetSetId = Uuid::randomHex();
+        static::getContainer()->get('snippet_set.repository')->create([
+            [
+                'id' => $informalSnippetSetId,
+                'name' => 'German (informal)',
+                'baseFile' => 'messages.de-DE',
+                'iso' => 'de-DE',
+            ],
+        ], $context);
+
+        static::getContainer()->get('snippet.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'translationKey' => 'myShared.locale.key',
+                'value' => 'Formal value',
+                'author' => 'testAuthor',
+                'setId' => $deDeSnippetSetId,
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'translationKey' => 'myShared.locale.key',
+                'value' => 'Informal value',
+                'author' => 'testAuthor',
+                'setId' => $informalSnippetSetId,
+            ],
+        ], $context);
+
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel-shared-locale'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'languages' => [
+                ['id' => Defaults::LANGUAGE_SYSTEM],
+                ['id' => $deDeLanguageId],
+                ['id' => $informalLanguageId],
+            ],
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->enGbSnippetSetId,
+                    'url' => 'http://shared-locale.example.com',
+                ],
+                [
+                    'languageId' => $deDeLanguageId,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $deDeSnippetSetId,
+                    'url' => 'http://shared-locale.example.com/de',
+                ],
+                [
+                    'languageId' => $informalLanguageId,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $informalSnippetSetId,
+                    'url' => 'http://shared-locale.example.com/de-informal',
+                ],
+            ],
+        ]);
+
+        $browser->request(
+            'GET',
+            '/store-api/snippet?languageIds=' . implode(',', [$deDeLanguageId, $informalLanguageId])
+        );
+
+        $content = $browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(2, $response['sets']);
+        $setsByLanguage = array_column($response['sets'], null, 'languageId');
+
+        // both languages resolve to locale de-DE, but each must keep its own snippet set and overrides
+        static::assertSame('de-DE', $setsByLanguage[$deDeLanguageId]['locale']);
+        static::assertSame('de-DE', $setsByLanguage[$informalLanguageId]['locale']);
+        static::assertSame($deDeSnippetSetId, $setsByLanguage[$deDeLanguageId]['snippetSetId']);
+        static::assertSame($informalSnippetSetId, $setsByLanguage[$informalLanguageId]['snippetSetId']);
+        static::assertSame('Formal value', $setsByLanguage[$deDeLanguageId]['snippets']['myShared.locale.key']);
+        static::assertSame('Informal value', $setsByLanguage[$informalLanguageId]['snippets']['myShared.locale.key']);
+    }
+
     public function testFailsForALanguageNotAssignedToTheSalesChannel(): void
     {
         $this->browser->request('GET', '/store-api/snippet?languageIds=' . Uuid::randomHex());
@@ -168,6 +267,17 @@ class SnippetRouteTest extends TestCase
             SnippetException::SNIPPET_LANGUAGE_NOT_AVAILABLE_IN_SALES_CHANNEL,
             $response['errors'][0]['code']
         );
+    }
+
+    private function getLocaleIdByCode(string $code): string
+    {
+        $localeId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(`id`)) FROM `locale` WHERE `code` = :code',
+            ['code' => $code]
+        );
+        static::assertIsString($localeId);
+
+        return $localeId;
     }
 
     private function createSnippet(string $translationKey, string $value): void

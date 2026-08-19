@@ -18,9 +18,7 @@
                 "properties": {
                     "apiAlias": {
                         "type": "string",
-                        "enum": [
-                            "snippet_set_result"
-                        ]
+                        "const": "snippet_set_result"
                     },
                     "languageId": {
                         "type": "string",
@@ -56,28 +54,6 @@
                             "type": "string"
                         },
                         "description": "Flat map of fully resolved snippets, e.g. `{\"account.loginTitle\": \"Log in\"}`. Values are never null, the language fallback is already merged. Note: when no snippet matches the requested `prefixes`, the empty map is serialized as an empty JSON list (`[]`)."
-                    }
-                }
-            },
-            "SnippetSetResultList": {
-                "type": "object",
-                "description": "Resolved snippets, one set per language. Contains a single set for the context language unless the `languageIds` query parameter requests more.",
-                "required": [
-                    "apiAlias",
-                    "sets"
-                ],
-                "properties": {
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": [
-                            "snippet_set_result_list"
-                        ]
-                    },
-                    "sets": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SnippetSetResult"
-                        }
                     }
                 }
             }
@@ -121,7 +97,23 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SnippetSetResultList"
+                                    "type": "object",
+                                    "required": [
+                                        "apiAlias",
+                                        "sets"
+                                    ],
+                                    "properties": {
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "const": "snippet_set_result_list"
+                                        },
+                                        "sets": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SnippetSetResult"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

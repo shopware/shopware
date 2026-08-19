@@ -16,6 +16,7 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SalesChannel\SalesChannelSnippetLoader;
 use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
@@ -178,12 +179,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('messenger.message_handler');
 
-    $services->set(SnippetRoute::class)
-        ->public()
+    $services->set(SalesChannelSnippetLoader::class)
         ->args([
             service(Translator::class),
             service(LanguageLocaleCodeProvider::class),
-            service(Connection::class),
+            service('sales_channel.language.repository'),
+        ]);
+
+    $services->set(SnippetRoute::class)
+        ->public()
+        ->args([
+            service(SalesChannelSnippetLoader::class),
             service(CacheTagCollector::class),
         ]);
 

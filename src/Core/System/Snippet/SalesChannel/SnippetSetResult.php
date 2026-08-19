@@ -23,9 +23,4 @@ final class SnippetSetResult extends Struct
         public array $snippets,
     ) {
     }
-
-    public function getApiAlias(): string
-    {
-        return 'snippet_set_result';
-    }
 }

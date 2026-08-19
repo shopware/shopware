@@ -19,7 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 #[CoversClass(ConfiguredEntitySeoUrlRoute::class)]
 class ConfiguredEntitySeoUrlRouteTest extends TestCase
 {

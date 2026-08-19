@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
+use OpenApi\Annotations\Components;
 use OpenApi\Annotations\License;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Parameter;
@@ -50,6 +51,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
         private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
+        private readonly ?OpenApiRouteDefaultsFilter $routeDefaultsFilter = null,
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
     }
@@ -80,39 +82,27 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $loader = new OpenApiFileLoader($schemaPaths);
         $jsonSpec = $loader->loadOpenapiSpecification();
-        $jsonSchemaNames = isset($jsonSpec['components']['schemas']) ? array_keys($jsonSpec['components']['schemas']) : [];
-        $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($jsonSpec);
-
-        foreach ($definitions as $definition) {
-            if (!$definition instanceof EntityDefinition) {
-                continue;
-            }
-
-            if (!$this->shouldDefinitionBeIncluded($definition)) {
-                continue;
-            }
-
-            $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
-
-            if (\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $jsonSchemaNames, true)) {
-                // A matching JSON component owns the base schema; PHP contributes only dynamic extensions.
-                $schema = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
-                    $definition,
-                    $this->getResourceUri($definition),
-                    $forSalesChannel,
-                );
-            } else {
-                if (!\in_array($this->definitionSchemaBuilder->getSchemaName($definition), $referencedJsonSchemaNames, true)) {
-                    continue;
+        $jsonSchemaNames = [];
+        if (isset($jsonSpec['components']['schemas']) && \is_array($jsonSpec['components']['schemas'])) {
+            foreach (array_keys($jsonSpec['components']['schemas']) as $schemaName) {
+                if (\is_string($schemaName)) {
+                    $jsonSchemaNames[] = $schemaName;
                 }
+            }
+        }
+        $generatedSchemas = $this->getGeneratedSchemas($definitions, $jsonSchemaNames, $forSalesChannel);
+        $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($jsonSpec, $generatedSchemas['componentSchemas']);
 
-                $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
-                    $definition,
-                    $this->getResourceUri($definition),
-                    $forSalesChannel,
-                    $onlyReference,
-                    DefinitionService::TYPE_JSON_API,
-                );
+        foreach ($generatedSchemas['definitionSchemas'] as $schemaName => $schema) {
+            if (\in_array($schemaName, $jsonSchemaNames, true)) {
+                // A matching JSON component owns the base schema; PHP contributes only dynamic extensions.
+                $openApi->components->merge(array_values($schema));
+
+                continue;
+            }
+
+            if (!array_intersect(array_keys($schema), $referencedJsonSchemaNames)) {
+                continue;
             }
 
             $openApi->components->merge(array_values($schema));
@@ -135,7 +125,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
-        return $finalSpecs;
+        return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
     }
 
     /**
@@ -262,16 +252,82 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
+     * @param array<string, EntityDefinition> $definitions
+     * @param list<string> $jsonSchemaNames
+     *
+     * @return array{
+     *     definitionSchemas: array<string, array<string, mixed>>,
+     *     componentSchemas: array<string, mixed>
+     * }
+     */
+    private function getGeneratedSchemas(array $definitions, array $jsonSchemaNames, bool $forSalesChannel): array
+    {
+        $definitionSchemas = [];
+
+        foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
+            if (!$this->shouldDefinitionBeIncluded($definition)) {
+                continue;
+            }
+
+            $schemaName = $this->definitionSchemaBuilder->getSchemaName($definition);
+
+            if (\in_array($schemaName, $jsonSchemaNames, true)) {
+                $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $forSalesChannel,
+                );
+
+                continue;
+            }
+
+            $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getSchemaByDefinition(
+                $definition,
+                $this->getResourceUri($definition),
+                $forSalesChannel,
+                $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
+                DefinitionService::TYPE_JSON_API,
+            );
+        }
+
+        $openApi = new OpenApi([
+            'openapi' => '3.2.0',
+        ]);
+        $openApi->components = new Components([]);
+
+        foreach ($definitionSchemas as $schema) {
+            $openApi->components->merge(array_values($schema));
+        }
+
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $componentSchemas = $data['components']['schemas'] ?? [];
+        if (!\is_array($componentSchemas)) {
+            $componentSchemas = [];
+        }
+
+        return [
+            'definitionSchemas' => $definitionSchemas,
+            'componentSchemas' => $componentSchemas,
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $jsonSpec
+     * @param array<string, mixed> $generatedComponentSchemas
      *
      * @return list<string>
      */
-    private function getReferencedJsonSchemaNames(array $jsonSpec): array
+    private function getReferencedJsonSchemaNames(array $jsonSpec, array $generatedComponentSchemas): array
     {
         $componentSchemas = $jsonSpec['components']['schemas'] ?? [];
         if (!\is_array($componentSchemas)) {
             $componentSchemas = [];
         }
+        $componentSchemas = array_replace_recursive($componentSchemas, $generatedComponentSchemas);
 
         $referencedSchemaNames = [];
         $queue = [];

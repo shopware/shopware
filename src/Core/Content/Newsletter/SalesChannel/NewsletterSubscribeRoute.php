@@ -122,7 +122,12 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
-    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
+    #[Route(
+        path: '/store-api/newsletter/subscribe',
+        name: 'store-api.newsletter.subscribe',
+        defaults: ['validateStorefrontUrl' => true],
+        methods: ['POST']
+    )]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {

@@ -142,6 +142,7 @@ class ShippingMethodRouteTest extends TestCase
                         ],
                     ],
                 ],
+                // A nullable field on one row must not turn the existence check into an anti-join
                 [
                     'id' => $this->ids->create('price-without-currency-price'),
                     'calculation' => 1,

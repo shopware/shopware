@@ -97,33 +97,13 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ### Store API no longer offers shipping methods without a usable price
 
-`GET`/`POST /store-api/shipping-method` with `onlyAvailable=1` no longer returns active shipping methods that have no price the cart can use — neither an empty price matrix, nor one whose rows all lack currency values. Such a method can never resolve shipping costs, so the cart blocked it while it stayed selectable in the storefront and the customer was silently switched to a different method on every attempt. A method that has at least one row with currency values is still returned, even if further rows are incomplete.
-
-Requests without `onlyAvailable` are unchanged and still return every active shipping method, so the Administration and integrations that manage shipping methods keep seeing the full list. Headless frontends that build their shipping selection from `onlyAvailable=1` need no change.
+`onlyAvailable=1` no longer returns active shipping methods whose prices cannot resolve a cost: an empty matrix, or rows that all lack currency values. One usable row is enough. Requests without the flag are unchanged.
 
 ## Core
 
 ### An active shipping method must keep at least one usable price
 
-A price row only counts when it carries currency values, because the cart skips rows without them. The following writes are now rejected with a `400` and the constraint code `active_shipping_method_without_price`:
-
-* deleting the last usable `shipping_method_price` of an active shipping method,
-* moving the last usable `shipping_method_price` to another shipping method,
-* clearing the `currencyPrice` of the last usable `shipping_method_price`,
-* setting `active` to `true` on a shipping method without a usable price.
-
-Creating a shipping method without prices is unchanged, so creating the method first and adding its prices in a follow-up request still works. Until it has a usable price, the Store API keeps it out of the `onlyAvailable=1` list.
-
-Integrations that replace a price matrix by deleting all rows and inserting new ones must send both operations in one request, so the method is never priceless in between:
-
-```json
-[
-  { "key": "delete-prices", "entity": "shipping_method_price", "action": "delete", "payload": [{ "id": "…" }] },
-  { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [{ "currencyId": "…", "net": 0, "gross": 0, "linked": false }] }] }
-]
-```
-
-To remove a price matrix without replacing it, deactivate the shipping method in an **earlier** request and delete the prices afterwards. Deactivating and deleting within one Administration save is not enough, because the Administration sends association deletions before the shipping method update.
+Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. Replace a matrix in one request; to remove one, deactivate the method first.
 
 ### E-invoice line positions state the correct price base quantity
 

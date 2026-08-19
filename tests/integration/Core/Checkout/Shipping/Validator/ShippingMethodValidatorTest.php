@@ -110,6 +110,7 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertSame([], $this->fetchPriceIds());
     }
 
+    // The documented migration path: removal and replacement reach the validator as one write
     public function testReplacingEveryPriceWithinOneSyncIsAllowed(): void
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);
@@ -295,6 +296,7 @@ class ShippingMethodValidatorTest extends TestCase
         ]], $this->context)));
     }
 
+    // Two-step creation is an established flow; the route keeps such a method out of the storefront
     public function testCreatingAnActiveShippingMethodWithoutPricesIsStillAllowed(): void
     {
         static::assertNull($this->write(fn () => $this->createShippingMethod(active: true, priceKeys: [])));

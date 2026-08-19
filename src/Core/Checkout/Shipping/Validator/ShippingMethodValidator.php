@@ -111,6 +111,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
         $candidates = array_filter($activeOverrides)
             + array_filter($priceCountChanges, static fn (int $change): bool => $change < 0);
 
+        // A method deleted in the same write takes its prices with it
         $candidates = array_diff_key($candidates, $deletedMethodIds);
         if ($candidates === []) {
             return;
@@ -241,6 +242,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
             return;
         }
 
+        // An update after a delete must not recreate the row
         if ($command instanceof UpdateCommand && !isset($priceStates[$id])) {
             return;
         }

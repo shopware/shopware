@@ -3,16 +3,22 @@
 {# @internal #}
 
 {% props
-    totalCount = 0,
+    listing = null,
+    totalCount = null,
     currentSorting = null,
-    filterAggregations = [],
-    availableSortings = [],
+    filterAggregations = null,
+    availableSortings = null,
     filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
     showLayoutSwitch = true,
     visibleFilterCount = 3,
     slots = [],
-    displayType = 'dropdown',
+    displayType = 'inline',
 %}
+
+{% set totalCount = totalCount ?? listing.total ?? 0 %}
+{% set currentSorting = currentSorting ?? listing.sorting %}
+{% set availableSortings = availableSortings ?? listing.availableSortings %}
+{% set filterAggregations = filterAggregations ?? listing.aggregations %}
 
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,
@@ -22,8 +28,8 @@
     base: 'sw-filter-panel container',
     variants: {
         displayType: {
-            dropdown: 'is--dropdown',
-            collapse: 'is--collapse',
+            inline: 'is--dropdown',
+            stacked: 'is--collapse',
         },
     },
 }) %}
@@ -34,19 +40,27 @@
     'data-component-options': filterPanelOptions|json_encode,
 } %}
 
-{% set manufacturerAggregation = filterAggregations.get('manufacturer') %}
-{% set priceAggregation = filterAggregations.get('price') %}
-{% set ratingAggregation = filterAggregations.get('rating') %}
-{% set shippingFreeAggregation = filterAggregations.get('shipping-free') %}
-{% set propertiesAggregation = filterAggregations.get('properties') %}
+{% set manufacturerAggregation = null %}
+{% set priceAggregation = null %}
+{% set ratingAggregation = null %}
+{% set shippingFreeAggregation = null %}
+{% set propertiesAggregation = null %}
+
+{% if filterAggregations is not empty %}
+    {% set manufacturerAggregation = filterAggregations.get('manufacturer') %}
+    {% set priceAggregation = filterAggregations.get('price') %}
+    {% set ratingAggregation = filterAggregations.get('rating') %}
+    {% set shippingFreeAggregation = filterAggregations.get('shipping-free') %}
+    {% set propertiesAggregation = filterAggregations.get('properties') %}
+{% endif %}
 
 {% set manufacturerFilter %}
-    {% if manufacturerAggregation.entities|length > 0 %}
+    {% if manufacturerAggregation is not null and manufacturerAggregation.entities|length > 0 %}
         {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
         {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item 
-            :filterName="manufacturerFilterName" 
+        <twig:Sw:Filter:Item
+            :filterName="manufacturerFilterName"
             :displayType="displayType"
         >
             <twig:Sw:Filter:Type:MultiSelectFilter
@@ -59,11 +73,11 @@
 {% endset%}
 
 {% set ratingFilter %}
-    {% if ratingAggregation is defined %}
+    {% if ratingAggregation is not null %}
         {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item 
-            :filterName="ratingFilterName" 
+        <twig:Sw:Filter:Item
+            :filterName="ratingFilterName"
             :displayType="displayType"
         >
             <twig:Sw:Filter:Type:RatingFilter name="rating"></twig:Sw:Filter:Type:RatingFilter>
@@ -72,11 +86,11 @@
 {% endset%}
 
 {% set priceFilter %}
-    {% if priceAggregation is defined %}
+    {% if priceAggregation is not null %}
         {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Item 
-            :filterName="priceFilterName" 
+        <twig:Sw:Filter:Item
+            :filterName="priceFilterName"
             :displayType="displayType"
         >
             <twig:Sw:Filter:Type:RangeFilter
@@ -91,10 +105,10 @@
 {% endset%}
 
 {% set propertiesFilter %}
-    {% if propertiesAggregation.entities|length > 0 %}
+    {% if propertiesAggregation is not null and propertiesAggregation.entities|length > 0 %}
         {% for property in propertiesAggregation.entities %}
-            <twig:Sw:Filter:Item 
-                :filterName="property.translated.name" 
+            <twig:Sw:Filter:Item
+                :filterName="property.translated.name"
                 :displayType="displayType"
             >
                 <twig:Sw:Filter:Type:MultiSelectFilter
@@ -109,7 +123,7 @@
 {% endset %}
 
 {% set shippingFreeFilter %}
-    {% if shippingFreeAggregation.max > 0 %}
+    {% if shippingFreeAggregation is not null and shippingFreeAggregation.max > 0 %}
         {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
 
         <twig:Sw:Filter:Type:BooleanFilter
@@ -149,9 +163,9 @@
             <twig:Slot name="additional-filters-end"></twig:Slot>
 
             {# Expand or collapse hidden filters #}
-            {% if filterAggregations|length > visibleFilterCount %}
-                <twig:Sw:Button 
-                    variant="filter" 
+            {% if filterAggregations is not empty and filterAggregations|length > visibleFilterCount %}
+                <twig:Sw:Button
+                    variant="filter"
                     class="sw-filter-panel__expand d-none d-md-block"
                 >
                     <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
@@ -186,5 +200,9 @@
                 <twig:Sw:Filter:LayoutSwitch />
             {% endif %}
         </div>
+    {% endblock %}
+
+    {% block activeFilters %}
+        <twig:Sw:Filter:ActiveFilters />
     {% endblock %}
 </div>

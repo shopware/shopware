@@ -19,21 +19,6 @@
 {% set layout = app.request.get('layout') %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-    {% block filters %}
-        <twig:Slot name="filters-panel">
-            <twig:Sw:Filter:Panel
-                :totalCount="listing.total"
-                :currentSorting="listing.sorting"
-                :filterAggregations="listing.aggregations"
-                :availableSortings="listing.availableSortings">
-            </twig:Sw:Filter:Panel>
-        </twig:Slot>
-
-        <twig:Slot name="filters-active">
-            <twig:Sw:Filter:ActiveFilters />
-        </twig:Slot>
-    {% endblock %}
-
     {% block content %}
         {% if listing.total > 0 %}
             <twig:Slot name="product-grid">

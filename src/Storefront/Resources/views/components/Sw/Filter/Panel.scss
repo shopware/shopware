@@ -1,5 +1,6 @@
 .sw-filter-panel {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: start;
     gap: 0.5rem;
@@ -19,9 +20,15 @@
     gap: 0.5rem;
 }
 
+.sw-filter-panel.is--collapse {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: start;
+}
+
 .is--collapse .sw-filter-panel__filter {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
 }
 
 .sw-filter-panel__actions {
@@ -33,4 +40,9 @@
 
 .sw-filter-panel__counter {
     line-height: 40px;
+}
+
+.sw-filter-panel > .sw-active-filters {
+    flex: 0 0 100%;
+    margin-bottom: 0;
 }

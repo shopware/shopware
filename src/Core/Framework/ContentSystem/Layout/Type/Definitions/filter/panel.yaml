@@ -6,10 +6,39 @@ meta:
   copilot:
     summary: "Listing filter and sorting panel."
     hints:
-      - "Bind listing aggregations and sortings."
+      - "The listing is loaded per request from the page's category, no configuration needed."
+      - "Place it anywhere on a category layout. It does not have to sit inside the product listing."
       - "Use additional filter slots to extend built-in filters."
 
 properties:
+  listing:
+    type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
+    required: true
+    title: "Listing"
+    description: "Hydrated listing result the filters, sortings and result count are derived from."
+    resolvedBy:
+      product_listing: {}
+
+  navigationId:
+    type: string
+    title: "Navigation ID"
+    description: "Category id the product_listing loader loads the aggregations from. Resolved per request from the layout's category root, so it needs no editorial input."
+    default: "{{categoryId}}"
+    adminUI:
+      helpText: "Filled automatically from the page you are on, so leave this as it is."
+
+  displayType:
+    type: string
+    title: "Display Type"
+    description: "How the filters are arranged. `inline` lays them out as a row of buttons opening floating menus; `stacked` gives each its own full-width row that expands in place."
+    default: "inline"
+    enum:
+      - "inline"
+      - "stacked"
+    adminUI:
+      component: "select"
+      helpText: "Use stacked when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
+
   showLayoutSwitch:
     type: boolean
     title: "Show Layout Switch"

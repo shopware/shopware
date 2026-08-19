@@ -26,6 +26,10 @@ npm run codemod:sfc-migration -- src/app/component/base --write
 npm run codemod:sfc-migration -- src/app/component/base --write --replace-originals
 ```
 
+From the project root the same run is `composer admin:codemod:sfc-migration -- <path> [flags]`. The
+`--` is not optional there: without it Composer consumes `--write` itself and the run silently stays
+a dry run.
+
 ## Outcomes
 
 | Outcome            | Meaning                                          | `--write` behavior                                                                                                                                                     |

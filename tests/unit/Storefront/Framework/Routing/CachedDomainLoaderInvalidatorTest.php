@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
+use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Tests\Unit\Storefront\Theme\MockedCacheInvalidator;
 
 /**
@@ -35,6 +36,30 @@ class CachedDomainLoaderInvalidatorTest extends TestCase
         $event = new EntityWrittenContainerEvent(
             $context,
             new NestedEventCollection([new EntityWrittenEvent(SalesChannelDefinition::ENTITY_NAME, [], $context)]),
+            []
+        );
+
+        $mockedInvalidator = new MockedCacheInvalidator();
+
+        $invalidationSubscriber = new CachedDomainLoaderInvalidator(
+            $mockedInvalidator
+        );
+
+        $invalidationSubscriber->invalidate($event);
+
+        static::assertSame(
+            [CachedDomainLoader::CACHE_KEY, CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY],
+            $mockedInvalidator->getForceInvalidatedTags()
+        );
+    }
+
+    public function testInvalidateIsCalledForThemeSalesChannelWrittenEvent(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([new EntityWrittenEvent(ThemeSalesChannelDefinition::ENTITY_NAME, [], $context)]),
             []
         );
 

@@ -4,11 +4,14 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
+use League\Flysystem\FilesystemOperator;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
+use Shopware\Core\System\Snippet\Command\DownloadTranslationCommand;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
 use Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand;
 use Shopware\Core\System\Snippet\Command\ListTranslationsCommand;
@@ -21,7 +24,9 @@ use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
+use Shopware\Core\System\Snippet\Service\TranslationFilesystemFactory;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationRemover;
@@ -99,6 +104,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(DownloadTranslationCommand::class)
+        ->args([
+            service(AbstractTranslationLoader::class),
+            service(TranslationConfig::class),
+        ])
+        ->tag('console.command');
+
     $services->set(UpdateTranslationCommand::class)
         ->args([
             service(TranslationLoader::class),
@@ -136,7 +148,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(TranslationLoader::class)
         ->args([
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service('language.repository'),
             service('locale.repository'),
             service('snippet_set.repository'),
@@ -145,11 +157,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ]);
 
+    $services->alias(AbstractTranslationLoader::class, TranslationLoader::class);
+
     $services->set(TranslationMetadataStore::class)
         ->args([
             service(TranslationConfig::class),
             service('shopware.translation.client'),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service('cache.object'),
         ]);
 
@@ -161,7 +175,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(TranslationRemover::class)
         ->args([
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service(TranslationLoader::class),
             service(TranslationMetadataStore::class),
             service('event_dispatcher'),
@@ -178,6 +192,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('language.repository'),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(TranslationFilesystemFactory::class)
+        ->args([
+            service('shopware.filesystem.private'),
+            service(FilesystemFactory::class),
+            param('kernel.project_dir'),
+            param('shopware.translation.use_local_filesystem'),
+        ]);
+
+    $services->set('shopware.filesystem.translation', FilesystemOperator::class)
+        ->factory([service(TranslationFilesystemFactory::class), 'create']);
 
     $services->set(SalesChannelSnippetLoader::class)
         ->args([

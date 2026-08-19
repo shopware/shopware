@@ -405,6 +405,11 @@ shopware:
         scheduled_task:
             enabled: true
 
+    translation:
+        use_local_filesystem: false
+        scheduled_task:
+            enabled: true
+
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
         cluster_setup: false

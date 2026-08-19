@@ -26,11 +26,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
- * An active shipping method without a price is offered in the storefront but blocked by the cart,
- * so the customer's selection is silently overridden on every attempt.
- *
- * @see https://github.com/shopware/shopware/issues/19001
- *
  * @internal
  */
 #[Package('checkout')]
@@ -115,10 +110,6 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertSame([], $this->fetchPriceIds());
     }
 
-    /**
-     * The documented migration path for integrations that rebuild a price matrix: the removal and the
-     * replacement reach the validator as one write, so the method is never priceless in between.
-     */
     public function testReplacingEveryPriceWithinOneSyncIsAllowed(): void
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);
@@ -208,7 +199,6 @@ class ShippingMethodValidatorTest extends TestCase
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);
 
-        // adding first keeps the method priced at every point in time
         $exception = $this->write(fn () => $this->shippingMethodPriceRepository->upsert(
             [$this->pricePayload('replacement') + ['shippingMethodId' => $this->ids->get('shipping')]],
             $this->context
@@ -219,10 +209,6 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertSame([$this->ids->get('replacement')], $this->fetchPriceIds());
     }
 
-    /**
-     * The inverse of the sync above: removing every price in one write is still rejected, even when the
-     * write also touches the shipping method itself.
-     */
     public function testRemovingEveryPriceWithinOneSyncIsRejected(): void
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);
@@ -309,20 +295,11 @@ class ShippingMethodValidatorTest extends TestCase
         ]], $this->context)));
     }
 
-    /**
-     * Creating the shipping method first and configuring its prices in a follow-up request is an
-     * established flow, so it is deliberately left untouched. Such a method is instead kept out of the
-     * storefront by ShippingMethodRoute's `onlyAvailable` filter.
-     */
     public function testCreatingAnActiveShippingMethodWithoutPricesIsStillAllowed(): void
     {
         static::assertNull($this->write(fn () => $this->createShippingMethod(active: true, priceKeys: [])));
     }
 
-    /**
-     * A price row without currency values is skipped when the cart calculates shipping costs, so it cannot
-     * keep an active shipping method alive on its own.
-     */
     public function testDeletingTheLastResolvingPriceIsRejectedWhileAPriceWithoutCurrencyValuesRemains(): void
     {
         $this->createShippingMethod(active: true, priceKeys: ['price']);

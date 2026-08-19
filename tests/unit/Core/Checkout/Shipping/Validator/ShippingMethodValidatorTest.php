@@ -415,9 +415,6 @@ class ShippingMethodValidatorTest extends TestCase
         ));
     }
 
-    /**
-     * A price row without currency values is skipped by the cart, so it cannot keep an active method alive.
-     */
     public function testDeletingTheLastResolvingPriceIsRejectedWhileAPriceWithoutCurrencyValuesRemains(): void
     {
         $shippingMethodId = Uuid::randomHex();
@@ -579,9 +576,6 @@ class ShippingMethodValidatorTest extends TestCase
 }
 
 /**
- * Answers the validator's state reads by operation instead of by SQL: `fetchAllNumeric` resolves the owners
- * of touched prices, while `fetchAllAssociative` returns the current state of affected shipping methods.
- *
  * @internal
  */
 class ShippingMethodStateConnection extends FakeConnection

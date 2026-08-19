@@ -103,11 +103,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
         $this->validateActiveMethodsHavePrices($event);
     }
 
-    /**
-     * An active shipping method without a price that resolves to a value can never resolve shipping costs: the
-     * cart blocks it while the storefront still offers it. Rejects removing the last usable price and activating
-     * a method without one; creation stays allowed. Prices whose rules never match fail alike, but depend on the cart.
-     */
     private function validateActiveMethodsHavePrices(PreWriteValidationEvent $event): void
     {
         [$deletedMethodIds, $activeOverrides] = $this->collectShippingMethodChanges($event);
@@ -116,7 +111,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
         $candidates = array_filter($activeOverrides)
             + array_filter($priceCountChanges, static fn (int $change): bool => $change < 0);
 
-        // A shipping method that is removed in the same write cascades its prices away with it
         $candidates = array_diff_key($candidates, $deletedMethodIds);
         if ($candidates === []) {
             return;
@@ -188,9 +182,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
     }
 
     /**
-     * Resolves the final owner of every touched price before calculating per-method count changes.
-     * This also covers moving an existing price and multiple commands for the same price in one sync operation.
-     *
      * @return array<string, int>
      */
     private function getPriceCountChanges(PreWriteValidationEvent $event): array
@@ -250,7 +241,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
             return;
         }
 
-        // An update after a delete does not recreate the row
         if ($command instanceof UpdateCommand && !isset($priceStates[$id])) {
             return;
         }
@@ -339,6 +329,19 @@ class ShippingMethodValidator implements EventSubscriberInterface
     }
 
     /**
+     * @param array<string, mixed> $parameters
+     * @param array<string, mixed> $types
+     */
+    private function lockShippingMethods(array $parameters, array $types): void
+    {
+        $this->connection->fetchFirstColumn(
+            'SELECT `id` FROM `shipping_method` WHERE `id` IN (:ids) ORDER BY `id` FOR UPDATE',
+            $parameters,
+            $types
+        );
+    }
+
+    /**
      * @param list<string> $shippingMethodIds
      *
      * @return array<string, array{active: bool, priceCount: int}>
@@ -349,12 +352,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
         $parameters = ['ids' => Uuid::fromHexToBytesList($shippingMethodIds)];
         $types = ['ids' => ArrayParameterType::BINARY];
 
-        // Serialize checks for the same method, so concurrent deletions cannot both validate stale price counts
-        $this->connection->fetchFirstColumn(
-            'SELECT `id` FROM `shipping_method` WHERE `id` IN (:ids) ORDER BY `id` FOR UPDATE',
-            $parameters,
-            $types
-        );
+        $this->lockShippingMethods($parameters, $types);
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(`shipping_method`.`id`)) AS `id`,

@@ -148,12 +148,6 @@ class ShippingMethodRouteTest extends TestCase
         static::assertSame('rule_2', $shippingMethods->first()?->getUniqueIdentifier());
     }
 
-    /**
-     * A shipping method without any price can never resolve shipping costs, so offering it as a
-     * selectable option would let the customer pick a method the cart then blocks.
-     *
-     * @see https://github.com/shopware/shopware/issues/19001
-     */
     public function testOnlyAvailableExcludesShippingMethodsWithoutAnyPrice(): void
     {
         $request = new Request();

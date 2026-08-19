@@ -71,7 +71,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addAssociation('media');
 
         if ($onlyAvailable) {
-            // Require one price that resolves to a value; the bound only serves to exclude rows without currency values
+            // Any bound excludes rows without currency values, which cannot resolve shipping costs
             $criteria->addFilter(new RangeFilter('prices.currencyPrice', [RangeFilter::GTE => -\PHP_INT_MAX]));
         }
 

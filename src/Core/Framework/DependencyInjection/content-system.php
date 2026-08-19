@@ -92,6 +92,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoader;
@@ -293,6 +294,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RenderedTreeFactory::class),
         ]);
 
+    $services->set(WiringPlanner::class);
+
     // Layout Context Utilities
     $services->set(ContextDependencyAnalyzer::class);
 
@@ -322,6 +325,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('event_dispatcher'),
             service(StoredTreePreparer::class),
+            service(WiringPlanner::class),
             service(ElementLowering::class),
             service(ContentElementLowering::class),
             service(VirtualRootWrapper::class),

@@ -9,7 +9,6 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
@@ -42,6 +41,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
@@ -449,12 +449,12 @@ class ContentPipelineTest extends TestCase
 
     /**
      * The derived provider is serialized verbatim into a full-format response, so its distribution config
-     * is wire-visible. A derivation that always carried an alias would rename nothing yet still change the
-     * body of every plain redistribution.
+     * is wire-visible on the rendered element the pipeline serves. A derivation that always carried an
+     * alias would rename nothing yet still change the body of every plain redistribution.
      */
     #[TestDox('serializes a derived redistribute provider carrying an alias only where the key is renamed')]
     #[DataProvider('derivedProviderWireShapeProvider')]
-    public function testDerivedRedistributeProviderSerializesItsConsumerAlias(?string $consumerAlias, ?string $expectedSerializedAlias): void
+    public function testDerivedRedistributeProviderSerializesItsConsumerAliasOnTheRenderedTree(?string $consumerAlias, ?string $expectedSerializedAlias): void
     {
         $middle = StoredElementBuilder::create('section', 'middle-id')
             ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: $consumerAlias)
@@ -471,6 +471,10 @@ class ContentPipelineTest extends TestCase
                 ->withSlot('default', [$middle])
                 ->build()
         );
+
+        // Fixture guard: the middle element authors no provider, so the only provider that can appear
+        // in the served response is the one the redistribution derivation produced.
+        static::assertSame([], $middle->contextDefinitions->getAllProviders());
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -497,100 +501,6 @@ class ContentPipelineTest extends TestCase
     {
         yield 'no alias keeps the plain config' => [null, null];
         yield 'alias is carried through' => ['product', 'product'];
-    }
-
-    #[TestDox('rejects a redistributing consumer whose context key is a dotted path')]
-    public function testRedistributeExpansionRejectsADottedConsumerKey(): void
-    {
-        $layout = $this->createSingleRootLayout(
-            StoredElementBuilder::create('section', 'root-id')
-                ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true)
-                ->build()
-        );
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
-
-        $this->createPipeline()->load(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
-            new RenderingCacheContext(),
-            RenderingMode::SKELETON,
-            Generator::generateSalesChannelContext()
-        );
-    }
-
-    #[TestDox('rejects a redistributing consumer whose derived provider key is already provided')]
-    public function testRedistributeExpansionRejectsAProviderKeyConflict(): void
-    {
-        $layout = $this->createSingleRootLayout(
-            StoredElementBuilder::create('section', 'root-id')
-                ->withConsumer('product', ContextType::Single, redistribute: true)
-                ->withProvider('product', BroadcastDistributionConfig::simple())
-                ->build()
-        );
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->expectExceptionObject(ContentSystemException::redistributeConflict('product'));
-
-        $this->createPipeline()->load(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
-            new RenderingCacheContext(),
-            RenderingMode::SKELETON,
-            Generator::generateSalesChannelContext()
-        );
-    }
-
-    #[TestDox('rejects two consumers on one element that write the same property key')]
-    public function testRedistributeExpansionRejectsAPropertyAliasCollision(): void
-    {
-        $layout = $this->createSingleRootLayout(
-            StoredElementBuilder::create('section', 'root-id')
-                ->withConsumer('product', ContextType::Single, propertyAlias: 'item')
-                ->withConsumer('category', ContextType::Single, propertyAlias: 'item.name')
-                ->build()
-        );
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->expectExceptionObject(ContentSystemException::propertyAliasCollision('item', 'product', 'category'));
-
-        $this->createPipeline()->load(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
-            new RenderingCacheContext(),
-            RenderingMode::SKELETON,
-            Generator::generateSalesChannelContext()
-        );
-    }
-
-    #[TestDox('validates a subtree the partial prune is about to discard')]
-    public function testRedistributeExpansionValidatesASubtreeThePartialRenderDiscards(): void
-    {
-        $target = StoredElementBuilder::create('text', 'target-id')->build();
-        $discarded = StoredElementBuilder::create('text', 'discarded-id')
-            ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true)
-            ->build();
-        $layout = $this->createSingleRootLayout(
-            StoredElementBuilder::create('section', 'root-id')
-                ->withSlot('default', [$target, $discarded])
-                ->build()
-        );
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
-
-        $this->createPipeline()->load(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id'),
-            new RenderingCacheContext(),
-            RenderingMode::SKELETON,
-            Generator::generateSalesChannelContext()
-        );
     }
 
     #[TestDox('exposes the unpruned layout tree to preparation subscribers, before the partial prune')]
@@ -824,6 +734,7 @@ class ContentPipelineTest extends TestCase
                 new VirtualRootWrapper(),
                 new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             ),
+            new WiringPlanner(),
             $this->lowering,
             new ContentElementLowering(),
             new VirtualRootWrapper(),

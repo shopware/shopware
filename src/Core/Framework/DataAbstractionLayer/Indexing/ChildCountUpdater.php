@@ -57,6 +57,18 @@ class ChildCountUpdater
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
+        // lock the parents (PK only) so concurrent recalculations serialise instead of a stale count
+        // overwriting a fresh one; no child rows are locked, keeping the deadlock-free footprint
+        $this->connection->executeStatement(
+            \sprintf(
+                'SELECT id FROM %s WHERE id IN (:ids) %s FOR UPDATE',
+                $entity,
+                $versionAware ? 'AND version_id = :version' : ''
+            ),
+            $params,
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
         $aggregations = $this->connection->fetchAllKeyValue(
             \sprintf(
                 'SELECT parent_id, COUNT(id) FROM %s WHERE parent_id IN (:ids) %s GROUP BY parent_id',

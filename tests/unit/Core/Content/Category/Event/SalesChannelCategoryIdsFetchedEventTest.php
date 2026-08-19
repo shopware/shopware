@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -23,5 +24,32 @@ class SalesChannelCategoryIdsFetchedEventTest extends TestCase
         );
 
         static::assertSame(['id-a', 'id-b'], $event->getIds());
+    }
+
+    public function testFilterIdRemovesTheGivenId(): void
+    {
+        $event = new SalesChannelCategoryIdsFetchedEvent(
+            ['id-a', 'id-b'],
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($event->hasId('id-a'));
+
+        $event->filterId('id-a');
+
+        static::assertFalse($event->hasId('id-a'));
+        static::assertSame(['id-b'], $event->getIds());
+    }
+
+    public function testExposesTheSalesChannelContext(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getContext')->willReturn($context);
+
+        $event = new SalesChannelCategoryIdsFetchedEvent(['id-a'], $salesChannelContext);
+
+        static::assertSame($salesChannelContext, $event->getSalesChannelContext());
+        static::assertSame($context, $event->getContext());
     }
 }

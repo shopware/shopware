@@ -4,10 +4,15 @@ namespace Shopware\Tests\Unit\Core\Content\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -63,6 +68,39 @@ class ProductDefinitionTest extends TestCase
     public function testSince(): void
     {
         static::assertSame('6.0.0.0', $this->getDefinition()->since());
+    }
+
+    public function testDescribesItsEntity(): void
+    {
+        $definition = $this->getDefinition();
+
+        static::assertTrue($definition->isInheritanceAware());
+        static::assertSame(ProductCollection::class, $definition->getCollectionClass());
+        static::assertSame(ProductEntity::class, $definition->getEntityClass());
+        static::assertSame(ProductHydrator::class, $definition->getHydratorClass());
+    }
+
+    public function testTypeFieldIsRequiredWithoutALegacyStatesField(): void
+    {
+        $fields = $this->getDefinition()->getFields();
+
+        static::assertNull($fields->get('states'));
+
+        $type = $fields->get('type');
+        static::assertNotNull($type);
+        static::assertTrue($type->is(Required::class));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyFieldSetKeepsStatesAndAnOptionalType(): void
+    {
+        $fields = $this->getDefinition()->getFields();
+
+        static::assertNotNull($fields->get('states'));
+
+        $type = $fields->get('type');
+        static::assertNotNull($type);
+        static::assertFalse($type->is(Required::class));
     }
 
     private function getDefinition(): ProductDefinition

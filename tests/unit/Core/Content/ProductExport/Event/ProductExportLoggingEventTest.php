@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport\Event;
 use Monolog\Level;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -36,5 +37,24 @@ class ProductExportLoggingEventTest extends TestCase
         $exception = $event->getLogData()['exception'] ?? null;
         static::assertIsString($exception);
         static::assertStringContainsString('export failed', $exception);
+    }
+
+    public function testExposesItsFlowPayload(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new ProductExportLoggingEvent($context, 'custom.name', null);
+
+        static::assertSame($context, $event->getContext());
+        static::assertSame(['name' => 'custom.name'], $event->getValues());
+        static::assertNull($event->getSalesChannelId());
+        static::assertSame(['name'], array_keys(ProductExportLoggingEvent::getAvailableData()->toArray()));
+    }
+
+    public function testMailStructIsNotAvailable(): void
+    {
+        $event = new ProductExportLoggingEvent(Context::createDefaultContext(), null, null);
+
+        $this->expectException(MailEventConfigurationException::class);
+        $event->getMailStruct();
     }
 }

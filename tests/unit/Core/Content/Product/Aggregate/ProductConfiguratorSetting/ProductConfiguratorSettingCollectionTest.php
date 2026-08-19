@@ -47,6 +47,31 @@ class ProductConfiguratorSettingCollectionTest extends TestCase
         static::assertNull($collection->getByOptionId('unknown'));
     }
 
+    public function testFiltersByProductAndOptionId(): void
+    {
+        $red = $this->createSetting('setting-red', 'color-group', 'option-red');
+        $red->setProductId('product-a');
+        $large = $this->createSetting('setting-l', 'size-group', 'option-l');
+        $large->setProductId('product-b');
+
+        $collection = new ProductConfiguratorSettingCollection([$red, $large]);
+
+        static::assertSame(['product-a', 'product-b'], array_values($collection->getProductIds()));
+        static::assertSame(['option-red', 'option-l'], array_values($collection->getOptionIds()));
+        static::assertSame(['setting-red'], $collection->filterByProductId('product-a')->getKeys());
+        static::assertSame(['setting-l'], $collection->filterByOptionId('option-l')->getKeys());
+    }
+
+    public function testGetOptionsCollectsTheAssignedOptions(): void
+    {
+        $collection = new ProductConfiguratorSettingCollection([
+            $this->createSetting('setting-red', 'color-group', 'option-red'),
+            $this->createSettingWithoutOption('setting-empty'),
+        ]);
+
+        static::assertSame(['option-red'], $collection->getOptions()->getKeys());
+    }
+
     private function createSetting(string $id, string $groupId, string $optionId): ProductConfiguratorSettingEntity
     {
         $group = new PropertyGroupEntity();

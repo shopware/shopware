@@ -49,6 +49,26 @@ class CategoryEntityTest extends TestCase
         static::assertSame(['root' => 'Root', 'middle' => 'Middle', 'leaf' => 'Leaf'], $category->getPlainBreadcrumb());
     }
 
+    public function testJsonSerializeContainsTheSortedBreadcrumb(): void
+    {
+        $category = new CategoryEntity();
+        $category->setId('leaf');
+        $category->setPath('|root|middle|');
+        $category->setTranslated(['breadcrumb' => [
+            'middle' => 'Middle',
+            'leaf' => 'Leaf',
+            'root' => 'Root',
+        ]]);
+
+        static::assertSame(['Root', 'Middle', 'Leaf'], $category->getBreadcrumb());
+
+        $data = $category->jsonSerialize();
+
+        static::assertSame(['Root', 'Middle', 'Leaf'], $data['breadcrumb']);
+        static::assertIsArray($data['translated']);
+        static::assertSame(['Root', 'Middle', 'Leaf'], $data['translated']['breadcrumb']);
+    }
+
     public function testShouldOpenInNewTabOnlyForLinkTypeCategoriesWithTheFlag(): void
     {
         $link = new CategoryEntity();

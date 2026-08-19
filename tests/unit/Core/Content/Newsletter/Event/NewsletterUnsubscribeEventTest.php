@@ -32,4 +32,20 @@ class NewsletterUnsubscribeEventTest extends TestCase
 
         static::assertSame(['jane@example.com' => 'Jane Doe'], $event->getMailStruct()->getRecipients());
     }
+
+    public function testExposesItsPayload(): void
+    {
+        $recipient = new NewsletterRecipientEntity();
+        $recipient->setId('recipient-id');
+        $context = Context::createDefaultContext();
+
+        $event = new NewsletterUnsubscribeEvent($context, $recipient, 'sales-channel-id');
+
+        static::assertSame(NewsletterUnsubscribeEvent::EVENT_NAME, $event->getName());
+        static::assertSame($context, $event->getContext());
+        static::assertSame($recipient, $event->getNewsletterRecipient());
+        static::assertSame('recipient-id', $event->getNewsletterRecipientId());
+        static::assertSame('sales-channel-id', $event->getSalesChannelId());
+        static::assertSame(['newsletterRecipient'], array_keys(NewsletterUnsubscribeEvent::getAvailableData()->toArray()));
+    }
 }

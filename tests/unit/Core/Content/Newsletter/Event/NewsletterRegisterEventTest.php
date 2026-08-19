@@ -33,6 +33,23 @@ class NewsletterRegisterEventTest extends TestCase
         static::assertSame(['jane@example.com' => 'Jane Doe'], $event->getMailStruct()->getRecipients());
     }
 
+    public function testExposesItsPayload(): void
+    {
+        $recipient = new NewsletterRecipientEntity();
+        $recipient->setId('recipient-id');
+        $context = Context::createDefaultContext();
+
+        $event = new NewsletterRegisterEvent($context, $recipient, 'https://shop.example/confirm', 'sales-channel-id');
+
+        static::assertSame(NewsletterRegisterEvent::EVENT_NAME, $event->getName());
+        static::assertSame($context, $event->getContext());
+        static::assertSame($recipient, $event->getNewsletterRecipient());
+        static::assertSame('recipient-id', $event->getNewsletterRecipientId());
+        static::assertSame('https://shop.example/confirm', $event->getUrl());
+        static::assertSame('sales-channel-id', $event->getSalesChannelId());
+        static::assertSame(['url' => 'https://shop.example/confirm'], $event->getValues());
+    }
+
     public function testAvailableDataDescribesTheEventPayload(): void
     {
         $data = NewsletterRegisterEvent::getAvailableData()->toArray();

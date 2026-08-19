@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Guard;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -54,7 +53,7 @@ class DoubleSubmitGuard
 
         try {
             $lock = $this->lockFactory->createLock(
-                $scope . '-lock-' . Hasher::hash($token, 'sha256'),
+                $scope . '-lock-' . $token,
                 self::LOCK_TTL,
                 autoRelease: false,
             );
@@ -104,7 +103,7 @@ class DoubleSubmitGuard
 
     private function markerKey(string $scope, string $token): string
     {
-        return $scope . '-' . Hasher::hash($token, 'sha256');
+        return $scope . '-' . $token;
     }
 
     /**

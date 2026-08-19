@@ -161,7 +161,7 @@ class DoubleSubmitGuardTest extends TestCase
         $lockFactory = $this->createMock(LockFactory::class);
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with($otherScope . '-lock-' . hash('sha256', self::TOKEN), 30.0, false)
+            ->with($otherScope . '-lock-' . self::TOKEN, 30.0, false)
             ->willReturn($lock);
 
         $submitCalls = 0;
@@ -175,7 +175,7 @@ class DoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(1, $submitCalls);
-        static::assertTrue($cache->getItem($otherScope . '-' . hash('sha256', self::TOKEN))->isHit());
+        static::assertTrue($cache->getItem($otherScope . '-' . self::TOKEN)->isHit());
     }
 
     public function testTheGuardReportsWhetherTheSubmissionRan(): void
@@ -578,12 +578,12 @@ class DoubleSubmitGuardTest extends TestCase
 
     private static function markerKey(): string
     {
-        return self::SCOPE . '-' . hash('sha256', self::TOKEN);
+        return self::SCOPE . '-' . self::TOKEN;
     }
 
     private static function lockKey(): string
     {
-        return self::SCOPE . '-lock-' . hash('sha256', self::TOKEN);
+        return self::SCOPE . '-lock-' . self::TOKEN;
     }
 
     private function createContext(): SalesChannelContext

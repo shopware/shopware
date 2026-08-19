@@ -388,6 +388,16 @@ class ChangeCustomerProfileRouteTest extends TestCase
             true,
             ['123456789'],
         ];
+
+        yield 'Error when vatIds is a valid EU vat id of a different country than the billing address' => [
+            ['NL123456789B01'],
+            [
+                'required' => false,
+                'validateFormat' => true,
+            ],
+            false,
+            null,
+        ];
     }
 
     /**

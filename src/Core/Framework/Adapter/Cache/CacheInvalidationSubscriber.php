@@ -159,6 +159,32 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate($ids);
     }
 
+    public function invalidateCategoryRouteByCategoryTranslationChanges(EntityWrittenContainerEvent $event): void
+    {
+        $changedCategoryTranslations = $event->getPrimaryKeysWithPropertyChange(
+            CategoryTranslationDefinition::ENTITY_NAME,
+            ['slotConfig']
+        );
+
+        if ($changedCategoryTranslations === []) {
+            return;
+        }
+
+        /** @var array<string, true> $categoryIds */
+        $categoryIds = [];
+        foreach ($changedCategoryTranslations as $primaryKey) {
+            if (isset($primaryKey['categoryId']) && \is_string($primaryKey['categoryId'])) {
+                $categoryIds[$primaryKey['categoryId']] = true;
+            }
+        }
+
+        if ($categoryIds === []) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), array_keys($categoryIds)));
+    }
+
     public function invalidateProduct(InvalidateProductCache $event): void
     {
         $listing = array_map(ProductListingRoute::buildName(...), $this->getProductCategoryIds($event->getIds()));

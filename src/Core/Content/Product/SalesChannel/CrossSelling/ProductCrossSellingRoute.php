@@ -89,7 +89,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $elements = new CrossSellingElementCollection();
 
         foreach ($crossSellings as $crossSelling) {
+            // CrossSellingElement is typed against ProductCollection, a field selection would load PartialEntity instances
             $clone = clone $criteria;
+            $clone->resetFields();
+
             if ($this->useProductStream($crossSelling)) {
                 $element = $this->loadByStream($crossSelling, $rootProductId, $context, $clone);
             } else {
@@ -180,6 +183,9 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingStreamCriteriaEvent($crossSelling, $criteria, $context)
         );
 
+        // a subscriber might have added a field selection
+        $criteria->resetFields();
+
         $products = $this->listingLoader->load($criteria, $context)->getEntities();
 
         $element = new CrossSellingElement();
@@ -225,6 +231,9 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $this->eventDispatcher->dispatch(
             new ProductCrossSellingIdsCriteriaEvent($crossSelling, $criteria, $context)
         );
+
+        // a subscriber might have added a field selection
+        $criteria->resetFields();
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
 

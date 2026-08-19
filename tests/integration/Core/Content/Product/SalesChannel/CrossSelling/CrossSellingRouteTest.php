@@ -147,6 +147,68 @@ class CrossSellingRouteTest extends TestCase
         }
     }
 
+    public function testLoadWithPartialDataLoadingEnabled(): void
+    {
+        // Regression test for https://github.com/shopware/shopware/issues/18587.
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.partialDataLoading', true);
+
+        $productId = Uuid::randomHex();
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 3,
+            'productStreamId' => $this->createProductStream(),
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())->getResult();
+
+        $element = $result->first();
+        static::assertNotNull($element);
+        static::assertSame(3, $element->getTotal());
+        static::assertCount(3, $element->getProducts());
+
+        foreach ($element->getProducts() as $crossSellingProduct) {
+            static::assertSame('Test', $crossSellingProduct->getName());
+            static::assertNotNull($crossSellingProduct->getCurrencyPrice(Defaults::CURRENCY));
+        }
+    }
+
+    public function testLoadIgnoresPartialFieldSelectionOfTheRequest(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 3,
+            'productStreamId' => $this->createProductStream(),
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $this->browser->request('POST', $this->getUrl($productId), ['fields' => ['id', 'name']]);
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('products', $content[0]);
+        static::assertCount(3, $content[0]['products']);
+        static::assertArrayHasKey('productNumber', $content[0]['products'][0]);
+    }
+
     public function testLoadForProductWithCloseoutAndFilterDisabled(): void
     {
         // disable hideCloseoutProductsWhenOutOfStock filter

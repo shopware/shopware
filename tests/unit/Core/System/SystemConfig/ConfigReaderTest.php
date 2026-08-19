@@ -60,6 +60,24 @@ class ConfigReaderTest extends TestCase
         }
     }
 
+    public function testResetClearsCachedConfigs(): void
+    {
+        $filesystem = new Filesystem();
+        $configPath = sys_get_temp_dir() . '/' . bin2hex(random_bytes(8)) . '.xml';
+        $filesystem->copy(__DIR__ . '/_fixtures/valid_config.xml', $configPath);
+
+        try {
+            $this->configReader->read($configPath);
+            $filesystem->remove($configPath);
+            $this->configReader->reset();
+
+            $this->expectException(UtilException::class);
+            $this->configReader->read($configPath);
+        } finally {
+            $filesystem->remove($configPath);
+        }
+    }
+
     /**
      * @return array<mixed>
      */

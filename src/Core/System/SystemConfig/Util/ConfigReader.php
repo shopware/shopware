@@ -8,9 +8,10 @@ use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Config\Util\XmlUtils;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
-class ConfigReader extends XmlReader
+class ConfigReader extends XmlReader implements ResetInterface
 {
     public const INPUT_TYPE_BOOL = 'bool';
     public const INPUT_TYPE_CHECKBOX = 'checkbox';
@@ -33,6 +34,11 @@ class ConfigReader extends XmlReader
     public function read(string $xmlFile): array
     {
         return $this->configCache[$xmlFile] ??= parent::read($xmlFile);
+    }
+
+    public function reset(): void
+    {
+        $this->configCache = [];
     }
 
     /**

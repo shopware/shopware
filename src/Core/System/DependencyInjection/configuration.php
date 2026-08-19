@@ -62,7 +62,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
         ]);
 
-    $services->set(ConfigReader::class);
+    $services->set(ConfigReader::class)
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(SystemConfigController::class)
         ->public()

@@ -60,7 +60,7 @@ const config: Config = {
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
     // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
-    testEnvironment: 'jsdom',
+    testEnvironment: '<rootDir>/test/_setup/feature-flag-test-environment.js',
 
     // Worker configuration - prevent OOM kills while maximizing parallelism
     // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
@@ -131,6 +131,7 @@ const config: Config = {
         resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
         'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
+        resolve(join(__dirname, '/test/_setup/jest-extensions.ts')),
     ],
 
     transform: {
@@ -224,6 +225,7 @@ const config: Config = {
         '<rootDir>/build/vite-plugins/**/*.spec.js',
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
+        '<rootDir>/test/_setup/**/*.spec.ts',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

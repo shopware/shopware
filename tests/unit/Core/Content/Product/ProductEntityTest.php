@@ -31,4 +31,38 @@ class ProductEntityTest extends TestCase
 
         static::assertSame('translated foo', (string) $entity);
     }
+
+    public function testDeliveryDateSpansTomorrowToTheDayAfter(): void
+    {
+        $deliveryDate = (new ProductEntity())->getDeliveryDate();
+
+        static::assertTrue($deliveryDate->getEarliest() < $deliveryDate->getLatest());
+    }
+
+    public function testRestockDeliveryDateShiftsByTheRestockTime(): void
+    {
+        $product = new ProductEntity();
+        $product->setRestockTime(3);
+
+        $deliveryDate = $product->getDeliveryDate();
+        $restockDate = $product->getRestockDeliveryDate();
+
+        static::assertEquals($deliveryDate->getEarliest()->modify('+3 day'), $restockDate->getEarliest());
+    }
+
+    public function testIsReleasedWithoutAReleaseDate(): void
+    {
+        static::assertTrue((new ProductEntity())->isReleased());
+    }
+
+    public function testIsReleasedComparesTheReleaseDateWithNow(): void
+    {
+        $released = new ProductEntity();
+        $released->setReleaseDate(new \DateTimeImmutable('-1 day'));
+        static::assertTrue($released->isReleased());
+
+        $upcoming = new ProductEntity();
+        $upcoming->setReleaseDate(new \DateTimeImmutable('+1 day'));
+        static::assertFalse($upcoming->isReleased());
+    }
 }

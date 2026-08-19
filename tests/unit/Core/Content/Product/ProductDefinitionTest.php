@@ -44,4 +44,38 @@ class ProductDefinitionTest extends TestCase
 
         static::assertSame($expected, $keys);
     }
+
+    public function testDefaultsMakeANewProductAPhysicalSellableItem(): void
+    {
+        $defaults = $this->getDefinition()->getDefaults();
+
+        static::assertSame(ProductDefinition::TYPE_PHYSICAL, $defaults['type']);
+        static::assertFalse($defaults['isCloseout']);
+        static::assertTrue($defaults['active']);
+        static::assertSame(1, $defaults['minPurchase']);
+    }
+
+    public function testChildDefaultsOnlyPresetTheType(): void
+    {
+        static::assertSame(['type' => ProductDefinition::TYPE_PHYSICAL], $this->getDefinition()->getChildDefaults());
+    }
+
+    public function testSince(): void
+    {
+        static::assertSame('6.0.0.0', $this->getDefinition()->since());
+    }
+
+    private function getDefinition(): ProductDefinition
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class)
+        );
+
+        $definition = $registry->getByEntityName('product');
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        return $definition;
+    }
 }

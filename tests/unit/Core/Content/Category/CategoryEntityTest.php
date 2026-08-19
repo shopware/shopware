@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Category;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -45,5 +47,27 @@ class CategoryEntityTest extends TestCase
         ]]);
 
         static::assertSame(['root' => 'Root', 'middle' => 'Middle', 'leaf' => 'Leaf'], $category->getPlainBreadcrumb());
+    }
+
+    public function testShouldOpenInNewTabOnlyForLinkTypeCategoriesWithTheFlag(): void
+    {
+        $link = new CategoryEntity();
+        $link->setType(CategoryDefinition::TYPE_LINK);
+        $link->setTranslated(['linkNewTab' => true]);
+        static::assertTrue($link->shouldOpenInNewTab());
+
+        $page = new CategoryEntity();
+        $page->setType(CategoryDefinition::TYPE_PAGE);
+        $page->setTranslated(['linkNewTab' => true]);
+        static::assertFalse($page->shouldOpenInNewTab());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedCmsPageIdSwitchedRoundTrip(): void
+    {
+        $category = new CategoryEntity();
+        $category->setCmsPageIdSwitched(true);
+
+        static::assertTrue($category->getCmsPageIdSwitched());
     }
 }

@@ -4,8 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Newsletter\Event;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Framework\Context;
@@ -18,24 +16,28 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(NewsletterRegisterEvent::class)]
 class NewsletterRegisterEventTest extends TestCase
 {
-    public function testScalarValuesCorrectly(): void
+    public function testMailStructAddressesTheRecipientAndIsCached(): void
     {
-        $event = new NewsletterRegisterEvent(
-            Context::createDefaultContext(),
-            new NewsletterRecipientEntity(),
-            'my-url',
-            'my-sales-channel-id'
-        );
+        $recipient = new NewsletterRecipientEntity();
+        $recipient->setEmail('jane@example.com');
+        $recipient->setFirstName('Jane');
+        $recipient->setLastName('Doe');
 
-        $storer = new ScalarValuesStorer();
+        $event = new NewsletterRegisterEvent(Context::createDefaultContext(), $recipient, 'https://shop.example/confirm', 'sales-channel-id');
 
-        $stored = $storer->store($event, []);
+        $mailStruct = $event->getMailStruct();
 
-        $flow = new StorableFlow('foo', Context::createDefaultContext(), $stored);
+        static::assertSame(['jane@example.com' => 'Jane Doe'], $mailStruct->getRecipients());
+        // the struct is built lazily on first access; the second call must return the
+        // memoized instance instead of building a new, merely equal one
+        static::assertSame($mailStruct, $event->getMailStruct());
+    }
 
-        $storer->restore($flow);
+    public function testAvailableDataDescribesTheEventPayload(): void
+    {
+        $data = NewsletterRegisterEvent::getAvailableData()->toArray();
 
-        static::assertArrayHasKey('url', $flow->data());
-        static::assertSame('my-url', $flow->data()['url']);
+        static::assertArrayHasKey('newsletterRecipient', $data);
+        static::assertArrayHasKey('url', $data);
     }
 }

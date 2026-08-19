@@ -28,6 +28,8 @@ class NewsletterUnsubscribeEventTest extends TestCase
         $mailStruct = $event->getMailStruct();
 
         static::assertSame(['jane@example.com' => 'Jane Doe'], $mailStruct->getRecipients());
+        // the struct is built lazily on first access; the second call must return the
+        // memoized instance instead of building a new, merely equal one
         static::assertSame($mailStruct, $event->getMailStruct());
     }
 }

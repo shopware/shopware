@@ -3,6 +3,8 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -20,6 +22,8 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlow extends MigrationSt
 {
     use CreateMailTemplateTrait;
 
+    private const FLOW_ID = '0accf0ae04844231af7e785e8dc94f65';
+
     public function getCreationTimestamp(): int
     {
         return 1786967900;
@@ -36,7 +40,6 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlow extends MigrationSt
                 'previousState' => 'state_machine_state',
                 'newState' => 'state_machine_state',
                 'salesChannel' => 'sales_channel',
-                'editOrderUrl' => 'editOrderUrl',
             ],
         );
 
@@ -57,20 +60,24 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlow extends MigrationSt
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_FAILED,
         );
 
+        if ($mailTemplateTypeId === null) {
+            return;
+        }
+
         $mailTemplateId = $this->getMailTemplateId($connection, $mailTemplateTypeId);
         if ($mailTemplateId === null) {
             return;
         }
 
         $eventName = 'state_enter.order_transaction.state.failed';
-        $flowId = $this->getFlowId($connection, $eventName);
+        $binaryFlowId = Uuid::fromHexToBytes(self::FLOW_ID);
 
-        if ($flowId === null) {
-            $flowId = Uuid::randomBytes();
+        $flowExists = $this->flowExists($connection);
+        if (!$flowExists) {
             $connection->insert(
                 'flow',
                 [
-                    'id' => $flowId,
+                    'id' => $binaryFlowId,
                     'name' => 'Payment enters status failed',
                     'event_name' => $eventName,
                     'priority' => 1,
@@ -81,51 +88,99 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlow extends MigrationSt
             );
         }
 
-        if ($this->flowSequenceExists($connection, $flowId, 'action.mail.send')) {
+        $flowSequenceId = $this->getFlowSequenceId($connection, $binaryFlowId, SendMailAction::ACTION_NAME);
+        if ($flowSequenceId === null) {
+            $flowSequenceId = Uuid::randomBytes();
+
+            $connection->insert(
+                'flow_sequence',
+                [
+                    'id' => $flowSequenceId,
+                    'flow_id' => $binaryFlowId,
+                    'action_name' => SendMailAction::ACTION_NAME,
+                    'config' => json_encode([
+                        'replyTo' => null,
+                        'mailTemplateId' => Uuid::fromBytesToHex($mailTemplateId),
+                        'documentTypeIds' => [],
+                        'recipient' => [
+                            'data' => [],
+                            'type' => 'default',
+                        ],
+                    ], \JSON_THROW_ON_ERROR),
+                    'display_group' => true,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ],
+            );
+        }
+
+        $this->createFlowTemplate($connection, $flowSequenceId, $mailTemplateId, $mailTemplateTypeId, $eventName);
+        $this->registerIndexer($connection, 'flow.indexer');
+    }
+
+    private function createFlowTemplate(Connection $connection, string $flowSequenceId, string $mailTemplateId, string $mailTemplateTypeId, string $eventName): void
+    {
+        $flowTemplateId = $connection->fetchOne(
+            'SELECT `id` FROM `flow_template` WHERE JSON_EXTRACT(`config`, \'$.eventName\') = :eventName',
+            ['eventName' => $eventName],
+        );
+
+        if ($flowTemplateId) {
             return;
         }
 
         $connection->insert(
-            'flow_sequence',
+            FlowTemplateDefinition::ENTITY_NAME,
             [
                 'id' => Uuid::randomBytes(),
-                'flow_id' => $flowId,
-                'action_name' => 'action.mail.send',
+                'name' => 'Payment enters status failed',
                 'config' => json_encode([
-                    'replyTo' => null,
-                    'mailTemplateId' => Uuid::fromBytesToHex($mailTemplateId),
-                    'documentTypeIds' => [],
-                    'recipient' => [
-                        'data' => [],
-                        'type' => 'default',
+                    'eventName' => $eventName,
+                    'description' => null,
+                    'customFields' => null,
+                    'sequences' => [
+                        [
+                            'id' => Uuid::fromBytesToHex($flowSequenceId),
+                            'actionName' => SendMailAction::ACTION_NAME,
+                            'config' => [
+                                'recipient' => [
+                                    'data' => [],
+                                    'type' => 'default',
+                                ],
+                                'mailTemplateId' => Uuid::fromBytesToHex($mailTemplateId),
+                                'mailTemplateTypeId' => Uuid::fromBytesToHex($mailTemplateTypeId),
+                                'documentTypeIds' => [],
+                            ],
+                            'parentId' => null,
+                            'ruleId' => null,
+                            'position' => 1,
+                            'trueCase' => 0,
+                            'displayGroup' => 1,
+                        ],
                     ],
                 ], \JSON_THROW_ON_ERROR),
-                'display_group' => true,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         );
-
-        $this->registerIndexer($connection, 'flow.indexer');
     }
 
-    private function getFlowId(Connection $connection, string $eventName): ?string
-    {
-        $result = $connection->fetchOne(
-            'SELECT id FROM flow WHERE event_name = :eventName',
-            ['eventName' => $eventName],
-        );
-
-        return \is_string($result) ? $result : null;
-    }
-
-    private function flowSequenceExists(Connection $connection, string $flowId, string $actionName): bool
+    private function flowExists(Connection $connection): bool
     {
         return (bool) $connection->fetchOne(
-            'SELECT 1 FROM flow_sequence WHERE flow_id = :flowId AND action_name = :actionName',
+            'SELECT 1 FROM flow WHERE id = :flowId',
+            ['flowId' => Uuid::fromHexToBytes(self::FLOW_ID)],
+        );
+    }
+
+    private function getFlowSequenceId(Connection $connection, string $flowId, string $actionName): ?string
+    {
+        $result = $connection->fetchOne(
+            'SELECT `id` FROM `flow_sequence` WHERE `flow_id` = :flowId AND `action_name` = :actionName',
             [
                 'flowId' => $flowId,
                 'actionName' => $actionName,
             ],
         );
+
+        return \is_string($result) ? $result : null;
     }
 }

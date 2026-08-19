@@ -101,6 +101,10 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 Plugins can subscribe to the new `CleanupVersionEvent` to protect version records from scheduled cleanup. The event provides the cleanup cutoff through `getCleanupTime()`, allowing plugins to apply retention rules consistently with the scheduled cleanup task.
 
+### Failed payment mail flow
+
+Shopware now ships a default Flow Builder flow, flow template, and mail template for `state_enter.order_transaction.state.failed`.
+
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
 - Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).

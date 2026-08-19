@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -28,6 +29,7 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlowTest extends TestCas
 
     public function testUpdateIsIdempotent(): void
     {
+        $eventName = 'state_enter.order_transaction.state.failed';
         $migration = new Migration1786967900AddFailedPaymentMailTemplateAndFlow();
         $migration->update($this->connection);
         $migration->update($this->connection);
@@ -38,20 +40,84 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlowTest extends TestCas
         static::assertSame(1, $this->countRows('mail_template_type', 'technical_name', MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_FAILED));
         static::assertSame(1, $this->countRows('mail_template', 'mail_template_type_id', $mailTemplateTypeId));
 
-        $flowId = $this->getId('flow', 'event_name', 'state_enter.order_transaction.state.failed');
+        $flowId = $this->getId('flow', 'event_name', $eventName);
         static::assertIsString($flowId);
-        static::assertSame(1, $this->countRows('flow', 'event_name', 'state_enter.order_transaction.state.failed'));
+        static::assertSame(1, $this->countRows('flow', 'event_name', $eventName));
         static::assertSame(1, $this->countRows('flow_sequence', 'flow_id', $flowId));
-        static::assertSame(1, $this->countRows('flow_sequence', 'flow_id', $flowId, 'action_name', 'action.mail.send'));
+        static::assertSame(1, $this->countRows('flow_sequence', 'flow_id', $flowId, 'action_name', SendMailAction::ACTION_NAME));
+
+        $flowTemplate = $this->getFlowTemplate($eventName);
+        static::assertIsArray($flowTemplate);
+        static::assertSame('Payment enters status failed', $flowTemplate['name']);
+        static::assertIsString($flowTemplate['config']);
+
+        $flowTemplateConfig = json_decode($flowTemplate['config'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($flowTemplateConfig);
+        static::assertSame($eventName, $flowTemplateConfig['eventName'] ?? null);
+
+        $sequences = $flowTemplateConfig['sequences'] ?? null;
+        static::assertIsArray($sequences);
+        static::assertCount(1, $sequences);
+
+        $sequence = $sequences[0];
+        static::assertIsArray($sequence);
+        static::assertSame(SendMailAction::ACTION_NAME, $sequence['actionName'] ?? null);
+
+        $sequenceConfig = $sequence['config'] ?? null;
+        static::assertIsArray($sequenceConfig);
+        static::assertSame(Uuid::fromBytesToHex($mailTemplateTypeId), $sequenceConfig['mailTemplateTypeId'] ?? null);
+    }
+
+    public function testExistingFlowForEventIsNotModified(): void
+    {
+        $eventName = 'state_enter.order_transaction.state.failed';
+        $customFlowId = Uuid::randomBytes();
+        $this->connection->insert('flow', [
+            'id' => $customFlowId,
+            'name' => 'Custom failed payment flow',
+            'event_name' => $eventName,
+            'priority' => 1,
+            'invalid' => 0,
+            'active' => true,
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+        ]);
+        $this->connection->insert('flow_sequence', [
+            'id' => Uuid::randomBytes(),
+            'flow_id' => $customFlowId,
+            'action_name' => 'action.add.tag',
+            'config' => '{"tagId": null}',
+            'display_group' => true,
+            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+        ]);
+
+        (new Migration1786967900AddFailedPaymentMailTemplateAndFlow())->update($this->connection);
+
+        static::assertSame(2, $this->countRows('flow', 'event_name', $eventName));
+        static::assertSame(1, $this->countRows('flow_sequence', 'flow_id', $customFlowId));
+        static::assertSame(0, $this->countRows('flow_sequence', 'flow_id', $customFlowId, 'action_name', SendMailAction::ACTION_NAME));
+
+        $defaultFlowId = $this->getId('flow', 'id', Uuid::fromHexToBytes('0accf0ae04844231af7e785e8dc94f65'));
+        static::assertIsString($defaultFlowId);
+        static::assertNotSame($customFlowId, $defaultFlowId);
+        static::assertSame(1, $this->countRows('flow_sequence', 'flow_id', $defaultFlowId, 'action_name', SendMailAction::ACTION_NAME));
+        static::assertSame(1, $this->countFlowTemplates($eventName));
     }
 
     private function removePreinstalledData(): void
     {
-        $flowId = $this->getId('flow', 'event_name', 'state_enter.order_transaction.state.failed');
-        if ($flowId !== null) {
+        $flowIds = $this->connection->fetchFirstColumn(
+            'SELECT id FROM flow WHERE event_name = :eventName',
+            ['eventName' => 'state_enter.order_transaction.state.failed'],
+        );
+        foreach ($flowIds as $flowId) {
             $this->connection->delete('flow_sequence', ['flow_id' => $flowId]);
             $this->connection->delete('flow', ['id' => $flowId]);
         }
+
+        $this->connection->executeStatement(
+            'DELETE FROM `flow_template` WHERE JSON_EXTRACT(`config`, \'$.eventName\') = :eventName',
+            ['eventName' => 'state_enter.order_transaction.state.failed'],
+        );
 
         $mailTemplateTypeId = $this->getId('mail_template_type', 'technical_name', MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_FAILED);
         if ($mailTemplateTypeId === null) {
@@ -88,5 +154,39 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlowTest extends TestCas
         }
 
         return \max(0, (int) $this->connection->fetchOne(\sprintf('SELECT COUNT(*) FROM `%s` WHERE %s', $table, $where), $parameters));
+    }
+
+    /**
+     * @return array{name: string, config: string}|false
+     */
+    private function getFlowTemplate(string $eventName): array|false
+    {
+        $flowTemplate = $this->connection->fetchAssociative(
+            'SELECT `name`, `config` FROM `flow_template` WHERE JSON_EXTRACT(`config`, \'$.eventName\') = :eventName',
+            ['eventName' => $eventName],
+        );
+
+        if (!\is_array($flowTemplate)) {
+            return false;
+        }
+
+        $name = $flowTemplate['name'] ?? null;
+        $config = $flowTemplate['config'] ?? null;
+        if (!\is_string($name) || !\is_string($config)) {
+            return false;
+        }
+
+        return [
+            'name' => $name,
+            'config' => $config,
+        ];
+    }
+
+    private function countFlowTemplates(string $eventName): int
+    {
+        return \max(0, (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM `flow_template` WHERE JSON_EXTRACT(`config`, \'$.eventName\') = :eventName',
+            ['eventName' => $eventName],
+        ));
     }
 }

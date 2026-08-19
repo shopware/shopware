@@ -8,6 +8,13 @@ import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service'
 
 const { ACTION } = Shopware.Constants.FLOW;
 
+Shopware.Application.addServiceProvider('documentV2Service', () => {
+    return {
+        getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+        getDocumentTypeSnippet: (technicalName) => `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
+    };
+});
+
 describe('module/sw-flow/service/flow-builder.service.js', () => {
     const service = new FlowBuilderService();
     const data = {
@@ -430,6 +437,55 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         };
         const description = service.getActionDescriptions(data, sequence, translator);
         expect(description).toBe('translated');
+    });
+
+    it('should be able to show generate document description for a single legacy document type without mutating the config', () => {
+        const sequence = {
+            actionName: 'action.generate.document',
+            config: {
+                documentType: 'mail',
+                documentRangerType: 'document_mail',
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+
+        expect(description).toBe('translated');
+        expect(sequence.config).toEqual({
+            documentType: 'mail',
+            documentRangerType: 'document_mail',
+        });
+        expect(() => JSON.stringify(sequence)).not.toThrow();
+    });
+
+    it('should be able to show generate document description for the document generation rework config', () => {
+        const sequence = {
+            actionName: 'action.generate.document',
+            config: {
+                documentType: 'mail',
+                fileFormats: [
+                    'pdf',
+                    'zugferd_xml',
+                ],
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+
+        expect(description).toBe(
+            'sw-order.components.createDocumentModal.documentTypes.mail ' +
+                '<span class="sw-flow-sequence-action__file-formats">' +
+                '(sw-order.components.createDocumentModal.fileFormats.pdf, ' +
+                'sw-order.components.createDocumentModal.fileFormats.zugferd_xml)</span>',
+        );
+        expect(sequence.config).toEqual({
+            documentType: 'mail',
+            fileFormats: [
+                'pdf',
+                'zugferd_xml',
+            ],
+        });
+        expect(() => JSON.stringify(sequence)).not.toThrow();
     });
 
     it('should be able to send mail flow description', () => {

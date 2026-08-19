@@ -9,6 +9,8 @@ use Symfony\Component\Clock\Clock;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, use `PaymentToken` instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class TokenStruct extends Struct

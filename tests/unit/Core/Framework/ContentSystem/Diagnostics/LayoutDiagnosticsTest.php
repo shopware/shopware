@@ -552,6 +552,32 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
     }
 
+    #[TestDox('does not throw on colliding child-facing provider keys; reports them as invalid_config and gives the element no resolutions')]
+    public function testProviderDeliveryCollisionIsEmbeddedAsInvalidConfig(): void
+    {
+        // Collision axis: distinct provider map keys whose broadcast configs both rename the matched child
+        // key to 'item'. The context walk throws providerDeliveryCollision; analyze() must embed it as an
+        // invalid_config violation (the write gate's verdict) instead of propagating the raw exception, and
+        // the colliding element resolves nothing.
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+            ->build();
+
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$element], null);
+
+        static::assertFalse($analysis->report->isWellFormed());
+        $error = $this->onlyIntrinsicError($analysis->report->intrinsicErrors());
+        static::assertSame(ViolationCode::InvalidConfig, $error->code);
+        static::assertSame('el-1', $error->elementId);
+        static::assertSame(
+            'Child-facing key "item" is used by both "product" and "category". Each child-facing key must be unique within an element.',
+            $error->message,
+        );
+        static::assertArrayNotHasKey('el-1', $analysis->resolutions);
+    }
+
     #[TestDox('produces an unresolved_required binding error for a required reference with no candidate')]
     public function testUnresolvedRequired(): void
     {

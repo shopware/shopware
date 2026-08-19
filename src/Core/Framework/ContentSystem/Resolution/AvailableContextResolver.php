@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -37,6 +38,9 @@ class AvailableContextResolver
      * @param list<StoredElement> $tree the layout's root elements
      * @param list<ProvidedContext> $rootContext root-ambient context for top-level elements (broadcast Single)
      *
+     * @throws ContentSystemException when an element on the target's path carries two providers that
+     *                                deliver to children under the same child-facing key
+     *
      * @return list<ProvidedContext>
      */
     public function resolve(string $targetElementId, array $tree, array $rootContext): array
@@ -47,7 +51,11 @@ class AvailableContextResolver
             return [];
         }
 
-        ['ancestors' => $ancestors, 'topLevel' => $topLevel] = $location;
+        ['ancestors' => $ancestors, 'topLevel' => $topLevel, 'target' => $target] = $location;
+
+        // The target's own provider set is judged too, and before the top-level early return: a top-level
+        // element is the only element of its path, so skipping it would leave its providers unchecked.
+        $this->validateProviderDeliveryKeys($target);
 
         if ($topLevel) {
             return $rootContext;
@@ -56,6 +64,7 @@ class AvailableContextResolver
         $incoming = $rootContext;
 
         foreach ($ancestors as $ancestor) {
+            $this->validateProviderDeliveryKeys($ancestor);
             $incoming = $this->expose($ancestor, $incoming);
         }
 
@@ -156,19 +165,19 @@ class AvailableContextResolver
     /**
      * @param list<StoredElement> $tree
      *
-     * @return array{ancestors: list<StoredElement>, topLevel: bool}|null the ancestor path (root..parent), or null if not found
+     * @return array{ancestors: list<StoredElement>, topLevel: bool, target: StoredElement}|null the ancestor path (root..parent), the target element, and the top-level flag, or null if not found
      */
     private function locate(array $tree, string $targetElementId): ?array
     {
         foreach ($tree as $root) {
             if ($root->id === $targetElementId) {
-                return ['ancestors' => [], 'topLevel' => true];
+                return ['ancestors' => [], 'topLevel' => true, 'target' => $root];
             }
 
-            $ancestors = $this->search($root, [$root], $targetElementId);
+            $found = $this->search($root, [$root], $targetElementId);
 
-            if ($ancestors !== null) {
-                return ['ancestors' => $ancestors, 'topLevel' => false];
+            if ($found !== null) {
+                return ['ancestors' => $found['ancestors'], 'topLevel' => false, 'target' => $found['target']];
             }
         }
 
@@ -178,14 +187,14 @@ class AvailableContextResolver
     /**
      * @param list<StoredElement> $path elements from the root down to and including $element
      *
-     * @return list<StoredElement>|null the ancestor path to the target, or null if the target is not below $element
+     * @return array{ancestors: list<StoredElement>, target: StoredElement}|null the ancestor path and the target, or null if the target is not below $element
      */
     private function search(StoredElement $element, array $path, string $targetElementId): ?array
     {
         foreach ($element->slots as $children) {
             foreach ($children as $child) {
                 if ($child->id === $targetElementId) {
-                    return $path;
+                    return ['ancestors' => $path, 'target' => $child];
                 }
 
                 $deeper = $this->search($child, [...$path, $child], $targetElementId);
@@ -197,6 +206,44 @@ class AvailableContextResolver
         }
 
         return null;
+    }
+
+    /**
+     * Rejects an element whose providers would deliver to children under a shared child-facing key — the
+     * gate-side mirror of {@see \Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner}'s wiring
+     * validation, judging the same set the serving path serves: the declared providers (matched by
+     * `distributionConfig->getConsumerAlias() ?? providerKey`, the key {@see expose()} and the distributor
+     * both match children on) plus the broadcast providers the redistribution derivation adds from
+     * `redistribute` consumers (`consumerAlias ?? contextKey`). Two providers sharing a child-facing key
+     * both deliver to the same children and the later one silently wins by iteration order.
+     */
+    private function validateProviderDeliveryKeys(StoredElement $element): void
+    {
+        $childKeys = [];
+
+        foreach ($element->contextDefinitions->getAllProviders() as $providerKey => $provider) {
+            $childKey = $provider->distributionConfig->getConsumerAlias() ?? (string) $providerKey;
+
+            if (\array_key_exists($childKey, $childKeys)) {
+                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $providerKey);
+            }
+
+            $childKeys[$childKey] = (string) $providerKey;
+        }
+
+        foreach ($element->contextDefinitions->getAllConsumers() as $contextKey => $consumer) {
+            if (!$consumer->redistribute) {
+                continue;
+            }
+
+            $childKey = $consumer->consumerAlias ?? (string) $contextKey;
+
+            if (\array_key_exists($childKey, $childKeys)) {
+                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $contextKey);
+            }
+
+            $childKeys[$childKey] = (string) $contextKey;
+        }
     }
 
     private function resolveProvidedFqcn(string $component, string $contextKey): ?string

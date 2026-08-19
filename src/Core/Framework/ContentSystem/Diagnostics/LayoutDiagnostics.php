@@ -69,7 +69,21 @@ class LayoutDiagnostics
                 $violations[] = $violation;
             }
 
-            $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? []);
+            try {
+                $available = $this->availableContextResolver->resolve($element->id, $tree, $rootContext ?? []);
+            } catch (ContentSystemException $exception) {
+                if (!ContentSystemException::isClientDefect($exception)) {
+                    throw $exception;
+                }
+
+                // The context walk's one client-defect code: two providers of one element delivering to
+                // children under the same child-facing key. A colliding element resolves nothing, so it
+                // gets the violation and no resolutions entry.
+                $violations[] = new Violation(ViolationCode::InvalidConfig, $element->id, null, $exception->getMessage());
+
+                continue;
+            }
+
             $elementResolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->id, $available));
             $resolutions[$element->id] = $elementResolutions;
 

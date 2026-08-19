@@ -82,6 +82,67 @@ class WiringPlannerTest extends TestCase
         $this->planner()->plan($layout->elements, $layout->elements);
     }
 
+    #[TestDox('rejects two authored providers that deliver under the same child-facing key via their shared consumer alias')]
+    public function testRejectsAuthoredProvidersSharingAConsumerAlias(): void
+    {
+        // Collision axis: distinct provider map keys, equal child-facing keys — each provider's broadcast
+        // config renames what children match on, so the distributor would deliver both to the same child.
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+                ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+                ->build()
+        );
+
+        try {
+            $this->planner()->plan($layout->elements, $layout->elements);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category');
+        }
+    }
+
+    #[TestDox('rejects an authored provider and a redistribute consumer that deliver under the same child-facing key')]
+    public function testRejectsAuthoredProviderCollidingWithADerivedProvider(): void
+    {
+        // Collision axis: the authored provider's alias and the redistribute consumer's derived child-facing
+        // key are equal, while the derived provider's own map key ('category') would not collide.
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+                ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'item')
+                ->build()
+        );
+
+        try {
+            $this->planner()->plan($layout->elements, $layout->elements);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category');
+        }
+    }
+
+    #[TestDox('rejects two redistribute consumers whose derived child-facing keys collide via their shared consumer alias')]
+    public function testRejectsDerivedProvidersSharingAConsumerAlias(): void
+    {
+        // Collision axis: the two consumers write different properties (propertyAlias), so a check judged on
+        // the derived provider map key would pass; the corrected formula (consumerAlias ?? contextKey) makes
+        // both deliver under 'item' and the layout is rejected.
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withConsumer('product', ContextType::Single, redistribute: true, consumerAlias: 'item', propertyAlias: 'productName')
+                ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'item', propertyAlias: 'categoryName')
+                ->build()
+        );
+
+        try {
+            $this->planner()->plan($layout->elements, $layout->elements);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category');
+        }
+    }
+
     #[TestDox('validates a subtree the partial prune is about to discard')]
     public function testRedistributeExpansionValidatesASubtreeThePartialRenderDiscards(): void
     {
@@ -149,6 +210,19 @@ class WiringPlannerTest extends TestCase
     {
         yield 'no alias keeps the plain config' => [null, null];
         yield 'alias is carried through' => ['product', 'product'];
+    }
+
+    /**
+     * Pins the error code explicitly: expectExceptionObject() alone could not — Symfony's HttpException
+     * leaves getCode() at 0, so the error code this file's other tests' pattern relies on via the object
+     * comparison is not what distinguishes one ContentSystemException from another.
+     */
+    private function assertProviderDeliveryCollision(ContentSystemException $exception, string $childKey, string $first, string $second): void
+    {
+        static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
+        static::assertSame($childKey, $exception->getParameter('childKey'));
+        static::assertSame($first, $exception->getParameter('first'));
+        static::assertSame($second, $exception->getParameter('second'));
     }
 
     private function planner(): WiringPlanner

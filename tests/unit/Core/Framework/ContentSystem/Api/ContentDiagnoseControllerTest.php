@@ -13,10 +13,12 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -24,12 +26,18 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormali
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
+use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -96,6 +104,40 @@ class ContentDiagnoseControllerTest extends TestCase
         $body = $this->decode($response);
         static::assertFalse($body['diagnostics']['wellFormed']);
         static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
+    }
+
+    #[TestDox('returns 200 with an embedded invalid_config violation for a draft element whose providers collide on a child-facing key')]
+    public function testDiagnoseEmbedsProviderDeliveryCollision(): void
+    {
+        // The real diagnostics kernel runs here (not a stub): without the collision embedding in
+        // LayoutDiagnostics::analyze(), the context walk's providerDeliveryCollision would propagate raw
+        // and this request would fail instead of returning the violation in the 200 body.
+        $controller = $this->controller(
+            diagnostics: $this->realDiagnostics(),
+        );
+
+        $response = $controller->diagnose(new ContentDiagnoseRequest([[
+            'id' => 'el-1',
+            'component' => 'Sw:Block',
+            'providesContext' => [
+                'product' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'item'],
+                'category' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'item'],
+            ],
+        ]]), Context::createDefaultContext());
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $body = $this->decode($response);
+        static::assertFalse($body['diagnostics']['wellFormed']);
+        $collision = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === ViolationCode::InvalidConfig->value,
+        ));
+        static::assertCount(1, $collision);
+        static::assertSame('el-1', $collision[0]['elementId']);
+        static::assertSame(
+            'Child-facing key "item" is used by both "product" and "category". Each child-facing key must be unique within an element.',
+            $collision[0]['message'],
+        );
     }
 
     #[TestDox('threads the root source context resolved from the registry into the diagnostics analysis')]
@@ -226,6 +268,37 @@ class ContentDiagnoseControllerTest extends TestCase
         $diagnostics->method('analyze')->willReturn($analysis);
 
         return $diagnostics;
+    }
+
+    /**
+     * A real diagnostics kernel over an empty loader map, so an analyze() call exercises the actual
+     * context walk (and its collision embedding) rather than a stub.
+     */
+    private function realDiagnostics(): LayoutDiagnostics
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'Sw:Block');
+        $registry->method('get')->willReturn(ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')->build());
+
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
+
+        $elementResolver = new ElementResolver(
+            $registry,
+            $mapResolver,
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderProvider::class),
+        );
+
+        return new LayoutDiagnostics(
+            new AvailableContextResolver($registry, $elementResolver),
+            $elementResolver,
+            $registry,
+            new RootContextMapper(static::createStub(DataLoaderProvider::class)),
+            $mapResolver,
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(AbstractContentSystemStyleOptionRegistry::class),
+        );
     }
 
     /**

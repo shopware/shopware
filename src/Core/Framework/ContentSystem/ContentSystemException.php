@@ -35,6 +35,7 @@ class ContentSystemException extends HttpException
     public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
     public const PROPERTY_ALIAS_WITH_DOT_NOTATION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION';
     public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
+    public const PROVIDER_DELIVERY_COLLISION = 'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION';
     public const ROUTES_ALREADY_LOADED = 'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED';
     public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
     public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
@@ -100,6 +101,7 @@ class ContentSystemException extends HttpException
         self::INVALID_FIELD_VALUE_TYPE,
         self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
         self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+        self::PROVIDER_DELIVERY_COLLISION,
         self::INVALID_MAP_KEY,
     ];
 
@@ -360,6 +362,28 @@ class ContentSystemException extends HttpException
             self::PROPERTY_ALIAS_COLLISION,
             'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each propertyAlias must be unique within an element.',
             ['propertyKey' => $propertyKey, 'firstContext' => $firstContext, 'secondContext' => $secondContext]
+        );
+    }
+
+    /**
+     * The 400 for two providers of one element that deliver to children under the same child-facing key.
+     *
+     * The child-facing key is the key the distributor matches children on: an authored provider's is
+     * `distributionConfig->getConsumerAlias() ?? providerKey`, a redistribute consumer's derived provider's
+     * is `consumerAlias ?? contextKey`. Two providers sharing it both deliver to the same children and the
+     * later one silently wins by iteration order, so the serving path and the write gate reject the layout
+     * instead.
+     *
+     * $first and $second name the colliding providers: the provider map key for an authored provider, the
+     * consumer context key for a derived one.
+     */
+    public static function providerDeliveryCollision(string $childKey, string $first, string $second): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROVIDER_DELIVERY_COLLISION,
+            'Child-facing key "{{ childKey }}" is used by both "{{ first }}" and "{{ second }}". Each child-facing key must be unique within an element.',
+            ['childKey' => $childKey, 'first' => $first, 'second' => $second]
         );
     }
 

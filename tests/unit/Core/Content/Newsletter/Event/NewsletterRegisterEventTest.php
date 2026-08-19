@@ -28,9 +28,12 @@ class NewsletterRegisterEventTest extends TestCase
         $mailStruct = $event->getMailStruct();
 
         static::assertSame(['jane@example.com' => 'Jane Doe'], $mailStruct->getRecipients());
-        // the struct is built lazily on first access; the second call must return the
-        // memoized instance instead of building a new, merely equal one
-        static::assertSame($mailStruct, $event->getMailStruct());
+
+        // the struct is a snapshot taken on first access: later recipient
+        // changes must not leak into it
+        $recipient->setFirstName('Changed');
+
+        static::assertSame(['jane@example.com' => 'Jane Doe'], $event->getMailStruct()->getRecipients());
     }
 
     public function testAvailableDataDescribesTheEventPayload(): void

@@ -118,6 +118,11 @@ The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) 
 A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
 
 `ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
+### New `Criteria::resetFields()` and `Criteria::resetExcludedFields()`
+
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
+
+They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -595,6 +600,12 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__configuration`
 
 ## Hosting & Configuration
+
+### Local translation files and optional automatic updates
+
+The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.
+
+The daily translation update task can be disabled with `shopware.translation.scheduled_task.enabled: false`. Use this for immutable deployments that update translation files only during builds. Both options retain their previous behavior by default.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

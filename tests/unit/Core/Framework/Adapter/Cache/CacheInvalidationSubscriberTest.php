@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
@@ -16,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -148,6 +150,95 @@ class CacheInvalidationSubscriberTest extends TestCase
             );
 
         $subscriber->invalidateMedia($event);
+    }
+
+    public function testInvalidateProductListingRouteByCategoryIds(): void
+    {
+        $grandParentId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => $childId,
+                    'path' => '|' . $grandParentId . '|' . $parentId . '|',
+                ],
+            ]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(static::callback(function (array $tags) use ($grandParentId, $parentId, $childId): bool {
+                sort($tags);
+
+                $expected = array_map(ProductListingRoute::buildName(...), [$grandParentId, $parentId, $childId]);
+                sort($expected);
+
+                static::assertSame($expected, $tags);
+
+                return true;
+            }));
+
+        $subscriber->invalidateProductListingRouteByCategoryIds(
+            new CategoryIndexerEvent([$childId], Context::createDefaultContext())
+        );
+    }
+
+    public function testInvalidateChangedCategoryListings(): void
+    {
+        $parentId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $subscriber = $this->createSubscriber();
+
+        $event = new EntityWrittenContainerEvent(
+            $context,
+            new NestedEventCollection([
+                new EntityWrittenEvent(
+                    CategoryDefinition::ENTITY_NAME,
+                    [
+                        new EntityWriteResult(
+                            $categoryId,
+                            [
+                                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                            ],
+                            CategoryDefinition::ENTITY_NAME,
+                            EntityWriteResult::OPERATION_UPDATE,
+                        ),
+                    ],
+                    $context,
+                ),
+            ]),
+            [],
+        );
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => $categoryId,
+                    'path' => '|' . $parentId . '|',
+                ],
+            ]);
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(static::callback(function (array $tags) use ($parentId, $categoryId): bool {
+                sort($tags);
+
+                $expected = array_map(ProductListingRoute::buildName(...), [$parentId, $categoryId]);
+                sort($expected);
+
+                static::assertSame($expected, $tags);
+
+                return true;
+            }));
+
+        $subscriber->invalidateChangedCategoryListings($event);
     }
 
     public function testInvalidateNavigationRouteWithSalesChannelSettings(): void

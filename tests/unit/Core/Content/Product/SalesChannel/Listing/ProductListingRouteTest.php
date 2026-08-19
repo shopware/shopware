@@ -4,13 +4,11 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -37,7 +35,7 @@ class ProductListingRouteTest extends TestCase
     public function testFiltersAreSetForCategories(): void
     {
         $categoryId = 'categoryId';
-        /** @var StaticEntityRepository<CategoryCollection> */
+        /** @var StaticEntityRepository<EntityCollection<PartialEntity>> */
         $categoryRepository = new StaticEntityRepository([
             new EntityCollection([
                 new PartialEntity([
@@ -71,15 +69,16 @@ class ProductListingRouteTest extends TestCase
     {
         $categoryId = 'categoryId';
         $streamId = 'streamId';
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
-            new PartialEntity(
-                [
+        /** @var StaticEntityRepository<EntityCollection<PartialEntity>> */
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity([
                     'id' => $categoryId,
                     'productStreamId' => $streamId,
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                ]
-            )])]);
+                ]),
+            ]),
+        ]);
 
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
         $productStreamBuilder->method('enrichCriteria')
@@ -114,34 +113,41 @@ class ProductListingRouteTest extends TestCase
         static::assertSame($streamId, $result->getStreamId());
     }
 
-    public function testStreamTagIsAddedForProductStreams(): void
+    public function testFiltersAndTagsAreSetForDescendantCategories(): void
     {
-        $categoryId = 'categoryId';
+        $categoryId = 'parent-category';
+        $childCategoryId = 'child-category';
         $streamId = 'streamId';
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
-            new PartialEntity(
-                [
+
+        /** @var StaticEntityRepository<EntityCollection<PartialEntity>> */
+        $categoryRepository = new StaticEntityRepository([
+            new EntityCollection([
+                new PartialEntity([
                     'id' => $categoryId,
-                    'productStreamId' => $streamId,
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
+                ]),
+                new PartialEntity([
+                    'id' => $childCategoryId,
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                ]
-            )])]);
+                    'productStreamId' => $streamId,
+                ]),
+            ]),
+        ]);
 
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
-        $productStreamBuilder->method('enrichCriteria');
+        $productStreamBuilder->method('enrichCriteria')
+            ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
+            });
 
         $cacheTagCollector = $this->createMock(CacheTagCollector::class);
-        $calls = [
-            [ProductListingRoute::buildName($categoryId)],
-            [EntityCacheKeyGenerator::buildStreamTag($streamId)],
-        ];
-        $matcher = $this->exactly(\count($calls));
-        $cacheTagCollector->expects($matcher)
+        $cacheTagCollector->expects($this->once())
             ->method('addTag')
-            ->willReturnCallback(static function (string ...$tags) use ($matcher, $calls): void {
-                self::assertSame($calls[$matcher->numberOfInvocations() - 1], $tags);
-            });
+            ->with(
+                ProductListingRoute::buildName($categoryId),
+                ProductListingRoute::buildName($childCategoryId),
+                EntityCacheKeyGenerator::buildStreamTag($streamId)
+            );
 
         $eventDispatcher = new EventDispatcher();
         $controller = new ProductListingRoute(
@@ -152,12 +158,16 @@ class ProductListingRouteTest extends TestCase
             new ExtensionDispatcher($eventDispatcher),
         );
 
-        $controller->load(
-            $categoryId,
-            new Request(),
-            static::createStub(SalesChannelContext::class),
-            new Criteria()
-        );
+        $criteria = new Criteria();
+        $controller->load($categoryId, new Request(), static::createStub(SalesChannelContext::class), $criteria);
+
+        static::assertSame([
+            'product.visibilities.visibility',
+            'product.visibilities.salesChannelId',
+            'product.active',
+            'product.product_stream',
+            'product.categoriesRo.id',
+        ], $criteria->getFilterFields());
     }
 
     public function testClassIsBaseOfDecorationChain(): void
@@ -179,7 +189,7 @@ class ProductListingRouteTest extends TestCase
     public function testExtension(): void
     {
         $categoryId = 'categoryId';
-        /** @var StaticEntityRepository<CategoryCollection> */
+        /** @var StaticEntityRepository<EntityCollection<PartialEntity>> */
         $categoryRepository = new StaticEntityRepository([
             new EntityCollection([
                 new PartialEntity([
@@ -213,91 +223,5 @@ class ProductListingRouteTest extends TestCase
             'product.active',
             'product.categoriesRo.id',
         ], $criteria->getFilterFields());
-    }
-
-    public function testProductStreamWithDisplayAsGroupFalseCanEnableDirectVariantState(): void
-    {
-        $categoryId = 'categoryId';
-        $streamId = 'streamId';
-
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
-            new PartialEntity(
-                [
-                    'id' => $categoryId,
-                    'productStreamId' => $streamId,
-                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                ]
-            )])]);
-
-        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
-        $productStreamBuilder->method('enrichCriteria')
-            ->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_): void {
-                $criteria->addFilter(new EqualsFilter('product.product_stream', $id));
-                $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
-            });
-
-        $eventDispatcher = new EventDispatcher();
-        $controller = new ProductListingRoute(
-            static::createStub(ProductListingLoader::class),
-            $categoryRepository,
-            $productStreamBuilder,
-            static::createStub(CacheTagCollector::class),
-            new ExtensionDispatcher($eventDispatcher),
-        );
-
-        $criteria = new Criteria();
-        $controller->load(
-            $categoryId,
-            new Request(),
-            static::createStub(SalesChannelContext::class),
-            $criteria
-        );
-
-        static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
-    }
-
-    public function testProductStreamFallsBackToBuildFiltersForInterfaceOnlyBuilder(): void
-    {
-        $categoryId = 'categoryId';
-        $streamId = 'streamId';
-
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
-            new PartialEntity(
-                [
-                    'id' => $categoryId,
-                    'productStreamId' => $streamId,
-                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                ]
-            )])]);
-
-        // A builder that only implements the deprecated interface (e.g. a decorator that has not yet
-        // adopted AbstractProductStreamBuilder). The route must fall back to buildFilters() without a
-        // TypeError, add the stream filters, and leave display-as-group enabled (no state set).
-        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
-        $productStreamBuilder->expects($this->once())
-            ->method('buildFilters')
-            ->willReturn([new EqualsFilter('product.product_stream', $streamId)]);
-
-        $eventDispatcher = new EventDispatcher();
-        $controller = new ProductListingRoute(
-            static::createStub(ProductListingLoader::class),
-            $categoryRepository,
-            $productStreamBuilder,
-            static::createStub(CacheTagCollector::class),
-            new ExtensionDispatcher($eventDispatcher),
-        );
-
-        $criteria = new Criteria();
-        $controller->load(
-            $categoryId,
-            new Request(),
-            static::createStub(SalesChannelContext::class),
-            $criteria
-        );
-
-        static::assertFalse($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
-        static::assertContainsEquals(new EqualsFilter('product.product_stream', $streamId), $criteria->getFilters());
     }
 }

@@ -63,6 +63,9 @@ class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelE
         return $this->hash;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getData(): array
     {
         return $this->data;

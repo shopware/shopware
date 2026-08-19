@@ -88,9 +88,7 @@ export default {
     },
 
     beforeUnmount() {
-        // invalidate any in-flight check so a late-resolving read cannot re-schedule polling
-        this.activeCheckId += 1;
-        this.clearPendingCheck();
+        this.beforeUnmountComponent();
     },
 
     methods: {
@@ -101,6 +99,12 @@ export default {
             }
 
             this.checkPendingAssignment();
+        },
+
+        beforeUnmountComponent() {
+            // invalidate any in-flight check so a late-resolving read cannot re-schedule polling
+            this.activeCheckId += 1;
+            this.clearPendingCheck();
         },
 
         async getTheme(themeId) {

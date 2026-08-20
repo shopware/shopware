@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
+const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 
@@ -143,13 +144,17 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        create: () => ({}),
-                        get: mockGet,
-                        search: () => Promise.resolve([]),
-                        delete: () => Promise.resolve(),
-                        save: mockSave,
-                    }),
+                    create: (...args) => {
+                        mockCreateRepository(...args);
+
+                        return {
+                            create: () => ({}),
+                            get: mockGet,
+                            search: () => Promise.resolve([]),
+                            delete: () => Promise.resolve(),
+                            save: mockSave,
+                        };
+                    },
                 },
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
@@ -182,6 +187,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();
+        mockCreateRepository.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
         Shopware.Store.get('error').resetApiErrors();
@@ -448,6 +454,13 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.isProductExportChannel).toBe(false);
+    });
+
+    it('should create the sales channel repository with sync enabled', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        expect(mockCreateRepository).toHaveBeenCalledWith('sales_channel', null, { useSync: true });
     });
 
     it('should save without reloading entity data when saveOnLanguageChange is called', async () => {

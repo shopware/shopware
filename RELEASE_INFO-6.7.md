@@ -214,9 +214,9 @@ Product breadcrumbs are generated again when the product's main category — or 
 `POST /store-api/checkout/order` re-checks inside its cart lock whether the cart is still stored, and answers `404 CHECKOUT__CART_TOKEN_NOT_FOUND` when it is not. Two overlapping submits of the same cart — two browser tabs on the checkout confirm page, a retried request — previously produced two orders whenever the second request had loaded its cart before the first one deleted it, because that stale cart still passed the cart hash check.
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
-### Experimental webhook endpoint health
+### Experimental webhook endpoint health API and lifecycle events
 
-With `WEBHOOKS_REWORK` enabled, transient delivery failures now move a webhook from `HEALTHY` to `DEGRADED`. Regular deliveries are held until a scheduled trial succeeds.
+With `WEBHOOKS_REWORK` enabled, endpoint failures can move each webhook from `HEALTHY` to `DEGRADED` or `SUSPENDED`. Scheduled trials recover it one state at a time; prolonged suspension ends in `DISABLED`.
 
 Operators can configure the transition threshold and trial cooldowns through `shopware.webhook.health.degraded_threshold_count` and `shopware.webhook.health.cooldown_schedule_seconds`. Existing webhook behavior is unchanged while the feature flag is disabled.
 
@@ -1350,6 +1350,8 @@ A new `translation.update` scheduled task now keeps installed translations up to
 Operators can change the interval like any other scheduled task (`scheduled_task.run_interval`) or disable it entirely with `bin/console scheduled-task:deactivate translation.update`.
 
 The translation update orchestration was extracted into the new internal service `Shopware\Core\System\Snippet\Service\TranslationUpdater`, which the Admin API route and the scheduled task share. The HTTP contract of `POST /api/_action/translation/update` is unchanged, except that it now short-circuits without a remote request when no translation is installed (the response is identical).
+
+Apps can inspect and reactivate their webhooks through `GET /api/app-system/webhook/state` and `POST /api/app-system/webhook/reactivate`. They can also subscribe to `webhook.health.activated`, `webhook.health.degraded`, `webhook.health.suspended`, and `webhook.health.disabled`. Admin users can inspect the health tick through `GET /api/_action/webhook/health-status` and disable a webhook through `POST /api/_action/webhook/{webhookId}/deactivate`.
 
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 

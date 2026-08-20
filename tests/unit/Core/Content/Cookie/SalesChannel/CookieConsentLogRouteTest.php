@@ -5,11 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\CookieConsentLog\CookieConsentLogEntity;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
+use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -29,18 +32,26 @@ class CookieConsentLogRouteTest extends TestCase
 
     private CookieConsentLogRoute $route;
 
+    /**
+     * @var list<array<string, mixed>>
+     */
+    private array $insertedParameters = [];
+
     protected function setUp(): void
     {
-        $cookieGroup = new CookieGroup('cookie.groupRequired');
-        $cookieGroup->isRequired = true;
-
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
         $cookieRoute->method('getCookieGroups')
-            ->willReturn(new CookieRouteResponse(new CookieGroupCollection([$cookieGroup]), 'current-hash', 'language-id'));
+            ->willReturn(new CookieRouteResponse($this->cookieGroups(), 'server-hash', 'language-id'));
 
         $connection = static::createStub(Connection::class);
         $connection->method('transactional')
             ->willReturnCallback(static fn (callable $callback) => $callback($connection));
+        $connection->method('executeStatement')
+            ->willReturnCallback(function (string $_query, array $parameters = []): int {
+                $this->insertedParameters[] = $parameters;
+
+                return 1;
+            });
 
         $this->eventDispatcher = new CollectingEventDispatcher();
 
@@ -59,44 +70,140 @@ class CookieConsentLogRouteTest extends TestCase
         $this->route->getDecorated();
     }
 
-    public function testLogDispatchesEventAndReturnsNoContent(): void
+    public function testAcceptAllMarksEveryGroupAccepted(): void
+    {
+        $event = $this->log(['consentAction' => 'accept_all']);
+
+        static::assertSame([
+            'cookie.groupRequired' => CookieConsentLogEntity::DECISION_ACCEPTED,
+            'cookie.groupStatistical' => CookieConsentLogEntity::DECISION_ACCEPTED,
+            'cookie.groupMarketing' => CookieConsentLogEntity::DECISION_ACCEPTED,
+            'cookie.groupComfort' => CookieConsentLogEntity::DECISION_ACCEPTED,
+        ], $event->groupDecisions);
+        static::assertSame(['lorem', 'ipsum', 'marketing-cookie', 'visible-comfort'], $event->acceptedCookies);
+    }
+
+    public function testAcceptRequiredRejectsEveryOptionalGroup(): void
+    {
+        $event = $this->log(['consentAction' => 'accept_required']);
+
+        static::assertSame([
+            'cookie.groupRequired' => CookieConsentLogEntity::DECISION_ACCEPTED,
+            'cookie.groupStatistical' => CookieConsentLogEntity::DECISION_REJECTED,
+            'cookie.groupMarketing' => CookieConsentLogEntity::DECISION_REJECTED,
+            'cookie.groupComfort' => CookieConsentLogEntity::DECISION_REJECTED,
+        ], $event->groupDecisions);
+        static::assertSame([], $event->acceptedCookies);
+    }
+
+    public function testPartiallySelectedGroupIsNotRecordedAsAccepted(): void
+    {
+        $event = $this->log([
+            'consentAction' => 'accept_selected',
+            'acceptedCookies' => ['ipsum'],
+        ]);
+
+        static::assertSame([
+            'cookie.groupRequired' => CookieConsentLogEntity::DECISION_ACCEPTED,
+            'cookie.groupStatistical' => CookieConsentLogEntity::DECISION_PARTIAL,
+            'cookie.groupMarketing' => CookieConsentLogEntity::DECISION_REJECTED,
+            'cookie.groupComfort' => CookieConsentLogEntity::DECISION_REJECTED,
+        ], $event->groupDecisions);
+        static::assertSame(['ipsum'], $event->acceptedCookies);
+    }
+
+    public function testFullySelectedGroupIsRecordedAsAccepted(): void
+    {
+        $event = $this->log([
+            'consentAction' => 'accept_selected',
+            'acceptedCookies' => ['lorem', 'ipsum'],
+        ]);
+
+        static::assertSame(CookieConsentLogEntity::DECISION_ACCEPTED, $event->groupDecisions['cookie.groupStatistical']);
+    }
+
+    public function testStandaloneGroupCookieIsResolved(): void
+    {
+        $event = $this->log([
+            'consentAction' => 'accept_selected',
+            'acceptedCookies' => ['marketing-cookie'],
+        ]);
+
+        static::assertSame(CookieConsentLogEntity::DECISION_ACCEPTED, $event->groupDecisions['cookie.groupMarketing']);
+        static::assertSame(['marketing-cookie'], $event->acceptedCookies);
+    }
+
+    public function testHiddenEntriesDoNotPreventAFullAcceptance(): void
+    {
+        // `cookie.groupComfort` only has a hidden entry next to a visible one, the
+        // visitor can never tick the hidden one
+        $event = $this->log([
+            'consentAction' => 'accept_selected',
+            'acceptedCookies' => ['visible-comfort'],
+        ]);
+
+        static::assertSame(CookieConsentLogEntity::DECISION_ACCEPTED, $event->groupDecisions['cookie.groupComfort']);
+        static::assertNotContains('hidden-comfort', $event->acceptedCookies);
+    }
+
+    public function testUnknownCookieNamesAreIgnored(): void
+    {
+        $event = $this->log([
+            'consentAction' => 'accept_selected',
+            'acceptedCookies' => ['ipsum', 'injected-by-a-client'],
+        ]);
+
+        static::assertSame(['ipsum'], $event->acceptedCookies);
+    }
+
+    public function testRenderedHashIsStoredNextToTheServerHash(): void
+    {
+        $event = $this->log([
+            'consentAction' => 'accept_all',
+            'renderedConfigHash' => 'stale-hash',
+        ]);
+
+        static::assertSame('server-hash', $event->serverConfigHash);
+        static::assertSame('stale-hash', $event->renderedConfigHash);
+
+        // The snapshot is always written for the hash the server holds, so the log entry
+        // can never point at a snapshot that does not exist
+        static::assertSame('server-hash', $this->insertedParameters[0]['configHash']);
+        static::assertSame('server-hash', $this->insertedParameters[1]['serverConfigHash']);
+        static::assertSame('stale-hash', $this->insertedParameters[1]['renderedConfigHash']);
+    }
+
+    public function testRenderedHashIsNullWhenNoConfigurationWasDisplayed(): void
+    {
+        $event = $this->log(['consentAction' => 'accept_all']);
+
+        static::assertNull($event->renderedConfigHash);
+    }
+
+    public function testLogReturnsNoContentAndDispatchesOnce(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $request = new Request(content: (string) json_encode([
-            'consentAction' => 'accept_selected',
-            'acceptedGroups' => ['cookie.groupRequired', 'cookie.groupStatistical'],
-            'cookieConfigHash' => 'client-hash',
-        ]));
-
+        $request = new Request(content: (string) json_encode(['consentAction' => 'accept_all']));
         $response = $this->route->log($request, $salesChannelContext);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertCount(1, $this->eventDispatcher->getEvents());
 
-        $events = $this->eventDispatcher->getEvents();
-        static::assertCount(1, $events);
-
-        $event = $events[0];
+        $event = $this->eventDispatcher->getEvents()[0];
         static::assertInstanceOf(CookieConsentLoggedEvent::class, $event);
-        static::assertSame('accept_selected', $event->consentAction);
-        static::assertSame(['cookie.groupRequired', 'cookie.groupStatistical'], $event->acceptedGroups);
-        static::assertSame('client-hash', $event->configHash);
         static::assertSame($salesChannelContext->getSalesChannelId(), $event->salesChannelId);
         static::assertSame($salesChannelContext->getLanguageId(), $event->languageId);
     }
 
-    public function testLogFallsBackToCurrentHashWhenClientSendsNone(): void
+    public function testGroupDecisionsAreStoredAsAJsonObject(): void
     {
-        $request = new Request(content: (string) json_encode([
-            'consentAction' => 'accept_all',
-            'acceptedGroups' => ['cookie.groupRequired'],
-        ]));
+        $this->log(['consentAction' => 'accept_required']);
 
-        $this->route->log($request, Generator::generateSalesChannelContext());
-
-        $event = $this->eventDispatcher->getEvents()[0];
-        static::assertInstanceOf(CookieConsentLoggedEvent::class, $event);
-        static::assertSame('current-hash', $event->configHash);
+        static::assertSame(
+            '{"cookie.groupRequired":"accepted","cookie.groupStatistical":"rejected","cookie.groupMarketing":"rejected","cookie.groupComfort":"rejected"}',
+            $this->insertedParameters[1]['groupDecisions'],
+        );
     }
 
     public function testLogThrowsOnInvalidJsonBody(): void
@@ -115,57 +222,82 @@ class CookieConsentLogRouteTest extends TestCase
 
     public function testLogThrowsOnUnknownConsentAction(): void
     {
-        $request = new Request(content: (string) json_encode([
-            'consentAction' => 'reject_all',
-            'acceptedGroups' => [],
-        ]));
-
         $this->expectExceptionObject(CookieException::invalidConsentLogPayload(
             'consentAction must be one of: accept_all, accept_required, accept_selected',
         ));
 
-        $this->route->log($request, Generator::generateSalesChannelContext());
+        $this->log(['consentAction' => 'reject_all']);
     }
 
-    public function testLogThrowsWhenAcceptedGroupsIsMissing(): void
+    public function testMissingAcceptedCookiesIsAValidEmptySelection(): void
     {
-        $request = new Request(content: (string) json_encode([
-            'consentAction' => 'accept_all',
-        ]));
+        $event = $this->log(['consentAction' => 'accept_selected']);
 
-        $this->expectExceptionObject(CookieException::invalidConsentLogPayload(
-            'acceptedGroups must be a list with at most 100 entries',
-        ));
-
-        $this->route->log($request, Generator::generateSalesChannelContext());
+        static::assertSame([], $event->acceptedCookies);
+        static::assertSame(CookieConsentLogEntity::DECISION_REJECTED, $event->groupDecisions['cookie.groupStatistical']);
     }
 
-    public function testLogThrowsWhenAcceptedGroupsContainsNonStrings(): void
+    public function testLogThrowsWhenAcceptedCookiesIsNoList(): void
     {
-        $request = new Request(content: (string) json_encode([
-            'consentAction' => 'accept_all',
-            'acceptedGroups' => ['cookie.groupRequired', 42],
-        ]));
-
         $this->expectExceptionObject(CookieException::invalidConsentLogPayload(
-            'acceptedGroups must contain non-empty strings',
+            'acceptedCookies must be a list with at most 500 entries',
         ));
 
-        $this->route->log($request, Generator::generateSalesChannelContext());
+        $this->log(['consentAction' => 'accept_selected', 'acceptedCookies' => ['key' => 'value']]);
     }
 
-    public function testLogThrowsWhenConfigHashIsNoString(): void
+    public function testLogThrowsWhenAcceptedCookiesContainsNonStrings(): void
     {
-        $request = new Request(content: (string) json_encode([
-            'consentAction' => 'accept_all',
-            'acceptedGroups' => [],
-            'cookieConfigHash' => ['not' => 'a-string'],
-        ]));
-
         $this->expectExceptionObject(CookieException::invalidConsentLogPayload(
-            'cookieConfigHash must be a non-empty string',
+            'acceptedCookies must contain non-empty strings',
         ));
 
+        $this->log(['consentAction' => 'accept_selected', 'acceptedCookies' => ['lorem', 42]]);
+    }
+
+    public function testLogThrowsWhenRenderedConfigHashIsNoString(): void
+    {
+        $this->expectExceptionObject(CookieException::invalidConsentLogPayload(
+            'renderedConfigHash must be a non-empty string',
+        ));
+
+        $this->log(['consentAction' => 'accept_all', 'renderedConfigHash' => ['not' => 'a-string']]);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function log(array $payload): CookieConsentLoggedEvent
+    {
+        $request = new Request(content: (string) json_encode($payload));
+
         $this->route->log($request, Generator::generateSalesChannelContext());
+
+        $event = $this->eventDispatcher->getEvents()[0];
+        static::assertInstanceOf(CookieConsentLoggedEvent::class, $event);
+
+        return $event;
+    }
+
+    private function cookieGroups(): CookieGroupCollection
+    {
+        $required = new CookieGroup('cookie.groupRequired');
+        $required->isRequired = true;
+        $required->setEntries(new CookieEntryCollection([new CookieEntry('session-')]));
+
+        $statistical = new CookieGroup('cookie.groupStatistical');
+        $statistical->setEntries(new CookieEntryCollection([new CookieEntry('lorem'), new CookieEntry('ipsum')]));
+
+        // A group can be a standalone cookie instead of a list of entries
+        $marketing = new CookieGroup('cookie.groupMarketing');
+        $marketing->setCookie('marketing-cookie');
+
+        $hidden = new CookieEntry('hidden-comfort');
+        $hidden->hidden = true;
+
+        $comfort = new CookieGroup('cookie.groupComfort');
+        $comfort->setEntries(new CookieEntryCollection([new CookieEntry('visible-comfort'), $hidden]));
+
+        return new CookieGroupCollection([$required, $statistical, $marketing, $comfort]);
     }
 }

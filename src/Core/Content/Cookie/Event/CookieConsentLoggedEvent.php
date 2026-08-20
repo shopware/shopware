@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cookie\Event;
 
+use Shopware\Core\Content\Cookie\CookieConsentLog\CookieConsentLogEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -19,12 +20,17 @@ use Shopware\Core\Framework\Log\Package;
 readonly class CookieConsentLoggedEvent
 {
     /**
-     * @param list<string> $acceptedGroups technical names of the accepted cookie groups
+     * @param array<string, CookieConsentLogEntity::DECISION_*> $groupDecisions verdict per cookie group, keyed by technical name
+     * @param list<string> $acceptedCookies names of the accepted cookies that required consent
+     * @param string $serverConfigHash hash of the configuration the server held while logging
+     * @param string|null $renderedConfigHash unverified hash of the configuration the client displayed, null if none was displayed
      */
     public function __construct(
         public string $consentAction,
-        public array $acceptedGroups,
-        public string $configHash,
+        public array $groupDecisions,
+        public array $acceptedCookies,
+        public string $serverConfigHash,
+        public ?string $renderedConfigHash,
         public string $salesChannelId,
         public string $languageId,
     ) {

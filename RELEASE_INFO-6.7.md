@@ -7,12 +7,17 @@
 The built-in cookie banner now logs every consent decision server-side, so shop operators can demonstrate that consent was obtained, as required by GDPR Recital 42. This feature is experimental (`COOKIE_GROUPS_STORE_API`) and not yet part of the backwards compatibility promise.
 
 - Every "accept all", "accept required only", and custom-selection interaction with the cookie banner is sent (fire-and-forget via `navigator.sendBeacon`) to the new storefront route `POST /cookie/consent-log`, which proxies to the new Store API route `POST /store-api/cookie-consent-log`.
-- Decisions are stored anonymously in the new `cookie_consent_log` table: action, accepted cookie groups, sales channel, language, banner configuration hash, and timestamp. No IP addresses, session IDs, or other visitor identifiers are stored.
+- The client only reports raw facts: the action, the names of the cookies the visitor ticked (`acceptedCookies`), and the hash of the configuration it displayed (`renderedConfigHash`). The per-group verdict is derived server-side against the configuration the server holds, so it cannot be shaped by the client.
+- Decisions are stored anonymously in the new `cookie_consent_log` table: action, per-group verdict (`group_decisions`), accepted cookie names (`accepted_cookies`), sales channel, language, both configuration hashes, and timestamp. No IP addresses, session IDs, or other visitor identifiers are stored.
+- `group_decisions` distinguishes `accepted`, `partial`, and `rejected` per cookie group. A group counts as `accepted` only when every cookie the visitor could tick in it was accepted, so a granular selection is never recorded as broader consent than was given.
+- `server_config_hash` always has a matching snapshot row; `rendered_config_hash` is the unverified hash the client reported and is `NULL` when no configuration was displayed, e.g. when only the cookie bar buttons were used. A mismatch between the two is queryable instead of silent.
 - A snapshot of the cookie banner configuration is stored once per configuration hash in the new `cookie_consent_config_version` table, preserving what the banner looked like when consent was given.
 - Both tables are readable through the Admin API (e.g. `POST /api/search/cookie-consent-log`) for compliance exports.
 - The new event `Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent` is dispatched for every logged decision.
-- The new daily scheduled task `cookie_consent_log.cleanup` deletes log entries older than the retention period, configurable via the `core.cookieConsent.logRetentionDays` system config (default: 120 days, negative values disable the cleanup), and removes banner snapshots that are no longer referenced.
+- The new daily scheduled task `cookie_consent_log.cleanup` deletes log entries older than the retention period, configurable via the `core.cookieConsent.logRetentionDays` system config (default: 120 days, `0` deletes immediately, negative values disable the cleanup), and removes banner snapshots that are no longer referenced.
 - The Store API `/store-api/cookie-groups` response now additionally exposes the translation-independent `technicalName` of each cookie group.
+
+Because no visitor identifier is stored, the log is process-level evidence: it demonstrates that consent was collected, under which banner configuration and when, but it cannot identify an individual data subject.
 
 Shops using a third-party consent manager instead of the built-in cookie banner are not affected. (shopware/shopware#15513)
 

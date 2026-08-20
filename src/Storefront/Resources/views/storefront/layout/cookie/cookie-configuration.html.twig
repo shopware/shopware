@@ -14,7 +14,10 @@
 
 {% block utilities_offcanvas_content %}
     {% set acceptAllCookies = config('core.basicInformation.acceptAllCookies') %}
-    <div class="offcanvas-cookie" role="region" aria-labelledby="offcanvas-cookie-headline">
+    <div class="offcanvas-cookie"
+         {% if cookieConfigHash|default('') %}data-cookie-config-hash="{{ cookieConfigHash }}"{% endif %}
+         role="region"
+         aria-labelledby="offcanvas-cookie-headline">
         <div class="offcanvas-cookie-description">
             <p>
                 {% set privacySnippetKey = 'cookie.messageTextPage' %}

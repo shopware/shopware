@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -19,9 +20,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  *
  * One row per visitor consent action. Contains no visitor identifiers by design;
  * it proves that consent was collected at a given time with a given banner
- * configuration (`config_hash` references `cookie_consent_config_version`),
+ * configuration (`server_config_hash` references `cookie_consent_config_version`),
  * not who gave it. The sales channel and language columns are intentionally
  * not enforced by foreign keys so evidence survives their deletion.
+ *
+ * `group_decisions` and `accepted_cookies` are both derived server-side from the
+ * cookie names the visitor selected. The raw cookie names are kept alongside the
+ * per-group verdict so a row stays auditable if the definition of a partial
+ * acceptance ever changes.
  *
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
@@ -59,8 +65,10 @@ class CookieConsentLogDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
 
             (new StringField('consent_action', 'consentAction', 32))->addFlags(new Required()),
-            (new ListField('accepted_groups', 'acceptedGroups', StringField::class))->addFlags(new Required()),
-            (new StringField('config_hash', 'configHash'))->addFlags(new Required()),
+            (new JsonField('group_decisions', 'groupDecisions'))->addFlags(new Required()),
+            (new ListField('accepted_cookies', 'acceptedCookies', StringField::class))->addFlags(new Required()),
+            (new StringField('server_config_hash', 'serverConfigHash'))->addFlags(new Required()),
+            new StringField('rendered_config_hash', 'renderedConfigHash'),
         ]);
     }
 }

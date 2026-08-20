@@ -50,7 +50,10 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $retentionDays = $this->systemConfigService->getInt(self::CONFIG_KEY_RETENTION_DAYS) ?: self::DEFAULT_RETENTION_DAYS;
+        // getInt() cannot tell an unset config from an explicit 0, so read the raw value:
+        // an operator setting 0 wants same-day deletion, not the default retention.
+        $configured = $this->systemConfigService->get(self::CONFIG_KEY_RETENTION_DAYS);
+        $retentionDays = \is_numeric($configured) ? (int) $configured : self::DEFAULT_RETENTION_DAYS;
 
         // A negative value disables the cleanup, the operator keeps the log forever
         if ($retentionDays < 0) {
@@ -72,7 +75,7 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
         // avoids deleting a snapshot that a concurrent, not yet committed consent references.
         $this->connection->executeStatement(
             'DELETE `version` FROM `cookie_consent_config_version` AS `version`
-                LEFT JOIN `cookie_consent_log` AS `log` ON `log`.`config_hash` = `version`.`config_hash`
+                LEFT JOIN `cookie_consent_log` AS `log` ON `log`.`server_config_hash` = `version`.`config_hash`
             WHERE `log`.`id` IS NULL AND `version`.`created_at` < :before',
             ['before' => $deleteBefore],
         );

@@ -64,6 +64,20 @@ class CleanupCookieConsentLogTaskHandlerTest extends TestCase
         static::assertSame(['fresh-hash'], $this->fetchConfigVersionHashes());
     }
 
+    public function testRunWithZeroRetentionDeletesEverythingExpired(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set(CleanupCookieConsentLogTaskHandler::CONFIG_KEY_RETENTION_DAYS, 0);
+
+        $expiredDate = new \DateTimeImmutable('-1 hour');
+        $this->insertConfigVersion('expired-hash', $expiredDate);
+        $this->insertLog('expired-hash', $expiredDate);
+
+        $this->handler->run();
+
+        static::assertSame([], $this->fetchLogHashes());
+    }
+
     public function testRunDoesNothingWhenRetentionIsDisabled(): void
     {
         static::getContainer()->get(SystemConfigService::class)
@@ -86,8 +100,9 @@ class CleanupCookieConsentLogTaskHandlerTest extends TestCase
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'consent_action' => 'accept_all',
-            'accepted_groups' => '["cookie.groupRequired"]',
-            'config_hash' => $configHash,
+            'group_decisions' => '{"cookie.groupRequired":"accepted"}',
+            'accepted_cookies' => '[]',
+            'server_config_hash' => $configHash,
             'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -109,7 +124,7 @@ class CleanupCookieConsentLogTaskHandlerTest extends TestCase
      */
     private function fetchLogHashes(): array
     {
-        return $this->connection->fetchFirstColumn('SELECT `config_hash` FROM `cookie_consent_log` ORDER BY `config_hash`');
+        return $this->connection->fetchFirstColumn('SELECT `server_config_hash` FROM `cookie_consent_log` ORDER BY `server_config_hash`');
     }
 
     /**

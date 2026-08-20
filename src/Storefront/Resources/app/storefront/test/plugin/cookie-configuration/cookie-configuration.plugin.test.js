@@ -1709,11 +1709,6 @@ describe('CookieConfiguration plugin tests', () => {
                 isRequired: false,
                 entries: [{ cookie: 'lorem' }, { cookie: 'ipsum' }],
             },
-            {
-                technicalName: 'cookie.groupMarketing',
-                isRequired: false,
-                cookie: 'marketing-cookie',
-            },
         ];
 
         beforeEach(() => {
@@ -1722,37 +1717,14 @@ describe('CookieConfiguration plugin tests', () => {
 
         afterEach(() => {
             delete navigator.sendBeacon;
-        });
-
-        test('_getAcceptedGroupNames returns all groups for mode "all"', () => {
-            expect(plugin._getAcceptedGroupNames(cookieGroups, 'all')).toEqual([
-                'cookie.groupRequired',
-                'cookie.groupStatistical',
-                'cookie.groupMarketing',
-            ]);
-        });
-
-        test('_getAcceptedGroupNames returns only required groups for mode "required"', () => {
-            expect(plugin._getAcceptedGroupNames(cookieGroups, 'required')).toEqual(['cookie.groupRequired']);
-        });
-
-        test('_getAcceptedGroupNames includes groups with at least one selected cookie for mode "selected"', () => {
-            expect(plugin._getAcceptedGroupNames(cookieGroups, 'selected', ['ipsum'])).toEqual([
-                'cookie.groupRequired',
-                'cookie.groupStatistical',
-            ]);
-
-            expect(plugin._getAcceptedGroupNames(cookieGroups, 'selected', ['marketing-cookie'])).toEqual([
-                'cookie.groupRequired',
-                'cookie.groupMarketing',
-            ]);
+            document.querySelectorAll('[data-cookie-config-hash]').forEach(el => delete el.dataset.cookieConfigHash);
         });
 
         test('_logConsent sends the payload via sendBeacon', () => {
             navigator.sendBeacon = jest.fn(() => true);
             global.fetch = jest.fn();
 
-            plugin._logConsent('accept_all', ['cookie.groupRequired'], 'test-hash');
+            plugin._logConsent('accept_all');
 
             expect(navigator.sendBeacon).toHaveBeenCalledTimes(1);
             expect(navigator.sendBeacon).toHaveBeenCalledWith(
@@ -1762,21 +1734,41 @@ describe('CookieConfiguration plugin tests', () => {
             expect(global.fetch).not.toHaveBeenCalled();
         });
 
-        test('_logConsent falls back to fetch when sendBeacon is unavailable', () => {
+        test('_logConsent sends the ticked cookies and no group conclusion', () => {
             global.fetch = jest.fn(() => Promise.resolve());
 
-            plugin._logConsent('accept_required', ['cookie.groupRequired'], 'test-hash');
+            plugin._logConsent('accept_selected', ['lorem']);
 
             expect(global.fetch).toHaveBeenCalledWith('https://shop.example.com/cookie/consent-log', {
                 method: 'POST',
                 body: JSON.stringify({
-                    consentAction: 'accept_required',
-                    acceptedGroups: ['cookie.groupRequired'],
-                    cookieConfigHash: 'test-hash',
+                    consentAction: 'accept_selected',
+                    acceptedCookies: ['lorem'],
                 }),
                 keepalive: true,
                 headers: { 'Content-Type': 'application/json' },
             });
+        });
+
+        test('_logConsent reports the hash the off-canvas was rendered with', () => {
+            document.querySelector('.offcanvas-cookie').dataset.cookieConfigHash = 'rendered-hash';
+            global.fetch = jest.fn(() => Promise.resolve());
+
+            plugin._logConsent('accept_selected', ['ipsum']);
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                consentAction: 'accept_selected',
+                acceptedCookies: ['ipsum'],
+                renderedConfigHash: 'rendered-hash',
+            });
+        });
+
+        test('_logConsent omits the rendered hash when no configuration was displayed', () => {
+            global.fetch = jest.fn(() => Promise.resolve());
+
+            plugin._logConsent('accept_all');
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).not.toHaveProperty('renderedConfigHash');
         });
 
         test('_logConsent does nothing when the route is not registered', () => {
@@ -1784,13 +1776,13 @@ describe('CookieConfiguration plugin tests', () => {
             navigator.sendBeacon = jest.fn();
             global.fetch = jest.fn();
 
-            plugin._logConsent('accept_all', [], 'test-hash');
+            plugin._logConsent('accept_all');
 
             expect(navigator.sendBeacon).not.toHaveBeenCalled();
             expect(global.fetch).not.toHaveBeenCalled();
         });
 
-        test('acceptAllCookies logs an accept_all consent with the current config hash', async () => {
+        test('acceptAllCookies logs an accept_all consent', async () => {
             global.fetch = jest.fn().mockResolvedValue({
                 json: jest.fn().mockResolvedValue({
                     hash: 'test-hash',
@@ -1802,11 +1794,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin.acceptAllCookies();
 
-            expect(logConsentSpy).toHaveBeenCalledWith(
-                'accept_all',
-                ['cookie.groupRequired', 'cookie.groupStatistical', 'cookie.groupMarketing'],
-                'test-hash',
-            );
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_all');
         });
 
         test('_handlePermission logs an accept_required consent', async () => {
@@ -1821,10 +1809,10 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._handlePermission({ preventDefault: jest.fn() });
 
-            expect(logConsentSpy).toHaveBeenCalledWith('accept_required', ['cookie.groupRequired'], 'test-hash');
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_required');
         });
 
-        test('_handleSubmit logs an accept_selected consent for the checked cookies', async () => {
+        test('_handleSubmit logs the checked cookies, not a group verdict', async () => {
             global.fetch = jest.fn().mockResolvedValue({
                 json: jest.fn().mockResolvedValue({
                     hash: 'test-hash',
@@ -1839,11 +1827,7 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._handleSubmit();
 
-            expect(logConsentSpy).toHaveBeenCalledWith(
-                'accept_selected',
-                ['cookie.groupRequired', 'cookie.groupStatistical'],
-                'test-hash',
-            );
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_selected', ['lorem']);
         });
     });
 });

@@ -77,10 +77,7 @@ class SalesChannelProductDefinitionTest extends TestCase
 
     public function testProcessCriteriaSkipsAssociationSetupBelowRootNestingLevel(): void
     {
-        $criteria = new Criteria();
-        \Closure::bind(function () use ($criteria): void {
-            $criteria->nestingLevel = 1;
-        }, null, Criteria::class)();
+        $criteria = new Criteria(nestingLevel: 1);
 
         $this->createDefinition()->processCriteria($criteria, static::createStub(SalesChannelContext::class));
 

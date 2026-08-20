@@ -400,8 +400,14 @@ class FileFetcherTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 final class TimeoutCapturingStreamWrapper
 {
+    /**
+     * @var array<string, mixed>
+     */
     public static array $options = [];
 
     /**
@@ -413,6 +419,10 @@ final class TimeoutCapturingStreamWrapper
 
     public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
     {
+        if (!\is_resource($this->context)) {
+            return false;
+        }
+
         static::$options = stream_context_get_options($this->context);
 
         return true;

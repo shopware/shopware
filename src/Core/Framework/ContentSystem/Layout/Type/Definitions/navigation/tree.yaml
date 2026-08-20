@@ -1,6 +1,6 @@
 meta:
   label: "Navigation Tree"
-  description: "Renders a category navigation tree with links, folders and active item highlighting."
+  description: "Renders a category navigation tree with links, folders, active item highlighting and optionally expandable sub-levels."
   icon: "regular-sitemap"
   category: "content"
   copilot:
@@ -8,7 +8,7 @@ meta:
     hints:
       - "Add a navigationTree data requirement with source 'navigation' to load the tree."
       - "The highlighted category follows the page, no configuration needed."
-      - "Set displayType to 'collapsible' to let shoppers open and close the levels below a category."
+      - "Set displayType to 'collapsible' to let shoppers open and close the levels below a category; expandAll then only decides which branches start open, not whether children are rendered."
 
 properties:
   navigationTree:

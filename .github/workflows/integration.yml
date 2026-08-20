@@ -192,6 +192,11 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        with:
+          # without an explicit category the upload is categorized by the calling
+          # workflow, so the nightly call registers a second configuration that no
+          # pull request can produce and every PR warns "1 configuration not found"
+          category: "/language:${{ matrix.language }}"
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"

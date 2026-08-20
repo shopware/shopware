@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitio
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiRouteDefaultsFilter;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationScopeProviderInterface;
@@ -250,6 +251,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
         ]);
 
+    $services->set(OpenApiRouteDefaultsFilter::class)
+        ->args([
+            service('router'),
+        ]);
+
     $services->set(BundleSchemaPathCollection::class)
         ->args([
             service('kernel.bundles'),
@@ -262,6 +268,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OpenApiDefinitionSchemaBuilder::class),
             param('kernel.bundles_metadata'),
             service(BundleSchemaPathCollection::class),
+            service(OpenApiRouteDefaultsFilter::class),
         ]);
 
     $services->set(StoreApiGenerator::class)
@@ -270,6 +277,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OpenApiDefinitionSchemaBuilder::class),
             param('kernel.bundles_metadata'),
             service(BundleSchemaPathCollection::class),
+            service(OpenApiRouteDefaultsFilter::class),
         ]);
 
     $services->set(CoreStoreApiSchemaMigrationScopeProvider::class)

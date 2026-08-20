@@ -11,6 +11,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends EntityCollection<ShippingMethodEntity>
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Page\Checkout\CartPageTest
  */
 #[Package('checkout')]
 class ShippingMethodCollection extends EntityCollection

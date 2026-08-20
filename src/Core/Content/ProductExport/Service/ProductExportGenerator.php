@@ -164,9 +164,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                     continue; // Skip variants unless they are included
                 }
 
-                // The injected repository is sales_channel.product.repository, so every
-                // entity is a SalesChannelProductEntity — the collection generic just does
-                // not carry that in this version.
                 \assert($product instanceof SalesChannelProductEntity);
                 $this->populateSeoCategory($product, $context);
 

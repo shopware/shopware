@@ -118,7 +118,7 @@ export default {
         },
 
         currencyCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, 500).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         showMaxValueAdvancedPrices() {

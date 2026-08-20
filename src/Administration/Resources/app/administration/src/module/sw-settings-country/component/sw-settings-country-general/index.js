@@ -84,7 +84,7 @@ export default {
         },
 
         loadCurrencies() {
-            return this.currencyRepository.search(new Criteria(1, 25), Shopware.Context.api).then((currencies) => {
+            return this.currencyRepository.search(new Criteria(1, 500), Shopware.Context.api).then((currencies) => {
                 this.currencies = currencies;
             });
         },

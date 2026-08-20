@@ -11,7 +11,7 @@ use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('discovery')]
 #[CoversClass(CaptchaController::class)]
 class CaptchaControllerTest extends TestCase
 {

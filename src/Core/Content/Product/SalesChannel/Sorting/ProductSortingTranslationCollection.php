@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductSortingTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductSortingTranslationCollection extends EntityCollection

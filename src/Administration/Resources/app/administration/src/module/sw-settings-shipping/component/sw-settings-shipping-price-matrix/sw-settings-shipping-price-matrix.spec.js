@@ -93,9 +93,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
     });
 
-    it('should have price and deprecated shipping filter option', async () => {
-        global.activeFeatureFlags = [];
-
+    // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
+    it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
         const wrapper = await createWrapper();
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
@@ -105,9 +104,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
     });
 
-    it('should have price filter option', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         const wrapper = await createWrapper();
 
         // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead

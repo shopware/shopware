@@ -137,7 +137,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
 
         $response = $executor->execute($commands, $context);
 
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame('hatoken', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testExecuteWithTokenCommandAndContextSwitchKeepsContextTokenHeader(): void

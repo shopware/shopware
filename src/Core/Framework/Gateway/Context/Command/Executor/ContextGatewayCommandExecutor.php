@@ -65,6 +65,7 @@ class ContextGatewayCommandExecutor
         }
 
         $response = new ContextTokenResponse($context->getToken());
+        $response->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         if ($parameters !== []) {
             $response = $this->contextSwitchRoute->switchContext(new RequestDataBag($parameters), $context);
@@ -72,8 +73,6 @@ class ContextGatewayCommandExecutor
 
         if ($tokenCommand) {
             $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
-        } else {
-            $response->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
         }
 
         return $response;

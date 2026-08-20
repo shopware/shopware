@@ -308,7 +308,6 @@ class CartOrderRouteTest extends TestCase
         $originalToken = $this->createCustomerAndLogin($email, $password);
 
         $this->addProductToCart();
-        static::assertNotNull($originalToken);
 
         $interval = new \DateInterval(static::getContainer()->getParameter('shopware.api.store.context_lifetime'));
         $intervalInSeconds = (new \DateTime())->setTimestamp(0)->add($interval)->getTimestamp();
@@ -330,6 +329,7 @@ class CartOrderRouteTest extends TestCase
         static::assertNotNull($guestToken);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
+        static::assertSame($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -339,6 +339,7 @@ class CartOrderRouteTest extends TestCase
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $token = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($token);
+        static::assertNotSame($guestToken, $token);
         $guestToken = $token;
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
@@ -514,8 +515,9 @@ class CartOrderRouteTest extends TestCase
     public function testOrderLockedWhenAlreadyInProgress(): void
     {
         $token = $this->createCustomerAndLogin();
-        $this->addProductToCart();
-        static::assertNotNull($token);
+        $response = $this->addProductToCart();
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($token, $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         // Manually acquire lock to simulate concurrent request
         $cartLocker = $this->getContainer()->get(CartLocker::class);

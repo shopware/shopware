@@ -6,9 +6,12 @@ One exception sits ahead of the render step rather than after it: `ElementTreePr
 
 ## Response Formats
 
-The full format is produced by `Encoder/ContentPageEncoder`, which walks the rendered forest and writes the body itself. The other three formats are still assembled from `ContentPage`, which provides lazy transformations to them:
+Two formats read the rendered forest directly:
+- **full** → `Encoder/ContentPageEncoder` walks it and writes the body itself
+- **skeleton** → `Format/SkeletonResponseFactory` projects it through `Struct/ContentSkeletonElement::fromRendered()`, keeping id, component, slots and style and dropping every property value
+
+The remaining two are still assembled from the bridged `ContentPage`, which provides lazy transformations to them:
 - `getContentDecomposedPage()` → Skeletons + deduplicated data + assignments
-- `getContentSkeletonPage()` → Element trees without hydrated data
 - `getContentDataPage()` → Data + assignments without skeleton
 
 Every route goes through a format-specific `AbstractResponseFactory` implementation, which takes the pipeline's `RenderResult` — the finished rendered forest, its layout reference, an optional resolved-value index, and, while the `ContentElement` bridge lives, the bridged `ContentPage` those factories still read. The factory answers two questions the route asks before rendering: `getRenderingMode()` and `collectsValueIndex()`.

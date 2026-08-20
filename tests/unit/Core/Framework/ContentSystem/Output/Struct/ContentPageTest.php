@@ -19,28 +19,6 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 #[CoversClass(ContentPage::class)]
 class ContentPageTest extends TestCase
 {
-    #[TestDox('creates skeleton page preserving layout id, element structure, and layout version')]
-    public function testGetContentSkeletonPage(): void
-    {
-        $child = ContentElementBuilder::create('text', 'child-1')
-            ->withProperty('title', 'Hello')
-            ->build();
-
-        $root = ContentElementBuilder::create('section', 'root-1')
-            ->withSlot('default', [$child])
-            ->build();
-
-        $page = new ContentPage('layout-1', [$root], 'Test Layout', 'v1');
-
-        $skeleton = $page->getContentSkeletonPage();
-
-        static::assertSame('layout-1', $skeleton->layoutId);
-        static::assertCount(1, $skeleton->elements);
-        static::assertSame('root-1', $skeleton->elements[0]->id);
-        static::assertSame('section', $skeleton->elements[0]->component);
-        static::assertSame('v1', $skeleton->layoutVersion);
-    }
-
     #[TestDox('creates decomposed page with skeleton structure and assignment map')]
     public function testGetContentDecomposedPage(): void
     {
@@ -63,18 +41,6 @@ class ContentPageTest extends TestCase
         static::assertSame('layout-1', $dataPage->layoutId);
         static::assertArrayHasKey('root-1', $dataPage->assignments);
         static::assertCount(1, $dataPage->data);
-    }
-
-    #[TestDox('creates skeleton page with empty elements and null layout version')]
-    public function testGetContentSkeletonPageWithEmptyElements(): void
-    {
-        $page = new ContentPage('layout-1', [], 'Test Layout', null);
-
-        $skeleton = $page->getContentSkeletonPage();
-
-        static::assertSame('layout-1', $skeleton->layoutId);
-        static::assertCount(0, $skeleton->elements);
-        static::assertNull($skeleton->layoutVersion);
     }
 
     /**

@@ -49,16 +49,6 @@ class ContentPage extends Struct
         );
     }
 
-    public function getContentSkeletonPage(): ContentSkeletonPage
-    {
-        return new ContentSkeletonPage(
-            $this->layoutId,
-            ContentSkeletonElement::fromElements($this->elements),
-            $this->layoutName,
-            $this->layoutVersion
-        );
-    }
-
     public function getContentDataPage(
         DataLoaderConfigSerializerProvider $configSerializerProvider,
         ConfigCanonicalizer $configCanonicalizer

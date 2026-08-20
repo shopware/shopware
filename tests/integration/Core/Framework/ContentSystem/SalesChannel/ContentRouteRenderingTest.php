@@ -269,6 +269,27 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
+    #[TestDox('names the skeleton page keys id, name and version, matching the full format vocabulary')]
+    public function testSkeletonNamesThePageTripleWithoutTheLayoutPrefix(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-skeleton'));
+
+        static::assertSame($this->ids->get('layout'), $body['id'] ?? null);
+        static::assertSame(self::LAYOUT_NAME, $body['name'] ?? null);
+        static::assertSame(self::LAYOUT_VERSION, $body['version'] ?? null);
+        static::assertArrayNotHasKey('layoutId', $body);
+        static::assertArrayNotHasKey('layoutName', $body);
+        static::assertArrayNotHasKey('layoutVersion', $body);
+
+        // Same page vocabulary as the full format, which moved to these names with its own encoder.
+        $full = $this->requestJson($this->uri('content'));
+        static::assertSame($full['id'], $body['id']);
+        static::assertSame($full['name'], $body['name']);
+        static::assertSame($full['version'], $body['version']);
+    }
+
     #[TestDox('serves a skeleton that is structurally identical to the full format apart from element properties')]
     public function testSkeletonIsFullMinusProperties(): void
     {

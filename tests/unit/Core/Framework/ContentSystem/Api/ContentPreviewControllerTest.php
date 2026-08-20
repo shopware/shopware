@@ -36,7 +36,7 @@ class ContentPreviewControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $contentPage = new ContentPage('preview-layout', [], 'preview', null);
         $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, $contentPage);
-        $response = new ContentRouteResponse($contentPage);
+        $response = new ContentRouteResponse($renderResult);
 
         $pageBuilder = static::createMock(ContentPreviewPageBuilder::class);
         $pageBuilder->expects($this->once())

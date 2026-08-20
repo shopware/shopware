@@ -81,6 +81,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeColl
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentResponseEncodingListener;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DataResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
@@ -105,6 +107,7 @@ use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -364,6 +367,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ConfigCanonicalizer::class),
         ])
         ->tag('content_system.output_format', ['format' => 'decomposed']);
+
+    // Response Encoding (module-owned wire shape)
+    $services->set(ContentPageEncoder::class)
+        ->args([
+            service(StructEncoder::class),
+        ]);
+
+    $services->set(ContentResponseEncodingListener::class)
+        ->args([
+            service(ContentPageEncoder::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     // Schema Services
     $services->set(ContentSystemDataLoaderMapResolver::class)

@@ -7,9 +7,13 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -18,8 +22,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -123,6 +131,142 @@ class ContentRouteRenderingTest extends TestCase
         static::assertIsArray($nested['style']);
         static::assertSame(['col-span'], array_keys($nested['style']));
         static::assertSame(['md' => 4], $nested['style']['col-span']);
+    }
+
+    #[TestDox('names the full-format page keys id, name and version rather than the layout-prefixed struct names')]
+    public function testFullFormatNamesThePageTripleWithoutTheLayoutPrefix(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content'));
+
+        static::assertSame($this->ids->get('layout'), $body['id'] ?? null);
+        static::assertSame(self::LAYOUT_NAME, $body['name'] ?? null);
+        static::assertSame(self::LAYOUT_VERSION, $body['version'] ?? null);
+        static::assertArrayNotHasKey('layoutId', $body);
+        static::assertArrayNotHasKey('layoutName', $body);
+        static::assertArrayNotHasKey('layoutVersion', $body);
+        static::assertSame('content_page', $body['apiAlias'] ?? null);
+    }
+
+    #[TestDox('carries the element api alias on every full-format node at every depth')]
+    public function testFullFormatCarriesTheElementAliasAtEveryDepth(): void
+    {
+        $this->createNestedLayout();
+
+        $elements = $this->flatten($this->rootElements($this->requestJson($this->uri('content'))));
+
+        // The fixture is three levels deep, so this covers a root, a child and a grandchild.
+        static::assertCount(4, $elements);
+        foreach ($elements as $element) {
+            static::assertSame('content_element', $element['apiAlias'] ?? null, 'Element ' . ($element['id'] ?? '?') . ' carries no element alias.');
+        }
+    }
+
+    #[TestDox('serves every full-format slot as a JSON array of child elements, with no slot-content wrapper')]
+    public function testFullFormatServesSlotsAsPlainArrays(): void
+    {
+        $this->createNestedLayout();
+
+        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        static::assertIsArray($root['slots']['content'] ?? null);
+        static::assertTrue(array_is_list($root['slots']['content']), 'A multi-child slot must serialize as a JSON array, not as a numerically keyed object.');
+        static::assertArrayNotHasKey('apiAlias', $root['slots']['content'], 'The slot-content wrapper must not appear between an element and its children.');
+
+        $nested = $root['slots']['content'][1];
+        static::assertIsArray($nested['slots']['content'] ?? null);
+        static::assertTrue(array_is_list($nested['slots']['content']), 'The same holds at the next depth.');
+        static::assertArrayNotHasKey('apiAlias', $nested['slots']['content']);
+    }
+
+    #[TestDox('drops the authoring-only element keys from the full format')]
+    public function testFullFormatOmitsAuthoringOnlyKeys(): void
+    {
+        $this->createNestedLayout();
+        // The fixture authors both of the keys asserted away below: `acceptsContext` on the root and a
+        // `dataRequirements` entry on the image, so their absence is a change and not an empty case.
+        $this->assertStoredPageContextConsumer();
+        static::assertNotSame([], $this->storedImageDataRequirements());
+
+        foreach ($this->flatten($this->rootElements($this->requestJson($this->uri('content')))) as $element) {
+            static::assertArrayNotHasKey('dataRequirements', $element);
+            static::assertArrayNotHasKey('acceptsContext', $element);
+            static::assertArrayNotHasKey('providesContext', $element);
+        }
+    }
+
+    #[TestDox('filters the protected fields of a hydrated entity out of a full-format property')]
+    public function testFullFormatFiltersProtectedEntityFields(): void
+    {
+        $this->createNestedLayout();
+
+        $media = $this->fullFormatMediaPayload();
+
+        // Present: the payload really is the loaded entity, so the absences below are the protection gate
+        // running rather than an empty or stubbed value.
+        static::assertSame($this->ids->get('media'), $media['id'] ?? null);
+        static::assertSame(self::MEDIA_FILE_NAME, $media['fileName'] ?? null);
+        static::assertSame('media', $media['apiAlias'] ?? null);
+
+        // Absent: the non-ApiAware internals that reach this body today. `thumbnailsRo` is the sharpest of
+        // them — a PHP-serialized MediaThumbnailCollection string, published verbatim before this encoder.
+        static::assertArrayNotHasKey('_uniqueIdentifier', $media);
+        static::assertArrayNotHasKey('thumbnailsRo', $media);
+        static::assertArrayNotHasKey('versionId', $media);
+        static::assertArrayNotHasKey('userId', $media);
+        static::assertArrayNotHasKey('fileHash', $media);
+        static::assertArrayNotHasKey('productMedia', $media);
+
+        // `createdAt`, `updatedAt` and `path` are ApiAware on media and legitimately survive the gate: this
+        // test pins what protection removes, not everything an entity may say.
+        static::assertArrayHasKey('createdAt', $media);
+    }
+
+    #[TestDox('serves the same full-format body whether or not the request asks for a field selection')]
+    public function testFullFormatIgnoresIncludesAndExcludes(): void
+    {
+        $this->createNestedLayout();
+
+        $unfiltered = $this->requestJson($this->uri('content'));
+
+        $filtered = $this->requestJson($this->uri('content')
+            . '?includes[content_page][]=id'
+            . '&includes[content_element][]=id'
+            . '&excludes[content_element][]=properties');
+
+        static::assertSame($unfiltered, $filtered, 'A content response must ignore includes and excludes entirely.');
+
+        $dotted = $this->requestJson($this->uri('content') . '?includes[content_page][]=elements.component');
+
+        static::assertSame($unfiltered, $dotted, 'A dotted selector must not unlock nested filtering either.');
+    }
+
+    #[TestDox('serves a full-format body whose elements are the same forest the in-process consumer reads')]
+    public function testFullFormatBodyAndInProcessPageDescribeTheSameForest(): void
+    {
+        $this->createNestedLayout();
+
+        $bodyIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content')))), 'id');
+
+        // The public alias resolves to the main section's full-format route — the same service the Storefront
+        // consumes in process.
+        $response = static::getContainer()->get(AbstractContentRoute::class)->load(
+            'category/' . $this->ids->get('category'),
+            new Request(),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+        );
+
+        static::assertInstanceOf(ContentRouteResponse::class, $response);
+
+        // The body derives from the render result's rendered forest, the in-process consumer from the bridged
+        // page. They are the two id-paired halves of one render, so a divergence here is the bridge's pairing
+        // invariant breaking rather than an encoding difference.
+        static::assertSame($bodyIds, $this->contentElementIds($response->getContentPage()->elements));
+        static::assertSame(
+            array_column($this->rootElements($this->requestJson($this->uri('content'))), 'id'),
+            array_map(static fn (RenderedElement $element): string => $element->id, $response->getRenderResult()->tree),
+        );
     }
 
     #[TestDox('serves a skeleton that is structurally identical to the full format apart from element properties')]
@@ -362,6 +506,58 @@ class ContentRouteRenderingTest extends TestCase
         $this->browser->request('GET', $this->uri('content') . '?elementId=' . $this->ids->get('inner-grid'));
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::REDISTRIBUTE_DOTTED_PATH);
+    }
+
+    /**
+     * The stored data requirements of the fixture's image element, so a test asserting their absence from a
+     * response knows they were authored in the first place.
+     *
+     * @return array<string, mixed>
+     */
+    private function storedImageDataRequirements(): array
+    {
+        $image = $this->storedRoots()[0]->slots['content'][1]->slots['content'][0];
+
+        static::assertSame($this->ids->get('image'), $image->id);
+
+        return $image->dataRequirements;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function fullFormatMediaPayload(): array
+    {
+        foreach ($this->flatten($this->rootElements($this->requestJson($this->uri('content')))) as $element) {
+            if (($element['id'] ?? null) !== $this->ids->get('image')) {
+                continue;
+            }
+
+            static::assertIsArray($element['properties'] ?? null);
+            static::assertIsArray($element['properties']['media'] ?? null);
+
+            return $element['properties']['media'];
+        }
+
+        static::fail('The full-format response carries no image element.');
+    }
+
+    /**
+     * @param iterable<ContentElement> $elements
+     *
+     * @return list<string>
+     */
+    private function contentElementIds(iterable $elements): array
+    {
+        $ids = [];
+        foreach ($elements as $element) {
+            $ids[] = $element->getId();
+            foreach ($this->contentElementIds($element->allSlotElements()) as $descendant) {
+                $ids[] = $descendant;
+            }
+        }
+
+        return $ids;
     }
 
     private function uri(string $format): string

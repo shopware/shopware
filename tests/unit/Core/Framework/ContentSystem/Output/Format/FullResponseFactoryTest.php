@@ -27,9 +27,12 @@ class FullResponseFactoryTest extends TestCase
         $root = ContentElementBuilder::create('section', 'r1')->build();
         $page = new ContentPage('layout-1', [$root], 'Test', null);
 
-        $response = $factory->createResponse(new RenderResult([], LayoutReference::create('layout-1', 'Test', null), null, $page));
+        $result = new RenderResult([], LayoutReference::create('layout-1', 'Test', null), null, $page);
+
+        $response = $factory->createResponse($result);
 
         static::assertInstanceOf(ContentRouteResponse::class, $response);
+        static::assertSame($result, $response->getRenderResult());
         static::assertSame($page, $response->getContentPage());
     }
 

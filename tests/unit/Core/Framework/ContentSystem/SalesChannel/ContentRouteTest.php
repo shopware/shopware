@@ -73,7 +73,7 @@ class ContentRouteTest extends TestCase
         $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request, ['product-abc']));
         $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
         $this->contentPipeline->method('load')->willReturn($this->createRenderResult($contentPage));
-        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
+        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($this->createRenderResult($contentPage)));
 
         $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
 
@@ -100,7 +100,7 @@ class ContentRouteTest extends TestCase
                 return $this->createRenderResult($contentPage);
             }
         );
-        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
+        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($this->createRenderResult($contentPage)));
 
         $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
 
@@ -120,7 +120,7 @@ class ContentRouteTest extends TestCase
         // cannot pass: the two questions are independent.
         $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::SKELETON);
         $this->responseFactory->method('collectsValueIndex')->willReturn(true);
-        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
+        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($this->createRenderResult($contentPage)));
 
         $observed = [];
         $this->contentPipeline->method('load')->willReturnCallback(

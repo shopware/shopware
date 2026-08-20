@@ -31,6 +31,6 @@ class FullResponseFactory extends AbstractResponseFactory
 
     public function createResponse(RenderResult $result): AbstractContentRouteResponse
     {
-        return new ContentRouteResponse($result->page);
+        return new ContentRouteResponse($result);
     }
 }

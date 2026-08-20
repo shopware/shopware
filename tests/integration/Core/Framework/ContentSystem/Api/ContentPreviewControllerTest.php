@@ -5,8 +5,10 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,6 +23,53 @@ class ContentPreviewControllerTest extends TestCase
     private const PREVIEW_URL = '/api/_action/content-system/preview/entity';
 
     private const PREVIEW_URL_URL = '/api/_action/content-system/preview/entity/url';
+
+    #[TestDox('renders a draft against a real entity and returns the rendered body the full format now produces')]
+    public function testPreviewReturnsTheRenderedBody(): void
+    {
+        $categoryId = Uuid::randomHex();
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            'name' => 'Preview category',
+            'active' => true,
+        ]], Context::createDefaultContext());
+
+        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
+        $component = array_key_first($registered);
+        static::assertIsString($component);
+
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => $component,
+                'properties' => [],
+                'style' => ['col-span' => ['xs' => 6]],
+            ]],
+            'entityType' => 'category',
+            'entityId' => $categoryId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+
+        // The preview route is served by the full-format factory, so it carries the same wire shape: the page
+        // triple under its unprefixed names, and an element alias on the node itself.
+        static::assertSame('preview', $body['name'] ?? null);
+        static::assertArrayNotHasKey('layoutName', $body);
+        static::assertSame('content_page', $body['apiAlias'] ?? null);
+
+        static::assertIsArray($body['elements'] ?? null);
+        static::assertCount(1, $body['elements']);
+        static::assertSame('el-1', $body['elements'][0]['id'] ?? null);
+        static::assertSame($component, $body['elements'][0]['component'] ?? null);
+        static::assertSame('content_element', $body['elements'][0]['apiAlias'] ?? null);
+        static::assertSame(['col-span' => ['xs' => 6]], $body['elements'][0]['style'] ?? null);
+        static::assertArrayNotHasKey('dataRequirements', $body['elements'][0]);
+    }
 
     #[TestDox('rejects an envelope missing a required field with 400 (not Symfony default 422)')]
     public function testPreviewReturns400ForMissingRequiredField(): void

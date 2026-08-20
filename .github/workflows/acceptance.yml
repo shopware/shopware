@@ -158,7 +158,7 @@ jobs:
           project: "Platform"
           install: true
           extra-options: >-
-            --repeat-each="10" -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+            --repeat-each="50" -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"
 
   tested-update-versions:

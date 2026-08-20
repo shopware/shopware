@@ -157,6 +157,7 @@ The deprecated endpoint `GET /api/_action/system-config/schema` and its successo
 ### Deprecation of `ConfigurationService` class
 
 Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+
 ### An active shipping method must keep at least one usable price
 
 Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.

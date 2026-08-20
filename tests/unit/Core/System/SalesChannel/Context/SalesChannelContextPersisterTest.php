@@ -57,6 +57,36 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame([], $result);
     }
 
+    public function testLoadUsesCustomerBoundContext(): void
+    {
+        $token = Random::getAlphanumericString(32);
+        $customerToken = Random::getAlphanumericString(32);
+        $customerId = Uuid::randomHex();
+        $updatedAt = new \DateTimeImmutable();
+
+        $this->statement->method('fetchAllAssociative')->willReturn([
+            [
+                'updated_at' => $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'payload' => json_encode(['type' => 'guest'], \JSON_THROW_ON_ERROR),
+                'token' => $token,
+                'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+                'customer_id' => null,
+            ],
+            [
+                'updated_at' => $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'payload' => json_encode(['type' => 'customer'], \JSON_THROW_ON_ERROR),
+                'token' => $customerToken,
+                'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+                'customer_id' => Uuid::fromHexToBytes($customerId),
+            ],
+        ]);
+
+        static::assertSame(
+            ['type' => 'customer', 'expired' => false, 'token' => $customerToken],
+            $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId)
+        );
+    }
+
     /**
      * @param array<string, string> $payload
      * @param array<string, string|bool> $expected

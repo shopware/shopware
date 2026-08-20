@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffGenerateRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffRedeemRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\Struct\ContextHandoffTokenResponseStruct;
 use Shopware\Storefront\Controller\ContextHandoffController;
 use Shopware\Storefront\Framework\Routing\ContextTokenSessionWriter;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,8 +31,7 @@ class ContextHandoffControllerTest extends TestCase
     {
         $generateRoute = static::createStub(AbstractContextHandoffGenerateRoute::class);
         $generateRoute->method('generate')->willReturn(new ContextHandoffTokenResponse(
-            'the-handoff-token',
-            new \DateTimeImmutable('2026-08-18T12:01:00+00:00')
+            new ContextHandoffTokenResponseStruct('the-handoff-token', '2026-08-18T12:01:00+00:00')
         ));
 
         $response = $this->createController(generateRoute: $generateRoute)

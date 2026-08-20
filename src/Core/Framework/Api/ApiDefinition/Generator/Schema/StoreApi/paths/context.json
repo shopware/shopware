@@ -252,7 +252,8 @@
                                     "properties": {
                                         "token": {
                                             "description": "The signed handoff token.",
-                                            "type": "string"
+                                            "type": "string",
+                                            "format": "jwt"
                                         },
                                         "expiresAt": {
                                             "description": "Expiration date of the handoff token.",
@@ -271,6 +272,10 @@
                     "401": {
                         "$ref": "#/components/responses/401",
                         "description": "The `sw-access-key` header is missing."
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many handoff tokens were requested from this client."
                     }
                 },
                 "security": [
@@ -300,7 +305,8 @@
                                 "properties": {
                                     "token": {
                                         "description": "The handoff token that was created via `/context/handoff/generate`.",
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "jwt"
                                     }
                                 },
                                 "type": "object"
@@ -314,7 +320,7 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
-                        "description": "The handoff token is malformed, expired, was already redeemed or was issued for another sales channel."
+                        "description": "The handoff token is invalid. The `errors[].code` tells the cases apart: `UTIL__INVALID_JWT` (malformed, unsigned or expired token), `SYSTEM__CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED` (already redeemed or no longer known) and `SYSTEM__CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH` (issued for another sales channel)."
                     },
                     "401": {
                         "$ref": "#/components/responses/401",

@@ -15,14 +15,9 @@ use Shopware\Core\System\SalesChannel\Struct\ContextHandoffTokenResponseStruct;
 #[Package('framework')]
 class ContextHandoffTokenResponse extends StoreApiResponse
 {
-    public function __construct(
-        string $handoffToken,
-        \DateTimeImmutable $expiresAt
-    ) {
-        parent::__construct(new ContextHandoffTokenResponseStruct(
-            $handoffToken,
-            $expiresAt->format(\DateTimeInterface::RFC3339)
-        ));
+    public function __construct(ContextHandoffTokenResponseStruct $handoffToken)
+    {
+        parent::__construct($handoffToken);
     }
 
     public function getHandoffToken(): string

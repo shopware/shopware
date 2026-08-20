@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\ContextHandoffTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\SalesChannel\Struct\ContextHandoffToken;
+use Shopware\Core\System\SalesChannel\Struct\ContextHandoffTokenResponseStruct;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
@@ -67,6 +68,9 @@ class ContextHandoffGenerateRoute extends AbstractContextHandoffGenerateRoute
 
         $this->tokenStore->store($handoffToken->jti, $context->getToken(), $handoffToken->exp);
 
-        return new ContextHandoffTokenResponse($handoffJwt, $handoffToken->exp);
+        return new ContextHandoffTokenResponse(new ContextHandoffTokenResponseStruct(
+            $handoffJwt,
+            $handoffToken->exp->format(\DateTimeInterface::RFC3339)
+        ));
     }
 }

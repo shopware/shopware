@@ -44,7 +44,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: 8.2
+          php-version: 8.6
           extensions: ""
           tools: symfony-cli
 
@@ -55,7 +55,7 @@ jobs:
 
       - uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v4.0.0
         with:
-          custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
+          custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.6-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
           working-directory: ""
 
       - name: Setup Shopware
@@ -63,6 +63,8 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          php-version: 8.6
+          php-fake-version: 8.5
 
       # per-run key + prefix restore, like the PHPStan and Rector result caches: a static
       # key is never re-saved once it exists, so the stored cache goes stale against
@@ -108,6 +110,8 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           keep-composer-tools: true
+          php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Install Danger # analysed via phpstan-paths.php + registered in phpstan-bootstrap.php
         run: composer install -d vendor-bin/danger-php --no-interaction
@@ -146,6 +150,8 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           keep-composer-tools: "true"
+          php-version: 8.6
+          php-fake-version: 8.5
 
       - name: "Restore result cache"
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -181,8 +187,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: "8.2"
+          php-version: "8.6"
 
+      - name: Fake version
+        run: |
+            composer config platform.php "8.5.0"
       - name: Install Dependencies
         run: |
           composer install
@@ -221,6 +230,8 @@ jobs:
           install: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Cache npm packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -395,6 +406,8 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          php-version: 8.6
+          php-fake-version: 8.5
       - name: Check license
         run: |
           # Word splitting is intentional: expand .allowed-licenses into repeated "-a <license>" args.
@@ -414,8 +427,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
         with:
-          php-version: "8.2"
+          php-version: "8.6"
 
+      - name: Fake version
+        run: |
+            composer config platform.php "8.5.0"
       - name: Install Dependencies
         run: composer install
 
@@ -432,6 +448,8 @@ jobs:
         with:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          php-version: 8.6
+          php-fake-version: 8.5
 
       - name: Install lowest dependencies
         run: composer update --prefer-lowest

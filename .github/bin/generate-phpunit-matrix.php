@@ -35,7 +35,7 @@ $php = ['8.2'];
 $db = ['mysql:8.0'];
 
 if ($nightly) {
-    $php = ['8.2', '8.5'];
+    $php = ['8.2', '8.6'];
     $db = ['mysql:8.0', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
 }
 
@@ -56,7 +56,7 @@ $matrix = [
             ],
             [
                 'test' => ['testsuite' => 'devops'],
-                'php' => '8.5',
+                'php' => '8.6',
                 'db' => 'mariadb:11'
             ],
             // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest

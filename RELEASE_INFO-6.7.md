@@ -98,6 +98,11 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 ### Store API no longer offers shipping methods without a usable price
 
 `onlyAvailable=1` no longer returns active shipping methods whose prices cannot resolve a cost: an empty matrix, or rows that all lack currency values. One usable row is enough. Requests without the flag are unchanged.
+### Sales channel language list validation compares against the incoming default language
+
+Assigning a new `languageId` to a sales channel and removing the previous default language from its `languages` list in the same write is now accepted. It previously failed with `SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID`, and the two steps had to be sent as separate requests.
+
+Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
 
 ## Core
 
@@ -610,6 +615,12 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__configuration`
 
 ## Hosting & Configuration
+
+### Local translation files and optional automatic updates
+
+The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.
+
+The daily translation update task can be disabled with `shopware.translation.scheduled_task.enabled: false`. Use this for immutable deployments that update translation files only during builds. Both options retain their previous behavior by default.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

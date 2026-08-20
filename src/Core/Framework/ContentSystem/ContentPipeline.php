@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
@@ -37,13 +38,23 @@ class ContentPipeline
     ) {
     }
 
+    /**
+     * @param bool $collectValueIndex whether the response format rebuilds its body from the
+     *                                {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex}
+     *                                instead of serving property values inline. The flag has no consumer yet:
+     *                                the lowering records no value provenance, so there is nothing to index
+     *                                from and every format gets a null index. The commit that puts the
+     *                                decomposed and data formats on their own encoders adds the collection
+     *                                behind this flag and is its first reader.
+     */
     public function load(
         RenderableLayout $layout,
         RenderingSpecification $specification,
         RenderingCacheContext $cacheContext,
         RenderingMode $mode,
+        bool $collectValueIndex,
         SalesChannelContext $salesChannelContext,
-    ): ContentPage {
+    ): RenderResult {
         $preparationEvent = new ContentTreePreparationEvent(
             $layout->elements,
             $layout->reference,
@@ -79,15 +90,21 @@ class ContentPipeline
         $this->eventDispatcher->dispatch($finalizationEvent);
 
         // The bridge lowers the tree the event handed back, so a listener's replacement reaches the response.
-        $elements = $this->bridge->lowerTree($storedTree, $finalizationEvent->tree());
+        $finishedTree = $finalizationEvent->tree();
+        $elements = $this->bridge->lowerTree($storedTree, $finishedTree);
 
         $reference = $finalizationEvent->layout;
 
-        return new ContentPage(
-            $reference->id,
-            $elements,
-            $reference->name,
-            $reference->version,
+        return new RenderResult(
+            $finishedTree,
+            $reference,
+            null,
+            new ContentPage(
+                $reference->id,
+                $elements,
+                $reference->name,
+                $reference->version,
+            ),
         );
     }
 

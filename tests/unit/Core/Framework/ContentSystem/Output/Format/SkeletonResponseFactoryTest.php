@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Output\Format;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\SkeletonResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
@@ -26,7 +28,7 @@ class SkeletonResponseFactoryTest extends TestCase
         $root = ContentElementBuilder::create('section', 'r1')->build();
         $page = new ContentPage('layout-1', [$root], 'Test', null);
 
-        $response = $factory->createResponse($page);
+        $response = $factory->createResponse(new RenderResult([], LayoutReference::create('layout-1', 'Test', null), null, $page));
 
         static::assertInstanceOf(ContentSkeletonRouteResponse::class, $response);
         $skeletonPage = $response->getContentSkeletonPage();
@@ -42,5 +44,11 @@ class SkeletonResponseFactoryTest extends TestCase
         $factory = new SkeletonResponseFactory();
 
         static::assertSame(RenderingMode::SKELETON, $factory->getRenderingMode());
+    }
+
+    #[TestDox('has no property values to index and asks for no value index')]
+    public function testCollectsNoValueIndex(): void
+    {
+        static::assertFalse((new SkeletonResponseFactory())->collectsValueIndex());
     }
 }

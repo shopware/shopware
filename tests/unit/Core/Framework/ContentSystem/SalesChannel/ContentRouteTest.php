@@ -15,7 +15,9 @@ use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
@@ -70,7 +72,7 @@ class ContentRouteTest extends TestCase
 
         $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request, ['product-abc']));
         $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
-        $this->contentPipeline->method('load')->willReturn($contentPage);
+        $this->contentPipeline->method('load')->willReturn($this->createRenderResult($contentPage));
         $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
 
         $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
@@ -92,10 +94,10 @@ class ContentRouteTest extends TestCase
         $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request));
         $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
         $this->contentPipeline->method('load')->willReturnCallback(
-            function (RenderableLayout $layout, RenderingSpecification $specification, RenderingCacheContext $cacheContext) use ($contentPage): ContentPage {
+            function (RenderableLayout $layout, RenderingSpecification $specification, RenderingCacheContext $cacheContext) use ($contentPage): RenderResult {
                 $cacheContext->disable();
 
-                return $contentPage;
+                return $this->createRenderResult($contentPage);
             }
         );
         $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
@@ -105,6 +107,35 @@ class ContentRouteTest extends TestCase
         $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
 
         static::assertFalse($request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
+    }
+
+    #[TestDox('hands the pipeline both answers the format gives: its rendering mode and whether it collects a value index')]
+    public function testLoadPassesTheFormatsModeAndIndexCollectionToThePipeline(): void
+    {
+        $request = new Request();
+        $contentPage = new ContentPage('layout-1', [ContentElementBuilder::create('root')->build()], 'Test', null);
+
+        $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request));
+        // Deliberately an unusual pair no shipped format uses, so a route reading one answer off the other
+        // cannot pass: the two questions are independent.
+        $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::SKELETON);
+        $this->responseFactory->method('collectsValueIndex')->willReturn(true);
+        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($contentPage));
+
+        $observed = [];
+        $this->contentPipeline->method('load')->willReturnCallback(
+            function (RenderableLayout $layout, RenderingSpecification $specification, RenderingCacheContext $cacheContext, RenderingMode $mode, bool $collectValueIndex) use ($contentPage, &$observed): RenderResult {
+                $observed = [$mode, $collectValueIndex];
+
+                return $this->createRenderResult($contentPage);
+            }
+        );
+
+        $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
+
+        $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+
+        static::assertSame([RenderingMode::SKELETON, true], $observed);
     }
 
     #[TestDox('throws layout not found when the resolved layout does not exist')]
@@ -143,6 +174,11 @@ class ContentRouteTest extends TestCase
             $this->contentPipeline,
             new CacheFinalizer($this->cacheTagCollector),
         );
+    }
+
+    private function createRenderResult(ContentPage $page): RenderResult
+    {
+        return new RenderResult([], LayoutReference::create($page->layoutId, $page->layoutName, $page->layoutVersion), null, $page);
     }
 
     /**

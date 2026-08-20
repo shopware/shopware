@@ -94,7 +94,7 @@ class ContentPipelineTest extends TestCase
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+        $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
 
         static::assertSame([ContentTreePreparationEvent::class, RenderedTreeFinalizationEvent::class], $dispatchedEvents);
     }
@@ -116,7 +116,7 @@ class ContentPipelineTest extends TestCase
 
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $this->createPipeline()->load($layout, $specification, new RenderingCacheContext(), $mode, Generator::generateSalesChannelContext());
+        $this->createPipeline()->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
         static::assertContains(RenderedTreeFinalizationEvent::class, $dispatchedEvents);
     }
@@ -146,9 +146,9 @@ class ContentPipelineTest extends TestCase
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
 
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'consumer-id')->getProperty('product'));
     }
 
     #[TestDox('returns content page with original elements and layout metadata in SKELETON mode')]
@@ -162,14 +162,52 @@ class ContentPipelineTest extends TestCase
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::SKELETON, Generator::generateSalesChannelContext());
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::SKELETON, false, Generator::generateSalesChannelContext());
 
-        $elements = iterator_to_array($result->elements, false);
+        $elements = iterator_to_array($result->page->elements, false);
         static::assertNotEmpty($elements);
         static::assertSame('section', $elements[0]->getComponent());
-        static::assertSame($layoutId, $result->layoutId);
-        static::assertSame('My Layout', $result->layoutName);
-        static::assertSame('1.0', $result->layoutVersion);
+        static::assertSame($layoutId, $result->page->layoutId);
+        static::assertSame('My Layout', $result->page->layoutName);
+        static::assertSame('1.0', $result->page->layoutVersion);
+    }
+
+    #[TestDox('returns the finished rendered forest beside the bridged page, both describing the same elements')]
+    public function testLoadReturnsTheRenderedForestBesideTheBridgedPage(): void
+    {
+        $layoutId = $this->ids->get('layout');
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($layoutId, 'My Layout'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $result = $this->createPipeline()->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
+
+        static::assertSame($layoutId, $result->reference->id);
+        static::assertSame('My Layout', $result->reference->name);
+        static::assertSame(
+            array_map(static fn (ContentElement $element): string => $element->getId(), iterator_to_array($result->page->elements, false)),
+            array_map(static fn (RenderedElement $element): string => $element->id, $result->tree),
+        );
+    }
+
+    #[DataProvider('renderingModeProvider')]
+    #[TestDox('collects no value index yet, whatever the format asks for')]
+    public function testLoadCollectsNoValueIndexWhileNothingProducesOne(RenderingMode $mode): void
+    {
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout'), 'My Layout'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+        $pipeline = $this->createPipeline();
+
+        $requested = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, true, Generator::generateSalesChannelContext());
+        $notRequested = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
+
+        static::assertNull($requested->index);
+        static::assertNull($notRequested->index);
     }
 
     #[DataProvider('renderingModeProvider')]
@@ -198,9 +236,9 @@ class ContentPipelineTest extends TestCase
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, Generator::generateSalesChannelContext());
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
-        $elements = iterator_to_array($result->elements, false);
+        $elements = iterator_to_array($result->page->elements, false);
         static::assertCount(1, $elements);
         static::assertSame('injected-id', $elements[0]->getId());
     }
@@ -245,6 +283,7 @@ class ContentPipelineTest extends TestCase
             $specification,
             new RenderingCacheContext(),
             RenderingMode::SKELETON,
+            false,
             Generator::generateSalesChannelContext()
         );
 
@@ -280,12 +319,13 @@ class ContentPipelineTest extends TestCase
             $specification,
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
         static::assertSame('{{productId}}', $observed);
         // Fixture guard: the placeholder really was resolvable, so the step ran after the dispatch.
-        $elements = iterator_to_array($result->elements, false);
+        $elements = iterator_to_array($result->page->elements, false);
         static::assertSame('resolved-product', $elements[0]->getProperty('title'));
     }
 
@@ -313,12 +353,13 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::SKELETON,
+            false,
             Generator::generateSalesChannelContext()
         );
 
         static::assertSame([], $observed);
         // Fixture guard: the consumer really did redistribute, so the step ran after the dispatch.
-        $elements = iterator_to_array($result->elements, false);
+        $elements = iterator_to_array($result->page->elements, false);
         static::assertArrayHasKey('product', $elements[0]->getProvidesContext());
     }
 
@@ -347,10 +388,11 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'consumer-id')->getProperty('product'));
     }
 
     #[TestDox('carries context down a second redistribution hop to a grandchild')]
@@ -382,10 +424,11 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'grandchild-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'grandchild-id')->getProperty('product'));
     }
 
     #[TestDox('carries context down a second redistribution hop that renames the key for children')]
@@ -418,10 +461,11 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'grandchild-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'grandchild-id')->getProperty('product'));
     }
 
     #[TestDox('delivers the same value whether a container redistributes or wires accept and provide by hand')]
@@ -463,11 +507,12 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'shorthand-child-id')->getProperty('product'));
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'manual-child-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'shorthand-child-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'manual-child-id')->getProperty('product'));
     }
 
     /**
@@ -506,10 +551,11 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        $serialized = $this->renderedElement($result->elements, 'middle-id')->jsonSerialize();
+        $serialized = $this->renderedElement($result->page->elements, 'middle-id')->jsonSerialize();
 
         static::assertSame(
             ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => $expectedSerializedAlias],
@@ -547,6 +593,7 @@ class ContentPipelineTest extends TestCase
             $specification,
             new RenderingCacheContext(),
             RenderingMode::SKELETON,
+            false,
             Generator::generateSalesChannelContext()
         );
 
@@ -583,6 +630,7 @@ class ContentPipelineTest extends TestCase
             $specification,
             new RenderingCacheContext(),
             RenderingMode::SKELETON,
+            false,
             Generator::generateSalesChannelContext()
         );
 
@@ -618,6 +666,7 @@ class ContentPipelineTest extends TestCase
             $specification,
             new RenderingCacheContext(),
             RenderingMode::SKELETON,
+            false,
             Generator::generateSalesChannelContext()
         );
 
@@ -645,6 +694,7 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
@@ -680,10 +730,11 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        $elements = iterator_to_array($result->elements, false);
+        $elements = iterator_to_array($result->page->elements, false);
         static::assertCount(1, $elements);
         static::assertSame('replaced-title', $elements[0]->getProperty('title'));
     }
@@ -719,6 +770,7 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'redistributor-id'),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
@@ -727,8 +779,8 @@ class ContentPipelineTest extends TestCase
         // survivor's wiring. Nothing else pins that pairing — every other redistribute test either runs
         // without a partial render or asserts a throw — so this is the test that fails when a future
         // change makes the derivation depend on a node the prune has removed.
-        static::assertSame(['redistributor-id', 'consumer-id'], $this->collectIds($result->elements));
-        static::assertSame('product-payload', $this->renderedElement($result->elements, 'consumer-id')->getProperty('product'));
+        static::assertSame(['redistributor-id', 'consumer-id'], $this->collectIds($result->page->elements));
+        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'consumer-id')->getProperty('product'));
     }
 
     #[TestDox('never loads the data a subtree the partial prune discards would have required')]
@@ -768,10 +820,11 @@ class ContentPipelineTest extends TestCase
             new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id'),
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame(['target-id'], $this->collectIds($result->elements));
+        static::assertSame(['target-id'], $this->collectIds($result->page->elements));
         static::assertSame(0, $loads);
     }
 
@@ -806,10 +859,11 @@ class ContentPipelineTest extends TestCase
             $specification,
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            false,
             Generator::generateSalesChannelContext()
         );
 
-        $elements = iterator_to_array($result->elements, false);
+        $elements = iterator_to_array($result->page->elements, false);
         static::assertSame($pageData, $elements[0]->getProperty('language'));
     }
 

@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Output\Format;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
@@ -32,8 +32,13 @@ class DecomposedResponseFactory extends AbstractResponseFactory
         return RenderingMode::FULL;
     }
 
-    public function createResponse(ContentPage $contentPage): AbstractContentRouteResponse
+    public function collectsValueIndex(): bool
     {
-        return new ContentDecomposedRouteResponse($contentPage->getContentDecomposedPage($this->configSerializerProvider, $this->configCanonicalizer));
+        return true;
+    }
+
+    public function createResponse(RenderResult $result): AbstractContentRouteResponse
+    {
+        return new ContentDecomposedRouteResponse($result->page->getContentDecomposedPage($this->configSerializerProvider, $this->configCanonicalizer));
     }
 }

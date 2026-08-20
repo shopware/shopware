@@ -10,7 +10,9 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
@@ -27,24 +29,25 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewController::class)]
 class ContentPreviewControllerTest extends TestCase
 {
-    #[TestDox('preview delegates to the page builder and wraps its content page in the factory response')]
+    #[TestDox('preview delegates to the page builder and wraps its render result in the factory response')]
     public function testPreviewWrapsPageBuilderResultInFactoryResponse(): void
     {
         $payload = $this->request();
         $context = Context::createDefaultContext();
         $contentPage = new ContentPage('preview-layout', [], 'preview', null);
+        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, $contentPage);
         $response = new ContentRouteResponse($contentPage);
 
         $pageBuilder = static::createMock(ContentPreviewPageBuilder::class);
         $pageBuilder->expects($this->once())
             ->method('build')
             ->with(static::identicalTo($payload), static::identicalTo($context))
-            ->willReturn(['contentPage' => $contentPage, 'salesChannelContext' => Generator::generateSalesChannelContext()]);
+            ->willReturn(['result' => $renderResult, 'salesChannelContext' => Generator::generateSalesChannelContext()]);
 
         $responseFactory = static::createMock(AbstractResponseFactory::class);
         $responseFactory->expects($this->once())
             ->method('createResponse')
-            ->with(static::identicalTo($contentPage))
+            ->with(static::identicalTo($renderResult))
             ->willReturn($response);
 
         $controller = new ContentPreviewController(
@@ -67,7 +70,7 @@ class ContentPreviewControllerTest extends TestCase
             ->method('build')
             ->with(static::identicalTo($payload), static::identicalTo($context))
             ->willReturn([
-                'contentPage' => new ContentPage('preview-layout', [], 'preview', null),
+                'result' => new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, new ContentPage('preview-layout', [], 'preview', null)),
                 'salesChannelContext' => Generator::generateSalesChannelContext(),
             ]);
 

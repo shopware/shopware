@@ -68,16 +68,17 @@ class ContentRoute extends AbstractContentRoute
         $cacheContext = new RenderingCacheContext();
         $cacheContext->addTags($specification->cacheTags);
 
-        $contentPage = $this->contentPipeline->load(
+        $result = $this->contentPipeline->load(
             RenderableLayout::fromEntity($layoutEntity),
             $specification,
             $cacheContext,
             $this->responseFactory->getRenderingMode(),
+            $this->responseFactory->collectsValueIndex(),
             $context,
         );
 
         $this->cacheFinalizer->finalize($request, $cacheContext);
 
-        return $this->responseFactory->createResponse($contentPage);
+        return $this->responseFactory->createResponse($result);
     }
 }

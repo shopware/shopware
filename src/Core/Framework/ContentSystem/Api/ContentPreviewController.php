@@ -38,7 +38,7 @@ class ContentPreviewController
         ContentPreviewRequest $payload,
         Context $context,
     ): Response {
-        return $this->responseFactory->createResponse($this->previewPageBuilder->build($payload, $context)['contentPage']);
+        return $this->responseFactory->createResponse($this->previewPageBuilder->build($payload, $context)['result']);
     }
 
     /**

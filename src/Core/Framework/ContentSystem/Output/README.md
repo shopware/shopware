@@ -11,7 +11,7 @@ One exception sits ahead of hydration rather than after it: `ElementTreePruner`,
 - `getContentSkeletonPage()` → Element trees without hydrated data
 - `getContentDataPage()` → Data + assignments without skeleton
 
-Routes return `ContentPage` directly or transform via format-specific `AbstractResponseFactory` implementations.
+Every route goes through a format-specific `AbstractResponseFactory` implementation, which takes the pipeline's `RenderResult` — the finished rendered forest, its layout reference, an optional resolved-value index, and, while the `ContentElement` bridge lives, the bridged `ContentPage` those factories still read. The factory answers two questions the route asks before rendering: `getRenderingMode()` and `collectsValueIndex()`.
 
 ## Partial Rendering
 

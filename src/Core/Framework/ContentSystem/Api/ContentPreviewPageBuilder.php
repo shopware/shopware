@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Context;
@@ -36,7 +36,7 @@ class ContentPreviewPageBuilder
     }
 
     /**
-     * @return array{contentPage: ContentPage, salesChannelContext: SalesChannelContext}
+     * @return array{result: RenderResult, salesChannelContext: SalesChannelContext}
      */
     public function build(ContentPreviewRequest $payload, Context $context): array
     {
@@ -73,16 +73,18 @@ class ContentPreviewPageBuilder
             $stored,
         );
 
-        $contentPage = $this->contentPipeline->load(
+        $result = $this->contentPipeline->load(
             $renderableLayout,
             $specification,
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            // The preview serves the full format, which carries its property values inline.
+            false,
             $salesChannelContext,
         );
 
         return [
-            'contentPage' => $contentPage,
+            'result' => $result,
             'salesChannelContext' => $salesChannelContext,
         ];
     }

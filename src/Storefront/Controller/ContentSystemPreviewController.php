@@ -59,7 +59,9 @@ class ContentSystemPreviewController extends StorefrontController
         }
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/preview.html.twig', [
-            'contentPage' => $previewState['contentPage'],
+            // The transitional bridged page, for as long as Twig reads the ContentElement model; the model-swap
+            // commit points this at the rendered tree instead.
+            'contentPage' => $previewState['result']->page,
             'headerParameters' => [],
         ]);
 

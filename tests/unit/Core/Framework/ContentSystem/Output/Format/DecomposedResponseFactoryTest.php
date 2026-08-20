@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
 use Shopware\Core\Framework\Log\Package;
@@ -28,12 +30,20 @@ class DecomposedResponseFactoryTest extends TestCase
         $root = ContentElementBuilder::create('section', 'r1')->build();
         $page = new ContentPage('layout-1', [$root], 'Test', null);
 
-        $response = $factory->createResponse($page);
+        $response = $factory->createResponse(new RenderResult([], LayoutReference::create('layout-1', 'Test', null), null, $page));
 
         static::assertInstanceOf(ContentDecomposedRouteResponse::class, $response);
         $decomposedPage = $response->getContentDecomposedPage();
         static::assertSame('layout-1', $decomposedPage->layoutId);
         static::assertCount(1, $decomposedPage->skeletons);
         static::assertSame('r1', $decomposedPage->skeletons[0]->id);
+    }
+
+    #[TestDox('rebuilds its body from the value index and asks for its collection')]
+    public function testCollectsTheValueIndex(): void
+    {
+        $factory = new DecomposedResponseFactory(new DataLoaderConfigSerializerProvider(new ServiceLocator([])), new ConfigCanonicalizer());
+
+        static::assertTrue($factory->collectsValueIndex());
     }
 }

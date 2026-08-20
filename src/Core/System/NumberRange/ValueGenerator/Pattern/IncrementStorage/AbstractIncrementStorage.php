@@ -39,5 +39,13 @@ abstract class AbstractIncrementStorage
      */
     abstract public function set(string $configurationId, int $value): void;
 
+    /**
+     * Raises the current increment state to at least the given value without lowering an existing higher state.
+     */
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $this->getDecorated()->increaseToAtLeast($configurationId, $value);
+    }
+
     abstract public function getDecorated(): self;
 }

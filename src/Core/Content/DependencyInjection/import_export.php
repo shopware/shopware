@@ -60,6 +60,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer as DalCustomFieldsSerializer;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -99,8 +100,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CustomerNumberRangeConfigService::class),
             service(CustomerNumberRangePatternMatcher::class),
-            service(Connection::class),
-            service(ClockInterface::class),
+            service(AbstractIncrementStorage::class),
             service('customer.repository'),
         ])
         ->tag('kernel.event_subscriber');

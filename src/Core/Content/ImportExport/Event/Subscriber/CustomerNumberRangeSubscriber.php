@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
-use Doctrine\DBAL\Connection;
-use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
@@ -13,7 +11,6 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
 use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangePatternMatcher;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -24,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -38,8 +36,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly CustomerNumberRangeConfigService $numberPatternConfigService,
         private readonly CustomerNumberRangePatternMatcher $numberPatternMatcher,
-        private readonly Connection $connection,
-        private readonly ClockInterface $clock,
+        private readonly AbstractIncrementStorage $incrementStorage,
         private readonly EntityRepository $customerRepository,
     ) {
     }
@@ -65,7 +62,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $salesChannelId = $this->hasValidUuid($record, 'salesChannelId') ? $record['salesChannelId'] : null;
+        $salesChannelId = $this->getSalesChannelId($record);
         $patternConfig = $this->numberPatternConfigService->getPatternConfig($salesChannelId);
         if ($patternConfig === null) {
             return;
@@ -155,7 +152,7 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         }
 
         foreach ($highestIncrements as $configurationId => $increment) {
-            $this->updateNumberRangeMinimum($configurationId, $increment);
+            $this->incrementStorage->increaseToAtLeast($configurationId, $increment);
         }
 
         $this->numberPatternConfigService->reset();
@@ -243,6 +240,26 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         return \is_string($value) && Uuid::isValid($value);
     }
 
+    /**
+     * @param array<string, mixed> $record
+     */
+    private function getSalesChannelId(array $record): ?string
+    {
+        $salesChannelId = $record['salesChannelId'] ?? null;
+        if (\is_string($salesChannelId) && Uuid::isValid($salesChannelId)) {
+            return $salesChannelId;
+        }
+
+        $salesChannel = $record['salesChannel'] ?? null;
+        if (!\is_array($salesChannel)) {
+            return null;
+        }
+
+        $salesChannelId = $salesChannel['id'] ?? null;
+
+        return \is_string($salesChannelId) && Uuid::isValid($salesChannelId) ? $salesChannelId : null;
+    }
+
     private function createCustomerNumberSearchCriteria(string $customerNumber, ?string $excludedCustomerId): Criteria
     {
         $criteria = new Criteria();
@@ -253,20 +270,5 @@ final class CustomerNumberRangeSubscriber implements EventSubscriberInterface
         }
 
         return $criteria;
-    }
-
-    private function updateNumberRangeMinimum(string $configurationId, int $value): void
-    {
-        $this->connection->executeStatement(
-            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
-                ON DUPLICATE KEY UPDATE
-                `last_value` = GREATEST(`last_value`, :value)',
-            [
-                'value' => $value,
-                'id' => Uuid::fromHexToBytes($configurationId),
-                'stateId' => Uuid::randomBytes(),
-                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
     }
 }

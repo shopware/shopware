@@ -102,6 +102,22 @@ class IncrementSqlStorage extends AbstractIncrementStorage
         );
     }
 
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $stateId = Uuid::randomBytes();
+        $this->connection->executeStatement(
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
+                ON DUPLICATE KEY UPDATE
+                `last_value` = GREATEST(`last_value`, :value)',
+            [
+                'value' => $value,
+                'id' => Uuid::fromHexToBytes($configurationId),
+                'stateId' => $stateId,
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+    }
+
     public function getDecorated(): AbstractIncrementStorage
     {
         throw new DecorationPatternException(self::class);

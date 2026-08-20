@@ -7,7 +7,6 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -39,16 +39,15 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testSynchronizesInsertedCustomerNumber(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('executeStatement');
-        $clock = static::createStub(ClockInterface::class);
-        $clock->method('now')->willReturn(new \DateTimeImmutable('2026-01-01 00:00:00'));
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->once())
+            ->method('increaseToAtLeast')
+            ->with('00000000000000000000000000000001', 100014);
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            $clock,
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
         $subscriber->onAfterImport($this->createBatchEvent($context, new EntityWriteResult(
@@ -62,16 +61,15 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testSynchronizesInsertedCustomerNumberAfterOneByOneImport(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('executeStatement');
-        $clock = static::createStub(ClockInterface::class);
-        $clock->method('now')->willReturn(new \DateTimeImmutable('2026-01-01 00:00:00'));
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->once())
+            ->method('increaseToAtLeast')
+            ->with('00000000000000000000000000000001', 100014);
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            $clock,
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
         $batchEvent = $this->createBatchEvent($context, new EntityWriteResult(
@@ -91,14 +89,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testDoesNotSynchronizeUpdatedCustomer(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeStatement');
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->never())->method('increaseToAtLeast');
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
         $subscriber->onAfterImport($this->createBatchEvent($context, new EntityWriteResult(
@@ -112,19 +109,15 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testSynchronizesOnlyTheHighestIncrementInTheBatch(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with(
-                static::anything(),
-                static::callback(static fn (array $parameters): bool => $parameters['value'] === 100015),
-            );
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->once())
+            ->method('increaseToAtLeast')
+            ->with('00000000000000000000000000000001', 100015);
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -159,19 +152,15 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $customer->setId('customer-id');
         $customer->setSalesChannelId($salesChannelId);
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->with(
-                static::anything(),
-                static::callback(static fn (array $parameters): bool => $parameters['value'] === 100020),
-            );
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->once())
+            ->method('increaseToAtLeast')
+            ->with('00000000000000000000000000000001', 100020);
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$customer])]),
         );
 
@@ -195,19 +184,11 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId('customer-id');
         $customer->setSalesChannelId($existingSalesChannelId);
-        $writtenValues = [];
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement')
-            ->willReturnCallback(function (string $sql, array $parameters) use (&$writtenValues): int {
-                $writtenValues[] = [
-                    'id' => Uuid::fromBytesToHex($parameters['id']),
-                    'value' => $parameters['value'],
-                ];
-
-                return 1;
-            });
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->once())
+            ->method('increaseToAtLeast')
+            ->with($updatedConfigurationId, 100020);
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigServiceForSalesChannels([
@@ -215,8 +196,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
                 $updatedSalesChannelId => ['id' => $updatedConfigurationId, 'pattern' => '{n}'],
             ]),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$customer])]),
         );
 
@@ -229,10 +209,6 @@ class CustomerNumberRangeSubscriberTest extends TestCase
                 EntityWriteResult::OPERATION_UPDATE,
             ),
         ));
-
-        static::assertSame([
-            ['id' => $updatedConfigurationId, 'value' => 100020],
-        ], $writtenValues);
     }
 
     public function testSynchronizesHighestIncrementPerNumberRange(): void
@@ -244,13 +220,11 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $secondConfigurationId = Uuid::randomHex();
         $writtenValues = [];
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->exactly(2))
-            ->method('executeStatement')
-            ->willReturnCallback(function (string $sql, array $parameters) use (&$writtenValues): int {
-                $writtenValues[Uuid::fromBytesToHex($parameters['id'])] = $parameters['value'];
-
-                return 1;
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->exactly(2))
+            ->method('increaseToAtLeast')
+            ->willReturnCallback(function (string $configurationId, int $value) use (&$writtenValues): void {
+                $writtenValues[$configurationId] = $value;
             });
 
         $subscriber = new CustomerNumberRangeSubscriber(
@@ -259,8 +233,7 @@ class CustomerNumberRangeSubscriberTest extends TestCase
                 $secondSalesChannelId => ['id' => $secondConfigurationId, 'pattern' => '{n}'],
             ]),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -295,14 +268,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testDoesNotSynchronizeUpdateForUnknownCustomer(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeStatement');
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->never())->method('increaseToAtLeast');
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -320,14 +292,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testDoesNotSynchronizeDeletedCustomer(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeStatement');
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->never())->method('increaseToAtLeast');
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -351,13 +322,11 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $existingCustomer->setSalesChannelId(Uuid::randomHex());
         $salesChannelId = $existingCustomer->getSalesChannelId();
 
-        $connection = static::createStub(Connection::class);
         $customerRepository = StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$existingCustomer])]);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            static::createStub(AbstractIncrementStorage::class),
             $customerRepository,
         );
 
@@ -366,6 +335,46 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         ));
         $subscriber->onBeforeImportRecord(new ImportExportBeforeImportRecordEvent(
             ['customerNumber' => '100014', 'salesChannelId' => $salesChannelId],
+            [],
+            new Config([], [
+                'sourceEntity' => CustomerDefinition::ENTITY_NAME,
+                'createEntities' => true,
+                'updateEntities' => false,
+            ], []),
+            $context,
+        ));
+    }
+
+    public function testRejectsDuplicateCustomerNumberInTheSalesChannelNumberRangeResolvedByAssociation(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $configurationId = Uuid::randomHex();
+        $existingCustomer = new CustomerEntity();
+        $existingCustomer->setId('existing-id');
+        $existingCustomer->setCustomerNumber('100014');
+        $existingCustomer->setSalesChannelId($salesChannelId);
+
+        $customerRepository = StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$existingCustomer])]);
+        $subscriber = new CustomerNumberRangeSubscriber(
+            $this->createPatternConfigServiceForSalesChannels([
+                $salesChannelId => ['id' => $configurationId, 'pattern' => '{n}'],
+            ]),
+            new CustomerNumberRangePatternMatcher(),
+            static::createStub(AbstractIncrementStorage::class),
+            $customerRepository,
+        );
+
+        $this->expectExceptionObject(ImportExportException::processingError(
+            'Customer number "100014" is already used in the selected number range.'
+        ));
+        $subscriber->onBeforeImportRecord(new ImportExportBeforeImportRecordEvent(
+            [
+                'customerNumber' => '100014',
+                'salesChannel' => [
+                    'id' => $salesChannelId,
+                ],
+            ],
             [],
             new Config([], [
                 'sourceEntity' => CustomerDefinition::ENTITY_NAME,
@@ -386,13 +395,11 @@ class CustomerNumberRangeSubscriberTest extends TestCase
         $existingCustomer->setSalesChannelId(Uuid::randomHex());
         $salesChannelId = $existingCustomer->getSalesChannelId();
 
-        $connection = static::createStub(Connection::class);
         $customerRepository = StaticEntityRepository::of(CustomerCollection::class, [new CustomerCollection([$existingCustomer])]);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService(),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            static::createStub(AbstractIncrementStorage::class),
             $customerRepository,
         );
 
@@ -417,12 +424,10 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testRejectsCustomerNumberThatDoesNotMatchTheConfiguredPattern(): void
     {
         $context = Context::createDefaultContext();
-        $connection = static::createStub(Connection::class);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('CUSTOMER-{n}-EU'),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            static::createStub(AbstractIncrementStorage::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -444,14 +449,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testDoesNotSynchronizeUnknownPlaceholders(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeStatement');
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->never())->method('increaseToAtLeast');
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('C-{unknown}'),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -466,14 +470,13 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testSkipsSynchronizationForUnknownPlaceholders(): void
     {
         $context = Context::createDefaultContext();
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('executeStatement');
+        $incrementStorage = $this->createMock(AbstractIncrementStorage::class);
+        $incrementStorage->expects($this->never())->method('increaseToAtLeast');
 
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('C-{unknown}-{n}'),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            $incrementStorage,
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 
@@ -488,12 +491,10 @@ class CustomerNumberRangeSubscriberTest extends TestCase
     public function testRejectsImportWithUnknownPlaceholder(): void
     {
         $context = Context::createDefaultContext();
-        $connection = static::createStub(Connection::class);
         $subscriber = new CustomerNumberRangeSubscriber(
             $this->createPatternConfigService('C-{unknown}-{n}'),
             new CustomerNumberRangePatternMatcher(),
-            $connection,
-            static::createStub(ClockInterface::class),
+            static::createStub(AbstractIncrementStorage::class),
             StaticEntityRepository::of(CustomerCollection::class, [[]]),
         );
 

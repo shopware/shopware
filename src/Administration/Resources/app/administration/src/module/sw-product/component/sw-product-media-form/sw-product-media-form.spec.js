@@ -91,7 +91,7 @@ function getMediaCollection(collection = []) {
 }
 
 describe('module/sw-product/component/sw-product-media-form', () => {
-    beforeAll(() => {
+    beforeEach(() => {
         const product = {
             cover: {
                 mediaId: 'media1',
@@ -102,7 +102,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
                 },
             },
             coverId: 'productMedia1',
-            media: getMediaCollection(media),
+            media: getMediaCollection(media.map((item) => ({ ...item, media: { ...item.media } }))),
         };
         product.getEntityName = () => 'T-Shirt';
 
@@ -216,7 +216,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
         // Check if previous mediaItem exists
         expect(wrapper.vm.product.media).toHaveLength(2);
-        expect(wrapper.vm.product.media[1].mediaId).toBe('media1');
+        expect(wrapper.vm.product.media[0].mediaId).toBe('media1');
 
         // Simulate successful upload for existing media
         await wrapper.vm.successfulUpload({ targetId: 'media1' });

@@ -208,6 +208,15 @@ class EntitySearcher implements EntitySearcherInterface
             return \count($data);
         }
 
+        $offset = $criteria->getOffset() ?? 0;
+        $isPartialPage = $criteria->getLimit() === null || \count($data) < $criteria->getLimit();
+        // A partial page is the last page, so the fetched rows already determine the exact total and no separate
+        // COUNT(*) query is needed. An empty page with an offset does not: the total could be anything up to the
+        // offset, so fall through to the count query for that case.
+        if ($isPartialPage && ($data !== [] || $offset === 0)) {
+            return $offset + \count($data);
+        }
+
         $query->resetOrderBy();
         $query->setMaxResults(null);
         $query->setFirstResult(0);

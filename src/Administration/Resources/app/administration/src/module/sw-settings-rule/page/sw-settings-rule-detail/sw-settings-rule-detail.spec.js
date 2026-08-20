@@ -208,7 +208,7 @@ const routeLeaveOrUpdateTestCases = [
     },
 ];
 
-async function createWrapper(props = defaultProps, provide = {}, { featureActive = false } = {}) {
+async function createWrapper(props = defaultProps, provide = {}) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -326,9 +326,6 @@ async function createWrapper(props = defaultProps, provide = {}, { featureActive
                 'sw-extension-teaser-popover': true,
             },
             provide: {
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
                 ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
                 ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
                 repositoryFactory: {
@@ -545,7 +542,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    it('should render fallback tab items', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the fallback sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -554,8 +552,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor route tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -580,8 +578,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(false);
     });
 
-    it('should pass validation errors to meteor tabs', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass validation errors to meteor tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         Shopware.Store.get('error').addApiError({
@@ -612,8 +610,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         ]);
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
-        const wrapper = await createWrapper(defaultProps, {}, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const routerSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
@@ -850,7 +848,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    it('should reload rule when switching from assignments to base tab', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy rule-detail tabs.
+    it.deprecated('v6.8.0.0')('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -861,6 +860,28 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
 
         await wrapper.find('.sw-settings-rule-detail__tab-item-general').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should reload rule when switching from assignments to base tab', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const assignmentsTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+
+        await assignmentsTab.onClick();
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
+
+        const generalTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.base');
+
+        await generalTab.onClick();
         await flushPromises();
         expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
 

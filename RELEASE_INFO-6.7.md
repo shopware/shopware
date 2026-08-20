@@ -95,6 +95,12 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 
 The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
 
+### Sales channel language list validation compares against the incoming default language
+
+Assigning a new `languageId` to a sales channel and removing the previous default language from its `languages` list in the same write is now accepted. It previously failed with `SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID`, and the two steps had to be sent as separate requests.
+
+Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
+
 ## Core
 
 ### E-invoice line positions state the correct price base quantity
@@ -552,6 +558,12 @@ Every storefront extension build inherits the core storefront webpack context an
 
 Extension builds now set `output.uniqueName` to their technical name, which gives each of them its own global, for example `webpackChunkswag_my_theme`. The core storefront bundle intentionally keeps the default `webpackChunk` global, so its emitted runtime stays unchanged. If you relied on the shared `window.webpackChunk` array, for example to inject chunks into another bundle, use the extension specific global instead. Rebuild your storefront assets to pick up the change.
 
+### The "Top results" sorting label is translatable
+
+`score` is a locked product sorting, so its label could not be edited in Settings > Products > Sorting and only ever existed for `en-GB` and `de-DE`. Every other language fell back to one of those two.
+
+`@Storefront/storefront/component/sorting.html.twig` now renders the `filter.sortByScore` snippet for the `score` sorting instead of its database label, so it can be translated for any language through snippet management or a theme snippet file. All other sortings keep rendering the label configured in the administration.
+
 ## App System
 
 ### App installation recovers ambiguously failed registrations
@@ -593,6 +605,12 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__configuration`
 
 ## Hosting & Configuration
+
+### Local translation files and optional automatic updates
+
+The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.
+
+The daily translation update task can be disabled with `shopware.translation.scheduled_task.enabled: false`. Use this for immutable deployments that update translation files only during builds. Both options retain their previous behavior by default.
 
 ### Optional `Clear-Site-Data` header on customer logout
 

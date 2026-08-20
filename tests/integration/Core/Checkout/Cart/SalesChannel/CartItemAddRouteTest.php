@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -86,6 +87,46 @@ class CartItemAddRouteTest extends TestCase
         static::assertSame(10, $response['price']['totalPrice']);
         static::assertCount(1, $response['lineItems']);
         static::assertSame('Test', $response['lineItems'][0]['label']);
+    }
+
+    public function testFillCartWithoutRequestContextTokenReturnsReusableContextToken(): void
+    {
+        $this->browser->setServerParameters([
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_SW_ACCESS_KEY' => $this->browser->getServerParameter('HTTP_SW_ACCESS_KEY'),
+            'test-sales-channel-id' => $this->browser->getServerParameter('test-sales-channel-id'),
+        ]);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'label' => 'foo',
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->request('GET', '/store-api/checkout/cart');
+
+        $content = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('cart', $content['apiAlias']);
+        static::assertCount(1, $content['lineItems']);
+        static::assertSame($this->ids->get('p1'), $content['lineItems'][0]['referencedId']);
     }
 
     public function testAddExistingLineItemChangesQuantityAndMarksModified(): void

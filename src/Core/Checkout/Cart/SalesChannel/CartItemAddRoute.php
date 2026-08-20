@@ -79,7 +79,10 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
             $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
-            return new CartResponse($cart);
+            $response = new CartResponse($cart);
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
+
+            return $response;
         });
     }
 }

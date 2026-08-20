@@ -336,9 +336,8 @@ class CartOrderRouteTest extends TestCase
         static::assertEmpty($data['lineItems']);
 
         $response = $this->addProductToCart('p2');
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        $token = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($token);
+        $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotEmpty($token);
         static::assertNotSame($guestToken, $token);
         $guestToken = $token;
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
@@ -516,8 +515,7 @@ class CartOrderRouteTest extends TestCase
     {
         $token = $this->createCustomerAndLogin();
         $response = $this->addProductToCart();
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame($token, $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         // Manually acquire lock to simulate concurrent request
         $cartLocker = $this->getContainer()->get(CartLocker::class);

@@ -75,7 +75,7 @@ class ContextSwitchRouteTest extends TestCase
             $salesChannelContext
         );
 
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     /**

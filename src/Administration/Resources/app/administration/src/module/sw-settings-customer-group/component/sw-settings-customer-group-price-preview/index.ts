@@ -60,7 +60,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         currencyIsoCode(): string {
-            return (Shopware.Context.app.systemCurrencyISOCode as string | null) ?? 'EUR';
+            return Shopware.Context.app.systemCurrencyISOCode ?? 'EUR';
         },
 
         countryLabels(): string[] {

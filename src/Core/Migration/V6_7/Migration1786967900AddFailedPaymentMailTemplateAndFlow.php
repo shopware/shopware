@@ -22,7 +22,7 @@ class Migration1786967900AddFailedPaymentMailTemplateAndFlow extends MigrationSt
 {
     use CreateMailTemplateTrait;
 
-    private const FLOW_ID = '0accf0ae04844231af7e785e8dc94f65';
+    final public const FLOW_ID = '0accf0ae04844231af7e785e8dc94f65';
 
     public function getCreationTimestamp(): int
     {

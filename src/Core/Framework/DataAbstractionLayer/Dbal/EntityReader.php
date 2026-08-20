@@ -1230,7 +1230,7 @@ class EntityReader implements EntityReaderInterface
                 $grouped[$id] = [];
             }
 
-            if (empty($row['child_id'])) {
+            if ($row['child_id'] === null) {
                 continue;
             }
 

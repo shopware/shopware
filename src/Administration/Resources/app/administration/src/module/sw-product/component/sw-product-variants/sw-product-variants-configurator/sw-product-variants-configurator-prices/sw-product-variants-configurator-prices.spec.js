@@ -36,6 +36,8 @@ async function createWrapper() {
                     'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-data-grid': true,
+                    'sw-product-variants-price-field': true,
+                    'sw-context-menu-item': true,
                     'sw-loader': true,
                 },
             },

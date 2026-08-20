@@ -1169,6 +1169,10 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 # Administration
 
+## Deprecated block `sw_settings_customer_group_detail_content_card_display_gross`
+
+The gross display toggle on the customer group detail page was replaced by a combined price mode selection in the new "Price display & calculation" card. The old block `sw_settings_customer_group_detail_content_card_display_gross` in `sw-settings-customer-group-detail.html.twig` remains as an empty extension point and will be removed with 6.8; use `sw_settings_customer_group_detail_content_price_display_card_mode` instead.
+
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.

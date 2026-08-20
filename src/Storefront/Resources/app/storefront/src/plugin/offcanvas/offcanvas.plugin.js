@@ -123,11 +123,7 @@ class OffCanvasSingleton {
     _openOffcanvas(offCanvas, callback) {
         window.focusHandler.saveFocusState('offcanvas');
 
-        this._disableBackgroundAccessibility(_offCanvas);
-
-        // Keep the Bootstrap focus-trap working when the offcanvas is the last element before `</body>`.
-        // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
-        window.focusHandler._addFocusTrapGuard(_offCanvas);
+        this._disableBackgroundAccessibility(offCanvas);
 
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
@@ -234,19 +230,6 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
-        const offCanvasElements = this.getOffCanvas();
-        offCanvasElements.forEach(offCanvas => {
-            // Properly dispose of Bootstrap Offcanvas instance to clean up backdrop
-            const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
-            if (offCanvasInstance && typeof offCanvasInstance.dispose === 'function') {
-                offCanvasInstance.dispose();
-            }
-
-            offCanvas.remove();
-            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
-            window.focusHandler._removeFocusTrapGuard();
-        });
-
         this._restoreBackgroundState();
 
         // Clear the singleton reference after disposal

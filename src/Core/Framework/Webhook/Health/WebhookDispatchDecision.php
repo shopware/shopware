@@ -14,4 +14,5 @@ enum WebhookDispatchDecision
 {
     case Deliver;
     case Hold;
+    case Skip;
 }

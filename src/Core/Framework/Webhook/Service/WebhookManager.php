@@ -105,10 +105,7 @@ class WebhookManager implements ResetInterface
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            $this->dispatchWebhooksWithHealth(
-                $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale),
-                $event,
-            );
+            $this->dispatchWebhooksWithHealth($webhooksForEvent, $event, $languageId, $userLocale);
 
             return;
         }
@@ -130,17 +127,43 @@ class WebhookManager implements ResetInterface
     }
 
     /**
-     * @param list<WebhookEventMessage> $messages
+     * @param list<Webhook> $webhooks
      */
     private function dispatchWebhooksWithHealth(
-        array $messages,
+        array $webhooks,
         Hookable $event,
+        string $languageId,
+        string $userLocale,
     ): void {
         $deliver = [];
         $hold = [];
+        $pendingShopIdChangeByApp = [];
 
-        foreach ($messages as $message) {
-            if ($this->webhookHealthService->gateFor($message->getWebhookId()) === WebhookDispatchDecision::Hold) {
+        foreach ($webhooks as $webhook) {
+            if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+                continue;
+            }
+
+            // An undeliverable app source must not consume a recovery trial.
+            if ($webhook->appId !== null && $webhook->appVersion !== null) {
+                $pendingShopIdChangeByApp[$webhook->appId] ??= !$this->canBuildAppSource($webhook->appVersion, $webhook->appName ?? '');
+
+                if ($pendingShopIdChangeByApp[$webhook->appId]) {
+                    continue;
+                }
+            }
+
+            $decision = $this->webhookHealthService->gateFor($webhook->id);
+            if ($decision === WebhookDispatchDecision::Skip) {
+                continue;
+            }
+
+            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
+            if ($message === null) {
+                continue;
+            }
+
+            if ($decision === WebhookDispatchDecision::Hold) {
                 $hold[] = $message;
 
                 continue;
@@ -163,25 +186,15 @@ class WebhookManager implements ResetInterface
         Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($deliver, forceSynchronous: $isAppLifecycleEvent));
     }
 
-    /**
-     * @param array<Webhook> $webhooksForEvent
-     *
-     * @return list<WebhookEventMessage>
-     */
-    private function collectMessages(array $webhooksForEvent, Hookable $event, string $languageId, string $userLocale): array
+    private function canBuildAppSource(string $appVersion, string $appName): bool
     {
-        $messages = [];
+        try {
+            $this->appPayloadServiceHelper->buildSource($appVersion, $appName);
 
-        foreach ($webhooksForEvent as $webhook) {
-            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
-            if ($message === null) {
-                continue;
-            }
-
-            $messages[] = $message;
+            return true;
+        } catch (ShopIdChangeSuggestedException) {
+            return false;
         }
-
-        return $messages;
     }
 
     /**

@@ -1722,6 +1722,10 @@ class Configuration implements ConfigurationInterface
                             ->info('Consecutive first-attempt transient failures that trip HEALTHY into DEGRADED.')
                             ->min(1)->defaultValue(5)
                         ->end()
+                        ->integerNode('non_transient_threshold_count')
+                            ->info('Consecutive auth rejections (401/403) that suspend the webhook.')
+                            ->min(1)->defaultValue(3)
+                        ->end()
                     ->end()
                 ->end()
             ->end();

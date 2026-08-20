@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -104,6 +105,55 @@ class WebhookDispatchGateTest extends TestCase
         );
     }
 
+    public function testSuspendedWebhookShedsEventsWritingNoRows(): void
+    {
+        $this->seedWebhook('wh-suspended', CustomerBeforeLoginEvent::EVENT_NAME);
+        $this->seedHealth('wh-suspended', EndpointState::Suspended, [
+            'cooldown_until' => (new \DateTimeImmutable('+1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $eventLogRowsBefore = $this->countTable('webhook_event_log');
+        $deliveryRowsBefore = $this->countTable('webhook_delivery');
+
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $manager = $this->getManager();
+            $manager->dispatch($event);
+            $manager->dispatch($event);
+            $manager->dispatch($event);
+        });
+
+        static::assertSame($eventLogRowsBefore, $this->countTable('webhook_event_log'));
+        static::assertSame($deliveryRowsBefore, $this->countTable('webhook_delivery'));
+    }
+
+    public function testLoaderWidensTheCandidateSetToSuspendedOnlyUnderTheFlag(): void
+    {
+        $this->seedWebhook('wh-active', CustomerBeforeLoginEvent::EVENT_NAME);
+        $this->seedWebhook('wh-suspended', CustomerBeforeLoginEvent::EVENT_NAME, active: false);
+        $this->seedHealth('wh-suspended', EndpointState::Suspended);
+        $this->seedWebhook('wh-inactive', CustomerBeforeLoginEvent::EVENT_NAME, active: false);
+
+        $loader = static::getContainer()->get(WebhookLoader::class);
+
+        $flagOnIds = Feature::withFeatureEnabled(
+            'WEBHOOKS_REWORK',
+            fn (): array => array_map(static fn (Webhook $webhook): string => $webhook->id, $loader->getWebhooks())
+        );
+        $flagOffIds = Feature::withFeatureDisabled(
+            'WEBHOOKS_REWORK',
+            fn (): array => array_map(static fn (Webhook $webhook): string => $webhook->id, $loader->getWebhooks())
+        );
+
+        $expectedFlagOn = [$this->ids->get('wh-active'), $this->ids->get('wh-suspended')];
+        sort($expectedFlagOn);
+        sort($flagOnIds);
+
+        static::assertSame($expectedFlagOn, $flagOnIds);
+        static::assertSame([$this->ids->get('wh-active')], $flagOffIds);
+    }
+
     // Use async delivery so queued and held rows remain observable.
     private function getManager(): WebhookManager
     {
@@ -175,6 +225,11 @@ class WebhookDispatchGateTest extends TestCase
         ];
 
         $this->connection->insert('webhook_health', array_merge($defaults, $extra));
+    }
+
+    private function countTable(string $table): int
+    {
+        return (int) $this->connection->fetchOne(\sprintf('SELECT COUNT(*) FROM %s', $table));
     }
 
     private function cleanupWebhookTables(): void

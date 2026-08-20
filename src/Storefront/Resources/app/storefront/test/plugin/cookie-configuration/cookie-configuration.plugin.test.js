@@ -581,11 +581,13 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockFetch).not.toHaveBeenCalled();
         });
 
-        test('shows cookie bar when user has preference but no hash for current language', async () => {
+        test('shows the banner without clearing shared consent when the current key has no hash yet', async () => {
             const languageId = 'test-language-id';
+            const currentHash = 'abc123hash';
             const mockApiResponse = {
-                hash: 'abc123hash',
+                hash: currentHash,
                 languageId: languageId,
+                salesChannelDomainId: 'other-domain',
                 elements: [
                     {
                         technicalName: 'required-group',
@@ -601,13 +603,12 @@ describe('CookieConfiguration plugin tests', () => {
                 json: () => Promise.resolve(mockApiResponse)
             });
 
-            // User has made a choice for another language, but not for this one
+            // User has already consented on another sales channel sharing this domain.
             CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
 
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-            const checkAndShowCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded');
+            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
 
-            // Mock dispatchEvent to simulate showCookieBar event
             const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation((event) => {
                 if (event.type === 'showCookieBar') {
                     mockCookiePermissionPlugin._setBodyPadding();
@@ -618,22 +619,18 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._checkCookieConfigurationHash();
 
-            expect(mockFetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            });
-
-            // Cookie preference should be removed to trigger re-consent
-            expect(removeItemSpy).toHaveBeenCalledWith('cookie-preference');
-
-            // Cookie bar should be shown for this language
-            expect(checkAndShowCookieBarSpy).toHaveBeenCalled();
+            // The banner is shown so the user can consent on this sales channel.
             expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
 
+            // The shared cookie-preference must NOT be removed - that would re-trigger the banner
+            // on the other sales channel on the domain (issue #19354).
+            expect(removeItemSpy).not.toHaveBeenCalledWith('cookie-preference');
+
+            // The hash is not stored yet: the user has not made a choice on this channel.
+            expect(setItemSpy).not.toHaveBeenCalledWith(plugin.options.cookieConfigHash, expect.anything(), expect.anything());
+
             removeItemSpy.mockRestore();
-            checkAndShowCookieBarSpy.mockRestore();
+            setItemSpy.mockRestore();
             dispatchEventSpy.mockRestore();
         });
 
@@ -754,6 +751,76 @@ describe('CookieConfiguration plugin tests', () => {
 
             removeItemSpy.mockRestore();
             setItemSpy.mockRestore();
+        });
+
+        test('prompts on a new storefront domain but keeps the other domain consent on a shared host', async () => {
+            const languageId = 'shared-lang';
+            const domainAKey = 'domain-a';
+            const hashB = 'domain-b-hash';
+
+            // Domain A has already been consented on this shared host.
+            CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
+            CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [domainAKey]: 'domain-a-hash' }), '30');
+
+            // Now the user navigates to domain B (same host, different storefront/cookie config).
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve({
+                    hash: hashB,
+                    languageId,
+                    salesChannelDomainId: 'domain-b',
+                    elements: [],
+                }),
+            });
+
+            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
+
+            const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation((event) => {
+                if (event.type === 'showCookieBar') {
+                    mockCookiePermissionPlugin._showCookieBar();
+                }
+                return true;
+            });
+
+            await plugin._checkCookieConfigurationHash();
+
+            // The banner is shown so the user can consent on domain B ...
+            expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
+
+            // ... but domain A's consent (shared cookie-preference and its stored hash) is untouched,
+            // so navigating back to domain A does not reset or re-prompt.
+            expect(removeItemSpy).not.toHaveBeenCalledWith('cookie-preference');
+            const stored = JSON.parse(CookieStorage.getItem(plugin.options.cookieConfigHash));
+            expect(stored[domainAKey]).toBe('domain-a-hash');
+
+            removeItemSpy.mockRestore();
+            dispatchEventSpy.mockRestore();
+        });
+
+        test('does not reset when the current storefront domain hash still matches', async () => {
+            const languageId = 'shared-lang';
+            const domainKey = 'domain-a';
+            const hash = 'domain-a-hash';
+
+            CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
+            CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [domainKey]: hash }), '30');
+
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve({
+                    hash,
+                    languageId,
+                    salesChannelDomainId: 'domain-a',
+                    elements: [],
+                }),
+            });
+
+            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
+
+            await plugin._checkCookieConfigurationHash();
+
+            expect(removeItemSpy).not.toHaveBeenCalled();
+            expect(mockCookiePermissionPlugin._showCookieBar).not.toHaveBeenCalled();
+
+            removeItemSpy.mockRestore();
         });
 
         test('handles API errors gracefully', async () => {
@@ -1648,6 +1715,15 @@ describe('CookieConfiguration plugin tests', () => {
     describe('Per-language hash storage helpers', () => {
         afterEach(() => {
             jest.restoreAllMocks();
+        });
+
+        test.each([
+            ['sales channel domain id when present', { salesChannelDomainId: 'domain-1', languageId: 'lang-1' }, 'domain-1'],
+            ['language id when domain id missing', { languageId: 'lang-1' }, 'lang-1'],
+            ['language id when domain id empty', { salesChannelDomainId: '', languageId: 'lang-1' }, 'lang-1'],
+            ['empty string when nothing provided', {}, ''],
+        ])('_getStorageKey builds %s', (_name, data, expected) => {
+            expect(plugin._getStorageKey(data)).toBe(expected);
         });
 
         test.each([

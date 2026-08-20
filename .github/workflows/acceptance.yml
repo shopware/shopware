@@ -11,6 +11,10 @@ on:
       major:
         description: "Filter major variants: '' (all), 'exclude' (non-major only), 'only' (major only)"
         default: ""
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       profile:
@@ -19,6 +23,10 @@ on:
       major:
         type: string
         default: ""
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -75,7 +83,7 @@ jobs:
           major: ${{ matrix.major }}
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name == 'Install' && '--trace=on' || '' }}
-          use-currents: ${{ inputs.profile == 'nightly' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
+          use-currents: ${{ inputs.currents && matrix.no-currents != 'true' && 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
           playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
@@ -299,11 +307,11 @@ jobs:
           working-directory: new-shopware/tests/acceptance
           command: sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: ${{ (inputs.profile == 'nightly' && github.event_name == 'schedule') && 'true' || '' }}
+        if: ${{ inputs.currents && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: ${{ (inputs.profile != 'nightly' || github.event_name != 'schedule') && 'true' || '' }}
+        if: ${{ !inputs.currents && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 

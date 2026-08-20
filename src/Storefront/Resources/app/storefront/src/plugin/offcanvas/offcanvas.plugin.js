@@ -8,6 +8,7 @@ const OFF_CANVAS_JS_CLASS = 'js-offcanvas-singleton';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
+const backgroundAccessibilityStates = new WeakMap();
 
 /**
  * OffCanvas uses Bootstraps OffCanvas JavaScript implementation
@@ -122,6 +123,8 @@ class OffCanvasSingleton {
     _openOffcanvas(offCanvas, callback) {
         window.focusHandler.saveFocusState('offcanvas');
 
+        this._disableBackgroundAccessibility(offCanvas);
+
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
 
@@ -144,6 +147,7 @@ class OffCanvasSingleton {
         Iterator.iterate(offCanvasElements, offCanvas => {
             const onBsClose = () => {
                 setTimeout(() => {
+                    this._restoreBackgroundState();
                     offCanvas.remove();
 
                     window.focusHandler.resumeFocusState('offcanvas');
@@ -176,10 +180,59 @@ class OffCanvasSingleton {
     }
 
     /**
+     * Prevent access to the page behind the offcanvas and preserve its previous state.
+     *
+     * @param {HTMLElement} offCanvas
+     * @private
+     */
+    _disableBackgroundAccessibility(offCanvas) {
+        const backgroundState = [...document.body.children]
+            .filter(element => element !== offCanvas)
+            .map(element => ({
+                element,
+                inert: element.inert,
+                ariaHidden: element.getAttribute('aria-hidden'),
+            }));
+
+        backgroundAccessibilityStates.set(this, backgroundState);
+
+        backgroundState.forEach(({ element }) => {
+            element.inert = true;
+            element.setAttribute('aria-hidden', 'true');
+        });
+    }
+
+    /**
+     * Restore the page accessibility state from before the offcanvas was opened.
+     *
+     * @private
+     */
+    _restoreBackgroundState() {
+        const backgroundState = backgroundAccessibilityStates.get(this);
+
+        backgroundState?.forEach(({ element, inert, ariaHidden }) => {
+            element.inert = inert;
+
+            if (ariaHidden === null) {
+                element.removeAttribute('aria-hidden');
+
+                return;
+            }
+
+            element.setAttribute('aria-hidden', ariaHidden);
+        });
+
+        backgroundAccessibilityStates.delete(this);
+    }
+
+    /**
      * Remove all existing offcanvas from DOM
      * @private
      */
     _removeExistingOffCanvas() {
+        this._restoreBackgroundState();
+
+        // Clear the singleton reference after disposal
         OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
         return Iterator.iterate(offCanvasElements, offCanvas => offCanvas.remove());

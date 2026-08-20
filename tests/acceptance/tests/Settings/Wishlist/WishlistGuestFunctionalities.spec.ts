@@ -31,8 +31,8 @@ test('Guest customer is able to add and remove products to the wishlist',{ tag: 
     });
 
     await test.step('Add product1 to the cart from wishlist and verify cart total is same with product price', async () => {
-        await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
         const productPrice = await product1Locators.productPrice.innerText();
+        await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
         const offCanvasSubtotal = await StorefrontOffCanvasCart.subTotalPrice.innerText();
         ShopCustomer.expects(offCanvasSubtotal).toBe(productPrice);
         const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);

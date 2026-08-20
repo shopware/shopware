@@ -34,10 +34,16 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
     # core-only until the commercial repositories have swept their own reflection backlogs
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
-    # gated to the core unit-test namespace inside the rule; downstream repositories carry their own package taxonomy
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversPackageMatchRule
 
 services:
+    # gated to the core unit and integration test namespaces inside the rule; downstream repositories carry their own package taxonomy
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestPackageMatchRule
+        arguments:
+            projectDir: %currentWorkingDirectory%
+        tags:
+            - phpstan.rules.rule
+
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
         arguments:

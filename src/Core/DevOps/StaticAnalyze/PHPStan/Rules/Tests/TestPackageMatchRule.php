@@ -14,6 +14,7 @@ use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Finder\Finder;
 
 /**
  * A test's #[Package] value must match the ownership of the code it exercises, so the
@@ -189,20 +190,10 @@ class TestPackageMatchRule implements Rule
         }
 
         $packages = [];
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS),
-        );
+        // the frontend roots are large and carry no #[Package] classes; excluding them prunes the traversal
+        $files = (new Finder())->files()->in($directory)->exclude(['node_modules', 'Resources/app'])->name('*.php');
         foreach ($files as $file) {
-            if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
-                continue;
-            }
-
-            $content = @\file_get_contents($file->getPathname());
-            if ($content === false) {
-                continue;
-            }
-
-            if (\preg_match_all('/^#\[Package\(\'([^\']+)\'/m', $content, $matches) > 0) {
+            if (\preg_match_all('/^#\[Package\(\'([^\']+)\'/m', $file->getContents(), $matches) > 0) {
                 foreach ($matches[1] as $package) {
                     $packages[$package] = true;
                 }

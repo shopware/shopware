@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<FieldConfig>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class FieldConfigCollection extends Collection

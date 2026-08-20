@@ -87,7 +87,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         $documentFiles = $documentEntity->getDocumentFiles();
         $isDocumentV2 = $documentFiles !== null && $documentFiles->count() > 0;
 
-        if (!$isDocumentV2) {
+        if (!$isDocumentV2 && !Feature::isActive('v6.9.0.0')) {
             $fileTypes = $this->resolveRequest($request, $fileType);
 
             $document = $this->readDocument(
@@ -120,7 +120,13 @@ final class DocumentRoute extends AbstractDocumentRoute
             );
         }
 
-        $document = $this->documentReader->read($documentId, $context->getContext(), $deepLinkCode, $format);
+        // A legacy document reaches here only once v6.9.0.0 is active; such callers may only ever
+        // supply $fileType, so it's used as a fallback. A genuine v2 document must use $format alone -
+        // falling back to $fileType here would wrongly force a format that document might not have,
+        // instead of DocumentReader's own "first file found" behavior for an unspecified format.
+        $resolvedFormat = $isDocumentV2 ? $format : ($format ?? $fileType);
+
+        $document = $this->documentReader->read($documentId, $context->getContext(), $deepLinkCode, $resolvedFormat);
 
         return $this->createResponse(
             $document->getName(),
@@ -131,10 +137,20 @@ final class DocumentRoute extends AbstractDocumentRoute
     }
 
     /**
+     * @deprecated tag:v6.9.0 - will be removed together with document generation v1; DocumentReader::read()
+     * takes over reading legacy documents (via a read-time fallback to documentMediaFile/documentA11yMediaFile)
+     * once the v6.9.0.0 flag is active. Accept-header content negotiation and on-demand generation of a
+     * not-yet-rendered file type are not carried over - callers must request an already-generated file type.
+     *
      * @return list<string>
      */
     public function resolveRequest(Request $request, ?string $fileType): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            'Method "resolveRequest()" is deprecated and will be removed. Legacy documents are read through DocumentReader::read() instead.',
+        );
+
         $supportedTypesMapping = $this->getSupportedFileTypes();
 
         /*

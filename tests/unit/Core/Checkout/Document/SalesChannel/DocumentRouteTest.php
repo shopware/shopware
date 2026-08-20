@@ -975,6 +975,57 @@ class DocumentRouteTest extends TestCase
         );
     }
 
+    public function testDownloadUsesDocumentReaderForALegacyDocumentWhenV690IsActive(): void
+    {
+        Feature::fake(['v6.9.0.0'], function (): void {
+            $customerId = Uuid::randomHex();
+            $customer = $this->createCustomer($customerId, false);
+            $order = $this->createOrder($customerId);
+            $document = $this->createDocument($order);
+
+            $media = new MediaEntity();
+            $media->setId(Uuid::randomHex());
+            $media->setFileName('invoice');
+            $media->setFileExtension('pdf');
+            $media->setMimeType('application/pdf');
+
+            $document->setDocumentMediaFile($media);
+
+            $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+                new DocumentCollection([$document]), // DocumentRoute::loadDocument()
+                new DocumentCollection([$document]), // DocumentReader::read()
+            ], new DocumentDefinition());
+
+            $mediaService = static::createStub(MediaService::class);
+            $mediaService->method('loadFile')->willReturn('legacy content');
+
+            $generator = static::createMock(DocumentGenerator::class);
+            $generator->expects($this->never())->method('readDocument');
+
+            $route = new DocumentRoute(
+                $generator,
+                new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([])),
+                $documentRepository,
+                new GuestAuthenticator(),
+                new \ArrayIterator([]),
+            );
+
+            $context = static::createStub(SalesChannelContext::class);
+            $context->method('getCustomer')->willReturn($customer);
+            $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+            $response = $route->download(
+                $document->getId(),
+                new Request(),
+                $context,
+                '',
+                'pdf',
+            );
+
+            static::assertSame('legacy content', $response->getContent());
+        });
+    }
+
     private function createCustomer(string $customerId, bool $isGuest): CustomerEntity
     {
         $customer = new CustomerEntity();

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -114,7 +115,10 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'id' => Uuid::fromHexToBytes($configurationId),
                 'stateId' => $stateId,
                 'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
+            ],
+            [
+                'value' => ParameterType::INTEGER,
+            ],
         );
     }
 

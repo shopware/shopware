@@ -54,13 +54,12 @@ test('Customers can add or remove products from their wishlist.',{ tag: ['@Wishl
         await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toContainText('1');
     });
 
-        await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {
-            const expectedPrice = await product1Locators.productPrice.innerText();
-            await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
-            const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
-            const itemPrice = await offcanvasItem.productTotalPriceValue.innerText();
-            await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();
-            await ShopCustomer.expects(itemPrice).toBe(expectedPrice);
-        });
-    },
-);
+    await test.step('Add product to cart from wishlist and verify it is added and wishlist icon is visible on offcanvas', async () => {
+        const expectedPrice = await product1Locators.productPrice.innerText();
+        await ShopCustomer.attemptsTo(AddProductToCartFromWishlist(product1));
+        const offcanvasItem = await StorefrontOffCanvasCart.getLineItemByProductNumber(product1.productNumber);
+        const itemPrice = await offcanvasItem.productTotalPriceValue.innerText();
+        await ShopCustomer.expects(offcanvasItem.wishlistAddedButton).toBeVisible();
+        await ShopCustomer.expects(itemPrice).toBe(expectedPrice);
+    });
+});

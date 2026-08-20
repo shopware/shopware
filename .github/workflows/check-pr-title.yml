@@ -22,5 +22,5 @@ jobs:
         with:
           subjectPattern: …$
           subjectPatternError: |
-              PR title ends with "…", probably because it was shortened by GitHub.
-              Make sure the title is descriptive enough, as it will be used as the commit message.
+            PR title ends with "…", probably because it was shortened by GitHub.
+            Make sure the title is descriptive enough, as it will be used as the commit message.

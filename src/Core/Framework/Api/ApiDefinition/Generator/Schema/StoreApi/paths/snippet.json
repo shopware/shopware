@@ -27,6 +27,7 @@
                     },
                     "locale": {
                         "type": "string",
+                        "pattern": "^[a-z]{2}(?:[_-][A-Z][a-z]{3})?(?:[_-](?:[A-Z]{2}|\\d{3}))?$",
                         "description": "Locale of the resolved snippet set, e.g. `de-DE`."
                     },
                     "fallbackLocale": {
@@ -34,6 +35,7 @@
                             "string",
                             "null"
                         ],
+                        "pattern": "^[a-z]{2}$",
                         "description": "Fallback locale prefix used while resolving, e.g. `de`. Null if it equals the locale."
                     },
                     "snippetSetId": {

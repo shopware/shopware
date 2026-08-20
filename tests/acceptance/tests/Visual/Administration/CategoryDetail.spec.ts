@@ -1,8 +1,10 @@
 import { test, setViewport, replaceElements, assertScreenshot } from '@fixtures/AcceptanceTest';
+import { collapseAdminMenu } from '@helpers/admin-menu-helpers';
 
 test('Visual: Administration category page', { tag: '@Visual' }, async ({ ShopAdmin, AdminCategories }) => {
     await test.step('Creates a screenshot of the category page on the general tab.', async () => {
         await ShopAdmin.goesTo(AdminCategories.url());
+        await collapseAdminMenu(AdminCategories.page);
         await AdminCategories.categoryItems.first().click();
         await setViewport(AdminCategories.page, {
             waitForSelector: '.sw-category-detail-base__description',

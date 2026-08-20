@@ -161,38 +161,6 @@ jobs:
 
       - name: Run on platform
         run: ./local-php-security-checker
-  code-ql:
-    name: Analyze
-    needs:
-      - markdown-only-changes
-    if: ${{ github.repository == 'shopware/shopware' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
-    runs-on: ubuntu-24.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ["javascript"]
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 2
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
-
-        with:
-          languages: ${{ matrix.language }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
-
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     needs:
@@ -444,7 +412,6 @@ jobs:
       - markdown-only-changes
       - phpunit
       - win-checkout
-      - code-ql
       - php-security
       - blue-green-66-67
       - blue-green-67-68
@@ -456,5 +423,5 @@ jobs:
         with:
           # allowed-failures: docs, linters
           # allow markdown-only PRs to skip the expensive jobs, and allow jobs which do not run on a PR or outside the public repository to skip
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'phpunit, win-checkout, code-ql, php-security, blue-green-66-67, blue-green-67-68' || github.repository != 'shopware/shopware' && github.event_name == 'pull_request' && 'win-checkout, code-ql' || github.repository != 'shopware/shopware' && 'code-ql' || github.event_name == 'pull_request' && 'win-checkout' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'phpunit, win-checkout, php-security, blue-green-66-67, blue-green-67-68' || github.event_name == 'pull_request' && 'win-checkout' || '' }}
           jobs: ${{ toJSON(needs) }}

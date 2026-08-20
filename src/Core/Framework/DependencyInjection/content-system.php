@@ -87,6 +87,9 @@ use Shopware\Core\Framework\ContentSystem\Output\Format\DataResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\SkeletonResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
@@ -274,6 +277,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DataLoaderProvider::class),
             service(LoaderInputResolver::class),
+            service(LoaderValueIdentityFactory::class),
+        ]);
+
+    $services->set(ValueFingerprinter::class);
+
+    $services->set(LoaderValueIdentityFactory::class)
+        ->args([
+            service(DataLoaderConfigSerializerProvider::class),
+            service(ConfigCanonicalizer::class),
+            service(ValueFingerprinter::class),
+        ]);
+
+    $services->set(ResolvedValueIndexFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ValueFingerprinter::class),
         ]);
 
     $services->set(ContextDistributor::class)
@@ -334,6 +353,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentElementLowering::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
+            service(ResolvedValueIndexFactory::class),
         ]);
 
     // Rendering Specification Factory

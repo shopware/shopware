@@ -6,6 +6,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -60,7 +62,12 @@ final readonly class RenderedElementFactory
      * practice — both copy the same stored value — so their relative order is fixed purely for
      * determinism, and carries no behavioural meaning.
      *
-     * @param array<string, mixed> $resolvedLoaderValues keyed by requirement key
+     * THE WRITE ORDER IS LOAD-BEARING TWICE. It decides which value a contested key carries, and — because
+     * each write records its own provenance next to it — which category the resolved-value index files that
+     * key under. Reordering these loops for readability would silently recategorise index entries while every
+     * value stayed correct, so a provenance assertion guards the order, not only a value assertion.
+     *
+     * @param array<string, ResolvedLoaderValue> $resolvedLoaderValues keyed by requirement key
      * @param array<string, mixed> $deliveredContext keyed by the key context was delivered under
      * @param list<string> $distributionReferencedKeys stored keys a parent's distribution config names
      * @param array<string, list<RenderedElement>> $slots already-minted children
@@ -71,10 +78,11 @@ final readonly class RenderedElementFactory
         array $deliveredContext,
         array $distributionReferencedKeys,
         array $slots,
-    ): RenderedElement {
+    ): ElementMintResult {
         $storedProperties = $stored->properties();
         $declaredProperties = $this->declaredProperties($stored->component);
         $properties = [];
+        $provenance = [];
 
         foreach ($distributionReferencedKeys as $key) {
             if ($this->isDeclaredReference($declaredProperties, $key)) {
@@ -83,36 +91,50 @@ final readonly class RenderedElementFactory
 
             if ($this->carriesAValue($storedProperties, $key)) {
                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
+                $provenance[$key] = new ValueProvenance(ValueOrigin::DistributionReferenced);
             }
         }
 
         foreach ($this->declaredPrimitiveKeys($declaredProperties) as $key) {
             if ($this->carriesAValue($storedProperties, $key)) {
                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
+                $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredPrimitive);
             }
         }
 
         foreach (array_keys($stored->dataRequirements) as $key) {
             if (\array_key_exists($key, $resolvedLoaderValues)) {
-                $properties[$key] = $resolvedLoaderValues[$key];
+                $properties[$key] = $resolvedLoaderValues[$key]->value;
+                $provenance[$key] = new ValueProvenance(
+                    ValueOrigin::LoaderResolved,
+                    $resolvedLoaderValues[$key]->identity,
+                );
             }
         }
 
         foreach ($deliveredContext as $key => $value) {
             $properties[$key] = $value;
+            $provenance[$key] = new ValueProvenance(ValueOrigin::DeliveredContext);
         }
 
-        return new RenderedElement($stored->id, $stored->component, $properties, $slots, $stored->style);
+        return new ElementMintResult(
+            new RenderedElement($stored->id, $stored->component, $properties, $slots, $stored->style),
+            $provenance,
+        );
     }
 
     /**
-     * The skeleton shape: structure only, no properties at all.
+     * The skeleton shape: structure only, no properties at all — and therefore no provenance, because
+     * provenance describes property keys and there are none.
      *
      * @param array<string, list<RenderedElement>> $slots
      */
-    public function createStructural(StoredElement $stored, array $slots): RenderedElement
+    public function createStructural(StoredElement $stored, array $slots): ElementMintResult
     {
-        return new RenderedElement($stored->id, $stored->component, [], $slots, $stored->style);
+        return new ElementMintResult(
+            new RenderedElement($stored->id, $stored->component, [], $slots, $stored->style),
+            [],
+        );
     }
 
     /**

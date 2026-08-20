@@ -10,11 +10,17 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDelivery;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
+use Shopware\Core\Framework\ContentSystem\Rendering\LoweringResult;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\ResolvedLoaderValue;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
@@ -38,7 +44,7 @@ class RenderedTreeFactoryTest extends TestCase
             StoredElementBuilder::create('Sw:Text', 'root-2')->build(),
         ];
 
-        $tree = $this->factory()->create($forest, $this->indexFor([]), [], RenderingMode::FULL);
+        $tree = $this->mint($forest, $this->indexFor([]), [], RenderingMode::FULL);
 
         static::assertCount(2, $tree);
         static::assertSame('root-1', $tree[0]->id);
@@ -56,7 +62,7 @@ class RenderedTreeFactoryTest extends TestCase
             ->withSlot('right', [StoredElementBuilder::create('Sw:Text', 'child-3')->build()])
             ->build();
 
-        $tree = $this->factory()->create([$root], $this->indexFor([]), [], RenderingMode::FULL);
+        $tree = $this->mint([$root], $this->indexFor([]), [], RenderingMode::FULL);
 
         static::assertSame(['left', 'right'], array_keys($tree[0]->slots));
         static::assertSame(['child-1', 'child-2'], array_map(
@@ -74,7 +80,7 @@ class RenderedTreeFactoryTest extends TestCase
     {
         $root = $this->threeLevelTree();
 
-        $tree = $this->factory()->create([$root], $this->indexFor([]), [], RenderingMode::FULL);
+        $tree = $this->mint([$root], $this->indexFor([]), [], RenderingMode::FULL);
 
         static::assertSame('grandchild-1', $tree[0]->slots['main'][0]->slots['inner'][0]->id);
     }
@@ -90,8 +96,8 @@ class RenderedTreeFactoryTest extends TestCase
         $root = $this->threeLevelTree();
         $index = $this->indexFor(['grandchild-1' => new ContextDelivery('grandchild-1', ['headline' => 'delivered'])]);
 
-        $full = $this->factory()->create([$root], $index, [], RenderingMode::FULL);
-        $skeleton = $this->factory()->create([$root], $index, [], RenderingMode::SKELETON);
+        $full = $this->mint([$root], $index, [], RenderingMode::FULL);
+        $skeleton = $this->mint([$root], $index, [], RenderingMode::SKELETON);
 
         static::assertSame($this->structureOf($full[0]), $this->structureOf($skeleton[0]));
         static::assertSame(
@@ -108,7 +114,7 @@ class RenderedTreeFactoryTest extends TestCase
             ->withProperty('headline', 'stored')
             ->build();
 
-        $tree = $this->factory()->create([$root], $this->indexFor([]), [], RenderingMode::SKELETON);
+        $tree = $this->mint([$root], $this->indexFor([]), [], RenderingMode::SKELETON);
 
         static::assertSame([], $tree[0]->properties);
     }
@@ -127,7 +133,7 @@ class RenderedTreeFactoryTest extends TestCase
             'child-2' => new ContextDelivery('child-2', ['headline' => 'second']),
         ]);
 
-        $tree = $this->factory()->create([$root], $index, [], RenderingMode::FULL);
+        $tree = $this->mint([$root], $index, [], RenderingMode::FULL);
 
         static::assertSame(['headline' => 'first'], $tree[0]->slots['main'][0]->properties);
         static::assertSame(['headline' => 'second'], $tree[0]->slots['main'][1]->properties);
@@ -141,7 +147,7 @@ class RenderedTreeFactoryTest extends TestCase
             ->withDataRequirement('product', 'product', new StubLoaderConfig())
             ->build();
 
-        $tree = $this->factory()->create(
+        $tree = $this->mint(
             [$root],
             $this->indexFor([]),
             ['root-1' => ['product' => $loaded]],
@@ -149,6 +155,43 @@ class RenderedTreeFactoryTest extends TestCase
         );
 
         static::assertSame(['product' => $loaded], $tree[0]->properties);
+    }
+
+    #[TestDox('collects the provenance of every element it minted, keyed by element id')]
+    public function testProvenanceIsCollectedAcrossTheWholeFold(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Text', 'child-1')
+            ->withProperty('headline', 'Nested')
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Product', 'root-1')
+            ->withDataRequirement('product', 'product', new StubLoaderConfig())
+            ->withSlot('main', [$child])
+            ->build();
+
+        $result = $this->mintResult(
+            [$root],
+            $this->indexFor([]),
+            ['root-1' => ['product' => new StubStruct()]],
+            RenderingMode::FULL
+        );
+
+        // Both depths are present, each under its own element id, so a fold that recorded only the roots or
+        // only the leaves fails here.
+        static::assertSame(['child-1', 'root-1'], $this->sortedKeys($result->provenance));
+        static::assertSame(ValueOrigin::DeclaredPrimitive, $result->provenance['child-1']['headline']->origin);
+        static::assertSame(ValueOrigin::LoaderResolved, $result->provenance['root-1']['product']->origin);
+    }
+
+    #[TestDox('records no provenance entry for an element that carries no properties')]
+    public function testProvenanceOmitsAPropertylessElement(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [StoredElementBuilder::create('Sw:Text', 'child-1')->withProperty('headline', 'Nested')->build()])
+            ->build();
+
+        $result = $this->mintResult([$root], $this->indexFor([]), [], RenderingMode::FULL);
+
+        static::assertSame(['child-1'], $this->sortedKeys($result->provenance));
     }
 
     /**
@@ -164,7 +207,7 @@ class RenderedTreeFactoryTest extends TestCase
             ->build();
         $index = $this->indexFor(['root-1' => new ContextDelivery('root-1', [], ['data_key'])]);
 
-        $tree = $this->factory()->create([$root], $index, [], RenderingMode::FULL);
+        $tree = $this->mint([$root], $index, [], RenderingMode::FULL);
 
         static::assertSame(['data_key' => 'present'], $tree[0]->properties);
     }
@@ -176,8 +219,8 @@ class RenderedTreeFactoryTest extends TestCase
         $root = StoredElementBuilder::create('Sw:Text', 'root-1')->withStyle($style)->build();
         $index = $this->indexFor([]);
 
-        $full = $this->factory()->create([$root], $index, [], RenderingMode::FULL);
-        $skeleton = $this->factory()->create([$root], $index, [], RenderingMode::SKELETON);
+        $full = $this->mint([$root], $index, [], RenderingMode::FULL);
+        $skeleton = $this->mint([$root], $index, [], RenderingMode::SKELETON);
 
         static::assertSame($style, $full[0]->style);
         static::assertSame($style, $skeleton[0]->style);
@@ -190,7 +233,7 @@ class RenderedTreeFactoryTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::contextDeliveryMissing('root-1'));
 
-        $this->factory()->create([$root], new ContextDeliveryIndex(), [], RenderingMode::FULL);
+        $this->mint([$root], new ContextDeliveryIndex(), [], RenderingMode::FULL);
     }
 
     #[TestDox('renders a skeleton without consulting the delivery index at all')]
@@ -198,7 +241,7 @@ class RenderedTreeFactoryTest extends TestCase
     {
         $root = StoredElementBuilder::create('Sw:Text', 'root-1')->build();
 
-        $tree = $this->factory()->create([$root], new ContextDeliveryIndex(), [], RenderingMode::SKELETON);
+        $tree = $this->mint([$root], new ContextDeliveryIndex(), [], RenderingMode::SKELETON);
 
         static::assertSame('root-1', $tree[0]->id);
     }
@@ -206,9 +249,25 @@ class RenderedTreeFactoryTest extends TestCase
     #[TestDox('returns no rendered elements for an empty forest')]
     public function testEmptyForestYieldsAnEmptyTree(): void
     {
-        $tree = $this->factory()->create([], new ContextDeliveryIndex(), [], RenderingMode::FULL);
+        $result = $this->mintResult([], new ContextDeliveryIndex(), [], RenderingMode::FULL);
+        $tree = $result->tree;
+
+        static::assertSame([], $result->provenance);
 
         static::assertSame([], $tree);
+    }
+
+    /**
+     * @param array<string, array<string, ValueProvenance>> $provenance
+     *
+     * @return list<string>
+     */
+    private function sortedKeys(array $provenance): array
+    {
+        $keys = array_keys($provenance);
+        sort($keys);
+
+        return $keys;
     }
 
     /**
@@ -254,6 +313,50 @@ class RenderedTreeFactoryTest extends TestCase
         }
 
         return new ContextDeliveryIndex($deliveries);
+    }
+
+    /**
+     * The rendered forest alone, for every test about structure and property maps. Raw loader values are
+     * wrapped in their identity here so those tests keep saying what they are about.
+     *
+     * @param list<StoredElement> $forest
+     * @param array<string, array<string, mixed>> $loaderValues
+     *
+     * @return list<RenderedElement>
+     */
+    private function mint(
+        array $forest,
+        ContextDeliveryIndex $deliveries,
+        array $loaderValues,
+        RenderingMode $mode,
+    ): array {
+        return $this->mintResult($forest, $deliveries, $loaderValues, $mode)->tree;
+    }
+
+    /**
+     * @param list<StoredElement> $forest
+     * @param array<string, array<string, mixed>> $loaderValues
+     */
+    private function mintResult(
+        array $forest,
+        ContextDeliveryIndex $deliveries,
+        array $loaderValues,
+        RenderingMode $mode,
+    ): LoweringResult {
+        $fingerprinter = new ValueFingerprinter();
+
+        $resolved = array_map(
+            static fn (array $values): array => array_map(
+                static fn (mixed $value): ResolvedLoaderValue => new ResolvedLoaderValue(
+                    $value,
+                    new LoaderValueIdentity('stub', 'config-hash', 'inputs-hash', $fingerprinter->fingerprint($value)),
+                ),
+                $values
+            ),
+            $loaderValues
+        );
+
+        return $this->factory()->create($forest, $deliveries, $resolved, $mode);
     }
 
     private function factory(): RenderedTreeFactory

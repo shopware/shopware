@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 
@@ -33,23 +34,28 @@ final readonly class RenderedTreeFactory
     }
 
     /**
+     * The provenance of every element the fold mints is collected into one forest-wide map on the way out, so
+     * a later stage reads it by element id without walking the tree again.
+     *
      * @param list<StoredElement> $forest roots in order
-     * @param array<string, array<string, mixed>> $loaderValues element id => requirement key => resolved value
+     * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues element id => requirement key => resolved value
      *
      * @throws ContentSystemException when the index was built from a different forest
-     *
-     * @return list<RenderedElement>
      */
     public function create(
         array $forest,
         ContextDeliveryIndex $deliveries,
         array $loaderValues,
         RenderingMode $mode,
-    ): array {
-        return array_map(
-            fn (StoredElement $root): RenderedElement => $this->mint($root, $deliveries, $loaderValues, $mode),
-            $forest
-        );
+    ): LoweringResult {
+        $tree = [];
+        $provenance = [];
+
+        foreach ($forest as $root) {
+            $tree[] = $this->mint($root, $deliveries, $loaderValues, $mode, $provenance);
+        }
+
+        return new LoweringResult($tree, $provenance);
     }
 
     /**
@@ -57,22 +63,49 @@ final readonly class RenderedTreeFactory
      * slot, because both come straight from iterating the stored slot map rather than from any collection
      * this class builds.
      *
-     * @param array<string, array<string, mixed>> $loaderValues
+     * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues
+     * @param array<string, array<string, ValueProvenance>> $provenance collected across the whole fold
      */
     private function mint(
         StoredElement $element,
         ContextDeliveryIndex $deliveries,
         array $loaderValues,
         RenderingMode $mode,
+        array &$provenance,
     ): RenderedElement {
+        // A plain loop rather than array_map: the accumulator is passed by reference, and an arrow function
+        // would capture it BY VALUE, so every child's provenance would be written into a copy and lost while
+        // the rendered tree still came out correct.
         $slots = [];
         foreach ($element->slots as $name => $children) {
-            $slots[$name] = array_map(
-                fn (StoredElement $child): RenderedElement => $this->mint($child, $deliveries, $loaderValues, $mode),
-                $children
-            );
+            $minted = [];
+            foreach ($children as $child) {
+                $minted[] = $this->mint($child, $deliveries, $loaderValues, $mode, $provenance);
+            }
+
+            $slots[$name] = $minted;
         }
 
+        $minted = $this->mintElement($element, $deliveries, $loaderValues, $mode, $slots);
+
+        if ($minted->provenance !== []) {
+            $provenance[$element->id] = $minted->provenance;
+        }
+
+        return $minted->element;
+    }
+
+    /**
+     * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues
+     * @param array<string, list<RenderedElement>> $slots
+     */
+    private function mintElement(
+        StoredElement $element,
+        ContextDeliveryIndex $deliveries,
+        array $loaderValues,
+        RenderingMode $mode,
+        array $slots,
+    ): ElementMintResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->elementFactory->createStructural($element, $slots);
         }

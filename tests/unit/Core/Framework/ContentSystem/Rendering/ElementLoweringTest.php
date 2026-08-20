@@ -10,7 +10,9 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
@@ -18,6 +20,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
@@ -32,7 +36,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -58,7 +64,7 @@ class ElementLoweringTest extends TestCase
         $loader = $this->loader();
         $loader->expects($this->never())->method('load');
 
-        $tree = $this->lowering($loader)->lower(
+        $lowered = $this->lowering($loader)->lower(
             [$this->rootOverRequiringChild()],
             RenderingMode::SKELETON,
             static::createStub(SalesChannelContext::class),
@@ -66,6 +72,10 @@ class ElementLoweringTest extends TestCase
             new RenderingCacheContext()
         );
 
+        $tree = $lowered->tree;
+
+        // A skeleton mints no properties, so it records no provenance either: there is nothing to file.
+        static::assertSame([], $lowered->provenance);
         static::assertSame('root-1', $tree[0]->id);
         static::assertSame('Sw:Section', $tree[0]->component);
         static::assertSame([], $tree[0]->properties);
@@ -165,7 +175,7 @@ class ElementLoweringTest extends TestCase
             static::createStub(SalesChannelContext::class),
             new Request(),
             new RenderingCacheContext()
-        );
+        )->tree;
     }
 
     /**
@@ -193,7 +203,17 @@ class ElementLoweringTest extends TestCase
         $provider->method('get')->willReturn($loader);
 
         return new ElementLowering(
-            new ElementDataResolver($provider, new LoaderInputResolver()),
+            new ElementDataResolver(
+                $provider,
+                new LoaderInputResolver(),
+                new LoaderValueIdentityFactory(
+                    new DataLoaderConfigSerializerProvider(new ServiceLocator([
+                        'entity' => static fn (): StubLoaderConfigSerializer => new StubLoaderConfigSerializer(),
+                    ])),
+                    new ConfigCanonicalizer(),
+                    new ValueFingerprinter(),
+                ),
+            ),
             new ContextDeliveryResolver(new ContextDistributor(new ContextPathResolver())),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry()))
         );

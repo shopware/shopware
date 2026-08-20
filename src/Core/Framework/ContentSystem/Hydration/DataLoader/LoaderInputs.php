@@ -27,6 +27,19 @@ final readonly class LoaderInputs
         return $this->get($key) !== null;
     }
 
+    /**
+     * The whole resolved map, for a caller that must characterise the invocation rather than read one input:
+     * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory} hashes it so two
+     * loads of one source with different inputs cannot share a response reference. Not for loaders — they read
+     * declared keys through the typed accessors, which is what keeps an undeclared read an authoring error.
+     *
+     * @return array<string, mixed>
+     */
+    public function all(): array
+    {
+        return $this->values;
+    }
+
     public function get(string $key): mixed
     {
         if (!\array_key_exists($key, $this->values)) {

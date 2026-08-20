@@ -14,7 +14,9 @@ use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
@@ -31,6 +33,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
@@ -51,6 +56,7 @@ use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfigSerializer;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -193,8 +199,8 @@ class ContentPipelineTest extends TestCase
     }
 
     #[DataProvider('renderingModeProvider')]
-    #[TestDox('collects no value index yet, whatever the format asks for')]
-    public function testLoadCollectsNoValueIndexWhileNothingProducesOne(RenderingMode $mode): void
+    #[TestDox('builds a value index when the format asks for one and none when it does not')]
+    public function testLoadCollectsAValueIndexOnlyWhenAsked(RenderingMode $mode): void
     {
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout'), 'My Layout'));
 
@@ -206,7 +212,10 @@ class ContentPipelineTest extends TestCase
         $requested = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, true, Generator::generateSalesChannelContext());
         $notRequested = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
-        static::assertNull($requested->index);
+        // The flag is a format question, so it decides alone. SKELETON with collection asked for is a pair no
+        // shipped route produces, and it yields an EMPTY index rather than a throw: a mode that resolves no
+        // data has nothing to index, and a mode branch here is exactly what the pipeline does not have.
+        static::assertNotNull($requested->index);
         static::assertNull($notRequested->index);
     }
 
@@ -880,6 +889,7 @@ class ContentPipelineTest extends TestCase
             new ContentElementLowering(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            new ResolvedValueIndexFactory($this->typeRegistry(), new ValueFingerprinter()),
         );
     }
 
@@ -895,12 +905,25 @@ class ContentPipelineTest extends TestCase
     private function createLowering(array $loaders): ElementLowering
     {
         $factories = [];
+        $serializers = [];
         foreach ($loaders as $source => $loader) {
             $factories[$source] = static fn (): AbstractContentDataLoader => $loader;
+            // Every stubbed source gets a config serializer, because the render path now hashes each
+            // requirement's config to build the value's dedup identity — a source without one is a
+            // misconfiguration the real provider refuses, not a case these fixtures should model.
+            $serializers[$source] = static fn (): StubLoaderConfigSerializer => new StubLoaderConfigSerializer();
         }
 
         return new ElementLowering(
-            new ElementDataResolver(new DataLoaderProvider(new ServiceLocator($factories)), new LoaderInputResolver()),
+            new ElementDataResolver(
+                new DataLoaderProvider(new ServiceLocator($factories)),
+                new LoaderInputResolver(),
+                new LoaderValueIdentityFactory(
+                    new DataLoaderConfigSerializerProvider(new ServiceLocator($serializers)),
+                    new ConfigCanonicalizer(),
+                    new ValueFingerprinter(),
+                ),
+            ),
             new ContextDeliveryResolver(new ContextDistributor(new ContextPathResolver())),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
         );

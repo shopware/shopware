@@ -9,6 +9,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
@@ -35,17 +37,17 @@ class ContentPipeline
         private readonly ContentElementLowering $bridge,
         private readonly VirtualRootWrapper $virtualRootWrapper,
         private readonly PartialRenderer $partialRenderer,
+        private readonly ResolvedValueIndexFactory $indexFactory,
     ) {
     }
 
     /**
      * @param bool $collectValueIndex whether the response format rebuilds its body from the
-     *                                {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex}
-     *                                instead of serving property values inline. The flag has no consumer yet:
-     *                                the lowering records no value provenance, so there is nothing to index
-     *                                from and every format gets a null index. The commit that puts the
-     *                                decomposed and data formats on their own encoders adds the collection
-     *                                behind this flag and is its first reader.
+     *                                {@see ResolvedValueIndex} instead of serving property values inline. The
+     *                                index is finalized against the FINISHED tree — after the finishing steps
+     *                                and the finalization event — so a node a partial extract dropped and a
+     *                                key a listener rewrote are both accounted for as the response will carry
+     *                                them, not as the lowering produced them.
      */
     public function load(
         RenderableLayout $layout,
@@ -69,7 +71,7 @@ class ContentPipeline
 
         $storedTree = $this->wiringPlanner->plan($preparation->prePruneForest, $preparation->tree);
 
-        $renderedTree = $this->elementLowering->lower(
+        $lowered = $this->elementLowering->lower(
             $storedTree,
             $mode,
             $salesChannelContext,
@@ -77,7 +79,7 @@ class ContentPipeline
             $cacheContext,
         );
 
-        $renderedTree = $this->unwrapVirtualRoot($renderedTree, $scaffolding);
+        $renderedTree = $this->unwrapVirtualRoot($lowered->tree, $scaffolding);
         $renderedTree = $this->extractPartialTarget($renderedTree, $scaffolding);
 
         $finalizationEvent = new RenderedTreeFinalizationEvent(
@@ -98,7 +100,7 @@ class ContentPipeline
         return new RenderResult(
             $finishedTree,
             $reference,
-            null,
+            $collectValueIndex ? $this->indexFactory->create($finishedTree, $lowered->provenance) : null,
             new ContentPage(
                 $reference->id,
                 $elements,

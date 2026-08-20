@@ -53,8 +53,6 @@ final readonly class ElementLowering
      * @param list<StoredElement> $forest roots in order
      *
      * @throws ContentSystemException when a required consumer's path cannot be resolved
-     *
-     * @return list<RenderedElement>
      */
     public function lower(
         array $forest,
@@ -62,16 +60,34 @@ final readonly class ElementLowering
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
-    ): array {
+    ): LoweringResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
 
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
 
-        $deliveries = $this->deliveryResolver->resolve($forest, $loaderValues);
+        // Context distribution is about dataflow, not about where a value came from, so it sees the plain
+        // values: a provider hands a child what it renders, and the identity beside it means nothing there.
+        $deliveries = $this->deliveryResolver->resolve($forest, $this->plainValues($loaderValues));
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
+    }
+
+    /**
+     * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function plainValues(array $loaderValues): array
+    {
+        return array_map(
+            static fn (array $values): array => array_map(
+                static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value,
+                $values
+            ),
+            $loaderValues
+        );
     }
 
     /**
@@ -84,7 +100,7 @@ final readonly class ElementLowering
      *
      * @param list<StoredElement> $forest
      *
-     * @return array<string, array<string, mixed>> element id => requirement key => resolved value
+     * @return array<string, array<string, ResolvedLoaderValue>> element id => requirement key => resolved value
      */
     private function resolveLoaderValues(
         array $forest,
@@ -102,7 +118,7 @@ final readonly class ElementLowering
     }
 
     /**
-     * @param array<string, array<string, mixed>> $values
+     * @param array<string, array<string, ResolvedLoaderValue>> $values
      */
     private function collectLoaderValues(
         StoredElement $element,

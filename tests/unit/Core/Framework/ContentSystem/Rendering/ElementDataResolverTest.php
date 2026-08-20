@@ -8,21 +8,28 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
+use Shopware\Core\Framework\ContentSystem\Rendering\ResolvedLoaderValue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfig;
+use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfigSerializer;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -64,7 +71,50 @@ class ElementDataResolverTest extends TestCase
 
         $resolved = $this->resolveWith($loader, $this->elementWithRequirement('product'));
 
-        static::assertSame(['product' => $data], $resolved);
+        static::assertSame(['product'], array_keys($resolved));
+        static::assertSame($data, $resolved['product']->value);
+    }
+
+    /**
+     * The identity is minted here because this is the only place all four of its components exist at once:
+     * later stages have neither the resolved inputs nor the value as the loader returned it.
+     */
+    #[TestDox('mints the dedup identity of a loaded value from the requirement, its inputs and the returned value')]
+    public function testResolvedValueCarriesItsDedupIdentity(): void
+    {
+        $data = new StubStruct();
+        $loader = $this->loaderReturning(ContentDataLoaderResult::cached($data));
+
+        $identity = $this->resolveWith($loader, $this->elementWithRequirement('product'))['product']->identity;
+
+        static::assertSame('entity', $identity->source);
+        // Taken from the value the LOADER returned, which is what lets the response index tell that value
+        // apart from one a finalization listener replaced it with.
+        static::assertSame((new ValueFingerprinter())->fingerprint($data), $identity->producedFingerprint);
+        static::assertNotSame('', $identity->configHash);
+        static::assertNotSame('', $identity->inputsHash);
+    }
+
+    #[TestDox('gives two requirements resolving different inputs different identities')]
+    public function testDifferentInputsYieldDifferentIdentities(): void
+    {
+        $loader = $this->loaderReturning(
+            ContentDataLoaderResult::cached(new StubStruct()),
+            ContentDataLoaderResult::cached(new StubStruct()),
+        );
+
+        $resolved = $this->resolveWith($loader, $this->elementWithTwoRequirements());
+
+        // Same source and same config on both requirements, so the inputs hash is the only component that can
+        // keep them apart — and it must, or two loads of different things would share one response reference.
+        static::assertSame(
+            $resolved['product']->identity->configHash,
+            $resolved['category']->identity->configHash,
+        );
+        static::assertNotSame(
+            $resolved['product']->identity->producedFingerprint,
+            $resolved['category']->identity->producedFingerprint,
+        );
     }
 
     /**
@@ -80,7 +130,7 @@ class ElementDataResolverTest extends TestCase
         $resolved = $this->resolveWith($loader, $this->elementWithRequirement('product'));
 
         static::assertArrayHasKey('product', $resolved);
-        static::assertNull($resolved['product']);
+        static::assertNull($resolved['product']->value);
     }
 
     #[TestDox('disables the cache context for a result that is not cache aware')]
@@ -133,7 +183,7 @@ class ElementDataResolverTest extends TestCase
     {
         $provider = $this->createMock(DataLoaderProvider::class);
         $provider->expects($this->never())->method('get');
-        $resolver = new ElementDataResolver($provider, new LoaderInputResolver());
+        $resolver = new ElementDataResolver($provider, new LoaderInputResolver(), $this->identityFactory());
 
         $resolved = $resolver->resolve(
             StoredElementBuilder::create('Sw:Text', 'element-1')->withProperty('headline', 'Hello')->build(),
@@ -168,9 +218,24 @@ class ElementDataResolverTest extends TestCase
     }
 
     /**
+     * The identity factory is real rather than stubbed: it is what turns a resolved requirement into the
+     * dedup key the response index reads, and a stub would let a wrong key through unnoticed.
+     */
+    private function identityFactory(): LoaderValueIdentityFactory
+    {
+        return new LoaderValueIdentityFactory(
+            new DataLoaderConfigSerializerProvider(new ServiceLocator([
+                'entity' => static fn (): TestNavigationShapedLoaderConfigSerializer => new TestNavigationShapedLoaderConfigSerializer(),
+            ])),
+            new ConfigCanonicalizer(),
+            new ValueFingerprinter(),
+        );
+    }
+
+    /**
      * @param AbstractContentDataLoader<Struct>&MockObject $loader
      *
-     * @return array<string, Struct|null>
+     * @return array<string, ResolvedLoaderValue>
      */
     private function resolveWith(
         AbstractContentDataLoader&MockObject $loader,
@@ -180,7 +245,7 @@ class ElementDataResolverTest extends TestCase
         $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturn($loader);
 
-        $resolver = new ElementDataResolver($provider, new LoaderInputResolver());
+        $resolver = new ElementDataResolver($provider, new LoaderInputResolver(), $this->identityFactory());
 
         return $resolver->resolve(
             $stored,

@@ -8,8 +8,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -39,11 +39,16 @@ final readonly class ElementDataResolver
     public function __construct(
         private DataLoaderProvider $dataLoaderProvider,
         private LoaderInputResolver $inputResolver,
+        private LoaderValueIdentityFactory $identityFactory,
     ) {
     }
 
     /**
-     * @return array<string, Struct|null> the resolved value of every requirement, keyed by requirement key
+     * The identity is minted here and nowhere later: the resolved inputs do not outlive this loop, and the
+     * value's fingerprint has to be taken from what the LOADER returned rather than from whatever the response
+     * finally carries.
+     *
+     * @return array<string, ResolvedLoaderValue> every requirement's resolved value, keyed by requirement key
      */
     public function resolve(
         StoredElement $stored,
@@ -69,7 +74,10 @@ final readonly class ElementDataResolver
 
             $result = $loader->load($inputs, $requirement, $context, $request);
 
-            $resolved[$key] = $result->data;
+            $resolved[$key] = new ResolvedLoaderValue(
+                $result->data,
+                $this->identityFactory->create($requirement, $inputs, $result->data),
+            );
 
             $this->processCacheTags($result, $cacheContext);
         }

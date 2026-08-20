@@ -6,11 +6,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementMintResult;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\ResolvedLoaderValue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
@@ -34,7 +41,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('headline', 'Hello')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame(['headline' => 'Hello'], $rendered->properties);
     }
@@ -47,7 +54,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withDataRequirement('product', 'product', new StubLoaderConfig())
             ->build();
 
-        $rendered = $this->factory()->create($stored, ['product' => $loaded], [], [], []);
+        $rendered = $this->mint($stored, ['product' => $loaded], [], [], []);
 
         static::assertSame(['product' => $loaded], $rendered->properties);
     }
@@ -58,7 +65,7 @@ class RenderedElementFactoryTest extends TestCase
         $delivered = new StubStruct();
         $stored = StoredElementBuilder::create('Sw:Tile', 'element-1')->build();
 
-        $rendered = $this->factory()->create($stored, [], ['category' => $delivered], [], []);
+        $rendered = $this->mint($stored, [], ['category' => $delivered], [], []);
 
         static::assertSame(['category' => $delivered], $rendered->properties);
     }
@@ -76,7 +83,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('data_key', 'left')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], ['data_key'], []);
+        $rendered = $this->mint($stored, [], [], ['data_key'], []);
 
         static::assertSame(['data_key' => 'left'], $rendered->properties);
     }
@@ -89,7 +96,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('internalNote', 'authoring scratch')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame(['headline' => 'Hello'], $rendered->properties);
     }
@@ -101,7 +108,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withConsumer('category', ContextType::Single, required: true)
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -111,7 +118,7 @@ class RenderedElementFactoryTest extends TestCase
     {
         $stored = StoredElementBuilder::create('Sw:Text', 'element-1')->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -127,7 +134,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('product', 'product-id')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -144,7 +151,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('product', 'product-id')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], ['product'], []);
+        $rendered = $this->mint($stored, [], [], ['product'], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -160,7 +167,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('headline', null)
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -172,7 +179,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('data_key', null)
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], ['data_key'], []);
+        $rendered = $this->mint($stored, [], [], ['data_key'], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -186,7 +193,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withDataRequirement('product', 'product', new StubLoaderConfig())
             ->build();
 
-        $rendered = $this->factory()->create($stored, ['product' => null], [], [], []);
+        $rendered = $this->mint($stored, ['product' => null], [], [], []);
 
         static::assertSame(['product' => null], $rendered->properties);
     }
@@ -199,7 +206,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withDataRequirement('product', 'product', new StubLoaderConfig())
             ->build();
 
-        $rendered = $this->factory()->create(
+        $rendered = $this->mint(
             $stored,
             ['product' => new StubStruct()],
             ['product' => $delivered],
@@ -208,6 +215,91 @@ class RenderedElementFactoryTest extends TestCase
         );
 
         static::assertSame(['product' => $delivered], $rendered->properties);
+    }
+
+    #[TestDox('records the producing member of every key it writes')]
+    public function testMintRecordsProvenancePerMember(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored')
+            ->withProperty('data_key', 'grouping')
+            ->withDataRequirement('product', 'product', new StubLoaderConfig())
+            ->build();
+
+        $result = $this->mintResult(
+            $stored,
+            ['product' => new StubStruct()],
+            ['delivered' => new StubStruct()],
+            ['data_key'],
+            []
+        );
+
+        static::assertSame(
+            [
+                'data_key' => ValueOrigin::DistributionReferenced,
+                'headline' => ValueOrigin::DeclaredPrimitive,
+                'product' => ValueOrigin::LoaderResolved,
+                'delivered' => ValueOrigin::DeliveredContext,
+            ],
+            array_map(static fn (ValueProvenance $entry): ValueOrigin => $entry->origin, $result->provenance),
+        );
+    }
+
+    #[TestDox('files a contested key under the member that won it, not the one that wrote it first')]
+    public function testProvenanceOfAContestedKeyNamesTheWinningMember(): void
+    {
+        // Every member writes `headline`, so a factory whose tier write order shifted would keep serving a
+        // plausible value while filing the key under the wrong category — the failure this asserts against.
+        $delivered = new StubStruct();
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored')
+            ->withDataRequirement('headline', 'headline', new StubLoaderConfig())
+            ->build();
+
+        $result = $this->mintResult(
+            $stored,
+            ['headline' => new StubStruct()],
+            ['headline' => $delivered],
+            ['headline'],
+            []
+        );
+
+        static::assertSame($delivered, $result->element->properties['headline']);
+        static::assertSame(ValueOrigin::DeliveredContext, $result->provenance['headline']->origin);
+    }
+
+    #[TestDox('files a loader-resolved key with the identity its value dedups by, and no other key with one')]
+    public function testProvenanceCarriesTheLoaderIdentityOnlyForLoaderResolvedKeys(): void
+    {
+        $loaded = new StubStruct();
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('headline', 'Authored')
+            ->withDataRequirement('product', 'product', new StubLoaderConfig())
+            ->build();
+
+        $result = $this->mintResult($stored, ['product' => $loaded], [], [], []);
+
+        $identity = $result->provenance['product']->loaderIdentity;
+        static::assertNotNull($identity);
+        static::assertSame('stub', $identity->source);
+        // The producer's fingerprint describes the value the loader returned, which is what lets the index
+        // tell that value apart from one a finalization listener put in its place.
+        static::assertSame((new ValueFingerprinter())->fingerprint($loaded), $identity->producedFingerprint);
+
+        static::assertNull($result->provenance['headline']->loaderIdentity);
+    }
+
+    #[TestDox('records nothing for a key no member wrote')]
+    public function testProvenanceOmitsAnAbsentKey(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Text', 'element-1')
+            ->withProperty('undeclared', 'dropped')
+            ->build();
+
+        $result = $this->mintResult($stored, [], [], [], []);
+
+        static::assertSame([], $result->element->properties);
+        static::assertSame([], $result->provenance);
     }
 
     #[TestDox('a loader resolved value outranks the stored value of the same declared key')]
@@ -219,7 +311,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withDataRequirement('headline', 'headline', new StubLoaderConfig())
             ->build();
 
-        $rendered = $this->factory()->create($stored, ['headline' => $loaded], [], [], []);
+        $rendered = $this->mint($stored, ['headline' => $loaded], [], [], []);
 
         static::assertSame(['headline' => $loaded], $rendered->properties);
     }
@@ -232,7 +324,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('headline', 'Authored')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], ['headline' => $delivered], [], []);
+        $rendered = $this->mint($stored, [], ['headline' => $delivered], [], []);
 
         static::assertSame(['headline' => $delivered], $rendered->properties);
     }
@@ -245,7 +337,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('data_key', 'left')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], ['data_key' => $delivered], ['data_key'], []);
+        $rendered = $this->mint($stored, [], ['data_key' => $delivered], ['data_key'], []);
 
         static::assertSame(['data_key' => $delivered], $rendered->properties);
     }
@@ -259,7 +351,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withDataRequirement('data_key', 'product', new StubLoaderConfig())
             ->build();
 
-        $rendered = $this->factory()->create($stored, ['data_key' => $loaded], [], ['data_key'], []);
+        $rendered = $this->mint($stored, ['data_key' => $loaded], [], ['data_key'], []);
 
         static::assertSame(['data_key' => $loaded], $rendered->properties);
     }
@@ -275,7 +367,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('headline', 'Hello')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], ['headline'], []);
+        $rendered = $this->mint($stored, [], [], ['headline'], []);
 
         static::assertSame(['headline' => 'Hello'], $rendered->properties);
     }
@@ -288,7 +380,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withConsumer('category', ContextType::Single, required: true)
             ->build();
 
-        $rendered = $this->factory()->create($stored, ['product' => null], [], [], []);
+        $rendered = $this->mint($stored, ['product' => null], [], [], []);
 
         static::assertSame(['product' => null], $rendered->properties);
     }
@@ -300,7 +392,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('headline', 'Hello')
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame([], $rendered->properties);
     }
@@ -312,7 +404,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withProperty('items', ['first', ['label' => 'second', 'tags' => ['a', 'b']]])
             ->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], []);
 
         static::assertSame(
             ['items' => ['first', ['label' => 'second', 'tags' => ['a', 'b']]]],
@@ -330,7 +422,7 @@ class RenderedElementFactoryTest extends TestCase
             ->withStyle($style)
             ->build();
 
-        $rendered = $this->factory()->createStructural($stored, ['main' => [$child]]);
+        $rendered = $this->factory()->createStructural($stored, ['main' => [$child]])->element;
 
         static::assertSame([], $rendered->properties);
         static::assertSame('element-1', $rendered->id);
@@ -347,13 +439,60 @@ class RenderedElementFactoryTest extends TestCase
         $aside = new RenderedElement('child-3', 'Sw:Text');
         $stored = StoredElementBuilder::create('Sw:Text', 'element-1')->build();
 
-        $rendered = $this->factory()->create($stored, [], [], [], [
+        $rendered = $this->mint($stored, [], [], [], [
             'main' => [$first, $second],
             'sidebar' => [$aside],
         ]);
 
         static::assertSame('element-1', $rendered->id);
         static::assertSame(['main' => [$first, $second], 'sidebar' => [$aside]], $rendered->slots);
+    }
+
+    /**
+     * The rendered element alone, for every test about which keys survive. Raw loader values are wrapped in
+     * their identity here so those tests keep saying what they are about.
+     *
+     * @param array<string, mixed> $loaderValues
+     * @param array<string, mixed> $delivered
+     * @param list<string> $distributionKeys
+     * @param array<string, list<RenderedElement>> $slots
+     */
+    private function mint(
+        StoredElement $stored,
+        array $loaderValues,
+        array $delivered,
+        array $distributionKeys,
+        array $slots,
+    ): RenderedElement {
+        return $this->mintResult($stored, $loaderValues, $delivered, $distributionKeys, $slots)->element;
+    }
+
+    /**
+     * @param array<string, mixed> $loaderValues
+     * @param array<string, mixed> $delivered
+     * @param list<string> $distributionKeys
+     * @param array<string, list<RenderedElement>> $slots
+     */
+    private function mintResult(
+        StoredElement $stored,
+        array $loaderValues,
+        array $delivered,
+        array $distributionKeys,
+        array $slots,
+    ): ElementMintResult {
+        $fingerprinter = new ValueFingerprinter();
+
+        $resolved = array_map(
+            static fn (mixed $value): ResolvedLoaderValue => new ResolvedLoaderValue(
+                $value,
+                // A faithful identity: the fingerprint is taken from the value the way the real producer takes
+                // it, so a test comparing it against a recomputed one compares the same rule.
+                new LoaderValueIdentity('stub', 'config-hash', 'inputs-hash', $fingerprinter->fingerprint($value)),
+            ),
+            $loaderValues
+        );
+
+        return $this->factory()->create($stored, $resolved, $delivered, $distributionKeys, $slots);
     }
 
     private function factory(): RenderedElementFactory

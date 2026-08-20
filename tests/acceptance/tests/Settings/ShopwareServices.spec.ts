@@ -8,17 +8,7 @@ const servicesDashboardBannerConfig = {
 
 async function showServicesDashboardBanner(page: Page): Promise<void> {
     await page.evaluate(async (config) => {
-        const response = await fetch('/api/_info/config-me', {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(config),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to reset the Shopware Services dashboard banner: ${response.status}`);
-        }
+        await Shopware.Service('userConfigService').upsert(config);
     }, servicesDashboardBannerConfig);
 }
 

@@ -42,6 +42,11 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with WEBHOOKS_REWORK and webhook.active/error_count.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (called for every failed message; deprecation notices would pollute logs)
+     */
     public function failed(WorkerMessageFailedEvent $event): void
     {
         if (Feature::isActive('WEBHOOKS_REWORK')) {

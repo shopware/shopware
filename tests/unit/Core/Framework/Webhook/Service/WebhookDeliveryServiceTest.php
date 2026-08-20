@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -441,6 +442,24 @@ class WebhookDeliveryServiceTest extends TestCase
         yield 'retry path' => ['markPendingRetry', new Response(500, [], '{"error":"fail"}'), 2];
     }
 
+    public function testHoldDispatchesEachMessageWithHeldStamp(): void
+    {
+        $service = $this->createService();
+        $message = $this->createMessage();
+
+        $this->webhookOutboxStore->expects($this->never())->method('recordInflightOutboxEntry');
+        $this->appPayloadServiceHelper->expects($this->never())->method('createWebhookRequest');
+        $this->webhookHealthService->expects($this->never())->method('recordSuccess');
+        $this->logger->expects($this->never())->method('error');
+
+        $service->hold([$message]);
+
+        $envelopes = $this->bus->getMessages();
+        static::assertCount(1, $envelopes);
+        static::assertSame($message, $envelopes[0]->getMessage());
+        static::assertNotNull($envelopes[0]->last(HeldDeliveryStamp::class));
+    }
+
     public function testCurrentSuccessRecordsHealth(): void
     {
         [$message, $entry] = $this->prepareDelivery(new Response(204));
@@ -502,6 +521,55 @@ class WebhookDeliveryServiceTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
     }
 
+    public function testRecordsClassifiedFailureToEndpointHealthPerAttempt(): void
+    {
+        [$message] = $this->prepareDelivery(new Response(500, [], '{"error":"fail"}'), 2);
+
+        $this->webhookOutboxStore->method('ownsRunningAttempt')->willReturn(true);
+        $this->webhookOutboxStore->method('markPendingRetry')->willReturn(true);
+
+        $this->webhookHealthService->expects($this->never())->method('recordLegacyFailure');
+        $this->webhookHealthService->expects($this->once())->method('recordFailure')
+            ->with($message->getWebhookId(), ErrorClassification::TransientServer, 2)
+            ->willReturn(EndpointState::Healthy);
+        $this->logger->expects($this->never())->method('error');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
+    }
+
+    public function testUnfollowedRedirectFailsTheDeliveryAndRecordsTransientEvidence(): void
+    {
+        [$message] = $this->prepareDelivery(new Response(302, [], ''));
+
+        $this->webhookOutboxStore->method('ownsRunningAttempt')->willReturn(true);
+        // Without a Location header, Guzzle returns the 302 instead of following it.
+        $this->webhookHealthService->expects($this->once())->method('recordFailure')
+            ->with($message->getWebhookId(), ErrorClassification::TransientRedirect, 1)
+            ->willReturn(EndpointState::Healthy);
+        $this->webhookHealthService->expects($this->never())->method('recordSuccess');
+
+        $this->webhookOutboxStore->expects($this->once())->method('markFailed')
+            ->with(static::isInstanceOf(OutboxEntry::class), static::isInstanceOf(DeliveryResponse::class))
+            ->willReturn(true);
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
+        $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
+        $this->logger->expects($this->never())->method('error');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
+    }
+
+    public function testUnfollowedRedirectKeepsTrunkSuccessContractFlagOff(): void
+    {
+        [$message] = $this->prepareDelivery(new Response(302, [], ''));
+
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')->willReturn(true);
+        $this->webhookHealthService->expects($this->once())->method('resetErrorCount');
+        $this->webhookOutboxStore->expects($this->never())->method('markFailed');
+        $this->logger->expects($this->never())->method('error');
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
+    }
+
     public function testCurrentStaleFailureDoesNotUpdateHealth(): void
     {
         [$message, $entry] = $this->prepareDelivery(new Response(503));
@@ -518,6 +586,69 @@ class WebhookDeliveryServiceTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
     }
 
+    #[DataProvider('resultPlacementCases')]
+    public function testFailedDeliveryRowPlacementFollowsClassificationAndResultingState(
+        int $responseStatus,
+        ErrorClassification $classification,
+        EndpointState $resultingState,
+        string $expectedPlacement,
+        int $executionCount,
+    ): void {
+        [$message] = $this->prepareDelivery(new Response($responseStatus, [], '{"error":"fail"}'), $executionCount);
+
+        $this->webhookOutboxStore->method('ownsRunningAttempt')->willReturn(true);
+
+        $this->webhookHealthService->expects($this->once())->method('recordFailure')
+            ->with($message->getWebhookId(), $classification, $executionCount)
+            ->willReturn($resultingState);
+
+        foreach (['markPaused', 'markFailed', 'markPendingRetry'] as $placement) {
+            if ($placement === $expectedPlacement) {
+                continue;
+            }
+            $this->webhookOutboxStore->expects($this->never())->method($placement);
+        }
+        $this->webhookOutboxStore->expects($this->once())->method($expectedPlacement)->willReturn(true);
+        $this->logger->expects($this->never())->method('error');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
+    }
+
+    /**
+     * @return iterable<string, array{int, ErrorClassification, EndpointState, string, int}>
+     */
+    public static function resultPlacementCases(): iterable
+    {
+        yield 'payload-class 400 fails the row' => [400, ErrorClassification::NonTransientPayload, EndpointState::Healthy, 'markFailed', 1];
+        yield 'any failure on DISABLED fails the row' => [500, ErrorClassification::TransientServer, EndpointState::Disabled, 'markFailed', 1];
+        yield 'transient on HEALTHY retries with backoff' => [500, ErrorClassification::TransientServer, EndpointState::Healthy, 'markPendingRetry', 1];
+        yield 'transient on HEALTHY past the retry budget fails the row' => [500, ErrorClassification::TransientServer, EndpointState::Healthy, 'markFailed', 6];
+    }
+
+    #[DataProvider('retryAfterCases')]
+    public function testRetryAfterOnlyAffectsRateLimits(Response $response, int $expectedDelay): void
+    {
+        [$message] = $this->prepareDelivery($response);
+
+        $this->webhookOutboxStore->method('ownsRunningAttempt')->willReturn(true);
+        $this->webhookHealthService->expects($this->once())->method('recordFailure')->willReturn(EndpointState::Healthy);
+        $this->logger->expects($this->never())->method('error');
+        $this->webhookOutboxStore->expects($this->once())->method('markPendingRetry')
+            ->with(static::isInstanceOf(OutboxEntry::class), $this->clock->now()->modify(\sprintf('+%d seconds', $expectedDelay)), static::anything())
+            ->willReturn(true);
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', fn () => $this->createService()->deliver($message));
+    }
+
+    /**
+     * @return iterable<string, array{Response, int}>
+     */
+    public static function retryAfterCases(): iterable
+    {
+        yield 'rate-limit header is case-insensitive' => [new Response(429, ['retry-after' => '120']), 120];
+        yield 'non-rate-limit uses the retry schedule' => [new Response(503, ['Retry-After' => '120']), 5];
+    }
+
     private function queueGuzzleResponse(Response $response): void
     {
         $this->guzzleMock->append($response);
@@ -526,13 +657,13 @@ class WebhookDeliveryServiceTest extends TestCase
     /**
      * @return array{WebhookEventMessage, OutboxEntry}
      */
-    private function prepareDelivery(Response $response): array
+    private function prepareDelivery(Response $response, int $executionCount = 1): array
     {
         $message = $this->createMessage();
         $entry = new OutboxEntry(
             webhookEventId: $message->getWebhookEventId(),
             sequence: 1,
-            executionCount: 1,
+            executionCount: $executionCount,
             deliveryStatus: 'running',
         );
 

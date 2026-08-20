@@ -1353,6 +1353,10 @@ The translation update orchestration was extracted into the new internal service
 
 Apps can inspect and reactivate their webhooks through `GET /api/app-system/webhook/state` and `POST /api/app-system/webhook/reactivate`. They can also subscribe to `webhook.health.activated`, `webhook.health.degraded`, `webhook.health.suspended`, and `webhook.health.disabled`. Admin users can inspect the health tick through `GET /api/_action/webhook/health-status` and disable a webhook through `POST /api/_action/webhook/{webhookId}/deactivate`.
 
+### Deprecated legacy webhook failure state
+
+`WebhookEntity::$active` and `$errorCount` and their accessors, `RetryWebhookMessageFailedSubscriber::failed()`, and `WebhookHealthService::recordLegacyFailure()` and `resetErrorCount()` are deprecated for removal in 6.8. Extensions should read `endpointState` from `GET /api/app-system/webhook/state` instead of the legacy fields.
+
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 
 Cloning any entity that carries a `wasModifiedByUser` field previously always failed with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `wasModifiedByUser`, because the clone copied that write-protected field's value into the insert payload. In the Core this affected mail templates (e.g. via `POST /api/_action/clone/mail-template/{id}`), and it applies equally to any extension entity using the field. The clone process now omits the field, so the cloned entity is correctly created as a fresh, non-user-modified record. (shopware/shopware#18233)

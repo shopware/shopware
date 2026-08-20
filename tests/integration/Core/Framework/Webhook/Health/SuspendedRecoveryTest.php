@@ -54,6 +54,28 @@ class SuspendedRecoveryTest extends TestCase
         $this->outboxStore = static::getContainer()->get(WebhookOutboxStore::class);
     }
 
+    public function testTickReleasesTheOldestHeldRowWhileTheGateKeepsShedding(): void
+    {
+        $this->seedWebhook('wh', active: false);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, suspendedSince: '-2 days', cooldownUntil: '-1 minute');
+        $this->createDelivery('evt-oldest', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->createDelivery('evt-younger', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
+        static::assertSame(0, $this->fetchCycle('wh'));
+        static::assertLessThan(0, $this->cooldownDeltaSeconds('wh'));
+
+        $this->service->tick();
+
+        $this->assertDeliveryStatus('evt-oldest', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-oldest', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertDeliveryStatus('evt-younger', WebhookEventLogDefinition::STATUS_PAUSED);
+        $this->assertState('wh', EndpointState::Suspended);
+        static::assertSame(0, $this->fetchCycle('wh'));
+
+        static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
+    }
+
     public function testGateAdmitsExactlyOneNaturalTrialPerBurst(): void
     {
         $this->seedWebhook('wh', active: false);
@@ -68,6 +90,43 @@ class SuspendedRecoveryTest extends TestCase
         static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
         static::assertSame(1, $this->fetchCycle('wh'));
         $this->assertState('wh', EndpointState::Suspended);
+    }
+
+    public function testGateKeepsSheddingBurstStragglersAfterTheTrialSucceeds(): void
+    {
+        $this->seedWebhook('wh', active: false);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, suspendedSince: '-2 days', cooldownUntil: '-1 minute');
+
+        static::assertSame(WebhookDispatchDecision::Deliver, $this->service->gateFor($this->ids->get('wh')));
+
+        $this->service->recordSuccess($this->ids->get('wh'));
+        $this->assertState('wh', EndpointState::Degraded);
+        static::assertNotNull($this->fetchColumn('wh', 'suspended_since'));
+
+        static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
+        static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
+        static::assertSame(0, $this->fetchCycle('wh'));
+        $this->assertCooldownAbout('wh', self::COOLDOWN_TIER_0);
+    }
+
+    public function testGateAdmitsTheNaturalTrialFromRecoveringDegradedWhenDue(): void
+    {
+        $this->seedWebhook('wh', active: true);
+        $this->seedHealth('wh', EndpointState::Degraded, suspendedSince: '-1 day', cooldownUntil: '-1 minute');
+
+        static::assertSame(WebhookDispatchDecision::Deliver, $this->service->gateFor($this->ids->get('wh')));
+
+        static::assertSame(1, $this->fetchCycle('wh'));
+        $this->assertCooldownAbout('wh', self::COOLDOWN_TIER_1);
+        static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
+    }
+
+    public function testGateHoldsOnDegradedOutsideASuspensionIncident(): void
+    {
+        $this->seedWebhook('wh', active: true);
+        $this->seedHealth('wh', EndpointState::Degraded, ctf: 5, cooldownUntil: '+5 minutes');
+
+        static::assertSame(WebhookDispatchDecision::Hold, $this->service->gateFor($this->ids->get('wh')));
     }
 
     public function testAuthStreakTripEntersTheLadderAtTierZero(): void
@@ -88,6 +147,18 @@ class SuspendedRecoveryTest extends TestCase
         static::assertFalse($this->fetchActive('wh'));
     }
 
+    public function testGoneTripEntersTheLadderAtTierZero(): void
+    {
+        $this->seedWebhook('wh');
+        $this->seedHealth('wh', EndpointState::Healthy);
+
+        $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientEndpoint, 1);
+
+        $this->assertState('wh', EndpointState::Suspended);
+        static::assertSame(0, $this->fetchCycle('wh'));
+        $this->assertCooldownAbout('wh', self::COOLDOWN_TIER_0);
+    }
+
     public function testExhaustedDegradedCyclesArriveAtTheTopTier(): void
     {
         $this->seedWebhook('wh', active: true, errorCount: 5);
@@ -105,6 +176,7 @@ class SuspendedRecoveryTest extends TestCase
     {
         $this->seedWebhook('wh', active: false, errorCount: 5);
         $this->seedHealth('wh', EndpointState::Suspended, ctf: 5, cycle: self::TOP_TIER_INDEX, suspendedSince: '-3 days', cooldownUntil: '-1 minute');
+        // Auto-increment ids preserve insertion order for the oldest-row trial selection.
         $this->createDelivery('evt-stale', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
         $this->createDelivery('evt-trial', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
         $this->createDelivery('evt-second-trial', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
@@ -147,6 +219,54 @@ class SuspendedRecoveryTest extends TestCase
         static::assertSame(0, $this->fetchErrorCount('wh'));
     }
 
+    public function testTransientTrialFailureReHoldsTheRowOneTierUp(): void
+    {
+        $this->seedWebhook('wh', active: false);
+        $this->seedHealth('wh', EndpointState::Suspended, ctf: 5, cnf: 3, suspendedSince: '-2 days', cooldownUntil: '-1 minute');
+        $this->createDelivery('evt-1', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
+        $suspendedSinceBefore = $this->fetchColumn('wh', 'suspended_since');
+
+        $this->service->tick();
+        $this->assertDeliveryStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $entry = $this->startDelivery('evt-1');
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::TransientServer, 1);
+
+        static::assertSame(EndpointState::Suspended, $result);
+        static::assertSame(1, $this->fetchCycle('wh'));
+        $this->assertCooldownAbout('wh', self::COOLDOWN_TIER_1);
+        static::assertSame(3, $this->fetchCnf('wh'));
+        static::assertSame($suspendedSinceBefore, $this->fetchColumn('wh', 'suspended_since'));
+
+        static::assertTrue($this->outboxStore->markPaused($entry, null));
+        $this->assertDeliveryStatus('evt-1', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        $this->nudgeCooldown('wh', '-1 minute');
+        $this->service->tick();
+        $this->assertDeliveryStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+    }
+
+    public function testAuthTrialFailureFailsTheRowAndAdvancesTheStreak(): void
+    {
+        $this->seedWebhook('wh', active: false);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, suspendedSince: '-2 days', cooldownUntil: '-1 minute');
+        $this->createDelivery('evt-1', 'wh', WebhookEventLogDefinition::STATUS_PAUSED);
+
+        $this->service->tick();
+        $entry = $this->startDelivery('evt-1');
+
+        $result = $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientAuth, 1);
+
+        static::assertSame(EndpointState::Suspended, $result);
+        static::assertSame(4, $this->fetchCnf('wh'));
+        static::assertSame(1, $this->fetchCycle('wh'));
+
+        static::assertTrue($this->outboxStore->markFailed($entry, null));
+        $this->assertDeliveryDeleted('evt-1');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_FAILED);
+        static::assertSame(0, $this->countDeliveriesByStatus('wh', WebhookEventLogDefinition::STATUS_PAUSED));
+    }
+
     public function testAuthBrokenEndpointNeverRecoversOnTrafficAndRetiresAtTheBound(): void
     {
         $this->seedWebhook('wh', active: false);
@@ -160,7 +280,7 @@ class SuspendedRecoveryTest extends TestCase
 
         $this->assertState('wh', EndpointState::Suspended);
         static::assertSame(4, $this->fetchCnf('wh'));
-        static::assertSame(1, $this->fetchCycle('wh'), 'no extra ladder count while the admission lease holds');
+        static::assertSame(1, $this->fetchCycle('wh'));
         static::assertSame($suspendedSinceBefore, $this->fetchColumn('wh', 'suspended_since'));
 
         $this->service->tick();
@@ -168,6 +288,17 @@ class SuspendedRecoveryTest extends TestCase
         $this->assertState('wh', EndpointState::Disabled);
         static::assertSame(DisabledOrigin::Escalation->value, $this->fetchColumn('wh', 'disabled_origin'));
         static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
+    }
+
+    public function testRetirementIsANoOpOnAWebhookATrialRecoveredToDegraded(): void
+    {
+        $this->seedWebhook('wh', active: true, errorCount: 5);
+        $this->seedHealth('wh', EndpointState::Degraded, ctf: 5, suspendedSince: '-8 days', cooldownUntil: '+1 hour');
+
+        $this->service->tick();
+
+        $this->assertState('wh', EndpointState::Degraded);
+        static::assertNull($this->fetchColumn('wh', 'disabled_since'));
     }
 
     private function seedWebhook(string $key, bool $active = true, int $errorCount = 0): void
@@ -206,7 +337,6 @@ class SuspendedRecoveryTest extends TestCase
 
     private function createDelivery(string $eventKey, string $webhookKey, string $deliveryStatus): void
     {
-        // Auto-increment ids preserve insertion order for the oldest-row trial selection.
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->connection->insert('webhook_event_log', [
@@ -253,7 +383,7 @@ class SuspendedRecoveryTest extends TestCase
     private function startDelivery(string $eventKey): OutboxEntry
     {
         $entry = $this->outboxStore->markRunning($this->ids->get($eventKey));
-        static::assertNotNull($entry);
+        static::assertNotNull($entry, 'the released row must be claimable for the worker');
 
         return $entry;
     }
@@ -274,6 +404,7 @@ class SuspendedRecoveryTest extends TestCase
             $secondsFromNow,
             $this->cooldownDeltaSeconds($key),
             60,
+            \sprintf('cooldown_until must be about %d seconds from now', $secondsFromNow),
         );
     }
 
@@ -310,7 +441,7 @@ class SuspendedRecoveryTest extends TestCase
             'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => $this->ids->getBytes($eventKey)]
         );
-        static::assertFalse($exists);
+        static::assertFalse($exists, 'Expected delivery row to be deleted');
     }
 
     private function assertNextRetryAtIsNow(string $eventKey): void
@@ -319,11 +450,19 @@ class SuspendedRecoveryTest extends TestCase
             'SELECT next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => $this->ids->getBytes($eventKey)]
         );
-        static::assertIsString($nextRetryAt);
+        static::assertIsString($nextRetryAt, 'a resumed row is due now, so next_retry_at is set');
         static::assertEqualsWithDelta(
             (new \DateTimeImmutable())->getTimestamp(),
             (new \DateTimeImmutable($nextRetryAt))->getTimestamp(),
             5,
+        );
+    }
+
+    private function countDeliveriesByStatus(string $webhookKey, string $status): int
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_id = :id AND delivery_status = :status',
+            ['id' => $this->ids->getBytes($webhookKey), 'status' => $status]
         );
     }
 

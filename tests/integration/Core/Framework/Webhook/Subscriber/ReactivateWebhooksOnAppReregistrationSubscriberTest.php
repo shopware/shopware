@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -16,13 +17,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -40,16 +43,16 @@ class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
 
     private IdsCollection $ids;
 
-    private WebhookOutboxStore $outboxStore;
-
     private EventDispatcherInterface $eventDispatcher;
+
+    private WebhookOutboxStore $outboxStore;
 
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->ids = new IdsCollection();
-        $this->outboxStore = static::getContainer()->get(WebhookOutboxStore::class);
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $this->outboxStore = static::getContainer()->get(WebhookOutboxStore::class);
     }
 
     public function testAppUpdateResetsTheAppsNonHealthyWebhooksSparingTheOperatorKill(): void
@@ -88,6 +91,8 @@ class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
             'suspended_since' => self::SUSPENDED_SINCE,
         ]);
 
+        $events = $this->captureActivatedEvents();
+
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($appId): void {
             $this->eventDispatcher->dispatch($this->appUpdatedEvent($appId));
         });
@@ -113,6 +118,92 @@ class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
         static::assertSame(0, $this->fetchBcColumns('wh-operator')['active']);
 
         static::assertSame(EndpointState::Suspended->value, $this->fetchHealthRow('wh-other')['endpoint_state']);
+
+        $activated = $events();
+        static::assertCount(3, $activated);
+        $byWebhookId = [];
+        foreach ($activated as $event) {
+            $byWebhookId[$event->webhookId] = $event;
+            static::assertSame(WebhookActivationTrigger::AppReset, $event->trigger);
+        }
+        static::assertEqualsCanonicalizing(
+            [$this->ids->get('wh-degraded'), $this->ids->get('wh-suspended'), $this->ids->get('wh-escalation')],
+            array_keys($byWebhookId),
+        );
+        static::assertSame(EndpointState::Degraded, $byWebhookId[$this->ids->get('wh-degraded')]->fromState);
+        static::assertSame(EndpointState::Suspended, $byWebhookId[$this->ids->get('wh-suspended')]->fromState);
+        static::assertSame(EndpointState::Disabled, $byWebhookId[$this->ids->get('wh-escalation')]->fromState);
+        static::assertSame(
+            self::SUSPENDED_SINCE,
+            $byWebhookId[$this->ids->get('wh-suspended')]->clearedSuspendedSince?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        );
+    }
+
+    public function testAppInstallResetsASuspendedWebhook(): void
+    {
+        $appId = $this->createApp('SwagInstallApp');
+        $this->seedWebhook('wh', $appId, active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Suspended, [
+            'consecutive_non_transient_failures' => 3,
+            'suspended_since' => self::SUSPENDED_SINCE,
+        ]);
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($appId): void {
+            $this->eventDispatcher->dispatch(new AppInstalledEvent($this->appEntity($appId), $this->manifest(), Context::createDefaultContext()));
+        });
+
+        static::assertSame(EndpointState::Healthy->value, $this->fetchHealthRow('wh')['endpoint_state']);
+
+        $activated = $events();
+        static::assertCount(1, $activated);
+        static::assertSame($this->ids->get('wh'), $activated[0]->webhookId);
+        static::assertSame(WebhookActivationTrigger::AppReset, $activated[0]->trigger);
+        static::assertSame(EndpointState::Suspended, $activated[0]->fromState);
+    }
+
+    public function testAppUpdateIsNoOpUnderFlagOff(): void
+    {
+        $appId = $this->createApp('SwagFlagOffApp');
+        $this->seedWebhook('wh', $appId, active: false, errorCount: 3);
+        $this->seedHealth('wh', EndpointState::Suspended, [
+            'consecutive_non_transient_failures' => 3,
+            'suspended_since' => self::SUSPENDED_SINCE,
+        ]);
+        $this->seedHeldRow('evt-held', 'wh');
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($appId): void {
+            $this->eventDispatcher->dispatch($this->appUpdatedEvent($appId));
+        });
+
+        static::assertCount(0, $events());
+        static::assertSame(EndpointState::Suspended->value, $this->fetchHealthRow('wh')['endpoint_state']);
+        static::assertSame(
+            WebhookEventLogDefinition::STATUS_PAUSED,
+            $this->fetchDeliveryStatus('evt-held'),
+        );
+    }
+
+    /**
+     * @return \Closure(): list<WebhookActivatedEvent>
+     */
+    private function captureActivatedEvents(): \Closure
+    {
+        /** @var \ArrayObject<int, WebhookActivatedEvent> $captured */
+        $captured = new \ArrayObject();
+        $listener = static function (WebhookActivatedEvent $event) use ($captured): void {
+            $captured->append($event);
+        };
+        $this->eventDispatcher->addListener(WebhookActivatedEvent::class, $listener);
+
+        return function () use ($captured, $listener): array {
+            $this->eventDispatcher->removeListener(WebhookActivatedEvent::class, $listener);
+
+            return array_values($captured->getArrayCopy());
+        };
     }
 
     private function appUpdatedEvent(string $appId): AppUpdatedEvent
@@ -195,7 +286,6 @@ class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
         static::assertSame(
             WebhookEventLogDefinition::STATUS_PENDING_RETRY,
             $this->fetchDeliveryStatus($eventKey),
-            'the held delivery must become claimable',
         );
         static::assertSame(
             WebhookEventLogDefinition::STATUS_PENDING_RETRY,
@@ -203,7 +293,6 @@ class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
                 'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
                 ['id' => $this->ids->getBytes($eventKey)],
             ),
-            'the event log must mirror the delivery status',
         );
     }
 

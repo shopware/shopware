@@ -487,6 +487,38 @@ class ShippingMethodValidatorTest extends TestCase
         static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
     }
 
+    public function testAPriceCommandWithoutAnIdIsIgnored(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [
+                $this->deletePriceCommand(),
+                new DeleteCommand($this->shippingMethodPriceDefinition, [], static::createStub(EntityExistence::class)),
+            ],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
+    public function testAPriceRowWithoutUsableIdsIsSkipped(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $violation = $this->validatePrices(
+            [$this->deletePriceCommand()],
+            priceOwners: [$this->priceId => $shippingMethodId],
+            states: [$this->state($shippingMethodId, active: true, priceCount: 1)],
+            withMalformedPriceRow: true,
+        );
+
+        static::assertNotNull($violation);
+        static::assertSame(ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE, $violation->getCode());
+    }
+
     private function deletePriceCommand(?string $priceId = null): DeleteCommand
     {
         return new DeleteCommand(
@@ -546,12 +578,15 @@ class ShippingMethodValidatorTest extends TestCase
      * @param list<array{id: string, active: int, price_count: int}> $states
      * @param list<string> $pricesWithoutCurrencyValues price ids that cannot resolve shipping costs
      */
-    private function validatePrices(array $commands, array $priceOwners, array $states, array $pricesWithoutCurrencyValues = []): ?ConstraintViolationInterface
+    private function validatePrices(array $commands, array $priceOwners, array $states, array $pricesWithoutCurrencyValues = [], bool $withMalformedPriceRow = false): ?ConstraintViolationInterface
     {
         $connection = new ShippingMethodStateConnection([]);
         foreach ($priceOwners as $priceId => $shippingMethodId) {
             $usable = \in_array($priceId, $pricesWithoutCurrencyValues, true) ? 0 : 1;
             $connection->priceOwners[] = [$priceId, $shippingMethodId, $usable];
+        }
+        if ($withMalformedPriceRow) {
+            $connection->priceOwners[] = [null, null, 1];
         }
         $connection->states = $states;
 
@@ -581,7 +616,7 @@ class ShippingMethodValidatorTest extends TestCase
 class ShippingMethodStateConnection extends FakeConnection
 {
     /**
-     * @var list<array{string, string, int}>
+     * @var list<array{string|null, string|null, int}>
      */
     public array $priceOwners = [];
 

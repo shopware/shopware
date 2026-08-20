@@ -300,10 +300,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
      */
     private function fetchPriceStates(array $priceIds): array
     {
-        if ($priceIds === []) {
-            return [];
-        }
-
         sort($priceIds);
 
         $rows = $this->connection->fetchAllNumeric(

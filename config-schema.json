@@ -315,6 +315,29 @@
                     ],
                     "default": "disable_on_threshold",
                     "description": "@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation"
+                },
+                "health": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "cooldown_schedule_seconds": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "minItems": 1,
+                            "default": [300, 600, 1200, 2400, 3600, 14400],
+                            "description": "Cooldown tiers between DEGRADED trial deliveries, in seconds. The first tier must exceed the delivery timeout."
+                        },
+                        "degraded_threshold_count": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 5,
+                            "description": "Consecutive first-attempt transient failures that trip HEALTHY into DEGRADED."
+                        }
+                    },
+                    "description": "@experimental stableVersion:v6.8.0 feature:WEBHOOKS_REWORK Endpoint health settings."
                 }
             },
             "title": "Webhook"

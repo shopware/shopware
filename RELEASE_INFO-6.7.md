@@ -214,6 +214,12 @@ Product breadcrumbs are generated again when the product's main category — or 
 `POST /store-api/checkout/order` re-checks inside its cart lock whether the cart is still stored, and answers `404 CHECKOUT__CART_TOKEN_NOT_FOUND` when it is not. Two overlapping submits of the same cart — two browser tabs on the checkout confirm page, a retried request — previously produced two orders whenever the second request had loaded its cart before the first one deleted it, because that stale cart still passed the cart hash check.
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
+### Experimental webhook endpoint health
+
+With `WEBHOOKS_REWORK` enabled, transient delivery failures now move a webhook from `HEALTHY` to `DEGRADED`. Regular deliveries are held until a scheduled trial succeeds.
+
+Operators can configure the transition threshold and trial cooldowns through `shopware.webhook.health.degraded_threshold_count` and `shopware.webhook.health.cooldown_schedule_seconds`. Existing webhook behavior is unchanged while the feature flag is disabled.
+
 
 ## API
 

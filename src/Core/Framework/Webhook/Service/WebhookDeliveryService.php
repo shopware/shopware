@@ -8,6 +8,10 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
+use Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -27,7 +31,7 @@ class WebhookDeliveryService
     public const HEADER_SEQUENCE = 'X-Shopware-Sequence';
     public const HEADER_ATTEMPT = 'X-Shopware-Attempt';
 
-    // Matches RetryDelayCalculator::RETRY_DELAYS; attempt 6 is terminal.
+    // Matches RetryDelayCalculator::RETRY_DELAYS_IN_SECONDS; attempt 6 is terminal.
     public const MAX_RETRIES = 5;
 
     private readonly WebhookFailureStrategy $failureStrategy;
@@ -41,6 +45,7 @@ class WebhookDeliveryService
         private readonly MessageBusInterface $bus,
         private readonly WebhookHealthService $webhookHealthService,
         private readonly LoggerInterface $logger,
+        private readonly HttpErrorClassifier $errorClassifier,
         private readonly bool $isAdminWorkerEnabled,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
@@ -65,6 +70,16 @@ class WebhookDeliveryService
 
         foreach ($messages as $message) {
             $this->bus->dispatch($message);
+        }
+    }
+
+    /**
+     * @param list<WebhookEventMessage> $messages
+     */
+    public function hold(array $messages): void
+    {
+        foreach ($messages as $message) {
+            $this->bus->dispatch($message, [new HeldDeliveryStamp()]);
         }
     }
 
@@ -189,6 +204,12 @@ class WebhookDeliveryService
     {
         $response = DeliveryResponse::from($request, $result);
 
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            $this->handleHealthResult($webhookId, $entry, $response, $result);
+
+            return;
+        }
+
         if ($result->successful()) {
             // a stale-success on a stolen lease must not reset error_count.
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
@@ -226,17 +247,105 @@ class WebhookDeliveryService
 
         // error_count counts failed deliveries, not failed attempts — only bump after retries are exhausted.
         if ($entry->executionCount > self::MAX_RETRIES) {
-            $this->webhookHealthService->recordFailure($webhookId, $this->failureStrategy);
+            $this->webhookHealthService->recordLegacyFailure($webhookId, $this->failureStrategy);
         }
     }
 
-    private function persistFailureOutcome(OutboxEntry $entry, ?DeliveryResponse $response = null): bool
+    private function handleHealthResult(string $webhookId, OutboxEntry $entry, DeliveryResponse $response, WebhookResult $result): void
+    {
+        $classification = $this->errorClassifier->classify($result->statusCode ?? 0);
+
+        if ($result->successful() && $classification === ErrorClassification::Success) {
+            if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
+                $this->webhookHealthService->recordSuccess($webhookId);
+
+                return;
+            }
+
+            $this->logger->warning('Lease lost after successful webhook delivery for event {eventId}', [
+                'eventId' => $entry->webhookEventId,
+                'webhookId' => $webhookId,
+                'sequence' => $entry->sequence,
+                'executionCount' => $entry->executionCount,
+            ]);
+
+            return;
+        }
+
+        // A reclaimed attempt no longer owns either the row or its health evidence.
+        if (!$this->webhookOutboxStore->ownsRunningAttempt($entry)) {
+            $this->logLeaseLost($webhookId, $entry);
+
+            return;
+        }
+
+        $state = $this->webhookHealthService->recordFailure($webhookId, $classification, $entry->executionCount);
+        $retryAfter = $classification === ErrorClassification::TransientRateLimit
+            ? $this->retryAfterHeader($result)
+            : null;
+
+        $this->placeInFlightRow($webhookId, $entry, $response, $classification, $state, $retryAfter);
+    }
+
+    private function placeInFlightRow(
+        string $webhookId,
+        OutboxEntry $entry,
+        DeliveryResponse $response,
+        ErrorClassification $classification,
+        EndpointState $state,
+        ?string $retryAfter,
+    ): void {
+        if (!$classification->isTransient()) {
+            $this->webhookOutboxStore->markFailed($entry, $response);
+
+            return;
+        }
+
+        if ($state === EndpointState::Degraded) {
+            $this->webhookOutboxStore->markPaused($entry, $response);
+
+            return;
+        }
+
+        if ($classification === ErrorClassification::TransientRedirect) {
+            $this->webhookOutboxStore->markFailed($entry, $response);
+
+            return;
+        }
+
+        if (!$this->persistFailureOutcome($entry, $response, $retryAfter)) {
+            $this->logLeaseLost($webhookId, $entry);
+        }
+    }
+
+    private function retryAfterHeader(WebhookResult $result): ?string
+    {
+        foreach ($result->headers ?? [] as $name => $values) {
+            if (strcasecmp($name, 'Retry-After') === 0) {
+                return $values[0] ?? null;
+            }
+        }
+
+        return null;
+    }
+
+    private function logLeaseLost(string $webhookId, OutboxEntry $entry): void
+    {
+        $this->logger->warning('Lease lost while recording webhook failure for event {eventId}', [
+            'eventId' => $entry->webhookEventId,
+            'webhookId' => $webhookId,
+            'sequence' => $entry->sequence,
+            'executionCount' => $entry->executionCount,
+        ]);
+    }
+
+    private function persistFailureOutcome(OutboxEntry $entry, ?DeliveryResponse $response = null, ?string $retryAfter = null): bool
     {
         if ($entry->executionCount > self::MAX_RETRIES) {
             return $this->webhookOutboxStore->markFailed($entry, $response);
         }
 
-        $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $entry->executionCount));
+        $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $entry->executionCount), $retryAfter);
 
         return $this->webhookOutboxStore->markPendingRetry($entry, $retryAt, $response);
     }

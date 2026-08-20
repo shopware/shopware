@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Transport;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
@@ -28,6 +29,7 @@ class WebhookTransportFactory implements TransportFactoryInterface
         private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly \Closure $asyncTransportLocator,
         private readonly \Closure $receiverLocator,
+        private readonly WebhookHealthTick $healthTick,
     ) {
     }
 
@@ -40,6 +42,7 @@ class WebhookTransportFactory implements TransportFactoryInterface
             $this->webhookOutboxStore,
             ($this->asyncTransportLocator)(),
             ($this->receiverLocator)(),
+            $this->healthTick,
         );
     }
 

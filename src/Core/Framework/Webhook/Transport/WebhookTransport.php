@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Webhook\Transport;
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Health\WebhookHealthTick;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -28,6 +30,7 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly TransportInterface $asyncTransport,
         private readonly MySQLWebhookReceiver $receiver,
+        private readonly WebhookHealthTick $healthTick,
     ) {
     }
 
@@ -39,7 +42,12 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         }
 
         try {
-            $this->webhookOutboxStore->recordOutboxEntry(OutboxInsert::fromMessage($message));
+            $insert = OutboxInsert::fromMessage($message);
+            if ($envelope->last(HeldDeliveryStamp::class) !== null) {
+                $this->webhookOutboxStore->recordHeldOutboxEntry($insert);
+            } else {
+                $this->webhookOutboxStore->recordOutboxEntry($insert);
+            }
         } catch (DBALException $e) {
             /** @phpstan-ignore shopware.domainException (Symfony Messenger's worker contract requires TransportException for transport-layer failures.) */
             throw new TransportException($e->getMessage(), 0, $e);
@@ -57,6 +65,9 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         if (!$this->outboxOwnsLifecycle()) {
             return [];
         }
+
+        // Release due health work before the receiver claims deliveries.
+        $this->healthTick->run();
 
         return $this->receiver->get();
     }

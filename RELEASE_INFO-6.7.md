@@ -97,6 +97,14 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ## Core
 
+### Company tax exemption accepts VAT IDs from any EU member state
+
+A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled for the delivery country previously kept the tax exemption only while the VAT ID matched the delivery country's VAT ID pattern, so a customer with a Dutch VAT ID lost it as soon as the delivery address moved to Belgium.
+
+`TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. A country whose VAT ID pattern is not a valid regular expression is now skipped instead of rejecting every VAT ID, so a broken pattern no longer removes the exemption by itself. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
+
+`Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained a constructor requiring `Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider`. The constructor is internal API; if you replace the `TaxDetector` service in the container with your own definition, pass the provider as its first argument.
+
 ### E-invoice line positions state the correct price base quantity
 
 ZUGFeRD invoices previously wrote the product's purchase unit (`product.purchaseUnit`, the package content used for base price display) as the item price base quantity (BT-149). Recipients validating against EN16931 saw `PEPPOL-EN16931-R120` violations for every line whose product has a purchase unit other than 1, and Peppol access points may have rejected such invoices. Line positions now always state a base quantity of 1, matching the per-unit item net price. Additionally, the item net price (BT-146) is now written with 4 decimals instead of 2, so the line amount calculation stays within the rule's rounding tolerance for higher quantities.

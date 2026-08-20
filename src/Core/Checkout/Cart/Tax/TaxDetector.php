@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Country\CountryEntity;
@@ -11,6 +12,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class TaxDetector extends AbstractTaxDetector
 {
+    /**
+     * @internal
+     */
+    public function __construct(private readonly VatIdPatternProvider $vatIdPatternProvider)
+    {
+    }
+
     public function getDecorated(): AbstractTaxDetector
     {
         throw new DecorationPatternException(self::class);
@@ -68,10 +76,14 @@ class TaxDetector extends AbstractTaxDetector
         }
 
         if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
-            $regex = '/^' . $vatPattern . '$/';
-
             foreach ($vatIds as $vatId) {
-                if (!preg_match($regex, $vatId)) {
+                if ($this->vatIdPatternProvider->matches($vatPattern, $vatId)) {
+                    continue;
+                }
+
+                // An intra-EU B2B supply is tax free because the customer holds a VAT ID of some
+                // member state, not because that state is the destination of the delivery.
+                if ($this->vatIdPatternProvider->matchEuVatId($vatId) === null) {
                     return false;
                 }
             }

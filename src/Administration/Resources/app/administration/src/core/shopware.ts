@@ -48,6 +48,7 @@ import {
     createExtendableSetup,
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
+import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
@@ -146,6 +147,16 @@ class ShopwareClass implements CustomShopwareProperties {
         createExtendableSetup: createExtendableSetup,
         attachOverrides: attachOverrides,
         overrideComponentSetup: overrideComponentSetup,
+
+        /**
+         * @private
+         *
+         * Boot-time announcement of what a generated override SFC extends, emitted into a module-scope
+         * `<script>` block by the native setup transform. Runs while plugin entries are imported, which
+         * is before the Twig templates are merged - the point where the bridge has to know its targets.
+         * Not for author use.
+         */
+        registerNativeExtensionTargets: registerNativeExtensionTargets,
 
         /**
          * @private

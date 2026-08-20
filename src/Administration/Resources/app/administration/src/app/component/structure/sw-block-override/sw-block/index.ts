@@ -2,19 +2,10 @@
  * @sw-package framework
  *
  */
-import {
-    computed,
-    getCurrentInstance,
-    onBeforeUnmount,
-    provide,
-    ref,
-    watch,
-    type ComponentInternalInstance,
-    type Slot,
-} from 'vue';
+import { getCurrentInstance, onBeforeUnmount, watch, type ComponentInternalInstance, type Slot } from 'vue';
 import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-index';
-import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
+import useBlockNodeStack from '../shared/use-block-node-stack';
 import { createShimSlot } from '../shim/create-shim-slot';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
 
@@ -141,34 +132,24 @@ export default Shopware.Component.wrapComponentConfig({
             );
         }
 
-        const providedParents = ref<ReturnType<Slot>[]>([]);
-        provide(parentsInjectionKey, providedParents);
+        const template = useBlockNodeStack(
+            () => {
+                if (!props.name) {
+                    throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
+                }
 
-        const template = computed(() => {
-            if (!props.name) {
-                throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
-            }
-
-            // shimSlots come before nativeBlocks so that Twig plugin overrides (registered
-            // at boot time) are positioned below native <sw-block extends> overrides
-            // (registered at mount time), matching the expected stacking order:
-            //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(props.name);
-            const blocksAndParent = [
-                slots.default ?? (() => []),
-                ...shimSlots,
-                ...nativeBlocks,
-            ];
-            const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
-
-            const lastNode = blocksNodes.pop();
-            // Each <sw-block-parent /> calls .pop() exactly once in its own setup()
-            // to claim its parent slot. The array must be reset to the current render's
-            // ordered list so that each parent instance pops the correct slot — not a
-            // stale or accumulated list from a previous render cycle.
-            providedParents.value = blocksNodes;
-            return lastNode;
-        });
+                // shimSlots come before nativeBlocks so that Twig plugin overrides (registered
+                // at boot time) are positioned below native <sw-block extends> overrides
+                // (registered at mount time), matching the expected stacking order:
+                //   default → shim (legacy plugin) → native (newer plugin or core extension)
+                return [
+                    slots.default ?? (() => []),
+                    ...shimSlots,
+                    ...getBlocks(props.name),
+                ];
+            },
+            () => props.data,
+        );
 
         return {
             template,

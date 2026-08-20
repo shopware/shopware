@@ -111,6 +111,10 @@ export default () => {
         () => import('src/app/component/structure/sw-block-override/sw-block-parent/index'),
     );
     Shopware.Component.register('sw-block', () => import('src/app/component/structure/sw-block-override/sw-block/index'));
+    Shopware.Component.register(
+        'sw-native-block-host',
+        () => import('src/app/component/structure/sw-block-override/sw-native-block-host/index'),
+    );
     Shopware.Component.register('sw-admin-menu-item', () => import('src/app/component/structure/sw-admin-menu-item/index'));
     Shopware.Component.register('sw-admin-menu', () => import('src/app/component/structure/sw-admin-menu/index'));
     Shopware.Component.register('sw-admin', () => import('src/app/component/structure/sw-admin/index'));

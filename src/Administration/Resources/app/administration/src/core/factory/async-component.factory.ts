@@ -7,6 +7,11 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
+import {
+    bridgeNativeSetupExtensions,
+    injectNativeBlockHosts,
+    injectNativeBlockHostsForComponent,
+} from 'src/core/factory/native-extensions-twig-bridge';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -687,6 +692,10 @@ function override(
 async function getComponentTemplate(componentName: string): Promise<string | null> {
     await initComponent(componentName);
 
+    // The component's own template and every registered Twig override are in the registry now, and the
+    // merge below has not run yet - the only window in which the bridge can still contribute a wrapper.
+    injectNativeBlockHostsForComponent(componentName);
+
     return TemplateFactory.getRenderedTemplate(componentName);
 }
 
@@ -782,6 +791,12 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
             ...addSuperBehaviour(inheritedFrom, superRegistry),
         };
     }
+
+    /**
+     * Runs on the fully merged config - extends chain, legacy overrides and $super wiring are all in
+     * place - so the bridge sees exactly the component Vue would otherwise receive.
+     */
+    config = bridgeNativeSetupExtensions(componentName, config);
 
     /**
      * if config has a render function it will ignore template
@@ -1266,6 +1281,8 @@ function isNotEmptyObject(obj: $TSFixMe): boolean {
  * @private
  */
 function resolveComponentTemplates(): boolean {
+    // Must run first: the bridge contributes Twig overrides, which only the merge below can apply.
+    injectNativeBlockHosts();
     TemplateFactory.resolveTemplates();
     return true;
 }

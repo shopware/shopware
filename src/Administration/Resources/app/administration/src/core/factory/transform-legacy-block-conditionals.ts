@@ -324,8 +324,10 @@ function escapeDoubleQuotedAttributeValue(value: string): string {
  *
  * @example
  * normalizeSelfClosingTags('<sw-field />');
+ *
+ * @private
  */
-function normalizeSelfClosingTags(template: string): string {
+export function normalizeSelfClosingTags(template: string): string {
     return template.replace(SELF_CLOSING_TAG_REG_EXP, (match, tagName: string, attributes: string = '') => {
         const trimmedAttributes = attributes.trim();
         const normalizedAttributes = trimmedAttributes.length > 0 ? ` ${trimmedAttributes}` : '';

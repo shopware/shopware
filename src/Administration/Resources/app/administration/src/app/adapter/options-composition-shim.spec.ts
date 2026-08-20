@@ -1884,24 +1884,21 @@ describe('src/app/adapter/options-composition-shim', () => {
     });
 
     describe('setupWatchers() — dot-notation paths:', () => {
-        it('should warn and skip dot-notation watch keys', async () => {
-            // Use a single spy that covers all console.warn calls to avoid nested-spy issues.
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        it('should watch a dot-notation path on previous state', async () => {
             const watchCallback = jest.fn();
 
             const originalComponent = defineComponent({
                 template: '<div></div>',
                 setup: (props, context) =>
                     createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
-                        return { public: {} };
+                        const user = ref({ name: 'initial' });
+                        return { public: { user } };
                     }),
             });
 
-            mount(originalComponent);
+            const wrapper = mount(originalComponent);
 
-            // Call convertOptionsApiOverrideToCompositionApi directly so the deprecation
-            // warning is also captured by our single spy (filtered out below).
-            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
                 watch: {
                     'user.name'(newVal: any) {
                         watchCallback(newVal);
@@ -1913,35 +1910,79 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            const dotNotationWarnings = consoleWarn.mock.calls.filter(
-                (call) => typeof call[0] === 'string' && call[0].includes('Dot-notation watch path'),
-            );
+            _overridesMap.originalComponent.push((previousState: any) => {
+                previousState.user.value = { name: 'changed' };
+                return {};
+            });
 
-            expect(dotNotationWarnings).toHaveLength(1);
-            expect(dotNotationWarnings[0][0]).toContain('"user.name"');
-            expect(watchCallback).not.toHaveBeenCalled();
+            await flushPromises();
+            await nextTick();
 
-            consoleWarn.mockRestore();
+            expect(watchCallback).toHaveBeenCalledWith('changed');
+
+            wrapper.unmount();
         });
 
-        it('should still process non-dot-notation watch keys alongside dot-notation ones', async () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        it('should yield undefined instead of throwing when a path segment is missing', async () => {
+            const watchCallback = jest.fn();
+
+            const originalComponent = defineComponent({
+                template: '<div></div>',
+                setup: (props, context) =>
+                    createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
+                        const user = ref<{ name?: string } | null>(null);
+                        return { public: { user } };
+                    }),
+            });
+
+            const wrapper = mount(originalComponent);
+
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
+                watch: {
+                    'user.name'(newVal: any) {
+                        watchCallback(newVal);
+                    },
+                },
+            });
+
+            _overridesMap.originalComponent.push(overrideFn);
+
+            await flushPromises();
+
+            _overridesMap.originalComponent.push((previousState: any) => {
+                previousState.user.value = { name: 'now-there' };
+                return {};
+            });
+
+            await flushPromises();
+            await nextTick();
+
+            expect(watchCallback).toHaveBeenCalledWith('now-there');
+
+            wrapper.unmount();
+        });
+
+        it('should process flat and dot-notation watch keys side by side', async () => {
             const flatCallback = jest.fn();
+            const pathCallback = jest.fn();
 
             const originalComponent = defineComponent({
                 template: '<div class="count">{{ count }}</div>',
                 setup: (props, context) =>
                     createExtendableSetup({ props, context, name: 'originalComponent' }, () => {
                         const count = ref(0);
-                        return { public: { count } };
+                        const user = ref({ name: 'initial' });
+                        return { public: { count, user } };
                     }),
             });
 
             const wrapper = mount(originalComponent);
 
-            const overrideFn = convertOptionsApiOverrideToCompositionApi('originalComponent', {
+            const overrideFn = convertWithSilencedWarning('originalComponent', {
                 watch: {
-                    'nested.prop'(newVal: any) {},
+                    'user.name'(newVal: any) {
+                        pathCallback(newVal);
+                    },
                     count(newVal: number) {
                         flatCallback(newVal);
                     },
@@ -1952,9 +1993,9 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            // Trigger a count change to fire the valid watcher
             _overridesMap.originalComponent.push((previousState: any) => {
                 previousState.count.value = 99;
+                previousState.user.value = { name: 'changed' };
                 return {};
             });
 
@@ -1962,13 +2003,8 @@ describe('src/app/adapter/options-composition-shim', () => {
             await nextTick();
 
             expect(flatCallback).toHaveBeenCalledWith(99);
+            expect(pathCallback).toHaveBeenCalledWith('changed');
 
-            const dotNotationWarnings = consoleWarn.mock.calls.filter(
-                (call) => typeof call[0] === 'string' && call[0].includes('Dot-notation watch path'),
-            );
-            expect(dotNotationWarnings).toHaveLength(1);
-
-            consoleWarn.mockRestore();
             wrapper.unmount();
         });
     });

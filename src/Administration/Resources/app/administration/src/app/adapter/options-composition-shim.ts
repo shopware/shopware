@@ -28,6 +28,7 @@ import {
     onErrorCaptured,
 } from 'vue';
 import type { Ref, ComputedRef, WatchOptions } from 'vue';
+import MixinFactory from 'src/core/factory/mixin.factory';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
 // ─── Local types ────────────────────────────────────────────────────────────
@@ -117,7 +118,7 @@ const OPTION_KEYS = [
 ] as const;
 
 interface MergedConfig extends Omit<ComponentConfig, 'data' | 'computed' | 'methods' | 'watch' | 'inject'> {
-    data?: () => Record<string, unknown>;
+    data?: (thisArg?: object) => Record<string, unknown>;
     computed?: Record<string, ComputedDefinition>;
     methods?: Record<string, AnyFn>;
     watch?: Record<string, WatchDefinition>;
@@ -301,7 +302,7 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
     // Collect data factories in merge order so each is called exactly once.
     // Mixin factories are pushed first (deepest ancestor first via flattenMixins),
     // then the component's own factory last — so component keys win on conflict.
-    const allDataFns: Array<() => Record<string, unknown>> = [];
+    const allDataFns: Array<(thisArg?: object) => Record<string, unknown>> = [];
 
     // Vue's ComponentOptions types methods/computed/watch as `any` internally,
     // so we cast once here at the boundary and let MergedConfig carry the correct types.
@@ -333,7 +334,8 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
                 const mixinData = mixin.data;
                 allDataFns.push(
                     typeof mixinData === 'function'
-                        ? () => (mixinData as unknown as () => Record<string, unknown>)()
+                        ? (thisArg?: object) =>
+                              (mixinData as unknown as (this: object | undefined) => Record<string, unknown>).call(thisArg)
                         : () => mixinData as unknown as Record<string, unknown>,
                 );
             }
@@ -361,14 +363,16 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
         const configData = config.data;
         allDataFns.push(
             typeof configData === 'function'
-                ? () => (configData as unknown as () => Record<string, unknown>)()
+                ? (thisArg?: object) =>
+                      (configData as unknown as (this: object | undefined) => Record<string, unknown>).call(thisArg)
                 : () => configData as unknown as Record<string, unknown>,
         );
     }
 
     // Produce a single merged factory that calls each original factory exactly once
     if (allDataFns.length > 0) {
-        merged.data = () => allDataFns.reduce<Record<string, unknown>>((acc, fn) => ({ ...acc, ...fn() }), {});
+        merged.data = (thisArg?: object) =>
+            allDataFns.reduce<Record<string, unknown>>((acc, fn) => ({ ...acc, ...fn(thisArg) }), {});
     }
 
     // Component's own hooks go last (after mixin hooks), matching Vue's merge strategy
@@ -564,9 +568,15 @@ function convertComputed(computedDefs: Record<string, ComputedDefinition>, thisP
 
 /**
  * Converts Options API data() function to refs
+ *
+ * `thisArg` is only passed on the base-conversion path, where `data()` bodies legitimately read props and
+ * injections off `this`. Override configs keep calling the factory without a receiver, as before.
  */
-function convertData(dataFn: (() => Record<string, unknown>) | Record<string, unknown>): Record<string, Ref> {
-    const data = typeof dataFn === 'function' ? dataFn() : dataFn;
+function convertData(
+    dataFn: ((thisArg?: object) => Record<string, unknown>) | Record<string, unknown>,
+    thisArg?: object,
+): Record<string, Ref> {
+    const data = typeof dataFn === 'function' ? dataFn(thisArg) : dataFn;
     const converted: Record<string, Ref> = {};
 
     if (!data || typeof data !== 'object') {
@@ -623,6 +633,30 @@ function registerSingleWatcher(source: () => unknown, handler: SingleWatchDefini
 }
 
 /**
+ * Builds the reactive getter one Options API watch key describes.
+ *
+ * Dot paths (`watch: { 'product.name'() {} }`) are common in the Administration, so the getter walks the
+ * path and yields `undefined` as soon as a segment is nullish - the same tolerance Vue's own path
+ * watchers have.
+ */
+function createWatchSource(thisProxy: object, key: string): () => unknown {
+    if (!key.includes('.')) {
+        return (): unknown => (thisProxy as ComponentState)[key];
+    }
+
+    const path = key.split('.');
+
+    return () =>
+        path.reduce<unknown>((value, segment) => {
+            if (value === null || value === undefined) {
+                return undefined;
+            }
+
+            return (value as ComponentState)[segment];
+        }, thisProxy);
+}
+
+/**
  * Sets up watchers for Options API watch configuration
  */
 function setupWatchers(watchConfig: Record<string, WatchDefinition>, thisProxy: object): void {
@@ -631,15 +665,7 @@ function setupWatchers(watchConfig: Record<string, WatchDefinition>, thisProxy: 
             key,
             handler,
         ]) => {
-            if (key.includes('.')) {
-                console.warn(
-                    `[Options API Shim] Dot-notation watch path "${key}" is not supported by the compatibility shim. ` +
-                        `Please migrate your watcher to Composition API.`,
-                );
-                return;
-            }
-
-            const source = (): unknown => (thisProxy as ComponentState)[key];
+            const source = createWatchSource(thisProxy, key);
 
             if (Array.isArray(handler)) {
                 handler.forEach((h) => registerSingleWatcher(source, h, thisProxy));
@@ -756,4 +782,173 @@ function logDeprecationWarning(componentName: string): void {
             `Please migrate your override to use Shopware.Component.overrideComponentSetup(). ` +
             `See: https://developer.shopware.com/docs/resources/references/core-reference/administration-reference/composition-api`,
     );
+}
+
+// ─── Options API base conversion ─────────────────────────────────────────────
+
+/**
+ * Options that the base conversion re-implements in `setup()` and therefore has to remove from the
+ * config; leaving them in would make Vue apply them a second time, and mixin lifecycle hooks would fire
+ * twice.
+ *
+ * Everything else - `props`, `emits`, `components`, `directives`, `provide`, `inheritAttrs`, `template` -
+ * stays on the config and keeps working: Vue resolves template identifiers against the setup state
+ * first, and Options API `provide()` runs with the instance proxy as its receiver, which resolves setup
+ * state too.
+ *
+ * `inject` deliberately stays as well. It is resolved a second time inside the conversion, purely so the
+ * `this` proxy can reach the values; leaving the option in place is what keeps injected keys readable
+ * from the template, where Vue exposes them on the instance context. Resolving twice is side-effect free
+ * - `inject()` only walks the provides chain.
+ */
+const CONVERTED_OPTION_KEYS = [
+    'data',
+    'computed',
+    'methods',
+    'watch',
+    ...LIFECYCLE_HOOKS,
+] as const;
+
+/**
+ * Resolves `mixins: ['name']` entries against the mixin registry, recursively.
+ *
+ * The view adapter resolves mixin names too, but only *after* `build()` has returned - and the conversion
+ * runs inside `build()`, so it has to do its own pass or it would fold a string into the setup state.
+ * `getByName` throws for an unregistered name, which the caller's fail-safe turns into an unconverted
+ * component rather than a broken one.
+ *
+ * @example
+ * const mixins = resolveMixinReferences(config.mixins);
+ */
+function resolveMixinReferences(mixins: ComponentConfig['mixins']): ComponentConfig[] {
+    return (mixins ?? []).map((mixin) => {
+        const resolved = (
+            typeof mixin === 'string' ? MixinFactory.getByName(mixin as keyof MixinContainer) : mixin
+        ) as ComponentConfig;
+
+        if (!resolved.mixins) {
+            return resolved;
+        }
+
+        return {
+            ...resolved,
+            mixins: resolveMixinReferences(resolved.mixins),
+        };
+    });
+}
+
+/**
+ * Copies a config without the options the conversion takes over.
+ *
+ * @example
+ * const remaining = withoutConvertedOptions(config);
+ */
+function withoutConvertedOptions<TConfig extends ComponentConfig>(config: TConfig): TConfig {
+    const remaining = { ...config } as ExtendedComponentConfig;
+
+    CONVERTED_OPTION_KEYS.forEach((key) => {
+        delete remaining[key];
+    });
+
+    delete remaining.mixins;
+
+    return remaining as TConfig;
+}
+
+/**
+ * @private
+ *
+ * Reports why an Options API base cannot be converted into an extendable setup component, or `null` when
+ * it can.
+ *
+ * Both blockers are about state the conversion cannot see: a custom `render()` bypasses the template
+ * entirely, and an `extends` chain keeps its own `data`/`computed`/`methods` on a config level this
+ * conversion never touches - so a converted method would resolve `this.x` against setup state that never
+ * received the inherited half.
+ *
+ * @example
+ * const blocker = getOptionsApiBaseConversionBlocker(config);
+ */
+export function getOptionsApiBaseConversionBlocker(config: ComponentConfig): string | null {
+    if (typeof config.render === 'function') {
+        return 'it defines a custom render() function';
+    }
+
+    if (config.extends) {
+        return 'it extends another component or carries a legacy Options API override, which keeps part of its state outside the converted config';
+    }
+
+    return null;
+}
+
+/**
+ * @private
+ *
+ * Converts an Options API base component into a component whose state runs through
+ * `createExtendableSetup()`, which is what makes native `.override.vue` setup extensions apply to it.
+ *
+ * All converted state is returned as `public`: legacy Twig overrides were allowed to reach every
+ * property of the component, so introducing a public/private split here would break expectations that
+ * predate the extension system.
+ *
+ * `Shopware.Component.createExtendableSetup` is read off the global rather than imported: the extension
+ * system imports this module, and taking the reverse import would close a module cycle.
+ *
+ * @example
+ * const converted = convertOptionsApiBaseToExtendableSetup('sw-product-detail', config);
+ */
+export function convertOptionsApiBaseToExtendableSetup(componentName: string, config: ComponentConfig): ComponentConfig {
+    const resolvedMixins = resolveMixinReferences(config.mixins);
+    const mergedConfig = mergeMixins({ ...config, mixins: resolvedMixins });
+    // Mixins keep contributing what the conversion does not take over (props, components, directives,
+    // provide). Flattened first so Vue does not re-apply the nested ones the merge already folded in.
+    const sanitizedMixins = resolvedMixins
+        .flatMap((mixin) => flattenMixins(mixin))
+        .map((mixin) => withoutConvertedOptions(mixin));
+
+    return {
+        ...withoutConvertedOptions(config),
+        ...(sanitizedMixins.length > 0 ? { mixins: sanitizedMixins } : {}),
+        setup(props: ComponentState, context: unknown) {
+            return Shopware.Component.createExtendableSetup(
+                {
+                    name: componentName,
+                    props,
+                    context,
+                },
+                () => {
+                    const result: ComponentState = {};
+
+                    // Resolved before anything else because `data()` bodies may read injections, and
+                    // `vueInject` only works while the setup call is on the stack.
+                    const injectedValues = resolveInject(mergedConfig.inject);
+                    // Created before the state it exposes: the proxy reads `result` lazily, so every
+                    // later Object.assign is visible through `this` without rebuilding the proxy.
+                    const thisProxy = createThisProxy({}, props, result, injectedValues);
+
+                    if (mergedConfig.data) {
+                        Object.assign(result, convertData(mergedConfig.data, thisProxy));
+                    }
+
+                    if (mergedConfig.computed) {
+                        Object.assign(result, convertComputed(mergedConfig.computed, thisProxy));
+                    }
+
+                    if (mergedConfig.methods) {
+                        Object.assign(result, convertMethods(mergedConfig.methods, thisProxy));
+                    }
+
+                    if (mergedConfig.watch) {
+                        setupWatchers(mergedConfig.watch, thisProxy);
+                    }
+
+                    if (mergedConfig._lifecycleHooks) {
+                        setupLifecycleHooks(mergedConfig._lifecycleHooks, thisProxy);
+                    }
+
+                    return { public: result };
+                },
+            );
+        },
+    };
 }

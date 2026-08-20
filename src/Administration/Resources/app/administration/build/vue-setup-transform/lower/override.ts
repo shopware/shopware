@@ -78,6 +78,40 @@ function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
 }
 
 /**
+ * Emits the module-scope announcement of what this override extends.
+ *
+ * A plain `<script>` block, not `<script setup>`: its body has to run when the file is *imported*, which
+ * is while plugin entries load - before the Twig templates are merged and before any component is built.
+ * The `<script setup>` body only runs when the hidden registration component mounts, which is long after
+ * both. The compatibility bridge for non-migrated components reads this registry at exactly that boot
+ * point to decide which legacy `{% block %}` needs a native extension point and which Options API base
+ * has to become extendable.
+ *
+ * `lang` mirrors the setup block because Vue rejects an SFC whose two script blocks disagree on it.
+ */
+function buildNativeExtensionTargetsScript(block: ShopwareSetupBlock, templateAnalysis: TemplateAnalysis): string {
+    const langAttribute = block.lang ? ` lang="${block.lang}"` : '';
+    const blockNames = Array.from(new Set(templateAnalysis.extendedBlockNames));
+    const blocksProperty =
+        blockNames.length > 0
+            ? [
+                  '    blocks: [',
+                  ...blockNames.map((blockName) => `        '${escapeSingleQuoted(blockName)}',`),
+                  '    ],',
+              ]
+            : [];
+
+    return [
+        `<script${langAttribute}>`,
+        'Shopware.Component.registerNativeExtensionTargets({',
+        `    component: '${escapeSingleQuoted(block.componentName)}',`,
+        ...blocksProperty,
+        '});',
+        '</script>\n',
+    ].join('\n');
+}
+
+/**
  * Lowers override mode into a hidden override component consumed by
  * registerOverrideComponent.
  *
@@ -155,18 +189,19 @@ function buildOverrideScript(
         generated('\n});\n'),
     );
 
-    const registrationTemplate: SourceEdit[] = block.template
-        ? []
-        : [
-              {
-                  start: 0,
-                  end: 0,
-                  replacement: '<template><!-- Shopware override registration component --></template>\n',
-              },
-          ];
+    // Both prelude parts are one edit: `applySourceEdits` sorts by start offset, and two separate
+    // zero-width edits at 0 would only keep their order by accident of sort stability.
+    const registrationTemplate = block.template
+        ? ''
+        : '<template><!-- Shopware override registration component --></template>\n';
+    const prelude = `${buildNativeExtensionTargetsScript(block, templateAnalysis)}${registrationTemplate}`;
 
     return [
-        ...registrationTemplate,
+        {
+            start: 0,
+            end: 0,
+            replacement: prelude,
+        },
         ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
         {
             start: block.contentStart,

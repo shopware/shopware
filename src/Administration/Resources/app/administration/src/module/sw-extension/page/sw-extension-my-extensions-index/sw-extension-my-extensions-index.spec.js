@@ -11,11 +11,7 @@ async function createWrapper(query = {}) {
         }),
         {
             global: {
-                provide: {
-                    feature: {
-                        isActive: (flag) => (global.activeFeatureFlags ?? []).includes(flag),
-                    },
-                },
+                provide: {},
                 stubs: {
                     'sw-meteor-page': await wrapTestComponent('sw-meteor-page', { sync: true }),
                     'sw-search-bar': true,
@@ -28,6 +24,7 @@ async function createWrapper(query = {}) {
                     'sw-help-center-v2': true,
                     'sw-meteor-navigation': true,
                     'sw-tabs': true,
+                    'mt-tabs': true,
                     'sw-app-topbar-button': true,
                     'sw-app-topbar-sidebar': true,
                 },
@@ -75,14 +72,9 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         });
     });
 
-    beforeEach(() => {
-        global.activeFeatureFlags = [];
-    });
-
     afterEach(() => {
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
         global.activeAclRoles = [];
-        global.activeFeatureFlags = [];
     });
 
     it('upload button should be there when allowed runtime extension management', async () => {

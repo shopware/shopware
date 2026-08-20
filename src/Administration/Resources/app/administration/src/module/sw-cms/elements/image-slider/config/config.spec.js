@@ -6,7 +6,7 @@ import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
 import selectMtSelectOptionByText from '../../../../../../test/_helper_/select-mt-select-by-text';
 
-async function createWrapper(activeTab = 'content', sliderItems = [], featureActive = false) {
+async function createWrapper(activeTab = 'content', sliderItems = []) {
     return mount(
         await wrapTestComponent('sw-cms-el-config-image-slider', {
             sync: true,
@@ -17,9 +17,6 @@ async function createWrapper(activeTab = 'content', sliderItems = [], featureAct
                 renderStubDefaultSlot: true,
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     repositoryFactory: {
                         create: () => {
                             return {
@@ -209,15 +206,16 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         await import('src/module/sw-cms/elements/image-slider');
     });
 
-    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
-        const wrapper = await createWrapper('content', [], true);
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        const wrapper = await createWrapper();
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-image-slider');
@@ -236,8 +234,8 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.find('.sw-cms-el-config-image-slider__tab-content').exists()).toBe(true);
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        const wrapper = await createWrapper('content', [], true);
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper();
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'settings');

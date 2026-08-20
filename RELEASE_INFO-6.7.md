@@ -582,7 +582,7 @@ Extension builds now set `output.uniqueName` to their technical name, which give
 
 ### Cookie consent hash is keyed by sales channel domain id
 
-The storefront now stores the accepted `cookie-config-hash` per sales channel domain id instead of per language id, so sales channels sharing a host no longer overwrite each other's consent.
+The storefront now stores the accepted `cookie-config-hash` per sales channel domain id instead of per language id, so sales channels sharing a host no longer overwrite each other's consent. Consent given before the upgrade (keyed by language id) is still recognized and migrated forward, so users are not prompted again.
 
 ## App System
 

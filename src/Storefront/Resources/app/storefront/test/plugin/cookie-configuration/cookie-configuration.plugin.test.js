@@ -823,6 +823,38 @@ describe('CookieConfiguration plugin tests', () => {
             removeItemSpy.mockRestore();
         });
 
+        test('recognizes consent stored under the language id before per-domain keying (upgrade)', async () => {
+            const languageId = 'legacy-lang';
+            const hash = 'legacy-hash';
+
+            // Consent stored the old way: keyed by language id, no sales channel domain key.
+            CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
+            CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [languageId]: hash }), '30');
+
+            mockFetch.mockResolvedValueOnce({
+                json: () => Promise.resolve({
+                    hash,
+                    languageId,
+                    salesChannelDomainId: 'domain-a',
+                    elements: [],
+                }),
+            });
+
+            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
+
+            await plugin._checkCookieConfigurationHash();
+
+            // The previous consent must be recognized: no reset, no banner.
+            expect(removeItemSpy).not.toHaveBeenCalled();
+            expect(mockCookiePermissionPlugin._showCookieBar).not.toHaveBeenCalled();
+
+            // It is migrated forward to the sales channel domain key.
+            const stored = JSON.parse(CookieStorage.getItem(plugin.options.cookieConfigHash));
+            expect(stored['domain-a']).toBe(hash);
+
+            removeItemSpy.mockRestore();
+        });
+
         test('handles API errors gracefully', async () => {
             mockFetch.mockRejectedValueOnce(new Error('Network error'));
 

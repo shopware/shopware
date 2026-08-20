@@ -325,7 +325,10 @@ export default class CookieConfiguration extends Plugin {
 
         const currentHash = data.hash;
         const storageKey = this._getStorageKey(data);
-        const storedHashForKey = this._getStoredHashForLanguage(storedHashData, storageKey);
+        // Prefer the per-sales-channel-domain hash, but fall back to consent that was stored under
+        // the language id before it was keyed per domain, so existing consents survive the upgrade.
+        const storedHashForKey = this._getStoredHashForLanguage(storedHashData, storageKey)
+            ?? this._getStoredHashForLanguage(storedHashData, data.languageId);
 
         // Consented configuration changed: revoke non-required cookies and prompt again.
         if (storedHashForKey && storedHashForKey !== currentHash) {

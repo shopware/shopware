@@ -8,7 +8,7 @@ meta:
     hints:
       - "Add a navigationTree data requirement with source 'navigation' to load the tree."
       - "The highlighted category follows the page, no configuration needed."
-      - "Pick the service or footer binding to render one of the other navigation roots."
+      - "Set displayType to 'collapsible' to let shoppers open and close the levels below a category."
 
 properties:
   navigationTree:
@@ -28,13 +28,25 @@ properties:
     adminUI:
       helpText: "Filled automatically from the page you are on — leave this as it is."
 
+  displayType:
+    type: string
+    title: "Display type"
+    description: "Whether sub-levels are fixed as rendered or can be opened and closed by the shopper."
+    default: "static"
+    enum:
+      - "static"
+      - "collapsible"
+    adminUI:
+      component: "select"
+      helpText: "'Static' renders the tree as it is. 'Collapsible' adds a plus button to every category that has children, so shoppers can open the levels below it down to the navigation depth configured on the sales channel."
+
   expandAll:
     type: boolean
     title: "Expand all"
     description: "Render all children instead of only the branch containing the active category."
     default: false
     adminUI:
-      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel."
+      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel. In collapsible mode this sets which branches start open."
 
   ariaLabel:
     type: string

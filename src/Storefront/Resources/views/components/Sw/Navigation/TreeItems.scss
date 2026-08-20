@@ -40,3 +40,54 @@
 .sw-navigation-tree-items__folder:hover {
     color: var(--bs-secondary-color);
 }
+
+// Bootstrap animates the panel open from height 0, and `.nav` sets flex-wrap: wrap, which
+// the flex-column utility does not reset. A wrapping column box with no height puts every
+// child in its own column, so the sub-levels flash side by side while it opens.
+.sw-navigation-tree-items.is--collapsible {
+    flex-wrap: nowrap;
+}
+
+// Collapsible mode puts the toggle beside the label and drops the panel onto its own row.
+// The stripe moves to the row itself here: `.btn:hover` rewrites border-color, which would
+// blank out the segment above the toggle whenever the pointer touches it.
+.sw-navigation-tree-items.is--collapsible > .sw-navigation-tree-items__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    border-top: var(--sw-navigation-tree-items-stripe-width) solid var(--sw-navigation-tree-items-stripe-color);
+}
+
+.sw-navigation-tree-items.is--collapsible.is--root > .sw-navigation-tree-items__item:first-child {
+    border-top: 0;
+}
+
+.sw-navigation-tree-items.is--collapsible > .sw-navigation-tree-items__item > .sw-navigation-tree-items__link,
+.sw-navigation-tree-items.is--collapsible > .sw-navigation-tree-items__item > .sw-navigation-tree-items__folder {
+    border-top: 0;
+    flex: 1 1 auto;
+}
+
+.sw-navigation-tree-items.is--collapsible > .sw-navigation-tree-items__item > .sw-navigation-tree-items {
+    flex-basis: 100%;
+}
+
+.sw-navigation-tree-items__toggle {
+    flex: 0 0 auto;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+}
+
+// Two icons swapped by state rather than one rotated: nothing can look wrong mid-transition,
+// and it matches the footer column accordion shoppers already know.
+.sw-navigation-tree-items__toggle .sw-icon--default-minus {
+    display: none;
+}
+
+.sw-navigation-tree-items__toggle[aria-expanded="true"] .sw-icon--default-plus {
+    display: none;
+}
+
+.sw-navigation-tree-items__toggle[aria-expanded="true"] .sw-icon--default-minus {
+    display: inline-flex;
+}

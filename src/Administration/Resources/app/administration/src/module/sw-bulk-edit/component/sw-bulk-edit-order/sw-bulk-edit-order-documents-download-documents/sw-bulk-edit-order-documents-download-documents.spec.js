@@ -92,11 +92,24 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
         spy.mockRestore();
     });
 
+    it('should label checkboxes with the translated document type name', async () => {
+        const fixtures = Object.assign([...documentTypesFixtures], { total: documentTypesFixtures.length });
+        jest.spyOn(wrapper.vm.documentTypeRepository, 'search').mockResolvedValueOnce(fixtures);
+
+        await wrapper.vm.createdComponent();
+        await flushPromises();
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+
+        expect(labels).toEqual(documentTypesFixtures.map((type) => type.translated.name));
+    });
+
     it('fetches document types from the available types endpoint', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper = await createWrapper();
 
         await wrapper.vm.createdComponent();
+        await flushPromises();
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
@@ -106,5 +119,8 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
                 selected: false,
             },
         ]);
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+        expect(labels).toEqual(['sw-order.components.createDocumentModal.documentTypes.invoice']);
     });
 });

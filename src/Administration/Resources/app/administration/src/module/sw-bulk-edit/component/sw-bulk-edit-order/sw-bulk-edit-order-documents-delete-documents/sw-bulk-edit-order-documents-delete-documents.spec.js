@@ -91,6 +91,15 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
         expect(wrapper.findAll('.mt-field__checkbox')).toHaveLength(documentTypesFixtures.length);
     });
 
+    it('should label checkboxes with the translated document type name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+
+        expect(labels).toEqual(documentTypesFixtures.map((type) => type.translated.name));
+    });
+
     it('should be able to select document types', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -133,5 +142,8 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
                 selected: false,
             },
         ]);
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+        expect(labels).toEqual(['sw-order.components.createDocumentModal.documentTypes.invoice']);
     });
 });

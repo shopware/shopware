@@ -193,12 +193,46 @@
 
     {% block sw_flow_mail_send_modal_document_types %}
     <sw-entity-multi-id-select
+        v-if="!isDocumentGenerationReworkActive"
         v-model:value="documentTypeIds"
         name="sw-field--documentTypeIds"
         :repository="documentTypeRepository"
         class="sw-flow-mail-send-modal__document-types"
         :label="$t('sw-flow.modals.mail.labelLatestDocuments')"
         :placeholder="$t('sw-flow.modals.mail.placeholderLatestDocuments')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_document_type %}
+    <mt-select
+        v-if="isDocumentGenerationReworkActive"
+        :model-value="documentTypeSelected"
+        name="sw-field--documentTypeSelected"
+        class="sw-flow-mail-send-modal__document-type-select"
+        label-property="label"
+        value-property="value"
+        :is-loading="isLoadingSupportedDocumentTypes"
+        :options="documentTypeOptions"
+        :label="$t('sw-flow.modals.mail.labelLatestDocuments')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderLatestDocuments')"
+        @update:model-value="onDocumentTypeSelectedChange"
+    />
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_document_type_file_formats %}
+    <mt-select
+        v-if="isDocumentGenerationReworkActive"
+        v-model="fileFormatsSelected"
+        name="sw-field--fileFormatsSelected"
+        class="sw-flow-mail-send-modal__file-formats-select"
+        label-property="label"
+        value-property="value"
+        :enable-multi-selection="true"
+        :disabled="!documentTypeSelected"
+        :options="fileFormatOptions"
+        :label="$t('sw-flow.modals.document.labelFileFormats')"
+        :placeholder="$t('sw-flow.modals.document.placeholderFileFormats')"
+        :error="fileFormatsError"
     />
     {% endblock %}
 

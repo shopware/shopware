@@ -6,7 +6,9 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { computed, inject, ref } from 'vue';
 import ShopwareError from 'src/core/data/ShopwareError';
+import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import kebabCase from 'lodash-es/kebabCase';
 import uuid from 'test/_helper_/uuid';
@@ -16,7 +18,7 @@ import 'src/app/filter/unicode-uri';
 /** @type Wrapper */
 let wrapper;
 
-async function createWrapper(defaultValues = {}, config = createConfig()) {
+async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}) {
     const systemConfigApiService = {
         getConfig: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
@@ -30,11 +32,13 @@ async function createWrapper(defaultValues = {}, config = createConfig()) {
     };
 
     return mount(await wrapTestComponent('sw-system-config'), {
+        slots,
         props: {
             salesChannelSwitchable: true,
             domain: 'ConfigRenderer.config',
         },
         global: {
+            components,
             directives: {
                 tooltip: {},
                 popover: {},
@@ -81,6 +85,9 @@ async function createWrapper(defaultValues = {}, config = createConfig()) {
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-url-field': await wrapTestComponent('sw-url-field'),
@@ -743,6 +750,10 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
+    afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
     it('should show a select field for the sales channels', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -828,6 +839,43 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         const error = wrapper.vm.getFieldError('dummyKey');
 
         expect(error).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should show the error of the selected sales channel scope', async () => {
+        const fieldName = 'ConfigRenderer.config.textField';
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
+            'This value should not be blank.',
+        );
+
+        new ErrorResolverSystemConfig().handleWriteErrors([
+            {
+                code: 'scopedCode',
+                status: '400',
+                detail: 'This value should not be blank.',
+                meta: { parameters: {} },
+                source: { pointer: `/${uuid.get('headless')}/${fieldName}` },
+            },
+        ]);
+        await flushPromises();
+
+        expect(wrapper.vm.getFieldError(fieldName)).toEqual(expect.objectContaining({ code: 'scopedCode' }));
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).toContain(
+            'This value should not be blank.',
+        );
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
+            'This value should not be blank.',
+        );
     });
 
     it('should add a class based on the card name when provided', async () => {
@@ -1439,5 +1487,137 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
 
         expect(createdSpy).toHaveBeenCalled();
+    });
+
+    it('should expose the current sales channel id as a card-element slot prop', async () => {
+        wrapper = await createWrapper({}, createConfig(), {
+            'card-element': `
+                <template #card-element="{ currentSalesChannelId }">
+                    <div class="test-scope-slot">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe(uuid.get('headless'));
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe('global');
+    });
+
+    it('should expose the current sales channel id on the beforeElements, afterElements and card-element-last slots', async () => {
+        wrapper = await createWrapper({}, createConfig(), {
+            beforeElements: `
+                <template #beforeElements="{ currentSalesChannelId }">
+                    <div class="test-scope-before">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+            afterElements: `
+                <template #afterElements="{ currentSalesChannelId }">
+                    <div class="test-scope-after">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+            'card-element-last': `
+                <template #card-element-last="{ currentSalesChannelId }">
+                    <div class="test-scope-last">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-before').text()).toBe('global');
+        expect(wrapper.find('.test-scope-after').text()).toBe('global');
+        expect(wrapper.find('.test-scope-last').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('storefront'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-before').text()).toBe(uuid.get('storefront'));
+        expect(wrapper.find('.test-scope-after').text()).toBe(uuid.get('storefront'));
+        expect(wrapper.find('.test-scope-last').text()).toBe(uuid.get('storefront'));
+    });
+
+    it('should provide the current sales channel id to embedded components', async () => {
+        const scopeProbe = {
+            template: '<div class="test-scope-probe">{{ label }}</div>',
+            inject: {
+                swSystemConfigCurrentSalesChannelId: { default: null },
+            },
+            computed: {
+                label() {
+                    const salesChannelId = this.swSystemConfigCurrentSalesChannelId;
+
+                    return salesChannelId === null ? 'global' : salesChannelId;
+                },
+            },
+        };
+
+        wrapper = await createWrapper({}, createConfig(), {
+            'card-element': scopeProbe,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe(uuid.get('headless'));
+
+        const probeUid = wrapper.findComponent(scopeProbe).vm.$.uid;
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe('global');
+        expect(wrapper.findComponent(scopeProbe).vm.$.uid).toBe(probeUid);
+    });
+
+    it('should provide the current sales channel id to components rendered through config.xml', async () => {
+        const setupProbe = {
+            template: '<div class="test-scope-setup">{{ label }}</div>',
+            setup() {
+                const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
+
+                return { label: computed(() => salesChannelId.value ?? 'global') };
+            },
+        };
+
+        wrapper = await createWrapper(
+            {},
+            [
+                {
+                    name: 'probeCard',
+                    title: { 'en-GB': 'Probe card' },
+                    elements: [
+                        {
+                            name: 'ConfigRenderer.config.probeField',
+                            config: {
+                                componentName: 'test-scope-setup-probe',
+                                label: { 'en-GB': 'probe field' },
+                            },
+                        },
+                    ],
+                },
+            ],
+            {},
+            { 'test-scope-setup-probe': setupProbe },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe(uuid.get('headless'));
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe('global');
     });
 });

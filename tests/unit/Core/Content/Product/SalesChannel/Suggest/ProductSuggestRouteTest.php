@@ -42,6 +42,8 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
+        $this->listingLoader->expects($this->never())->method('load');
+
         $this->expectExceptionObject(new DecorationPatternException(ProductSuggestRoute::class));
 
         $this->getProductSuggestRoute()->getDecorated();
@@ -49,6 +51,8 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testLoadThrowsExceptionForMissingSearchParameter(): void
     {
+        $this->listingLoader->expects($this->never())->method('load');
+
         $this->expectExceptionObject(ProductException::missingRequestParameter('search'));
 
         $route = new ResolvedCriteriaProductSuggestRoute(

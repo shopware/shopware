@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp\Scenario;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -55,31 +56,34 @@ abstract class McpScenarioTestCase extends TestCase
         $container = static::getContainer();
         $registry = $container->get(DefinitionInstanceRegistry::class);
 
-        /** @var RequestCriteriaBuilder $criteriaBuilder */
         $criteriaBuilder = $container->get(RequestCriteriaBuilder::class);
+        \assert($criteriaBuilder instanceof RequestCriteriaBuilder);
 
         $contextProvider = $this->createMock(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        /** @var JsonEntityEncoder $encoder */
         $encoder = $container->get(JsonEntityEncoder::class);
+        \assert($encoder instanceof JsonEntityEncoder);
 
-        $this->entitySearchTool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
-        $this->entityAggregateTool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $criteriaValidator = $container->get(AclCriteriaValidator::class);
+        \assert($criteriaValidator instanceof AclCriteriaValidator);
+
+        $this->entitySearchTool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
+        $this->entityAggregateTool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, $criteriaValidator);
         $this->entitySchemaTool = new EntitySchemaTool($registry);
-        $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $this->entityReadTool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder, $criteriaValidator);
 
-        /** @var Connection $connection */
         $connection = $container->get(Connection::class);
+        \assert($connection instanceof Connection);
         $this->entityUpsertTool = new EntityUpsertTool($registry, $contextProvider, $connection);
 
-        /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $container->get(SystemConfigService::class);
+        \assert($systemConfigService instanceof SystemConfigService);
         $this->systemConfigReadTool = new SystemConfigReadTool($systemConfigService, $contextProvider);
         $this->systemConfigWriteTool = new SystemConfigWriteTool($systemConfigService, $contextProvider);
 
-        /** @var StateMachineRegistry $stateMachineRegistry */
         $stateMachineRegistry = $container->get(StateMachineRegistry::class);
+        \assert($stateMachineRegistry instanceof StateMachineRegistry);
         $this->orderStateTool = new OrderStateTool($registry, $contextProvider, $stateMachineRegistry, $container->get(Connection::class));
     }
 

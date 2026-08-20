@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -56,7 +56,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
      * @param EntityRepository<SnippetSetCollection> $snippetSetRepository
      */
     public function __construct(
-        private readonly Filesystem $translationWriter,
+        private readonly FilesystemOperator $translationWriter,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $localeRepository,
         private readonly EntityRepository $snippetSetRepository,
@@ -79,16 +79,25 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
             throw SnippetException::languageDoesNotExist($locale);
         }
 
-        $this->fetchPlatformSnippets($locale);
-        $this->fetchPluginSnippets($locale);
-
-        // new plugin translation directories may have been written, invalidate the memoized lookup
-        $this->reset();
+        $this->download($locale);
 
         $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
 
         $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
+    }
+
+    public function download(string $locale): void
+    {
+        if (!$this->config->languages->has($locale)) {
+            throw SnippetException::languageDoesNotExist($locale);
+        }
+
+        $this->fetchPlatformSnippets($locale);
+        $this->fetchPluginSnippets($locale);
+
+        // New plugin translation directories may have been written, invalidate the memoized lookup.
+        $this->reset();
     }
 
     public function pluginTranslationExists(Plugin $plugin): bool
@@ -147,7 +156,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         /** @var ArrayStruct<list<string>> $pluginLocales */
         $pluginLocales = new ArrayStruct();
 
-        foreach ($this->translationWriter->listContents($localesBasePath, Filesystem::LIST_DEEP) as $fsNode) {
+        foreach ($this->translationWriter->listContents($localesBasePath, FilesystemOperator::LIST_DEEP) as $fsNode) {
             if (\preg_match('#(?P<locale>[^/]+)/Plugins/(?P<plugin>[^/]+)#', $fsNode->path(), $matches) !== 1) {
                 continue;
             }

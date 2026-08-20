@@ -226,9 +226,16 @@ export default class ImageZoomPlugin extends Plugin {
             const y = this._storedTransform.y + deltaY;
             const z = this._storedTransform.z * event.scale;
 
+            // Hammer only sets isFinal once every pointer is a changed pointer, so releasing
+            // a pinch — where the two fingers never lift in the same frame — leaves it false
+            // and the reached zoom level would never be stored. The END/CANCEL input type is
+            // the reliable end-of-gesture signal for multi-pointer recognisers.
+            const isGestureEnd = Boolean(event.isFinal)
+                || Boolean(event.eventType & (Hammer.INPUT_END | Hammer.INPUT_CANCEL));
+
             this._transform = new Vector3(x, y, z);
             this._unsetTransition();
-            this._updateTransform(event.isFinal);
+            this._updateTransform(isGestureEnd);
             this._setCursor('move');
         }
 

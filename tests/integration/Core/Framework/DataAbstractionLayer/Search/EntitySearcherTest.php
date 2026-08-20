@@ -366,7 +366,7 @@ class EntitySearcherTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $totalMatching = 6;
+        $totalMatching = 3;
         $productNumbers = [];
         $products = [];
         for ($i = 0; $i < $totalMatching; ++$i) {
@@ -401,18 +401,18 @@ class EntitySearcherTest extends TestCase
      */
     public static function lastPagePaginationProvider(): iterable
     {
-        // Partial last page: the fetched rows determine the total, so it is derived as offset + rows.
-        yield 'partial last page' => [['offset' => 4, 'limit' => 4, 'expectedEntities' => 2]];
+        // Partial last page (offset 2 + 1 remaining item = 3 total).
+        yield 'partial last page' => [['offset' => 2, 'limit' => 2, 'expectedEntities' => 1]];
         // First and only (partial) page.
-        yield 'single partial page' => [['offset' => 0, 'limit' => 25, 'expectedEntities' => 6]];
+        yield 'single partial page' => [['offset' => 0, 'limit' => 25, 'expectedEntities' => 3]];
         // No limit at all.
-        yield 'no limit' => [['offset' => 0, 'limit' => null, 'expectedEntities' => 6]];
+        yield 'no limit' => [['offset' => 0, 'limit' => null, 'expectedEntities' => 3]];
         // Full page with more pages remaining: total still requires the wrapped COUNT(*).
-        yield 'first of several full pages' => [['offset' => 0, 'limit' => 2, 'expectedEntities' => 2]];
+        yield 'first of several full pages' => [['offset' => 0, 'limit' => 1, 'expectedEntities' => 1]];
         // Full page that is exactly the last page.
-        yield 'exactly full last page' => [['offset' => 4, 'limit' => 2, 'expectedEntities' => 2]];
+        yield 'exactly full last page' => [['offset' => 2, 'limit' => 1, 'expectedEntities' => 1]];
         // Empty page past the end: total cannot be derived from the page and falls back to the wrapped COUNT(*).
-        yield 'empty page past the end' => [['offset' => 10, 'limit' => 2, 'expectedEntities' => 0]];
+        yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
     }
 
     public function testJsonListEqualsAnyFilter(): void

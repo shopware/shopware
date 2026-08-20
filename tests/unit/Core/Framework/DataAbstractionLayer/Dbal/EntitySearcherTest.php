@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -61,7 +60,6 @@ class EntitySearcherTest extends TestCase
     public function testExactTotalCountSkipsTheCountQueryOnTheLastPage(?int $offset, ?int $limit, int $rows, int $expectedTotal): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->expects($this->once())
             ->method('executeQuery')
             ->willReturn($this->createIdResult($rows));
@@ -97,7 +95,6 @@ class EntitySearcherTest extends TestCase
     public function testExactTotalCountFallsBackToTheCountQuery(?int $offset, int $limit, int $rows): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->expects($this->exactly(2))
             ->method('executeQuery')
             ->willReturnOnConsecutiveCalls($this->createIdResult($rows), $this->createCountResult(42));

@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
  *
  * @see \Shopware\Tests\Integration\Core\System\Snippet\SalesChannel\SnippetRouteTest
  *
+ * @experimental stableVersion:v6.8.0 feature:STORE_API_SNIPPETS
+ *
  * @extends StoreApiResponse<SnippetSetResultList>
  */
 #[Package('discovery')]

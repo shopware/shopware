@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
  * This route can be used to load the resolved snippets (translations) of the authenticated sales channel.
  * The language is taken from the `sw-language-id` header. Optionally the `prefixes` query parameter limits
  * the result to the given namespaces and the `languageIds` query parameter loads multiple languages at once.
+ *
+ * @experimental stableVersion:v6.8.0 feature:STORE_API_SNIPPETS
  */
 #[Package('discovery')]
 abstract class AbstractSnippetRoute

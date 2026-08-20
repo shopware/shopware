@@ -65,10 +65,11 @@
         "/snippet": {
             "get": {
                 "tags": [
+                    "Experimental",
                     "System & Context"
                 ],
                 "summary": "Fetch resolved snippets",
-                "description": "Returns the fully resolved snippets (translations) for the authenticated sales channel as a flat key-value map. The language is taken from the `sw-language-id` header, the snippet set is resolved via the sales channel domains with a fallback to the locale of the language. The language fallback chain is already merged server-side, so values are never null.\n\nThe response carries an `ETag` header; send it back via `If-None-Match` to receive a `304 Not Modified` without a body when nothing changed.",
+                "description": "Returns the fully resolved snippets (translations) for the authenticated sales channel as a flat key-value map. The language is taken from the `sw-language-id` header, the snippet set is resolved via the sales channel domains with a fallback to the locale of the language. The language fallback chain is already merged server-side, so values are never null.\n\nThe response carries an `ETag` header; send it back via `If-None-Match` to receive a `304 Not Modified` without a body when nothing changed.\n\nExperimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "readSnippets",
                 "parameters": [
                     {

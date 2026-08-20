@@ -13,6 +13,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @experimental stableVersion:v6.8.0 feature:STORE_API_SNIPPETS
+ */
 #[Package('discovery')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class SnippetRoute extends AbstractSnippetRoute

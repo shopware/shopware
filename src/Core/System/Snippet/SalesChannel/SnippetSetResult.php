@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @experimental stableVersion:v6.8.0 feature:STORE_API_SNIPPETS
  */
 #[Package('discovery')]
 final class SnippetSetResult extends Struct

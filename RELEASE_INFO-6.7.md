@@ -12,9 +12,9 @@ Apps can now modify or remove cookie consent groups and entries with an app scri
 
 ## API
 
-### Added Store API snippet endpoint
+### Added experimental Store API snippet endpoint
 
-Added new Store API route `GET /store-api/snippet`, which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.
+Added new experimental Store API route `GET /store-api/snippet` (not part of the backwards compatibility promise yet, planned to be stable with v6.8.0), which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.
 ### Number range admin action endpoints now require ACL privileges
 
 Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:

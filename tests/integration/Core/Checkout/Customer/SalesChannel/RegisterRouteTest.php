@@ -263,7 +263,7 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-            $response = $this->browser->getResponse();
+            $response = $browser->getResponse();
 
             $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
             static::assertNotEmpty($contextToken);
@@ -350,7 +350,7 @@ class RegisterRouteTest extends TestCase
             ], \JSON_THROW_ON_ERROR)
         );
 
-        $response = $this->browser->getResponse();
+        $response = $browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
         static::assertNotEmpty($contextToken);
@@ -410,7 +410,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertEmpty($contextToken);
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);
@@ -1304,8 +1304,9 @@ class RegisterRouteTest extends TestCase
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertFalse($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($contextToken);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $contextToken);
 
         $additionalData = [

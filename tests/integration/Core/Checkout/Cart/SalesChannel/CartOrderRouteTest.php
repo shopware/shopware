@@ -305,10 +305,9 @@ class CartOrderRouteTest extends TestCase
 
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
-        $this->createCustomerAndLogin($email, $password);
+        $originalToken = $this->createCustomerAndLogin($email, $password);
 
-        $response = $this->addProductToCart();
-        $originalToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $this->addProductToCart();
         static::assertNotNull($originalToken);
 
         $interval = new \DateInterval(static::getContainer()->getParameter('shopware.api.store.context_lifetime'));
@@ -326,28 +325,30 @@ class CartOrderRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        $guestToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $guestToken = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($guestToken);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
-        // we should get a new token and it should be different from the expired token context
-        static::assertNotSame($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEmpty($data['lineItems']);
 
         $response = $this->addProductToCart('p2');
-        $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertSame($guestToken, $token);
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $token = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($token);
+        $guestToken = $token;
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
         // the cart should be merged on login and a new token should be created
-        $this->login($email, $password);
+        $mergedToken = $this->login($email, $password);
 
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        $mergedToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         static::assertNotFalse($response->getContent());
 
@@ -512,9 +513,8 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderLockedWhenAlreadyInProgress(): void
     {
-        $this->createCustomerAndLogin();
-        $response = $this->addProductToCart();
-        $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $token = $this->createCustomerAndLogin();
+        $this->addProductToCart();
         static::assertNotNull($token);
 
         // Manually acquire lock to simulate concurrent request
@@ -575,7 +575,7 @@ class CartOrderRouteTest extends TestCase
         ?string $email = null,
         ?string $password = null,
         bool $invalidSalutationId = false
-    ): void {
+    ): string {
         $email ??= Uuid::randomHex() . '@example.com';
         $password ??= 'shopware';
         $this->createCustomer(
@@ -586,10 +586,10 @@ class CartOrderRouteTest extends TestCase
             $this->validCountryId
         );
 
-        $this->login($email, $password);
+        return $this->login($email, $password);
     }
 
-    private function login(?string $email = null, ?string $password = null): void
+    private function login(?string $email = null, ?string $password = null): string
     {
         $this->browser
             ->request(
@@ -608,6 +608,8 @@ class CartOrderRouteTest extends TestCase
         static::assertNotEmpty($contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        return $contextToken;
     }
 
     private function createCustomer(

@@ -140,6 +140,43 @@ class ContextGatewayCommandExecutorTest extends TestCase
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    public function testExecuteWithTokenCommandAndContextSwitchKeepsContextTokenHeader(): void
+    {
+        $commands = new ContextGatewayCommandCollection();
+        $commands->add(LoginCustomerCommand::createFromPayload(['customerEmail' => 'hatoken']));
+        $commands->add(ChangeCurrencyCommand::createFromPayload(['iso' => 'EUR']));
+
+        $context = Generator::generateSalesChannelContext();
+        $newContext = Generator::generateSalesChannelContext(token: 'hatoken');
+
+        $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
+        $salesChannelService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $salesChannelService
+            ->expects($this->once())
+            ->method('get')
+            ->with(static::equalTo(new SalesChannelContextServiceParameters($context->getSalesChannelId(), 'hatoken')))
+            ->willReturn($newContext);
+
+        $switchRoute = $this->createMock(AbstractContextSwitchRoute::class);
+        $switchRoute
+            ->expects($this->once())
+            ->method('switchContext')
+            ->with(new RequestDataBag(['currencyId' => 'EUR']), $newContext)
+            ->willReturn(new ContextTokenResponse('hatoken'));
+
+        $executor = new ContextGatewayCommandExecutor(
+            $switchRoute,
+            $registry,
+            static::createStub(ContextGatewayCommandValidator::class),
+            static::createStub(ExceptionLogger::class),
+            $salesChannelService,
+        );
+
+        $response = $executor->execute($commands, $context);
+
+        static::assertSame('hatoken', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
     public function testExecuteWithUnknownCommand(): void
     {
         $commands = new ContextGatewayCommandCollection();

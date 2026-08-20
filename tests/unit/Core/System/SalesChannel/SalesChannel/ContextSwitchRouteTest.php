@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -74,7 +75,7 @@ class ContextSwitchRouteTest extends TestCase
             $salesChannelContext
         );
 
-        static::assertSame($token, $response->getToken());
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     /**

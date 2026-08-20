@@ -65,7 +65,7 @@ class ResponseHeaderListenerTest extends TestCase
         $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
     }

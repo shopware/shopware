@@ -108,9 +108,9 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 `onlyAvailable=1` no longer returns active shipping methods whose prices cannot resolve a cost: an empty matrix, or rows that all lack currency values. One usable row is enough. Requests without the flag are unchanged.
 
-### Store API context token response header is only returned when the token changes
+### Store API context token response header is restricted to token responses
 
-Store API responses no longer echo the request `sw-context-token` header. The response header is only returned by endpoints that create or switch to a different context token, for example login, logout, registration, guest-order login, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a new `sw-context-token`.
+Store API responses no longer echo the request `sw-context-token` header. The response header is only returned by endpoints that explicitly provide a context token, for example login, logout, registration, password change, guest-order login, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a new `sw-context-token`.
 
 ### Sales channel language list validation compares against the incoming default language
 

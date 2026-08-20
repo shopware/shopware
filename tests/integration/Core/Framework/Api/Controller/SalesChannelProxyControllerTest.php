@@ -1164,7 +1164,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
-        static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-context-token'));
+        static::assertFalse($this->getBrowser()->getResponse()->headers->has('sw-context-token'));
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }

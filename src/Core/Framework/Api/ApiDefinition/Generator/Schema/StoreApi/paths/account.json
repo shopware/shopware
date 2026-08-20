@@ -392,14 +392,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ContextTokenResponse"
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
@@ -1266,7 +1259,6 @@
                         "headers": {
                             "sw-context-token": {
                                 "description": "Contains the new sw-context-token value.",
-                                "required": true,
                                 "schema": {
                                     "type": "string"
                                 }

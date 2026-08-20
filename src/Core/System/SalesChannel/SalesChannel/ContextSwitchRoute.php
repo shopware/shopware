@@ -156,7 +156,10 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);
 
-        return new ContextTokenResponse($context->getToken(), $changeUrl);
+        $response = new ContextTokenResponse($context->getToken(), $changeUrl);
+        $response->headers->remove(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        return $response;
     }
 
     /**

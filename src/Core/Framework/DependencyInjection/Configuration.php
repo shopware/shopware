@@ -370,6 +370,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
                 ->end()
+                ->floatNode('url_upload_timeout')->defaultValue(0.0)->min(0)->end()
+                ->floatNode('external_link_timeout')->defaultValue(0.0)->min(0)->end()
                 ->arrayNode('presigned_upload')
                     ->addDefaultsIfNotSet()
                     ->children()

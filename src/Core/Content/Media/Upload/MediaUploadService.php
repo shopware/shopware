@@ -51,6 +51,7 @@ readonly class MediaUploadService
         private EntityRepository $thumbnailSizeRepository,
         private FileUrlValidatorInterface $fileUrlValidator,
         private bool $enableUrlValidation = true,
+        private float $externalLinkTimeout = 0.0,
     ) {
     }
 
@@ -318,7 +319,12 @@ readonly class MediaUploadService
     {
         $this->assertValidExternalUrl($url);
 
-        $headers = $this->httpClient->request('HEAD', $url, ['max_redirects' => 0])->getHeaders();
+        $options = ['max_redirects' => 0];
+        if ($this->externalLinkTimeout > 0) {
+            $options['max_duration'] = $this->externalLinkTimeout;
+        }
+
+        $headers = $this->httpClient->request('HEAD', $url, $options)->getHeaders();
         if (!\array_key_exists('content-length', $headers)) {
             throw MediaException::fileNotFound($url);
         }

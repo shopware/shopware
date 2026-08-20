@@ -1304,8 +1304,8 @@ class RegisterRouteTest extends TestCase
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertFalse($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        $contextToken = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($contextToken);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $contextToken);
 

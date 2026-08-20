@@ -74,7 +74,7 @@ class AppContextGatewayTest extends TestCase
             ],
         ];
 
-        $this->executeCommands($commands, expectContextToken: false);
+        $this->executeCommands($commands);
 
         $this->browser->request('GET', '/store-api/context');
 

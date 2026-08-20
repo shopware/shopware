@@ -63,6 +63,7 @@ jobs:
     secrets: inherit
     with:
       profile: nightly
+      currents: ${{ github.event_name == 'schedule' }}
       # Major acceptance tests are run by the dedicated nightly-major workflow while the next
       # major is prepared. Once they are green, drop this line to fold them back into nightly.
       major: exclude

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -133,7 +134,8 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -200,7 +202,8 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(TwigVariableParserFactory::class)
+            static::getContainer()->get(TwigVariableParserFactory::class),
+            static::getContainer()->get(CategoryBreadcrumbBuilder::class)
         );
 
         try {

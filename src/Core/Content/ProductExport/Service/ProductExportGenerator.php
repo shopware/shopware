@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -59,7 +61,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         Environment $twig,
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        TwigVariableParserFactory $parserFactory
+        TwigVariableParserFactory $parserFactory,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -109,6 +112,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $criteria->addAssociation($association);
         }
 
+        // Preload so getProductSeoCategory() resolves the main category in-memory.
+        $criteria->addAssociation('mainCategories.category');
+
         $this->eventDispatcher->dispatch(
             new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
         );
@@ -151,15 +157,18 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $body = '';
         while ($productResult = $iterator->fetch()) {
             foreach ($productResult->getEntities() as $product) {
-                $data = $productContext->getContext();
-                $data['product'] = $product;
-
                 if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
                     continue; // Skip main product if variants are included
                 }
                 if (!$productExport->isIncludeVariants() && $product->getParentId()) {
                     continue; // Skip variants unless they are included
                 }
+
+                \assert($product instanceof SalesChannelProductEntity);
+                $this->populateSeoCategory($product, $context);
+
+                $data = $productContext->getContext();
+                $data['product'] = $product;
 
                 $body .= $this->productExportRender->renderBody($productExport, $context, $data);
             }
@@ -190,6 +199,23 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $encodingEvent->getEncodedContent(),
             $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
             $iterator->getTotal()
+        );
+    }
+
+    private function populateSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): void
+    {
+        if ($product->getSeoCategory() !== null) {
+            return;
+        }
+
+        // Only resolve when a main category is configured for this sales channel.
+        $mainCategories = $product->getMainCategories();
+        if ($mainCategories === null || $mainCategories->filterBySalesChannelId($context->getSalesChannelId())->count() === 0) {
+            return;
+        }
+
+        $product->setSeoCategory(
+            $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
         );
     }
 

@@ -63,6 +63,7 @@ use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContext
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
 use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenGenerator;
 use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenStore;
+use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -286,6 +287,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(BaseSalesChannelContextFactory::class)
         ->args([
             service(CachedBaseSalesChannelContextFactory::class . '.inner'),
+            service(InvalidationRaceAwareCache::class),
+        ]);
+
+    $services->set(InvalidationRaceAwareCache::class)
+        ->args([
             service('cache.object'),
         ]);
 
@@ -294,7 +300,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(CachedSalesChannelContextFactory::class . '.inner'),
-            service('cache.object'),
+            service(InvalidationRaceAwareCache::class),
         ]);
 
     $services->set(SalesChannelContextService::class)

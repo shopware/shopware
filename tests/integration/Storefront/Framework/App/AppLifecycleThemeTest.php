@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class AppLifecycleThemeTest extends TestCase
 {
     use AppSystemTestBehaviour;

@@ -24,7 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemProductStatesRule::class)]
 class LineItemProductStatesRuleTest extends TestCase
 {

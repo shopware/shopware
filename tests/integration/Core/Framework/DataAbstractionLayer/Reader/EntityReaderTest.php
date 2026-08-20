@@ -1767,7 +1767,7 @@ class EntityReaderTest extends TestCase
         static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
 
         static::assertInstanceOf(CategoryEntity::class, $category2);
-        static::assertEmpty($category2->getProducts()?->getIds() ?? []);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
     }
 
     public function testLoadManyToManySupportsFilter(): void

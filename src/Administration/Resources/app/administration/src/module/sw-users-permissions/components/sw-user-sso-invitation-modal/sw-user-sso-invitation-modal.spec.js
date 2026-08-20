@@ -5,6 +5,11 @@ import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
 
+const ssoInvitationService = {
+    inviteUser: jest.fn(),
+};
+Shopware.Service().register('ssoInvitationService', () => ssoInvitationService);
+
 responses.addResponse({
     method: 'Post',
     url: '/search/language',
@@ -77,6 +82,12 @@ async function createWrapper() {
 }
 
 describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw-user-sso-invitation-modal', () => {
+    beforeEach(() => {
+        // Drop any `…Once` a previous test left unconsumed and keep the default awaitable.
+        ssoInvitationService.inviteUser.mockReset();
+        ssoInvitationService.inviteUser.mockResolvedValue(undefined);
+    });
+
     it('should throw "modal-close" event', async () => {
         const wrapper = await createWrapper();
 
@@ -102,13 +113,7 @@ describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw
     });
 
     it('should throw "invitation-failed" event', async () => {
-        Shopware.Service().register('ssoInvitationService', () => {
-            return {
-                inviteUser: () => {
-                    return Promise.reject();
-                },
-            };
-        });
+        ssoInvitationService.inviteUser.mockRejectedValueOnce();
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -136,11 +141,7 @@ describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw
     });
 
     it('should throw "user-invited" event', async () => {
-        Shopware.Application.getContainer('service').ssoInvitationService = {
-            inviteUser: () => {
-                return Promise.resolve();
-            },
-        };
+        ssoInvitationService.inviteUser.mockResolvedValueOnce();
 
         const wrapper = await createWrapper();
         await flushPromises();

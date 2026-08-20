@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductReviewEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class ProductReviewCollection extends EntityCollection

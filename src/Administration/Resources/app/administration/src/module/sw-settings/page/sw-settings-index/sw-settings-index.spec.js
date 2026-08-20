@@ -359,7 +359,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should load user config for banner on created', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should load user config for banner on created', async () => {
         await createWrapper();
 
         expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith(['settings.hideRenameBanner']);
@@ -368,7 +369,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should show banner by default when no config is set', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should show banner by default when no config is set', async () => {
         const wrapper = await createWrapper();
 
         await flushPromises();
@@ -379,7 +381,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should hide banner when config is set to true', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should hide banner when config is set to true', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
@@ -397,7 +400,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should show banner when config is set to false', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should show banner when config is set to false', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
@@ -415,7 +419,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
     /**
      * @deprecated tag:v6.8.0 - Will be removed
      */
-    it('should toggle banner visibility and save config', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename banner.
+    it.deprecated('v6.8.0.0')('should toggle banner visibility and save config', async () => {
         Shopware.Service('userConfigService').search.mockResolvedValueOnce({
             data: {
                 'settings.hideRenameBanner': {
@@ -439,7 +444,8 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    it('provides the change notices with the version they can be removed with', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the settings rename notice.
+    it.deprecated('v6.8.0.0')('provides the change notices with the version they can be removed with', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.changeNotices).toEqual([
@@ -450,18 +456,28 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         ]);
     });
 
-    it('fails once a change notice reached its deprecation version (delete the entry then)', async () => {
-        const wrapper = await createWrapper();
+    /**
+     * @deprecated tag:v6.8.0 - Do NOT delete this test, it guards every future change notice.
+     * At v6.8: delete the `sw-settings.index.textSettingRenameBanner` entry from
+     * `sw-settings-index/index.ts` plus its snippet, then lower this back to a plain `it()`.
+     * It is skipped under the flag because it is designed to fail once a notice's version has
+     * arrived, and the entry cannot be removed before the major ships.
+     */
+    it.deprecated('v6.8.0.0')(
+        'fails once a change notice reached its deprecation version (delete the entry then)',
+        async () => {
+            const wrapper = await createWrapper();
 
-        const outdated = wrapper.vm.changeNotices
-            .filter((notice) => Shopware.Feature.isActive(notice.deprecationVersion))
-            .map((notice) => notice.key);
+            const outdated = wrapper.vm.changeNotices
+                .filter((notice) => Shopware.Feature.isActive(notice.deprecationVersion))
+                .map((notice) => notice.key);
 
-        expect(
-            outdated,
-            `Deprecated settings messages not removed! Please remove the outdated notices from 'sw-settings-index/index.ts': ${outdated.join(', ')}`,
-        ).toEqual([]);
-    });
+            expect(
+                outdated,
+                `Deprecated settings messages not removed! Please remove the outdated notices from 'sw-settings-index/index.ts': ${outdated.join(', ')}`,
+            ).toEqual([]);
+        },
+    );
 
     describe('search functionality', () => {
         it('should filter items based on search term (term is part of label, case insensitive, white space around)', async () => {

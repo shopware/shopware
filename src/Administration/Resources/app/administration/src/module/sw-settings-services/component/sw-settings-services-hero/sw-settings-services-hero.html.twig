@@ -73,6 +73,7 @@
 
             <div class="sw-settings-services-hero__actions">
                 <mt-button
+                    v-if="feedbackLink"
                     variant="secondary"
                     :link="feedbackLink"
                 >
@@ -87,6 +88,7 @@
                 </mt-button>
 
                 <mt-link
+                    v-if="documentationLink"
                     as="a"
                     target="_blank"
                     rel="noopener noreferrer"

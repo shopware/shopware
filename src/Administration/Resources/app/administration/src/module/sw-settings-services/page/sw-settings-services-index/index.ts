@@ -21,6 +21,7 @@ type SwSettingsPageData = {
     services: ServiceDescription[];
     suspended: boolean;
     loadingError: string;
+    registryError: boolean;
 };
 
 /**
@@ -52,6 +53,7 @@ export default Shopware.Component.wrapComponentConfig({
             services: [],
             suspended: true,
             loadingError: '',
+            registryError: false,
         };
     },
 
@@ -61,6 +63,12 @@ export default Shopware.Component.wrapComponentConfig({
             'currentRevision',
             'consentGiven',
         ]),
+        documentationLink(): string {
+            return this.currentRevision?.links['docs-url'] ?? '';
+        },
+        feedbackLink(): string {
+            return this.currentRevision?.links['feedback-url'] ?? '';
+        },
         servicesWithAccountRequirement(): ServiceWithShopwareAccountRequirement[] {
             return getServicesWithShopwareAccountRequirement(this.services);
         },
@@ -77,11 +85,6 @@ export default Shopware.Component.wrapComponentConfig({
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
-            serviceRegistryClient
-                .getCurrentRevision(sessionStore.currentLocale.value ?? 'en-GB')
-                .then((serviceRevisions) => {
-                    shopwareServicesStore.revisions = serviceRevisions;
-                }),
         ])
             .then(() => {
                 this.suspended = false;
@@ -95,9 +98,24 @@ export default Shopware.Component.wrapComponentConfig({
                     message: errorMessage,
                 });
             });
+
+        void this.loadServiceRegistry(serviceRegistryClient, sessionStore.currentLocale.value ?? 'en-GB');
     },
 
     methods: {
+        async loadServiceRegistry(
+            serviceRegistryClient = Shopware.Service('serviceRegistryClient'),
+            locale = useSession().currentLocale.value ?? 'en-GB',
+        ) {
+            try {
+                this.registryError = false;
+                useShopwareServicesStore().revisions = await serviceRegistryClient.getCurrentRevision(locale);
+            } catch {
+                // Registry metadata is only required for links and permission consent. Keep local service management usable.
+                this.registryError = true;
+            }
+        },
+
         async activateServices() {
             try {
                 const shopwareServicesService = Shopware.Service('shopwareServicesService');

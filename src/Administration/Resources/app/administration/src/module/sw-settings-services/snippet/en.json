@@ -7,7 +7,9 @@
       "deactivate": "Deactivate"
     },
     "exception": {
-      "service-list": "Error loading services"
+      "service-list": "Error loading services",
+      "service-registry": "Some Shopware Services information could not be loaded. You can continue managing your installed services.",
+      "retry": "Retry"
     },
     "sw-settings-services-hero": {
       "title": "Future proof your store with Shopware Services",

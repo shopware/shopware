@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -19,11 +20,12 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContextHandoffControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+    use SessionTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     private KernelBrowser $storefront;
@@ -54,15 +56,6 @@ class ContextHandoffControllerTest extends TestCase
         $sessionToken = $this->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertIsString($sessionToken);
         static::assertStringNotContainsString($sessionToken, $content['token']);
-    }
-
-    public function testGenerateRejectsNonXmlHttpRequests(): void
-    {
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->setServerParameter('HTTP_ACCEPT', 'application/json');
-        $browser->request('POST', EnvironmentHelper::getVariable('APP_URL') . '/context/handoff/generate');
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode());
     }
 
     public function testRedeemWritesTheResolvedContextTokenIntoTheSession(): void
@@ -129,43 +122,6 @@ class ContextHandoffControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $storeApi->getResponse()->getStatusCode(), (string) $storeApi->getResponse()->getContent());
         static::assertSame($sessionToken, $storeApi->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testRedeemingTwiceIsRejected(): void
-    {
-        $this->requestStorefront('POST', '/context/handoff/generate');
-
-        $storeApi = $this->createStoreApiBrowser();
-        $handoffToken = $this->generateHandoffTokenOnStoreApi($storeApi);
-
-        $this->requestStorefront('POST', '/context/handoff/redeem', ['token' => $handoffToken]);
-        static::assertSame(Response::HTTP_NO_CONTENT, $this->storefront->getResponse()->getStatusCode());
-
-        $sessionTokenAfterFirstRedeem = $this->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-
-        $this->requestStorefront('POST', '/context/handoff/redeem', ['token' => $handoffToken]);
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->storefront->getResponse()->getStatusCode());
-        static::assertSame($sessionTokenAfterFirstRedeem, $this->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testRedeemIsRejectedForAnotherSalesChannel(): void
-    {
-        $otherSalesChannelBrowser = $this->createCustomSalesChannelBrowser();
-        $otherSalesChannelBrowser->request('POST', '/store-api/context/handoff/generate');
-        static::assertSame(Response::HTTP_OK, $otherSalesChannelBrowser->getResponse()->getStatusCode());
-
-        $content = json_decode((string) $otherSalesChannelBrowser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($content);
-        static::assertIsString($content['token'] ?? null);
-
-        $this->requestStorefront('POST', '/context/handoff/generate');
-        $sessionTokenBefore = $this->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-
-        $this->requestStorefront('POST', '/context/handoff/redeem', ['token' => $content['token']]);
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->storefront->getResponse()->getStatusCode());
-        static::assertSame($sessionTokenBefore, $this->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testRedeemIsRejectedForAGarbageToken(): void

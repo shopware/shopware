@@ -49,6 +49,7 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY = 'FRAMEWORK__SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY';
     final public const CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED = 'SYSTEM__CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED';
     final public const CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH = 'SYSTEM__CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH';
+    final public const CONTEXT_HANDOFF_THROTTLED = 'SYSTEM__CONTEXT_HANDOFF_THROTTLED';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function salesChannelNotFound(string $salesChannelId): self
@@ -387,6 +388,17 @@ class SalesChannelException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH,
             'The context handoff token was not issued for the requested sales channel.'
+        );
+    }
+
+    public static function contextHandoffThrottled(int $waitTime, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::CONTEXT_HANDOFF_THROTTLED,
+            'Too many context handoff token requests, try again in {{ seconds }} seconds.',
+            ['seconds' => $waitTime],
+            $previous
         );
     }
 }

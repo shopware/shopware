@@ -5,17 +5,19 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\Context;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenStore;
 
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 class ContextHandoffTokenStoreTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 

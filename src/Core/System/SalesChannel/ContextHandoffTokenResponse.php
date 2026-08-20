@@ -3,10 +3,14 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\System\SalesChannel\Struct\ContextHandoffTokenResponseStruct;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<array{token: string, expiresAt: string}>>
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel\ContextHandoffRouteTest
+ *
+ * @extends StoreApiResponse<ContextHandoffTokenResponseStruct>
  */
 #[Package('framework')]
 class ContextHandoffTokenResponse extends StoreApiResponse
@@ -15,19 +19,19 @@ class ContextHandoffTokenResponse extends StoreApiResponse
         string $handoffToken,
         \DateTimeImmutable $expiresAt
     ) {
-        parent::__construct(new ArrayStruct([
-            'token' => $handoffToken,
-            'expiresAt' => $expiresAt->format(\DateTimeInterface::RFC3339),
-        ]));
+        parent::__construct(new ContextHandoffTokenResponseStruct(
+            $handoffToken,
+            $expiresAt->format(\DateTimeInterface::RFC3339)
+        ));
     }
 
     public function getHandoffToken(): string
     {
-        return $this->object->all()['token'];
+        return $this->object->token;
     }
 
     public function getExpiresAt(): string
     {
-        return $this->object->all()['expiresAt'];
+        return $this->object->expiresAt;
     }
 }

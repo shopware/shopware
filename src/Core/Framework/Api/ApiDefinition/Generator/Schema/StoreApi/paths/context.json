@@ -245,6 +245,10 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "token",
+                                        "expiresAt"
+                                    ],
                                     "properties": {
                                         "token": {
                                             "description": "The signed handoff token.",
@@ -273,11 +277,6 @@
                     {
                         "ApiKey": [],
                         "ContextToken": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -325,11 +324,6 @@
                 "security": [
                     {
                         "ApiKey": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

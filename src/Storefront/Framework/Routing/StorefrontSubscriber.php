@@ -132,21 +132,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function updateSessionAfterLogin(CustomerLoginEvent $event): void
     {
-        $token = $event->getContextToken();
-
-        $this->updateSession($token);
+        $this->contextTokenSessionWriter->write($event->getContextToken());
     }
 
     public function updateSessionAfterLogout(): void
     {
-        $newToken = Random::getAlphanumericString(32);
-
-        $this->updateSession($newToken, true);
-    }
-
-    public function updateSession(string $token, bool $destroyOldSession = false): void
-    {
-        $this->contextTokenSessionWriter->write($token, $destroyOldSession);
+        $this->contextTokenSessionWriter->write(Random::getAlphanumericString(32), true);
     }
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
@@ -233,7 +224,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->updateSession($context->getToken());
+        $this->contextTokenSessionWriter->write($context->getToken());
     }
 
     private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null, ?string $tokenKey = null): bool

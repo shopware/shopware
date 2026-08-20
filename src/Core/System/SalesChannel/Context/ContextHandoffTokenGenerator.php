@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @internal
+ *
  * @extends JWTGenerator<ContextHandoffToken>
  */
 #[Package('framework')]
@@ -23,7 +25,7 @@ class ContextHandoffTokenGenerator extends JWTGenerator
 {
     public const AUDIENCE = 'context-handoff';
 
-    public const TOKEN_LIFETIME = 60;
+    public const TOKEN_LIFETIME_IN_SECONDS = 60;
 
     /**
      * @internal
@@ -57,6 +59,6 @@ class ContextHandoffTokenGenerator extends JWTGenerator
 
     protected function getTokenLifetime(JWTStruct $jwt): int
     {
-        return self::TOKEN_LIFETIME;
+        return self::TOKEN_LIFETIME_IN_SECONDS;
     }
 }

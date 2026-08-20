@@ -13,7 +13,6 @@ use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffGenerat
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffRedeemRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ContextHandoffController;
-use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\ContextTokenSessionWriter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,24 +35,12 @@ class ContextHandoffControllerTest extends TestCase
         ));
 
         $response = $this->createController(generateRoute: $generateRoute)
-            ->generate($this->createXmlHttpRequest(), static::createStub(SalesChannelContext::class));
+            ->generate(static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame(
             ['token' => 'the-handoff-token', 'expiresAt' => '2026-08-18T12:01:00+00:00'],
             json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)
-        );
-    }
-
-    public function testGenerateRejectsNonXmlHttpRequests(): void
-    {
-        $this->expectExceptionObject(
-            StorefrontException::xmlHttpRequestRequired('frontend.context.handoff.generate')
-        );
-
-        $this->createController()->generate(
-            new Request(attributes: ['_route' => 'frontend.context.handoff.generate']),
-            static::createStub(SalesChannelContext::class)
         );
     }
 
@@ -65,29 +52,13 @@ class ContextHandoffControllerTest extends TestCase
         $sessionWriter = $this->createMock(ContextTokenSessionWriter::class);
         $sessionWriter->expects($this->once())->method('write')->with(self::CONTEXT_TOKEN);
 
-        $request = $this->createXmlHttpRequest();
+        $request = new Request();
 
         $response = $this->createController(redeemRoute: $redeemRoute, sessionWriter: $sessionWriter)
             ->redeem($request, new RequestDataBag(['token' => 'the-handoff-token']), static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertSame(self::CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testRedeemRejectsNonXmlHttpRequests(): void
-    {
-        $sessionWriter = $this->createMock(ContextTokenSessionWriter::class);
-        $sessionWriter->expects($this->never())->method('write');
-
-        $this->expectExceptionObject(
-            StorefrontException::xmlHttpRequestRequired('frontend.context.handoff.redeem')
-        );
-
-        $this->createController(sessionWriter: $sessionWriter)->redeem(
-            new Request(attributes: ['_route' => 'frontend.context.handoff.redeem']),
-            new RequestDataBag(['token' => 'the-handoff-token']),
-            static::createStub(SalesChannelContext::class)
-        );
     }
 
     private function createController(
@@ -100,10 +71,5 @@ class ContextHandoffControllerTest extends TestCase
             $redeemRoute ?? static::createStub(AbstractContextHandoffRedeemRoute::class),
             $sessionWriter ?? static::createStub(ContextTokenSessionWriter::class),
         );
-    }
-
-    private function createXmlHttpRequest(): Request
-    {
-        return new Request(server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
     }
 }

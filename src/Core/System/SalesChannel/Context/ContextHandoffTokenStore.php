@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Holds the context token a handoff token refers to, keyed by the `jti` of that handoff token.
+ * Holds the context token a handoff token refers to, keyed by the handoff token's unique id (its JWT `jti` claim).
  *
  * Entries are single use: {@see self::consume()} removes the entry it returns, so the context
  * token stops existing in the database as soon as it was handed over.
@@ -28,20 +28,25 @@ class ContextHandoffTokenStore
     ) {
     }
 
-    public function store(string $jti, string $contextToken, \DateTimeInterface $expiresAt): void
+    public function store(string $handoffTokenId, string $contextToken, \DateTimeInterface $expiresAt): void
     {
-        $this->connection->insert('context_handoff_token', [
-            'token' => $jti,
-            'context_token' => $contextToken,
-            'expires' => $expiresAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $this->connection->executeStatement(
+            'INSERT INTO context_handoff_token (token, context_token, expires) VALUES (:token, :contextToken, :expires)',
+            [
+                'token' => $handoffTokenId,
+                'contextToken' => $contextToken,
+                'expires' => \DateTimeImmutable::createFromInterface($expiresAt)
+                    ->setTimezone(new \DateTimeZone('UTC'))
+                    ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
     }
 
-    public function consume(string $jti): ?string
+    public function consume(string $handoffTokenId): ?string
     {
         $contextToken = $this->connection->fetchOne(
             'SELECT context_token FROM context_handoff_token WHERE token = :token AND expires > :now',
-            ['token' => $jti, 'now' => $this->now()]
+            ['token' => $handoffTokenId, 'now' => $this->now()]
         );
 
         if (!\is_string($contextToken) || $contextToken === '') {
@@ -49,7 +54,10 @@ class ContextHandoffTokenStore
         }
 
         // concurrent redemptions race on this delete, only the one that removed the row may proceed
-        $deleted = (int) $this->connection->delete('context_handoff_token', ['token' => $jti]);
+        $deleted = (int) $this->connection->executeStatement(
+            'DELETE FROM context_handoff_token WHERE token = :token',
+            ['token' => $handoffTokenId]
+        );
 
         return $deleted === 1 ? $contextToken : null;
     }

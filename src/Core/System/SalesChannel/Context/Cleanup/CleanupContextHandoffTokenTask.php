@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class CleanupContextHandoffTokenTask extends ScheduledTask
 {

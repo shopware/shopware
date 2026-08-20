@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -392,100 +391,6 @@ class StorefrontSubscriberTest extends TestCase
         static::assertSame($mainRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), $subRequestContextToken);
     }
 
-    public function testUpdateSessionWithoutRequest(): void
-    {
-        $requestStack = new RequestStack();
-
-        self::createSubscriber(
-            $requestStack,
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-            new EventDispatcher(),
-        )->updateSession(self::TEST_CONTEXT_TOKEN);
-
-        static::assertNull($requestStack->getCurrentRequest());
-    }
-
-    public function testUpdateSessionIsNoSalesChannelRequest(): void
-    {
-        $request = new Request();
-
-        self::createSubscriber(
-            new RequestStack([$request]),
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-            new EventDispatcher(),
-        )->updateSession(self::TEST_CONTEXT_TOKEN);
-
-        static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testUpdateSessionWithoutSession(): void
-    {
-        $request = new Request(attributes: [
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
-        ]);
-        $requestStack = new RequestStack([$request]);
-
-        self::createSubscriber(
-            $requestStack,
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-            new EventDispatcher(),
-        )->updateSession(self::TEST_CONTEXT_TOKEN);
-
-        static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testUpdateSession(): void
-    {
-        $request = new Request(attributes: [
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
-        ]);
-        $request->setSession(new Session(new MockArraySessionStorage()));
-        $requestStack = new RequestStack([$request]);
-
-        self::createSubscriber(
-            $requestStack,
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-            new EventDispatcher(),
-        )->updateSession(self::TEST_CONTEXT_TOKEN);
-
-        static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame(self::TEST_CONTEXT_TOKEN, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testDoesNotUpdateSessionForStoreApiRequest(): void
-    {
-        $request = new Request(attributes: [
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-            PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
-        ]);
-        $factoryCalls = 0;
-        $request->setSessionFactory(static function () use (&$factoryCalls): Session {
-            ++$factoryCalls;
-
-            return new Session(new MockArraySessionStorage());
-        });
-
-        self::createSubscriber(
-            new RequestStack([$request]),
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            new StaticSystemConfigService(),
-            new EventDispatcher(),
-        )->updateSession(self::TEST_CONTEXT_TOKEN);
-
-        static::assertSame(0, $factoryCalls);
-    }
-
     public function testStartSessionWithBindingDisabledUsesDefaultTokenKey(): void
     {
         $salesChannelId = 'test-sales-channel-id';
@@ -630,74 +535,6 @@ class StorefrontSubscriberTest extends TestCase
         // Both tokens should still exist
         static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA));
         static::assertTrue($session->has(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdB));
-    }
-
-    public function testUpdateSessionWithBindingEnabledStoresTokenInChannelKey(): void
-    {
-        $salesChannelId = 'test-sales-channel-id';
-        $newToken = 'new-context-token';
-
-        $request = new Request(
-            attributes: [
-                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
-            ]
-        );
-        $request->setSession(new Session(new MockArraySessionStorage()));
-        $requestStack = new RequestStack([$request]);
-
-        $configService = new StaticSystemConfigService([
-            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
-        ]);
-
-        self::createSubscriber(
-            $requestStack,
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            $configService,
-            new EventDispatcher(),
-        )->updateSession($newToken);
-
-        // Should store in both channel-specific and default keys
-        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
-        static::assertSame($newToken, $request->getSession()->get($channelTokenKey));
-        static::assertSame($newToken, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame($newToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
-    public function testUpdateSessionWithBindingDisabledStoresTokenInDefaultKeyOnly(): void
-    {
-        $salesChannelId = 'test-sales-channel-id';
-        $newToken = 'new-context-token';
-
-        $request = new Request(
-            attributes: [
-                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID],
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
-            ]
-        );
-        $request->setSession(new Session(new MockArraySessionStorage()));
-        $requestStack = new RequestStack([$request]);
-
-        $configService = new StaticSystemConfigService([
-            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => false,
-        ]);
-
-        self::createSubscriber(
-            $requestStack,
-            static::createStub(RouterInterface::class),
-            static::createStub(MaintenanceModeResolver::class),
-            $configService,
-            new EventDispatcher(),
-        )->updateSession($newToken);
-
-        // Should only store in default key
-        static::assertSame($newToken, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        // Should NOT store in channel-specific key
-        $channelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
-        static::assertFalse($request->getSession()->has($channelTokenKey));
     }
 
     private static function createSubscriber(

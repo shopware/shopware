@@ -8,7 +8,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffGenerateRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextHandoffRedeemRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\ContextTokenSessionWriter;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,41 +41,31 @@ class ContextHandoffController extends StorefrontController
         path: '/context/handoff/generate',
         name: 'frontend.context.handoff.generate',
         options: ['seo' => false],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
-    public function generate(Request $request, SalesChannelContext $context): JsonResponse
+    public function generate(SalesChannelContext $context): JsonResponse
     {
-        $this->assertXmlHttpRequest($request);
-
         $handoff = $this->generateRoute->generate($context);
 
-        return new JsonResponse($handoff->getObject()->all());
+        return new JsonResponse([
+            'token' => $handoff->getHandoffToken(),
+            'expiresAt' => $handoff->getExpiresAt(),
+        ]);
     }
 
     #[Route(
         path: '/context/handoff/redeem',
         name: 'frontend.context.handoff.redeem',
         options: ['seo' => false],
-        methods: ['POST']
+        methods: [Request::METHOD_POST]
     )]
     public function redeem(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->assertXmlHttpRequest($request);
-
         $contextToken = $this->redeemRoute->redeem($data, $context)->getToken();
 
         $this->contextTokenSessionWriter->write($contextToken);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
-    }
-
-    private function assertXmlHttpRequest(Request $request): void
-    {
-        if ($request->isXmlHttpRequest()) {
-            return;
-        }
-
-        throw StorefrontException::xmlHttpRequestRequired($request->attributes->getString('_route'));
     }
 }

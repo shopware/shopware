@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The referenced context token is never a claim of this token, the `jti` is the lookup key for it.
  *
+ * @internal
+ *
  * @codeCoverageIgnore
  */
 #[Package('framework')]

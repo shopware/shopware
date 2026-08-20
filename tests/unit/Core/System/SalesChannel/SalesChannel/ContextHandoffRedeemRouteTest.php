@@ -137,7 +137,7 @@ class ContextHandoffRedeemRouteTest extends TestCase
 
     public function testRedeemIsRejectedForAMissingToken(): void
     {
-        $this->expectException(JWTException::class);
+        $this->expectExceptionObject(JWTException::invalidJwt('JWT cannot be empty'));
         $this->route->redeem(new RequestDataBag(), $this->createContext());
     }
 

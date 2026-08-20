@@ -107,6 +107,13 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'The context handoff token was not issued for the requested sales channel.',
         ];
 
+        yield SalesChannelException::CONTEXT_HANDOFF_THROTTLED => [
+            'exception' => SalesChannelException::contextHandoffThrottled(42),
+            'statusCode' => Response::HTTP_TOO_MANY_REQUESTS,
+            'errorCode' => SalesChannelException::CONTEXT_HANDOFF_THROTTLED,
+            'message' => 'Too many context handoff token requests, try again in 42 seconds.',
+        ];
+
         yield SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE => [
             'exception' => SalesChannelException::contextTokenNotAccessible(),
             'statusCode' => Response::HTTP_BAD_REQUEST,

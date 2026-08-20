@@ -5,6 +5,8 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -12,8 +14,10 @@ use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenGenerator;
 use Shopware\Core\System\SalesChannel\Context\ContextHandoffTokenStore;
 use Shopware\Core\System\SalesChannel\ContextHandoffTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\SalesChannel\Struct\ContextHandoffToken;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Package('framework')]
@@ -30,6 +34,8 @@ class ContextHandoffGenerateRoute extends AbstractContextHandoffGenerateRoute
         private readonly ContextHandoffTokenGenerator $tokenGenerator,
         private readonly ContextHandoffTokenStore $tokenStore,
         private readonly ClockInterface $clock,
+        private readonly RateLimiter $rateLimiter,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -41,12 +47,20 @@ class ContextHandoffGenerateRoute extends AbstractContextHandoffGenerateRoute
     #[Route(path: '/store-api/context/handoff/generate', name: 'store-api.context.handoff.generate', methods: [Request::METHOD_POST])]
     public function generate(SalesChannelContext $context): ContextHandoffTokenResponse
     {
+        $clientIp = $this->requestStack->getMainRequest()?->getClientIp() ?? '';
+
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::CONTEXT_HANDOFF, $clientIp);
+        } catch (RateLimitExceededException $exception) {
+            throw SalesChannelException::contextHandoffThrottled($exception->getWaitTime(), $exception);
+        }
+
         $handoffToken = new ContextHandoffToken();
         $handoffToken->jti = Uuid::randomHex();
         $handoffToken->aud = [ContextHandoffTokenGenerator::AUDIENCE];
         $handoffToken->salesChannelId = $context->getSalesChannelId();
         $handoffToken->exp = $this->clock->now()->add(
-            new \DateInterval('PT' . ContextHandoffTokenGenerator::TOKEN_LIFETIME . 'S')
+            new \DateInterval('PT' . ContextHandoffTokenGenerator::TOKEN_LIFETIME_IN_SECONDS . 'S')
         );
 
         $handoffJwt = $this->tokenGenerator->encode($handoffToken);

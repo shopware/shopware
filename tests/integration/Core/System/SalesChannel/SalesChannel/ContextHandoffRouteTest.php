@@ -6,8 +6,9 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -21,11 +22,12 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[Group('store-api')]
 class ContextHandoffRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;
@@ -57,7 +59,7 @@ class ContextHandoffRouteTest extends TestCase
 
         $expiresAt = new \DateTimeImmutable($content['expiresAt']);
         $lifetime = $expiresAt->getTimestamp() - (new \DateTimeImmutable())->getTimestamp();
-        static::assertLessThanOrEqual(ContextHandoffTokenGenerator::TOKEN_LIFETIME, $lifetime);
+        static::assertLessThanOrEqual(ContextHandoffTokenGenerator::TOKEN_LIFETIME_IN_SECONDS, $lifetime);
         static::assertGreaterThan(0, $lifetime);
 
         // the context token must never be part of the handoff token payload
@@ -225,7 +227,7 @@ class ContextHandoffRouteTest extends TestCase
             'salesChannelId' => $salesChannelId,
             'iat' => time(),
             'nbf' => time(),
-            'exp' => time() + ContextHandoffTokenGenerator::TOKEN_LIFETIME,
+            'exp' => time() + ContextHandoffTokenGenerator::TOKEN_LIFETIME_IN_SECONDS,
         ]);
 
         return $header . '.' . $payload . '.';

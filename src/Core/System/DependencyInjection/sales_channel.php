@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\Handler\RegisterCustomerComm
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
@@ -382,6 +383,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextHandoffTokenGenerator::class),
             service(ContextHandoffTokenStore::class),
             service(ClockInterface::class),
+            service(RateLimiter::class),
+            service('request_stack'),
         ]);
 
     $services->alias(AbstractContextHandoffGenerateRoute::class, ContextHandoffGenerateRoute::class);

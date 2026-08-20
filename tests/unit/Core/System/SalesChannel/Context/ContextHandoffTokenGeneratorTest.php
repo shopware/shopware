@@ -75,7 +75,7 @@ class ContextHandoffTokenGeneratorTest extends TestCase
         static::assertNotNull($token->iat);
         static::assertNotNull($token->exp);
         static::assertSame(
-            ContextHandoffTokenGenerator::TOKEN_LIFETIME,
+            ContextHandoffTokenGenerator::TOKEN_LIFETIME_IN_SECONDS,
             $token->exp->getTimestamp() - $token->iat->getTimestamp()
         );
     }

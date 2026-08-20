@@ -64,6 +64,8 @@
                 {% block sw_search_bar_type %}
                 <span
                     class="sw-search-bar__type--v2"
+                    :class="{ 'is--module-colored': searchTypeColor }"
+                    :style="searchTypeColor ? { '--sw-search-bar-type-color': searchTypeColor } : null"
                     role="button"
                     tabindex="0"
                     @click="onOpenModuleFiltersDropDown"
@@ -296,7 +298,7 @@
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         size="12px"
-                        color="var(--color-icon-primary-default)"
+                        :color="getTypeIconColor(type.entityName)"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
 
@@ -365,7 +367,7 @@
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         size="14px"
-                        color="var(--color-icon-primary-default)"
+                        :color="getTypeIconColor(type.entityName)"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
                     {{ type.entityName ? getLabelSearchType(type.entityName) : $t('global.sw-search-bar.searchTypeAll') }}

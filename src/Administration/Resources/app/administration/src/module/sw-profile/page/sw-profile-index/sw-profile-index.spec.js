@@ -8,6 +8,7 @@ import { nextTick } from 'vue';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
 import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
+import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 import 'src/module/sw-profile/store/sw-profile.store';
 
 async function createWrapper(
@@ -453,6 +454,43 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             await flushPromises();
 
             expect(useTheme().theme.value).toBe('system');
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('module icon colors', () => {
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should apply and persist the chosen preference on save', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            wrapper.vm.onChangeUserModuleIconColors(true);
+
+            const saveButton = wrapper.find('.sw-profile__save-action');
+            await saveButton.trigger('click');
+            await flushPromises();
+
+            expect(useModuleIconColors().enabled.value).toBe(true);
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+                [USER_MODULE_ICON_COLORS_CONFIG_KEY]: { enabled: true },
+            });
+        });
+
+        it('should not persist the preference before saving', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onChangeUserModuleIconColors(true);
+            await flushPromises();
+
+            expect(useModuleIconColors().enabled.value).toBe(false);
             expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
         });
     });

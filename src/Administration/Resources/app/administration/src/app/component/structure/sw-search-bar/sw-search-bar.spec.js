@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Module } = Shopware;
 const register = Module.register;
@@ -1978,5 +1979,77 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid@route1');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleInvalid@routeNonExistent');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid2@route2');
+    });
+
+    describe('module icon colors', () => {
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should use the neutral icon color for the module filter icons by default', async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.getTypeIconColor('order')).toBe('var(--color-icon-primary-default)');
+        });
+
+        it('should use the module color for the module filter icons when the preference is enabled', async () => {
+            register('sw-order', {
+                title: 'Orders',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
+                entity: 'order',
+
+                routes: {
+                    index: {
+                        component: 'sw-order-list',
+                        path: 'index',
+                    },
+                },
+            });
+
+            useModuleIconColors().enabled.value = true;
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.getTypeIconColor('order')).toBe('var(--color-purple-500)');
+        });
+
+        it('should leave the search type button to the stylesheet by default', async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            const button = wrapper.find('.sw-search-bar__type--v2');
+
+            expect(wrapper.vm.searchTypeColor).toBeNull();
+            expect(button.classes()).not.toContain('is--module-colored');
+            expect(button.attributes('style')).toBeUndefined();
+        });
+
+        it('should paint the search type button in the module color when the preference is enabled', async () => {
+            register('sw-order', {
+                title: 'Orders',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
+                entity: 'order',
+
+                routes: {
+                    index: {
+                        component: 'sw-order-list',
+                        path: 'index',
+                    },
+                },
+            });
+
+            useModuleIconColors().enabled.value = true;
+            wrapper = await createWrapper({ initialSearchType: 'order' });
+            await flushPromises();
+
+            const button = wrapper.find('.sw-search-bar__type--v2');
+
+            expect(wrapper.vm.searchTypeColor).toBe('var(--color-purple-500)');
+            expect(button.classes()).toContain('is--module-colored');
+            expect(button.attributes('style')).toContain('--sw-search-bar-type-color: var(--color-purple-500)');
+        });
     });
 });

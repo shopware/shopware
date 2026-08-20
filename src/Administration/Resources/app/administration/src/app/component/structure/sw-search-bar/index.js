@@ -1,3 +1,4 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
@@ -205,6 +206,10 @@ export default {
 
         adminEsEnable() {
             return Context.app.adminEsEnable ?? false;
+        },
+
+        searchTypeColor() {
+            return useModuleIconColors().enabled.value ? this.getEntityIconColor(this.currentSearchType) : null;
         },
     },
 
@@ -849,6 +854,14 @@ export default {
             }
 
             return module.manifest.color || '#5C738A';
+        },
+
+        getTypeIconColor(entityName) {
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
+            return this.getEntityIconColor(entityName);
         },
 
         getEntityIcon(entityName) {

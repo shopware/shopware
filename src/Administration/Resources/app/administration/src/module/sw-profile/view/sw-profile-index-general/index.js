@@ -19,6 +19,7 @@ export default {
         'new-password-change',
         'new-password-confirm-change',
         'user-theme-change',
+        'user-module-icon-colors-change',
         'media-upload',
         'media-remove',
         'media-open',
@@ -86,6 +87,11 @@ export default {
             required: false,
             default: 'system',
         },
+        userModuleIconColors: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -127,6 +133,28 @@ export default {
             },
             set(userTheme) {
                 this.$emit('user-theme-change', userTheme);
+            },
+        },
+
+        moduleIconColorsOptions() {
+            return [
+                {
+                    value: 'neutral',
+                    label: this.$t('sw-profile.index.optionModuleIconColorsNeutral'),
+                },
+                {
+                    value: 'module',
+                    label: this.$t('sw-profile.index.optionModuleIconColorsColored'),
+                },
+            ];
+        },
+
+        computedUserModuleIconColors: {
+            get() {
+                return this.userModuleIconColors ? 'module' : 'neutral';
+            },
+            set(value) {
+                this.$emit('user-module-icon-colors-change', value === 'module');
             },
         },
     },

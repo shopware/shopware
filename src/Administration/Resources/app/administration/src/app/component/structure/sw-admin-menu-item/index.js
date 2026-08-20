@@ -1,4 +1,5 @@
 import { MtCollapsible, MtCollapsibleContent, MtCollapsibleTrigger } from '@shopware-ag/meteor-component-library';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu-item.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute, entryParamsMatchRoute } from './menu-item-active.helper';
 import './sw-admin-menu-item.scss';
@@ -239,6 +240,7 @@ export default {
                     'is--entry-expanded': this.collapsibleOpen,
                     'is--child-active': this.childRouteActive,
                     'is--flyout-enabled': this.flyoutActive,
+                    'is--module-colored': !!this.navigationIconColor,
                 },
             ];
         },
@@ -247,7 +249,11 @@ export default {
             return [
                 'sw-admin-menu__navigation-list-item',
                 this.getElementClasses(this.entry.id || this.entryPath),
-                { 'is--entry-expanded': this.submenuVisuallyOpen, 'is--child-active': this.childRouteActive },
+                {
+                    'is--entry-expanded': this.submenuVisuallyOpen,
+                    'is--child-active': this.childRouteActive,
+                    'is--module-colored': !!this.navigationIconColor,
+                },
             ];
         },
 
@@ -255,6 +261,16 @@ export default {
             const isActive = this.rowActive || this.childRouteActive;
 
             return this.getIconName(this.entry.icon, isActive);
+        },
+
+        navigationIconColor() {
+            // Undefined leaves the icon to the stylesheet, which also owns the active state color
+            return useModuleIconColors().enabled.value ? this.entry.color : undefined;
+        },
+
+        moduleColorStyle() {
+            // Inherited by the sub items, which mark their active state with the parent module color
+            return this.navigationIconColor ? { '--sw-admin-menu-module-color': this.navigationIconColor } : null;
         },
 
         childRouteActive() {

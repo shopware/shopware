@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import createWrapper from './sw-admin-menu-item.spec/create-wrapper';
 import catalogues from './sw-admin-menu-item.spec/catalogues';
 
@@ -544,6 +545,82 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
         );
         expect(childMenuItem.props().displayIcon).toBe(false);
+    });
+
+    describe('module icon colors', () => {
+        const productEntry = {
+            id: 'sw-product',
+            label: 'sw-product.general.mainMenuItemGeneral',
+            color: '#57D9A3',
+            path: 'sw.product.index',
+            icon: 'regular-products',
+            position: 10,
+            level: 1,
+            moduleType: 'core',
+            children: [],
+        };
+
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should leave the icon color to the stylesheet by default', async () => {
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.vm.navigationIconColor).toBeUndefined();
+            expect(wrapper.find('.sw-admin-menu__navigation-link-icon').attributes('style')).not.toContain('color');
+        });
+
+        it('should paint the icon in the module color when the preference is enabled', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.vm.navigationIconColor).toBe('#57D9A3');
+            expect(wrapper.find('.sw-admin-menu__navigation-link-icon').attributes('style')).toContain(
+                'color: rgb(87, 217, 163)',
+            );
+        });
+
+        it('should not mark the row as module colored by default', async () => {
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.classes()).not.toContain('is--module-colored');
+        });
+
+        it('should mark the row as module colored so the active state drops the brand tint', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.classes()).toContain('is--module-colored');
+        });
+
+        it('should expose the module color to sub items as a custom property', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({ props: { entry: catalogues } });
+            await flushPromises();
+
+            expect(wrapper.attributes('style')).toContain('--sw-admin-menu-module-color: #57D9A3');
+        });
+
+        it('should not expose a module color while the preference is off', async () => {
+            const wrapper = await createWrapper({ props: { entry: catalogues } });
+            await flushPromises();
+
+            expect(wrapper.attributes('style')).toBeUndefined();
+        });
+
+        it('should not mark rows without a module color', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({
+                props: { entry: { ...productEntry, color: undefined } },
+            });
+
+            expect(wrapper.classes()).not.toContain('is--module-colored');
+        });
     });
 
     it('should emit a branch toggle with the chevron following the open state', async () => {

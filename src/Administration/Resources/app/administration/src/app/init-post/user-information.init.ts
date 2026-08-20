@@ -4,6 +4,7 @@
 
 import { initializeUserNotifications } from 'src/app/store/notification.store';
 import useTheme from 'src/app/composables/use-theme';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
@@ -13,6 +14,7 @@ export default function initializeUserContext() {
 
         loginService.addOnLoginListener(() => {
             void useTheme().loadUserTheme();
+            void useModuleIconColors().loadUserModuleIconColors();
         });
 
         // The user isn't logged in
@@ -24,6 +26,7 @@ export default function initializeUserContext() {
         }
 
         void useTheme().loadUserTheme();
+        void useModuleIconColors().loadUserModuleIconColors();
 
         userService
             .getUser()

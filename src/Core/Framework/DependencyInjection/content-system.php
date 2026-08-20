@@ -76,6 +76,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
@@ -531,6 +532,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BindingApplicator::class)
         ->args([
             service(DataLoaderConfigSerializerProvider::class),
+        ]);
+
+    // What an element type stores (as opposed to its hydrated properties): the storageSchema introspection fold
+    $services->set(StoredSchemaResolver::class)
+        ->args([
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(DataLoaderProvider::class),
         ]);
 
     // Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution

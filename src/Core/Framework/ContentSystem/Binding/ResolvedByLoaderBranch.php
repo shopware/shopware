@@ -24,6 +24,10 @@ enum ResolvedByLoaderBranch
     case Entity;
     case EntityCollection;
 
+    // The config key whose value is the storage key: both branches' loaders, EntityLoader and
+    // EntityCollectionLoader, declare their PropertyReference key under this name in configSpecification().
+    public const STORAGE_KEY_CONFIG_KEY = 'property';
+
     /**
      * The branch a reference property's declared FQCN belongs to, or null when the FQCN subclasses neither
      * base class.

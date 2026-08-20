@@ -21,12 +21,14 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -41,6 +43,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -305,6 +308,53 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
+    #[TestDox('folds the resolved storage schema into each element type entry, keyed by stored key')]
+    public function testContentSystemElementTypesFoldsInStorageSchema(): void
+    {
+        $textSpec = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', default: '<p>Lorem ipsum</p>')
+            ->build();
+        $alertSpec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Content:Text' => $textSpec, 'Sw:Alert' => $alertSpec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            $typesByName[$type['name']] = $type;
+        }
+
+        static::assertSame([
+            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Lorem ipsum</p>'],
+        ], $typesByName['Sw:Content:Text']['storageSchema']);
+        // A type that stores nothing carries an empty map, not the Text entry's storage schema.
+        static::assertSame([], $typesByName['Sw:Alert']['storageSchema']);
+    }
+
+    #[TestDox('encodes the folded per-type storage schema as a JSON object when the type stores nothing')]
+    public function testContentSystemElementTypesEncodesEmptyStorageSchemaAsObject(): void
+    {
+        $spec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"storageSchema":{}', $content);
+    }
+
     #[TestDox('preserves floating-point precision in message stats response')]
     public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
@@ -528,6 +578,7 @@ class InfoControllerTest extends TestCase
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
         ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
+        ?StoredSchemaResolver $storedSchemaResolver = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -563,6 +614,10 @@ class InfoControllerTest extends TestCase
             $styleOptionRegistry ?? static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $bindingSpecificationRegistry ?? static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            $storedSchemaResolver ?? new StoredSchemaResolver(
+                static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+                static::createStub(DataLoaderProvider::class),
+            ),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );

@@ -138,14 +138,14 @@ final class DefaultBindingSpecificationSynthesizer
 
         if (\array_key_exists('loader', $resolvedByValue)) {
             $config = $resolvedByValue['config'] ?? null;
-            $property = \is_array($config) ? ($config['property'] ?? null) : null;
+            $property = \is_array($config) ? ($config[ResolvedByLoaderBranch::STORAGE_KEY_CONFIG_KEY] ?? null) : null;
 
             return \is_string($property) ? $property : null;
         }
 
         if (\count($resolvedByValue) === 1) {
             foreach ($resolvedByValue as $flatConfig) {
-                $property = \is_array($flatConfig) ? ($flatConfig['property'] ?? null) : null;
+                $property = \is_array($flatConfig) ? ($flatConfig[ResolvedByLoaderBranch::STORAGE_KEY_CONFIG_KEY] ?? null) : null;
 
                 return \is_string($property) ? $property : null;
             }

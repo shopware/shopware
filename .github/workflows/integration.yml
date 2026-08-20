@@ -165,7 +165,10 @@ jobs:
     name: Analyze
     needs:
       - markdown-only-changes
-    if: ${{ github.repository == 'shopware/shopware' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    # On pull requests only with the `codeql` label; this workflow does not run on `labeled`
+    # events, so add the label before pushing, or re-run the workflow after labeling.
+    # Nightly (workflow_call) and manual runs are unaffected.
+    if: ${{ github.repository == 'shopware/shopware' && needs.markdown-only-changes.outputs.docs_only != 'true' && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'codeql')) }}
     runs-on: ubuntu-24.04
 
     strategy:
@@ -192,6 +195,11 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        with:
+          # without an explicit category the upload is categorized by the calling
+          # workflow, and analyses of labeled pull requests could not be compared
+          # against the baseline the nightly call uploads on trunk
+          category: "/language:${{ matrix.language }}"
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
@@ -456,5 +464,5 @@ jobs:
         with:
           # allowed-failures: docs, linters
           # allow markdown-only PRs to skip the expensive jobs, and allow jobs which do not run on a PR or outside the public repository to skip
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'phpunit, win-checkout, code-ql, php-security, blue-green-66-67, blue-green-67-68' || github.repository != 'shopware/shopware' && github.event_name == 'pull_request' && 'win-checkout, code-ql' || github.repository != 'shopware/shopware' && 'code-ql' || github.event_name == 'pull_request' && 'win-checkout' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'phpunit, win-checkout, code-ql, php-security, blue-green-66-67, blue-green-67-68' || github.repository != 'shopware/shopware' && github.event_name == 'pull_request' && 'win-checkout, code-ql' || github.repository != 'shopware/shopware' && 'code-ql' || github.event_name == 'pull_request' && 'win-checkout, code-ql' || '' }}
           jobs: ${{ toJSON(needs) }}

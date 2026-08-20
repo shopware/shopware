@@ -22,7 +22,8 @@ class DoubleSubmitGuard
 {
     private const LOCK_TTL = 30.0;
 
-    private const LOCK_WAIT_TIMEOUT = 5.0;
+    // Past this we submit unguarded, so it must outlast a normal submission — including the mail sent inline until 6.8 defers flows.
+    private const LOCK_WAIT_TIMEOUT = 3.0;
 
     private const LOCK_RETRY_DELAY_US = 50000;
 

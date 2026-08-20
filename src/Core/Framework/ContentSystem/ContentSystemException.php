@@ -85,6 +85,7 @@ class ContentSystemException extends HttpException
     public const LOADER_INPUT_UNRESOLVED = 'CONTENT_SYSTEM__LOADER_INPUT_UNRESOLVED';
     public const LOADER_INPUT_TYPE_MISMATCH = 'CONTENT_SYSTEM__LOADER_INPUT_TYPE_MISMATCH';
     public const LOADER_CONFIG_KEY_WITHOUT_PROPERTY = 'CONTENT_SYSTEM__LOADER_CONFIG_KEY_WITHOUT_PROPERTY';
+    public const RESOLVED_VALUE_INDEX_MISSING = 'CONTENT_SYSTEM__RESOLVED_VALUE_INDEX_MISSING';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -293,6 +294,22 @@ class ContentSystemException extends HttpException
             self::CONTEXT_DELIVERY_MISSING,
             'No context delivery recorded for element "{{ elementId }}"; the delivery index was built from a different forest',
             ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * An internal fault, never a client defect: the pipeline builds a resolved-value index whenever the served
+     * format asks for one, and every format that reads the index asks, so a render result reaching an
+     * index-reading encoder without one is a broken wiring invariant. Deliberately absent from
+     * {@see self::CLIENT_DEFECT_CODES} — a served layout is stored data, not client input.
+     */
+    public static function resolvedValueIndexMissing(string $layoutId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RESOLVED_VALUE_INDEX_MISSING,
+            'The render result for layout "{{ layoutId }}" carries no resolved-value index, but the format being served requires one.',
+            ['layoutId' => $layoutId]
         );
     }
 

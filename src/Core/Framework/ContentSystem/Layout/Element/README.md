@@ -28,7 +28,7 @@ ContentElement is a mutable object, but on the serving path its `properties` map
 |---|---|---|
 | **Storage** (database JSON, via field serializer encode) | Static/config values only (scalars set at design time) | Loading and context instructions — how to fill FQCN-typed properties at runtime |
 | **Rendered** (runtime, built by `Layout/Element/ContentElementLowering` out of the `RenderedElement`) | Static values AND loaded data merged together | Still present as metadata, read off the stored element; the render step has already used them to resolve the values |
-| **API output** (`jsonSerialize()`, Store API response) | Same as rendered — full merged map. Skeleton format strips properties entirely | Serialized alongside properties in full format; absent in skeleton format |
+| **API output** (Store API response, written by the `Output/Encoder/` classes off the rendered forest rather than off this model) | Same as rendered — full merged map in the full format; the skeleton and decomposed formats strip properties entirely and the data format carries no elements | On no format's wire: the full format's encoder writes `id`, `component`, `properties`, `slots`, `style` and `apiAlias`, and nothing else |
 
 The merge happens on the rendered side, in `Rendering/RenderedElementFactory`: a resolved loader value lands under its data requirement's key, and delivered context under the consumer key or its `propertyAlias`. `ContentElementLowering` copies that finished map onto the `ContentElement` it builds and adds nothing. In the resulting map there is no distinction between a property that was set statically at design time and one that was loaded by a data loader or received via context.
 

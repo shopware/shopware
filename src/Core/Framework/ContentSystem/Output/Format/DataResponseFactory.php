@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Format;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteResponse;
@@ -18,12 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DataResponseFactory extends AbstractResponseFactory
 {
-    public function __construct(
-        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
-        private readonly ConfigCanonicalizer $configCanonicalizer,
-    ) {
-    }
-
     /**
      * @codeCoverageIgnore
      */
@@ -39,6 +31,6 @@ class DataResponseFactory extends AbstractResponseFactory
 
     public function createResponse(RenderResult $result): AbstractContentRouteResponse
     {
-        return new ContentDataRouteResponse($result->page->getContentDataPage($this->configSerializerProvider, $this->configCanonicalizer));
+        return new ContentDataRouteResponse($result);
     }
 }

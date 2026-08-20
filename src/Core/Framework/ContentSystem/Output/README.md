@@ -6,15 +6,17 @@ One exception sits ahead of the render step rather than after it: `ElementTreePr
 
 ## Response Formats
 
-Two formats read the rendered forest directly:
-- **full** → `Encoder/ContentPageEncoder` walks it and writes the body itself
-- **skeleton** → `Format/SkeletonResponseFactory` projects it through `Struct/ContentSkeletonElement::fromRendered()`, keeping id, component, slots and style and dropping every property value
+Three formats write their own body out of the finished render, each through a page encoder of its own:
+- **full** → `Encoder/ContentPageEncoder` walks the forest and writes page keys, element keys and property values
+- **decomposed** → `Encoder/ContentDecomposedPageEncoder` projects the same node shape without property values, over the two maps of `Encoder/ResolvedValueIndexEncoder`
+- **data** → `Encoder/ContentDataPageEncoder` writes `id`, `name` and `version` alongside those two maps, carrying no element structure — the half a client fetches once it already holds a cached skeleton
 
-The remaining two are still assembled from the bridged `ContentPage`, which provides lazy transformations to them:
-- `getContentDecomposedPage()` → Skeletons + deduplicated data + assignments
-- `getContentDataPage()` → Data + assignments without skeleton
+The decomposed and data formats are siblings over the same `Index/ResolvedValueIndex` rather than one derived from the other, which is why the `data`/`assignments` pair and the per-leaf protection gate over its values are encoded in the one place both read.
 
-Every route goes through a format-specific `AbstractResponseFactory` implementation, which takes the pipeline's `RenderResult` — the finished rendered forest, its layout reference, an optional resolved-value index, and, while the `ContentElement` bridge lives, the bridged `ContentPage` those factories still read. The factory answers two questions the route asks before rendering: `getRenderingMode()` and `collectsValueIndex()`.
+The fourth format keeps passing through the framework encoder as a plain struct:
+- **skeleton** → `Format/SkeletonResponseFactory` projects the forest through `Struct/ContentSkeletonElement::fromRendered()`, keeping id, component, slots and style and dropping every property value
+
+Every route goes through a format-specific `AbstractResponseFactory` implementation, which takes the pipeline's `RenderResult` — the finished rendered forest, its layout reference, an optional resolved-value index, and, while the `ContentElement` bridge lives, the bridged `ContentPage`. The factory answers two questions the route asks before rendering: `getRenderingMode()` and `collectsValueIndex()`. The three encoded formats hand the whole result to their route response, which exposes the bridged page to the framework as its struct and keeps the result for the encoder to read; the skeleton factory builds its `Struct/ContentSkeletonPage` on the spot and passes only that.
 
 ## Partial Rendering
 
@@ -26,7 +28,7 @@ Header and footer sources never resolve a target element, so those sections neve
 
 ## Subdirectories
 
-- **Struct/** - Response data structures (ContentPage, ContentDecomposedPage, ContentSkeletonPage, ContentDataPage) plus `EncodedContentPage`, the carrier that hands an already-encoded body to the framework's response encoding
+- **Struct/** - Response data structures: `ContentPage`, the bridged page the encoded formats' responses still expose as their struct, and `ContentSkeletonPage` / `ContentSkeletonElement` for the skeleton format, plus `EncodedContentPage`, the carrier that hands an already-encoded body and the alias it reports to the framework's response encoding
 - **Format/** - Response factory implementations (Full, Decomposed, Skeleton, Data)
-- **Encoder/** - The module's own wire shape: `ContentPageEncoder` for the full format, and `ContentResponseEncodingListener`, which removes `includes`/`excludes` from every content response and swaps the full format's response for the carrier
-- **Index/** - `ResolvedValueIndex` and its factory, the value model the decomposed and data formats will be rebuilt on
+- **Encoder/** - The module's own wire shape: `ContentPageEncoder`, `ContentDecomposedPageEncoder` and `ContentDataPageEncoder`, the `ResolvedValueIndexEncoder` the latter two share, and `ContentResponseEncodingListener`, which removes `includes`/`excludes` from every content response and swaps those three formats' responses for the carrier
+- **Index/** - `ResolvedValueIndex` and its factory, the value model the decomposed and data formats are built on

@@ -578,6 +578,42 @@ class ResolvedValueIndexFactoryTest extends TestCase
     }
 
     /**
+     * The object-branch counterpart to {@see testReplacedLoaderValueGetsItsOwnRef}: the fingerprint mismatch
+     * that drops a replaced value out of the loader rule has to fire on `spl_object_id`, not only on
+     * `Hasher::hash`, or a producer that drifted onto hashing objects would pass every string-only test in
+     * this file while the object branch stayed unguarded.
+     *
+     * Both objects are held in local variables for the whole test so neither becomes unreachable and risks
+     * having its `spl_object_id` recycled onto the other before the assertions run.
+     */
+    #[TestDox('a loader-resolved object value a listener replaced gets its own ref and keeps its own instance')]
+    public function testReplacedLoaderObjectValueGetsItsOwnRef(): void
+    {
+        $produced = new StubStruct();
+        $replacement = new StubStruct();
+
+        $index = $this->factory()->create(
+            [
+                RenderedElementBuilder::create('Sw:Tile', 'element-1')
+                    ->withProperty('product', $produced)
+                    ->build(),
+                RenderedElementBuilder::create('Sw:Tile', 'element-2')
+                    ->withProperty('product', $replacement)
+                    ->build(),
+            ],
+            [
+                'element-1' => ['product' => $this->loaderProvenance($produced)],
+                'element-2' => ['product' => $this->loaderProvenance($produced)],
+            ]
+        );
+
+        $assignments = $index->assignments();
+        static::assertNotSame($assignments['element-1']['product'], $assignments['element-2']['product']);
+        static::assertSame($produced, $index->value($assignments['element-1']['product']));
+        static::assertSame($replacement, $index->value($assignments['element-2']['product']));
+    }
+
+    /**
      * @return \Generator<string, array{mixed, mixed, bool}>
      */
     public static function valueEqualityProvider(): \Generator
@@ -639,6 +675,8 @@ class ResolvedValueIndexFactoryTest extends TestCase
      * Stands in for the producer that records provenance at lowering time, and goes through the same
      * {@see ValueFingerprinter} the factory does, which is the whole reason that rule is a collaborator.
      * Passing a produced value the element does not carry is how a test stages a listener's replacement.
+     * A reimplementation of the fingerprint rule is caught here the moment it diverges from
+     * {@see ValueFingerprinter}, on both of its branches.
      */
     private function loaderProvenance(
         mixed $producedValue,

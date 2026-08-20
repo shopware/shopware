@@ -23,9 +23,16 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * skipped the gate would publish every field of it.
  *
  * A non-`Struct` object value is passed through untouched, which keeps the treatment such a value has today —
- * the carrier's JSON round trip serializes it. Only `Struct`s carry the protection gate, and entity payloads
- * are `Struct`s; the distribution transforms that can produce an arbitrary object (keyed, indexed, iterator)
- * are not entity payloads.
+ * the carrier's JSON round trip serializes it. That is safe for the objects the pipeline itself can produce:
+ * only `Struct`s carry the protection gate, entity payloads are `Struct`s, and the distribution transforms
+ * that mint an arbitrary object (keyed, indexed, iterator) are not entity payloads. It is not safe for a value
+ * a {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener writes: that
+ * event may put any value under any key, so a non-`Struct` object holding a `Struct` anywhere in its object
+ * graph reaches this method as one opaque value, and the `Struct` it contains never reaches the gate above —
+ * this method only sees the wrapper, not what is inside it. No shipped listener does this; it is a bar the
+ * extension contract has to carry because this encoder cannot enforce it: a
+ * `RenderedTreeFinalizationEvent` listener must never write a property value that is a non-`Struct` object
+ * containing a `Struct` anywhere in its object graph.
  *
  * @internal
  *
@@ -53,7 +60,7 @@ class ContentPageEncoder
             'name' => $result->reference->name,
             'version' => $result->reference->version,
             'elements' => array_map($this->encodeElement(...), $result->tree),
-        ]);
+        ], self::PAGE_API_ALIAS);
     }
 
     /**

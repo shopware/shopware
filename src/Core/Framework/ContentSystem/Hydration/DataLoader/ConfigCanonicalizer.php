@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader;
 
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * every map level and value-sorts every list level (e.g. an `associations` list), so two configs that differ
  * only in key or list order compare equal.
  *
- * Shared by {@see PropertiesExtractionVisitor} (dedup hash) and {@see AttributionReconciler} (honesty check).
+ * Shared by {@see LoaderValueIdentityFactory} (dedup hash) and {@see AttributionReconciler} (honesty check).
  *
  * @internal
  *

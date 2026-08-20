@@ -81,8 +81,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeColl
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentResponseEncodingListener;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DataResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
@@ -375,17 +378,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('content_system.output_format', ['format' => 'skeleton']);
 
     $services->set(DataResponseFactory::class)
-        ->args([
-            service(DataLoaderConfigSerializerProvider::class),
-            service(ConfigCanonicalizer::class),
-        ])
         ->tag('content_system.output_format', ['format' => 'data']);
 
     $services->set(DecomposedResponseFactory::class)
-        ->args([
-            service(DataLoaderConfigSerializerProvider::class),
-            service(ConfigCanonicalizer::class),
-        ])
         ->tag('content_system.output_format', ['format' => 'decomposed']);
 
     // Response Encoding (module-owned wire shape)
@@ -394,9 +389,27 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StructEncoder::class),
         ]);
 
+    // The two index-reading formats (decomposed, data) share this encoding of the resolved value index
+    $services->set(ResolvedValueIndexEncoder::class)
+        ->args([
+            service(StructEncoder::class),
+        ]);
+
+    $services->set(ContentDecomposedPageEncoder::class)
+        ->args([
+            service(ResolvedValueIndexEncoder::class),
+        ]);
+
+    $services->set(ContentDataPageEncoder::class)
+        ->args([
+            service(ResolvedValueIndexEncoder::class),
+        ]);
+
     $services->set(ContentResponseEncodingListener::class)
         ->args([
             service(ContentPageEncoder::class),
+            service(ContentDecomposedPageEncoder::class),
+            service(ContentDataPageEncoder::class),
         ])
         ->tag('kernel.event_subscriber');
 

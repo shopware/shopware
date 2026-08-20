@@ -13,10 +13,9 @@ use Shopware\Core\Framework\Log\Package;
  * - `producedFingerprint` identifies the value the loader returned
  *
  * The source is a component of its own rather than something a hash is trusted to carry. The extraction path
- * this type replaces
- * ({@see \Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor::generateConfigHash()})
- * hashes the encoded config alone, so two loaders whose configs encode identically produce the same hash under
- * different sources; making the source explicit means a dedup key can never merge two sources by accident.
+ * this type replaces hashed the encoded config alone, so two loaders whose configs encoded identically produced
+ * the same hash under different sources; making the source explicit means a dedup key can never merge two
+ * sources by accident.
  *
  * `inputsHash` is load-bearing rather than decorative, and it is the component that fixes the defect in that
  * same path: it is the only thing that can make two distinct-but-equal non-entity loader values — two

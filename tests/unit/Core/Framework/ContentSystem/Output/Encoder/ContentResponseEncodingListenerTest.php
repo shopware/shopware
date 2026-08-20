@@ -7,12 +7,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentResponseEncodingListener;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonPage;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\EncodedContentPage;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDataRouteResponse;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
 use Shopware\Core\Framework\Log\Package;
@@ -65,7 +72,54 @@ class ContentResponseEncodingListenerTest extends TestCase
         static::assertSame('content-layout-1', $replacement->headers->get('sw-cache-tags'));
     }
 
-    #[TestDox('leaves a format still assembled from the bridged page to the framework encoder')]
+    #[TestDox('replaces the decomposed-format response with the decomposed encoder body, keeping its status and headers')]
+    public function testOnResponseReplacesTheDecomposedFormatResponseWithTheDecomposedBody(): void
+    {
+        $response = new ContentDecomposedRouteResponse($this->indexedRenderResult());
+        $response->setStatusCode(Response::HTTP_OK);
+        $response->headers->set('sw-cache-tags', 'content-layout-1');
+
+        $event = $this->event(new Request(), $response);
+
+        $this->listener()->onResponse($event);
+
+        $replacement = $event->getResponse();
+        static::assertNotSame($response, $replacement);
+        static::assertInstanceOf(StoreApiResponse::class, $replacement);
+
+        $body = $replacement->getObject();
+        static::assertInstanceOf(EncodedContentPage::class, $body);
+        static::assertSame('content_decomposed_page', $body->getApiAlias());
+        static::assertArrayHasKey('skeletons', $body->jsonSerialize());
+        static::assertSame('T-shirt', $body->jsonSerialize()['data']['product-ref-1'] ?? null);
+        static::assertSame(['root' => ['title' => 'product-ref-1']], $body->jsonSerialize()['assignments'] ?? null);
+        static::assertSame(Response::HTTP_OK, $replacement->getStatusCode());
+        static::assertSame('content-layout-1', $replacement->headers->get('sw-cache-tags'));
+    }
+
+    #[TestDox('replaces the data-format response with the data encoder body')]
+    public function testOnResponseReplacesTheDataFormatResponseWithTheDataBody(): void
+    {
+        $response = new ContentDataRouteResponse($this->indexedRenderResult());
+
+        $event = $this->event(new Request(), $response);
+
+        $this->listener()->onResponse($event);
+
+        $replacement = $event->getResponse();
+        static::assertNotSame($response, $replacement);
+        static::assertInstanceOf(StoreApiResponse::class, $replacement);
+
+        $body = $replacement->getObject();
+        static::assertInstanceOf(EncodedContentPage::class, $body);
+        static::assertSame('content_data_page', $body->getApiAlias());
+        static::assertSame('T-shirt', $body->jsonSerialize()['data']['product-ref-1'] ?? null);
+        static::assertSame(['root' => ['title' => 'product-ref-1']], $body->jsonSerialize()['assignments'] ?? null);
+        static::assertArrayNotHasKey('skeletons', $body->jsonSerialize());
+        static::assertArrayNotHasKey('elements', $body->jsonSerialize());
+    }
+
+    #[TestDox('leaves the skeleton format to the framework encoder')]
     public function testOnResponseDoesNotReplaceTheSkeletonResponse(): void
     {
         $response = new ContentSkeletonRouteResponse(new ContentSkeletonPage('layout-1', [], 'Landing', '1.0.0'));
@@ -74,6 +128,31 @@ class ContentResponseEncodingListenerTest extends TestCase
         $this->listener()->onResponse($event);
 
         static::assertSame($response, $event->getResponse());
+    }
+
+    #[TestDox('removes the field selection from all three bags of a skeleton response it does not replace')]
+    public function testOnResponseStripsFieldSelectionFromEveryBagOfTheSkeletonResponse(): void
+    {
+        $request = new Request();
+        $request->attributes->set('includes', ['content_skeleton_page' => ['elements']]);
+        $request->attributes->set('excludes', ['content_skeleton_element' => ['style']]);
+        $request->query->set('includes', ['content_skeleton_page' => ['elements']]);
+        $request->query->set('excludes', ['content_skeleton_element' => ['style']]);
+        $request->request->set('includes', ['content_skeleton_page' => ['elements']]);
+        $request->request->set('excludes', ['content_skeleton_element' => ['style']]);
+
+        $response = new ContentSkeletonRouteResponse(new ContentSkeletonPage('layout-1', [], 'Landing', '1.0.0'));
+        $event = $this->event($request, $response);
+
+        $this->listener()->onResponse($event);
+
+        static::assertSame($response, $event->getResponse());
+        static::assertFalse($request->attributes->has('includes'));
+        static::assertFalse($request->attributes->has('excludes'));
+        static::assertFalse($request->query->has('includes'));
+        static::assertFalse($request->query->has('excludes'));
+        static::assertFalse($request->request->has('includes'));
+        static::assertFalse($request->request->has('excludes'));
     }
 
     #[TestDox('leaves a response that is not a content response untouched')]
@@ -131,7 +210,14 @@ class ContentResponseEncodingListenerTest extends TestCase
 
     private function listener(): ContentResponseEncodingListener
     {
-        return new ContentResponseEncodingListener(new ContentPageEncoder(static::createStub(StructEncoder::class)));
+        $structEncoder = static::createStub(StructEncoder::class);
+        $indexEncoder = new ResolvedValueIndexEncoder($structEncoder);
+
+        return new ContentResponseEncodingListener(
+            new ContentPageEncoder($structEncoder),
+            new ContentDecomposedPageEncoder($indexEncoder),
+            new ContentDataPageEncoder($indexEncoder),
+        );
     }
 
     private function renderResult(): RenderResult
@@ -140,6 +226,16 @@ class ContentResponseEncodingListenerTest extends TestCase
             [],
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             null,
+            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
+        );
+    }
+
+    private function indexedRenderResult(): RenderResult
+    {
+        return new RenderResult(
+            [new RenderedElement('root', 'Sw:Content:Text')],
+            LayoutReference::create('layout-1', 'Landing', '1.0.0'),
+            new ResolvedValueIndex(['product-ref-1' => 'T-shirt'], ['root' => ['title' => 'product-ref-1']]),
             new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }

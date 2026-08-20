@@ -2,23 +2,21 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Read-only projection of a rendered element for skeleton and decomposed output: properties stripped,
- * universal style carried.
+ * Read-only projection of a rendered element for skeleton output: properties stripped, universal style carried.
  *
  * The projection is what makes the skeleton the cacheable half of the PWA pattern: it is a function of
  * structure alone, so the same layout and request produce the same skeleton whatever the data resolution
  * found, and a later data response composes onto it by element id.
  *
- * Minting goes through a factory rather than the constructor, so the projection rule lives in one place.
- * {@see fromRendered()} is that place; {@see fromElements()} is the pre-split path, still feeding the
- * decomposed format until its own encoder lands, and it dies with `ContentElement`.
+ * Minting goes through {@see fromRendered()} rather than the constructor, so the projection rule lives in one
+ * place. The decomposed format used to share this struct through a second factory; it writes its own skeletons
+ * now, so the only wire shape reaching a client from here is the skeleton format's.
  *
  * @final
  */
@@ -44,24 +42,6 @@ class ContentSkeletonElement extends Struct
     public static function fromRendered(array $elements): array
     {
         return array_map(self::fromRenderedElement(...), $elements);
-    }
-
-    /**
-     * TRANSITIONAL, deleted with `ContentElement` by the model-swap commit: only the decomposed format still
-     * projects from the bridged model, and its own encoder replaces this path first.
-     *
-     * @param iterable<ContentElement> $elements
-     *
-     * @return list<self>
-     */
-    public static function fromElements(iterable $elements): array
-    {
-        $result = [];
-        foreach ($elements as $element) {
-            $result[] = self::fromElement($element);
-        }
-
-        return $result;
     }
 
     /**
@@ -97,19 +77,5 @@ class ContentSkeletonElement extends Struct
         }
 
         return new self($element->id, $element->component, $slots, $element->style);
-    }
-
-    private static function fromElement(ContentElement $element): self
-    {
-        $slots = [];
-        foreach ($element->getSlots() as $slotName => $slotContent) {
-            $children = [];
-            foreach ($slotContent as $child) {
-                $children[] = self::fromElement($child);
-            }
-            $slots[$slotName] = $children;
-        }
-
-        return new self($element->getId(), $element->getComponent(), $slots, $element->getStyle());
     }
 }

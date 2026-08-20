@@ -11,22 +11,34 @@ use Shopware\Core\Framework\Log\Package;
  * Takes a finished {@see RenderedElement} forest together with the {@see StoredElement} forest it was minted
  * from back onto the pre-split {@see ContentElement} model, in that direction only. It is a compatibility
  * bridge rather than a model of its own: {@see RenderedElement} is `final readonly` and deliberately not a
- * `Struct`, so it cannot reach a response encoder, and everything downstream of it — the output formats,
- * {@see \Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage} and the Storefront components — still
- * speaks the older model.
+ * `Struct`, so it cannot reach a response encoder — but the output formats no longer need that reach through
+ * this bridge. The full, decomposed and data bodies are written by
+ * {@see \Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder},
+ * {@see \Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEncoder} and
+ * {@see \Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder}, all three reading the
+ * rendered forest (and, for the latter two, the resolved-value index) directly. What still speaks the older
+ * model is narrower: the route response's own struct,
+ * {@see \Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage}, which the framework encodes as-is
+ * until {@see \Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentResponseEncodingListener} swaps it
+ * for the carrier at the HTTP boundary, and the Storefront Twig components that read it — whether by loading a
+ * `ContentRouteResponse` (`Storefront\Controller\NavigationController`) or by reading a `RenderResult` built
+ * directly by `Api\ContentPreviewPageBuilder` (the Storefront preview controller).
  *
  * Property values come from the rendered side alone. {@see \Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory}
  * has already derived the render namespace, unwrapped every {@see StoredValue} and merged the loaded and the
  * delivered values into it, so this class unwraps nothing itself and adds nothing to that map.
  *
  * Everything else — `id`, `component`, `dataRequirements`, the context definitions, `style` and
- * `attributedSpecifications` — is read off the stored element, because the response wire this pipeline still
- * produces emits `dataRequirements`, `providesContext` and `acceptsContext` per element, and
- * {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor} reads
- * `dataRequirements` to pick the reference-id grammar of the decomposed format. Reproducing today's serving
- * output therefore needs those fields, and the rendered model deliberately carries none of them. Reading
- * attribution here is not a hole in the rendered model's "carries no attribution" rule: the rendered element
- * still carries none, the bridge just walks both trees at once.
+ * `attributedSpecifications` — is read off the stored element, not because anything downstream still asks for
+ * the wiring fields: no response format emits `dataRequirements`, `providesContext` or `acceptsContext` any
+ * more, and their getters on the older model have no production callers left — only
+ * `ContentElementLoweringTest` still calls them, to assert that this bridge reproduces them faithfully. The
+ * reason is model fidelity: the pre-split
+ * {@see ContentElement} this bridge exists to produce still declares those fields, so the bridge reproduces
+ * that model faithfully rather than partially, and the fields and this bridge are removed together when the
+ * output layer and the Storefront move onto {@see RenderedElement}.
+ * Reading attribution here is not a hole in the rendered model's "carries no attribution" rule: the rendered
+ * element still carries none, the bridge just walks both trees at once.
  *
  * It exists to hold the one place where the split models still meet code written against the older one:
  * `ContentSystem\ContentPipeline::load()`, which bridges last — the virtual-root unwrap, the partial extract

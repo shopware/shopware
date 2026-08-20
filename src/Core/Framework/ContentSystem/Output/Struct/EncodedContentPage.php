@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
-use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -11,11 +10,17 @@ use Shopware\Core\Framework\Struct\Struct;
  * it. The body reaches the wire because `jsonSerialize()` returns it verbatim and the framework encoder, finding
  * no object variable behind any of its keys, passes the nested arrays through and adds the top-level `apiAlias`.
  *
- * Two properties of the alias make this safe, and both are constraints rather than luck. It resolves to no
- * registered entity definition, so the protection gate short-circuits instead of judging content keys against
- * some entity's fields — a test pins that no entity is ever registered under a content page alias. And no
- * content body carries a top-level key named `customFields`, `extensions` or `apiAlias`, the three keys the
- * framework encoder treats specially.
+ * The alias travels with the body rather than being fixed here, because one carrier serves every format that
+ * writes its own body and each of them reports its own alias. Which alias a body carries is the format's
+ * identity on the wire, so the parameter is required and has no default.
+ *
+ * Two properties every one of those aliases has make the carrier safe, and both are constraints rather than
+ * luck. None of them resolves to a registered entity definition, so the protection gate short-circuits instead
+ * of judging content keys against some entity's fields.
+ * {@see \Shopware\Tests\Integration\Core\Framework\ContentSystem\Output\ContentPageAliasRegistrationTest} pins
+ * that constraint and fails if an entity is ever registered under one of those aliases. And no content body
+ * carries a top-level key named `customFields`, `extensions` or `apiAlias`, the three keys the framework encoder
+ * treats specially.
  *
  * A carrier exists only at the HTTP boundary. An in-process consumer reads the typed page off the route
  * response instead and never sees one.
@@ -30,8 +35,10 @@ class EncodedContentPage extends Struct
     /**
      * @param array<string, mixed> $body
      */
-    public function __construct(private readonly array $body)
-    {
+    public function __construct(
+        private readonly array $body,
+        private readonly string $apiAlias,
+    ) {
     }
 
     /**
@@ -44,6 +51,6 @@ class EncodedContentPage extends Struct
 
     public function getApiAlias(): string
     {
-        return ContentPageEncoder::PAGE_API_ALIAS;
+        return $this->apiAlias;
     }
 }

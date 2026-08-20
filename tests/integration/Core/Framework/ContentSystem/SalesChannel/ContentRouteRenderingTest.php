@@ -36,9 +36,10 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * The fixture is one nested tree (grid > [text, grid > image]) assigned to a category, whose root consumes
  * the page-level context the category root source declares, so the same layout drives the structural, style,
- * skeleton-parity, partial-render and virtual-root cases. Deliberately not pinned here: the property set an
- * element carries, the ref-id grammar of the decomposed/data formats, and what a loader that finds nothing
- * writes — all three are behaviours under active change.
+ * skeleton-parity, decomposed/data body, field-selection, PWA-composition, partial-render and virtual-root
+ * cases. Deliberately not pinned here: the property set an element carries, the ref-id grammar of the
+ * decomposed/data formats (their assignment-to-data referential integrity is pinned, no literal ref id is),
+ * and what a loader that finds nothing writes.
  *
  * Two step orderings inside the rendering pipeline are pinned by outcome rather than by declaration:
  * redistribute wiring validation judging a subtree the partial-render prune would discard, and the page-level
@@ -318,15 +319,7 @@ class ContentRouteRenderingTest extends TestCase
     {
         $this->createNestedLayout();
 
-        $decomposed = $this->requestJson($this->uri('content-decomposed'));
-        static::assertArrayHasKey('skeletons', $decomposed);
-        static::assertIsArray($decomposed['skeletons']);
-
-        $skeletons = [];
-        foreach ($decomposed['skeletons'] as $skeleton) {
-            static::assertIsArray($skeleton);
-            $skeletons[] = $skeleton;
-        }
+        $skeletons = $this->decomposedSkeletons($this->requestJson($this->uri('content-decomposed')));
 
         // Both sides being empty would satisfy the comparison below, so the decomposed side is proven to
         // carry the fixture's root before it is compared to anything.
@@ -391,32 +384,245 @@ class ContentRouteRenderingTest extends TestCase
         $decomposed = $this->requestJson($this->uri('content-decomposed'));
         $data = $this->requestJson($this->uri('content-data'));
 
+        static::assertArrayNotHasKey('skeletons', $data);
+        static::assertSame($decomposed['id'] ?? null, $data['id'] ?? null);
+        static::assertSame(self::LAYOUT_NAME, $data['name'] ?? null);
+        static::assertSame($decomposed['name'] ?? null, $data['name'] ?? null);
+        static::assertSame(self::LAYOUT_VERSION, $data['version'] ?? null);
+        static::assertSame($decomposed['version'] ?? null, $data['version'] ?? null);
+
+        $decomposedAssignments = $this->assignments($decomposed);
+        $dataAssignments = $this->assignments($data);
         $decomposedValues = $this->dataMap($decomposed);
         $dataValues = $this->dataMap($data);
 
-        static::assertArrayNotHasKey('skeletons', $data);
-        static::assertSame($decomposed['layoutId'] ?? null, $data['layoutId'] ?? null);
-        static::assertSame(self::LAYOUT_NAME, $data['layoutName'] ?? null);
-        static::assertSame($decomposed['layoutName'] ?? null, $data['layoutName'] ?? null);
-        static::assertSame(self::LAYOUT_VERSION, $data['layoutVersion'] ?? null);
-        static::assertSame($decomposed['layoutVersion'] ?? null, $data['layoutVersion'] ?? null);
+        // The fixture really is decomposed on both formats, so the per-property comparison below exercises
+        // populated assignment maps rather than two empty ones agreeing vacuously.
+        static::assertNotSame([], $decomposedAssignments);
 
-        static::assertEqualsCanonicalizing(array_keys($decomposedValues), array_keys($dataValues));
+        // Refs are response-local (see the ResolvedValueIndex class docblock) and are not compared here. The
+        // element-id/property-key grammar is not a ref and is compared directly; each side's own ref is then
+        // resolved through that side's own data map, so only the resulting VALUES are compared across formats.
+        static::assertEqualsCanonicalizing(
+            array_keys($decomposedAssignments),
+            array_keys($dataAssignments),
+            'The two formats must assign to the same set of elements.',
+        );
+
+        foreach ($decomposedAssignments as $elementId => $propertyMap) {
+            static::assertArrayHasKey($elementId, $dataAssignments);
+            static::assertEqualsCanonicalizing(
+                array_keys($propertyMap),
+                array_keys($dataAssignments[$elementId]),
+                'Element ' . $elementId . ' must have the same assigned property set in both formats.',
+            );
+
+            foreach ($propertyMap as $propertyKey => $decomposedRef) {
+                $dataRef = $dataAssignments[$elementId][$propertyKey];
+
+                static::assertArrayHasKey($decomposedRef, $decomposedValues);
+                static::assertArrayHasKey($dataRef, $dataValues);
+
+                // assertEquals, not assertSame: the values are keyed maps, and a JSON map's key order is not
+                // part of the behaviour under test (MySQL reorders JSON object keys, MariaDB does not).
+                static::assertEquals(
+                    $decomposedValues[$decomposedRef],
+                    $dataValues[$dataRef],
+                    'Element ' . $elementId . ' property ' . $propertyKey . ': the value reached through the '
+                    . 'decomposed response\'s ref differs from the value reached through the data response\'s ref.',
+                );
+            }
+        }
 
         // The data map really carries values, not just keys: a map whose entries were all replaced by null
         // would keep every key and every assignment intact.
-        $textRefId = $this->assignments($data)[$this->ids->get('text')]['text'] ?? null;
+        $textRefId = $dataAssignments[$this->ids->get('text')]['text'] ?? null;
         static::assertIsString($textRefId);
         static::assertSame(self::TEXT_VALUE, $dataValues[$textRefId] ?? null);
+    }
 
-        // assertEquals, not assertSame: the values are keyed maps, and a JSON map's key order is not part of
-        // the behaviour under test (MySQL reorders JSON object keys, MariaDB does not).
-        foreach ($decomposedValues as $refId => $value) {
-            static::assertArrayHasKey($refId, $dataValues);
-            static::assertEquals($value, $dataValues[$refId], 'Data value for reference ' . $refId . ' differs between the two formats.');
+    #[TestDox('serves the decomposed body under its own page alias with the six documented top-level keys')]
+    public function testDecomposedFormatServesTheDocumentedTopLevelKeys(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-decomposed'));
+
+        // The module writes the six; the framework appends `apiAlias` to whatever the carrier hands it, which
+        // is why the alias is asserted as the last key rather than as one of the encoder's own.
+        static::assertSame(
+            ['id', 'name', 'version', 'skeletons', 'data', 'assignments', 'apiAlias'],
+            array_keys($body),
+        );
+        static::assertSame($this->ids->get('layout'), $body['id']);
+        static::assertSame(self::LAYOUT_NAME, $body['name']);
+        static::assertSame(self::LAYOUT_VERSION, $body['version']);
+        static::assertSame('content_decomposed_page', $body['apiAlias']);
+    }
+
+    #[TestDox('serves the data body under its own page alias with the five documented top-level keys')]
+    public function testDataFormatServesTheDocumentedTopLevelKeys(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-data'));
+
+        static::assertSame(
+            ['id', 'name', 'version', 'data', 'assignments', 'apiAlias'],
+            array_keys($body),
+        );
+        static::assertSame($this->ids->get('layout'), $body['id']);
+        static::assertSame(self::LAYOUT_NAME, $body['name']);
+        static::assertSame(self::LAYOUT_VERSION, $body['version']);
+        static::assertSame('content_data_page', $body['apiAlias']);
+    }
+
+    #[TestDox('resolves every data-format assignment to an entry in the data map')]
+    public function testDataFormatAssignmentsAreReferentiallyIntact(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-data'));
+        $assignments = $this->assignments($body);
+        $data = $this->dataMap($body);
+
+        // Both maps being empty would satisfy the difference below, so each is proven non-empty first.
+        static::assertNotSame([], $assignments);
+        static::assertNotSame([], $data);
+
+        static::assertSame(
+            [],
+            array_values(array_diff($this->referencedRefIds($assignments), array_keys($data))),
+            'Every ref an assignment names must be a key of the data map.',
+        );
+    }
+
+    #[TestDox('serves decomposed skeleton nodes with id, component and the element alias at every depth, and no property values')]
+    public function testDecomposedSkeletonNodesCarryStructureAndAliasButNoProperties(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-decomposed'));
+
+        // The values did not vanish, they moved: `assignments` is where the properties of these very nodes went,
+        // so their absence from the nodes below is the decomposition and not an empty render.
+        static::assertNotSame([], $this->assignments($body));
+
+        $nodes = $this->flattenWithDepth($this->decomposedSkeletons($body));
+
+        // The fixture is a root, two children and a grandchild, so the per-node assertions below really are
+        // exercised past depth 1 rather than on a single-level forest.
+        static::assertSame([1, 2, 2, 3], array_column($nodes, 'depth'));
+
+        $shapes = [];
+        foreach ($nodes as $node) {
+            $shapes[] = [
+                'id' => $node['element']['id'] ?? null,
+                'component' => $node['element']['component'] ?? null,
+                'hasProperties' => \array_key_exists('properties', $node['element']),
+                'apiAlias' => $node['element']['apiAlias'] ?? null,
+            ];
         }
 
-        static::assertEquals($this->assignments($decomposed), $this->assignments($data));
+        static::assertSame([
+            ['id' => $this->ids->get('root-grid'), 'component' => 'Sw:Grid:Container', 'hasProperties' => false, 'apiAlias' => 'content_skeleton_element'],
+            ['id' => $this->ids->get('text'), 'component' => 'Sw:Content:Text', 'hasProperties' => false, 'apiAlias' => 'content_skeleton_element'],
+            ['id' => $this->ids->get('inner-grid'), 'component' => 'Sw:Grid:Container', 'hasProperties' => false, 'apiAlias' => 'content_skeleton_element'],
+            ['id' => $this->ids->get('image'), 'component' => 'Sw:Media:Image', 'hasProperties' => false, 'apiAlias' => 'content_skeleton_element'],
+        ], $shapes);
+    }
+
+    #[TestDox('serves the same decomposed body whether or not the request asks for a field selection')]
+    public function testDecomposedFormatIgnoresIncludesAndExcludes(): void
+    {
+        $this->createNestedLayout();
+
+        $unfiltered = $this->requestJson($this->uri('content-decomposed'));
+
+        // The keys the selections below try to remove are present to begin with, so an unchanged body is the
+        // listener neutering the parameters rather than a selection that had nothing to take away.
+        static::assertArrayHasKey('data', $unfiltered);
+        static::assertArrayHasKey('assignments', $unfiltered);
+        static::assertArrayHasKey('skeletons', $unfiltered);
+
+        $filtered = $this->requestJson($this->uri('content-decomposed')
+            . '?includes[content_decomposed_page][]=id'
+            . '&includes[content_skeleton_element][]=id'
+            . '&excludes[content_decomposed_page][]=assignments');
+
+        static::assertSame($unfiltered, $filtered, 'A decomposed response must ignore includes and excludes entirely.');
+
+        $dotted = $this->requestJson($this->uri('content-decomposed')
+            . '?includes[content_decomposed_page][]=skeletons.id'
+            . '&includes[content_decomposed_page][]=assignments.' . $this->ids->get('text'));
+
+        static::assertSame($unfiltered, $dotted, 'A dotted selector must not unlock nested filtering of a decomposed body either.');
+    }
+
+    #[TestDox('serves the same data body whether or not the request asks for a field selection')]
+    public function testDataFormatIgnoresIncludesAndExcludes(): void
+    {
+        $this->createNestedLayout();
+
+        $unfiltered = $this->requestJson($this->uri('content-data'));
+
+        static::assertArrayHasKey('data', $unfiltered);
+        static::assertArrayHasKey('assignments', $unfiltered);
+
+        $filtered = $this->requestJson($this->uri('content-data')
+            . '?includes[content_data_page][]=data'
+            . '&excludes[content_data_page][]=assignments');
+
+        static::assertSame($unfiltered, $filtered, 'A data response must ignore includes and excludes entirely.');
+
+        // A dotted selector naming an element id rather than a ref: refs are response-local, so nothing outside
+        // a response may name one, but an element id is a stable handle a client really would filter by.
+        $dotted = $this->requestJson($this->uri('content-data')
+            . '?includes[content_data_page][]=assignments.' . $this->ids->get('text'));
+
+        static::assertSame($unfiltered, $dotted, 'A dotted selector must not unlock nested filtering of a data body either.');
+    }
+
+    #[TestDox('names only elements the skeleton response carries in the assignments of a data response')]
+    public function testDataAssignmentsNameOnlyElementsTheSkeletonResponseCarries(): void
+    {
+        $this->createNestedLayout();
+
+        $skeletonIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content-skeleton')))), 'id');
+        $assignments = $this->assignments($this->requestJson($this->uri('content-data')));
+
+        // Four distinct ids over three depths on the skeleton side and a non-empty assignment map on the data
+        // side, so the composition below is a correspondence between two populated maps.
+        static::assertCount(4, $skeletonIds);
+        static::assertNotSame([], $assignments);
+
+        static::assertSame(
+            [],
+            array_values(array_diff(array_keys($assignments), $skeletonIds)),
+            'A data response may only assign to element ids the cached skeleton response already holds.',
+        );
+    }
+
+    #[TestDox('assigns to every skeleton element the value index holds an entry for')]
+    public function testEverySkeletonElementWithAnIndexEntryIsAssignedTo(): void
+    {
+        $this->createNestedLayout();
+
+        $skeletonIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content-skeleton')))), 'id');
+        $indexedIds = $this->propertyBearingElementIds();
+        $assignments = $this->assignments($this->requestJson($this->uri('content-data')));
+
+        // The qualifier is load-bearing: `ResolvedValueIndexFactory` writes no assignment entry for an element
+        // with zero rendered properties, so the reverse direction is stated over the elements the index holds
+        // an entry for rather than over every skeleton id.
+        static::assertNotSame([], $indexedIds);
+        static::assertSame([], array_values(array_diff($indexedIds, $skeletonIds)));
+
+        static::assertSame(
+            [],
+            array_values(array_diff($indexedIds, array_keys($assignments))),
+            'Every skeleton element the value index holds an entry for must carry its assignments entry.',
+        );
     }
 
     #[TestDox('fails a wiring-defective layout in the full rendering mode')]
@@ -752,6 +958,91 @@ class ContentRouteRenderingTest extends TestCase
             'style' => $element['style'] ?? null,
             'slots' => $slots,
         ];
+    }
+
+    /**
+     * The decomposed format's root skeleton list, read the way every other body part is read here.
+     *
+     * @param array<string, mixed> $body
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function decomposedSkeletons(array $body): array
+    {
+        static::assertArrayHasKey('skeletons', $body);
+        static::assertIsArray($body['skeletons']);
+
+        $skeletons = [];
+        foreach ($body['skeletons'] as $skeleton) {
+            static::assertIsArray($skeleton);
+            $skeletons[] = $skeleton;
+        }
+
+        return $skeletons;
+    }
+
+    /**
+     * Every ref any assignment names, once each, so a test can compare the referenced set against the data map.
+     *
+     * @param array<string, array<string, string>> $assignments
+     *
+     * @return list<string>
+     */
+    private function referencedRefIds(array $assignments): array
+    {
+        $refs = [];
+        foreach ($assignments as $propertyMap) {
+            foreach ($propertyMap as $refId) {
+                $refs[$refId] = true;
+            }
+        }
+
+        return array_keys($refs);
+    }
+
+    /**
+     * The element ids the resolved value index holds an entry for, read off the FULL format rather than off the
+     * index: `ContentPageEncoder` writes the same rendered property map `ResolvedValueIndexFactory` walks, so a
+     * non-empty `properties` there is exactly an assignments entry in the two index-reading formats. Reading it
+     * off `assignments` instead would make any composition assertion over it circular.
+     *
+     * @return list<string>
+     */
+    private function propertyBearingElementIds(): array
+    {
+        $ids = [];
+        foreach ($this->flatten($this->rootElements($this->requestJson($this->uri('content')))) as $element) {
+            static::assertIsArray($element['properties'] ?? null);
+
+            if ($element['properties'] === []) {
+                continue;
+            }
+
+            static::assertIsString($element['id'] ?? null);
+            $ids[] = $element['id'];
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $elements
+     *
+     * @return list<array{element: array<string, mixed>, depth: int}>
+     */
+    private function flattenWithDepth(array $elements, int $depth = 1): array
+    {
+        $flat = [];
+        foreach ($elements as $element) {
+            $flat[] = ['element' => $element, 'depth' => $depth];
+            foreach ($this->slots($element) as $children) {
+                foreach ($this->flattenWithDepth($children, $depth + 1) as $descendant) {
+                    $flat[] = $descendant;
+                }
+            }
+        }
+
+        return $flat;
     }
 
     /**

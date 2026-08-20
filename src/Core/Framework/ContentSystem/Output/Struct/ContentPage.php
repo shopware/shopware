@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -26,34 +23,6 @@ class ContentPage extends Struct
         public string $layoutName,
         public ?string $layoutVersion,
     ) {
-    }
-
-    public function getContentDecomposedPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider,
-        ConfigCanonicalizer $configCanonicalizer
-    ): ContentDecomposedPage {
-        $visitor = new PropertiesExtractionVisitor($configSerializerProvider, $configCanonicalizer);
-
-        foreach ($this->elements as $element) {
-            $clone = clone $element;
-            $clone->traverse($visitor);
-        }
-
-        return new ContentDecomposedPage(
-            ContentSkeletonElement::fromElements($this->elements),
-            $visitor->getData(),
-            $visitor->getAssignments(),
-            $this->layoutId,
-            $this->layoutName,
-            $this->layoutVersion
-        );
-    }
-
-    public function getContentDataPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider,
-        ConfigCanonicalizer $configCanonicalizer
-    ): ContentDataPage {
-        return $this->getContentDecomposedPage($configSerializerProvider, $configCanonicalizer)->getContentDataPage();
     }
 
     /**

@@ -2,26 +2,31 @@
 
 namespace Shopware\Core\Framework\ContentSystem\SalesChannel;
 
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentDataPage;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * The data format's route response. It carries the whole render result, of which the response listener reads
+ * only the resolved-value index: this format serves the values and their assignments without the structure.
+ *
  * @final
  */
 #[Package('framework')]
 class ContentDataRouteResponse extends AbstractContentRouteResponse
 {
-    private readonly ContentDataPage $dataPage;
+    private readonly RenderResult $result;
 
     public function __construct(
-        ContentDataPage $dataPage,
+        RenderResult $result,
     ) {
-        parent::__construct($dataPage);
-        $this->dataPage = $dataPage;
+        // The page, not the result, is the struct the response exposes to the framework: it is what the
+        // cache-key path reads variables off, exactly as before this response carried the result.
+        parent::__construct($result->page);
+        $this->result = $result;
     }
 
-    public function getContentDataPage(): ContentDataPage
+    public function getRenderResult(): RenderResult
     {
-        return $this->dataPage;
+        return $this->result;
     }
 }

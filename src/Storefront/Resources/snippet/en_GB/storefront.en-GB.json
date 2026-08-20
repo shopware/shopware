@@ -626,9 +626,9 @@
     "info": "We look forward to hearing from you.",
     "subjectLabel": "Subject",
     "commentLabel": "Comment",
-    "privacyNoticeText": "I have read and acknowledge the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
-    "privacyNoticeTextModal": "I have read and acknowledge the %privacyModalTagOpen%privacy policy%privacyModalTagClose%.",
-    "privacyNoticeTextPage": "I have read and acknowledge the <a href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
+    "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
+    "privacyNoticeTextModal": "By selecting continue you confirm that you have read and agree to our %privacyModalTagOpen%data protection information%privacyModalTagClose%.",
+    "privacyNoticeTextPage": "By selecting continue you confirm that you have read and agree to our <a href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },

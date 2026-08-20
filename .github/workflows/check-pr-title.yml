@@ -20,7 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          subjectPattern: …$
+          subjectPattern: ^.*(?<!…)$
           subjectPatternError: |
             PR title ends with "…", probably because it was shortened by GitHub.
             Make sure the title is descriptive enough, as it will be used as the commit message.

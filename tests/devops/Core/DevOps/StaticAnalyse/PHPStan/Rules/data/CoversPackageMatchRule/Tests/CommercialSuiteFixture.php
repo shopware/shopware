@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule\Tests;
+namespace Shopware\Commercial\Tests\Unit\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPackageMatchRule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -9,6 +9,6 @@ use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CoversPac
 
 #[Package('framework')]
 #[CoversClass(CheckoutService::class)]
-class MismatchedPackageFixture extends TestCase
+class CommercialSuiteFixture extends TestCase
 {
 }

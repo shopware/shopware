@@ -21,9 +21,11 @@ use Shopware\Core\Framework\Log\Package;
  * drift from the ownership of the code it covers. `fundamentals@<area>` routes to the
  * <area> team and counts as equal to the plain <area> value in both directions.
  *
- * The migration suite is excluded until it is aligned: several migrations carry
- * `framework` although they migrate feature-domain tables, and there the source
- * value is the one that has to change.
+ * Enforced for the core unit suite only. The migration suite joins once it is
+ * aligned: several migrations carry `framework` although they migrate feature-domain
+ * tables, and there the source value is the one that has to change. Downstream
+ * repositories load this rule set as well and carry their own package taxonomy,
+ * so their test namespaces stay out.
  *
  * @internal
  *
@@ -32,7 +34,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CoversPackageMatchRule implements Rule
 {
-    private const EXCLUDED_NAMESPACE = 'Shopware\Tests\Migration\\';
+    private const ENFORCED_NAMESPACE = 'Shopware\Tests\Unit\\';
 
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
@@ -53,7 +55,7 @@ class CoversPackageMatchRule implements Rule
     {
         $classReflection = $node->getClassReflection();
 
-        if (\str_starts_with($classReflection->getName(), self::EXCLUDED_NAMESPACE)) {
+        if (!\str_starts_with($classReflection->getName(), self::ENFORCED_NAMESPACE)) {
             return [];
         }
 

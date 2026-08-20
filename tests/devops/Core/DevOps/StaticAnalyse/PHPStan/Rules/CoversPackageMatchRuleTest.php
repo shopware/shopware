@@ -65,10 +65,16 @@ class CoversPackageMatchRuleTest extends RuleTestCase
         $this->analyse([self::FIXTURE_DIR . '/UnpackagedCoveredFixture.php'], []);
     }
 
-    #[TestDox('skips tests in the migration suite')]
-    public function testMigrationSuiteExcluded(): void
+    #[TestDox('skips tests outside the core unit suite, like the migration suite')]
+    public function testMigrationSuiteNotEnforced(): void
     {
         $this->analyse([self::FIXTURE_DIR . '/MigrationSuiteFixture.php'], []);
+    }
+
+    #[TestDox('skips tests of downstream repositories, which carry their own package taxonomy')]
+    public function testCommercialSuiteNotEnforced(): void
+    {
+        $this->analyse([self::FIXTURE_DIR . '/CommercialSuiteFixture.php'], []);
     }
 
     #[TestDox('rejects a test whose package differs from the covered trait')]

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\RenderedElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -70,21 +70,21 @@ class PartialRendererTest extends TestCase
     #[TestDox('extracts target from first element containing it')]
     public function testExtractTargetReturnsFirstMatch(): void
     {
-        $target = ContentElementBuilder::create('text', 'target')->build();
-        $root1 = ContentElementBuilder::create('section', 'r1')
+        $target = RenderedElementBuilder::create('text', 'target')->build();
+        $root1 = RenderedElementBuilder::create('section', 'r1')
             ->withSlot('default', [$target])
             ->build();
-        $root2 = ContentElementBuilder::create('section', 'r2')->build();
+        $root2 = RenderedElementBuilder::create('section', 'r2')->build();
 
         $result = $this->renderer->extractTarget([$root1, $root2], 'target');
 
-        static::assertSame('target', $result->getId());
+        static::assertSame('target', $result->id);
     }
 
     #[TestDox('throws when target element not found in any root during extraction')]
     public function testExtractTargetThrowsWhenNotFound(): void
     {
-        $root = ContentElementBuilder::create('section', 'r1')->build();
+        $root = RenderedElementBuilder::create('section', 'r1')->build();
 
         $this->expectExceptionObject(ContentSystemException::elementNotFound('missing-id'));
 

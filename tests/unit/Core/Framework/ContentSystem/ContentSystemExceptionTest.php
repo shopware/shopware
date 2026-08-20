@@ -96,6 +96,8 @@ class ContentSystemExceptionTest extends TestCase
         yield 'a provider delivery collision as a client defect' => [ContentSystemException::providerDeliveryCollision('item', 'product', 'category'), true];
         // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
+        // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
+        yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
     }
 
     /**
@@ -150,6 +152,13 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__INVALID_MAP_VALUE',
             'foo',
+        ];
+
+        yield 'duplicate element id' => [
+            ContentSystemException::duplicateElementId('repeated-id'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID',
+            'repeated-id',
         ];
 
         yield 'layout assignment not found' => [

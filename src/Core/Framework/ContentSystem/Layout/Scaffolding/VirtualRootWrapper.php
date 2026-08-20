@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 
@@ -20,12 +20,11 @@ use Shopware\Core\Framework\Log\Package;
  * Virtual root is a temporary structural modification (scaffolding) that wraps actual layout
  * roots to enable page-level data requirements to be distributed as broadcast context.
  *
- * All of this class speaks {@see StoredElement} except `unwrap()`. `requiresWrapping()`, `wrap()` and
- * `isVirtualRoot()` are called by {@see StoredTreePreparer}, which holds the storage model throughout —
- * the wrap before the lowering, the identity check on the post-prune stored forest. `unwrap()` alone
- * still takes {@see ContentElement}, because the pipeline reaches it at its far end, on a tree the
- * lowering has long since taken across. The lone split signature is the seam moving through this class,
- * not a mistake; it closes once the finishing steps move too.
+ * Every method here is typed against one of the two split models, matching where in the pipeline it runs.
+ * `requiresWrapping()`, `wrap()` and `isVirtualRoot()` take {@see StoredElement}: {@see StoredTreePreparer}
+ * calls them while it holds the storage model — the wrap before the lowering, the identity check on the
+ * post-prune stored forest. `unwrap()` takes {@see RenderedElement}, because the pipeline reaches it after
+ * the render step, as one of the finishing steps on the rendered forest.
  *
  * @internal
  */
@@ -91,12 +90,12 @@ final class VirtualRootWrapper
      *
      * @throws ContentSystemException If the roots slot holds no roots
      *
-     * @return non-empty-list<ContentElement>
+     * @return non-empty-list<RenderedElement>
      */
-    public function unwrap(ContentElement $virtualRoot): array
+    public function unwrap(RenderedElement $virtualRoot): array
     {
-        $pageRootsSlot = $virtualRoot->getSlots()[self::VIRTUAL_ROOT_SLOT_NAME] ?? null;
-        $extractedRoots = $pageRootsSlot === null ? [] : array_values($pageRootsSlot->getElements());
+        $pageRootsSlot = $virtualRoot->slots[self::VIRTUAL_ROOT_SLOT_NAME] ?? null;
+        $extractedRoots = $pageRootsSlot === null ? [] : array_values($pageRootsSlot);
 
         if ($extractedRoots === []) {
             throw ContentSystemException::invalidMapValue(

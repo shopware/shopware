@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -66,10 +66,10 @@ class ContentPipeline
             $cacheContext,
         );
 
-        $elements = $this->bridge->lowerTree($storedTree, $renderedTree);
+        $renderedTree = $this->unwrapVirtualRoot($renderedTree, $scaffolding);
+        $renderedTree = $this->extractPartialTarget($renderedTree, $scaffolding);
 
-        $elements = $this->unwrapVirtualRoot($elements, $scaffolding);
-        $elements = $this->extractPartialTarget($elements, $scaffolding);
+        $elements = $this->bridge->lowerTree($storedTree, $renderedTree);
 
         $afterHydrationEvent = new PostHydrationEvent(
             $elements,
@@ -94,9 +94,9 @@ class ContentPipeline
     /**
      * Removes the virtual root wrapper, restoring the original layout structure.
      *
-     * @param list<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      *
-     * @return list<ContentElement>
+     * @return list<RenderedElement>
      */
     private function unwrapVirtualRoot(array $elements, RenderScaffolding $scaffolding): array
     {
@@ -112,9 +112,9 @@ class ContentPipeline
      *
      * Removes the parent elements that `pruneToTarget()` kept for context distribution.
      *
-     * @param list<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      *
-     * @return list<ContentElement>
+     * @return list<RenderedElement>
      */
     private function extractPartialTarget(array $elements, RenderScaffolding $scaffolding): array
     {

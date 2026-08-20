@@ -5,12 +5,15 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\Test\Stub\ContentSystem\RenderedElementBuilder;
@@ -19,7 +22,11 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 /**
  * Each fixture pair is deliberately asymmetric: the stored and the rendered side of one element carry
  * property maps that share no key, so a produced property map identifies which side it was read from.
- * Production pairs the two forests positionally, so the pairs here are built in matching shape by hand.
+ * Production pairs the two forests by element id and drives the walk off the rendered side, so a fixture
+ * pair only has to agree on ids — the rendered forest may hold fewer roots than the stored one, and in a
+ * different order.
+ *
+ * `lowerTree()` is the only public entry point, so a single-element case goes through it too.
  *
  * @internal
  */
@@ -44,7 +51,7 @@ class ContentElementLoweringTest extends TestCase
             ->withProperties(['headline' => 'rendered-headline', 'renderedOnly' => 'rendered-value'])
             ->build();
 
-        $element = $this->lowering->lower($stored, $rendered);
+        $element = $this->lowerOne($stored, $rendered);
 
         // Whole-map comparison: that `storedOnly` is absent is as much the claim as that `headline` holds
         // the rendered value.
@@ -65,7 +72,7 @@ class ContentElementLoweringTest extends TestCase
             ->build();
         $rendered = RenderedElementBuilder::create('Sw:Text', 'text-element')->build();
 
-        $element = $this->lowering->lower($stored, $rendered);
+        $element = $this->lowerOne($stored, $rendered);
 
         static::assertSame($stored->dataRequirements, $element->getDataRequirements());
         static::assertSame($stored->contextDefinitions, $element->getContextDefinitions());
@@ -82,38 +89,104 @@ class ContentElementLoweringTest extends TestCase
             ->withStyle(new ElementStyle(['col-span' => ['md' => 12]]))
             ->build();
 
-        $element = $this->lowering->lower($stored, $rendered);
+        $element = $this->lowerOne($stored, $rendered);
 
         // Whole-map comparison against the stored values: both sides carry a `col-span`, so only the value
         // says which side it was read from.
         static::assertSame(['col-span' => ['md' => 6]], $element->getStyle()->toArray());
     }
 
-    #[TestDox('pairs the two forests positionally, so each root keeps its own rendered property map')]
-    public function testLowerTreePairsTheForestsPositionally(): void
+    #[TestDox('pairs the two forests by element id, so each root keeps its own rendered property map')]
+    public function testLowerTreePairsTheForestsById(): void
     {
         $stored = [
             StoredElementBuilder::create('Sw:Text', 'first-root')->build(),
             StoredElementBuilder::create('Sw:Text', 'second-root')->build(),
         ];
+        // The rendered forest arrives in the opposite order to the stored one, and the two roots differ in
+        // both id and rendered property value. Under the positional pairing production used before the
+        // finishing steps moved ahead of this bridge, each root would come back wearing the other root's
+        // property map, so this test fails on that implementation.
         $rendered = [
-            RenderedElementBuilder::create('Sw:Text', 'first-root')
-                ->withProperty('headline', 'first-root-headline')
-                ->build(),
             RenderedElementBuilder::create('Sw:Text', 'second-root')
                 ->withProperty('headline', 'second-root-headline')
+                ->build(),
+            RenderedElementBuilder::create('Sw:Text', 'first-root')
+                ->withProperty('headline', 'first-root-headline')
                 ->build(),
         ];
 
         $elements = $this->lowering->lowerTree($stored, $rendered);
 
-        // The two roots differ in both id and rendered properties, so a swapped pairing shows up as a root
-        // wearing the other root's property map rather than as an equivalent result.
+        // Result order follows the rendered forest, because that is the order the finishing steps decided.
         static::assertCount(2, $elements);
-        static::assertSame('first-root', $elements[0]->getId());
-        static::assertSame(['headline' => 'first-root-headline'], $elements[0]->getProperties());
-        static::assertSame('second-root', $elements[1]->getId());
-        static::assertSame(['headline' => 'second-root-headline'], $elements[1]->getProperties());
+        static::assertSame('second-root', $elements[0]->getId());
+        static::assertSame(['headline' => 'second-root-headline'], $elements[0]->getProperties());
+        static::assertSame('first-root', $elements[1]->getId());
+        static::assertSame(['headline' => 'first-root-headline'], $elements[1]->getProperties());
+    }
+
+    #[TestDox('lowers a rendered forest holding one stored child as its only root, the shape the partial extract produces')]
+    public function testLowerTreeLowersARenderedForestReducedToAStoredChild(): void
+    {
+        $storedChild = StoredElementBuilder::create('Sw:Text', 'child-element')
+            ->withAttributedSpecification('product', 'Sw:Text:product-binding')
+            ->build();
+        $stored = [
+            StoredElementBuilder::create('Sw:Section', 'section-element')
+                ->withSlot('main', [$storedChild])
+                ->build(),
+        ];
+        // What the partial extract hands the bridge: a single-root forest whose root was a stored CHILD,
+        // with the stored root it came from nowhere in it. Only an index into the stored forest can pair
+        // this; a walk in step would read the section's fields onto the child.
+        $rendered = [
+            RenderedElementBuilder::create('Sw:Text', 'child-element')
+                ->withProperty('headline', 'child-headline')
+                ->build(),
+        ];
+
+        $elements = $this->lowering->lowerTree($stored, $rendered);
+
+        static::assertCount(1, $elements);
+        static::assertSame('child-element', $elements[0]->getId());
+        static::assertSame(['headline' => 'child-headline'], $elements[0]->getProperties());
+        static::assertSame($storedChild->attributedSpecifications, $elements[0]->getAttributedSpecifications());
+    }
+
+    #[TestDox('rejects a rendered element whose id is in no stored element')]
+    public function testLowerTreeRejectsARenderedIdTheStoredForestDoesNotHold(): void
+    {
+        $stored = [StoredElementBuilder::create('Sw:Text', 'stored-element')->build()];
+        $rendered = [RenderedElementBuilder::create('Sw:Text', 'unknown-element')->build()];
+
+        $this->expectExceptionObject(ContentSystemException::invalidMapValue(
+            'Stored element index',
+            'unknown-element',
+            StoredElement::class,
+            'no such stored element'
+        ));
+
+        $this->lowering->lowerTree($stored, $rendered);
+    }
+
+    #[TestDox('rejects a stored forest that repeats an element id in two slots')]
+    public function testLowerTreeRejectsAStoredForestRepeatingAnElementId(): void
+    {
+        // The two occurrences carry DIFFERENT components, so an index that let the last one win would hand
+        // both rendered occurrences the second element's fields rather than each its own. Reachable from a
+        // raw-SQL or migration write, or from a listener replacing the tree: neither runs tree validation.
+        $stored = [
+            StoredElementBuilder::create('Sw:Section', 'section-element')
+                ->withSlot('left', [StoredElementBuilder::create('Sw:Text', 'repeated-id')->build()])
+                ->withSlot('right', [StoredElementBuilder::create('Sw:Media:Image', 'repeated-id')->build()])
+                ->build(),
+        ];
+        $rendered = [RenderedElementBuilder::create('Sw:Section', 'section-element')->build()];
+
+        $this->expectExceptionObject(ContentSystemException::duplicateElementId('repeated-id'));
+
+        $this->lowering->lowerTree($stored, $rendered);
     }
 
     #[TestDox('pairs each child with its own rendered counterpart under the surviving slot name')]
@@ -136,7 +209,7 @@ class ContentElementLoweringTest extends TestCase
             ])
             ->build();
 
-        $element = $this->lowering->lower($stored, $rendered);
+        $element = $this->lowerOne($stored, $rendered);
 
         static::assertSame(['main'], array_keys($element->getSlots()));
         $mainSlot = $element->getSlots()['main'] ?? null;
@@ -179,11 +252,19 @@ class ContentElementLoweringTest extends TestCase
             ])
             ->build();
 
-        $element = $this->lowering->lower($stored, $rendered);
+        $element = $this->lowerOne($stored, $rendered);
 
         $grandchild = $this->onlyChildIn($this->onlyChildIn($element, 'main'), 'inner');
         static::assertSame('grandchild-element', $grandchild->getId());
         static::assertSame(['headline' => 'rendered-grandchild-headline'], $grandchild->getProperties());
+    }
+
+    private function lowerOne(StoredElement $stored, RenderedElement $rendered): ContentElement
+    {
+        $element = $this->lowering->lowerTree([$stored], [$rendered])[0] ?? null;
+        static::assertInstanceOf(ContentElement::class, $element);
+
+        return $element;
     }
 
     private function onlyChildIn(ContentElement $element, string $slot): ContentElement

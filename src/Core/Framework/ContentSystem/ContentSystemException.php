@@ -26,6 +26,7 @@ class ContentSystemException extends HttpException
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
     public const ELEMENT_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_NOT_FOUND';
+    public const DUPLICATE_ELEMENT_ID = 'CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID';
     public const CONTEXT_DELIVERY_MISSING = 'CONTENT_SYSTEM__CONTEXT_DELIVERY_MISSING';
     public const NO_FACTORY_CAN_HANDLE = 'CONTENT_SYSTEM__NO_FACTORY_CAN_HANDLE';
     public const INVALID_ENTITY_PATH = 'CONTENT_SYSTEM__INVALID_ENTITY_PATH';
@@ -256,6 +257,23 @@ class ContentSystemException extends HttpException
             Response::HTTP_NOT_FOUND,
             self::ELEMENT_NOT_FOUND,
             'Element with ID "{{ elementId }}" not found in layout',
+            ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * A served layout is stored data, not client input, so a corrupt one is an internal fault rather than a
+     * client defect: deliberately absent from {@see self::CLIENT_DEFECT_CODES}. Element ids are unique across
+     * a forest by contract, and the DAL write enforces it through `StoredTree::validate()`. The read path runs
+     * no validation, so a raw-SQL or migration write, or a preparation listener replacing the tree, can put a
+     * repeated id in front of a consumer whose correctness depends on the invariant.
+     */
+    public static function duplicateElementId(string $elementId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_ELEMENT_ID,
+            'Stored forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID.',
             ['elementId' => $elementId]
         );
     }

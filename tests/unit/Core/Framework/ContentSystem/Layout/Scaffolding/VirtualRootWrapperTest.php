@@ -7,13 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
@@ -22,8 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * The wrapper straddles the two element models, so the fixtures do too: the wrap half takes stored
- * elements, the unwrap half takes the lowered ones the pipeline reaches it with. Where a test needs
- * both halves it carries the real wrap output across to the lowered model, rather than hand-building a
+ * elements, the unwrap half the rendered ones the pipeline reaches it with. Where a test needs both
+ * halves it carries the real wrap output across to the rendered model, rather than hand-building a
  * second wrapper that could drift from the real one.
  *
  * @internal
@@ -135,25 +134,25 @@ class VirtualRootWrapperTest extends TestCase
         $root1 = StoredElementBuilder::create('Sw:Section', 'root-a')->build();
         $root2 = StoredElementBuilder::create('Sw:Container', 'root-b')->build();
 
-        $virtualRoot = $this->lower($this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement()));
+        $virtualRoot = $this->mintRendered($this->wrapper->wrap([$root1, $root2], $this->specificationWithLanguageRequirement()));
         $extractedRoots = $this->wrapper->unwrap($virtualRoot);
 
         static::assertCount(2, $extractedRoots);
-        static::assertSame('root-a', $extractedRoots[0]->getId());
-        static::assertSame('root-b', $extractedRoots[1]->getId());
+        static::assertSame('root-a', $extractedRoots[0]->id);
+        static::assertSame('root-b', $extractedRoots[1]->id);
     }
 
     #[DataProvider('rootlessWrapperProvider')]
     #[TestDox('rejects a wrapper whose roots slot holds no roots')]
     public function testUnwrapRejectsAWrapperWithoutRoots(
-        ContentElement $malformedWrapper,
+        RenderedElement $malformedWrapper,
         ContentSystemException $expectedException
     ): void {
         // Fixture guard: the element really carries the wrapper identity the caller establishes before
         // it unwraps, so the rejection below is about the roots slot and nothing else. The check itself
         // (`isVirtualRoot()`) runs earlier in the pipeline, on the stored model, so it cannot be called
-        // on this lowered fixture.
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $malformedWrapper->getId());
+        // on this rendered fixture.
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $malformedWrapper->id);
 
         $this->expectExceptionObject($expectedException);
 
@@ -161,12 +160,12 @@ class VirtualRootWrapperTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{ContentElement, ContentSystemException}>
+     * @return \Generator<string, array{RenderedElement, ContentSystemException}>
      */
     public static function rootlessWrapperProvider(): \Generator
     {
         yield 'missing slot' => [
-            new ContentElement(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'Sw:Internal:PageContext'),
+            new RenderedElement(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'Sw:Internal:PageContext'),
             ContentSystemException::invalidMapValue(
                 'Virtual page context root slot map',
                 '__page_roots__',
@@ -176,12 +175,11 @@ class VirtualRootWrapperTest extends TestCase
         ];
 
         yield 'empty slot' => [
-            new ContentElement(
+            new RenderedElement(
                 VirtualRootWrapper::VIRTUAL_ROOT_ID,
                 'Sw:Internal:PageContext',
                 [],
-                [],
-                ['__page_roots__' => new SlotContent()],
+                ['__page_roots__' => []],
             ),
             ContentSystemException::invalidMapValue(
                 'Virtual page context root slot map',
@@ -193,22 +191,22 @@ class VirtualRootWrapperTest extends TestCase
     }
 
     /**
-     * Takes a wrap result across to the model the unwrap half speaks. `unwrap()` reads the roots slot and
-     * the ids inside it and nothing else, so the crossing is done here rather than through
-     * `ContentElementLowering`, which would need a parallel rendered forest this test has no use for.
-     * The wrapper identity and the slot name still come from the real `wrap()` output.
+     * Mints a wrap result into the model the unwrap half speaks. `unwrap()` reads the roots slot and the
+     * ids inside it and nothing else, so the crossing is done here rather than through the render step,
+     * which would pull the whole rendering stack into a test with no use for it. The wrapper identity and
+     * the slot name still come from the real `wrap()` output.
      */
-    private function lower(StoredElement $element): ContentElement
+    private function mintRendered(StoredElement $element): RenderedElement
     {
         $slots = [];
         foreach ($element->slots as $name => $children) {
-            $slots[$name] = new SlotContent(array_map(
-                static fn (StoredElement $child): ContentElement => new ContentElement($child->id, $child->component),
+            $slots[$name] = array_values(array_map(
+                static fn (StoredElement $child): RenderedElement => new RenderedElement($child->id, $child->component),
                 $children
             ));
         }
 
-        return new ContentElement($element->id, $element->component, [], [], $slots);
+        return new RenderedElement($element->id, $element->component, [], $slots);
     }
 
     private function specificationWithLanguageRequirement(): RenderingSpecification

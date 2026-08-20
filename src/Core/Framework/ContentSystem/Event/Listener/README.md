@@ -16,11 +16,12 @@ After `ContentTreePreparationEvent` is dispatched:
 3. Partial prune — prunes the stored tree when `targetElementId` is specified (`Output/PartialRenderer`), after the virtual-root wrap; it ends the preparer's work, which hands back both the pruned tree and the forest as it stood before this step
 4. Wiring validation — rejects a context-wiring defect, judging the pre-prune forest, so a defect inside a subtree the prune discarded still fails the request
 5. Redistribute derivation — expands `redistribute: true` into broadcast providers on the surviving stored tree, after the validation and before the render step; it throws nothing
-6. Render step — turns the derived stored tree into the rendered forest (`Rendering/ElementLowering`: forest-wide data resolution, context-delivery resolution, then the mint; FULL does all three, SKELETON mints structure only), then bridges each stored element together with its rendered counterpart onto the `ContentElement` model the remaining steps speak (`Layout/Element/ContentElementLowering`)
+6. Render step — turns the derived stored tree into the rendered forest (`Rendering/ElementLowering`: forest-wide data resolution, context-delivery resolution, then the mint; FULL does all three, SKELETON mints structure only)
 
 **After the render step**, before `PostHydrationEvent` is dispatched:
-1. Virtual-root unwrap — removes the virtual root wrapper, on the lowered tree
-2. Partial extract — extracts the target subtree for the response
+1. Virtual-root unwrap — removes the virtual root wrapper, on the rendered forest
+2. Partial extract — extracts the target subtree for the response, on the rendered forest
+3. Bridge onto `ContentElement` — takes the finished rendered forest together with the stored forest it was minted from, pairing them by element id, onto the model the response and the event still speak (`Layout/Element/ContentElementLowering`). Not one of the two scaffolding-driven finishing steps above: it reads no `RenderScaffolding` and runs on every request
 
 So a `ContentTreePreparationEvent` listener always sees the raw loaded tree, and a `PostHydrationEvent` listener always sees the finished one — at any priority.
 

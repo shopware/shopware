@@ -19,8 +19,9 @@ ContentTreePreparationEvent
   → wiring validation (on the pre-prune forest)
   → redistribute derivation (on the pruned tree)
   → render step: ElementLowering (FULL resolves data and context;
-      SKELETON mints structure only) → bridge onto ContentElement
-  → virtual-root unwrap → partial extract
+      SKELETON mints structure only)
+  → virtual-root unwrap → partial extract (both on the rendered forest)
+  → bridge onto ContentElement (paired by element id)
 → PostHydrationEvent
 ```
 

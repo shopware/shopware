@@ -197,6 +197,41 @@ class ProductPriceCalculatorTest extends TestCase
         ];
     }
 
+    #[DataProvider('foreignCurrencyProvider')]
+    public function testFallbackToTheDefaultCurrencyPriceAppliesTheCurrencyFactor(?string $priceBasis, float $expectedUnitPrice, float $expectedTax): void
+    {
+        $product = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(Defaults::CURRENCY, 10.0, 20.0, false),
+            ]),
+        ]);
+
+        $context = $this->createPriceBasisContext(
+            CartPrice::TAX_STATE_GROSS,
+            $priceBasis,
+            currencyId: Uuid::randomHex(),
+            currencyFactor: 1.5
+        );
+
+        $this->createCalculator()->calculate([$product], $context);
+
+        $price = $product->get('calculatedPrice');
+
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        static::assertSame($expectedUnitPrice, $price->getUnitPrice());
+        static::assertSame($expectedTax, $price->getCalculatedTaxes()->getAmount());
+    }
+
+    public static function foreignCurrencyProvider(): \Generator
+    {
+        yield 'legacy basis converts the stored gross with the currency factor' => [null, 30.0, 4.79];
+
+        yield 'net basis converts the stored net and derives the gross afterwards' => [
+            CustomerGroupEntity::PRICE_BASIS_NET, 17.85, 2.85,
+        ];
+    }
+
     public function testNetPriceBasisDerivesListAndRegulationPrices(): void
     {
         $product = (new PartialEntity())->assign([
@@ -657,11 +692,14 @@ class ProductPriceCalculatorTest extends TestCase
         );
     }
 
-    private function createPriceBasisContext(string $taxState, ?string $priceBasis): SalesChannelContext&Stub
+    private function createPriceBasisContext(string $taxState, ?string $priceBasis, string $currencyId = Defaults::CURRENCY, float $currencyFactor = 1.0): SalesChannelContext&Stub
     {
+        $baseContext = Context::createDefaultContext();
+        $baseContext->assign(['currencyFactor' => $currencyFactor]);
+
         $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context->method('getCurrencyId')->willReturn($currencyId);
+        $context->method('getContext')->willReturn($baseContext);
         $context->method('getTaxState')->willReturn($taxState);
         $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));

@@ -457,6 +457,55 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(11.9, $delivery->getShippingCosts()->getUnitPrice());
     }
 
+    public function testManualShippingCostsAreTakenAsAnAlreadyCalculatedTotal(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
+        $shippingMethod->setTaxId(Uuid::randomHex());
+
+        $delivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+
+        $cart = new Cart('test');
+        $cart->addExtension(
+            DeliveryProcessor::MANUAL_SHIPPING_COSTS,
+            new CalculatedPrice(23.8, 23.8, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $this->createRealDeliveryCalculator()->calculate(
+            new CartDataCollection(),
+            $cart,
+            new DeliveryCollection([$delivery]),
+            $this->createGrossDisplayContext(CustomerGroupEntity::PRICE_BASIS_NET)
+        );
+
+        static::assertSame(23.8, $delivery->getShippingCosts()->getUnitPrice());
+        static::assertSame(3.8, $delivery->getShippingCosts()->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testShippingPriceStoredInTheContextCurrencyIsNotConvertedAgain(): void
+    {
+        $currencyId = Uuid::randomHex();
+
+        $shippingMethod = $this->createShippingMethodWithSinglePrice(new PriceCollection([
+            new Price($currencyId, 10.0, 20.0, false),
+        ]));
+
+        $delivery = $this->createDeliveryWithCartTotal($shippingMethod, 100.0);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->createRealDeliveryCalculator()->calculate(
+            $data,
+            new Cart('test'),
+            new DeliveryCollection([$delivery]),
+            $this->createGrossDisplayContext(null, currencyId: $currencyId, currencyFactor: 1.5)
+        );
+
+        static::assertSame(20.0, $delivery->getShippingCosts()->getUnitPrice());
+    }
+
     private function calculateShippingCostsForCartPriceRange(float $cartTotal): CalculatedPrice
     {
         $shippingMethod = $this->createShippingMethodWithPriceRanges();
@@ -511,12 +560,15 @@ class DeliveryCalculatorTest extends TestCase
         return $shippingMethod;
     }
 
-    private function createGrossDisplayContext(?string $priceBasis): SalesChannelContext
+    private function createGrossDisplayContext(?string $priceBasis, string $currencyId = Defaults::CURRENCY, float $currencyFactor = 1.0): SalesChannelContext
     {
+        $baseContext = Context::createDefaultContext();
+        $baseContext->assign(['currencyFactor' => $currencyFactor]);
+
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getRuleIds')->willReturn([]);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
-        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getContext')->willReturn($baseContext);
+        $context->method('getCurrencyId')->willReturn($currencyId);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
         $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));

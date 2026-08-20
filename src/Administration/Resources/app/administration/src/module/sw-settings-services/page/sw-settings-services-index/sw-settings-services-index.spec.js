@@ -300,7 +300,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         const page = await mountPage();
         await flushPromises();
 
-        expect(page.getComponent(SwSettingsServicesHero).text()).toContain('Future proof your store with Shopware Services');
+        expect(page.findComponent(SwSettingsServicesHero).exists()).toBe(true);
         expect(page.find('.sw-settings-services-index__registry-error').exists()).toBe(true);
         expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(false);
         expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(2);

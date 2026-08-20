@@ -58,6 +58,8 @@ jobs:
 
   acceptance:
     runs-on: ubuntu-24.04
+    # Shards finish in under 20 minutes; without a cap a single hung step holds the job for GitHub's 6-hour default.
+    timeout-minutes: 40
     needs: generate-acceptance-matrix
     strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
     steps:

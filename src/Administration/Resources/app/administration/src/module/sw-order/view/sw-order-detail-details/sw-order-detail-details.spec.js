@@ -70,6 +70,8 @@ const orderMock = {
     ],
 };
 
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 async function createWrapper() {
     orderMock.transactions.last = () => ({
         stateMachineState: {
@@ -218,7 +220,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(campaignCodeField.attributes().disabled).toBeUndefined();
     });
 
-    it('should able to edit shipping cost', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with shipping-cost editing in the Details view.
+    it.deprecated('v6.8.0.0')('should able to edit shipping cost', async () => {
         jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
@@ -232,7 +235,8 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
     });
 
-    it('should recalculate shipping cost while the field is not out of focus yet', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with shipping-cost editing in the Details view.
+    it.deprecated('v6.8.0.0')('should recalculate shipping cost while the field is not out of focus yet', async () => {
         jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();

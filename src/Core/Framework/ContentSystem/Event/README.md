@@ -1,14 +1,14 @@
 # Event
 
-Lifecycle events dispatched around content hydration. The two carry the tree in the model of their own
-position: the preparation event carries the stored forest, the post-hydration event the rendered
-`list<ContentElement>`. Each exposes exactly one way to put a changed tree back — `replaceTree()` on the
-preparation event, whose elements are immutable, and the mutable `elements` property on the other.
+Lifecycle events dispatched around content rendering. The two carry the tree in the model of their own
+position: the preparation event carries the stored forest, the finalization event the rendered one. Both
+elements models are immutable, so each event exposes exactly one way to put a changed tree back, and it is
+the same way: `replaceTree()`. Neither exposes `RenderingMode`.
 
 ## Key Classes
 
 - `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
-- `PostHydrationEvent` - Dispatched after the render step and the finishing steps; allows layout finalization
+- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the bridge; allows layout finalization
 
 ## Lifecycle
 
@@ -21,13 +21,13 @@ ContentTreePreparationEvent
   → render step: ElementLowering (FULL resolves data and context;
       SKELETON mints structure only)
   → virtual-root unwrap → partial extract (both on the rendered forest)
+→ RenderedTreeFinalizationEvent
   → bridge onto ContentElement (paired by element id)
-→ PostHydrationEvent
 ```
 
 The steps run inside `ContentPipeline::load()`, not as listeners, so a listener cannot interleave with
-them: the preparation event sees the tree before every preparation step, and the post-event sees it after
-every finishing step. Core claims no priority band. See [Listener/docs/custom-listeners.md](Listener/docs/custom-listeners.md)
+them: the preparation event sees the tree before every preparation step, and the finalization event sees it
+after every finishing step. Core claims no priority band. See [Listener/docs/custom-listeners.md](Listener/docs/custom-listeners.md)
 for what a listener may do at each position.
 
 Whether the unwrap runs is decided during preparation, not rediscovered afterwards: `StoredTreePreparer`

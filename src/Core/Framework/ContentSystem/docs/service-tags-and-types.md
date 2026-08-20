@@ -52,7 +52,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | Class                      | Purpose                     |
 |----------------------------|-----------------------------|
 | `ContentTreePreparationEvent` | Dispatched over the stored tree before every preparation step |
-| `PostHydrationEvent`       | Dispatched after the render step and the finishing steps |
+| `RenderedTreeFinalizationEvent` | Dispatched after the render step and the finishing steps, before the bridge |
 
 ### Layout / Response
 

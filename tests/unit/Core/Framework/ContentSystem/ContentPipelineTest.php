@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
-use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -39,6 +39,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
@@ -76,7 +77,7 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('dispatches preparation and post-hydration lifecycle events in order in FULL mode')]
+    #[TestDox('dispatches preparation and rendered-tree finalization lifecycle events in order in FULL mode')]
     public function testLoadDispatchesLifecycleEventsInFullMode(): void
     {
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
@@ -95,7 +96,29 @@ class ContentPipelineTest extends TestCase
 
         $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, Generator::generateSalesChannelContext());
 
-        static::assertSame([ContentTreePreparationEvent::class, PostHydrationEvent::class], $dispatchedEvents);
+        static::assertSame([ContentTreePreparationEvent::class, RenderedTreeFinalizationEvent::class], $dispatchedEvents);
+    }
+
+    #[DataProvider('renderingModeProvider')]
+    #[TestDox('dispatches the rendered-tree finalization event in either rendering mode')]
+    public function testLoadDispatchesTheFinalizationEventInBothModes(RenderingMode $mode): void
+    {
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
+
+        $dispatchedEvents = [];
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            function (object $event) use (&$dispatchedEvents) {
+                $dispatchedEvents[] = $event::class;
+
+                return $event;
+            }
+        );
+
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $this->createPipeline()->load($layout, $specification, new RenderingCacheContext(), $mode, Generator::generateSalesChannelContext());
+
+        static::assertContains(RenderedTreeFinalizationEvent::class, $dispatchedEvents);
     }
 
     #[TestDox('distributes provider context into consumer children in FULL mode')]
@@ -531,8 +554,8 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['root-id', 'target-id', 'sibling-id'], $observed);
     }
 
-    #[TestDox('exposes the layout roots to PostHydration subscribers, after the virtual-root unwrap')]
-    public function testPostHydrationSubscribersSeeTheRootsAfterVirtualRootUnwrapping(): void
+    #[TestDox('exposes the layout roots to finalization subscribers, after the virtual-root unwrap')]
+    public function testFinalizationSubscribersSeeTheRootsAfterVirtualRootUnwrapping(): void
     {
         $layout = $this->createSingleRootLayout(StoredElementBuilder::create('section', 'root-id')->build());
         $specification = new RenderingSpecification(
@@ -547,8 +570,8 @@ class ContentPipelineTest extends TestCase
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             function (object $event) use (&$observed) {
-                if ($event instanceof PostHydrationEvent) {
-                    $observed = $this->collectIds($event->elements);
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    $observed = $this->collectRenderedIds($event->tree());
                 }
 
                 return $event;
@@ -566,8 +589,8 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['root-id'], $observed);
     }
 
-    #[TestDox('exposes the extracted partial-render subtree to PostHydration subscribers')]
-    public function testPostHydrationSubscribersSeeTheExtractedSubtree(): void
+    #[TestDox('exposes the extracted partial-render subtree to finalization subscribers')]
+    public function testFinalizationSubscribersSeeTheExtractedSubtree(): void
     {
         $layout = $this->createPartialRenderLayout();
 
@@ -580,8 +603,8 @@ class ContentPipelineTest extends TestCase
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             function (object $event) use (&$observed) {
-                if ($event instanceof PostHydrationEvent) {
-                    $observed = $this->collectIds($event->elements);
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    $observed = $this->collectRenderedIds($event->tree());
                 }
 
                 return $event;
@@ -599,6 +622,70 @@ class ContentPipelineTest extends TestCase
         );
 
         static::assertSame(['target-id'], $observed);
+    }
+
+    #[TestDox('hands finalization subscribers the rendered element model, not the bridged one')]
+    public function testFinalizationSubscribersSeeTheRenderedModel(): void
+    {
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
+
+        $observed = null;
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (object $event) use (&$observed) {
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    $observed = $event->tree();
+                }
+
+                return $event;
+            }
+        );
+
+        $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertIsArray($observed);
+        static::assertCount(1, $observed);
+        static::assertContainsOnlyInstancesOf(RenderedElement::class, $observed);
+    }
+
+    #[TestDox('serves the forest a finalization subscriber put back instead of the rendered one')]
+    public function testLoadServesTheTreeReplacedDuringFinalization(): void
+    {
+        $root = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'authored-title')
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+
+        // Fixture guard: the authored value differs from the replacement, so the served title can only
+        // read 'replaced-title' if the bridge lowered the forest the subscriber handed back.
+        static::assertSame('authored-title', $root->property('title')?->asString());
+
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (object $event) {
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    $event->replaceTree([$event->tree()[0]->withProperty('title', 'replaced-title')]);
+                }
+
+                return $event;
+            }
+        );
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            Generator::generateSalesChannelContext()
+        );
+
+        $elements = iterator_to_array($result->elements, false);
+        static::assertCount(1, $elements);
+        static::assertSame('replaced-title', $elements[0]->getProperty('title'));
     }
 
     #[TestDox('delivers a derived redistribute provider to a child inside the surviving partial-render subtree')]
@@ -883,6 +970,24 @@ class ContentPipelineTest extends TestCase
             $ids[] = $element->id;
             foreach ($element->slots as $children) {
                 $ids = $this->collectStoredIds($children, $ids);
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param list<RenderedElement> $tree
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
+    private function collectRenderedIds(array $tree, array $ids = []): array
+    {
+        foreach ($tree as $element) {
+            $ids[] = $element->id;
+            foreach ($element->slots as $children) {
+                $ids = $this->collectRenderedIds($children, $ids);
             }
         }
 

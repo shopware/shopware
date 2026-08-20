@@ -18,12 +18,14 @@ After `ContentTreePreparationEvent` is dispatched:
 5. Redistribute derivation — expands `redistribute: true` into broadcast providers on the surviving stored tree, after the validation and before the render step; it throws nothing
 6. Render step — turns the derived stored tree into the rendered forest (`Rendering/ElementLowering`: forest-wide data resolution, context-delivery resolution, then the mint; FULL does all three, SKELETON mints structure only)
 
-**After the render step**, before `PostHydrationEvent` is dispatched:
+**After the render step**, before `RenderedTreeFinalizationEvent` is dispatched:
 1. Virtual-root unwrap — removes the virtual root wrapper, on the rendered forest
 2. Partial extract — extracts the target subtree for the response, on the rendered forest
-3. Bridge onto `ContentElement` — takes the finished rendered forest together with the stored forest it was minted from, pairing them by element id, onto the model the response and the event still speak (`Layout/Element/ContentElementLowering`). Not one of the two scaffolding-driven finishing steps above: it reads no `RenderScaffolding` and runs on every request
 
-So a `ContentTreePreparationEvent` listener always sees the raw loaded tree, and a `PostHydrationEvent` listener always sees the finished one — at any priority.
+**After `RenderedTreeFinalizationEvent`**, on the tree the event handed back:
+1. Bridge onto `ContentElement` — takes that rendered forest together with the stored forest it was minted from, pairing them by element id, onto the model the response still speaks (`Layout/Element/ContentElementLowering`). Not a scaffolding-driven finishing step: it reads no `RenderScaffolding` and runs on every request. It rejects a repeated element id on either side, so a listener must not duplicate one or add an element
+
+So a `ContentTreePreparationEvent` listener always sees the raw loaded tree, and a `RenderedTreeFinalizationEvent` listener always sees the finished one — at any priority.
 
 ## Priorities
 

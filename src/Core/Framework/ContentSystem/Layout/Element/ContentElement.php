@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * Content element aggregate root with tree traversal. Mutable: its properties map is filled
- * across the storage → post-hydration → output stages.
+ * across the storage → render → output stages.
  *
  * @final
  */

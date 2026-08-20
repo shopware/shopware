@@ -265,15 +265,17 @@ class ContentSystemException extends HttpException
      * A served layout is stored data, not client input, so a corrupt one is an internal fault rather than a
      * client defect: deliberately absent from {@see self::CLIENT_DEFECT_CODES}. Element ids are unique across
      * a forest by contract, and the DAL write enforces it through `StoredTree::validate()`. The read path runs
-     * no validation, so a raw-SQL or migration write, or a preparation listener replacing the tree, can put a
-     * repeated id in front of a consumer whose correctness depends on the invariant.
+     * no validation, so a raw-SQL or migration write, or a preparation listener replacing the stored tree, can
+     * put a repeated id in front of a consumer whose correctness depends on the invariant — and so can a
+     * finalization listener replacing the rendered tree, which is why the rendered forest is checked as well
+     * as the stored one.
      */
     public static function duplicateElementId(string $elementId): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DUPLICATE_ELEMENT_ID,
-            'Stored forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID.',
+            'Served forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID, and make sure no rendering listener that replaces the tree introduces one.',
             ['elementId' => $elementId]
         );
     }

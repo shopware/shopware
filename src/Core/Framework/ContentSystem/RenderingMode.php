@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Controls content rendering pipeline behavior.
  *
- * FULL: Complete pipeline - pre-hydration, hydration, post-hydration.
+ * FULL: Complete pipeline - preparation, render, finalization.
  * SKELETON: Skip hydration - returns layout structure without loaded data.
  */
 #[Package('framework')]

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Prunes a stored element tree to a target element's path plus its descendants: the pre-hydration optimization for
+ * Prunes a stored element tree to a target element's path plus its descendants: the pre-render optimization for
  * partial rendering, which drops the siblings along the path because context flows parent to child only.
  *
  * @internal

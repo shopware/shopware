@@ -11,8 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * Takes a finished {@see RenderedElement} forest together with the {@see StoredElement} forest it was minted
  * from back onto the pre-split {@see ContentElement} model, in that direction only. It is a compatibility
  * bridge rather than a model of its own: {@see RenderedElement} is `final readonly` and deliberately not a
- * `Struct`, so it cannot reach a response encoder, and everything downstream of it — the output formats, the
- * {@see \Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent},
+ * `Struct`, so it cannot reach a response encoder, and everything downstream of it — the output formats,
  * {@see \Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage} and the Storefront components — still
  * speaks the older model.
  *
@@ -30,10 +29,10 @@ use Shopware\Core\Framework\Log\Package;
  * still carries none, the bridge just walks both trees at once.
  *
  * It exists to hold the one place where the split models still meet code written against the older one:
- * `ContentSystem\ContentPipeline::load()`, which bridges after the finishing steps — the virtual-root unwrap
- * and the partial extract both run on the rendered model now — and speaks the older model from there on, for
- * the response and the post-hydration event. That call goes when the output layer, the post-hydration event
- * and the Storefront move onto {@see RenderedElement}, and this class is deleted with it. The site above is
+ * `ContentSystem\ContentPipeline::load()`, which bridges last — the virtual-root unwrap, the partial extract
+ * and the finalization event all run on the rendered model ahead of it — and speaks the older model from
+ * there on, for the response alone. That call goes when the output layer and the Storefront move onto
+ * {@see RenderedElement}, and this class is deleted with it. The site above is
  * the whole set: an undeclared call site would make the old model reachable from somewhere the split has
  * already moved past, so a new one is added here with its expiry or not added at all. Validation, mutation
  * and diagnostics bridge nothing: they take and return stored elements.
@@ -52,10 +51,14 @@ final readonly class ContentElementLowering
      * finishing steps moved ahead of the bridge.
      *
      * Pairing by id needs ids to be unique across the forest, which is the rendered model's own contract and
-     * which the DAL write enforces. The read path validates nothing, so a repeated id can arrive here from a
-     * raw-SQL or migration write, or from a listener that replaced the tree. The index therefore rejects one
-     * instead of letting the last occurrence win: with a repeated id, every occurrence would otherwise lower
-     * against the same stored element and wear its component, wiring and style.
+     * which the DAL write enforces. The read path validates nothing, so BOTH forests are checked here, each
+     * for its own reason. A stored forest can repeat an id after a raw-SQL or migration write, or after a
+     * preparation listener replaced the tree; the index rejects a repeat instead of letting the last
+     * occurrence win, because every occurrence would otherwise lower against the same stored element and wear
+     * its component, wiring and style. A rendered forest can repeat one after a finalization listener replaced
+     * the tree; the pre-pass rejects that, because both occurrences would pair with the same stored twin and
+     * the response would carry the id twice — the id partial extraction, `data-element-id` and the decomposed
+     * format's assignments all key on.
      *
      * @param list<StoredElement> $stored the post-plan stored forest the rendered forest was minted from
      * @param list<RenderedElement> $rendered the finished forest, possibly reduced to a subset of `$stored`
@@ -64,6 +67,9 @@ final readonly class ContentElementLowering
      */
     public function lowerTree(array $stored, array $rendered): array
     {
+        $seen = [];
+        $this->rejectRepeatedRenderedIds($rendered, $seen);
+
         $index = [];
         $this->indexForest($stored, $index);
 
@@ -121,6 +127,29 @@ final readonly class ContentElementLowering
 
             foreach ($element->slots as $children) {
                 $this->indexForest($children, $index);
+            }
+        }
+    }
+
+    /**
+     * A seen-set rather than a map, because the rendered side is only checked and never looked up: the stored
+     * walk is what needs a map. Kept a separate walk from `indexForest()` so that each forest visibly carries
+     * its own guard.
+     *
+     * @param list<RenderedElement> $rendered
+     * @param array<string, true> $seen
+     */
+    private function rejectRepeatedRenderedIds(array $rendered, array &$seen): void
+    {
+        foreach ($rendered as $element) {
+            if (isset($seen[$element->id])) {
+                throw ContentSystemException::duplicateElementId($element->id);
+            }
+
+            $seen[$element->id] = true;
+
+            foreach ($element->slots as $children) {
+                $this->rejectRepeatedRenderedIds($children, $seen);
             }
         }
     }

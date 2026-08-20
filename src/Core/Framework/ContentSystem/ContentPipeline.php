@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
-use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
@@ -69,23 +69,23 @@ class ContentPipeline
         $renderedTree = $this->unwrapVirtualRoot($renderedTree, $scaffolding);
         $renderedTree = $this->extractPartialTarget($renderedTree, $scaffolding);
 
-        $elements = $this->bridge->lowerTree($storedTree, $renderedTree);
-
-        $afterHydrationEvent = new PostHydrationEvent(
-            $elements,
+        $finalizationEvent = new RenderedTreeFinalizationEvent(
+            $renderedTree,
             $layout->reference,
             $specification,
-            $mode,
             $salesChannelContext,
             $cacheContext,
         );
-        $this->eventDispatcher->dispatch($afterHydrationEvent);
+        $this->eventDispatcher->dispatch($finalizationEvent);
 
-        $reference = $afterHydrationEvent->layout;
+        // The bridge lowers the tree the event handed back, so a listener's replacement reaches the response.
+        $elements = $this->bridge->lowerTree($storedTree, $finalizationEvent->tree());
+
+        $reference = $finalizationEvent->layout;
 
         return new ContentPage(
             $reference->id,
-            $afterHydrationEvent->elements,
+            $elements,
             $reference->name,
             $reference->version,
         );

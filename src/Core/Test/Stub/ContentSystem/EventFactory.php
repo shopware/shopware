@@ -4,13 +4,12 @@ namespace Shopware\Core\Test\Stub\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
-use Shopware\Core\Framework\ContentSystem\Event\PostHydrationEvent;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
-use Shopware\Core\Framework\ContentSystem\RenderingMode;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -51,16 +50,16 @@ class EventFactory
     }
 
     /**
-     * @param list<ContentElement> $elements
+     * @param list<RenderedElement> $tree
      * @param list<DataRequirement> $dataRequirements
      */
-    public static function postHydration(
-        array $elements,
+    public static function renderedTreeFinalization(
+        array $tree,
         array $dataRequirements = [],
         ?string $targetElementId = null,
-    ): PostHydrationEvent {
-        return new PostHydrationEvent(
-            $elements,
+    ): RenderedTreeFinalizationEvent {
+        return new RenderedTreeFinalizationEvent(
+            $tree,
             LayoutReference::create('layout-1', 'Test', null),
             new RenderingSpecification(
                 $dataRequirements,
@@ -68,7 +67,6 @@ class EventFactory
                 new Request(),
                 $targetElementId,
             ),
-            RenderingMode::FULL,
             Generator::generateSalesChannelContext(),
             new RenderingCacheContext(),
         );

@@ -23,7 +23,7 @@ is the pre-split model they are replacing, still alive on the serving path:
   `Rendering/RenderedTreeFactory` mints the forest, both driven by
   `Rendering/ElementLowering`. Slots are `array<string, list<RenderedElement>>`.
 - `ContentElement` — the pre-split model: still `extends Struct` and mutable,
-  and still the model the response and `PostHydrationEvent` speak. Every
+  and still the model the response speaks. Every
   pipeline step before it — the preparation event, placeholder resolution, the
   virtual-root wrap, the partial prune, the wiring validation, the redistribute
   derivation, the render step, and the two finishing steps (virtual-root unwrap
@@ -31,10 +31,12 @@ is the pre-split model they are replacing, still alive on the serving path:
   `ContentElementLowering` produces this model at the one seam that remains,
   taking the finished rendered forest together with the stored forest it was
   minted from and pairing the two by element id (see its class comment for that
-  site and its removal condition). Because it pairs by id, it rejects a stored
-  forest that repeats one: `DUPLICATE_ELEMENT_ID`, a 500 and not a client
-  defect, since a served layout is stored data and only the DAL write validates
-  id uniqueness. Slots are `array<string, SlotContent>`.
+  site and its removal condition). Because it pairs by id, it rejects a repeated
+  id in either forest — the stored one from a raw-SQL or migration write or a
+  preparation listener, the rendered one from a finalization listener:
+  `DUPLICATE_ELEMENT_ID`, a 500 and not a client defect, since a served layout is
+  stored data and only the DAL write validates id uniqueness. Slots are
+  `array<string, SlotContent>`.
 
 The mutation-oriented guidance below (`setProperty`, `AssignArrayTrait`, the
 struct/non-struct split) is about `ContentElement` alone: `StoredElement` has no

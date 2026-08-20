@@ -189,6 +189,36 @@ class ContentElementLoweringTest extends TestCase
         $this->lowering->lowerTree($stored, $rendered);
     }
 
+    #[TestDox('rejects a rendered forest that repeats an element id in one slot')]
+    public function testLowerTreeRejectsARenderedForestRepeatingAnElementId(): void
+    {
+        // Reachable from a finalization listener replacing the rendered tree: nothing between that
+        // replacement and this bridge validates the forest. The stored side repeats nothing, so the rendered
+        // pre-pass is the only guard that can fail this call, and the two rendered occurrences carry DIFFERENT
+        // property values, so a bridge that merely counted its results could not pass by accident.
+        $stored = [
+            StoredElementBuilder::create('Sw:Section', 'section-element')
+                ->withSlot('main', [StoredElementBuilder::create('Sw:Text', 'repeated-id')->build()])
+                ->build(),
+        ];
+        $rendered = [
+            RenderedElementBuilder::create('Sw:Section', 'section-element')
+                ->withSlot('main', [
+                    RenderedElementBuilder::create('Sw:Text', 'repeated-id')
+                        ->withProperty('headline', 'first-headline')
+                        ->build(),
+                    RenderedElementBuilder::create('Sw:Text', 'repeated-id')
+                        ->withProperty('headline', 'second-headline')
+                        ->build(),
+                ])
+                ->build(),
+        ];
+
+        $this->expectExceptionObject(ContentSystemException::duplicateElementId('repeated-id'));
+
+        $this->lowering->lowerTree($stored, $rendered);
+    }
+
     #[TestDox('pairs each child with its own rendered counterpart under the surviving slot name')]
     public function testEachChildKeepsItsOwnRenderedProperties(): void
     {

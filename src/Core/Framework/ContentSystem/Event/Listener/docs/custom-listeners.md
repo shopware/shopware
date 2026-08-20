@@ -1,20 +1,20 @@
 # Custom Event Listeners
 
-The plugin-facing authoring guide for a hydration-lifecycle listener: the two events, where each one sits in the pipeline, and the element API a listener works against.
+The plugin-facing authoring guide for a rendering-lifecycle listener: the two events, where each one sits in the pipeline, and the element API a listener works against.
 
-Listeners modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
+Listeners modify elements before or after rendering: computing derived values, transforming structure, resolving custom placeholders.
 
 | Event                         | When                                               | Purpose                                  |
 |-------------------------------|----------------------------------------------------|------------------------------------------|
 | `ContentTreePreparationEvent` | Before every pipeline step and before data loading | Modify layout tree, resolve placeholders |
-| `PostHydrationEvent`          | After data loading and every pipeline step         | Enrich data, transform structure         |
+| `RenderedTreeFinalizationEvent` | After data loading and every pipeline step       | Enrich data, transform property values   |
 
-`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before placeholder resolution, the virtual-root wrap, the partial prune, the wiring validation, the redistribute derivation and the render step. A `PostHydrationEvent` listener sees the finished tree, after the virtual-root unwrap, the partial extract and the bridge back onto `ContentElement`.
+`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before placeholder resolution, the virtual-root wrap, the partial prune, the wiring validation, the redistribute derivation and the render step. A `RenderedTreeFinalizationEvent` listener sees the finished rendered tree, after the virtual-root unwrap and the partial extract, and before the bridge back onto `ContentElement`.
 
 The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back:
 
 - `ContentTreePreparationEvent::tree()` — `list<StoredElement>`; a replacement goes back through `replaceTree()`, because a stored element is immutable and an edit produces new instances
-- `PostHydrationEvent::$elements` — `list<ContentElement>`, mutable in place
+- `RenderedTreeFinalizationEvent::tree()` — `list<RenderedElement>`; a replacement goes back through `replaceTree()`, because a rendered element is immutable too
 
 Both expose the same remaining properties, all readonly:
 
@@ -23,46 +23,73 @@ Both expose the same remaining properties, all readonly:
 - `salesChannelContext` — `SalesChannelContext`
 - `cacheContext` — `RenderingCacheContext`, for cache tag management (readonly reference, but methods mutate state)
 
-`PostHydrationEvent` additionally exposes `mode` — `RenderingMode`. `ContentTreePreparationEvent` does not: it is dispatched at the same position in both modes.
+Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes. That is deliberate: a listener's structural output must not depend on the rendering mode. Property values are empty in SKELETON and populated in FULL, so deriving structure, slots or style from a property value produces a tree that differs between a cached skeleton and the later full response, which breaks their composition. Mode remains observable indirectly (the per-format route name on the specification's request, property emptiness, loader effects on the cache context); the bar is a contract, not something the event shape can enforce.
+
+### What a finalization listener may change
+
+The tree a listener hands back through `replaceTree()` is what the bridge lowers, and the bridge pairs each rendered element with its stored twin by element id. That constrains structural edits for as long as the bridge exists:
+
+| Edit | Result |
+|------|--------|
+| Rewrite property values | Supported, the whole point of the event |
+| Remove an element or a subtree | Supported |
+| Reorder elements or slot children | Supported |
+| Duplicate an existing element id | Fails the render, `CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID` (500) |
+| Add an element with a new id | Fails the render, `CONTENT_SYSTEM__INVALID_MAP_VALUE` (500) |
+
+Element ids are a rendered-model contract, not bookkeeping: partial extraction addresses by id, the storefront emits `data-element-id`, and the decomposed format's `assignments` are keyed by it. A repeated id is rejected on both sides of the bridge, so a stored forest carrying one (a raw-SQL or migration write, or a preparation listener) fails identically. Structural validity is the listener's responsibility; nothing repairs a tree a listener hands back.
+
+An added element fails because the bridge has no stored twin to read its `component`, data requirements, context wiring, style and attribution from, and inventing one would emit an element wearing another element's fields. The restriction goes when the bridge does. Until then, `RenderedTreeEditor::mapNodes()` is the whole-tree idiom, and it maps one node to one node by construction.
 
 Placeholder resolution runs in FULL mode only, and it runs after this event either way, so a listener that introduces a `{{token}}` resolves it itself rather than expecting the pipeline to.
 
-## Working with ContentElement
+## Working with RenderedElement
 
-`ContentElement` is the tree node a `PostHydrationEvent` listener works against (a `ContentTreePreparationEvent` listener works against the immutable `StoredElement` instead). Access and modify element data through these methods:
+`RenderedElement` is the tree node a `RenderedTreeFinalizationEvent` listener works against (a `ContentTreePreparationEvent` listener works against `StoredElement` instead). It is `final readonly`, so every edit returns a new instance:
 
-| Method                                         | Purpose                                          |
-|------------------------------------------------|--------------------------------------------------|
-| `getProperty(string $key): mixed`              | Get property value (returns null if not found)   |
-| `setProperty(string $key, mixed $value): void` | Set a property value                             |
-| `hasProperty(string $key): bool`               | Check if property exists                         |
-| `getProperties(): array`                       | Get all properties                               |
-| `getId(): string`                              | Element ID                                       |
-| `getComponent(): string`                       | Component type identifier                        |
-| `getSlots(): array`                            | Named child slots (`array<string, SlotContent>`) |
-| `allSlotElements(): Generator`                 | Generator yielding all direct child elements     |
-| `hasSlots(): bool`                             | Whether element has child slots                  |
+| Member                                            | Purpose                                                       |
+|---------------------------------------------------|---------------------------------------------------------------|
+| `$id`                                             | Element ID, readonly                                          |
+| `$component`                                      | Component type identifier, readonly                           |
+| `$properties`                                     | The flat property map, readonly `array<string, mixed>`        |
+| `$slots`                                          | Named child slots, readonly `array<string, list<RenderedElement>>` |
+| `$style`                                          | `ElementStyle`, readonly                                      |
+| `withProperty(string $key, mixed $value): self`   | Copy with one property set                                    |
+| `withProperties(array $properties): self`         | Copy with the whole property map replaced                     |
+| `withSlots(array $slots): self`                   | Copy with the slot map replaced                               |
+
+A `null` property value is a present property holding null, which is how a lookup that ran and found nothing differs from one that never wrote at all. Use `array_key_exists()` on `$properties` when that distinction matters.
+
+`RenderedTreeEditor::mapNodes(array $tree, callable $mapper): array` applies one mapper to every node of a whole forest, rebuilding the copies down each branch, and is the idiom for anything beyond a single node.
 
 ## Example: Reading Time Listener
 
 ```php
-#[AsEventListener(event: PostHydrationEvent::class)]
+#[AsEventListener(event: RenderedTreeFinalizationEvent::class)]
 class ReadingTimeSubscriber
 {
     private const WORDS_PER_MINUTE = 200;
 
-    public function __invoke(PostHydrationEvent $event): void
+    public function __construct(private readonly RenderedTreeEditor $editor)
     {
-        foreach ($event->elements as $element) {
-            $content = $element->getProperty('content');
+    }
+
+    public function __invoke(RenderedTreeFinalizationEvent $event): void
+    {
+        $event->replaceTree($this->editor->mapNodes($event->tree(), function (RenderedElement $element): RenderedElement {
+            $content = $element->properties['content'] ?? null;
             if (!\is_string($content)) {
-                continue;
+                return $element;
             }
+
             $wordCount = str_word_count(strip_tags($content));
-            $element->setProperty('readingTimeMinutes', (int) ceil($wordCount / self::WORDS_PER_MINUTE));
-        }
+
+            return $element->withProperty('readingTimeMinutes', (int) ceil($wordCount / self::WORDS_PER_MINUTE));
+        }));
     }
 }
+
+The listener writes a property and returns each node, so it changes no structure and stays mode-independent: in SKELETON the `content` property is absent, the mapper returns the node untouched, and the skeleton tree is identical to the full one.
 ```
 
 Symfony reads `#[AsEventListener]` only on an **autoconfigured** service definition, so the attribute above registers nothing unless your `services.xml` carries `<defaults autoconfigure="true"/>` (or the definition sets `autoconfigure` itself). Without it the class is registered as an ordinary service and never called — and `priority` on it is inert for the same reason.
@@ -81,6 +108,6 @@ $event->cacheContext->disable();
 
 ## Priorities
 
-Core reserves no priority band. Priority only orders your listener against other extensions' listeners on the same event; every core step already runs after the pre-hydration event and before the post-hydration one. Omit `priority` unless you are sequencing against another plugin.
+Core reserves no priority band. Priority only orders your listener against other extensions' listeners on the same event; every core step already runs after the preparation event and before the finalization one. Omit `priority` unless you are sequencing against another plugin.
 
-> **If you wrote a listener against the old bands, re-check it.** The `>= 6000` / `< 6000 and >= 1000` / `< 1000 and >= 0` contract documented here never worked, and it was *inverted*: core's listeners were all registered at priority 0, because their `#[AsEventListener(priority: …)]` attributes were never processed — those services were not autoconfigured. An autoconfigured plugin service's attribute, on the other hand, is processed, so a plugin listener at `6000`, meaning "before core", did run before core — but so did one at `1`, and so did one at `500` that meant "after core". Only a negative priority ran after core. Core no longer occupies the event at all, so both bands are meaningless now; a priority chosen to sit before or after a core step should be removed.
+> **If you wrote a listener against the old bands, re-check it.** The `>= 6000` / `< 6000 and >= 1000` / `< 1000 and >= 0` contract documented here never worked, and it was *inverted*: core's listeners were all registered at priority 0, because their `#[AsEventListener(priority: …)]` attributes were never processed — those services were not autoconfigured. An autoconfigured plugin service's attribute, on the other hand, is processed, so a plugin listener at `6000`, meaning "before core", did run before core — but so did one at `1`, and so did one at `500` that meant "after core". Only a negative priority ran after core. Core no longer occupies either event at all, so both bands are meaningless now; a priority chosen to sit before or after a core step should be removed.

@@ -94,7 +94,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch content layout skeleton (without hydration)",
-                "description": "Returns layout structure without hydrated data. Useful for layout preview, client-side hydration, or structure inspection. Runs pre-hydration events but skips data loading.",
+                "description": "Returns layout structure without hydrated data. Useful for layout preview, client-side hydration, or structure inspection. Runs the preparation and finalization events but skips data loading.",
                 "operationId": "readContentSkeleton",
                 "parameters": [
                     {

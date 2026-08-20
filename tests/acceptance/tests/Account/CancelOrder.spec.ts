@@ -1,4 +1,92 @@
 import { test } from '@fixtures/AcceptanceTest';
+import type { ConsoleMessage, Locator, Page } from '@playwright/test';
+
+interface CancelOrderModalState {
+    modalEvents: string[];
+    modalSelector: string | null;
+    triggerEvents: string[];
+}
+
+/**
+ * Captures the modal data API state only when the known flaky dialog activation fails.
+ */
+async function openCancelOrderModal(
+    page: Page,
+    trigger: Locator,
+    dialog: Locator,
+    triggerModal: () => Promise<void>,
+    assertDialogFocused: () => Promise<void>,
+): Promise<void> {
+    const pageErrors: string[] = [];
+    const consoleErrors: string[] = [];
+    const pageErrorListener = (error: Error) => pageErrors.push(error.message);
+    const consoleListener = (message: ConsoleMessage) => {
+        if (message.type() === 'error') {
+            consoleErrors.push(message.text());
+        }
+    };
+
+    page.on('pageerror', pageErrorListener);
+    page.on('console', consoleListener);
+
+    await trigger.evaluate((button) => {
+        const modalSelector = button.getAttribute('data-bs-target');
+        const modal = modalSelector ? document.querySelector(modalSelector) : null;
+        const state: CancelOrderModalState = {
+            modalEvents: [],
+            modalSelector,
+            triggerEvents: [],
+        };
+
+        for (const eventName of ['keydown', 'keyup', 'click']) {
+            button.addEventListener(eventName, () => state.triggerEvents.push(eventName), { once: true });
+        }
+
+        if (modal) {
+            for (const eventName of ['show.bs.modal', 'shown.bs.modal']) {
+                modal.addEventListener(eventName, () => state.modalEvents.push(eventName), { once: true });
+            }
+        }
+
+        (window as unknown as { cancelOrderModalState?: CancelOrderModalState }).cancelOrderModalState = state;
+    });
+
+    try {
+        await triggerModal();
+        await assertDialogFocused();
+    } catch (error) {
+        const state = await page.evaluate(({ consoleErrors, pageErrors }) => {
+            const windowWithState = window as unknown as { cancelOrderModalState?: CancelOrderModalState };
+            const modal = windowWithState.cancelOrderModalState?.modalSelector
+                ? document.querySelector(windowWithState.cancelOrderModalState.modalSelector)
+                : null;
+
+            return {
+                activeElement: document.activeElement?.outerHTML,
+                bootstrapLoaded: 'bootstrap' in window,
+                consoleErrors,
+                modal: modal instanceof HTMLElement ? {
+                    ariaHidden: modal.getAttribute('aria-hidden'),
+                    className: modal.className,
+                    connected: modal.isConnected,
+                } : null,
+                pageErrors,
+                readyState: document.readyState,
+                state: windowWithState.cancelOrderModalState ?? null,
+            };
+        }, { consoleErrors, pageErrors });
+
+        const message = error instanceof Error ? error.message : String(error);
+
+        throw new Error(`${message}\nCancel order modal diagnostics:\n${JSON.stringify(state, null, 2)}`);
+    } finally {
+        page.off('pageerror', pageErrorListener);
+        page.off('console', consoleListener);
+        await page.evaluate(() => {
+            delete (window as unknown as { cancelOrderModalState?: CancelOrderModalState }).cancelOrderModalState;
+        });
+    }
+}
 
 test(
     'Customers are able to cancel orders in storefront account.',
@@ -9,7 +97,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login }) => {
+    async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login, page }) => {
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
         const order = await TestDataService.createOrder([{ product: product, quantity: 5 }], customer);
@@ -27,8 +115,13 @@ test(
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
         await ShopCustomer.presses(orderItemLocators.orderActionsButton);
-        await ShopCustomer.presses(orderItemLocators.orderCancelButton);
-        await ShopCustomer.expects(StorefrontAccountOrder.dialogOrderCancel).toBeFocused();
+        await openCancelOrderModal(
+            page,
+            orderItemLocators.orderCancelButton,
+            StorefrontAccountOrder.dialogOrderCancel,
+            () => ShopCustomer.presses(orderItemLocators.orderCancelButton),
+            () => ShopCustomer.expects(StorefrontAccountOrder.dialogOrderCancel).toBeFocused(),
+        );
         await ShopCustomer.presses(StorefrontAccountOrder.dialogOrderCancelButton);
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
@@ -51,7 +144,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login, StorefrontCheckoutOrderEdit }) => {
+    async ({ ShopCustomer, StorefrontAccountOrder, TestDataService, Login, StorefrontCheckoutOrderEdit, page }) => {
         const product = await TestDataService.createBasicProduct();
         const customer = await TestDataService.createCustomer();
         const order = await TestDataService.createOrder([{ product: product, quantity: 5 }], customer);
@@ -64,8 +157,13 @@ test(
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
         await ShopCustomer.presses(orderItemLocators.orderActionsButton);
         await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
-        await ShopCustomer.presses(StorefrontCheckoutOrderEdit.orderCancelButton);
-        await ShopCustomer.expects(StorefrontCheckoutOrderEdit.dialogOrderCancel).toBeFocused();
+        await openCancelOrderModal(
+            page,
+            StorefrontCheckoutOrderEdit.orderCancelButton,
+            StorefrontCheckoutOrderEdit.dialogOrderCancel,
+            () => ShopCustomer.presses(StorefrontCheckoutOrderEdit.orderCancelButton),
+            () => ShopCustomer.expects(StorefrontCheckoutOrderEdit.dialogOrderCancel).toBeFocused(),
+        );
         await ShopCustomer.presses(StorefrontCheckoutOrderEdit.dialogOrderCancelButton);
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');

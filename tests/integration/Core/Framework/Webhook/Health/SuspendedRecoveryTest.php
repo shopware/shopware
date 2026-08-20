@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
@@ -144,6 +145,29 @@ class SuspendedRecoveryTest extends TestCase
         $this->assertNextRetryAtIsNow('evt-backlog');
         static::assertTrue($this->fetchActive('wh'));
         static::assertSame(0, $this->fetchErrorCount('wh'));
+    }
+
+    public function testAuthBrokenEndpointNeverRecoversOnTrafficAndRetiresAtTheBound(): void
+    {
+        $this->seedWebhook('wh', active: false);
+        $this->seedHealth('wh', EndpointState::Suspended, cnf: 3, suspendedSince: '-8 days', cooldownUntil: '-1 minute');
+        $suspendedSinceBefore = $this->fetchColumn('wh', 'suspended_since');
+
+        static::assertSame(WebhookDispatchDecision::Deliver, $this->service->gateFor($this->ids->get('wh')));
+        static::assertSame(1, $this->fetchCycle('wh'));
+
+        $this->service->recordFailure($this->ids->get('wh'), ErrorClassification::NonTransientAuth, 1);
+
+        $this->assertState('wh', EndpointState::Suspended);
+        static::assertSame(4, $this->fetchCnf('wh'));
+        static::assertSame(1, $this->fetchCycle('wh'), 'no extra ladder count while the admission lease holds');
+        static::assertSame($suspendedSinceBefore, $this->fetchColumn('wh', 'suspended_since'));
+
+        $this->service->tick();
+
+        $this->assertState('wh', EndpointState::Disabled);
+        static::assertSame(DisabledOrigin::Escalation->value, $this->fetchColumn('wh', 'disabled_origin'));
+        static::assertSame(WebhookDispatchDecision::Skip, $this->service->gateFor($this->ids->get('wh')));
     }
 
     private function seedWebhook(string $key, bool $active = true, int $errorCount = 0): void

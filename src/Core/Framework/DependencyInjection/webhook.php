@@ -38,7 +38,10 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Subscriber\AppSuspensionClockSubscriber;
+use Shopware\Core\Framework\Webhook\Subscriber\ReactivateWebhooksOnAppReregistrationSubscriber;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
+use Shopware\Core\Framework\Webhook\Subscriber\WebhookActiveFlipSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
 use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
@@ -151,6 +154,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(WebhookOutboxStore::class),
             service(HealthConfig::class),
             service(SymfonyClockInterface::class),
+            service('logger'),
         ]);
 
     $services->set(MySQLWebhookReceiver::class)
@@ -286,6 +290,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(ReactivateWebhooksOnAppReregistrationSubscriber::class)
+        ->args([
+            service(WebhookHealthService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(WebhookActiveFlipSubscriber::class)
+        ->args([
+            service(WebhookHealthService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(AppSuspensionClockSubscriber::class)
+        ->args([
+            service(WebhookHealthService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     $services->set(WebhookCleanup::class)
         ->args([
             service(SystemConfigService::class),
@@ -311,6 +333,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.webhook.health.cooldown_schedule_seconds'),
             param('shopware.webhook.health.degraded_threshold_count'),
             param('shopware.webhook.health.non_transient_threshold_count'),
+            param('shopware.webhook.health.max_suspended_days'),
         ]);
 
     $services->set(HttpErrorClassifier::class);

@@ -15,4 +15,5 @@ enum EndpointState: string
     case Healthy = 'healthy';
     case Degraded = 'degraded';
     case Suspended = 'suspended';
+    case Disabled = 'disabled';
 }

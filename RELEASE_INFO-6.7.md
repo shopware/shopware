@@ -109,10 +109,6 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
 
-### New index on `seo_url` for faster SEO URL resolution
-
-A migration adds the index `idx.seo_url.language_path` on `seo_url (language_id, seo_path_info)`. The per-request SEO URL resolver filters by `language_id` and `seo_path_info` while allowing a null or matching `sales_channel_id`; the existing unique index leads with `sales_channel_id` before `seo_path_info`, so it could not seek on the selective path column. The new index turns that per-language scan into an index seek, speeding up SEO URL resolution on shops with many SEO URLs. The migration runs automatically on update; on very large `seo_url` tables the index creation can take some time, so include it in your maintenance window as usual.
-
 ## Administration
 
 ## Storefront

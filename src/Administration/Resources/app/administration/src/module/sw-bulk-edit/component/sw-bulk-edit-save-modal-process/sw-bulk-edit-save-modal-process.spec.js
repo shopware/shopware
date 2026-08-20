@@ -34,6 +34,7 @@ const documentRepositoryMock = {
             total: documentIds.length,
         }),
     ),
+    search: jest.fn(() => Promise.resolve([])),
 };
 
 const repositoryFactoryMock = {
@@ -540,6 +541,8 @@ describe('sw-bulk-edit-save-modal-process', () => {
         beforeEach(() => {
             global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
             documentV2ApiServiceMock.createDocument.mockClear();
+            documentRepositoryMock.search.mockClear();
+            documentRepositoryMock.search.mockResolvedValue([]);
         });
 
         it('calls documentV2Service.createDocument per order with the selected file formats', async () => {
@@ -708,6 +711,64 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 'documentComment',
                 'deliveryDate',
             );
+        });
+
+        it('does not query for existing documents when forceDocumentCreation is true', async () => {
+            await wrapper.vm.createDocument('invoice', [
+                {
+                    config: { fileFormats: ['pdf'], forceDocumentCreation: true },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]);
+
+            expect(documentRepositoryMock.search).not.toHaveBeenCalled();
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledTimes(1);
+        });
+
+        it('skips orders that already have a document of this type when forceDocumentCreation is false', async () => {
+            documentRepositoryMock.search.mockResolvedValueOnce([{ orderId: 'orderId' }]);
+
+            const result = await wrapper.vm.createDocument('invoice', [
+                {
+                    config: { fileFormats: ['pdf'], forceDocumentCreation: false },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+                {
+                    config: { fileFormats: ['pdf'], forceDocumentCreation: false },
+                    fileType: 'pdf',
+                    orderId: 'orderId2',
+                    type: 'invoice',
+                },
+            ]);
+
+            const criteria = documentRepositoryMock.search.mock.calls[0][0];
+            const orderIdFilter = criteria.filters.find((filter) => filter.field === 'orderId');
+            const documentTypeFilter = criteria.filters.find((filter) => filter.field === 'documentType.technicalName');
+
+            expect(orderIdFilter.value).toBe('orderId|orderId2');
+            expect(documentTypeFilter.value).toBe('invoice');
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledTimes(1);
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId2',
+                'invoice',
+                ['pdf'],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            );
+
+            expect(result).toEqual({
+                requested: 2,
+                failed: 0,
+                skipped: 1,
+                failedItems: [],
+            });
         });
     });
 

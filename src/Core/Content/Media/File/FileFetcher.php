@@ -23,7 +23,8 @@ class FileFetcher
         private readonly HttpClientInterface $httpClient,
         private readonly bool $enableUrlUploadFeature = true,
         private readonly bool $enableUrlValidation = true,
-        private readonly int $maxFileSize = 0
+        private readonly int $maxFileSize = 0,
+        private readonly float $urlUploadTimeout = 0.0,
     ) {
     }
 
@@ -172,6 +173,10 @@ class FileFetcher
 
         $destStream = $this->openDestinationStream($fileName);
         $writtenBytes = 0;
+
+        if ($this->urlUploadTimeout > 0) {
+            stream_context_set_option($streamContext, 'http', 'timeout', $this->urlUploadTimeout);
+        }
 
         try {
             $response = $client->request('GET', $url, $options);

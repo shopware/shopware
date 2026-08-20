@@ -259,6 +259,29 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('image/jpeg', $createdMedia['mimeType']);
     }
 
+    public function testLinkURLAppliesConfiguredMaximumDuration(): void
+    {
+        $url = 'https://example.com/image.jpg';
+        $params = new MediaUploadParameters(fileName: 'test.jpg', mimeType: 'image/jpeg');
+
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getHeaders')->willReturn(['content-length' => ['1024']]);
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient
+            ->expects($this->once())
+            ->method('request')
+            ->with('HEAD', $url, [
+                'max_redirects' => 0,
+                'resolve' => ['example.com' => '93.184.216.34'],
+                'max_duration' => 2.5,
+            ])
+            ->willReturn($response);
+
+        $this->buildService(httpClient: $httpClient, externalLinkTimeout: 2.5)
+            ->linkURL($url, $this->context, $params);
+    }
+
     public function testLinkURLWithoutMimeType(): void
     {
         $url = 'https://example.com/image.jpg';
@@ -722,6 +745,7 @@ class MediaUploadServiceTest extends TestCase
         ?HttpClientInterface $httpClient = null,
         ?FileUrlValidatorInterface $fileUrlValidator = null,
         ?TrustedUrlResolver $trustedUrlResolver = null,
+        float $externalLinkTimeout = 0.0,
     ): MediaUploadService {
         $service = new MediaUploadService(
             $this->mediaRepository,
@@ -733,6 +757,7 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailSizeRepository,
             $fileUrlValidator ?? $this->fileUrlValidator,
             $trustedUrlResolver ?? $this->trustedUrlResolver,
+            externalLinkTimeout: $externalLinkTimeout,
         );
 
         $this->mediaUploadService = $service;

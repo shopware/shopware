@@ -54,6 +54,7 @@ readonly class MediaUploadService
         private FileUrlValidatorInterface $fileUrlValidator,
         private TrustedUrlResolver $trustedUrlResolver,
         private bool $enableUrlValidation = true,
+        private float $externalLinkTimeout = 0.0,
     ) {
     }
 
@@ -321,6 +322,7 @@ readonly class MediaUploadService
     {
         $this->assertValidExternalUrl($url);
 
+<<<<<<< HEAD
         $resolved = $this->trustedUrlResolver->resolve($url);
 
         $client = $this->httpClient;
@@ -329,11 +331,23 @@ readonly class MediaUploadService
             'resolve' => [$resolved->host => $resolved->ip],
         ];
 
+        if ($this->externalLinkTimeout > 0) {
+            $options['max_duration'] = $this->externalLinkTimeout;
+        }
+
         if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
         }
 
         $headers = $client->request('HEAD', $url, $options)->getHeaders();
+=======
+        $options = ['max_redirects' => 0];
+        if ($this->externalLinkTimeout > 0) {
+            $options['max_duration'] = $this->externalLinkTimeout;
+        }
+
+        $headers = $this->httpClient->request('HEAD', $url, $options)->getHeaders();
+>>>>>>> fba1347b034 (perf(media): add configurable remote request timeouts)
         if (!\array_key_exists('content-length', $headers)) {
             throw MediaException::fileNotFound($url);
         }

@@ -1086,6 +1086,7 @@
                         "headers": {
                             "sw-context-token": {
                                 "description": "Contains the new sw-context-token value.",
+                                "required": true,
                                 "schema": {
                                     "type": "string"
                                 }
@@ -1265,6 +1266,7 @@
                         "headers": {
                             "sw-context-token": {
                                 "description": "Contains the new sw-context-token value.",
+                                "required": true,
                                 "schema": {
                                     "type": "string"
                                 }

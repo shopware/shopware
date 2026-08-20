@@ -4,11 +4,11 @@
     "paths": [],
     "components": {
         "responses": {
-            "ContextGatewayResponse": {
-                "description": "Updates the current context and returns a context token for gateway commands that create or switch to a different token.",
+            "GatewayContextTokenResponse": {
+                "description": "Returns the context update result. Responses for token-changing commands include a context token.",
                 "headers": {
                     "sw-context-token": {
-                        "description": "Contains the new sw-context-token value for gateway commands that create or switch to a different token.",
+                        "description": "Contains sw-context-token value for token-changing commands.",
                         "schema": {
                             "type": "string"
                         }

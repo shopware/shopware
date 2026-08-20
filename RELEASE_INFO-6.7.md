@@ -12,6 +12,15 @@ Apps can now modify or remove cookie consent groups and entries with an app scri
 
 ## API
 
+### Number range admin action endpoints now require ACL privileges
+
+Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `GET /api/_action/number-range/reserve/{type}/{salesChannelId}` requires `number_range:read`. Without `preview=1` this endpoint permanently advances the number range state, so it was possible for any authenticated backend account to consume invoice, order, delivery-note and credit-note numbers and create gaps in the sequence.
+* `GET /api/_action/number-range/{numberRangeId}/preview-pattern` and the deprecated `GET /api/_action/number-range/preview-pattern/{type}` require `number_range:read`.
+
+Administration users are not affected: `number_range:read` is already part of the "Products viewer" and "Number ranges viewer" permissions, it is now also part of the "Orders editor" and "Customers creator" permissions — these are the roles whose users reserve document, order and customer numbers — and a migration grants it to existing roles that already hold one of those permissions. Integrations and API clients with manually assigned privilege lists must add `number_range:read` to their ACL role.
+
 ### Added new shop setting endpoint
 
 Added new Store API route `GET /store-api/shop-settings`, which exposes the UI- and validation-relevant, non-sensitive subset of the system configuration (grouped into `general`, `loginRegistration`, `cart`, `listing` and `newsletter`) resolved for the current sales channel, so headless frontends (e.g. Composable Frontends) can render the shop consistently with the administration settings.
@@ -154,6 +163,11 @@ They affect the database read, unlike `includes` and `excludes`, which only shap
 - Separately, new Store API route `GET /store-api/legal-guarantee-notice` renders the EU-harmonised statutory legal guarantee notice, translated into all 24 official EU languages, toggleable via the new `core.cart.showLegalGuaranteeNotice` system config, and exposed via `sw_legal_guarantee_notice` / `sw_legal_guarantee_notice_link` Twig filters.
 - Both labels/notices are wired into the storefront (checkout confirmation, buy-widget, cart line items) and into the Administration product detail page (new guarantee form).
 - The `order_confirmation_mail` template is updated to include both the GARAN label (as a data URI) and the legal guarantee notice link. **This update only applies to shops whose order confirmation mail template is still the unmodified system default** — i.e. new installations, and existing shops that never edited that template. Merchants who have customized their order confirmation mail template must add `{{ nestedItem.productId|sw_garan_label_nested_uri(context) }}` and `{{ context.languageId|sw_legal_guarantee_notice_link }}` to their template manually if they want these notices.
+
+### Category and SEO URL indexing cause fewer database deadlocks
+
+Concurrent category writes through the Sync API frequently hit InnoDB deadlocks in the SEO URL and child-count updaters (`1213 Deadlock found when trying to get lock`). Three changes reduce the lock footprint while keeping the default `REPEATABLE READ` isolation: the `seo_url` table is written with `INSERT ... ON DUPLICATE KEY UPDATE` instead of `REPLACE INTO`, so a colliding row is updated in place — keeping its `id` and `created_at` — instead of being deleted and re-inserted with the wide next-key locks that `REPLACE` takes on both unique indexes; rows whose `is_deleted` flag already holds the target value are no longer rewritten; and child counts are computed with a non-locking read followed by a primary-key-only update instead of a self-joined update. No configuration or database changes are required.
+
 ### Deprecated XML configuration
 
 Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.

@@ -275,6 +275,7 @@ export default {
                         undefined,
                         item.config?.documentDate,
                         item.config?.documentComment,
+                        item.config?.custom?.deliveryDate,
                     );
                 } catch (error) {
                     latestError = error.response?.data?.errors?.pop();

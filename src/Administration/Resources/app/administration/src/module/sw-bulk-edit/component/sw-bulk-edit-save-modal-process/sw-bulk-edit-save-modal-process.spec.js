@@ -580,6 +580,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 undefined,
                 'documentDate',
                 'documentComment',
+                undefined,
             );
             expect(documentV2ApiServiceMock.createDocument).toHaveBeenNthCalledWith(
                 2,
@@ -589,6 +590,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 undefined,
                 'documentDate',
                 'documentComment',
+                undefined,
             );
             expect(result).toEqual({
                 requested: 2,
@@ -657,6 +659,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 undefined,
                 undefined,
                 undefined,
+                undefined,
             );
         });
 
@@ -677,6 +680,33 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 undefined,
                 undefined,
                 undefined,
+                undefined,
+            );
+        });
+
+        it('forwards the delivery date from the custom config to the v2 endpoint', async () => {
+            await wrapper.vm.createDocument('delivery_note', [
+                {
+                    config: {
+                        documentDate: 'documentDate',
+                        documentComment: 'documentComment',
+                        fileFormats: ['pdf'],
+                        custom: { deliveryDate: 'deliveryDate' },
+                    },
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'delivery_note',
+                },
+            ]);
+
+            expect(documentV2ApiServiceMock.createDocument).toHaveBeenCalledWith(
+                'orderId',
+                'delivery_note',
+                ['pdf'],
+                undefined,
+                'documentDate',
+                'documentComment',
+                'deliveryDate',
             );
         });
     });

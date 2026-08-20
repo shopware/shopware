@@ -558,6 +558,12 @@ Every storefront extension build inherits the core storefront webpack context an
 
 Extension builds now set `output.uniqueName` to their technical name, which gives each of them its own global, for example `webpackChunkswag_my_theme`. The core storefront bundle intentionally keeps the default `webpackChunk` global, so its emitted runtime stays unchanged. If you relied on the shared `window.webpackChunk` array, for example to inject chunks into another bundle, use the extension specific global instead. Rebuild your storefront assets to pick up the change.
 
+### The "Top results" sorting label is translatable
+
+`score` is a locked product sorting, so its label could not be edited in Settings > Products > Sorting and only ever existed for `en-GB` and `de-DE`. Every other language fell back to one of those two.
+
+`@Storefront/storefront/component/sorting.html.twig` now renders the `filter.sortByScore` snippet for the `score` sorting instead of its database label, so it can be translated for any language through snippet management or a theme snippet file. All other sortings keep rendering the label configured in the administration.
+
 ## App System
 
 ### App installation recovers ambiguously failed registrations

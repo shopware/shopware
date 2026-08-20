@@ -1,0 +1,33 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "ContextGatewayResponse": {
+                "description": "Updates the current context and returns a context token for gateway commands that create or switch to a different token.",
+                "headers": {
+                    "sw-context-token": {
+                        "description": "Contains the new sw-context-token value for gateway commands that create or switch to a different token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "redirectUrl": {
+                                    "description": "Define the URL which browser will be redirected to",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -98,7 +98,7 @@
                 },
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/ContextSwitchResponse"
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
@@ -156,7 +156,7 @@
                 "operationId": "contextGateway",
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/ContextGatewayResponse"
                     },
                     "400": {
                         "description": "App server communication error"
@@ -210,7 +210,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/ContextGatewayResponse"
                     },
                     "400": {
                         "description": "App server communication error"

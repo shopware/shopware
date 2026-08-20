@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -136,7 +137,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
 
         $response = $executor->execute($commands, $context);
 
-        static::assertSame('hatoken', $response->getToken());
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testExecuteWithUnknownCommand(): void
@@ -164,6 +165,6 @@ class ContextGatewayCommandExecutorTest extends TestCase
 
         $response = $executor->execute($commands, $context);
 
-        static::assertSame($context->getToken(), $response->getToken());
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 }

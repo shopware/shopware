@@ -25,6 +25,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                         },
                     },
                     userService: {},
+                    loginService: {},
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
@@ -115,6 +116,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+    });
+
+    it('should retain the deprecated password verification members', () => {
+        expect(wrapper.vm.loginService).toBeDefined();
+        expect(wrapper.vm.confirmPassword).toBe('');
+        expect(wrapper.vm.isConfirmingPassword).toBe(false);
     });
 
     it('the data-grid should show the right columns', async () => {

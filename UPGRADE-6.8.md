@@ -1153,6 +1153,10 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 # Administration
 
+## Deprecated password verification members in `sw-users-permissions-user-listing`
+
+The `loginService` injection and the `confirmPassword` and `isConfirmingPassword` data properties in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.

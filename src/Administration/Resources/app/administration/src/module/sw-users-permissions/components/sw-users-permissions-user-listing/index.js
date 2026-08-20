@@ -13,6 +13,8 @@ export default {
 
     inject: [
         'userService',
+        /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
+        'loginService',
         'repositoryFactory',
         'acl',
         'ssoSettingsService',
@@ -38,7 +40,11 @@ export default {
             isLoading: false,
             itemToDelete: null,
             disableRouteParams: true,
+            /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
+            confirmPassword: '',
             sortBy: 'username',
+            /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
+            isConfirmingPassword: false,
             isConfirmDeleteModalOpen: false,
             isConfirmingPasswordModalOpen: false,
             showInvitationModal: false,

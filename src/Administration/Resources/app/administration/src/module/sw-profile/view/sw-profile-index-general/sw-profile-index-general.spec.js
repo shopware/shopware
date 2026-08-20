@@ -181,6 +181,36 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         expect(changeNewPasswordConfirmField).toBeNull();
     });
 
+    describe('module icon colors', () => {
+        it('should show the module icon color selection', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-profile--module-icon-colors').exists()).toBe(true);
+        });
+
+        it('should emit the chosen preference without applying it', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            await selectMtSelectOptionByText(
+                wrapper,
+                'sw-profile.index.optionModuleIconColorsColored',
+                '.sw-profile--module-icon-colors input',
+            );
+
+            expect(wrapper.emitted('user-module-icon-colors-change')[0][0]).toBe(true);
+            expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        });
+
+        it('should preselect the neutral option', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.computedUserModuleIconColors).toBe('neutral');
+        });
+    });
+
     describe('theme selection', () => {
         it('should show the theme selection', async () => {
             const wrapper = await createWrapper();

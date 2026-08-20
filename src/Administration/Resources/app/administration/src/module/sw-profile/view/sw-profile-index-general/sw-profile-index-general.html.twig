@@ -124,6 +124,17 @@
                 :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
             />
             {% endblock %}
+
+            {% block sw_profile_index_general_information_module_icon_colors %}
+            <mt-select
+                v-model="computedUserModuleIconColors"
+                name="sw-field--user-moduleIconColors"
+                class="sw-profile--module-icon-colors sw-profile-index-general__grid-module-icon-colors"
+                :label="$t('sw-profile.index.labelModuleIconColorsField')"
+                :options="moduleIconColorsOptions"
+                hide-clearable-button
+            />
+            {% endblock %}
         </div>
     </mt-card>
     {% endblock %}

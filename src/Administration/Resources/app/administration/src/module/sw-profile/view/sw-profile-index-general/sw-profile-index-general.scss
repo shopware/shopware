@@ -21,7 +21,7 @@
     .sw-profile-index-general__user-interface-grid {
         grid-template-areas:
             "Language Timezone"
-            "Theme .";
+            "Theme ModuleIconColors";
     }
 
     .sw-profile-index-general__password-grid {
@@ -62,6 +62,10 @@
         grid-area: Theme;
     }
 
+    .sw-profile-index-general__grid-module-icon-colors {
+        grid-area: ModuleIconColors;
+    }
+
     .sw-profile-index-general__grid-new-password {
         grid-area: NewPassword;
     }
@@ -90,7 +94,8 @@
         grid-template-areas:
             "Language"
             "Timezone"
-            "Theme";
+            "Theme"
+            "ModuleIconColors";
     }
 
     .sw-profile-index-general .sw-profile-index-general__password-grid {

@@ -1,3 +1,4 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
@@ -152,6 +153,10 @@ export default {
         },
 
         iconColor() {
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
             return [
                 'module',
                 'frequently_used',

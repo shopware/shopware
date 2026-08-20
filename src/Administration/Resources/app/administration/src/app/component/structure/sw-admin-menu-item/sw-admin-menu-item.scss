@@ -217,6 +217,38 @@ $nesting-line-indent: 36px;
     }
 }
 
+// With module colors the icon carries the accent, so the active row drops the brand tint for the
+// neutral hover grey. Level 1 only, the rows that actually show a colored icon.
+.navigation-list-item__level-1.is--module-colored > .sw-admin-menu__navigation-item-row {
+    > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-interaction-secondary-hover);
+        color: var(--color-text-primary-default);
+
+        .collapsible-text {
+            color: var(--color-text-primary-default);
+        }
+    }
+}
+
+// An active sub item picks up the same neutral background as its colored parent row and keeps
+// the regular text color, so only the marker signals the active state.
+.navigation-list-item__level-1.is--module-colored .navigation-list-item--nested {
+    > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active {
+        background: var(--color-interaction-secondary-hover);
+        color: var(--color-text-primary-default);
+
+        .collapsible-text {
+            color: var(--color-text-primary-default);
+        }
+
+        // The halo matches the row background so the line reads against it
+        &::after {
+            background: var(--sw-admin-menu-module-color, var(--color-icon-brand-default));
+            outline-color: var(--color-interaction-secondary-hover);
+        }
+    }
+}
+
 // Tree lines and indicators follow .hide-on-collapse timing, scoped to the toggle window
 .sw-admin-menu.is--toggling .navigation-list-item--nested {
     > .sw-admin-menu__sub-navigation-list::before,

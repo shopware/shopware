@@ -120,7 +120,7 @@ Component.register('sw-maintain-currencies-modal', {
         loadCurrencies() {
             this.repositoryFactory
                 .create('currency')
-                .search(new Criteria(1, 25))
+                .search(new Criteria(1, 500))
                 .then((response) => {
                     this.currencyCollection = response;
                     this.sortCurrencies();

@@ -5,6 +5,15 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
+const currencySearch = jest.fn(() =>
+    Promise.resolve([
+        {
+            id: 'promotionId1',
+            isSystemDefault: true,
+        },
+    ]),
+);
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-promotion-discount-component', {
@@ -72,13 +81,7 @@ async function createWrapper() {
                         create: (entity) => {
                             if (entity === 'currency') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve([
-                                            {
-                                                id: 'promotionId1',
-                                                isSystemDefault: true,
-                                            },
-                                        ]),
+                                    search: currencySearch,
                                 };
                             }
                             return {
@@ -172,6 +175,19 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
                 },
             };
         });
+    });
+
+    beforeEach(() => {
+        currencySearch.mockClear();
+    });
+
+    it('should load all currencies for the advanced prices', async () => {
+        global.activeAclRoles = [];
+
+        await createWrapper();
+
+        expect(currencySearch).toHaveBeenCalledTimes(1);
+        expect(currencySearch.mock.calls[0][0].getLimit()).toBe(500);
     });
 
     it('should have disabled form fields', async () => {

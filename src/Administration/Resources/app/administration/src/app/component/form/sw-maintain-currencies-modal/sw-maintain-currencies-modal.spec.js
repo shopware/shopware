@@ -29,13 +29,15 @@ const prices = [
     },
 ];
 
-async function createWrapper() {
+const currencySearch = jest.fn(() => Promise.resolve([]));
+
+async function createWrapper(propOverrides = {}) {
     return mount(await wrapTestComponent('sw-maintain-currencies-modal', { sync: true }), {
         global: {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve([]),
+                        search: currencySearch,
                     }),
                 },
             },
@@ -71,11 +73,24 @@ async function createWrapper() {
                 currencyId: '124',
             },
             taxRate: {},
+            ...propOverrides,
         },
     });
 }
 
 describe('src/app/component/form/sw-maintain-currencies-modal', () => {
+    beforeEach(() => {
+        currencySearch.mockClear();
+    });
+
+    it('should load all currencies when none are passed in', async () => {
+        await createWrapper({ currencies: [] });
+        await flushPromises();
+
+        expect(currencySearch).toHaveBeenCalledTimes(1);
+        expect(currencySearch.mock.calls[0][0].getLimit()).toBe(500);
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();

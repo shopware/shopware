@@ -111,6 +111,7 @@ use Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
@@ -135,6 +136,7 @@ use Shopware\Core\Framework\App\Source\TemporaryDirectoryFactory;
 use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber;
 use Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber;
+use Shopware\Core\Framework\App\Subscriber\DiscardUnconfirmedAppSecretsListener;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\Telemetry\AppTelemetrySubscriber;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
@@ -454,6 +456,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ExceptionLogger::class),
             service(ActiveAppsLoader::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(AppContextGateway::class)
@@ -464,12 +467,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('app.repository'),
             service('event_dispatcher'),
             service(ExceptionLogger::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(AppCookieCollectListener::class)
         ->args([
             service('app.repository'),
-            service('payment_method.repository'),
         ])
         ->tag('kernel.event_listener');
 
@@ -493,6 +496,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ShopIdProvider::class),
             param('kernel.shopware_version'),
             service(ClockInterface::class),
+            service('logger'),
         ]);
 
     $services->set(AppSecretRotationService::class)
@@ -504,6 +508,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(ManifestFactory::class),
             service(ClockInterface::class),
+            service(DeletedAppsGateway::class),
         ]);
 
     $services->set(AppFeatureValidator::class)
@@ -552,6 +557,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
         ]);
+
+    $services->set(DiscardUnconfirmedAppSecretsListener::class)
+        ->args([
+            service('app.repository'),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(AppLifecycle::class)
         ->args([
@@ -969,6 +980,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('event_dispatcher'),
+        ]);
+
+    $services->set(AppCapability::class)
+        ->args([
+            service(Privileges::class),
         ]);
 
     $services->set(AppPrivilegeController::class)

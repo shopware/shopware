@@ -28,7 +28,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
     let stubs;
 
-    async function createWrapper({ featureActive = false, routeName = 'sw.order.create.general' } = {}) {
+    async function createWrapper({ routeName = 'sw.order.create.general' } = {}) {
         return mount(await wrapTestComponent('sw-order-create', { sync: true }), {
             global: {
                 stubs,
@@ -42,9 +42,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                     },
                                 }),
                         }),
-                    },
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                     },
                     shortcutService: {
                         startEventListener: () => {},
@@ -203,16 +200,16 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         Shopware.Store.register(contextState);
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch', () => {
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 
         expect(tabs.props('positionIdentifier')).toBe('sw-order-create');
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
         wrapper = await createWrapper({
-            featureActive: true,
             routeName: 'sw.order.create.details',
         });
 
@@ -235,8 +232,8 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
-    it('should navigate when a meteor route tab is clicked', async () => {
-        wrapper = await createWrapper({ featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is clicked', async () => {
+        wrapper = await createWrapper();
 
         const detailsTab = wrapper.vm.orderCreateTabs.find((tab) => tab.name === 'sw.order.create.details');
 

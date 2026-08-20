@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerWishlistEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class CustomerWishlistCollection extends EntityCollection

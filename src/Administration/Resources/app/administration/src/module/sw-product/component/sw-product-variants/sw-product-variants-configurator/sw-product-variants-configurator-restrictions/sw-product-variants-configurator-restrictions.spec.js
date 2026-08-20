@@ -105,6 +105,9 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-loader': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                    'mt-floating-ui': {
+                        template: '<div><slot /></div>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),

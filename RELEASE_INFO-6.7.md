@@ -361,6 +361,10 @@ The owner is recorded from the session and cannot be set through the API. Deleti
 
 Existing app-less webhooks have no recorded creator, so the update assigns them to the oldest admin user and they keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting that admin user also deletes the webhooks assigned to it.
 
+### Webhooks belonging to an app can no longer be changed through the API
+
+Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component

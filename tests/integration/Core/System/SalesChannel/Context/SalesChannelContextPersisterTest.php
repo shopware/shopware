@@ -299,6 +299,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         static::assertSame(
             [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
                 'expired' => false,
                 'first' => 'value',
                 'second' => 'value',
@@ -325,6 +326,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame(
             [
                 'customer' => 'value',
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
                 'expired' => false,
                 'new' => 'value',
                 'token' => $token,

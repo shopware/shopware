@@ -24,8 +24,6 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        $this->connection->executeStatement(\sprintf('DROP TABLE IF EXISTS `%s`;', DocumentFileDefinition::ENTITY_NAME));
     }
 
     public function testGetCreationTimestamp(): void
@@ -35,6 +33,8 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
 
     public function testMigration(): void
     {
+        $this->connection->executeStatement(\sprintf('DROP TABLE IF EXISTS `%s`;', DocumentFileDefinition::ENTITY_NAME));
+
         static::assertFalse(TableHelper::tableExists($this->connection, DocumentFileDefinition::ENTITY_NAME));
 
         $migration = new Migration1776770187AddDocumentFileTable();

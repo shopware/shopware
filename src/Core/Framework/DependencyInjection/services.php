@@ -269,6 +269,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.migration_source');
 
+    $services->set(MigrationSource::class . '.core.V6_9', MigrationSource::class)
+        ->args([
+            'core.V6_9',
+        ])
+        ->tag('shopware.migration_source');
+
     $services->set(MigrationSource::class . '.null', MigrationSource::class)
         ->args([
             'null',

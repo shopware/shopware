@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 
 /**
  * Simple DTO for internal use
@@ -14,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class Webhook
 {
+    /**
+     * @param list<string> $ownerRoleIds ACL roles of the owner, resolved live at load; for an app webhook the owner is the app's integration
+     */
     public function __construct(
         public string $id,
         public string $webhookName,
@@ -26,7 +30,8 @@ final readonly class Webhook
         public bool $appActive,
         public ?string $appVersion,
         public ?string $appSecret,
-        public ?string $appAclRoleId,
+        public OwnerType $ownerType = OwnerType::Restricted,
+        public array $ownerRoleIds = [],
     ) {
     }
 }

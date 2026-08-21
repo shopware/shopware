@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\RecordOwnerSubscriber;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
@@ -243,6 +244,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(WebhookDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(RecordOwnerSubscriber::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set(WebhookEventLogDefinition::class)
         ->tag('shopware.entity.definition');

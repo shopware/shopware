@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
@@ -1059,6 +1060,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             'name' => $name,
             'event_name' => $eventName,
             'url' => $url,
+            'owner_user_id' => Uuid::fromHexToBytes(TestUser::createNewAdminTestUser($this->connection)->getUserId()),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

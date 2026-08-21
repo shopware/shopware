@@ -19,6 +19,7 @@ class WebhookException extends HttpException
     public const TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_TARGET_NOT_ALLOWED';
     public const REDIRECT_TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED';
     public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
+    public const WEBHOOK_OWNER_MISSING = 'FRAMEWORK__WEBHOOK_OWNER_MISSING';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -76,6 +77,15 @@ class WebhookException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MAXIMUM_REDIRECTS_EXCEEDED,
             'Maximum redirects exceeded.'
+        );
+    }
+
+    public static function webhookOwnerMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBHOOK_OWNER_MISSING,
+            'A webhook without an app can only be created by a user or an integration, which becomes its owner.'
         );
     }
 

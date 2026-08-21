@@ -73,6 +73,18 @@ class TestUser
         return new TestUser('shopware', $username, Uuid::fromBytesToHex($userId));
     }
 
+    public static function createNewAdminTestUser(Connection $connection): TestUser
+    {
+        $user = self::createNewTestUser($connection);
+
+        $connection->executeStatement(
+            'UPDATE `user` SET admin = 1 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($user->getUserId())]
+        );
+
+        return $user;
+    }
+
     public function authorizeBrowser(KernelBrowser $browser): void
     {
         $authPayload = [

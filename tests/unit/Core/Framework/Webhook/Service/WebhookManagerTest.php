@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
@@ -248,6 +250,49 @@ class WebhookManagerTest extends TestCase
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
         static::assertEmpty($messages);
+    }
+
+    public function testAppLessWebhookIsDeniedWhenOwnerLacksPrivilege(): void
+    {
+        $event = $this->prepareHookableEvent();
+        // product.written requires product:read; the owner does not hold it
+        $this->prepareAppLessWebhook('product.written', ownerPrivileges: []);
+
+        $this->getWebhookManager(false)->dispatch($event);
+
+        static::assertEmpty($this->bus->getMessages());
+    }
+
+    public function testAppLessWebhookIsDeliveredWhenOwnerHasPrivilege(): void
+    {
+        $event = $this->prepareHookableEvent();
+        $this->prepareAppLessWebhook('product.written', ownerPrivileges: ['product:read']);
+
+        $this->getWebhookManager(false)->dispatch($event);
+
+        static::assertCount(1, $this->bus->getMessages());
+    }
+
+    public function testAppLessWebhookWithAdminOwnerReceivesEvent(): void
+    {
+        $event = $this->prepareHookableEvent();
+        // an admin owner resolves to "reads everything" at dispatch, without any explicit privilege
+        $this->prepareAppLessWebhook('product.written', ownerPrivileges: [], ownerType: OwnerType::Admin);
+
+        $this->getWebhookManager(false)->dispatch($event);
+
+        static::assertCount(1, $this->bus->getMessages());
+    }
+
+    public function testAppLessWebhookDoesNotReceiveAppScopedEvent(): void
+    {
+        $event = new AppPermissionsUpdated(Uuid::randomHex(), ['product:read'], Context::createDefaultContext());
+        $this->eventFactory->expects($this->once())->method('createHookablesFor')->with($event)->willReturn([$event]);
+        $this->prepareAppLessWebhook($event->getName(), ownerPrivileges: ['product:read']);
+
+        $this->getWebhookManager(false)->dispatch($event);
+
+        static::assertEmpty($this->bus->getMessages());
     }
 
     public function testWebhookCacheKeepsInactiveAppStateUntilCleared(): void
@@ -536,7 +581,7 @@ class WebhookManagerTest extends TestCase
     private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read'], bool $resolvesPrivileges = true): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
-        static::assertIsString($webhook->appAclRoleId);
+        $roleId = $webhook->ownerRoleIds[0];
 
         $this->webhookLoader->expects($this->once())
             ->method('getWebhooks')
@@ -545,8 +590,8 @@ class WebhookManagerTest extends TestCase
         $this->webhookLoader
             ->expects($resolvesPrivileges ? $this->once() : $this->never())
             ->method('getPrivilegesForRoles')
-            ->with([$webhook->appAclRoleId])
-            ->willReturn([$webhook->appAclRoleId => new AclPrivilegeCollection($acl)]);
+            ->with([$roleId])
+            ->willReturn([$roleId => new AclPrivilegeCollection($acl)]);
 
         return $webhook;
     }
@@ -642,6 +687,36 @@ class WebhookManagerTest extends TestCase
         return new WebhookRequest(new Request('POST', $url, $headers, $jsonPayload), $headers, $jsonPayload, time(), $options);
     }
 
+    /**
+     * @param list<string> $ownerPrivileges
+     */
+    private function prepareAppLessWebhook(string $eventName, array $ownerPrivileges = [], OwnerType $ownerType = OwnerType::Restricted): Webhook
+    {
+        $roleId = Uuid::randomHex();
+        $webhook = new Webhook(
+            id: Uuid::randomHex(),
+            webhookName: 'App-less Webhook',
+            eventName: $eventName,
+            url: 'https://foo.bar',
+            onlyLiveVersion: false,
+            appId: null,
+            appName: null,
+            appSourceType: null,
+            appActive: false,
+            appVersion: null,
+            appSecret: null,
+            ownerType: $ownerType,
+            ownerRoleIds: [$roleId],
+        );
+
+        $this->webhookLoader->expects($this->once())->method('getWebhooks')->willReturn([$webhook]);
+        $this->webhookLoader->method('getPrivilegesForRoles')
+            ->willReturn([$roleId => new AclPrivilegeCollection($ownerPrivileges)]);
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+
+        return $webhook;
+    }
+
     private function getWebhook(string $eventName, bool $onlyLiveVersion = false, bool $appActive = true): Webhook
     {
         return new Webhook(
@@ -656,7 +731,8 @@ class WebhookManagerTest extends TestCase
             $appActive,
             '0.0.0',
             'verysecret',
-            Uuid::randomHex()
+            ownerType: OwnerType::Restricted,
+            ownerRoleIds: [Uuid::randomHex()],
         );
     }
 }

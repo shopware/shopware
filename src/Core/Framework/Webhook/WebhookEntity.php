@@ -7,9 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class WebhookEntity extends Entity
 {
@@ -24,6 +21,16 @@ class WebhookEntity extends Entity
     protected bool $onlyLiveVersion;
 
     protected ?string $appId = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $ownerUserId = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $ownerIntegrationId = null;
 
     protected bool $active;
 
@@ -89,6 +96,42 @@ class WebhookEntity extends Entity
     public function setApp(?AppEntity $app): void
     {
         $this->app = $app;
+    }
+
+    /**
+     * @internal
+     */
+    public function getOwnerUserId(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('ownerUserId');
+
+        return $this->ownerUserId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setOwnerUserId(?string $ownerUserId): void
+    {
+        $this->ownerUserId = $ownerUserId;
+    }
+
+    /**
+     * @internal
+     */
+    public function getOwnerIntegrationId(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('ownerIntegrationId');
+
+        return $this->ownerIntegrationId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setOwnerIntegrationId(?string $ownerIntegrationId): void
+    {
+        $this->ownerIntegrationId = $ownerIntegrationId;
     }
 
     public function isActive(): bool

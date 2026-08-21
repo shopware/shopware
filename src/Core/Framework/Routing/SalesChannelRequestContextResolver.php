@@ -25,7 +25,8 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         private readonly RequestContextResolverInterface $decorated,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly RouteScopeRegistry $routeScopeRegistry
+        private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly SessionContextTokenAccessor $sessionContextToken
     ) {
     }
 
@@ -39,6 +40,10 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         if (!$this->isRequestScoped($request, SalesChannelContextRouteScopeDependant::class)) {
             return;
+        }
+
+        if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+            $this->resolveContextTokenFromSession($request);
         }
 
         if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
@@ -56,6 +61,9 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        // Remember what this request came in with, so a later rotation stays recognizable as one.
+        $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_RESOLVED_TOKEN, $usedContextToken);
 
         $languageId = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '');
         $currencyId = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID, '');
@@ -85,6 +93,29 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     protected function getScopeRegistry(): RouteScopeRegistry
     {
         return $this->routeScopeRegistry;
+    }
+
+    /**
+     * Last resort before a brand new token is minted: a same-origin caller that sent the storefront
+     * session cookie but no `sw-context-token` header continues the shopper's storefront context.
+     *
+     * The token is put on the request headers, so every downstream consumer - context service, cart,
+     * rotation - sees exactly what it would have seen for a client sent token, and the request is
+     * marked so the response can be kept out of shared caches.
+     */
+    private function resolveContextTokenFromSession(Request $request): void
+    {
+        $salesChannelId = (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        $token = $this->sessionContextToken->read($request, $salesChannelId);
+
+        if ($token === null) {
+            return;
+        }
+
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION, true);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
     }
 
     private function contextTokenRequired(Request $request): bool

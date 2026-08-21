@@ -1,0 +1,303 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Core\Framework\Routing;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\EventListener\SessionContextTokenSyncListener;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+
+/**
+ * Store API requests resolve their context token from the storefront session when the caller sends
+ * the session cookie but no `sw-context-token` header, and token rotations are written back into
+ * that session.
+ *
+ * @internal
+ *
+ * @see \Shopware\Core\Framework\Routing\SessionContextTokenAccessor
+ */
+#[Package('framework')]
+class SessionContextTokenResolutionTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    private const SESSION_ID = 'a-resumable-storefront-session-id';
+
+    private SalesChannelRequestContextResolver $resolver;
+
+    private SessionContextTokenSyncListener $syncListener;
+
+    private string $sessionName;
+
+    protected function setUp(): void
+    {
+        $this->resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
+        $this->syncListener = static::getContainer()->get(SessionContextTokenSyncListener::class);
+
+        /** @var array<string, mixed> $sessionOptions */
+        $sessionOptions = static::getContainer()->getParameter('session.storage.options');
+        $this->sessionName = (string) ($sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME);
+    }
+
+    public function testResolvesTokenFromStorefrontSession(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+
+        static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($sessionToken, $this->resolvedContext($request)->getToken());
+        static::assertTrue($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+    }
+
+    public function testPrefersTheSalesChannelSuffixedSessionKey(): void
+    {
+        $suffixedToken = Random::getAlphanumericString(32);
+        $plainToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $this->attachSession($request, [
+            PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL => $suffixedToken,
+            PlatformRequest::HEADER_CONTEXT_TOKEN => $plainToken,
+        ]);
+
+        $this->resolve($request);
+
+        static::assertSame($suffixedToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testFallsBackToThePlainSessionKey(): void
+    {
+        $plainToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $plainToken]);
+
+        $this->resolve($request);
+
+        static::assertSame($plainToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testWithoutSessionCookieAFreshTokenIsMinted(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+        // A Store API caller that does not send the storefront session cookie must not be able to
+        // borrow a session, even when one happens to be attached to the request object.
+        $request->cookies->remove($this->sessionName);
+
+        $this->resolve($request);
+
+        $token = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        static::assertNotSame($sessionToken, $token);
+        static::assertNotNull($token);
+        static::assertSame(32, \strlen($token));
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+    }
+
+    public function testExplicitHeaderTokenWinsOverTheSession(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+        $headerToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest($headerToken);
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+
+        static::assertSame($headerToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertSame($headerToken, $this->resolvedContext($request)->getToken());
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+    }
+
+    /**
+     * @return list<array{0: string, 1: bool}>
+     */
+    public static function fetchSiteProvider(): array
+    {
+        return [
+            ['same-origin', true],
+            ['same-site', true],
+            ['cross-site', false],
+            ['none', false],
+        ];
+    }
+
+    #[DataProvider('fetchSiteProvider')]
+    public function testFetchMetadataGatesTheSessionFallback(string $fetchSite, bool $shouldResolve): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $request->headers->set('Sec-Fetch-Site', $fetchSite);
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+
+        if ($shouldResolve) {
+            static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        static::assertNotSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+    }
+
+    public function testRotationIsWrittenBackToTheSession(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+        $rotatedToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $session = $this->attachSession($request, [
+            PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL => $sessionToken,
+            PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken,
+        ]);
+
+        $this->resolve($request);
+
+        $response = $this->respondWith($request, $rotatedToken);
+
+        static::assertSame(
+            $rotatedToken,
+            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . TestDefaults::SALES_CHANNEL),
+            'the sales channel suffixed key must follow the rotation'
+        );
+        static::assertSame(
+            $rotatedToken,
+            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
+            'the plain key is always kept in sync, like the storefront does'
+        );
+
+        static::assertTrue($response->headers->hasCacheControlDirective('private'));
+        static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
+    }
+
+    public function testAForeignHeaderTokenCannotRepointTheSession(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+        $foreignToken = Random::getAlphanumericString(32);
+        $rotatedForeignToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest($foreignToken);
+        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+        $this->respondWith($request, $rotatedForeignToken);
+
+        static::assertSame(
+            $sessionToken,
+            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
+            'a caller that brought its own token must not repoint the shoppers session'
+        );
+    }
+
+    public function testAResponseWithoutRotationKeepsItsCacheHeaders(): void
+    {
+        $headerToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest($headerToken);
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
+
+        $this->resolve($request);
+
+        $response = $this->respondWith($request, $headerToken);
+
+        static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
+    }
+
+    private function createStoreApiRequest(?string $contextToken = null): Request
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        if ($contextToken !== null) {
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+        }
+
+        return $request;
+    }
+
+    /**
+     * @param array<string, string> $data
+     */
+    private function attachSession(Request $request, array $data): SessionInterface
+    {
+        $session = new Session(new MockArraySessionStorage());
+
+        foreach ($data as $key => $value) {
+            $session->set($key, $value);
+        }
+
+        $request->setSession($session);
+        // The cookie is what tells the resolver an existing session may be resumed.
+        $request->cookies->set($this->sessionName, self::SESSION_ID);
+
+        return $session;
+    }
+
+    private function resolve(Request $request): void
+    {
+        $requestStack = static::getContainer()->get('request_stack');
+        $requestStack->push($request);
+
+        try {
+            $this->resolver->resolve($request);
+        } finally {
+            $requestStack->pop();
+        }
+    }
+
+    /**
+     * Runs the response listener for a response that reports $responseToken, i.e. what a rotating
+     * route such as `POST /store-api/account/register` produces.
+     */
+    private function respondWith(Request $request, string $responseToken): Response
+    {
+        $response = new Response();
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $responseToken);
+
+        $this->syncListener->onResponse(new ResponseEvent(
+            static::getContainer()->get('kernel'),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        ));
+
+        return $response;
+    }
+
+    private function resolvedContext(Request $request): SalesChannelContext
+    {
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        return $context;
+    }
+}

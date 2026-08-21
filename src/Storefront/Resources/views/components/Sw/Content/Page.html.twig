@@ -12,37 +12,6 @@
 
 <div class="sw-content-page" {{ attributes.defaults(attributeDefaults) }}>
     {% for element in page.elements %}
-        {% set elementProperties = element.properties %}
-        {% set elementProperties = elementProperties|merge({ 'data-element-id': element.id }) %}
-
-        {% if element.slots is not empty %}
-            {% set elementProperties = elementProperties|merge({ slots: element.slots }) %}
-        {% endif %}
-
-        {% set elementStyleClasses = '' %}
-
-        {% if element.style is not empty and element.style.values is not empty %}
-            {% for optionName, optionValue in element.style.values %}
-                {% if optionValue is mapping %}
-                    {% for viewport, value in optionValue %}
-                        {% if value is not empty and value is not null and value is not same as(false) %}
-                            {% if value is same as(true) %}
-                                {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                            {% else %}
-                                {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                {% elseif optionValue is not empty %}
-                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-
-        {% if elementStyleClasses is not empty %}
-            {% set elementProperties = elementProperties|merge({ 'class': elementStyleClasses|trim }) %}
-        {% endif %}
-
-        {{ component(element.component, elementProperties) }}
+        {% sw_include '@Storefront/components/Sw/Content/_element.html.twig' with { element: element } only %}
     {% endfor %}
 </div>

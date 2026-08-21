@@ -36,6 +36,33 @@ export function setShopContext({ firstRunWizard = false, firstMigrationDate = BE
 }
 
 /**
+ * Fakes only the clock the release-date guard reads; timers stay real for the modal's timeouts.
+ *
+ * @private
+ */
+export function setToday(date: string) {
+    jest.useFakeTimers({
+        now: new Date(date),
+        doNotFake: [
+            'setTimeout',
+            'clearTimeout',
+            'setInterval',
+            'clearInterval',
+            'setImmediate',
+            'clearImmediate',
+            'nextTick',
+            'queueMicrotask',
+            'requestAnimationFrame',
+            'cancelAnimationFrame',
+            'requestIdleCallback',
+            'cancelIdleCallback',
+            'performance',
+            'hrtime',
+        ],
+    });
+}
+
+/**
  * @private
  */
 export function setCurrentUser(createdAt: string | null = BEFORE_RELEASE) {
@@ -51,6 +78,7 @@ export function setCurrentUser(createdAt: string | null = BEFORE_RELEASE) {
  * @private
  */
 export function setIntendedAudience() {
+    setToday(AFTER_RELEASE);
     setShopContext();
     setCurrentUser();
 

@@ -5,8 +5,14 @@
 // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
 
 import { type VueWrapper } from '@vue/test-utils';
-import { UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY } from '../index';
-import createWrapper, { AFTER_RELEASE, setCurrentUser, setIntendedAudience, setShopContext } from './create-wrapper';
+import { NEW_NAVIGATION_RELEASE_DATE, UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY } from '../index';
+import createWrapper, {
+    AFTER_RELEASE,
+    setCurrentUser,
+    setIntendedAudience,
+    setShopContext,
+    setToday,
+} from './create-wrapper';
 
 describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility', () => {
     let wrapper: VueWrapper | null = null;
@@ -28,6 +34,24 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility
 
         expect(wrapper.find('.mt-modal').exists()).toBe(true);
         expect(wrapper.get('.mt-modal__title').text()).toBe('sw-ui-shell-update-2026-modal.title');
+    });
+
+    it('hides the modal up to the moment the navigation is released', async () => {
+        setToday(new Date(new Date(NEW_NAVIGATION_RELEASE_DATE).getTime() - 1).toISOString());
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-modal').exists()).toBe(false);
+    });
+
+    it('shows the modal from the moment the navigation is released', async () => {
+        setToday(NEW_NAVIGATION_RELEASE_DATE);
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-modal').exists()).toBe(true);
     });
 
     it('does not show the modal while the first run wizard is active', async () => {

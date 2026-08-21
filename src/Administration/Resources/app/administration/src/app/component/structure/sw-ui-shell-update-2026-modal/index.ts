@@ -30,8 +30,13 @@ type DragState = {
     position: number;
 };
 
-// The release that ships the new navigation: shops and users from before it ran the old one.
-const NEW_NAVIGATION_RELEASE_DATE = '2026-10-05';
+/**
+ * The release that ships the new navigation: shops and users from before it ran the old one.
+ *
+ * @private
+ * @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+ */
+export const NEW_NAVIGATION_RELEASE_DATE = '2026-10-05';
 
 /**
  * @private
@@ -198,6 +203,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isIntendedAudience(): boolean {
+            if (new Date() < new Date(NEW_NAVIGATION_RELEASE_DATE)) {
+                return false;
+            }
+
             if (Shopware.Store.get('context').app.firstRunWizard === true) {
                 return false;
             }

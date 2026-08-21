@@ -2,6 +2,12 @@
 
 ## Core
 
+### Webhooks without an app are now authorized against their owner
+
+Webhooks created through the Admin API without an app (`POST /api/webhook` without `app_id`) are now authorized against the ACL privileges of the user or integration that created them. An admin owner receives every event it subscribes to, a non-admin owner only receives events it is allowed to read, and a webhook whose owner cannot be resolved receives nothing.
+
+The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks — a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\Ownership;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Webhook;
 
@@ -55,6 +56,35 @@ class WebhookLoader
         }
 
         return $privileges;
+    }
+
+    /**
+     * @param list<string> $webhookIds
+     *
+     * @return list<Ownership>
+     */
+    public function getOwnership(array $webhookIds): array
+    {
+        if ($webhookIds === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+                SELECT
+                    LOWER(HEX(`id`)) as webhookId,
+                    LOWER(HEX(`app_id`)) as appId
+                FROM `webhook`
+                WHERE `id` IN (:webhookIds)
+            SQL,
+            ['webhookIds' => Uuid::fromHexToBytesList($webhookIds)],
+            ['webhookIds' => ArrayParameterType::BINARY]
+        );
+
+        return array_map(
+            static fn (array $row) => new Ownership($row['webhookId'], $row['appId']),
+            $rows
+        );
     }
 
     /**

@@ -20,6 +20,7 @@ class WebhookException extends HttpException
     public const REDIRECT_TARGET_NOT_ALLOWED = 'FRAMEWORK__WEBHOOK_REDIRECT_TARGET_NOT_ALLOWED';
     public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
     public const WEBHOOK_OWNER_MISSING = 'FRAMEWORK__WEBHOOK_OWNER_MISSING';
+    public const APP_WEBHOOK_NOT_MODIFIABLE = 'FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -108,6 +109,16 @@ class WebhookException extends HttpException
             self::UNKNOWN_DATA_TYPE,
             'Unknown EventDataType: {{ type }}',
             ['type' => $type]
+        );
+    }
+
+    public static function appWebhookNotModifiable(string $webhookId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_WEBHOOK_NOT_MODIFIABLE,
+            'Webhook "{{ webhookId }}" belongs to an app and can only be changed by that app.',
+            ['webhookId' => $webhookId]
         );
     }
 

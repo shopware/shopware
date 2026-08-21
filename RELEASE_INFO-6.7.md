@@ -365,6 +365,10 @@ Existing app-less webhooks have no recorded creator, so the update assigns them 
 
 Webhooks that belong to an app (`app_id` is set) are managed through the app's manifest. Requests that update or delete them through the Admin API or Sync API are rejected with a `400` and `FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE`, whatever privileges the caller holds. Apps continue to add, change and remove their own webhooks through their manifest when they are installed or updated.
 
+### Webhooks without an app can only be changed by their owner
+
+A webhook without an app can only be updated or deleted through the API by the user or integration that created it. Requests from anyone else are rejected with a `400` and `FRAMEWORK__WEBHOOK_NOT_OWNED`, regardless of the `webhook:update` and `webhook:delete` privileges they hold. Administrators are not restricted.
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component

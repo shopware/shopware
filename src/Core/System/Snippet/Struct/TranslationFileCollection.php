@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal
  *
  * @extends Collection<TranslationFile>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class TranslationFileCollection extends Collection

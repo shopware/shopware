@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Health;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DisabledOrigin::class)]
 class DisabledOriginTest extends TestCase
 {

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -122,6 +124,7 @@ class ReactivateWebhooksOnAppReregistrationSubscriberTest extends TestCase
     {
         $app = static::getContainer()->get('app.repository')
             ->search(new Criteria([$appId]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
         static::assertInstanceOf(AppEntity::class, $app);
 

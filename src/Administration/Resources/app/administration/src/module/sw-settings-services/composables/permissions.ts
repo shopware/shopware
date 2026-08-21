@@ -81,3 +81,28 @@ export const grantPermissionsFromSdk: HandleMethod<'servicePermissionGrant'> = (
 
     return grantPermissions();
 };
+
+/**
+ * Resolves to `true` when the Shopware Services consent is already granted or not needed,
+ * i.e. the latest revision has been consented to, or Shopware Services are disabled.
+ *
+ * @private
+ */
+export const isPermissionGrantedFromSdk: HandleMethod<'servicePermissionIsGranted'> = async () => {
+    const shopwareServicesStore = useShopwareServicesStore();
+
+    if (!shopwareServicesStore.config) {
+        shopwareServicesStore.config = await Shopware.Service('shopwareServicesService').getServicesContext();
+    }
+
+    if (shopwareServicesStore.config?.disabled) {
+        return true;
+    }
+
+    if (!shopwareServicesStore.revisions) {
+        const locale = useSession().currentLocale.value ?? 'en-GB';
+        shopwareServicesStore.revisions = await Shopware.Service('serviceRegistryClient').getCurrentRevision(locale);
+    }
+
+    return shopwareServicesStore.consentGiven;
+};

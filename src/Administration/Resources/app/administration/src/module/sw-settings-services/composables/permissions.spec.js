@@ -9,6 +9,7 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(),
             revokePermissions: jest.fn(),
+            getServicesContext: jest.fn(async () => ({ disabled: false, permissionsConsent: undefined })),
         }));
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -104,5 +105,47 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
                 { _event_: new MessageEvent('message', { origin: 'https://app.example.com' }) },
             ),
         ).toThrow('Only Shopware Services can grant permissions.');
+    });
+
+    it('reports permission as granted when Shopware Services are disabled', async () => {
+        const shopwareServicesStore = useShopwareServicesStore();
+        shopwareServicesStore.config = { disabled: true };
+
+        await expect(permissions.isPermissionGrantedFromSdk()).resolves.toBe(true);
+    });
+
+    it('reports permission as granted when the latest revision has been consented to', async () => {
+        const shopwareServicesStore = useShopwareServicesStore();
+        shopwareServicesStore.config = {
+            disabled: false,
+            permissionsConsent: { revision: '2025-06-25' },
+        };
+        shopwareServicesStore.revisions = {
+            'latest-revision': '2025-06-25',
+            'available-revisions': [],
+        };
+
+        await expect(permissions.isPermissionGrantedFromSdk()).resolves.toBe(true);
+    });
+
+    it('reports permission as not granted when no consent exists for the latest revision', async () => {
+        const shopwareServicesStore = useShopwareServicesStore();
+        shopwareServicesStore.config = {
+            disabled: false,
+            permissionsConsent: { revision: '2024-01-01' },
+        };
+        shopwareServicesStore.revisions = {
+            'latest-revision': '2025-06-25',
+            'available-revisions': [],
+        };
+
+        await expect(permissions.isPermissionGrantedFromSdk()).resolves.toBe(false);
+    });
+
+    it('loads the services context on demand when it is not present yet', async () => {
+        Shopware.Service('shopwareServicesService').getServicesContext.mockResolvedValueOnce({ disabled: true });
+
+        await expect(permissions.isPermissionGrantedFromSdk()).resolves.toBe(true);
+        expect(Shopware.Service('shopwareServicesService').getServicesContext).toHaveBeenCalled();
     });
 });

@@ -46,28 +46,41 @@ class AdminSearcher
     /**
      * @param array<string> $entities
      *
-     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer: string, index: string}>
+     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer?: string, index?: string}>
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
         $indexes = [];
+        $notIndexed = [];
 
-        $term = $this->extractTerm($term);
+        $term = mb_substr(trim($term), 0, $this->termMaxLength);
+        $esTerm = $this->extractTerm($term);
 
         foreach ($entities as $entityName) {
             if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
             }
 
-            try {
-                $indexes = array_merge($indexes, $this->buildSearchPayload($entityName, $term, $limit));
-            } catch (ElasticsearchException) {
+            if (!$this->registry->hasIndexer($entityName)) {
+                $notIndexed[] = $entityName;
+
                 continue;
+            }
+
+            try {
+                $indexes = array_merge($indexes, $this->buildSearchPayload($entityName, $esTerm, $limit));
+            } catch (ElasticsearchException) {
+                $notIndexed[] = $entityName;
             }
         }
 
+        $mapped = [];
+        if ($notIndexed !== []) {
+            $mapped = $this->searchWithoutIndex($notIndexed, $term, $context, $limit);
+        }
+
         if ($indexes === []) {
-            return [];
+            return $mapped;
         }
 
         try {
@@ -75,12 +88,11 @@ class AdminSearcher
         } catch (\Throwable $e) {
             $this->adminEsHelper->logAndThrowException($e);
 
-            return [];
+            return $mapped;
         }
 
         $result = $this->parseResponse($responses);
 
-        $mapped = [];
         foreach ($result as $index => $values) {
             $entityName = $values['hits'][0]['entityName'];
             $indexer = $this->registry->getIndexer($entityName);
@@ -149,6 +161,40 @@ class AdminSearcher
         $ids->addState(ElasticsearchEntitySearcher::RESULT_STATE);
 
         return $ids;
+    }
+
+    /**
+     * @param list<string> $entities
+     *
+     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>}>
+     */
+    private function searchWithoutIndex(array $entities, string $term, Context $context, int $limit): array
+    {
+        $result = [];
+
+        foreach ($entities as $entityName) {
+            if (!$this->definitionInstanceRegistry->has($entityName)) {
+                continue;
+            }
+
+            $criteria = new Criteria();
+            $criteria->setTerm($term);
+            $criteria->setLimit($limit);
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+            $search = $this->definitionInstanceRegistry->getRepository($entityName)->search($criteria, $context);
+
+            if ($search->getTotal() === 0) {
+                continue;
+            }
+
+            $result[$entityName] = [
+                'total' => $search->getTotal(),
+                'data' => $search->getEntities(),
+            ];
+        }
+
+        return $result;
     }
 
     /**

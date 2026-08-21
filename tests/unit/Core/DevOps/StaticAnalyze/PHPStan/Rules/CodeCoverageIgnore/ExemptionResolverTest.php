@@ -7,7 +7,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PHPStan\Reflection\ReflectionProvider;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ExemptionResolver::class)]
+#[CoversNothing]
 class ExemptionResolverTest extends TestCase
 {
     private const EXISTING_TEST = 'Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookHealthServiceTest';

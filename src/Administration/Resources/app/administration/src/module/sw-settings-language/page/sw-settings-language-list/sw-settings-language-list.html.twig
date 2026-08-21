@@ -67,7 +67,7 @@
             variant="primary"
             :disabled="!allowCreate || undefined"
             size="default"
-            @click="showAddLanguageModal = true"
+            @click="onAddLanguage"
         >
             {{ $t('sw-settings-language.list.buttonAddLanguage') }}
         </mt-button>

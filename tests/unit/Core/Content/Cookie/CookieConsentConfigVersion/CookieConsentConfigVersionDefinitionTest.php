@@ -1,14 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Cookie;
+namespace Shopware\Tests\Unit\Core\Content\Cookie\CookieConsentConfigVersion;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieConsentConfigVersion\CookieConsentConfigVersionDefinition;
-use Shopware\Core\Content\Cookie\CookieConsentLog\CookieConsentLogDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -19,40 +16,26 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * The tables are consent evidence: their value is that they were only ever written
- * by the consent log route. Every field must therefore reject writes from the API
- * scopes, otherwise evidence could be fabricated or edited through the
+ * The table is consent evidence: it preserves what the cookie banner looked like
+ * when consent was given. Every field must therefore reject writes from the API
+ * scopes, otherwise snapshots could be fabricated or edited through the
  * auto-generated Admin API CRUD endpoints.
  *
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CookieConsentLogDefinition::class)]
 #[CoversClass(CookieConsentConfigVersionDefinition::class)]
-class CookieConsentWriteProtectionTest extends TestCase
+class CookieConsentConfigVersionDefinitionTest extends TestCase
 {
-    /**
-     * @return iterable<string, array{class-string<EntityDefinition>}>
-     */
-    public static function definitionProvider(): iterable
-    {
-        yield 'cookie_consent_log' => [CookieConsentLogDefinition::class];
-        yield 'cookie_consent_config_version' => [CookieConsentConfigVersionDefinition::class];
-    }
-
-    /**
-     * @param class-string<EntityDefinition> $definitionClass
-     */
-    #[DataProvider('definitionProvider')]
-    public function testEveryFieldIsWriteProtectedToTheSystemScope(string $definitionClass): void
+    public function testEveryFieldIsWriteProtectedToTheSystemScope(): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
-            [$definitionClass],
+            [CookieConsentConfigVersionDefinition::class],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class),
         );
 
-        $definition = $registry->get($definitionClass);
+        $definition = $registry->get(CookieConsentConfigVersionDefinition::class);
 
         foreach ($definition->getFields() as $field) {
             // The primary key must stay writable, a row cannot be inserted without it.

@@ -338,6 +338,14 @@ This affects every write path, not just Settings > Shop > SEO:
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
+### Intra-community delivery note accepts VAT IDs from any EU member state
+
+The intra-community delivery note on invoices, cancellation invoices and credit notes previously only appeared while the commercial customer's VAT ID matched the delivery country's VAT ID pattern. A customer with a Dutch VAT ID and a Belgian delivery address was treated as tax free but received a document without the note.
+
+Both document stacks now fall back to the VAT ID patterns of all EU member states (Settings > Countries) when the VAT ID does not match the delivery country's pattern, so the note follows the same rule as the tax exemption. A VAT ID that matches no member state still suppresses the note.
+
+The change is contained in `AbstractDocumentRenderer::isValidVat()` (inherited by the invoice, cancellation invoice and credit note renderers) and in the DocumentV2 `InvoiceDataProvider`. No method signatures changed, so renderers and providers that extend or decorate these classes keep working unchanged.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path

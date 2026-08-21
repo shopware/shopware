@@ -960,5 +960,25 @@ class InvoiceRendererTest extends TestCase
             'vatNumber' => 'invalid',
             'shouldDisplay' => false,
         ];
+
+        yield 'should be displayed because the VAT ID belongs to another EU member state' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'NL123456789B01',
+            'shouldDisplay' => true,
+        ];
+
+        yield 'should not be displayed because the VAT ID belongs to no EU member state' => [
+            'customerType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'enableIntraCommunityDeliveryLabel' => true,
+            'enableTaxFreeB2bOption' => true,
+            'isEuMember' => true,
+            'validateVat' => true,
+            'vatNumber' => 'CHE116281838',
+            'shouldDisplay' => false,
+        ];
     }
 }

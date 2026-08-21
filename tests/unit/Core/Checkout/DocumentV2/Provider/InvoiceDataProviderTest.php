@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -361,6 +362,66 @@ class InvoiceDataProviderTest extends TestCase
             'expectedIntraCommunityDelivery' => true,
             'vatViolationCount' => 0,
         ];
+    }
+
+    public function testIntraCommunityDeliveryRequestsEuWideMatchingWhenTheDeliveryCountryHasAPattern(): void
+    {
+        static::assertTrue($this->captureVatIdConstraint('DE\d{9}')->getMatchesAnyEuVat());
+    }
+
+    public function testIntraCommunityDeliveryKeepsEuWideMatchingOffWithoutADeliveryCountryPattern(): void
+    {
+        static::assertFalse($this->captureVatIdConstraint(null)->getMatchesAnyEuVat());
+    }
+
+    /**
+     * Renders an EU business order and returns the VAT ID constraint the provider handed to the validator.
+     */
+    private function captureVatIdConstraint(?string $vatIdPattern): CustomerVatIdentification
+    {
+        $constraints = [];
+
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturnCallback(
+            function (mixed $value, mixed $given) use (&$constraints): ConstraintViolationList {
+                $constraints = \is_array($given) ? $given : [$given];
+
+                return new ConstraintViolationList();
+            }
+        );
+
+        $country = self::createCountry(companyTaxEnabled: true, isEu: true);
+
+        if ($vatIdPattern !== null) {
+            $country->setVatIdPattern($vatIdPattern);
+        }
+
+        $order = self::createOrder(
+            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            country: $country,
+            vatIds: ['NL123456789B01'],
+        );
+
+        $this->createProvider(['displayAdditionalNoteDelivery' => true], $validator)
+            ->provideRenderingData(
+                new ProviderInput($order, new DocumentGenerationRequest(
+                    $order->getId(),
+                    DocumentType::INVOICE,
+                    [DocumentFormat::PDF],
+                    '12345',
+                    documentDate: '2026-05-05T12:00:00+00:00',
+                )),
+                Context::createDefaultContext()
+            );
+
+        $vatConstraints = array_values(array_filter(
+            $constraints,
+            static fn (mixed $constraint): bool => $constraint instanceof CustomerVatIdentification
+        ));
+
+        static::assertCount(1, $vatConstraints);
+
+        return $vatConstraints[0];
     }
 
     /**

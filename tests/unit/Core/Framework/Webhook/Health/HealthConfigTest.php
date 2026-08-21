@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Health;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Health\HealthConfig;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HealthConfig::class)]
 class HealthConfigTest extends TestCase
 {

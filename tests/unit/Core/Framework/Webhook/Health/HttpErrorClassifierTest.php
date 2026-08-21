@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Health;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HttpErrorClassifier::class)]
 class HttpErrorClassifierTest extends TestCase
 {

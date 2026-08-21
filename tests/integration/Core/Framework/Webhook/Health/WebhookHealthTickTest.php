@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Health;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -17,6 +18,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookHealthTickTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\Cookie\CookieConsentLog;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -23,6 +25,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * configuration (`server_config_hash` references `cookie_consent_config_version`),
  * not who gave it. The sales channel and language columns are intentionally
  * not enforced by foreign keys so evidence survives their deletion.
+ *
+ * All fields are write-protected to the system scope: rows are only written via
+ * raw SQL by the consent log route, the Admin API can read but not create or
+ * modify evidence.
  *
  * `group_decisions` and `accepted_cookies` are both derived server-side from the
  * cookie names the visitor selected. The raw cookie names are kept alongside the
@@ -61,14 +67,14 @@ class CookieConsentLogDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
 
-            (new StringField('consent_action', 'consentAction', 32))->addFlags(new Required()),
-            (new JsonField('group_decisions', 'groupDecisions'))->addFlags(new Required()),
-            (new ListField('accepted_cookies', 'acceptedCookies', StringField::class))->addFlags(new Required()),
-            (new StringField('server_config_hash', 'serverConfigHash'))->addFlags(new Required()),
-            new StringField('rendered_config_hash', 'renderedConfigHash'),
+            (new StringField('consent_action', 'consentAction', 32))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new JsonField('group_decisions', 'groupDecisions'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new ListField('accepted_cookies', 'acceptedCookies', StringField::class))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('server_config_hash', 'serverConfigHash'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('rendered_config_hash', 'renderedConfigHash'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
         ]);
     }
 }

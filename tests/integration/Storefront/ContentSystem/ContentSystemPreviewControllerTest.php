@@ -48,17 +48,32 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
-    #[TestDox('renders the draft layout for a valid stored envelope')]
+    /**
+     * A status assertion alone proves nothing here: `strict_variables` is false, so a page or element member
+     * the Twig components stop resolving yields null, the element loop coerces to empty, and the preview
+     * renders a blank page with HTTP 200. The layout is therefore nested and styled so that one render
+     * exercises every member the components read off the two types: `page.id` and `page.elements` on the
+     * page, and `id`, `component`, `properties`, `slots` and `style.values` on the elements.
+     */
+    #[TestDox('renders a nested styled draft layout, resolving every page and element member the components read')]
     public function testValidStoredEnvelopeRenders(): void
     {
         $productId = $this->createProduct();
+        $containerId = Uuid::randomHex();
+        $textId = Uuid::randomHex();
 
         $store = static::getContainer()->get(ContentPreviewPayloadStore::class);
         $token = $store->store(new ContentPreviewRequest(
             layout: [[
-                'id' => Uuid::randomHex(),
-                'component' => 'Sw:Content:Text',
-                'properties' => ['text' => '<p>Preview body</p>'],
+                'id' => $containerId,
+                'component' => 'Sw:Grid:Container',
+                'properties' => [],
+                'style' => ['col-span' => ['md' => 6]],
+                'slots' => ['content' => [[
+                    'id' => $textId,
+                    'component' => 'Sw:Content:Text',
+                    'properties' => ['text' => '<p>Preview body</p>'],
+                ]]],
             ]],
             entityType: 'product',
             entityId: $productId,
@@ -66,9 +81,28 @@ class ContentSystemPreviewControllerTest extends TestCase
         ));
 
         $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertStringContainsString('Preview body', (string) $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+        // An unresolved `page.id` renders as a bare valueless `data-page-id`, so the `="…"` is the assertion.
+        static::assertMatchesRegularExpression(
+            '/data-page-id="[0-9a-f]{32}"/',
+            $content,
+            'The preview layout id must resolve onto the page wrapper.'
+        );
+        // `strict_variables` is false, so a Twig member that stops resolving yields null instead of throwing,
+        // and the content region renders empty with the page chrome still producing a non-empty HTTP 200 body.
+        // Asserting this concrete element id is what actually catches a blank content region; a non-empty body
+        // check would not, because the surrounding page chrome renders regardless.
+        // `page.elements` and the root element's `id`.
+        static::assertStringContainsString('data-element-id="' . $containerId . '"', $content);
+        // `element.style.values`, which resolves through a getter because the property is private.
+        static::assertStringContainsString('col-span-md-6', $content);
+        // `element.slots`, carried into the container component and read back by the Slot component.
+        static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
+        // `element.component` picked the Text component and `element.properties` fed it.
+        static::assertStringContainsString('Preview body', $content);
     }
 
     private function createProduct(): string

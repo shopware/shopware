@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -260,9 +259,8 @@ class ContentRouteRenderingTest extends TestCase
 
         static::assertInstanceOf(ContentRouteResponse::class, $response);
 
-        // The body derives from the render result's rendered forest, the in-process consumer from the bridged
-        // page. They are the two id-paired halves of one render, so a divergence here is the bridge's pairing
-        // invariant breaking rather than an encoding difference.
+        // The body and the in-process page are two views of the one rendered forest, so a divergence here is
+        // an encoding difference rather than two models drifting apart.
         static::assertSame($bodyIds, $this->contentElementIds($response->getContentPage()->elements));
         static::assertSame(
             array_column($this->rootElements($this->requestJson($this->uri('content'))), 'id'),
@@ -770,17 +768,19 @@ class ContentRouteRenderingTest extends TestCase
     }
 
     /**
-     * @param iterable<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      *
      * @return list<string>
      */
-    private function contentElementIds(iterable $elements): array
+    private function contentElementIds(array $elements): array
     {
         $ids = [];
         foreach ($elements as $element) {
-            $ids[] = $element->getId();
-            foreach ($this->contentElementIds($element->allSlotElements()) as $descendant) {
-                $ids[] = $descendant;
+            $ids[] = $element->id;
+            foreach ($element->slots as $children) {
+                foreach ($this->contentElementIds($children) as $descendant) {
+                    $ids[] = $descendant;
+                }
             }
         }
 
@@ -887,9 +887,9 @@ class ContentRouteRenderingTest extends TestCase
     }
 
     /**
-     * The full format serializes a slot through `SlotContent`, which appends an `apiAlias` key next to the
-     * child list; the skeleton and decomposed formats serialize a plain list. Both are read through here so
-     * the structural comparisons are about elements rather than about that encoder difference.
+     * All three structural formats serialize a slot as a plain child list, each through its own encoder. Every
+     * structural comparison reads slots through here, so a format that started keying something other than a
+     * child under a slot name shows up as a failure here rather than as a diff in each comparison.
      *
      * @param array<string, mixed> $element
      *

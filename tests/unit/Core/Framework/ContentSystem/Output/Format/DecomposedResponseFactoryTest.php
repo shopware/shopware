@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 
@@ -23,9 +22,8 @@ class DecomposedResponseFactoryTest extends TestCase
     public function testCreateResponseReturnsContentDecomposedRouteResponse(): void
     {
         $factory = new DecomposedResponseFactory();
-        $page = new ContentPage('layout-1', [], 'Test', null);
 
-        $result = new RenderResult([], LayoutReference::create('layout-1', 'Test', null), null, $page);
+        $result = new RenderResult([], LayoutReference::create('layout-1', 'Test', null), null);
 
         $response = $factory->createResponse($result);
 

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
@@ -165,7 +164,6 @@ class ResolvedValueIndexEncoderTest extends TestCase
             [],
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             $index,
-            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }
 }

@@ -8,12 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\SkeletonResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 
 /**
  * @internal
@@ -22,19 +20,15 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 #[CoversClass(SkeletonResponseFactory::class)]
 class SkeletonResponseFactoryTest extends TestCase
 {
-    #[TestDox('projects the rendered forest, not the bridged page, into the skeleton response')]
+    #[TestDox('projects the rendered forest into the skeleton response')]
     public function testCreateResponseProjectsTheRenderedForest(): void
     {
         $factory = new SkeletonResponseFactory();
 
-        // The two forests deliberately disagree: only a factory reading the render result's rendered forest
-        // can produce `r1`, and only one still reading the bridged page can produce `bridged`.
-        $page = new ContentPage('layout-1', [ContentElementBuilder::create('section', 'bridged')->build()], 'Test', null);
         $result = new RenderResult(
             [new RenderedElement('r1', 'section', ['background' => 'blue'])],
             LayoutReference::create('layout-1', 'Test', null),
             null,
-            $page,
         );
 
         $response = $factory->createResponse($result);

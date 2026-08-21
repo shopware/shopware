@@ -20,8 +20,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -154,11 +152,12 @@ class ContentPipelineTest extends TestCase
 
         $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
 
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'consumer-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
     }
 
-    #[TestDox('returns content page with original elements and layout metadata in SKELETON mode')]
-    public function testLoadReturnsContentPageInSkeletonMode(): void
+    #[DataProvider('renderingModeProvider')]
+    #[TestDox('returns the rendered forest beside the layout reference triple in either rendering mode')]
+    public function testLoadReturnsTheRenderedForestAndTheLayoutReference(RenderingMode $mode): void
     {
         $layoutId = $this->ids->get('layout');
         $layout = RenderableLayout::fromEntity($this->createLayoutEntity($layoutId, 'My Layout'));
@@ -168,34 +167,13 @@ class ContentPipelineTest extends TestCase
         $pipeline = $this->createPipeline();
         $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
 
-        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::SKELETON, false, Generator::generateSalesChannelContext());
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
-        $elements = iterator_to_array($result->page->elements, false);
-        static::assertNotEmpty($elements);
-        static::assertSame('section', $elements[0]->getComponent());
-        static::assertSame($layoutId, $result->page->layoutId);
-        static::assertSame('My Layout', $result->page->layoutName);
-        static::assertSame('1.0', $result->page->layoutVersion);
-    }
-
-    #[TestDox('returns the finished rendered forest beside the bridged page, both describing the same elements')]
-    public function testLoadReturnsTheRenderedForestBesideTheBridgedPage(): void
-    {
-        $layoutId = $this->ids->get('layout');
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($layoutId, 'My Layout'));
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
-
-        $result = $this->createPipeline()->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
-
+        static::assertNotEmpty($result->tree);
+        static::assertSame('section', $result->tree[0]->component);
         static::assertSame($layoutId, $result->reference->id);
         static::assertSame('My Layout', $result->reference->name);
-        static::assertSame(
-            array_map(static fn (ContentElement $element): string => $element->getId(), iterator_to_array($result->page->elements, false)),
-            array_map(static fn (RenderedElement $element): string => $element->id, $result->tree),
-        );
+        static::assertSame('1.0', $result->reference->version);
     }
 
     #[DataProvider('renderingModeProvider')]
@@ -247,9 +225,9 @@ class ContentPipelineTest extends TestCase
 
         $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
-        $elements = iterator_to_array($result->page->elements, false);
+        $elements = $result->tree;
         static::assertCount(1, $elements);
-        static::assertSame('injected-id', $elements[0]->getId());
+        static::assertSame('injected-id', $elements[0]->id);
     }
 
     /**
@@ -334,15 +312,22 @@ class ContentPipelineTest extends TestCase
 
         static::assertSame('{{productId}}', $observed);
         // Fixture guard: the placeholder really was resolvable, so the step ran after the dispatch.
-        $elements = iterator_to_array($result->page->elements, false);
-        static::assertSame('resolved-product', $elements[0]->getProperty('title'));
+        $elements = $result->tree;
+        static::assertSame('resolved-product', $elements[0]->properties['title']);
     }
 
     #[TestDox('exposes unexpanded redistribute consumers to preparation subscribers')]
     public function testPreparationSubscribersSeeUnexpandedRedistributeConsumers(): void
     {
+        // The child is what makes the derivation observable at all: the rendered model carries no context
+        // wiring, so the only evidence a provider was derived is the value it delivered to a child.
+        $child = StoredElementBuilder::create('text', 'child-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
         $root = StoredElementBuilder::create('section', 'root-id')
             ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withProperty('product', 'product-payload')
+            ->withSlot('default', [$child])
             ->build();
         $layout = $this->createSingleRootLayout($root);
 
@@ -361,15 +346,14 @@ class ContentPipelineTest extends TestCase
             $layout,
             new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
             new RenderingCacheContext(),
-            RenderingMode::SKELETON,
+            RenderingMode::FULL,
             false,
             Generator::generateSalesChannelContext()
         );
 
         static::assertSame([], $observed);
         // Fixture guard: the consumer really did redistribute, so the step ran after the dispatch.
-        $elements = iterator_to_array($result->page->elements, false);
-        static::assertArrayHasKey('product', $elements[0]->getProvidesContext());
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'child-id')->properties['product']);
     }
 
     #[TestDox('carries the expanded redistribute provider into the tree the pipeline renders')]
@@ -401,7 +385,7 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'consumer-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
     }
 
     #[TestDox('carries context down a second redistribution hop to a grandchild')]
@@ -437,7 +421,7 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'grandchild-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'grandchild-id')->properties['product']);
     }
 
     #[TestDox('carries context down a second redistribution hop that renames the key for children')]
@@ -474,7 +458,7 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'grandchild-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'grandchild-id')->properties['product']);
     }
 
     #[TestDox('delivers the same value whether a container redistributes or wires accept and provide by hand')]
@@ -520,18 +504,19 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'shorthand-child-id')->getProperty('product'));
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'manual-child-id')->getProperty('product'));
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'shorthand-child-id')->properties['product']);
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'manual-child-id')->properties['product']);
     }
 
     /**
-     * The derived provider is serialized verbatim into a full-format response, so its distribution config
-     * is wire-visible on the rendered element the pipeline serves. A derivation that always carried an
-     * alias would rename nothing yet still change the body of every plain redistribution.
+     * The derived provider carries an alias only where the redistributing consumer renamed the key, and the
+     * rendered model shows that as the property key the grandchild receives the value under. A derivation
+     * that always carried the alias would deliver nothing in the un-aliased case; one that never carried it
+     * would deliver nothing in the aliased case.
      */
-    #[TestDox('serializes a derived redistribute provider carrying an alias only where the key is renamed')]
-    #[DataProvider('derivedProviderWireShapeProvider')]
-    public function testDerivedRedistributeProviderSerializesItsConsumerAliasOnTheRenderedTree(?string $consumerAlias, ?string $expectedSerializedAlias): void
+    #[TestDox('derives a redistribute provider that renames the key for children only where an alias was declared')]
+    #[DataProvider('derivedProviderKeyProvider')]
+    public function testDerivedRedistributeProviderRenamesTheKeyOnlyWhereAliased(?string $consumerAlias, string $expectedDeliveredKey): void
     {
         $middle = StoredElementBuilder::create('section', 'middle-id')
             ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: $consumerAlias)
@@ -564,21 +549,19 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $serialized = $this->renderedElement($result->page->elements, 'middle-id')->jsonSerialize();
+        $grandchild = $this->renderedElement($result->tree, 'grandchild-id');
 
-        static::assertSame(
-            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => $expectedSerializedAlias],
-            $serialized['providesContext']['featuredProduct']
-        );
+        static::assertArrayHasKey($expectedDeliveredKey, $grandchild->properties);
+        static::assertSame('product-payload', $grandchild->properties[$expectedDeliveredKey]);
     }
 
     /**
-     * @return iterable<string, array{?string, ?string}>
+     * @return iterable<string, array{?string, string}>
      */
-    public static function derivedProviderWireShapeProvider(): iterable
+    public static function derivedProviderKeyProvider(): iterable
     {
-        yield 'no alias keeps the plain config' => [null, null];
-        yield 'alias is carried through' => ['product', 'product'];
+        yield 'no alias keeps the redistributed key' => [null, 'featuredProduct'];
+        yield 'alias renames the key for children' => ['product', 'product'];
     }
 
     #[TestDox('exposes the unpruned layout tree to preparation subscribers, before the partial prune')]
@@ -682,7 +665,7 @@ class ContentPipelineTest extends TestCase
         static::assertSame(['target-id'], $observed);
     }
 
-    #[TestDox('hands finalization subscribers the rendered element model, not the bridged one')]
+    #[TestDox('hands finalization subscribers the rendered element model')]
     public function testFinalizationSubscribersSeeTheRenderedModel(): void
     {
         $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
@@ -721,7 +704,7 @@ class ContentPipelineTest extends TestCase
         $layout = $this->createSingleRootLayout($root);
 
         // Fixture guard: the authored value differs from the replacement, so the served title can only
-        // read 'replaced-title' if the bridge lowered the forest the subscriber handed back.
+        // read 'replaced-title' if the result carries the forest the subscriber handed back.
         static::assertSame('authored-title', $root->property('title')?->asString());
 
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
@@ -743,9 +726,44 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $elements = iterator_to_array($result->page->elements, false);
+        $elements = $result->tree;
         static::assertCount(1, $elements);
-        static::assertSame('replaced-title', $elements[0]->getProperty('title'));
+        static::assertSame('replaced-title', $elements[0]->properties['title']);
+    }
+
+    #[TestDox('serves an element a finalization subscriber added to the forest')]
+    public function testLoadServesAnElementAddedDuringFinalization(): void
+    {
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
+
+        // Fixture guard: the added element exists nowhere in the stored tree, so it can only reach the result
+        // by being minted inside the subscriber.
+        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
+
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (object $event) {
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    $event->replaceTree([
+                        ...$event->tree(),
+                        new RenderedElement('added-id', 'text', ['title' => 'added-title']),
+                    ]);
+                }
+
+                return $event;
+            }
+        );
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame(['root-id', 'added-id'], $this->collectRenderedIds($result->tree));
+        static::assertSame('added-title', $this->renderedElement($result->tree, 'added-id')->properties['title']);
     }
 
     #[TestDox('delivers a derived redistribute provider to a child inside the surviving partial-render subtree')]
@@ -788,8 +806,8 @@ class ContentPipelineTest extends TestCase
         // survivor's wiring. Nothing else pins that pairing — every other redistribute test either runs
         // without a partial render or asserts a throw — so this is the test that fails when a future
         // change makes the derivation depend on a node the prune has removed.
-        static::assertSame(['redistributor-id', 'consumer-id'], $this->collectIds($result->page->elements));
-        static::assertSame('product-payload', $this->renderedElement($result->page->elements, 'consumer-id')->getProperty('product'));
+        static::assertSame(['redistributor-id', 'consumer-id'], $this->collectRenderedIds($result->tree));
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
     }
 
     #[TestDox('never loads the data a subtree the partial prune discards would have required')]
@@ -833,7 +851,7 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertSame(['target-id'], $this->collectIds($result->page->elements));
+        static::assertSame(['target-id'], $this->collectRenderedIds($result->tree));
         static::assertSame(0, $loads);
     }
 
@@ -872,8 +890,8 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $elements = iterator_to_array($result->page->elements, false);
-        static::assertSame($pageData, $elements[0]->getProperty('language'));
+        $elements = $result->tree;
+        static::assertSame($pageData, $elements[0]->properties['language']);
     }
 
     private function createPipeline(): ContentPipeline
@@ -886,7 +904,6 @@ class ContentPipelineTest extends TestCase
             ),
             new WiringPlanner(),
             $this->lowering,
-            new ContentElementLowering(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
             new ResolvedValueIndexFactory($this->typeRegistry(), new ValueFingerprinter()),
@@ -990,9 +1007,9 @@ class ContentPipelineTest extends TestCase
     }
 
     /**
-     * @param iterable<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      */
-    private function renderedElement(iterable $elements, string $childId): ContentElement
+    private function renderedElement(array $elements, string $childId): RenderedElement
     {
         $found = $this->findRenderedElement($elements, $childId);
         static::assertNotNull($found, \sprintf('No rendered element with id "%s" in the result.', $childId));
@@ -1001,38 +1018,24 @@ class ContentPipelineTest extends TestCase
     }
 
     /**
-     * @param iterable<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      */
-    private function findRenderedElement(iterable $elements, string $childId): ?ContentElement
+    private function findRenderedElement(array $elements, string $childId): ?RenderedElement
     {
         foreach ($elements as $element) {
-            if ($element->getId() === $childId) {
+            if ($element->id === $childId) {
                 return $element;
             }
 
-            $found = $this->findRenderedElement($element->allSlotElements(), $childId);
-            if ($found !== null) {
-                return $found;
+            foreach ($element->slots as $children) {
+                $found = $this->findRenderedElement($children, $childId);
+                if ($found !== null) {
+                    return $found;
+                }
             }
         }
 
         return null;
-    }
-
-    /**
-     * @param iterable<ContentElement> $elements
-     * @param list<string> $ids
-     *
-     * @return list<string>
-     */
-    private function collectIds(iterable $elements, array $ids = []): array
-    {
-        foreach ($elements as $element) {
-            $ids[] = $element->getId();
-            $ids = $this->collectIds($element->allSlotElements(), $ids);
-        }
-
-        return $ids;
     }
 
     /**

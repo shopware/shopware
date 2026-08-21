@@ -51,7 +51,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolv
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
@@ -177,10 +176,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemStyleOptionRegistry::class),
             service(StyleOptionConstraintDeriver::class),
         ]);
-
-    // One-way conversion from the stored element model onto the older one, for the single rendering seam that
-    // still reads it: the pipeline, once its stored preparation steps have run
-    $services->set(ContentElementLowering::class);
 
     // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
     $services->set(PrimitiveDefaultProvider::class);
@@ -353,7 +348,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredTreePreparer::class),
             service(WiringPlanner::class),
             service(ElementLowering::class),
-            service(ContentElementLowering::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
             service(ResolvedValueIndexFactory::class),

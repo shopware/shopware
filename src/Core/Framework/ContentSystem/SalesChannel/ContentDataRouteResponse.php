@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\SalesChannel;
 
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -19,9 +20,10 @@ class ContentDataRouteResponse extends AbstractContentRouteResponse
     public function __construct(
         RenderResult $result,
     ) {
-        // The page, not the result, is the struct the response exposes to the framework: it is what the
-        // cache-key path reads variables off, exactly as before this response carried the result.
-        parent::__construct($result->page);
+        // The parent takes a `Struct`, so the result is handed over as the typed page built from it. Nothing
+        // about caching reads it: the HTTP cache key is built from the request (uri, cache hash, cookies) and
+        // the cache tags are collected in the route before this response exists.
+        parent::__construct(ContentPage::fromRenderResult($result));
         $this->result = $result;
     }
 

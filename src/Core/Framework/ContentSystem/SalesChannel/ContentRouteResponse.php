@@ -18,22 +18,27 @@ class ContentRouteResponse extends AbstractContentRouteResponse
 {
     private readonly RenderResult $result;
 
+    private readonly ContentPage $page;
+
     public function __construct(
         RenderResult $result,
     ) {
-        // The page, not the result, is the struct the response exposes to the framework: it is what the
-        // cache-key path reads variables off, exactly as before this response carried the result.
-        parent::__construct($result->page);
         $this->result = $result;
+        $this->page = ContentPage::fromRenderResult($result);
+
+        // The parent takes a `Struct` and this is the only one the response has: nothing about caching reads
+        // it. The HTTP cache key is built from the request (uri, cache hash, cookies) and the cache tags are
+        // collected in the route before this response exists.
+        parent::__construct($this->page);
     }
 
     /**
-     * TRANSITIONAL, deleted by the model-swap commit together with {@see RenderResult::$page}: an in-process
-     * consumer reads the finished forest off the result once the page carries rendered elements itself.
+     * The typed page an in-process consumer reads, built from the same render result the response carries.
+     * The response BODY is not encoded from it — `ContentResponseEncodingListener` encodes the result.
      */
     public function getContentPage(): ContentPage
     {
-        return $this->result->page;
+        return $this->page;
     }
 
     public function getRenderResult(): RenderResult

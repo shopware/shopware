@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
@@ -34,7 +32,6 @@ class ContentPipeline
         private readonly StoredTreePreparer $storedTreePreparer,
         private readonly WiringPlanner $wiringPlanner,
         private readonly ElementLowering $elementLowering,
-        private readonly ContentElementLowering $bridge,
         private readonly VirtualRootWrapper $virtualRootWrapper,
         private readonly PartialRenderer $partialRenderer,
         private readonly ResolvedValueIndexFactory $indexFactory,
@@ -91,22 +88,14 @@ class ContentPipeline
         );
         $this->eventDispatcher->dispatch($finalizationEvent);
 
-        // The bridge lowers the tree the event handed back, so a listener's replacement reaches the response.
+        // The tree the event handed back, not the one it was given, so a listener's replacement is what the
+        // result carries and what the index is built over.
         $finishedTree = $finalizationEvent->tree();
-        $elements = $this->bridge->lowerTree($storedTree, $finishedTree);
-
-        $reference = $finalizationEvent->layout;
 
         return new RenderResult(
             $finishedTree,
-            $reference,
+            $finalizationEvent->layout,
             $collectValueIndex ? $this->indexFactory->create($finishedTree, $lowered->provenance) : null,
-            new ContentPage(
-                $reference->id,
-                $elements,
-                $reference->name,
-                $reference->version,
-            ),
         );
     }
 

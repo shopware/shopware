@@ -10,7 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -22,10 +21,6 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 #[CoversClass(ContentDataPageEncoder::class)]
 class ContentDataPageEncoderTest extends TestCase
 {
-    /**
-     * The bridged page on the render result carries a different triple, so this fails if the encoder reads the
-     * page instead of the reference.
-     */
     #[TestDox('names the body keys in their wire order and reads the page triple off the render result reference')]
     public function testEncodeWritesTheBodyKeysInTheirWireOrder(): void
     {
@@ -33,7 +28,6 @@ class ContentDataPageEncoderTest extends TestCase
             [new RenderedElement('root', 'Sw:Content:Text')],
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             new ResolvedValueIndex(['r2' => 'Beta', 'r1' => 'Alpha'], ['root' => ['title' => 'r2']]),
-            new ContentPage('bridged-layout', [], 'Bridged', '9.9.9'),
         );
 
         $body = $this->encoder()->encode($result)->jsonSerialize();
@@ -110,7 +104,6 @@ class ContentDataPageEncoderTest extends TestCase
             $tree,
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             $index,
-            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }
 }

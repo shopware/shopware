@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -159,7 +158,6 @@ class ContentPageEncoderTest extends TestCase
             $tree,
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             null,
-            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }
 }

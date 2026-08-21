@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
@@ -42,7 +41,7 @@ class ContentPreviewPageBuilderTest extends TestCase
     {
         $specification = $this->specification();
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, new ContentPage('preview-layout', [], 'preview', null));
+        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null);
         $stored = [new StoredElement('e1', 'Sw:Content:Heading')];
 
         // Both halves read the decoded stored tree: the check takes it directly, and the pipeline takes it

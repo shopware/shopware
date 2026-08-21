@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentResponseEncoding
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonPage;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\EncodedContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
@@ -226,7 +225,6 @@ class ContentResponseEncodingListenerTest extends TestCase
             [],
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             null,
-            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }
 
@@ -236,7 +234,6 @@ class ContentResponseEncodingListenerTest extends TestCase
             [new RenderedElement('root', 'Sw:Content:Text')],
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             new ResolvedValueIndex(['product-ref-1' => 'T-shirt'], ['root' => ['title' => 'product-ref-1']]),
-            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }
 

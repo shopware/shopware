@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -59,9 +60,7 @@ class ContentSystemPreviewController extends StorefrontController
         }
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/preview.html.twig', [
-            // The transitional bridged page, for as long as Twig reads the ContentElement model; the model-swap
-            // commit points this at the rendered tree instead.
-            'contentPage' => $previewState['result']->page,
+            'contentPage' => ContentPage::fromRenderResult($previewState['result']),
             'headerParameters' => [],
         ]);
 

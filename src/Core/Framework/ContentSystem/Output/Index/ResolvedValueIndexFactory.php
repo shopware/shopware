@@ -159,9 +159,8 @@ final readonly class ResolvedValueIndexFactory
     /**
      * Two elements sharing an id would merge their assignments into one entry and serve each other's values,
      * so the walk rejects the second one. Element ids are unique across a forest by contract and the DAL write
-     * enforces it, but the read path validates nothing — the same reasoning, and the same exception, as
-     * {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElementLowering}'s pre-pass over the
-     * rendered forest.
+     * enforces it, but the read path validates nothing — and a finalization listener can put back a forest
+     * that repeats one, so the guard belongs on this walk rather than upstream of it.
      *
      * @param IndexState $state
      */

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -34,8 +33,7 @@ class ContentPreviewControllerTest extends TestCase
     {
         $payload = $this->request();
         $context = Context::createDefaultContext();
-        $contentPage = new ContentPage('preview-layout', [], 'preview', null);
-        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, $contentPage);
+        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null);
         $response = new ContentRouteResponse($renderResult);
 
         $pageBuilder = static::createMock(ContentPreviewPageBuilder::class);
@@ -70,7 +68,7 @@ class ContentPreviewControllerTest extends TestCase
             ->method('build')
             ->with(static::identicalTo($payload), static::identicalTo($context))
             ->willReturn([
-                'result' => new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null, new ContentPage('preview-layout', [], 'preview', null)),
+                'result' => new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null),
                 'salesChannelContext' => Generator::generateSalesChannelContext(),
             ]);
 

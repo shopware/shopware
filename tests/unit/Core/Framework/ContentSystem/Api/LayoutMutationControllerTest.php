@@ -24,7 +24,6 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -114,7 +113,7 @@ class LayoutMutationControllerTest extends TestCase
     {
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
-            fqcn: ContentElement::class,
+            fqcn: StoredElement::class,
             contextType: ContextType::Single,
             providerElementId: null,
             distribution: DistributionStrategy::Broadcast,

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEn
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -53,18 +52,13 @@ class ContentDecomposedPageEncoderTest extends TestCase
         static::assertSame($assignments, $body['assignments']);
     }
 
-    /**
-     * The bridged page on the render result carries a different triple, so this fails if the encoder reads the
-     * page instead of the reference.
-     */
-    #[TestDox('reads the page triple off the render result reference, not off the bridged page')]
+    #[TestDox('reads the page triple off the render result reference')]
     public function testEncodeReadsThePageTripleOffTheReference(): void
     {
         $result = new RenderResult(
             [],
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             new ResolvedValueIndex([], []),
-            new ContentPage('bridged-layout', [], 'Bridged', '9.9.9'),
         );
 
         $body = $this->encoder()->encode($result)->jsonSerialize();
@@ -159,7 +153,6 @@ class ContentDecomposedPageEncoderTest extends TestCase
             $tree,
             LayoutReference::create('layout-1', 'Landing', '1.0.0'),
             $index,
-            new ContentPage('layout-1', [], 'Landing', '1.0.0'),
         );
     }
 }

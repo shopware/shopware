@@ -42,8 +42,8 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 class ContentPageEncoder
 {
     /**
-     * The wire aliases of the full format. They are external contract strings rather than PHP names: the
-     * element alias survives the deletion of the `ContentElement` class it used to come from.
+     * The wire aliases of the full format. They are external contract strings rather than PHP names: neither
+     * is derived from a class, so renaming or removing a producing class never moves them.
      */
     public const PAGE_API_ALIAS = 'content_page';
 

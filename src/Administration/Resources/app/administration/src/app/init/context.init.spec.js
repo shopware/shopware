@@ -9,11 +9,11 @@ import {
     getShopwareVersion,
     getModuleInformation,
     getAppInformation,
-    isService,
     getUserInformation,
     getUserTimezone,
     getShopId,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
+import { isService } from '@shopware-ag/meteor-admin-sdk/es/_private/context';
 import { getId } from '@shopware-ag/meteor-admin-sdk/es/window';
 
 describe('src/app/init/context.init.ts', () => {

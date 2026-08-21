@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 interface Hookable
 {
     public const HOOKABLE_EVENTS = [
+        CookieConsentLoggedEvent::class => CookieConsentLoggedEvent::EVENT_NAME,
         MediaUploadedEvent::class => MediaUploadedEvent::EVENT_NAME,
         AppActivatedEvent::class => AppActivatedEvent::NAME,
         AppDeactivatedEvent::class => AppDeactivatedEvent::NAME,
@@ -32,6 +34,7 @@ interface Hookable
     ];
 
     public const HOOKABLE_EVENTS_DESCRIPTION = [
+        CookieConsentLoggedEvent::class => 'Fires when a storefront visitor\'s cookie consent decision was logged. The payload is anonymous.',
         MediaUploadedEvent::class => 'Fires when a media file is uploaded',
         AppActivatedEvent::class => 'Fires when an app is activated',
         AppDeactivatedEvent::class => 'Fires when an app is deactivated',
@@ -45,6 +48,7 @@ interface Hookable
     ];
 
     public const HOOKABLE_EVENTS_PRIVILEGES = [
+        CookieConsentLoggedEvent::class => ['cookie_consent_log:read'],
         MediaUploadedEvent::class => ['media:read'],
         AppActivatedEvent::class => [],
         AppDeactivatedEvent::class => [],

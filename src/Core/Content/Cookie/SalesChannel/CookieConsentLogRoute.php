@@ -94,40 +94,44 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         $salesChannelId = $salesChannelContext->getSalesChannelId();
         $languageId = $salesChannelContext->getLanguageId();
 
-        $this->connection->transactional(function () use ($payload, $cookieGroups, $decisions, $serverConfigHash, $renderedConfigHash, $now, $salesChannelId, $languageId): void {
-            $this->connection->executeStatement(
-                'INSERT IGNORE INTO `cookie_consent_config_version`
-                    (`id`, `config_hash`, `sales_channel_id`, `language_id`, `cookie_groups`, `created_at`)
-                VALUES
-                    (:id, :configHash, :salesChannelId, :languageId, :cookieGroups, :createdAt)',
-                [
-                    'id' => Uuid::randomBytes(),
-                    'configHash' => $serverConfigHash,
-                    'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
-                    'languageId' => Uuid::fromHexToBytes($languageId),
-                    'cookieGroups' => json_encode($cookieGroups, \JSON_THROW_ON_ERROR),
-                    'createdAt' => $now,
-                ],
-            );
+        // Snapshot first, deliberately without a shared transaction: once the snapshot
+        // insert succeeded (or was a duplicate), the log entry can never reference a
+        // missing snapshot. A failing log insert leaves at most an unreferenced
+        // snapshot behind, which the cleanup task removes. A shared transaction would
+        // tie the log insert to the locks on the snapshot's unique key, where
+        // concurrent first consents for a new configuration can deadlock.
+        $this->connection->executeStatement(
+            'INSERT IGNORE INTO `cookie_consent_config_version`
+                (`id`, `config_hash`, `sales_channel_id`, `language_id`, `cookie_groups`, `created_at`)
+            VALUES
+                (:id, :configHash, :salesChannelId, :languageId, :cookieGroups, :createdAt)',
+            [
+                'id' => Uuid::randomBytes(),
+                'configHash' => $serverConfigHash,
+                'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+                'languageId' => Uuid::fromHexToBytes($languageId),
+                'cookieGroups' => json_encode($cookieGroups, \JSON_THROW_ON_ERROR),
+                'createdAt' => $now,
+            ],
+        );
 
-            $this->connection->executeStatement(
-                'INSERT INTO `cookie_consent_log`
-                    (`id`, `sales_channel_id`, `language_id`, `consent_action`, `group_decisions`, `accepted_cookies`, `server_config_hash`, `rendered_config_hash`, `created_at`)
-                VALUES
-                    (:id, :salesChannelId, :languageId, :consentAction, :groupDecisions, :acceptedCookies, :serverConfigHash, :renderedConfigHash, :createdAt)',
-                [
-                    'id' => Uuid::randomBytes(),
-                    'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
-                    'languageId' => Uuid::fromHexToBytes($languageId),
-                    'consentAction' => $payload['consentAction'],
-                    'groupDecisions' => json_encode($decisions['groupDecisions'], \JSON_THROW_ON_ERROR | \JSON_FORCE_OBJECT),
-                    'acceptedCookies' => json_encode($decisions['acceptedCookies'], \JSON_THROW_ON_ERROR),
-                    'serverConfigHash' => $serverConfigHash,
-                    'renderedConfigHash' => $renderedConfigHash,
-                    'createdAt' => $now,
-                ],
-            );
-        });
+        $this->connection->executeStatement(
+            'INSERT INTO `cookie_consent_log`
+                (`id`, `sales_channel_id`, `language_id`, `consent_action`, `group_decisions`, `accepted_cookies`, `server_config_hash`, `rendered_config_hash`, `created_at`)
+            VALUES
+                (:id, :salesChannelId, :languageId, :consentAction, :groupDecisions, :acceptedCookies, :serverConfigHash, :renderedConfigHash, :createdAt)',
+            [
+                'id' => Uuid::randomBytes(),
+                'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+                'languageId' => Uuid::fromHexToBytes($languageId),
+                'consentAction' => $payload['consentAction'],
+                'groupDecisions' => json_encode($decisions['groupDecisions'], \JSON_THROW_ON_ERROR | \JSON_FORCE_OBJECT),
+                'acceptedCookies' => json_encode($decisions['acceptedCookies'], \JSON_THROW_ON_ERROR),
+                'serverConfigHash' => $serverConfigHash,
+                'renderedConfigHash' => $renderedConfigHash,
+                'createdAt' => $now,
+            ],
+        );
 
         $this->eventDispatcher->dispatch(new CookieConsentLoggedEvent(
             consentAction: $payload['consentAction'],

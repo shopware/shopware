@@ -49,8 +49,6 @@ class CookieConsentLogRouteTest extends TestCase
             ->willReturn(new CookieRouteResponse($this->cookieGroups(), 'server-hash', 'language-id'));
 
         $connection = static::createStub(Connection::class);
-        $connection->method('transactional')
-            ->willReturnCallback(static fn (callable $callback) => $callback($connection));
         $connection->method('executeStatement')
             ->willReturnCallback(function (string $_query, array $parameters = []): int {
                 $this->insertedParameters[] = $parameters;

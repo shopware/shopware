@@ -1,0 +1,815 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-demo 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <!-- Legacy twig comment, becomes an HTML comment -->
+    <sw-block name="sw_block_demo">
+        <div class="sw-block-demo">
+            <sw-block name="sw_block_demo_inner">
+                <p>{{ message }}</p>
+            </sw-block>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const message = ref('Hello blocks');
+
+swDefinePublic({
+    message,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-named-slot 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_block_named_slot">
+        <sw-modal v-if="active">
+            <template #modal-footer>
+                <sw-block name="sw_block_named_slot_footer">
+                    <button class="sw-block-named-slot__cancel">Cancel</button>
+                </sw-block>
+            </template>
+        </sw-modal>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-created-pattern 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_created_pattern">
+        <div v-if="ready" class="sw-created-pattern"></div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const createdComponent = function () {
+    ready.value = true;
+};
+
+const ready = ref(false);
+
+void (function () {
+    createdComponent();
+})();
+
+swDefinePublic({
+    ready,
+    createdComponent,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-cross-velse 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_cross_velse_on">
+        <div v-if="active">On</div>
+    </sw-block>
+
+    <sw-block name="sw_cross_velse_off">
+        <template v-if="active"><!-- Keeps the conditional chain connected across sw-block. --></template>
+        <div v-else>Off</div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-emits-inferred 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_emits_inferred">
+        <div class="sw-emits-inferred">
+            <button @click="onConfirm">Confirm</button>
+            <button @click="onCancel">Cancel</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+const emit = defineEmits(['confirm', 'cancel']);
+
+const onConfirm = function () {
+    emit('confirm', true);
+};
+
+const onCancel = function () {
+    emit('cancel');
+};
+
+swDefinePublic({
+    onConfirm,
+    onCancel,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-instance-api 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_instance_api">
+        <div v-if="active" ref="modalContent" class="sw-instance-api" tabindex="-1">
+            <p>{{ successMessage() }}</p>
+            <button @click="closeModal">{{ $t('global.default.close') }}</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
+
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
+
+const props = defineProps({});
+
+const emit = defineEmits(['modal-close']);
+
+const openModal = function () {
+    active.value = true;
+
+    nextTick(() => {
+        modalContent.value.focus();
+    });
+};
+
+const closeModal = function () {
+    active.value = false;
+    emit('modal-close');
+
+    if (props.active === undefined) {
+        router.push({ name: 'sw.dashboard.index', params: route.params });
+    }
+};
+
+const successMessage = function () {
+    return t('global.default.success');
+};
+
+const active = ref(false);
+
+const modalContent = ref(null);
+
+swDefinePublic({
+    active,
+    modalContent,
+    openModal,
+    closeModal,
+    successMessage,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-lifecycle-demo 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_lifecycle_demo">
+        <ul class="sw-lifecycle-demo">
+            <li v-for="entry in entries" :key="entry">{{ entry }}</li>
+        </ul>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+
+const fetchEntries = async function () {
+    entries.value = [];
+};
+
+const observer = ref(null);
+const entries = ref([]);
+
+onMounted(function () {
+    observer.value = 'attached';
+});
+
+onBeforeUnmount(function () {
+    observer.value = null;
+});
+
+void (async function () {
+    await fetchEntries();
+})();
+
+swDefinePublic({
+    observer,
+    entries,
+    fetchEntries,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-demo 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "mixins",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-module-level-code 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<script data-sfc-migration-module lang="ts">
+/**
+ * @sw-package framework
+ */
+
+// Hoistable: imports, type-only declarations and const bindings with a pure read as initializer.
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
+
+type Row = { id: string };
+
+const MAX_ROWS = 25 as number;
+const LABEL = 'sw-module-level-code';
+
+// Not hoistable: a fresh Map per component instance instead of one shared module singleton.
+const sharedCache = new Map<string, Row>();
+
+function buildCriteria(): unknown {
+    return new Criteria(1, MAX_ROWS);
+}
+
+// Not hoistable either: registering a listener here re-runs it on every mount.
+Shopware.Service('loginService').addOnLoginListener(() => sharedCache.clear());
+</script>
+
+<template>
+    <sw-block name="sw_module_level_code">
+        <div class="sw-module-level-code">{{ label }}</div>
+    </sw-block>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const cache = function (): Map<string, Row> {
+    return sharedCache;
+};
+
+const criteria = function (): unknown {
+    return buildCriteria();
+};
+
+const label = ref(LABEL);
+
+swDefinePublic({
+    label,
+    cache,
+    criteria,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-name-mismatch 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "name 'sw-totally-different' does not match the directory name",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-object-prototype-member 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "unmapped this.hasOwnProperty",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_object_prototype_member">
+        <div class="sw-object-prototype-member">
+            {{ mapped }}
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+const readOwn = function (key) {
+    return this.hasOwnProperty(key) ? mapping.value[key] : null;
+};
+
+const mapped = computed(
+    // \`hasOwnProperty\` and \`constructor\` resolve on Object.prototype, so a table lookup keyed by
+    // this name finds an inherited value unless the table has a null prototype.
+    function () {
+        return Object.prototype.hasOwnProperty.call(mapping.value, 'key');
+    },
+);
+
+const mapping = ref({});
+
+// TODO(sfc-migration): unmapped this.hasOwnProperty
+
+swDefinePublic({
+    mapping,
+    mapped,
+    readOwn,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-partial-todos 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "unsupported inject declaration (only the array form is migrated)",
+    "convert 'metaInfo' manually",
+    "convert 'shortcuts' manually",
+    "unmapped this.$device",
+  ],
+  "sfc": "<template>
+    <sw-block name="sw_partial_todos">
+        <button class="sw-partial-todos" @click="onSave">{{ title }}</button>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const onSave = function () {
+    if (this.$device.getViewportWidth() > 500) {
+        title.value = 'Saved';
+    }
+};
+
+const title = ref('Partial');
+
+// TODO(sfc-migration): unsupported inject declaration (only the array form is migrated) — original code:
+// inject: {
+//         feature: {
+//             from: 'feature',
+//             default: null,
+//         },
+//     }
+
+// TODO(sfc-migration): convert 'metaInfo' manually — original code:
+// metaInfo() {
+//         return {
+//             title: this.title,
+//         };
+//     }
+
+// TODO(sfc-migration): convert 'shortcuts' manually — original code:
+// shortcuts: {
+//         'SYSTEMKEY+S': 'onSave',
+//     }
+
+// TODO(sfc-migration): unmapped this.$device
+
+swDefinePublic({
+    title,
+    onSave,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-shadowed-locals 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "this.currentPage is shadowed by a local binding",
+    "this.perPage is shadowed by a local binding",
+    "this.iconSvgData is shadowed by a local binding",
+    "this.$route is shadowed by a local binding",
+    "this.focussed is shadowed by a local binding",
+    "template ref 'modalContent' is shadowed by a local binding",
+  ],
+  "sfc": "<template>
+    <sw-block name="sw_shadowed_locals">
+        <div ref="modalContent" class="sw-shadowed-locals">
+            <h2>{{ heading }}</h2>
+            <p>{{ countItems() }} / {{ displayedPages.length }}</p>
+            <button @click="setFocus(true)">{{ currentLocation().name }}</button>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+const props = defineProps({
+    title: {
+        type: String,
+        required: true,
+    },
+});
+
+const onPageSizeChange = // The parameter shadows the data key: \`perPage.value = …\` would target the argument.
+    function (perPage) {
+        this.perPage = Number(perPage);
+    };
+
+const loadIcon = // The arrow inherits the component \`this\` and its parameter shadows — this is the silent
+    // case, because assigning \`.value\` on the resolved object throws nothing.
+    function () {
+        return Promise.resolve({}).then((iconSvgData) => {
+            this.iconSvgData = iconSvgData.default;
+        });
+    };
+
+const currentLocation = // The INSTANCE_PROPS replacement identifier is what has to be free here, not \`$route\`.
+    function () {
+        const route = { name: this.$route.name };
+
+        return route;
+    };
+
+const setFocus = function (focussed) {
+    this.focussed = focussed;
+};
+
+const countItems = // A binding in a sibling nested function must not block the outer rewrite.
+    function () {
+        const total = [].map((items) => items.length);
+
+        return items.value.length + total.length;
+    };
+
+const toggle = // Block scope is modelled: a binding the reference never reaches is not shadowing.
+    function () {
+        if (props.title) {
+            const hidden = true;
+
+            return hidden;
+        }
+
+        return hidden.value;
+    };
+
+const openModal = function (modalContent) {
+    this.$refs.modalContent.focus();
+
+    return modalContent;
+};
+
+const displayedPages = computed(
+    // A \`const\` declared after the reference still shadows it — reading it would be a temporal
+    // dead zone error, not a fallback to the setup binding.
+    function () {
+        const currentPage = this.currentPage;
+
+        return [currentPage];
+    },
+);
+
+const heading = computed(
+    // Only \`props\` can shadow a prop reference, so a local named after the prop is harmless.
+    function () {
+        const title = 'fallback';
+
+        return props.title || title;
+    },
+);
+
+const perPage = ref(25);
+const currentPage = ref(1);
+const iconSvgData = ref(null);
+const focussed = ref(false);
+const hidden = ref(false);
+const items = ref([]);
+
+// TODO(sfc-migration): this.currentPage is shadowed by a local binding
+
+// TODO(sfc-migration): this.perPage is shadowed by a local binding
+
+// TODO(sfc-migration): this.iconSvgData is shadowed by a local binding
+
+// TODO(sfc-migration): this.$route is shadowed by a local binding
+
+// TODO(sfc-migration): this.focussed is shadowed by a local binding
+
+// TODO(sfc-migration): template ref 'modalContent' is shadowed by a local binding — original code:
+// this.$refs.modalContent
+
+swDefinePublic({
+    perPage,
+    currentPage,
+    iconSvgData,
+    focussed,
+    hidden,
+    items,
+    displayedPages,
+    heading,
+    onPageSizeChange,
+    loadIcon,
+    currentLocation,
+    setFocus,
+    countItems,
+    toggle,
+    openModal,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-simple-card 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "array inject declaration requires runtime ref-unwrapping verification",
+  ],
+  "sfc": "<script data-sfc-migration-module>
+/**
+ * @sw-package framework
+ */
+</script>
+
+<template>
+    <sw-block name="sw_simple_card">
+        <div class="sw-simple-card">
+            <sw-block name="sw_simple_card_header">
+                <h1>{{ headline }}</h1>
+            </sw-block>
+
+            <sw-block name="sw_simple_card_content">
+                <button :disabled="isLoading" @click="onSave">
+                    {{ $t('global.default.save') }}
+                </button>
+            </sw-block>
+        </div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed, inject } from 'vue';
+
+const repositoryFactory = inject('repositoryFactory');
+const acl = inject('acl');
+
+const props = defineProps({
+    title: {
+        type: String,
+        required: false,
+        default: 'Default Title',
+    },
+});
+
+const emit = defineEmits(['save']);
+
+const loadItems = async function () {
+    isLoading.value = true;
+    items.value = await repository.value.search(new Shopware.Data.Criteria(1, 25));
+    isLoading.value = false;
+};
+
+const onSave = function () {
+    emit('save', items.value);
+};
+
+const headline = computed(function () {
+    return \`\${props.title} (\${items.value.length})\`;
+});
+
+const repository = computed(function () {
+    return repositoryFactory.create('product');
+});
+
+const isLoading = ref(false);
+const items = ref([]);
+
+// TODO(sfc-migration): array inject declaration requires runtime ref-unwrapping verification — original code:
+// inject: ['repositoryFactory', 'acl']
+
+swDefinePublic({
+    repositoryFactory,
+    acl,
+    isLoading,
+    items,
+    headline,
+    repository,
+    loadItems,
+    onSave,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-slot-in-child 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_slot_in_child">
+        <sw-modal v-if="active">
+            <template #modal-footer>
+                <button class="sw-slot-in-child__cancel">Cancel</button>
+            </template>
+        </sw-modal>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const active = ref(false);
+
+swDefinePublic({
+    active,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-super-demo 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "this.$super",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-twig-parent 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "{% parent %} needs override output (the codemod only writes base components)",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-watcher-demo 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "watch source '$route' has exact $route semantics that need runtime verification",
+  ],
+  "sfc": "<template>
+    <sw-block name="sw_watcher_demo">
+        <input v-model="term" class="sw-watcher-demo" />
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue';
+
+const props = defineProps({
+    productId: {
+        type: String,
+        required: true,
+    },
+});
+
+const onTermChange = function () {};
+
+const loadProduct = function () {};
+
+const term = ref('');
+const config = ref({ limit: 25 });
+
+watch(term, function (newTerm, oldTerm) {
+    onTermChange(newTerm, oldTerm);
+});
+
+watch(
+    () => props.productId,
+    function () {
+        loadProduct();
+    },
+    { immediate: true },
+);
+
+watch(() => config.value.limit, loadProduct, { deep: true });
+
+// TODO(sfc-migration): watch source '$route' has exact $route semantics that need runtime verification — original code:
+// $route() {
+//             this.term = '';
+//         }
+
+swDefinePublic({
+    term,
+    config,
+    onTermChange,
+    loadProduct,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-wrap-config 1`] = `
+{
+  "outcome": "partial",
+  "reasons": [
+    "array inject declaration requires runtime ref-unwrapping verification",
+  ],
+  "sfc": "<script data-sfc-migration-module lang="ts">
+import './sw-wrap-config.scss';
+
+/**
+ * @sw-package framework
+ */
+
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
+</script>
+
+<template>
+    <sw-block name="sw_wrap_config">
+        <div class="sw-wrap-config"></div>
+    </sw-block>
+</template>
+
+<script setup lang="ts">
+import { computed, inject } from 'vue';
+
+const repositoryFactory = inject('repositoryFactory');
+
+const criteria = computed(function () {
+    return new Criteria(1, 25);
+});
+
+// TODO(sfc-migration): array inject declaration requires runtime ref-unwrapping verification — original code:
+// inject: ['repositoryFactory']
+
+swDefinePublic({
+    repositoryFactory,
+    criteria,
+});
+</script>
+",
+}
+`;

@@ -1,205 +1,149 @@
 # SFC Migration Codemod
 
-Automatically converts Shopware Administration components from the Options API (`index.js` + `.html.twig`) to Vue 3 Single File Components (`<script setup>`).
-
-## Requirements
-
-- Node.js 20+
-- npm 10+
-- Access to the `administration` package (for `ts-morph`, `glob`, etc.)
+Converts Options API Administration components (`index.js` + `*.html.twig`) into native setup SFCs
+(`<component-name>.vue` with `swDefinePublic`, see
+`technical-docs/03-extensibility/07-native-setup-authoring.md`).
 
 ## Usage
 
-Run from inside `src/Administration/Resources/app/administration/`:
+`--write` creates validated Vue drafts and leaves the legacy entry point and Twig file untouched.
+Replacing an entry point is a separate, explicit operation; Twig files are retained for a later
+human-reviewed cleanup.
+
+`--write` requires the target directory to be clean in git (`git status --porcelain -- <path>`
+empty): a run is undone with `git checkout`, which only works when nothing else was uncommitted.
+A dirty target aborts the run before anything is written. Outside a git working tree the check does
+not apply. Dry runs never check.
 
 ```bash
-# Preview what would be migrated (default — no files written)
-npm run codemod:sfc-migration -- <path>
-npm run codemod:sfc-migration -- --dry-run <path>
+# Dry run (default): prints a per-component report, writes nothing
+npm run codemod:sfc-migration -- src/app/component/base
 
-# Write .vue files to disk (skips existing .vue files)
-npm run codemod:sfc-migration -- --write <path>
+# Write validated Vue drafts only
+npm run codemod:sfc-migration -- src/app/component/base --write
 
-# Overwrite existing .vue files
-npm run codemod:sfc-migration -- --write --force <path>
-
-# Write .vue files, replace source index.js with an SFC entry point, and delete .html.twig afterwards
-npm run codemod:sfc-migration -- --write --delete-originals <path>
+# Replace eligible legacy entry points as a separate explicit step (Twig is retained)
+npm run codemod:sfc-migration -- src/app/component/base --write --replace-originals
 ```
 
-**Examples:**
+From the project root the same run is `composer admin:codemod:sfc-migration -- <path> [flags]`. The
+`--` is not optional there: without it Composer consumes `--write` itself and the run silently stays
+a dry run.
 
-```bash
-# Migrate a single component
-npm run codemod:sfc-migration -- src/app/component/base/sw-button
+## Outcomes
 
-# Migrate an entire plugin's administration folder
-npm run codemod:sfc-migration -- --write src/Resources/app/administration/src
-```
+| Outcome | Meaning | `--write` behavior |
+| --- | --- | --- |
+| `full` | Everything converted, output validated | Writes `<dir>/<component-name>.vue`; with `--replace-originals`, an unambiguous plain registration may also replace `index.js` with a re-export shim. Twig is retained |
+| `partial` | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before |
+| `skipped` | Structural blocker | Writes nothing; the report names the reason |
+| `already-migrated` | A `.vue` with the component's name exists | Writes nothing; the reason says whether it is an earlier draft, a half-migration, or a file this codemod never wrote |
+| `error` | The conversion or a write threw | Reports what ended up on disk; the run continues and exits `1` |
 
-Pass `<path>` relative to the `administration/` directory, or use an absolute path.
+Every generated SFC must pass the real build transform (`build/vue-setup-transform`) plus Vue's own
+`compileScript`/`compileTemplate` before it is written — a non-compiling file is never produced.
+That gate proves the output *compiles*, not that it *behaves the same*, so shapes that would compile
+into different behaviour are refused separately (see below).
 
-Components are expected to follow this structure:
+A component whose entry point was explicitly replaced is never rediscovered: its `index.js` is a
+re-export, which the discovery pass does not recognise as a component. Draft-only re-runs report
+the existing draft and leave it untouched.
 
-```
-my-component/
-├── index.js                  ← Shopware.Component.register / .extend or export default {}
-└── my-component.html.twig
-```
+### Write failures
 
-## What gets converted automatically
+Each component's writes are guarded on their own. A failure reports that component as `error` and
+the run continues, so the report still covers everything else. Twig is never deleted. Recovery is
+`git checkout` on the target directory — which is exactly what the clean-tree requirement above
+buys, so the writes themselves are plain `fs.writeFileSync` calls.
 
-| Options API                               | Composition API output                         |
-| ----------------------------------------- | ---------------------------------------------- |
-| `props`                                   | `defineProps(…)`                               |
-| `emits` array/object form                 | `defineEmits(…)`                               |
-| `inheritAttrs: false`                     | `defineOptions({ inheritAttrs: false })`       |
-| `name`                                    | `defineOptions({ name })`                      |
-| `data()` / `data: () => ({ … })`          | `ref(…)` inside `createExtendableSetup`        |
-| `computed`                                | `computed(…)` inside `createExtendableSetup`   |
-| `inject` array/object form                | `inject(…)` inside `createExtendableSetup`     |
-| `watch` method/object/string-handler form | `watch(…)` inside `createExtendableSetup`      |
-| `methods`                                 | plain functions inside `createExtendableSetup` |
-| `created`                                 | runs directly in setup (equivalent behaviour)  |
-| other lifecycle hooks                     | `onMounted`, `onBeforeUnmount`, etc.           |
-| `this.$emit`                              | `emit(…)`                                      |
-| `this.$router` / `this.$route`            | `useRouter()` / `useRoute()`                   |
-| `this.$slots`                             | `useSlots()`                                   |
-| `this.$nextTick`                          | `nextTick(…)`                                  |
-| `this.$tc` / `this.$t`                    | `useI18n().tc` / `.t`                          |
-| `this.$refs.name`                         | `const name = ref(null)`                       |
-| Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+## Registration classes
 
-Template transformation only supports Twig block tags (`{% block %}`, `{% endblock %}`, `{% parent %}`) and Twig comments. Templates containing Twig `{% extends '…' %}` fail the migration and must be handled manually before running the codemod.
+Independent of the outcome, every component is classified by the `Component.*` call its directory is
+registered through (`component-source-model.ts`). The CLI carries the class per component plus a split
+summary line. Scan failures are retained as structured diagnostics and do not stop later components
+from being reported.
 
-## Migration outcomes
+The class decides how far a component is migrated: only a plain `Component.register` takes the
+destructive path, because only its template stands on its own.
 
-Each component is classified into one of three states:
+| Class | Meaning | `--write` behaviour |
+| --- | --- | --- |
+| `register` | `Component.register('name', () => import('./dir'))` — the plain case | Writes a draft with `--write`; only the unambiguous full path may replace `index.js` with `--replace-originals` |
+| `extend` | `Component.extend('child', 'parent', () => import('./dir'))` — child of another component | Skipped; it renders against bindings its parent declares |
+| `override` | A directory registered through `Component.override('name', () => import('./dir'))` (none today, so the column is omitted) | Skipped; its template patches another component's markup |
+| `unregistered` | No registration resolves to the directory (helpers, dynamically registered or dead components) | Draft only — `index.js` and Twig are kept |
 
-| Status               | Meaning                                                                                           | Output                                         |
-| -------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `fully-migrated`     | Full `<script setup>` with `createExtendableSetup`                                                | `.vue` file written                            |
-| `partially-migrated` | Soft blocker found (mixins, `Shopware.Component.extend()`) — Options API kept in plain `<script>` | `.vue` file written, manual follow-up required |
-| `not-migratable`     | Hard blocker found (`render()`) — cannot be automatically converted                               | No file written                                |
+Inline `Component.override('name', { … })` configs own no directory and never reach the component
+discovery. They are counted separately and reported as one info line — reporting only, the codemod
+cannot convert them.
 
-## Programmatic API
+## Component names
 
-```ts
-import { mergeComponentFiles } from './generate-sfc';
+The name a component is generated under comes from its registration, not from its directory — that
+is what unlocks the CMS blocks/elements (`blocks/text/text/component` registers `sw-cms-block-text`)
+and the `page/index` pages. Directories no registration resolves to keep their basename. The name
+becomes the `.vue` filename, from which the build transform derives the runtime component name.
 
-const result = mergeComponentFiles(twigContent, jsContent);
+Two gates guard the derivation: a name the directory does not carry must be confirmed by the
+template filename (`sw-cms-block-text.html.twig`), and a name registered for more than one directory
+is never used. Either mismatch skips the component instead of guessing.
 
-if (result.status === 'fully-migrated') {
-    fs.writeFileSync('my-component.vue', result.sfc);
-}
+Registrations are collected from the whole Administration `src/` whenever the target is contained by it,
+so running the codemod on a single module still resolves names registered in a parent directory.
+For targets outside `src/` the scan root is the target itself.
 
-// result.blockers — list of detected blockers (e.g. ['mixins', 'extends (parent: sw-button)'])
-```
+## What is skipped on purpose
 
-## ⚠ Destructive Operations
+`mixins`, `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,
+`render()` components, root-level option spreads, components whose `name` option differs from their
+component name, and components whose registered name neither the directory nor the template filename
+confirms.
 
-`--delete-originals` is **irreversible**. It replaces `index.js` with a generated
-entry point that imports the new `.vue` file, and deletes `.html.twig` for every
-component that produces a `.vue` file — including **partially-migrated** components
-(those with unresolved blockers that still use Options API).
+Two more are refused because base output cannot express them, and because the markup they would
+produce compiles while rendering something different:
 
-Before using `--delete-originals`:
+- a `{% block %}` wrapping a named slot — `<sw-block>` renders only its default slot, so the slot
+  would be re-parented onto it and its content dropped;
+- `{% parent %}` — meaningful only in an override, where the codemod does not write yet.
 
-1. Commit or stash all current changes to git.
-2. Run with `--dry-run` first to review what would be written.
-3. Verify the generated `.vue` files and replacement `index.js` entry points are correct before deletion.
+These need structural decisions a codemod should not guess. Everything else that is not understood
+becomes a TODO comment in a draft instead of a silent conversion — including a `this.<member>` whose
+name a local binding shadows. Module-level code is retained in a normal script block so it still runs
+once per module load.
 
-## What needs manual review
+## Structure
 
-After running the codemod, search for `TODO` comments in the generated files:
+Each file answers exactly one question:
 
-- **`this.$el`** — no direct equivalent; replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el`.
-  The migration summary prints a `⚠` warning line for every component containing this pattern.
-  Two cases arise:
-    1. **Root element access in setup / lifecycle hooks** — prefer a template ref on the root element:
-        ```html
-        <template>
-            <div ref="rootEl">…</div>
-        </template>
-        ```
-        ```ts
-        const rootEl = ref<HTMLElement | null>(null);
-        onMounted(() => {
-            rootEl.value?.focus();
-        });
-        ```
-    2. **Dynamic DOM access inside methods** — `getCurrentInstance()?.proxy?.$el` is a valid transitional
-       bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
-       setup phase. If the method runs after setup completes, store the element in a template ref instead.
+| File | Answers |
+| --- | --- |
+| `run-sfc-migration.ts` | How does a batch run work? CLI entry, clean-tree guard, discovery, file writes, report |
+| `component-source-model.ts` | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree |
+| `convert-component.ts` | What happens to one component? The pipeline: template + script transform → prettier → validation gate |
+| `transform-template.ts` | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates) |
+| `template-ast.ts` | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate |
+| `assert-block-slots.ts` | Does a converted block swallow content? Named-slot children of `<sw-block>` |
+| `normalize-cross-block-conditionals.ts` | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned |
+| `transform-script.ts` | In what order is the `<script setup>` assembled? Orchestrates parse → collect → rewrite → render |
+| `option-handlers.ts` | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …) |
+| `rewrite-this.ts` | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope |
+| `tables.ts` | What converts to what? All conversion tables — the extension surface |
+| `validate.ts` | Is the output safe to write? Real build transform + Vue compiler round-trip |
+| `ast.ts` | Shared transform context and generic AST/text helpers — no conversion policy |
+| `sfc-migration.spec.ts` + `__fixtures__/` | What does one component convert into? A snapshot of every fixture through the full pipeline |
+| `run-sfc-migration.spec.ts` | What does the runner do to files? CLI exit codes, draft/replacement modes, name derivation, and existing-`.vue` behaviour |
+| `spec-helpers.ts` | Temp-tree helpers shared by the specs that build a throwaway component tree |
+| `runtime-equivalence-*.ts` | Does a supported shape execute equivalently, or stay conservative? |
 
-- **Partially migrated components** — mixins and `Shopware.Component.extend()` must be manually inlined
-- **Render functions** — must be rewritten as templates by hand
+## Extending the codemod
 
-## Manual migration: `extends`-based components
+The conversion rules are data tables plus one handler per option:
 
-Components registered via `Shopware.Component.extend()` are partially migrated — the Options API is preserved in a plain `<script>` block. The migration report shows a `⚠` warning line with the parent component name:
-
-```
-~  partially-migrated  [extends (parent: sw-button)]  sw-extended-button.vue
-   ⚠  manually inline parent options from 'sw-button' before re-running codemod; see README.md
-```
-
-Automatic inlining is out of scope for this codemod because it requires resolving and deep-merging the parent's implementation, which has too many edge cases (chained inheritance, circular references, parents that are themselves partially-migratable).
-
-### Steps
-
-1. **Find the parent component source** — the report shows the parent name, e.g. `sw-button`. Search for the
-   parent component directory, usually `<parent-name>/index.js`, in the Administration source, module components,
-   or the plugin administration source.
-
-2. **Copy relevant options** — copy the parent options from that `index.js`: the `export default { ... }` object,
-   or the object passed to `Shopware.Component.register()` / `Shopware.Component.extend()`. Merge the parent's
-   `props`, `data`, `computed`, `methods`, and lifecycle hooks into the child, following
-   [Vue 2's option merging strategy](https://v2.vuejs.org/v2/guide/mixins.html#Option-Merging):
-    - `data`: deep-merged (child wins on conflict)
-    - `methods` / `computed`: child overrides parent
-    - lifecycle hooks: both run (parent first)
-
-3. **Replace `.extend()` with `.register()`** using the merged options object:
-
-    ```js
-    // Before
-    Shopware.Component.extend('sw-extended-button', 'sw-button', {
-        data() { return { extraLabel: 'Extended' }; },
-        methods: { getLabel() { return this.extraLabel; } },
-    });
-
-    // After — parent options manually merged in
-    Shopware.Component.register('sw-extended-button', {
-        // copied from sw-button/index.js
-        props: { /* parent props */ },
-        computed: { /* parent computed */ },
-        data() { return { /* parent data */, extraLabel: 'Extended' }; },
-        methods: {
-            /* parent methods */
-            getLabel() { return this.extraLabel; },
-        },
-    });
-    ```
-
-4. **Re-run the codemod** — the component should now be classified as `fully-migratable`
-   (unless other blockers remain).
-
-    ```bash
-    npm run codemod:sfc-migration -- --write path/to/sw-extended-button
-    ```
-
-## Known Limitations
-
-The following Options API features are **not automatically converted**. After migration,
-search your codebase for the `TODO:` comments the codemod inserts, and resolve each one manually.
-
-| Feature                       | Behavior                                    | How to fix                                              |
-| ----------------------------- | ------------------------------------------- | ------------------------------------------------------- |
-| `provide`                     | Drops with TODO comment                     | Add `provide(key, value)` calls manually in setup       |
-| `components`                  | Drops silently                              | Verify components are globally registered; remove if so |
-| `directives`                  | Drops with TODO comment                     | Register directives globally or inline in setup         |
-| `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |
-| `this.$store`                 | Inserts TODO comment                        | Migrate Vuex access to a composable                     |
-| `this.$parent` / `this.$root` | Inserts TODO comment                        | Refactor to avoid parent traversal                      |
-| Nested watch path `'a.b'`     | Leaves a TODO comment and skips the watcher | Write watcher manually                                  |
+- `tables.ts` — `INSTANCE_PROPS` (one entry per `this.$xyz` rewrite: replacement + required
+  helper/import) and the `OPTION_TIERS` (`skip` / `todo`) assignment for top-level options.
+- `option-handlers.ts` — `OPTION_HANDLERS`, one small handler per supported option (`props`,
+  `data`, `computed`, `watch`, …). Promoting a feature means dropping its key from `OPTION_TIERS`
+  and adding a handler — never both, because the tier is read first; the classification loop, the
+  `this.` rewrite pass (`rewrite-this.ts`) and the render pass (`transform-script.ts`) stay untouched.
+- New conversions are covered by dropping a fixture folder into `__fixtures__/` —
+  `sfc-migration.spec.ts` snapshots every fixture automatically and runs the full validation gate.

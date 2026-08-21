@@ -5,6 +5,10 @@ namespace Shopware\Core\System\StateMachine;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -181,14 +185,17 @@ class StateMachineRegistry implements ResetInterface
             );
         }
 
+        $source = $this->resolveOriginalSource($context->getSource());
+
         $stateMachineHistoryEntity = [
             'stateMachineId' => $toPlace->getStateMachineId(),
             'entityName' => $transition->getEntityName(),
             'fromStateId' => $fromPlace->getId(),
             'toStateId' => $toPlace->getId(),
             'transitionActionName' => $transition->getTransitionName(),
-            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-            'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
+            'userId' => $source instanceof AdminApiSource ? $source->getUserId() : null,
+            'integrationId' => $source instanceof AdminApiSource ? $source->getIntegrationId() : null,
+            'sourceType' => $this->resolveSourceType($source),
             'referencedId' => $transition->getEntityId(),
             'referencedVersionId' => $context->getVersionId(),
             'internalComment' => $transition->getInternalComment(),
@@ -218,6 +225,24 @@ class StateMachineRegistry implements ResetInterface
             $fromPlace,
             $toPlace,
         );
+    }
+
+    private function resolveOriginalSource(ContextSource $source): ContextSource
+    {
+        if ($source instanceof AdminSalesChannelApiSource) {
+            return $source->getOriginalContext()->getSource();
+        }
+
+        return $source;
+    }
+
+    private function resolveSourceType(ContextSource $source): ?string
+    {
+        if ($source instanceof AdminApiSource || $source instanceof SalesChannelApiSource || $source instanceof SystemSource) {
+            return $source->type;
+        }
+
+        return null;
     }
 
     private function dispatchTransitionEvents(Transition $transition, Context $context, StateMachineTransitionResult $result): void

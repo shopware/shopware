@@ -58,26 +58,25 @@ export async function revokePermissions() {
     _reloadPage();
 }
 
+function assertServiceOrigin(origin: string): void {
+    const matchingExtensions = Object.values(Shopware.Store.get('extensions').extensionsState).filter((extension) => {
+        try {
+            return new URL(extension.baseUrl).origin === origin;
+        } catch {
+            return false;
+        }
+    });
+
+    if (matchingExtensions.length === 0 || !matchingExtensions.every((extension) => extension.sourceType === 'service')) {
+        throw new Error('Only Shopware Services can access this handler.');
+    }
+}
+
 /**
  * @private
  */
 export const grantPermissionsFromSdk: HandleMethod<'servicePermissionGrant'> = (_message, { _event_ }) => {
-    let isService = false;
-
-    try {
-        const appOrigin = _event_.origin;
-        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) => {
-            return ext.baseUrl.startsWith(appOrigin);
-        });
-
-        isService = extension?.sourceType === 'service';
-    } catch {
-        isService = false;
-    }
-
-    if (!isService) {
-        throw new Error('Only Shopware Services can grant permissions.');
-    }
+    assertServiceOrigin(_event_.origin);
 
     return grantPermissions();
 };
@@ -88,7 +87,9 @@ export const grantPermissionsFromSdk: HandleMethod<'servicePermissionGrant'> = (
  *
  * @private
  */
-export const isPermissionGrantedFromSdk: HandleMethod<'servicePermissionIsGranted'> = async () => {
+export const isPermissionGrantedFromSdk: HandleMethod<'servicePermissionIsGranted'> = async (_message, { _event_ }) => {
+    assertServiceOrigin(_event_.origin);
+
     const shopwareServicesStore = useShopwareServicesStore();
 
     if (!shopwareServicesStore.config) {

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Integration\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandlerTest;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -23,7 +22,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @codeCoverageIgnore
  *
- * @see CleanupCookieConsentLogTaskHandlerTest
+ * @see \Shopware\Tests\Integration\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandlerTest
  */
 #[AsMessageHandler(handles: CleanupCookieConsentLogTask::class)]
 #[Package('framework')]
@@ -65,7 +64,9 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
             ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         do {
-            $deleted = $this->connection->executeStatement(
+            // executeStatement() is typed int|string in DBAL 4, the strict comparison
+            // below needs an int or the loop would stop after one batch
+            $deleted = (int) $this->connection->executeStatement(
                 'DELETE FROM `cookie_consent_log` WHERE `created_at` < :before LIMIT ' . self::DELETE_BATCH_SIZE,
                 ['before' => $deleteBefore],
             );

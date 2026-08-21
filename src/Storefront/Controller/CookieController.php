@@ -82,10 +82,6 @@ class CookieController extends StorefrontController
         return $this->json($cookieRouteResponse->getObject());
     }
 
-    /**
-     * Called via navigator.sendBeacon, which cannot send custom headers,
-     * so this route must not require an XMLHttpRequest header.
-     */
     #[Route(path: '/cookie/consent-log', name: 'frontend.cookie.consent.log', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function logConsent(Request $request, SalesChannelContext $salesChannelContext): Response
     {

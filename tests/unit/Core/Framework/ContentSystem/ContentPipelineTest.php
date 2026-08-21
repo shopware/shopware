@@ -1054,6 +1054,70 @@ class ContentPipelineTest extends TestCase
         static::assertSame($pageData, $elements[0]->properties['language']);
     }
 
+    /**
+     * The two finishing steps each early-return when their own scaffolding field is inert, so with only one
+     * field live a swap of the two statements changes nothing and no other test in this file sets both. Run
+     * in the inverted order the extract reduces the virtual-root-headed forest to the bare target, and the
+     * unwrap then looks for a `__page_roots__` slot the target does not have and throws.
+     */
+    #[TestDox('unwraps the virtual root before extracting the partial-render target')]
+    public function testUnwrapsTheVirtualRootBeforeExtractingThePartialTarget(): void
+    {
+        $target = StoredElementBuilder::create('text', 'target-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        // The root consumes too, so no element between the target and the virtual root is a context root and
+        // the prune keeps the chain all the way up to the wrapper.
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withConsumer('language', ContextType::Single)
+            ->withSlot('default', [
+                $target,
+                StoredElementBuilder::create('text', 'sibling-id')->build(),
+            ])
+            ->build();
+        $layout = $this->createSingleRootLayout($root);
+        $specification = new RenderingSpecification(
+            [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
+            PlaceholderValues::from([]),
+            new Request(),
+            'target-id'
+        );
+
+        $wrapper = new VirtualRootWrapper();
+
+        // Fixture guard: without page-level data requirements the pipeline never wraps, and the unwrap step
+        // is inert.
+        static::assertTrue($wrapper->requiresWrapping($specification, $layout->elements));
+
+        $preparation = (new StoredTreePreparer(
+            $wrapper,
+            new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+        ))->prepare($layout->elements, $specification, RenderingMode::SKELETON);
+
+        // Fixture guard, and what makes the order observable at all: both finishing steps are live, because
+        // the prune left the virtual root heading the forest and the target it extracts is still under it.
+        static::assertTrue($preparation->scaffolding->virtualRootSurvivedPrune);
+        static::assertSame('target-id', $preparation->scaffolding->extractTargetId);
+        static::assertSame(
+            [VirtualRootWrapper::VIRTUAL_ROOT_ID, 'root-id', 'target-id'],
+            $this->collectStoredIds($preparation->tree)
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            $specification,
+            new RenderingCacheContext(),
+            RenderingMode::SKELETON,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+
+        static::assertSame(['target-id'], $this->collectRenderedIds($result->tree));
+        static::assertSame('text', $result->tree[0]->component);
+    }
+
     private function createPipeline(): ContentPipeline
     {
         return new ContentPipeline(

@@ -177,6 +177,39 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         (new ContentSystemDataLoaderCompilerPass())->process($container);
     }
 
+    #[TestDox('skips a tagged loader whose definition is abstract')]
+    public function testProcessSkipsAbstractLoaderDefinition(): void
+    {
+        $container = new ContainerBuilder();
+
+        // No config serializer is registered for this loader's source, so a definition that is not skipped reaches
+        // the coverage check and throws there.
+        $abstract = $this->taggedLoader(GenericStubLoader::class);
+        $abstract->setAbstract(true);
+        $container->setDefinition('app.abstract_loader_definition', $abstract);
+
+        $this->expectNotToPerformAssertions();
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('throws when a concrete definition registers a PHP-abstract loader class')]
+    public function testProcessThrowsForAbstractLoaderClass(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('app.abstract_class_loader', $this->taggedLoader(AbstractStubLoader::class));
+
+        try {
+            (new ContentSystemDataLoaderCompilerPass())->process($container);
+
+            static::fail('Expected the compiler pass to reject the abstract loader class.');
+        } catch (DependencyInjectionException $exception) {
+            static::assertStringContainsString('app.abstract_class_loader', $exception->getMessage());
+            static::assertStringContainsString(AbstractStubLoader::class, $exception->getMessage());
+            static::assertSame(DependencyInjectionException::DATA_LOADER_CLASS_IS_ABSTRACT, $exception->getErrorCode());
+        }
+    }
+
     /**
      * @return iterable<string, array{string, class-string, \Exception}>
      */
@@ -464,6 +497,18 @@ class GenericStubLoader extends AbstractContentDataLoader
     {
         return ContentDataLoaderResult::notFound();
     }
+}
+
+/**
+ * Abstract on purpose, with getRequirementType() left abstract: the fixture for a PHP-abstract class registered
+ * under a concrete definition, where a static call on it would raise a PHP Error rather than fail the build readably.
+ *
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+abstract class AbstractStubLoader extends AbstractContentDataLoader
+{
 }
 
 class NoDocblockStubLoader extends AbstractContentDataLoader // @phpstan-ignore missingType.generics, shopware.internalClass

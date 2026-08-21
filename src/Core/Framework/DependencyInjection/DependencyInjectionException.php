@@ -26,6 +26,7 @@ class DependencyInjectionException extends HttpException
     public const DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED';
     public const DATA_LOADER_CONFIG_KEY_INVALID_MERGE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_MERGE';
     public const DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER = 'FRAMEWORK__DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER';
+    public const DATA_LOADER_CLASS_IS_ABSTRACT = 'FRAMEWORK__DATA_LOADER_CLASS_IS_ABSTRACT';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -205,6 +206,19 @@ class DependencyInjectionException extends HttpException
                 $loaderClass,
                 $source,
                 $source
+            )
+        );
+    }
+
+    public static function dataLoaderClassIsAbstract(string $service, string $loaderClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CLASS_IS_ABSTRACT,
+            \sprintf(
+                'Service "%s" is tagged as "content_system.data_loader" but its class "%s" is abstract. Tag a concrete loader: an abstract class cannot answer the introspection contract.',
+                $service,
+                $loaderClass
             )
         );
     }

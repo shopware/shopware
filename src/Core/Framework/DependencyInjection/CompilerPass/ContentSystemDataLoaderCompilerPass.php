@@ -42,15 +42,29 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
         $loaderSources = [];
 
         foreach ($loaders as $serviceId => $tags) {
-            $class = $container->getDefinition($serviceId)->getClass();
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass();
 
             if ($class === null || !class_exists($class)) {
                 // No resolvable class to introspect; leave it for Symfony's own service validation.
                 continue;
             }
 
+            if ($definition->isAbstract()) {
+                // findTaggedServiceIds() returns abstract definitions too, and such a definition is a parent template
+                // rather than a service, so there is no loader here to hold to the introspection contract.
+                continue;
+            }
+
             if (!is_subclass_of($class, AbstractContentDataLoader::class)) {
                 throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'content_system.data_loader', AbstractContentDataLoader::class);
+            }
+
+            if ((new \ReflectionClass($class))->isAbstract()) {
+                // The two abstractness checks are independent: Definition::isAbstract() above reports only the Symfony
+                // definition flag, while this one catches a PHP-abstract class registered under a concrete definition,
+                // whose still-abstract members would raise a PHP Error at the static calls below.
+                throw DependencyInjectionException::dataLoaderClassIsAbstract($serviceId, $class);
             }
 
             /** @var class-string<AbstractContentDataLoader<Struct>> $class */

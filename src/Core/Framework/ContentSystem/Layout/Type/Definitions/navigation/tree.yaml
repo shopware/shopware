@@ -38,7 +38,7 @@ properties:
       - "collapsible"
     adminUI:
       component: "select"
-      helpText: "'Static' renders the tree as it is. 'Collapsible' adds a plus button to every category that has children, so shoppers can open the levels below it down to the navigation depth configured on the sales channel."
+      helpText: "'Static' renders the tree as it is. 'Collapsible' adds a plus button to every category whose sub-levels are rendered, so shoppers can open them. This mode renders the whole tree down to the navigation depth of the sales channel, which makes every page carrying the element heavier on a deep catalogue."
 
   expandAll:
     type: boolean

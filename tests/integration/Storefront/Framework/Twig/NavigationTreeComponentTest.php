@@ -109,6 +109,23 @@ class NavigationTreeComponentTest extends TestCase
     }
 
     /**
+     * The Studio derives the control from this schema and ships no code of its own for it, so a
+     * toSchema() regression that dropped the enum would render a select with no options while
+     * every render test here kept passing.
+     */
+    public function testDisplayTypeReachesTheSchemaWithItsOptions(): void
+    {
+        $types = static::getContainer()->get(ContentSystemElementTypeRegistry::class);
+        static::assertInstanceOf(AbstractContentSystemElementTypeRegistry::class, $types);
+
+        $displayType = $types->get('Sw:Navigation:Tree')->properties()['displayType']->toSchema();
+
+        static::assertSame('static', $displayType['default']);
+        static::assertSame(['static', 'collapsible'], $displayType['enum']);
+        static::assertSame('select', $displayType['adminUI']['component'] ?? null);
+    }
+
+    /**
      * A landmark with an empty name is worse than an unnamed one: screen readers announce it without
      * any hint of what it contains. A stored empty value must therefore not beat the snippet default.
      */
@@ -492,7 +509,9 @@ class NavigationTreeComponentTest extends TestCase
 
     /**
      * Every prop is passed explicitly so the component's global-reading defaults
-     * (`shopware.navigation`, `context.salesChannel`, the translator) are never evaluated.
+     * (`shopware.navigation`, `context.salesChannel`) are never evaluated. The translator is the
+     * exception since collapsible mode names its toggle from `general.toggleSubcategories`: a
+     * missing snippet makes those tests fail on the name rather than on what they assert.
      *
      * @param array<string, mixed> $props
      */

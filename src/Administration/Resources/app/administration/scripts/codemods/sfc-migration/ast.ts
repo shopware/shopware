@@ -10,6 +10,7 @@
 
 import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
+import { traverseFast } from '@babel/types';
 import type MagicString from 'magic-string';
 import type { MemberKind, HelperName, ReportKind, TodoEntry } from './tables';
 
@@ -20,6 +21,10 @@ type Ctx = {
     paths: Map<t.Node, NodePath>;
     componentName: string;
     bindings: Map<string, MemberKind>;
+    /** Members whose setup binding is not named after the member (composable collision renames). */
+    renamedBindings: Map<string, string>;
+    /** Identifiers the converted template reads, so members only it uses still get a binding. */
+    templateIdentifiers: ReadonlySet<string>;
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
     inferredEmits: string[];
@@ -52,17 +57,50 @@ function overwrite(ctx: Ctx, node: t.Node, text: string): void {
     ctx.ms.overwrite(node.start as number, node.end as number, text);
 }
 
+/** Recorded once per reason+code pair, so a repeated shape leaves a single entry. */
+function pushReport(ctx: Ctx, entry: TodoEntry & { kind: ReportKind }): void {
+    if (!ctx.reports.some((existing) => existing.reason === entry.reason && existing.code === entry.code)) {
+        ctx.reports.push(entry);
+    }
+}
+
 /**
  * The single channel for "I could not convert this". A `skip` refuses the whole component, a `todo`
- * keeps the draft and leaves a comment quoting `node`'s original source. Recorded once per
- * reason+code pair, so a repeated shape leaves a single entry.
+ * keeps the draft and leaves a comment quoting `node`'s original source.
  */
 function report(ctx: Ctx, kind: ReportKind, reason: string, node?: t.Node): void {
-    const code = node ? raw(ctx, node) : undefined;
+    pushReport(ctx, { kind, reason, code: node ? raw(ctx, node) : undefined });
+}
 
-    if (!ctx.reports.some((entry) => entry.reason === reason && entry.code === code)) {
-        ctx.reports.push({ kind, reason, code });
-    }
+/** A TODO about code the reader has to write, because the draft does not run as it stands. */
+function reportFix(ctx: Ctx, reason: string, explanation: string, node?: t.Node): void {
+    pushReport(ctx, { kind: 'todo', mode: 'FIX', reason, explanation, code: node ? raw(ctx, node) : undefined });
+}
+
+/**
+ * A TODO about the emitted code as a whole rather than about one site in it: the conversion is
+ * complete, what it means is what the checks ask the reader to confirm.
+ */
+function reportReview(ctx: Ctx, reason: string, explanation: string, checks: string[]): void {
+    pushReport(ctx, { kind: 'todo', mode: 'VERIFY', reason, explanation, checks });
+}
+
+/**
+ * A VERIFY TODO about one declaration the caller emits itself. It is returned rather than only
+ * recorded, because the section that writes that declaration is the one that renders the block.
+ */
+function reportAtDeclaration(ctx: Ctx, reason: string, explanation: string): TodoEntry {
+    const entry: TodoEntry & { kind: ReportKind } = {
+        kind: 'todo',
+        mode: 'VERIFY',
+        reason,
+        explanation,
+        anchored: true,
+    };
+
+    pushReport(ctx, entry);
+
+    return entry;
 }
 
 function keyName(prop: t.ObjectMethod | t.ObjectProperty): string | null {
@@ -116,6 +154,58 @@ function asFunction(prop: t.ObjectMethod | t.ObjectProperty | t.SpreadElement): 
 
 function isThisMember(node: t.Node): node is t.MemberExpression {
     return node.type === 'MemberExpression' && node.object.type === 'ThisExpression';
+}
+
+/**
+ * The setup binding a component member resolves to. Equal to the member name except where a
+ * composable member had to be renamed around a name another declaration already claims.
+ */
+function bindingName(ctx: Ctx, member: string): string {
+    return ctx.renamedBindings.get(member) ?? member;
+}
+
+/**
+ * Every `this.<member>` name read inside `node`, ignoring what `this` binds at each site. Callers use
+ * it to decide whether a member is referenced at all, where counting a reference that turns out to be
+ * foreign only costs an unused binding — missing one would drop the member.
+ */
+function collectThisMemberNames(node: t.Node, names: Set<string>): void {
+    traverseFast(node, (descendant) => {
+        if (!isThisMember(descendant)) {
+            return;
+        }
+
+        const name = memberName(descendant);
+
+        if (name) {
+            names.add(name);
+        }
+    });
+}
+
+/**
+ * Every `this.<member>` name written to inside `node`, again ignoring what `this` binds at each site.
+ * Compound assignments and `++`/`--` count: all of them need the target to be assignable.
+ */
+function collectAssignedThisMemberNames(node: t.Node, names: Set<string>): void {
+    traverseFast(node, (descendant) => {
+        const target =
+            descendant.type === 'AssignmentExpression'
+                ? descendant.left
+                : descendant.type === 'UpdateExpression'
+                  ? descendant.argument
+                  : null;
+
+        if (!target || !isThisMember(target)) {
+            return;
+        }
+
+        const name = memberName(target);
+
+        if (name) {
+            names.add(name);
+        }
+    });
 }
 
 function memberName(node: t.MemberExpression): string | null {
@@ -220,9 +310,15 @@ export {
     raw,
     overwrite,
     report,
+    reportFix,
+    reportReview,
+    reportAtDeclaration,
     keyName,
     asFunction,
     isThisMember,
+    bindingName,
+    collectThisMemberNames,
+    collectAssignedThisMemberNames,
     memberName,
     arrowText,
     unwrapExpression,

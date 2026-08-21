@@ -9,13 +9,33 @@
  * LIFECYCLE_HOOKS maps hook names. Anything no table claims becomes a `// TODO(sfc-migration)`
  * comment (partial migration) or a blocker (component skipped) — never a silent guess. Supporting
  * a new feature usually means adding one entry here plus a handler in option-handlers.ts.
+ *
+ * Mixins have their own table, composables/, because a mixin is matched by its registered name
+ * rather than by an option key.
  */
 
 type MemberKind = 'prop' | 'data' | 'computed' | 'method' | 'inject';
 
 type HelperName = 't' | 'router' | 'route' | 'emit' | 'props' | 'slots' | 'attrs' | 'nextTick';
 
-type TodoEntry = { reason: string; code?: string };
+type TodoEntry = {
+    reason: string;
+    code?: string;
+    /**
+     * Tells the reader of a draft what the TODO asks of them: `FIX` means the emitted code does not
+     * run as it stands, `VERIFY` means it does and only its equivalence is unproven.
+     */
+    mode?: 'FIX' | 'VERIFY';
+    /** Why the mode applies — what the reader has to write, or what the codemod could not prove. */
+    explanation?: string;
+    /** Review points of a TODO that asks the reader to check emitted code instead of writing missing code. */
+    checks?: string[];
+    /**
+     * Emitted above the single declaration it is about, by whichever section writes that
+     * declaration — the file-wide TODO groups leave it out.
+     */
+    anchored?: boolean;
+};
 
 /** The two ways the codemod says "I could not convert this": refuse the component, or leave a note. */
 type ReportKind = 'skip' | 'todo';
@@ -33,7 +53,6 @@ function sourceKeyed<T>(entries: Record<string, T>): Record<string, T> {
 // the option as a comment. Anything absent from this table and unclaimed is an unknown option — also
 // a TODO, but under a different reason (see classifyOptions).
 const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
-    mixins: 'skip',
     render: 'skip',
     renderError: 'skip',
     metaInfo: 'todo',

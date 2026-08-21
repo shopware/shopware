@@ -17,7 +17,17 @@
 import type { NodePath } from '@babel/core';
 import type * as t from '@babel/types';
 import { INSTANCE_PROPS, SKIP_INSTANCE_PROPS } from './tables';
-import { type Ctx, type FnLike, IDENTIFIER, isThisMember, memberName, overwrite, report } from './ast';
+import {
+    type Ctx,
+    type FnLike,
+    IDENTIFIER,
+    bindingName,
+    isThisMember,
+    memberName,
+    overwrite,
+    report,
+    reportFix,
+} from './ast';
 
 type Scope = NodePath['scope'];
 
@@ -33,6 +43,58 @@ const REBINDS_THIS = new Set<string>([
 ]);
 
 /** The boundaries of one rewrite pass, so the visitor is a pure function of the visited path. */
+/**
+ * Second arguments of `$t` that mean the same to legacy `$t` and to Composition `t()`: an object of
+ * named values, a list, or a plural count. A count is only recognized where it provably is a number —
+ * anything whose type could be a string has to be treated as a locale.
+ */
+function isPortableI18nArgument(node: t.Node): boolean {
+    switch (node.type) {
+        case 'ObjectExpression':
+        case 'ArrayExpression':
+        case 'NumericLiteral':
+            return true;
+        case 'UnaryExpression':
+            return (node.operator === '-' || node.operator === '+') && isPortableI18nArgument(node.argument);
+        case 'ConditionalExpression':
+            return isPortableI18nArgument(node.consequent) && isPortableI18nArgument(node.alternate);
+        case 'TSAsExpression':
+        case 'TSNonNullExpression':
+            return isPortableI18nArgument(node.expression);
+        default:
+            return false;
+    }
+}
+
+/**
+ * The legacy vue-i18n call shapes Composition `t()` reads differently, described for a TODO comment.
+ *
+ * `INSTANCE_PROPS` maps `$t` and `$tc` onto `t` unconditionally, which is only right where the
+ * arguments mean the same in both APIs: `$t(key)`, `$t(key, values)`, `$t(key, list)`, `$t(key,
+ * plural)` and `$tc(key, choice)` all do. A locale as `$t`'s second argument does not — Composition
+ * `t()` takes a default message there and would render the locale itself — and neither does `$tc`'s
+ * third `values` argument, where Composition `t()` expects TranslateOptions and drops the
+ * interpolation. Both need the locale or the values moved, which is a call rewrite, not a rename.
+ */
+function legacyI18nShape(call: t.CallExpression, name: string): { reason: string; explanation: string } | null {
+    if (name === '$t' && call.arguments.length >= 2 && !isPortableI18nArgument(call.arguments[1])) {
+        return {
+            reason: 'this.$t(key, locale) is left as authored and does not run in setup',
+            explanation:
+                'Composition t() would read the locale as a default message; rewrite the call as t(key, values, { locale })',
+        };
+    }
+
+    if (name === '$tc' && call.arguments.length >= 3) {
+        return {
+            reason: 'this.$tc(key, choice, values) is left as authored and does not run in setup',
+            explanation: 'Composition t() expects options in the third argument; rewrite the call as t(key, values, choice)',
+        };
+    }
+
+    return null;
+}
+
 type Pass = {
     ctx: Ctx;
     /** `this` semantics at the pass root — ancestors below `stopAt` can only revoke it. */
@@ -144,8 +206,10 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
         return false;
     }
 
+    const binding = bindingName(ctx, name);
+
     // Props resolve through the `props` object, so only that name can shadow them.
-    if (isShadowed(pass, path, kind === 'prop' ? 'props' : name)) {
+    if (isShadowed(pass, path, kind === 'prop' ? 'props' : binding)) {
         report(ctx, 'todo', `this.${name} is shadowed by a local binding`);
         return false;
     }
@@ -154,9 +218,9 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
         ctx.helpers.add('props');
         overwrite(ctx, node, `props.${name}`);
     } else if (kind === 'data' || kind === 'computed') {
-        overwrite(ctx, node, `${name}.value`);
+        overwrite(ctx, node, `${binding}.value`);
     } else {
-        overwrite(ctx, node, name);
+        overwrite(ctx, node, binding);
     }
 
     return false;
@@ -191,11 +255,34 @@ function visit(pass: Pass, path: NodePath): boolean {
         }
     }
 
+    if (node.type === 'CallExpression' && isComponent && isThisMember(node.callee)) {
+        const calleeName = memberName(node.callee);
+        const legacyShape = calleeName === null ? null : legacyI18nShape(node, calleeName);
+
+        if (legacyShape !== null) {
+            reportFix(ctx, legacyShape.reason, legacyShape.explanation, node);
+        }
+    }
+
     if (node.type === 'MemberExpression' && isThisMember(node.object) && memberName(node.object) === '$refs') {
         return rewriteRefsAccess(pass, node, path, isComponent);
     }
 
     if (isThisMember(node)) {
+        const name = memberName(node);
+
+        // The callee of a legacy i18n call is left as authored, so the draft shows the shape a human
+        // has to decide on. Its arguments are ordinary component code and keep rewriting.
+        if (
+            isComponent &&
+            name !== null &&
+            parent.type === 'CallExpression' &&
+            parent.callee === node &&
+            legacyI18nShape(parent, name) !== null
+        ) {
+            return false;
+        }
+
         return rewriteThisMember(pass, node, path, isComponent);
     }
 

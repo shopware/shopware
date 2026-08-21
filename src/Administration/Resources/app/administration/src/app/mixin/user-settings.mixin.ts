@@ -30,6 +30,8 @@ interface CurrentUser {
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-user-settings`; change both together.
  */
 export default Shopware.Mixin.register(
     'user-settings',

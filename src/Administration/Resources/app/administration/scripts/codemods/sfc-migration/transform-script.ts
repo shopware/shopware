@@ -26,16 +26,20 @@
 import { traverse } from '@babel/core';
 import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
+import { getBindingIdentifiers } from '@babel/types';
 import MagicString from 'magic-string';
 import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type ReportKind, type TodoEntry } from './tables';
 import { type Ctx, arrowText, report, snip, unwrapOptions } from './ast';
 import {
     type Collected,
     type CollectedWatcher,
+    type ResolvedComposable,
     classifyOptions,
     collectWatchers,
+    emitsEventNames,
     renderMember,
     renderWatcher,
+    resolveMixins,
 } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
@@ -47,25 +51,111 @@ type ScriptResult = {
 };
 
 function todoBlock(entry: TodoEntry): string {
-    const header = `// TODO(sfc-migration): ${entry.reason}`;
+    const lines = [
+        `// TODO(sfc-migration)${entry.mode ? ` ${entry.mode}` : ''}: ${entry.reason}`,
+        ...(entry.explanation ? [`// ${entry.explanation}`] : []),
+    ];
+
+    if (entry.checks) {
+        return [
+            ...lines,
+            ...entry.checks.map((check) => `// - ${check}`),
+        ].join('\n');
+    }
 
     if (!entry.code) {
-        return header;
+        return lines.join('\n');
     }
 
     const codeLines = entry.code.split('\n').map((line) => `// ${line}`);
 
     return [
-        `${header} — original code:`,
+        ...lines.slice(0, -1),
+        `${lines[lines.length - 1]} — original code:`,
         ...codeLines,
     ].join('\n');
+}
+
+/**
+ * Names the module body binds outside the component options. The module `<script>` block shares its
+ * scope with `<script setup>`, so a generated binding of the same name would either be a duplicate
+ * declaration or quietly take over the references meant for the prelude's.
+ */
+function collectTopLevelBindings(body: t.Statement[], exportDefault: t.Statement): Set<string> {
+    const names = new Set<string>();
+
+    for (const statement of body) {
+        if (statement === exportDefault) {
+            continue;
+        }
+
+        for (const name of Object.keys(getBindingIdentifiers(statement))) {
+            names.add(name);
+        }
+    }
+
+    return names;
+}
+
+function eventList(events: string[]): string {
+    return `[${events.map((event) => `'${event}'`).join(', ')}]`;
+}
+
+/**
+ * The `defineEmits` argument. A mixin's events have to be merged into the component's own list,
+ * because its composable emits them through the callbacks the codemod hands it. With no mixin event in
+ * play the `emits` option is spliced verbatim instead, which keeps the object form and its validators.
+ */
+function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], usesEmit: boolean): string | null {
+    if (mixinEvents.length > 0) {
+        // resolveMixins refuses a component whose `emits` option is not a plain list, so a declaration
+        // that reaches here always parses.
+        const declared = collected.emitsNode ? (emitsEventNames(collected.emitsNode) as string[]) : ctx.inferredEmits;
+
+        return eventList([
+            ...new Set([
+                ...declared,
+                ...mixinEvents,
+            ]),
+        ]);
+    }
+
+    if (collected.emitsNode) {
+        return snip(ctx, collected.emitsNode);
+    }
+
+    return ctx.inferredEmits.length > 0 || usesEmit ? eventList(ctx.inferredEmits) : null;
+}
+
+/**
+ * The `defineProps` argument, with the props the mixins declared merged into the component's own
+ * literal. `defineProps` is a compiler macro, so both have to end up in one literal — which is why
+ * resolveMixins refuses a component whose `props` option is not one.
+ */
+function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): string | null {
+    const provided = collected.providedProps.map(({ name, definition }) => `${name}: ${definition},`);
+    const ownText = collected.propsNode ? snip(ctx, collected.propsNode) : null;
+
+    if (provided.length === 0) {
+        return ownText ?? (usesProps ? '{}' : null);
+    }
+
+    const ownEntries = ownText ? ownText.trim().slice(1, -1).trim() : '';
+    const separator = ownEntries === '' || ownEntries.endsWith(',') ? '' : ',';
+
+    return `{\n${ownEntries}${separator}\n${provided.join('\n')}\n}`;
 }
 
 /**
  * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
  * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
  */
-function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher[]): string {
+function renderScript(
+    ctx: Ctx,
+    collected: Collected,
+    watchers: CollectedWatcher[],
+    composables: ResolvedComposable[],
+): string {
     const usesEmit = ctx.helpers.has('emit');
     const usesProps = ctx.helpers.has('props');
     const vueImports = [
@@ -83,12 +173,11 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
         ...(ctx.helpers.has('route') ? ['useRoute'] : []),
     ];
 
-    const emitsText = collected.emitsNode
-        ? snip(ctx, collected.emitsNode)
-        : ctx.inferredEmits.length > 0 || usesEmit
-          ? `[${ctx.inferredEmits.map((event) => `'${event}'`).join(', ')}]`
-          : null;
-    const propsText = collected.propsNode ? snip(ctx, collected.propsNode) : usesProps ? '{}' : null;
+    const mixinEvents = [
+        ...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {}))),
+    ];
+    const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
+    const propsText = propsArgument(ctx, collected, usesProps);
 
     // One-line declarations are grouped into contiguous blocks so the output reads hand-written;
     // multi-line members keep a blank line between them.
@@ -96,6 +185,7 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
+        ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
     ]
         .filter(Boolean)
         .join('\n');
@@ -112,6 +202,28 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
         .map((helper) => HELPER_SETUP_LINES[helper])
         .join('\n');
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
+    const composableBlock = composables
+        .map(({ descriptor, entries, args, config }) => {
+            const callArgs = [
+                ...args,
+                ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`),
+            ];
+            const call = `${descriptor.import.name}(${callArgs.length > 0 ? `{ ${callArgs.join(', ')} }` : ''});`;
+            const destructured = entries
+                .map((entry) =>
+                    entry.binding === entry.sourceKey ? entry.sourceKey : `${entry.sourceKey}: ${entry.binding}`,
+                )
+                .join(', ');
+
+            // A scaffold runs the lifecycle, so its call stands on its own when nothing is read from it.
+            const declaration = entries.length > 0 ? `const { ${destructured} } = ${call}` : call;
+
+            return [
+                ...entries.flatMap((entry) => (entry.renameTodo ? [todoBlock(entry.renameTodo)] : [])),
+                declaration,
+            ].join('\n');
+        })
+        .join('\n');
     const dataBlock = collected.dataEntries
         .map((entry) => `const ${entry.name} = ref(${snip(ctx, entry.valueNode)});`)
         .join('\n');
@@ -119,13 +231,26 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
 
     const publicNames = [
         ...collected.injects,
+        // The mixin's members were part of the instance surface an override could reach, so they stay
+        // public. A renamed one cannot: swDefinePublic only takes shorthand bindings, so exposing it
+        // would publish the generated name instead of the one the mixin had.
+        ...composables.flatMap(({ entries }) =>
+            entries.filter((entry) => entry.binding === entry.member).map((entry) => entry.binding),
+        ),
         ...collected.dataEntries.map((entry) => entry.name),
         ...ctx.templateRefs,
         ...collected.computeds.map((computedEntry) => computedEntry.name),
         ...collected.methods.map((method) => method.name),
     ];
 
+    // A review TODO is about the whole draft, so it leads the file instead of trailing the code its
+    // checks are about. An anchored one was already emitted above the declaration it names.
+    const fileTodos = ctx.reports.filter((entry) => entry.kind === 'todo' && !entry.anchored);
+    const reviewTodos = fileTodos.filter((entry) => entry.checks !== undefined);
+    const siteTodos = fileTodos.filter((entry) => entry.checks === undefined);
+
     const sections: (string | null)[] = [
+        ...reviewTodos.map(todoBlock),
         importBlock || null,
         helperBlock || null,
         injectBlock || null,
@@ -140,6 +265,9 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
                 ? `const emit = defineEmits(${emitsText});`
                 : `defineEmits(${emitsText});`
             : null,
+        // After the macro bindings a composable call can be handed, before the member sections that
+        // read what it returns.
+        composableBlock || null,
         ...collected.methods.map((method) => renderMember(ctx, method)),
         ...collected.computeds.map((computedEntry) => renderMember(ctx, computedEntry)),
         dataBlock || null,
@@ -147,7 +275,7 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
-        ...ctx.reports.filter((entry) => entry.kind === 'todo').map(todoBlock),
+        ...siteTodos.map(todoBlock),
         publicNames.length > 0
             ? `swDefinePublic({\n${publicNames.map((publicName) => `${publicName},`).join('\n')}\n});`
             : 'swDefinePublic({});',
@@ -159,7 +287,10 @@ function renderScript(ctx: Ctx, collected: Collected, watchers: CollectedWatcher
 function transformScript(
     source: string,
     componentName: string,
-    transformOptions: { templateImportRange: { start: number; end: number } },
+    transformOptions: {
+        templateImportRange: { start: number; end: number };
+        templateIdentifiers: ReadonlySet<string>;
+    },
 ): ScriptResult {
     const ctx: Ctx = {
         source,
@@ -167,6 +298,8 @@ function transformScript(
         paths: new Map(),
         componentName,
         bindings: new Map(),
+        renamedBindings: new Map(),
+        templateIdentifiers: transformOptions.templateIdentifiers,
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
@@ -202,6 +335,7 @@ function transformScript(
     // --- collect ----------------------------------------------------------------------------------
 
     const collected = classifyOptions(ctx, options);
+    const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
     const watchers = collectWatchers(ctx, collected);
 
     // --- name safety checks --------------------------------------------------------------------
@@ -260,6 +394,12 @@ function transformScript(
         rewriteThis(ctx, entry.valueNode, true);
     }
 
+    for (const composable of composables) {
+        for (const entry of composable.config) {
+            rewriteThis(ctx, entry.valueNode, true);
+        }
+    }
+
     for (const node of collected.foreignNodes) {
         rewriteThis(ctx, node, false);
     }
@@ -286,7 +426,7 @@ function transformScript(
     // --- render ------------------------------------------------------------------------------------
 
     return {
-        script: renderScript(ctx, collected, watchers),
+        script: renderScript(ctx, collected, watchers, composables),
         moduleScript,
         reasons: reasonsOf('todo'),
     };

@@ -8,6 +8,7 @@
  * through exactly this function, so what the tests pin is what the CLI writes.
  */
 
+import { collectTemplateIdentifiers } from './template-ast';
 import { transformScript } from './transform-script';
 import { transformTemplate } from './transform-template';
 import { formatSfc, validateSfc } from './validate';
@@ -37,8 +38,11 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
         return { outcome: 'skipped', reasons: template.blockers, sfc: null };
     }
 
+    // The template runs first because the script transform needs to know which names the markup
+    // reads: a member only the template uses still has to end up as a binding.
     const script = transformScript(input.jsSource, input.componentName, {
         templateImportRange: input.templateImportRange,
+        templateIdentifiers: collectTemplateIdentifiers(template.template),
     });
 
     if (script.script === null) {

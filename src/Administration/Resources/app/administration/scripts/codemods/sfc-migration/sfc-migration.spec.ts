@@ -2,55 +2,15 @@
  * @sw-package framework
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { parse } from '@babel/parser';
-import { convertComponent, type ConvertResult } from './convert-component';
+import { convertComponent } from './convert-component';
 import { OPTION_HANDLERS } from './option-handlers';
+import { convertFixture, fixtureNames, templateImportRange } from './spec-helpers';
 import { LIFECYCLE_HOOKS, OPTION_TIERS } from './tables';
 import { TWIG_PARENT_BLOCKER, transformTemplate } from './transform-template';
 
-const FIXTURES = path.join(__dirname, '__fixtures__');
-
-function fixturePaths(name: string): { indexPath: string; twigPath: string } {
-    const dir = path.join(FIXTURES, name);
-    const indexPath = [
-        path.join(dir, 'index.js'),
-        path.join(dir, 'index.ts'),
-    ].find((file) => fs.existsSync(file)) as string;
-
-    return { indexPath, twigPath: path.join(dir, `${name}.html.twig`) };
-}
-
-async function convertFixture(name: string): Promise<ConvertResult> {
-    const { indexPath, twigPath } = fixturePaths(name);
-    const jsSource = fs.readFileSync(indexPath, 'utf8');
-    const templateImport = parse(jsSource, { sourceType: 'module', plugins: ['typescript'] }).program.body.find(
-        (statement) => statement.type === 'ImportDeclaration' && statement.source.value.endsWith('.html.twig'),
-    );
-
-    if (!templateImport) {
-        throw new Error(`Fixture ${name} has no Twig import`);
-    }
-
-    return convertComponent({
-        jsSource,
-        twigSource: fs.readFileSync(twigPath, 'utf8'),
-        componentName: name,
-        vuePath: path.join(FIXTURES, name, `${name}.vue`),
-        lang: indexPath.endsWith('.ts') ? 'ts' : 'js',
-        templateImportRange: { start: templateImport.start as number, end: templateImport.end as number },
-    });
-}
-
 describe('scripts/codemods/sfc-migration', () => {
     describe('fixture snapshots (outcome, reasons and generated SFC per fixture)', () => {
-        const fixtureNames = fs
-            .readdirSync(FIXTURES)
-            .filter((entry) => fs.statSync(path.join(FIXTURES, entry)).isDirectory())
-            .sort();
-
-        it.each(fixtureNames)('converts %s', async (name) => {
+        it.each(fixtureNames())('converts %s', async (name) => {
             const result = await convertFixture(name);
 
             expect(result).toMatchSnapshot();
@@ -140,12 +100,6 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toContain('array inject declaration requires runtime ref-unwrapping verification');
         });
 
-        it('skips mixin components entirely', async () => {
-            const result = await convertFixture('sw-mixin-demo');
-
-            expect(result).toEqual({ outcome: 'skipped', reasons: ['mixins'], sfc: null });
-        });
-
         it('skips components using this.$super', async () => {
             const result = await convertFixture('sw-super-demo');
 
@@ -228,40 +182,34 @@ describe('scripts/codemods/sfc-migration', () => {
         });
 
         it('preserves function contracts and special JSDoc when rendering setup functions', async () => {
+            const specialJsDoc =
+                '@deprecated tag:v6.8.0 @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES @internal @private';
             const jsSource = `
                     import template from './sw-function-contracts.html.twig';
 
                     export default {
                         template,
                         methods: {
-                            /** @deprecated tag:v6.8.0 @internal @private */
+                            /** ${specialJsDoc} */
                             typed<T>(value: T): T {
                                 return value;
                             },
                         },
                     };
                 `;
-            const templateImport = parse(jsSource, { sourceType: 'module', plugins: ['typescript'] }).program.body.find(
-                (statement) => statement.type === 'ImportDeclaration',
-            );
-
-            if (!templateImport) {
-                throw new Error('Contract fixture has no template import');
-            }
-
             const result = await convertComponent({
                 componentName: 'sw-function-contracts',
                 jsSource,
                 twigSource: '{% block sw_function_contracts %}<div />{% endblock %}',
                 vuePath: 'sw-function-contracts.vue',
                 lang: 'ts',
-                templateImportRange: { start: templateImport.start as number, end: templateImport.end as number },
+                templateImportRange: templateImportRange(jsSource),
             });
 
             expect(result.outcome).toBe('full');
-            expect(result.sfc).toContain('@deprecated tag:v6.8.0 @internal @private');
+            expect(result.sfc).toContain(specialJsDoc);
             expect(result.sfc).toMatch(
-                /const typed =\s+\/\*\* @deprecated tag:v6.8.0 @internal @private \*\/\s+function <T>\(value: T\): T/,
+                new RegExp(`const typed =\\s+/\\*\\* ${specialJsDoc} \\*/\\s+function <T>\\(value: T\\): T`),
             );
         });
     });

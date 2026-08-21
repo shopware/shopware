@@ -13,6 +13,8 @@ const { Mixin } = Shopware;
  * Shared rendering helpers for the notification components (growl and notification center).
  * A snippet key is translated while plain strings pass through unchanged, and the message is
  * sanitized once here so the allow-list does not need to be repeated in every component.
+ *
+ * Duplicated in `src/app/composables/use-notification-translation`; change both together.
  */
 export default Mixin.register(
     'notification-translation',

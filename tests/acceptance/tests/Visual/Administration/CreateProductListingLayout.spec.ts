@@ -1,10 +1,10 @@
 import { test, setViewport, assertScreenshot } from '@fixtures/AcceptanceTest';
 import { expandAdminMenu } from '@helpers/admin-menu-helpers';
 
-// This flow visits the CMS layout builder, which collapses the admin menu on mount and never
-// expands it back (see expandAdminMenu's doc comment). Restore it once this test is done so it
-// doesn't leak into whichever @Visual spec runs next in the same worker. Runs even if the test
-// above fails, so a failure here can't still leak the collapsed sidebar into later specs.
+// The CMS layout builder this test drives collapses the admin menu on mount and never expands
+// it back (see expandAdminMenu's doc comment). Undo that here - as afterEach, not a last line in
+// the test body, so it still runs (and un-leaks the collapsed sidebar) even if this test fails
+// partway through.
 test.afterEach(async ({ page }) => {
     await expandAdminMenu(page);
 });

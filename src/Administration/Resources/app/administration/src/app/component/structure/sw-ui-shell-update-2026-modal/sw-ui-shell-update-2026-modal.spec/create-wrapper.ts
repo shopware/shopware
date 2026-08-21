@@ -17,7 +17,7 @@ export const BEFORE_RELEASE = '2024-01-01T00:00:00.000Z';
 /**
  * @private
  */
-export const AFTER_RELEASE = '2099-06-01T00:00:00.000Z';
+export const AFTER_RELEASE = '2026-12-01T00:00:00.000Z';
 
 /**
  * @private

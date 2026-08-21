@@ -30,20 +30,8 @@ type DragState = {
     position: number;
 };
 
-// eslint-disable-next-line no-warning-comments
-// @todo PLACEHOLDER DATE - set this to the release that ships the new navigation. The far
-// future placeholder keeps every existing shop eligible until the real date is known.
-const NEW_NAVIGATION_RELEASE_DATE = '2099-01-01';
-
-// eslint-disable-next-line no-warning-comments
-// @todo TESTING - set to false before this ships.
-/**
- * Reopens the modal on every load while the design is still being reviewed. The flag is
- * still recorded, so flipping this back to false is all it takes to show it exactly once.
- *
- * @private
- */
-export const IGNORE_SEEN_FLAG = true;
+// The release that ships the new navigation: shops and users from before it ran the old one.
+const NEW_NAVIGATION_RELEASE_DATE = '2026-10-05';
 
 /**
  * @private
@@ -198,7 +186,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            if (!IGNORE_SEEN_FLAG && (await this.hasSeenModal())) {
+            if (await this.hasSeenModal()) {
                 return;
             }
 

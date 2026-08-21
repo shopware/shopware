@@ -3,7 +3,7 @@
  */
 
 import { type VueWrapper } from '@vue/test-utils';
-import { IGNORE_SEEN_FLAG, UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY } from '../index';
+import { UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY } from '../index';
 import createWrapper, { AFTER_RELEASE, setCurrentUser, setIntendedAudience, setShopContext } from './create-wrapper';
 
 describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility', () => {
@@ -89,9 +89,7 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility
         wrapper = await createWrapper();
         await flushPromises();
 
-        // IGNORE_SEEN_FLAG deliberately reopens the modal while the design is under review,
-        // so this only guards the rule once that flag is flipped back off.
-        expect(wrapper.find('.mt-modal').exists()).toBe(IGNORE_SEEN_FLAG);
+        expect(wrapper.find('.mt-modal').exists()).toBe(false);
     });
 
     it('shows the modal while the flag says the user has not seen it', async () => {

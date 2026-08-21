@@ -32,6 +32,13 @@ class StorefrontVisitorTest extends TestCase
         static::assertSame('storefront_visitor', $this->scope->getName());
     }
 
+    public function testAppliesToSalesChannelContextsOnly(): void
+    {
+        static::assertTrue($this->scope->appliesTo(new Context(new SalesChannelApiSource(Uuid::randomHex()))));
+        static::assertFalse($this->scope->appliesTo(new Context(new AdminApiSource(Uuid::randomHex()))));
+        static::assertFalse($this->scope->appliesTo(new Context(new SystemSource())));
+    }
+
     public function testResolveIdentifierForSalesChannelContextIsAnonymous(): void
     {
         $context = new Context(new SalesChannelApiSource(Uuid::randomHex()));

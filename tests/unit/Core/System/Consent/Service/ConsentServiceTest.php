@@ -594,6 +594,23 @@ class ConsentServiceTest extends TestCase
         static::assertArrayNotHasKey('storefront-consent', $result);
     }
 
+    public function testListThrowsWhenADefinitionReferencesAnUnknownScope(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', 'scope-that-nobody-registered'),
+        ]);
+
+        $this->consentRepository
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        // A missing scope is a wiring bug and must surface. Only consents whose scope
+        // does not apply to the caller are skipped silently.
+        $this->expectExceptionObject(ConsentException::invalidScope('scope-that-nobody-registered'));
+
+        $service->list(Context::createDefaultContext(new AdminApiSource('user-123')));
+    }
+
     public function testListContainsDefinitionsWithResolvableScope(): void
     {
         $service = $this->createService(null, [

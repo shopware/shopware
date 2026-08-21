@@ -24,6 +24,16 @@ class AdminUserTest extends TestCase
         static::assertSame('admin_user', $scope->getName());
     }
 
+    public function testAppliesToAdminUserContextsOnly(): void
+    {
+        $scope = new AdminUser();
+
+        static::assertTrue($scope->appliesTo(new Context(new AdminApiSource('user-123'))));
+        // integrations also authenticate as AdminApiSource, but carry no user id
+        static::assertFalse($scope->appliesTo(new Context(new AdminApiSource(null))));
+        static::assertFalse($scope->appliesTo(Context::createDefaultContext()));
+    }
+
     public function testScopeIdentifierThrowsExceptionWhenSourceIsNotAdminApi(): void
     {
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));

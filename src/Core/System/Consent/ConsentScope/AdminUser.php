@@ -21,6 +21,17 @@ class AdminUser implements ConsentScope
         return self::NAME;
     }
 
+    /**
+     * Integrations also authenticate as AdminApiSource but carry no user id,
+     * a per-user consent cannot apply to them.
+     */
+    public function appliesTo(Context $context): bool
+    {
+        $source = $context->getSource();
+
+        return $source instanceof AdminApiSource && $source->getUserId();
+    }
+
     public function resolveIdentifier(Context $context): string
     {
         $source = $context->getSource();

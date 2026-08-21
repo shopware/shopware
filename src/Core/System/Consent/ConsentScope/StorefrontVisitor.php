@@ -29,6 +29,11 @@ class StorefrontVisitor implements ConsentScope
         return self::NAME;
     }
 
+    public function appliesTo(Context $context): bool
+    {
+        return $context->getSource() instanceof SalesChannelApiSource;
+    }
+
     public function resolveIdentifier(Context $context): string
     {
         if (!$context->getSource() instanceof SalesChannelApiSource) {

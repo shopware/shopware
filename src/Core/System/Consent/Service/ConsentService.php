@@ -59,15 +59,15 @@ class ConsentService implements ResetInterface
 
         $list = [];
         foreach ($this->consentDefinitionRegistry->all() as $consent) {
-            try {
-                $identifier = $this->getScope($consent)->resolveIdentifier($context);
-            } catch (ConsentException) {
-                // The scope does not apply to the current context, e.g. storefront visitor
-                // consents are not listed for admin API requests.
+            $scope = $this->getScope($consent);
+
+            // Not an error: e.g. storefront visitor consents do not apply to admin API callers.
+            if (!$scope->appliesTo($context)) {
                 continue;
             }
 
-            $key = $consent->getName() . ':' . $consent->getScopeName() . ':' . $identifier;
+            $identifier = $scope->resolveIdentifier($context);
+            $key = $this->buildKey($consent->getName(), $consent->getScopeName(), $identifier);
 
             $list[$consent->getName()] = $states[$key] ?? new ConsentState(
                 name: $consent->getName(),
@@ -235,11 +235,16 @@ class ConsentService implements ResetInterface
         if ($consent instanceof ConsentDefinition) {
             $scopeIdentifier = $this->getScope($consent)->resolveIdentifier($context);
 
-            return $consent->getName() . ':' . $consent->getScopeName() . ':' . $scopeIdentifier;
+            return $this->buildKey($consent->getName(), $consent->getScopeName(), $scopeIdentifier);
         }
 
         // $consent is instance of ConsentState
-        return $consent->name . ':' . $consent->scopeName . ':' . $consent->identifier;
+        return $this->buildKey($consent->name, $consent->scopeName, $consent->identifier);
+    }
+
+    private function buildKey(string $name, string $scopeName, string $identifier): string
+    {
+        return $name . ':' . $scopeName . ':' . $identifier;
     }
 
     private function invalidateState(): void

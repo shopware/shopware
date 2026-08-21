@@ -262,6 +262,27 @@ async function fulfillError(route: Route, detail: string): Promise<void> {
     });
 }
 
+/**
+ * Moving the clock past 2026-10-05 makes the ui-shell-update-2026 announcement modal open for
+ * pre-release shops; mark it as seen so its backdrop never blocks a time-traveling test.
+ *
+ * @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+ */
+export async function markUiShellUpdateModalSeen(page: Page): Promise<void> {
+    await page.route('**/api/_info/config-me*', async (route) => {
+        if (route.request().method() !== 'GET') {
+            await route.fallback();
+            return;
+        }
+
+        const response = await route.fetch();
+        const body = (await response.json()) as { data?: Record<string, unknown> };
+        body.data = { ...(body.data ?? {}), 'core.uiShellUpdate2026ModalSeen': { seen: true } };
+
+        await route.fulfill({ response, json: body });
+    });
+}
+
 export async function waitForEventCount(
     getEvents: () => unknown[],
     expectedCount: number,

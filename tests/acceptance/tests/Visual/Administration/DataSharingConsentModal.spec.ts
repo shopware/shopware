@@ -1,5 +1,6 @@
 import { test, assertScreenshot, setViewport, Page, replaceElements, hideElements } from '@fixtures/AcceptanceTest';
 import {
+    markUiShellUpdateModalSeen,
     removeSymfonyToolbar,
     setupConsentInterceptor,
     setupProductAnalyticsInterceptor,
@@ -30,6 +31,7 @@ test(
         const AdminDashboard = new AdminPageObjects['Dashboard'](page);
 
         await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+        await markUiShellUpdateModalSeen(page);
 
         await test.step('Modify product analytics API and consent API requests.', async () => {
             const { trackingEventHandler } = setupProductAnalyticsInterceptor();

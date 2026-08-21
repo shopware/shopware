@@ -9,11 +9,23 @@ import syncComponents from './syncComponents';
 
 const registryCache = new Map();
 
-async function importComponent(componentName) {
+const IMPORT_MAP_FILE = 'test/_helper_/componentWrapper/component-imports.js';
+const REGENERATE_HINT =
+    `${IMPORT_MAP_FILE} is generated from the \`Component.register\`/\`Component.extend\` calls in ` +
+    'src/. Run `npm run generate-component-import-resolver-map` (or use `composer run admin:unit`, ' +
+    'which regenerates it) after moving or renaming a component.';
+
+async function importComponent(componentName, requestedBy = null) {
+    const requestedFor = requestedBy === null ? componentName : `${requestedBy} -> ${componentName}`;
+
     // Check if the component is registered in the component-imports.js.
     // If not, the component is not wrapped and needs to be resolved manually.
     if (!components[componentName]) {
-        throw new Error(`Component ${componentName} not found in component-imports.js. Resolve imports manually.`);
+        throw new Error(
+            `Component ${requestedFor} has no entry in ${IMPORT_MAP_FILE}, so its import cannot be ` +
+                `resolved. Either the component is registered somewhere the generator does not scan and ` +
+                `has to be imported manually, or the map is stale: ${REGENERATE_HINT}`,
+        );
     }
 
     // Check if the component is already registered and cached
@@ -30,7 +42,19 @@ async function importComponent(componentName) {
      * Depending on how the component is registered or extended, the component may or may not be registered or extended just by the import statement.
      * The componentConfig flags r for registration and e for extension are used to determine if the component needs to be registered or extended after the import.
      */
-    const component = await import(componentConfig.p);
+    let component;
+
+    // A stale entry fails inside Jest's module resolution, which reports it as a `moduleNameMapper`
+    // problem - the mapper is correct, the generated path is not. Name the real culprit instead.
+    try {
+        component = await import(componentConfig.p);
+    } catch (error) {
+        throw new Error(
+            `Component ${requestedFor} resolved to "${componentConfig.p}" through ${IMPORT_MAP_FILE}, ` +
+                `which could not be imported. ${REGENERATE_HINT}`,
+            { cause: error },
+        );
+    }
 
     // The component still needs registration after the import statement
     if (componentConfig.r === true) {
@@ -42,7 +66,7 @@ async function importComponent(componentName) {
     if (componentConfig.en) {
         if (!Shopware.Component.getComponentRegistry().has(componentConfig.en)) {
             // The component requested to extend is not yet registered
-            await importComponent(componentConfig.en);
+            await importComponent(componentConfig.en, requestedFor);
         }
     }
 

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
@@ -536,7 +537,7 @@ class WebhookManagerTest extends TestCase
     private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read'], bool $resolvesPrivileges = true): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
-        static::assertIsString($webhook->appAclRoleId);
+        $roleId = $webhook->ownerRoleIds[0];
 
         $this->webhookLoader->expects($this->once())
             ->method('getWebhooks')
@@ -545,8 +546,8 @@ class WebhookManagerTest extends TestCase
         $this->webhookLoader
             ->expects($resolvesPrivileges ? $this->once() : $this->never())
             ->method('getPrivilegesForRoles')
-            ->with([$webhook->appAclRoleId])
-            ->willReturn([$webhook->appAclRoleId => new AclPrivilegeCollection($acl)]);
+            ->with([$roleId])
+            ->willReturn([$roleId => new AclPrivilegeCollection($acl)]);
 
         return $webhook;
     }
@@ -656,7 +657,8 @@ class WebhookManagerTest extends TestCase
             $appActive,
             '0.0.0',
             'verysecret',
-            Uuid::randomHex()
+            ownerType: OwnerType::Restricted,
+            ownerRoleIds: [Uuid::randomHex()],
         );
     }
 }

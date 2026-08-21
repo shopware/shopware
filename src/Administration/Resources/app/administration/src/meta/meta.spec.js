@@ -52,6 +52,12 @@ const testAbleFiles = allFiles.filter(isTestAbleFile);
 const templateFiles = allFiles.filter((file) => {
     return file.endsWith('.html.twig');
 });
+// A native setup SFC declares its blocks as `<sw-block name="...">` in the `.vue` template. Scanning
+// twig only reports every block of a converted component as removed public API, so the block guard
+// gets its own list. Position identifiers stay twig-only until they are handled the same way.
+const blockTemplateFiles = allFiles.filter((file) => {
+    return file.endsWith('.html.twig') || file.endsWith('.vue');
+});
 
 // eslint-disable-next-line no-undef
 const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
@@ -227,7 +233,7 @@ describe('Administration meta tests', () => {
         });
 
         it('should not remove existing blocks', () => {
-            const blocks = extractBlocks(templateFiles);
+            const blocks = extractBlocks(blockTemplateFiles);
             const removedBlocks = blocksList.filter((block) => !blocks.includes(block));
 
             expect(
@@ -237,7 +243,7 @@ describe('Administration meta tests', () => {
         });
 
         it('should have new blocks in the blocks list', () => {
-            const blocks = extractBlocks(templateFiles);
+            const blocks = extractBlocks(blockTemplateFiles);
             const newBlocks = blocks.filter((block) => !blocksList.includes(block));
 
             expect(

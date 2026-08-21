@@ -7,9 +7,14 @@ const BLOCKS_LIST_FILE = path.join(__dirname, '../../blocks-list.json');
 
 function main() {
     const sourcePath = path.join(__dirname, '../../src');
-    const listOfTwigFiles = globSync(`${sourcePath}/**/*.html.twig`);
+    // A native setup SFC declares its blocks as `<sw-block name="...">` in the `.vue` template, so a
+    // twig-only scan drops every block of a converted component from the tracked public API.
+    const listOfTemplateFiles = globSync([
+        `${sourcePath}/**/*.html.twig`,
+        `${sourcePath}/**/*.vue`,
+    ]);
 
-    const blocks = extractBlocks(listOfTwigFiles);
+    const blocks = extractBlocks(listOfTemplateFiles);
     updateBlocksList(blocks);
 }
 

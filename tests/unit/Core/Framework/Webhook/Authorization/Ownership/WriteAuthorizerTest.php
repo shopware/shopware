@@ -25,7 +25,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAppWebhookCannotBeModified(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, Uuid::randomHex()),
+            new Ownership(self::WEBHOOK_ID, Uuid::randomHex(), null, null),
             $this->userSource(Uuid::randomHex())
         );
 
@@ -35,11 +35,75 @@ class WriteAuthorizerTest extends TestCase
     public function testAppWebhookCannotBeModifiedEvenByAnAdmin(): void
     {
         $violations = $this->authorize(
-            new Ownership(self::WEBHOOK_ID, Uuid::randomHex()),
+            new Ownership(self::WEBHOOK_ID, Uuid::randomHex(), null, null),
             $this->userSource(Uuid::randomHex(), isAdmin: true)
         );
 
         $this->assertViolation($violations, WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
+    }
+
+    public function testOwningUserMayModify(): void
+    {
+        $userId = Uuid::randomHex();
+
+        $violations = $this->authorize(
+            new Ownership(self::WEBHOOK_ID, null, $userId, null),
+            $this->userSource($userId)
+        );
+
+        static::assertSame([], $violations);
+    }
+
+    public function testAnotherUserMayNotModify(): void
+    {
+        $violations = $this->authorize(
+            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex(), null),
+            $this->userSource(Uuid::randomHex())
+        );
+
+        $this->assertViolation($violations, WebhookException::WEBHOOK_NOT_OWNED);
+    }
+
+    public function testOwningIntegrationMayModify(): void
+    {
+        $integrationId = Uuid::randomHex();
+
+        $violations = $this->authorize(
+            new Ownership(self::WEBHOOK_ID, null, null, $integrationId),
+            new AdminApiSource(null, $integrationId)
+        );
+
+        static::assertSame([], $violations);
+    }
+
+    public function testAnotherIntegrationMayNotModify(): void
+    {
+        $violations = $this->authorize(
+            new Ownership(self::WEBHOOK_ID, null, null, Uuid::randomHex()),
+            new AdminApiSource(null, Uuid::randomHex())
+        );
+
+        $this->assertViolation($violations, WebhookException::WEBHOOK_NOT_OWNED);
+    }
+
+    public function testWebhookWithoutOwnerMayNotBeModified(): void
+    {
+        $violations = $this->authorize(
+            new Ownership(self::WEBHOOK_ID, null, null, null),
+            $this->userSource(Uuid::randomHex())
+        );
+
+        $this->assertViolation($violations, WebhookException::WEBHOOK_NOT_OWNED);
+    }
+
+    public function testAdminMayModifyAWebhookItDoesNotOwn(): void
+    {
+        $violations = $this->authorize(
+            new Ownership(self::WEBHOOK_ID, null, Uuid::randomHex(), null),
+            $this->userSource(Uuid::randomHex(), isAdmin: true)
+        );
+
+        static::assertSame([], $violations);
     }
 
     private function userSource(string $userId, bool $isAdmin = false): AdminApiSource

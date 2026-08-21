@@ -30,6 +30,15 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - visibility
         expect(wrapper.get('.mt-modal__title').text()).toBe('sw-ui-shell-update-2026-modal.title');
     });
 
+    it('does not show the modal when the environment disables it', async () => {
+        setShopContext({ disableUiShellUpdateModal: true });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-modal').exists()).toBe(false);
+    });
+
     it('does not show the modal while the first run wizard is active', async () => {
         setShopContext({ firstRunWizard: true });
 

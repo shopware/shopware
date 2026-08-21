@@ -41,6 +41,7 @@ export const UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY = 'core.uiShellUpdate2026Modal
 
 type ContextSettings = {
     firstMigrationDate?: string | null;
+    disableUiShellUpdateModal?: boolean;
 };
 
 /**
@@ -198,6 +199,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isIntendedAudience(): boolean {
+            if (this.isDisabledByEnvironment()) {
+                return false;
+            }
+
             if (Shopware.Store.get('context').app.firstRunWizard === true) {
                 return false;
             }
@@ -207,6 +212,13 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return this.isExistingUser();
+        },
+
+        // Kill switch for environments where the modal must never open, e.g. acceptance test runs.
+        isDisabledByEnvironment(): boolean {
+            const settings = Shopware.Store.get('context').app.config.settings as ContextSettings | undefined;
+
+            return settings?.disableUiShellUpdateModal === true;
         },
 
         // The date of its very first migration identifies a shop that ran the old navigation.

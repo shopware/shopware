@@ -204,6 +204,8 @@ class InfoController extends AbstractController
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
+                // @deprecated tag:v6.9.0 - Setting and SHOPWARE_DISABLE_UI_SHELL_UPDATE_MODAL env var will be removed together with the one-time ui-shell-update-2026 announcement modal
+                'disableUiShellUpdateModal' => (bool) EnvironmentHelper::getVariable('SHOPWARE_DISABLE_UI_SHELL_UPDATE_MODAL', false),
                 'private_allowed_extensions' => $this->mediaFileExtensionListProvider->getAllowedExtensions(true, $context),
                 'private_allowed_mime_types_by_extension' => $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),

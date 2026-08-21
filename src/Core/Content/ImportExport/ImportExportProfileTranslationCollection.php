@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * @deprecated tag:v6.8.0 - reason:remove-entity - Will be removed
  *
  * @extends EntityCollection<ImportExportProfileTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class ImportExportProfileTranslationCollection extends EntityCollection

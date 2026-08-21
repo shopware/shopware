@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class SalesChannelNewsletterRecipientDefinition extends NewsletterRecipientDefinition implements SalesChannelDefinitionInterface
 {

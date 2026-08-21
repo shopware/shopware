@@ -59,8 +59,10 @@ if (!$latestTag) {
 $latestTag = trim($latestTag);
 
 // Get all commits since last release
+// Match conventional feat/fix/refactor/revert commits with an optional scope (for example, "fix:" and "fix(storefront):").
+// Example: https://regex101.com/r/OcDnXj/1
 $commitsRaw = shell_exec(sprintf(
-    'git log @ %s --pretty=format:"%%H %%s" --grep="^feat:\|^fix:\|^refactor:\|^revert:"',
+    'git log @ %s --pretty=format:"%%H %%s" --extended-regexp --grep="^(feat|fix|refactor|revert)(\([^)]*\))?:"',
     escapeshellarg('^' . $latestTag)
 ));
 if (!$commitsRaw) {
@@ -68,8 +70,10 @@ if (!$commitsRaw) {
     exit(1);
 }
 
-$outputContent .= "## What's Changed\n";
+// Keep release notes in conventional commit order while preserving git order within each type.
+$commitsByType = ['feat' => [], 'fix' => [], 'refactor' => [], 'revert' => []];
 foreach (explode("\n", $commitsRaw) as $commit) {
+    preg_match('/^[a-z0-9]+\s(feat|fix|refactor|revert)(?:\([^)]*\))?:/', $commit, $typeMatch);
     if (preg_match('/^([a-z0-9]+)\s(.*)\s\(#(\d+)\)$/', $commit, $m)) {
         $title = $m[2];
         $prNumber = $m[3];
@@ -82,9 +86,16 @@ foreach (explode("\n", $commitsRaw) as $commit) {
             }
         }
         $author = trim(findAuthor($prNumberAuthorCheck) ?? '');
-        $outputContent .= "* $title by @$author [#$prNumber](https://github.com/shopware/shopware/pull/$prNumber)\n";
+        $commitsByType[$typeMatch[1]][] = "* $title by @$author [#$prNumber](https://github.com/shopware/shopware/pull/$prNumber)";
     }
 }
+$outputContent .= "## What's Changed\n";
+$outputContent .= implode("\n", array_merge(
+    $commitsByType['feat'],
+    $commitsByType['fix'],
+    $commitsByType['refactor'],
+    $commitsByType['revert'],
+)) . "\n";
 
 $outputContent .= "\n**Full Changelog**: https://github.com/shopware/shopware/compare/$latestTag...v$version\n\n";
 $outputContent .= "## Get in touch\n";

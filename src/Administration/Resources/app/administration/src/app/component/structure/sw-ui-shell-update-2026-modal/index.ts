@@ -35,6 +35,7 @@ const NEW_NAVIGATION_RELEASE_DATE = '2026-10-05';
 
 /**
  * @private
+ * @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
  */
 export const UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY = 'core.uiShellUpdate2026ModalSeen';
 
@@ -44,6 +45,9 @@ type ContextSettings = {
 
 /**
  * @private
+ * @deprecated tag:v6.9.0 - One-time announcement modal for the 2026 UI shell update; will be removed
+ * together with its template, styles, specs, snippets, and the static images under
+ * static/img/ui-shell-update-2026/
  */
 export default Shopware.Component.wrapComponentConfig({
     name: 'sw-ui-shell-update-2026-modal',

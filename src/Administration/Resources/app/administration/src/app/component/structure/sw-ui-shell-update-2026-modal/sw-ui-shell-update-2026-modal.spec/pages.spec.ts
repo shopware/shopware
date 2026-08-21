@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+// @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+
 import { type VueWrapper } from '@vue/test-utils';
 import createWrapper, { setIntendedAudience } from './create-wrapper';
 

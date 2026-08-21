@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+// @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+
 import { mount, type VueWrapper } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard-dot-navigation';
 import useTheme from 'src/app/composables/use-theme';

@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+// @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+
 import { type VueWrapper } from '@vue/test-utils';
 import { UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY } from '../index';
 import createWrapper, { AFTER_RELEASE, setCurrentUser, setIntendedAudience, setShopContext } from './create-wrapper';

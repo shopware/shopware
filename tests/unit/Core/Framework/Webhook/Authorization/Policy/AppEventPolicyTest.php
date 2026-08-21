@@ -121,7 +121,6 @@ class AppEventPolicyTest extends TestCase
             appActive: $appActive,
             appVersion: null,
             appSecret: null,
-            appAclRoleId: null,
         );
     }
 }

@@ -90,7 +90,6 @@ class PolicyRegistryTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
-            appAclRoleId: null,
         );
     }
 }

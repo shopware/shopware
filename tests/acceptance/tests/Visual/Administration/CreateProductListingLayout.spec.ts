@@ -1,5 +1,4 @@
-import { test, setViewport, assertScreenshot } from '@fixtures/AcceptanceTest';
-import { expandAdminMenu } from '@helpers/admin-menu-helpers';
+import { test, setViewport, assertScreenshot, expandAdminMenu } from '@fixtures/AcceptanceTest';
 
 // The CMS layout builder this test drives collapses the admin menu on mount and never expands
 // it back (see expandAdminMenu's doc comment). Undo that here - as afterEach, not a last line in

@@ -1,12 +1,4 @@
-import { test, setViewport, assertScreenshot, hideElements, expandAdminMenu } from '@fixtures/AcceptanceTest';
-
-// The CMS layout builder this test drives collapses the admin menu on mount and never expands
-// it back (see expandAdminMenu's doc comment). Undo that here - as afterEach, not a last line in
-// the test body, so it still runs (and un-leaks the collapsed sidebar) even if this test fails
-// partway through.
-test.afterEach(async ({ page }) => {
-    await expandAdminMenu(page);
-});
+import { test, setViewport, assertScreenshot, hideElements } from '@fixtures/AcceptanceTest';
 
 const hideProfilerToolbar = async (page: Parameters<typeof assertScreenshot>[0]) => {
     await hideElements(page, [

@@ -24,17 +24,12 @@ export const AFTER_RELEASE = '2026-12-01T00:00:00.000Z';
 /**
  * @private
  */
-export function setShopContext({
-    firstRunWizard = false,
-    firstMigrationDate = BEFORE_RELEASE as string | null,
-    disableUiShellUpdateModal = false,
-} = {}) {
+export function setShopContext({ firstRunWizard = false, firstMigrationDate = BEFORE_RELEASE as string | null } = {}) {
     Shopware.Store.get('context').app.firstRunWizard = firstRunWizard;
     Shopware.Store.get('context').app.config.settings = {
         appUrlReachable: true,
         appsRequireAppUrl: false,
         disableExtensionManagement: false,
-        disableUiShellUpdateModal,
         firstMigrationDate,
         minSearchTermLength: 2,
     };

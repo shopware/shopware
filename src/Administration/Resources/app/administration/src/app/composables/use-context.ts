@@ -36,8 +36,6 @@ export interface ContextState {
                 appUrlReachable: boolean;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
-                // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
-                disableUiShellUpdateModal?: boolean;
                 firstMigrationDate?: string | null;
                 minSearchTermLength: number;
             };

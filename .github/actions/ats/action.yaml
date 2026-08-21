@@ -110,8 +110,6 @@ runs:
         echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
         echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
         echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
-        # @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
-        echo "SHOPWARE_DISABLE_UI_SHELL_UPDATE_MODAL=1" >> $GITHUB_ENV
         echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
         echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
 

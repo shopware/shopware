@@ -118,9 +118,6 @@ class InfoControllerTest extends TestCase
             $settings['firstMigrationDate'] === null
             || \is_string($settings['firstMigrationDate'])
         );
-        // @deprecated tag:v6.9.0 - Assertions will be removed together with the one-time ui-shell-update-2026 announcement modal
-        static::assertArrayHasKey('disableUiShellUpdateModal', $settings);
-        static::assertFalse($settings['disableUiShellUpdateModal']);
         static::assertArrayHasKey('private_allowed_extensions', $settings);
         static::assertSame(['pdf', 'epub'], $settings['private_allowed_extensions']);
         static::assertArrayHasKey('private_allowed_mime_types_by_extension', $settings);
@@ -138,24 +135,6 @@ class InfoControllerTest extends TestCase
         static::assertCount(1, $inAppPurchases);
         static::assertArrayHasKey('SwagApp', $inAppPurchases);
         static::assertSame(['SwagApp_premium'], $inAppPurchases['SwagApp']);
-    }
-
-    // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
-    public function testConfigDisablesUiShellUpdateModalViaEnvVar(): void
-    {
-        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
-
-        $this->setEnvVars([
-            'SHOPWARE_DISABLE_UI_SHELL_UPDATE_MODAL' => '1',
-        ]);
-
-        $content = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'))->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertIsArray($data['settings']);
-        static::assertTrue($data['settings']['disableUiShellUpdateModal']);
     }
 
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void

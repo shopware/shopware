@@ -13,10 +13,10 @@ type ThemeSelect = {
 };
 
 function themeSelect(currentWrapper: VueWrapper): ThemeSelect {
-    return currentWrapper.findComponent('.sw-new-ui-2026-modal__theme-select') as unknown as ThemeSelect;
+    return currentWrapper.findComponent('.sw-ui-shell-update-2026-modal__theme-select') as unknown as ThemeSelect;
 }
 
-describe('src/app/component/structure/sw-new-ui-2026-modal - theme select', () => {
+describe('src/app/component/structure/sw-ui-shell-update-2026-modal - theme select', () => {
     let wrapper: VueWrapper | null = null;
 
     beforeEach(() => {
@@ -34,12 +34,12 @@ describe('src/app/component/structure/sw-new-ui-2026-modal - theme select', () =
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-new-ui-2026-modal__theme-select').exists()).toBe(false);
+        expect(wrapper.find('.sw-ui-shell-update-2026-modal__theme-select').exists()).toBe(false);
 
-        await wrapper.get('.sw-new-ui-2026-modal__footer-right button').trigger('click');
+        await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-new-ui-2026-modal__theme-select').exists()).toBe(true);
+        expect(wrapper.find('.sw-ui-shell-update-2026-modal__theme-select').exists()).toBe(true);
     });
 
     it('shows the theme currently in use', async () => {
@@ -47,7 +47,7 @@ describe('src/app/component/structure/sw-new-ui-2026-modal - theme select', () =
 
         wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.get('.sw-new-ui-2026-modal__footer-right button').trigger('click');
+        await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
         await flushPromises();
 
         expect(themeSelect(wrapper).props('modelValue')).toBe('dark');
@@ -58,7 +58,7 @@ describe('src/app/component/structure/sw-new-ui-2026-modal - theme select', () =
 
         wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.get('.sw-new-ui-2026-modal__footer-right button').trigger('click');
+        await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
         await flushPromises();
 
         themeSelect(wrapper).vm.$emit('update:modelValue', 'dark');
@@ -72,7 +72,7 @@ describe('src/app/component/structure/sw-new-ui-2026-modal - theme select', () =
 
         wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.get('.sw-new-ui-2026-modal__footer-right button').trigger('click');
+        await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
         await flushPromises();
 
         const createNotificationError = jest.spyOn(
@@ -84,7 +84,7 @@ describe('src/app/component/structure/sw-new-ui-2026-modal - theme select', () =
         await flushPromises();
 
         expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-new-ui-2026-modal.pages.darkMode.themeSaveError',
+            message: 'sw-ui-shell-update-2026-modal.pages.darkMode.themeSaveError',
         });
     });
 });

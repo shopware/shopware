@@ -9,8 +9,7 @@ $handle-resting-scale: 0.5;
 // Wide enough that the seam can be grabbed without pixel hunting.
 $handle-hit-width: 32px;
 
-// Concentric corners: the outer radius has to grow by the gap between the two edges,
-// otherwise the curves are not parallel.
+// Concentric corners: the outer radius grows by the gap, or the curves are not parallel.
 $glass-radius: $compare-radius + $glass-padding;
 $glass-gradient: linear-gradient(
     79.32deg,
@@ -20,28 +19,28 @@ $glass-gradient: linear-gradient(
 );
 
 // Registered so the idle hint and the eased slide can interpolate it.
-@property --sw-new-ui-2026-modal-split {
+@property --sw-ui-shell-update-2026-modal-split {
     syntax: "<percentage>";
     inherits: true;
     initial-value: 50%;
 }
 
-@keyframes sw-new-ui-2026-modal-hint {
+@keyframes sw-ui-shell-update-2026-modal-hint {
     0%,
     100% {
-        --sw-new-ui-2026-modal-split: 50%;
+        --sw-ui-shell-update-2026-modal-split: 50%;
     }
 
     25% {
-        --sw-new-ui-2026-modal-split: 45%;
+        --sw-ui-shell-update-2026-modal-split: 45%;
     }
 
     75% {
-        --sw-new-ui-2026-modal-split: 55%;
+        --sw-ui-shell-update-2026-modal-split: 55%;
     }
 }
 
-.sw-new-ui-2026-modal {
+.sw-ui-shell-update-2026-modal {
     &__media {
         position: relative;
         aspect-ratio: 14 / 9;
@@ -90,9 +89,8 @@ $glass-gradient: linear-gradient(
         // A selection sweeping across the images must not highlight them mid-drag.
         user-select: none;
 
-        // Runs once as an invitation rather than looping: it replays whenever the reveal is
-        // handed back, which is the only time the offer needs making again.
-        animation: sw-new-ui-2026-modal-hint 1.6s ease-in-out;
+        // Runs once as an invitation; it replays whenever the reveal is handed back.
+        animation: sw-ui-shell-update-2026-modal-hint 1.6s ease-in-out;
 
         @media (prefers-reduced-motion: reduce) {
             animation: none;
@@ -109,7 +107,7 @@ $glass-gradient: linear-gradient(
         position: absolute;
         top: 0;
         bottom: 0;
-        left: calc(var(--sw-new-ui-2026-modal-split, 50%) - #{$handle-hit-width * 0.5});
+        left: calc(var(--sw-ui-shell-update-2026-modal-split, 50%) - #{$handle-hit-width * 0.5});
         width: $handle-hit-width;
         cursor: ew-resize;
 
@@ -117,8 +115,7 @@ $glass-gradient: linear-gradient(
         touch-action: none;
     }
 
-    // The visible seam line, centred by the offset alone so transform is left free for the
-    // thinning below. Doing both would move it half its width off the seam.
+    // The visible seam line, centred by the offset alone; transform stays free for the thinning below.
     &__compare-handle::before {
         content: "";
         position: absolute;
@@ -151,7 +148,7 @@ $glass-gradient: linear-gradient(
     &__compare--eased {
         // The disable is a false positive: this names the property, it does not read it.
         /* stylelint-disable-next-line custom-property-no-missing-var-function */
-        transition: --sw-new-ui-2026-modal-split 300ms ease-in-out;
+        transition: --sw-ui-shell-update-2026-modal-split 300ms ease-in-out;
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;
@@ -160,7 +157,7 @@ $glass-gradient: linear-gradient(
 
     // Revealed from the left edge, so moving right slides the new UI in over the old one.
     &__compare-image--after {
-        clip-path: inset(0 calc(100% - var(--sw-new-ui-2026-modal-split, 50%)) 0 0);
+        clip-path: inset(0 calc(100% - var(--sw-ui-shell-update-2026-modal-split, 50%)) 0 0);
     }
 
     &__media-image--dark,
@@ -217,23 +214,22 @@ $glass-gradient: linear-gradient(
     }
 }
 
-// Unnested: the attribute sits on the document element, which the teleported modal is a
-// descendant of.
-[data-theme="dark"] .sw-new-ui-2026-modal__media-image--light {
+// Unnested: the attribute sits on the document element, an ancestor of the teleported modal.
+[data-theme="dark"] .sw-ui-shell-update-2026-modal__media-image--light {
     display: none;
 }
 
-[data-theme="dark"] .sw-new-ui-2026-modal__media-image--dark {
+[data-theme="dark"] .sw-ui-shell-update-2026-modal__media-image--dark {
     display: block;
 }
 
 // The sidebar shot only follows the theme on the page announcing it.
-[data-theme="dark"] .sw-new-ui-2026-modal__media--dark-mode {
-    .sw-new-ui-2026-modal__compare-image--after-light {
+[data-theme="dark"] .sw-ui-shell-update-2026-modal__media--dark-mode {
+    .sw-ui-shell-update-2026-modal__compare-image--after-light {
         display: none;
     }
 
-    .sw-new-ui-2026-modal__compare-image--after-dark {
+    .sw-ui-shell-update-2026-modal__compare-image--after-dark {
         display: block;
     }
 }

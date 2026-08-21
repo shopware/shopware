@@ -4,10 +4,10 @@
 import { MtBadge, MtModal, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import type { Theme } from '@shopware-ag/meteor-component-library';
 import useTheme from 'src/app/composables/use-theme';
-import template from './sw-new-ui-2026-modal.html.twig';
-import './sw-new-ui-2026-modal.scss';
+import template from './sw-ui-shell-update-2026-modal.html.twig';
+import './sw-ui-shell-update-2026-modal.scss';
 
-type NewUi2026Page = {
+type UiShellUpdate2026Page = {
     id: string;
     headline: string;
     descriptionKey: string;
@@ -16,13 +16,12 @@ type NewUi2026Page = {
     badge?: string;
 };
 
-const SPLIT_PROPERTY = '--sw-new-ui-2026-modal-split';
+const SPLIT_PROPERTY = '--sw-ui-shell-update-2026-modal-split';
 const CENTER_SPLIT_POSITION = 50;
 // Mirrors the transition duration of __compare--eased in the stylesheet.
 const SPLIT_EASE_DURATION = 300;
 
-// Captured once on the press: moves are applied as deltas to the grabbed position, and the
-// width cannot change mid-drag, so reading it per move would only force a layout pass.
+// Captured once on the press: moves apply deltas, and the width cannot change mid-drag.
 type DragState = {
     pointerId: number;
     originX: number;
@@ -49,7 +48,7 @@ export const IGNORE_SEEN_FLAG = true;
 /**
  * @private
  */
-export const NEW_UI_2026_SEEN_CONFIG_KEY = 'core.newUi2026ModalSeen';
+export const UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY = 'core.uiShellUpdate2026ModalSeen';
 
 type ContextSettings = {
     firstMigrationDate?: string | null;
@@ -59,7 +58,7 @@ type ContextSettings = {
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
-    name: 'sw-new-ui-2026-modal',
+    name: 'sw-ui-shell-update-2026-modal',
     template,
 
     components: {
@@ -93,25 +92,25 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        pages(): NewUi2026Page[] {
+        pages(): UiShellUpdate2026Page[] {
             return [
                 {
                     id: 'admin-navigation',
-                    headline: this.$t('sw-new-ui-2026-modal.pages.adminNavigation.headline'),
-                    descriptionKey: 'sw-new-ui-2026-modal.pages.adminNavigation.description',
+                    headline: this.$t('sw-ui-shell-update-2026-modal.pages.adminNavigation.headline'),
+                    descriptionKey: 'sw-ui-shell-update-2026-modal.pages.adminNavigation.description',
                 },
                 {
                     id: 'dark-mode',
-                    headline: this.$t('sw-new-ui-2026-modal.pages.darkMode.headline'),
-                    descriptionKey: 'sw-new-ui-2026-modal.pages.darkMode.description',
+                    headline: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.headline'),
+                    descriptionKey: 'sw-ui-shell-update-2026-modal.pages.darkMode.description',
                     pinnedSplit: 100,
                     hasThemeSelect: true,
-                    badge: this.$t('sw-new-ui-2026-modal.pages.darkMode.badge'),
+                    badge: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.badge'),
                 },
             ];
         },
 
-        activePage(): NewUi2026Page {
+        activePage(): UiShellUpdate2026Page {
             return this.pages[this.currentPage];
         },
 
@@ -166,8 +165,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            // The idle hint can only take the property over once the slide back has arrived,
-            // because an animation wins against a transition and would cut it short.
+            // Hand the property to the idle hint only after the slide arrives: an animation cuts a transition short.
             this.splitPosition = CENTER_SPLIT_POSITION;
 
             this.hintHandoffTimeout = window.setTimeout(() => {
@@ -248,15 +246,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async hasSeenModal(): Promise<boolean> {
-            const response = await Shopware.Service('userConfigService').search([NEW_UI_2026_SEEN_CONFIG_KEY]);
-            const value = response?.data?.[NEW_UI_2026_SEEN_CONFIG_KEY] as { seen?: unknown } | undefined;
+            const response = await Shopware.Service('userConfigService').search([UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY]);
+            const value = response?.data?.[UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY] as { seen?: unknown } | undefined;
 
             return value?.seen === true;
         },
 
         async markModalSeen(): Promise<void> {
             await Shopware.Service('userConfigService').upsert({
-                [NEW_UI_2026_SEEN_CONFIG_KEY]: { seen: true },
+                [UI_SHELL_UPDATE_2026_SEEN_CONFIG_KEY]: { seen: true },
             });
         },
 
@@ -269,8 +267,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        // Guarded because closing reaches this from two directions at once: the finish
-        // button clears isOpen itself and MtModalRoot then reports the same change back.
+        // Closing reaches this twice: onFinish clears isOpen and MtModalRoot reports the same change back.
         recordSeen() {
             if (this.hasRecordedSeen) {
                 return;
@@ -280,7 +277,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.markModalSeen().catch(() => {
                 this.createNotificationError({
-                    message: this.$t('sw-new-ui-2026-modal.seenSaveError'),
+                    message: this.$t('sw-ui-shell-update-2026-modal.seenSaveError'),
                 });
             });
         },
@@ -308,7 +305,7 @@ export default Shopware.Component.wrapComponentConfig({
                 .saveUserTheme(theme)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$t('sw-new-ui-2026-modal.pages.darkMode.themeSaveError'),
+                        message: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSaveError'),
                     });
                 });
         },
@@ -328,8 +325,7 @@ export default Shopware.Component.wrapComponentConfig({
             // Stops the browser from starting a text selection alongside the drag.
             event.preventDefault();
 
-            // Routes every pointer event to the handle until release, wherever the pointer
-            // goes, and dies with the element if paging or closing removes it mid-gesture.
+            // Follows the pointer anywhere until release and dies with the element mid-gesture.
             (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
 
             const position = this.currentSplitOf(compare);
@@ -342,8 +338,7 @@ export default Shopware.Component.wrapComponentConfig({
                 position,
             };
 
-            // Committed through the render, so stopping the idle hint and dropping any easing
-            // land in the same frame as the position: an animation outranks an inline write.
+            // Committed through the render so all three land in one frame: an animation outranks an inline write.
             this.clearHintHandoff();
             this.isSplitEased = false;
             this.splitPosition = position;
@@ -385,8 +380,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        // The idle hint and the eased slide animate the property, so grabbing mid-animation
-        // has to read the live value off the computed style rather than the bound state.
+        // Grabbing mid-animation must read the live computed value, not the bound state.
         currentSplitOf(element: HTMLElement): number {
             const computed = Number.parseFloat(window.getComputedStyle(element).getPropertyValue(SPLIT_PROPERTY));
 
@@ -397,8 +391,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.splitPosition ?? CENTER_SPLIT_POSITION;
         },
 
-        // Snapped to whole pixels: a fractional edge only partially covers its boundary
-        // column, which lets the image underneath bleed through the seam.
+        // Snapped to whole pixels so the underlying image cannot bleed through the seam.
         dragPositionOf(event: { clientX: number }, drag: DragState): number {
             const offset = Math.min(drag.width, Math.max(0, Math.round(drag.originOffset + event.clientX - drag.originX)));
 
@@ -406,7 +399,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         imageSrc(fileName: string): string {
-            return Shopware.Filter.getByName('asset')(`/administration/administration/static/img/new-ui-2026/${fileName}`);
+            return Shopware.Filter.getByName('asset')(
+                `/administration/administration/static/img/ui-shell-update-2026/${fileName}`,
+            );
         },
     },
 });

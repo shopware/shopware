@@ -1802,7 +1802,7 @@
     "declineButton": "Decline",
     "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
   },
-  "sw-new-ui-2026-modal": {
+  "sw-ui-shell-update-2026-modal": {
     "title": "A new look for your Administration",
     "nextButton": "Next",
     "finishButton": "Got it",

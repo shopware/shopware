@@ -3,69 +3,69 @@
     @change="onModalChange"
 >
     <mt-modal
-        class="sw-new-ui-2026-modal"
+        class="sw-ui-shell-update-2026-modal"
         width="m"
-        :title="$t('sw-new-ui-2026-modal.title')"
+        :title="$t('sw-ui-shell-update-2026-modal.title')"
         inset
     >
-        <div class="sw-new-ui-2026-modal__content">
+        <div class="sw-ui-shell-update-2026-modal__content">
             <div
-                class="sw-new-ui-2026-modal__media"
-                :class="`sw-new-ui-2026-modal__media--${activePage.id}`"
+                class="sw-ui-shell-update-2026-modal__media"
+                :class="`sw-ui-shell-update-2026-modal__media--${activePage.id}`"
             >
                 <img
-                    class="sw-new-ui-2026-modal__media-image sw-new-ui-2026-modal__media-image--light"
+                    class="sw-ui-shell-update-2026-modal__media-image sw-ui-shell-update-2026-modal__media-image--light"
                     :src="imageSrc('background-light.jpg')"
                     alt=""
                     aria-hidden="true"
                 >
 
                 <img
-                    class="sw-new-ui-2026-modal__media-image sw-new-ui-2026-modal__media-image--dark"
+                    class="sw-ui-shell-update-2026-modal__media-image sw-ui-shell-update-2026-modal__media-image--dark"
                     :src="imageSrc('background-dark.jpg')"
                     alt=""
                     aria-hidden="true"
                 >
 
-                <div class="sw-new-ui-2026-modal__glass">
+                <div class="sw-ui-shell-update-2026-modal__glass">
                     <div
                         ref="compare"
-                        class="sw-new-ui-2026-modal__compare"
+                        class="sw-ui-shell-update-2026-modal__compare"
                         :class="{
-                            'sw-new-ui-2026-modal__compare--settled': splitPosition !== null,
-                            'sw-new-ui-2026-modal__compare--eased': isSplitEased,
-                            'sw-new-ui-2026-modal__compare--pinned': isSplitPinned,
-                            'sw-new-ui-2026-modal__compare--dragging': isDragging,
+                            'sw-ui-shell-update-2026-modal__compare--settled': splitPosition !== null,
+                            'sw-ui-shell-update-2026-modal__compare--eased': isSplitEased,
+                            'sw-ui-shell-update-2026-modal__compare--pinned': isSplitPinned,
+                            'sw-ui-shell-update-2026-modal__compare--dragging': isDragging,
                         }"
                         :style="compareStyle"
                     >
                         <img
-                            class="sw-new-ui-2026-modal__compare-image"
+                            class="sw-ui-shell-update-2026-modal__compare-image"
                             :src="imageSrc('navigation-before.jpg')"
                             alt=""
                             aria-hidden="true"
                         >
 
                         <img
-                            class="sw-new-ui-2026-modal__compare-image sw-new-ui-2026-modal__compare-image--after sw-new-ui-2026-modal__compare-image--after-light"
+                            class="sw-ui-shell-update-2026-modal__compare-image sw-ui-shell-update-2026-modal__compare-image--after sw-ui-shell-update-2026-modal__compare-image--after-light"
                             :src="imageSrc('navigation-after.jpg')"
                             alt=""
                             aria-hidden="true"
                         >
 
                         <img
-                            class="sw-new-ui-2026-modal__compare-image sw-new-ui-2026-modal__compare-image--after sw-new-ui-2026-modal__compare-image--after-dark"
+                            class="sw-ui-shell-update-2026-modal__compare-image sw-ui-shell-update-2026-modal__compare-image--after sw-ui-shell-update-2026-modal__compare-image--after-dark"
                             :src="imageSrc('navigation-after-dark.jpg')"
                             alt=""
                             aria-hidden="true"
                         >
 
-                        {% block sw_new_ui_2026_modal_compare_handle %}
+                        {% block sw_ui_shell_update_2026_modal_compare_handle %}
                         <!-- Decorative pointer affordance; keyboard users page instead of dragging -->
                         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
                         <div
                             v-if="!isSplitPinned"
-                            class="sw-new-ui-2026-modal__compare-handle"
+                            class="sw-ui-shell-update-2026-modal__compare-handle"
                             aria-hidden="true"
                             @pointerdown="onDragStart"
                             @pointermove="onDragMove"
@@ -77,12 +77,12 @@
                 </div>
             </div>
 
-            <div class="sw-new-ui-2026-modal__text">
+            <div class="sw-ui-shell-update-2026-modal__text">
                 <mt-text
                     as="h3"
                     size="m"
                     weight="semibold"
-                    class="sw-new-ui-2026-modal__headline"
+                    class="sw-ui-shell-update-2026-modal__headline"
                 >
                     {{ activePage.headline }}
 
@@ -98,7 +98,7 @@
                     as="p"
                     size="s"
                     color="color-text-secondary-default"
-                    class="sw-new-ui-2026-modal__description"
+                    class="sw-ui-shell-update-2026-modal__description"
                 >
                     {{ $t(activePage.descriptionKey) }}
                 </mt-text>
@@ -106,26 +106,26 @@
                 <template v-if="activePage.hasThemeSelect">
                     <mt-theme-select
                         v-model="userTheme"
-                        name="sw-field--new-ui-2026-theme"
-                        class="sw-new-ui-2026-modal__theme-select"
-                        :label="$t('sw-new-ui-2026-modal.pages.darkMode.themeSelectLabel')"
+                        name="sw-field--ui-shell-update-2026-theme"
+                        class="sw-ui-shell-update-2026-modal__theme-select"
+                        :label="$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectLabel')"
                     />
 
                     <mt-text
                         as="p"
                         size="s"
                         color="color-text-tertiary-default"
-                        class="sw-new-ui-2026-modal__theme-hint"
+                        class="sw-ui-shell-update-2026-modal__theme-hint"
                     >
-                        <i18n-t keypath="sw-new-ui-2026-modal.pages.darkMode.themeSelectHint">
+                        <i18n-t keypath="sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectHint">
                             <template #profileSettingsLink>
                                 <mt-link
-                                    class="sw-new-ui-2026-modal__inline-link"
+                                    class="sw-ui-shell-update-2026-modal__inline-link"
                                     type="internal"
                                     :to="{ name: 'sw.profile.index.general' }"
                                     @click="onFinish"
                                 >
-                                    {{ $t('sw-new-ui-2026-modal.pages.darkMode.profileSettingsLink') }}
+                                    {{ $t('sw-ui-shell-update-2026-modal.pages.darkMode.profileSettingsLink') }}
                                 </mt-link>
                             </template>
                         </i18n-t>
@@ -135,8 +135,8 @@
         </div>
 
         <template #footer>
-            <div class="sw-new-ui-2026-modal__footer">
-                <div class="sw-new-ui-2026-modal__footer-left">
+            <div class="sw-ui-shell-update-2026-modal__footer">
+                <div class="sw-ui-shell-update-2026-modal__footer-left">
                     <mt-button
                         v-if="!isFirstPage"
                         variant="secondary"
@@ -151,13 +151,13 @@
                     :active-page="currentPage"
                 />
 
-                <div class="sw-new-ui-2026-modal__footer-right">
+                <div class="sw-ui-shell-update-2026-modal__footer-right">
                     <mt-button
                         v-if="!isLastPage"
                         variant="primary"
                         @click="onNextPage"
                     >
-                        {{ $t('sw-new-ui-2026-modal.nextButton') }}
+                        {{ $t('sw-ui-shell-update-2026-modal.nextButton') }}
                     </mt-button>
 
                     <mt-button
@@ -165,7 +165,7 @@
                         variant="primary"
                         @click="onFinish"
                     >
-                        {{ $t('sw-new-ui-2026-modal.finishButton') }}
+                        {{ $t('sw-ui-shell-update-2026-modal.finishButton') }}
                     </mt-button>
                 </div>
             </div>

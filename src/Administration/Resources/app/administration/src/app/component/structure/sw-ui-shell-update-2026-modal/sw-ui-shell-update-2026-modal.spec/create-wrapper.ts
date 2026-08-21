@@ -5,7 +5,7 @@
 import { mount, type VueWrapper } from '@vue/test-utils';
 import 'src/app/component/wizard/sw-wizard-dot-navigation';
 import useTheme from 'src/app/composables/use-theme';
-import swNewUi2026Modal from '../index';
+import swUiShellUpdate2026Modal from '../index';
 
 /**
  * Before NEW_NAVIGATION_RELEASE_DATE, so it marks a shop or user that ran the old navigation.
@@ -52,14 +52,13 @@ export function setIntendedAudience() {
     setShopContext();
     setCurrentUser();
 
-    // Created outside of any component, as theme.init does, otherwise its lifecycle hooks
-    // land on the modal.
+    // Created outside any component, as theme.init does, so its lifecycle hooks stay off the modal.
     useTheme();
     useTheme().setTheme('light');
 }
 
 async function createWrapper(): Promise<VueWrapper> {
-    return mount(swNewUi2026Modal, {
+    return mount(swUiShellUpdate2026Modal, {
         global: {
             mocks: {
                 $t: (snippet: string) => snippet,

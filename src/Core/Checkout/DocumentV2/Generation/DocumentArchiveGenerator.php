@@ -72,7 +72,7 @@ final class DocumentArchiveGenerator
                 $media = $documentFile->getMedia();
                 $entryName = $this->createEntryName($documentFile, $media, $document->getId());
                 $normalizedEntryName = strtolower($entryName);
-                if (isset($mediaIds[$media->getId()]) || isset($entryNames[$normalizedEntryName])) {
+                if (isset($entryNames[$normalizedEntryName])) {
                     continue;
                 }
 

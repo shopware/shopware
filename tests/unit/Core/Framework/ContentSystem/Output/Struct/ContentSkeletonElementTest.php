@@ -89,4 +89,49 @@ class ContentSkeletonElementTest extends TestCase
 
         static::assertArrayNotHasKey('style', $data);
     }
+
+    #[TestDox('serializes exactly id, component, slots and style at every depth for a styled element')]
+    public function testSerializedKeySetWithStyleAtEveryDepth(): void
+    {
+        $child = new RenderedElement('child-1', 'text', [], [], new ElementStyle(['display' => ['xs' => false]]));
+        $root = new RenderedElement('root-1', 'section', [], ['content' => [$child]], new ElementStyle(['col-span' => ['md' => 6]]));
+
+        $encoded = $this->encode($root);
+
+        static::assertSame(['id', 'component', 'slots', 'style'], array_keys($encoded));
+
+        $childEncoded = $encoded['slots']['content'][0];
+        static::assertIsArray($childEncoded);
+        static::assertSame(['id', 'component', 'slots', 'style'], array_keys($childEncoded));
+    }
+
+    #[TestDox('serializes exactly id, component and slots at every depth for an unstyled element')]
+    public function testSerializedKeySetWithoutStyleAtEveryDepth(): void
+    {
+        $child = new RenderedElement('child-1', 'text');
+        $root = new RenderedElement('root-1', 'section', [], ['content' => [$child]]);
+
+        $encoded = $this->encode($root);
+
+        static::assertSame(['id', 'component', 'slots'], array_keys($encoded));
+
+        $childEncoded = $encoded['slots']['content'][0];
+        static::assertIsArray($childEncoded);
+        static::assertSame(['id', 'component', 'slots'], array_keys($childEncoded));
+    }
+
+    /**
+     * Mirrors the json round-trip the response normalizer performs, so nested nodes are pinned in their wire shape.
+     *
+     * @return array<string, mixed>
+     */
+    private function encode(RenderedElement $root): array
+    {
+        $skeleton = ContentSkeletonElement::fromRendered([$root])[0];
+
+        $encoded = json_decode(json_encode($skeleton, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($encoded);
+
+        return $encoded;
+    }
 }

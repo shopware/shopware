@@ -59,6 +59,9 @@ class ContentSkeletonElement extends Struct
     {
         $data = parent::jsonSerialize();
 
+        // Drop the inherited Struct extension bag; nested nodes bypass the encoder that strips it at the root
+        unset($data['extensions']);
+
         // Re-emit style in wire shape; structural and omitted when empty, so it never serializes as an empty {} / []
         unset($data['style']);
 

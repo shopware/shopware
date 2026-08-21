@@ -7,8 +7,6 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
-use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -238,11 +236,9 @@ class StateMachineRegistry implements ResetInterface
 
     private function resolveSourceType(ContextSource $source): ?string
     {
-        if ($source instanceof AdminApiSource || $source instanceof SalesChannelApiSource || $source instanceof SystemSource) {
-            return $source->type;
-        }
+        $type = get_object_vars($source)['type'] ?? null;
 
-        return null;
+        return \is_string($type) ? $type : null;
     }
 
     private function dispatchTransitionEvents(Transition $transition, Context $context, StateMachineTransitionResult $result): void

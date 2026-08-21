@@ -163,8 +163,15 @@ class StateMachineRegistryTest extends TestCase
             'admin-api',
         ];
 
-        yield 'custom context source without a known type is recorded without source' => [
+        yield 'custom context source contributes its own type' => [
             new Context(new StateMachineRegistryTestContextSource()),
+            null,
+            null,
+            'custom-source',
+        ];
+
+        yield 'context source without a public type is recorded without source' => [
+            new Context(new StateMachineRegistryTestTypelessContextSource()),
             null,
             null,
             null,
@@ -575,6 +582,15 @@ class StateMachineRegistryFixture
  */
 class StateMachineRegistryTestContextSource implements ContextSource
 {
+    public string $type = 'custom-source';
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestTypelessContextSource implements ContextSource
+{
+    protected string $type = 'not-readable-from-outside';
 }
 
 /**

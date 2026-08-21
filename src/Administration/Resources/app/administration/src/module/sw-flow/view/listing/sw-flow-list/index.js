@@ -64,8 +64,8 @@ export default {
         flowCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+            if (this.term) {
+                criteria.setTerm(this.term);
             }
 
             criteria

@@ -21,7 +21,7 @@ const routes = [
 const shopwareService = new ShopwareService({}, {}, {}, {});
 shopwareService.updateExtensionData = jest.fn();
 
-async function createWrapper() {
+async function createWrapper(query = {}) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -30,7 +30,7 @@ async function createWrapper() {
         history: createWebHashHistory(),
     });
 
-    await router.push(routes[0]);
+    await router.push({ ...routes[0], query });
     await router.isReady();
 
     return mount(
@@ -213,8 +213,42 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             query: {
                 limit: '25',
                 page: '1',
+                sorting: 'updated-at',
             },
         });
+    });
+
+    it('should persist the selected sorting option in the route', async () => {
+        const wrapper = await createWrapper();
+
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
+            '.mt-select__selection',
+        );
+
+        expect(wrapper.vm.$route.query.sorting).toBe('name-asc');
+    });
+
+    it('should apply the sorting option from the route after loading', async () => {
+        const wrapper = await createWrapper({ sorting: 'name-asc' });
+        const extensions = [
+            'Zeta',
+            'Alpha',
+        ].map((name) => ({
+            name,
+            label: name,
+            updatedAt: null,
+        }));
+
+        Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findAll('.sw-self-maintained-extension-card').map((card) => card.text())).toEqual([
+            'Alpha',
+            'Zeta',
+        ]);
     });
 
     it('should update the route with the new values from pagination', async () => {

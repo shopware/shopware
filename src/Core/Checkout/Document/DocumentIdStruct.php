@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentIdStruct extends Struct
 {

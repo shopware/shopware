@@ -268,6 +268,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('media_thumbnail.repository'),
+            service('shopware.filesystem.public'),
+            service('shopware.filesystem.private'),
             param('shopware.media.remote_thumbnails.enable'),
         ])
         ->tag('console.command');

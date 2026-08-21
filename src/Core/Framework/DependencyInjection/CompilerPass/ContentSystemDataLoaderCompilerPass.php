@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
@@ -19,7 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * ConfigKeySpecification::TYPES set, string-typed reference kinds, referenced types from the
  * ConfigKeySpecification::REFERENCED_TYPES set and only on a reference kind, coherent defaults (never on a
  * required key), coherent merges (a `list<string>` reference key merging into a declared `list<string>` literal
- * key, with at most one merger key claiming any given target), and no reserved key name.
+ * key, with at most one merger key claiming any given target), and no reserved key name. It also fails the build
+ * when a loader's source has no `content_system.config_serializer` declaring it.
  *
  * @internal
  */
@@ -36,6 +38,8 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $loaders = $container->findTaggedServiceIds('content_system.data_loader');
+
+        $loaderSources = [];
 
         foreach ($loaders as $serviceId => $tags) {
             $class = $container->getDefinition($serviceId)->getClass();
@@ -54,6 +58,57 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
 
             $this->validateSourceName($class);
             $this->validateConfigSpecification($class);
+
+            $loaderSources[$class::getRequirementType()] = $class;
+        }
+
+        $this->validateConfigSerializerCoverage($container, $loaderSources);
+    }
+
+    /**
+     * DataLoaderConfigSerializerProvider::encode()/decode() throw when a source has no registered serializer, and
+     * both the layout-write path and every FULL-mode render reach that call: a loader without a serializer breaks
+     * at the first write of a layout using it and at every full-mode render of one. Failing the container build
+     * instead puts the failure in front of whoever forgot the registration.
+     *
+     * Only this direction is checked. A serializer registered under a source no loader declares is a dead service,
+     * not a defect, so failing a third party's build over one would prevent nothing.
+     *
+     * @param array<string, class-string<AbstractContentDataLoader<Struct>>> $loaderSources
+     */
+    private function validateConfigSerializerCoverage(ContainerBuilder $container, array $loaderSources): void
+    {
+        $serializedSources = [];
+
+        foreach (array_keys($container->findTaggedServiceIds('content_system.config_serializer')) as $serviceId) {
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass();
+
+            if ($class === null || !class_exists($class)) {
+                // No resolvable class to introspect, exactly as the loader loop above treats the same condition.
+                continue;
+            }
+
+            if ($definition->isAbstract()) {
+                // findTaggedServiceIds() returns abstract definitions too, and getSource() may still be abstract on
+                // such a class, where a static call raises a PHP Error instead of a readable build failure.
+                continue;
+            }
+
+            if (!is_subclass_of($class, AbstractContentDataLoaderConfigSerializer::class)) {
+                // Not a serializer, so it declares no source; whether the tag itself is legal is not this check's call.
+                continue;
+            }
+
+            $serializedSources[$class::getSource()] = true;
+        }
+
+        foreach ($loaderSources as $source => $loaderClass) {
+            if (isset($serializedSources[$source])) {
+                continue;
+            }
+
+            throw DependencyInjectionException::dataLoaderSourceWithoutConfigSerializer($loaderClass, $source);
         }
     }
 

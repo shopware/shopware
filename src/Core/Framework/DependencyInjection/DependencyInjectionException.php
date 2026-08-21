@@ -25,6 +25,7 @@ class DependencyInjectionException extends HttpException
     public const DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE';
     public const DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED';
     public const DATA_LOADER_CONFIG_KEY_INVALID_MERGE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_MERGE';
+    public const DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER = 'FRAMEWORK__DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -190,6 +191,20 @@ class DependencyInjectionException extends HttpException
                 'Data loader "%s" declares the reserved config key "%s". The names "loader" and "config" are reserved and cannot name a config key.',
                 $loaderClass,
                 $key
+            )
+        );
+    }
+
+    public static function dataLoaderSourceWithoutConfigSerializer(string $loaderClass, string $source): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER,
+            \sprintf(
+                'Data loader "%s" declares the source "%s", but no service tagged "content_system.config_serializer" returns "%s" from getSource(). Register the loader\'s config serializer under that tag.',
+                $loaderClass,
+                $source,
+                $source
             )
         );
     }

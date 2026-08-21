@@ -7,9 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -38,6 +41,8 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setDefinition(NavigationDataLoader::class, $this->taggedLoader(NavigationDataLoader::class));
         $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
+        $container->setDefinition(NavigationLoaderConfigSerializer::class, $this->taggedSerializer(NavigationLoaderConfigSerializer::class));
+        $container->setDefinition(GenericStubLoaderConfigSerializer::class, $this->taggedSerializer(GenericStubLoaderConfigSerializer::class));
 
         $this->expectNotToPerformAssertions();
 
@@ -50,6 +55,7 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setDefinition(ValidSpecificationLoader::class, $this->taggedLoader(ValidSpecificationLoader::class));
+        $container->setDefinition(ValidSpecificationLoaderConfigSerializer::class, $this->taggedSerializer(ValidSpecificationLoaderConfigSerializer::class));
 
         $this->expectNotToPerformAssertions();
 
@@ -111,6 +117,62 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $container->setDefinition($loaderClass, $this->taggedLoader($loaderClass));
 
         $this->expectExceptionObject($expected);
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('accepts a loader whose source is declared by a tagged config serializer')]
+    public function testProcessAcceptsLoaderWithRegisteredConfigSerializer(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
+        $container->setDefinition(GenericStubLoaderConfigSerializer::class, $this->taggedSerializer(GenericStubLoaderConfigSerializer::class));
+
+        $this->expectNotToPerformAssertions();
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('throws when no tagged config serializer declares a loader\'s source')]
+    public function testProcessThrowsForLoaderSourceWithoutConfigSerializer(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
+
+        $this->expectExceptionObject(
+            DependencyInjectionException::dataLoaderSourceWithoutConfigSerializer(GenericStubLoader::class, 'test_generic')
+        );
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('accepts a config serializer whose source no loader declares')]
+    public function testProcessAcceptsConfigSerializerWithoutMatchingLoader(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
+        $container->setDefinition(GenericStubLoaderConfigSerializer::class, $this->taggedSerializer(GenericStubLoaderConfigSerializer::class));
+        $container->setDefinition(OrphanSourceConfigSerializer::class, $this->taggedSerializer(OrphanSourceConfigSerializer::class));
+
+        $this->expectNotToPerformAssertions();
+
+        (new ContentSystemDataLoaderCompilerPass())->process($container);
+    }
+
+    #[TestDox('skips tagged config serializers that cannot be introspected')]
+    public function testProcessSkipsUnintrospectableConfigSerializers(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
+        $container->setDefinition(GenericStubLoaderConfigSerializer::class, $this->taggedSerializer(GenericStubLoaderConfigSerializer::class));
+
+        $abstract = $this->taggedSerializer(StubConfigSerializer::class);
+        $abstract->setAbstract(true);
+        $container->setDefinition('app.abstract_config_serializer', $abstract);
+
+        $container->setDefinition('app.unresolvable_config_serializer', $this->taggedSerializer('App\\ContentSystem\\MissingConfigSerializer'));
+
+        $this->expectNotToPerformAssertions();
 
         (new ContentSystemDataLoaderCompilerPass())->process($container);
     }
@@ -312,6 +374,77 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $definition->addTag('content_system.data_loader');
 
         return $definition;
+    }
+
+    private function taggedSerializer(string $class): Definition
+    {
+        $definition = new Definition($class);
+        $definition->addTag('content_system.config_serializer');
+
+        return $definition;
+    }
+}
+
+/**
+ * @internal
+ */
+readonly class StubLoaderConfig extends AbstractContentDataLoaderConfig
+{
+    public function jsonSerialize(): array
+    {
+        return [];
+    }
+}
+
+/**
+ * Abstract on purpose: it doubles as the fixture for a tagged abstract definition, where getSource() is still
+ * abstract and a static call on it would raise a PHP Error rather than fail the build readably.
+ *
+ * @internal
+ */
+abstract class StubConfigSerializer extends AbstractContentDataLoaderConfigSerializer
+{
+    public function decode(array $data): AbstractContentDataLoaderConfig
+    {
+        return new StubLoaderConfig();
+    }
+
+    public function encode(AbstractContentDataLoaderConfig $config): array
+    {
+        return $config->jsonSerialize();
+    }
+}
+
+/**
+ * @internal
+ */
+class GenericStubLoaderConfigSerializer extends StubConfigSerializer
+{
+    public static function getSource(): string
+    {
+        return 'test_generic';
+    }
+}
+
+/**
+ * @internal
+ */
+class ValidSpecificationLoaderConfigSerializer extends StubConfigSerializer
+{
+    public static function getSource(): string
+    {
+        return 'test_valid_specification';
+    }
+}
+
+/**
+ * @internal
+ */
+class OrphanSourceConfigSerializer extends StubConfigSerializer
+{
+    public static function getSource(): string
+    {
+        return 'test_orphan_source';
     }
 }
 

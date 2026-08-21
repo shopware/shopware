@@ -28,8 +28,6 @@ use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver\DocumentV2FileResolver;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver\LegacyDocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -870,10 +868,7 @@ class DocumentV2ControllerTest extends TestCase
 
     private function createDocumentFileResolver(): DocumentFileResolver
     {
-        return new DocumentFileResolver(
-            new LegacyDocumentFileResolver(),
-            new DocumentV2FileResolver(),
-        );
+        return new DocumentFileResolver();
     }
 
     private function createGenerator(

@@ -27,8 +27,6 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver\DocumentV2FileResolver;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver\LegacyDocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
@@ -64,14 +62,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NumberRangeValueGeneratorInterface::class),
         ]);
 
-    $services->set(LegacyDocumentFileResolver::class);
-
-    $services->set(DocumentV2FileResolver::class);
-
-    $services->set(DocumentFileResolver::class)->args([
-        service(LegacyDocumentFileResolver::class),
-        service(DocumentV2FileResolver::class),
-    ]);
+    $services->set(DocumentFileResolver::class);
 
     $services->set(DocumentConfigLoader::class)
         ->args([

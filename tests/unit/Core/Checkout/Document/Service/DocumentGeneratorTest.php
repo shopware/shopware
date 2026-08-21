@@ -30,8 +30,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver\DocumentV2FileResolver;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver\LegacyDocumentFileResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -636,9 +634,6 @@ class DocumentGeneratorTest extends TestCase
 
     private function createDocumentFileResolver(): DocumentFileResolver
     {
-        return new DocumentFileResolver(
-            new LegacyDocumentFileResolver(),
-            new DocumentV2FileResolver(),
-        );
+        return new DocumentFileResolver();
     }
 }

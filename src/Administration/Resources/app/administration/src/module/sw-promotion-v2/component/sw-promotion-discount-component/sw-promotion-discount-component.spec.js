@@ -5,6 +5,18 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
+const currencySearch = jest.fn((criteria) =>
+    Promise.resolve(
+        new EntityCollection('', 'currency', Shopware.Context.api, criteria, [
+            {
+                id: 'currencyId',
+                isSystemDefault: true,
+                factor: 3,
+            },
+        ]),
+    ),
+);
+
 async function createWrapper(propOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-promotion-discount-component', {
@@ -52,16 +64,7 @@ async function createWrapper(propOverrides = {}) {
                         create: (entity) => {
                             if (entity === 'currency') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve(
-                                            new EntityCollection('', 'currency', Shopware.Context.api, new Criteria(1, 25), [
-                                                {
-                                                    id: 'currencyId',
-                                                    isSystemDefault: true,
-                                                    factor: 3,
-                                                },
-                                            ]),
-                                        ),
+                                    search: currencySearch,
                                 };
                             }
 
@@ -163,6 +166,19 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
                 },
             };
         });
+    });
+
+    beforeEach(() => {
+        currencySearch.mockClear();
+    });
+
+    it('should load all currencies for the advanced prices', async () => {
+        global.activeAclRoles = [];
+
+        await createWrapper();
+
+        expect(currencySearch).toHaveBeenCalledTimes(1);
+        expect(currencySearch.mock.calls[0][0].getLimit()).toBe(500);
     });
 
     it('should have disabled form fields', async () => {

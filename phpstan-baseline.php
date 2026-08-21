@@ -140,22 +140,10 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Content/Media/TypeDetector/TypeDetector.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Content\\Newsletter\\Event\\NewsletterSubscribeUrlEvent::getData() return type has no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Content/Newsletter/SalesChannel/NewsletterUnsubscribeRoute.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Content\\Product\\SalesChannel\\FindVariant\\FoundCombination::getOptions() return type has no value type specified in iterable type array.',
@@ -168,12 +156,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Content/Rule/DataAbstractionLayer/RulePayloadUpdater.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Seo/SeoUrlPersister.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -324,12 +306,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
@@ -932,12 +908,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/System/SalesChannel/Context/CartRestorer.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
@@ -948,12 +918,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/System/SalesChannel/SalesChannel/StoreApiInfoController.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 2,
-    'path' => __DIR__ . '/src/Core/System/Snippet/Files/SnippetFileLoader.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',

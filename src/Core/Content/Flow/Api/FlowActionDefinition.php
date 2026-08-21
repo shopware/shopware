@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Flow\Api;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class FlowActionDefinition extends Struct
 {

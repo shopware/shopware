@@ -58,6 +58,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service('product_stream.repository'),
+            service('messenger.default_bus'),
         ])
         ->tag('messenger.message_handler');
 };

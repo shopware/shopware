@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('framework')]
 class ElasticsearchIndexerTest extends TestCase
 {
     use BasicTestDataBehaviour;

@@ -23,16 +23,16 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * skipped the gate would publish every field of it.
  *
  * A non-`Struct` object value is passed through untouched, which keeps the treatment such a value has today —
- * the carrier's JSON round trip serializes it. That is safe for the objects the pipeline itself can produce:
- * only `Struct`s carry the protection gate, entity payloads are `Struct`s, and the distribution transforms
- * that mint an arbitrary object (keyed, indexed, iterator) are not entity payloads. It is not safe for a value
- * a {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener writes: that
- * event may put any value under any key, so a non-`Struct` object holding a `Struct` anywhere in its object
- * graph reaches this method as one opaque value, and the `Struct` it contains never reaches the gate above —
- * this method only sees the wrapper, not what is inside it. No shipped listener does this; it is a bar the
- * extension contract has to carry because this encoder cannot enforce it: a
- * `RenderedTreeFinalizationEvent` listener must never write a property value that is a non-`Struct` object
- * containing a `Struct` anywhere in its object graph.
+ * the carrier's JSON round trip serializes it. What is never safe is a non-`Struct` object holding a `Struct`
+ * anywhere in its object graph: this method sees one opaque wrapper, so the `Struct` inside it never reaches
+ * the gate above and every field of it would be published. That is a property of the value, so the bar is on
+ * whatever produced the value rather than on the subscribers of one event. The tiers that fill a rendered
+ * property differ only in how wide the opening is: a stored value is a JSON value and a loader value is a
+ * `?Struct`, while a delivered context value is whatever a dotted consumer key found on an entity, and a
+ * {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener replacing the
+ * rendered forest may write anything at all under any key. No producer of a property value on this path may
+ * hand over a non-`Struct` object containing a `Struct` anywhere in its object graph; this encoder cannot
+ * enforce that, so the extension contract has to carry it.
  *
  * @internal
  *

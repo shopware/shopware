@@ -1,0 +1,47 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentDecomposedElement": {
+                "type": "object",
+                "description": "A node of the decomposed format's skeleton tree: the element's structure with no property values, which this format serves separately through the page's `data` and `assignments` maps, keyed by this node's `id`. The grammar is: `id` and `component` always present; `slots` present only when the element has children, omitted entirely otherwise; `style` present only when the element carries style, omitted entirely otherwise; `apiAlias` present on every node at every depth and written last. Key order on the wire is `id`, `component`, `slots`, `style`, `apiAlias`. This node type is used by the decomposed format alone and is not interchangeable with any other format's node.",
+                "required": ["id", "component", "apiAlias"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Element identifier, carried through from the stored element. Unique across every root of the page, and the key this element's entry in the page `assignments` map is filed under."
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Media:Image)."
+                    },
+                    "slots": {
+                        "type": "object",
+                        "description": "Child element subtrees keyed by slot name, each slot holding an ordered list of child nodes. Omitted entirely when the element has no slots — never serialized as an empty container.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": { "$ref": "#/components/schemas/ContentDecomposedElement" }
+                        }
+                    },
+                    "style": {
+                        "type": "object",
+                        "description": "Universal presentation options keyed by option wire name, carried through from the stored element. Each value is either a single scalar (a flat option) or an object keyed by breakpoint (xs, sm, md, lg, xl, xxl) for a breakpoint-aware option, per the option's breakpointAware flag in the style-option introspection schema. Omitted when the element has no style.",
+                        "additionalProperties": {
+                            "oneOf": [
+                                { "type": ["string", "integer", "number", "boolean"] },
+                                { "type": "object", "additionalProperties": { "type": ["string", "integer", "number", "boolean"] } }
+                            ]
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_skeleton_element"],
+                        "description": "Present on EVERY node at every depth, written last, with the value `content_skeleton_element`. The decomposed encoder holds this alias as its own constant; a client must read it off the node it is looking at rather than infer it from the node's position in the tree."
+                    }
+                }
+            }
+        }
+    }
+}

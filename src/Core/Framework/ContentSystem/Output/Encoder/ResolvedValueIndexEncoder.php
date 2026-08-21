@@ -19,15 +19,15 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * Every `Struct` leaf goes through {@see StructEncoder::encode()}, which is where the framework's protection gate
  * lives (ApiAware flags, `isProtected`, the customFields blocklist). That per-leaf delegation is load-bearing
  * rather than convenient: it is the only thing applying the gate to an entity payload on this path, so a leaf
- * that skipped it would publish every field of it. A non-`Struct` object value passes through untouched — safe
- * for the objects the pipeline itself can produce, where only `Struct`s carry the gate and entity payloads are
- * `Struct`s. It is not safe for a value a
- * {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener writes under
- * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin::Injected}: such a value reaches
- * `data()` like any other, and a non-`Struct` object holding a `Struct` anywhere in its object graph carries
- * that `Struct` past the gate unrun, because this method only sees the wrapper. No shipped listener does this;
- * the bar is on the listener contract, not enforced here — a listener must never write a property value that
- * is a non-`Struct` object containing a `Struct` anywhere in its object graph.
+ * that skipped it would publish every field of it. A non-`Struct` object value passes through untouched. What
+ * is never safe is a non-`Struct` object holding a `Struct` anywhere in its object graph: this method sees one
+ * opaque wrapper, so the contained `Struct` goes past the gate unrun. The index carries every rendered
+ * property value whatever its {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin}, so the
+ * bar is on whatever produced the value rather than on the subscribers of one event — a
+ * {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener writing under
+ * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin::Injected} is the widest producer, not
+ * the only one. No producer of a property value on this path may hand over a non-`Struct` object containing a
+ * `Struct` anywhere in its object graph; this encoder cannot enforce that, so the contract has to carry it.
  *
  * The index is optional output on the render result, but not for the formats that read it: the pipeline builds
  * one whenever the format asks for it, and both formats reading it always ask. A missing index is therefore a

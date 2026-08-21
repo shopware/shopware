@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Ownership;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
@@ -28,12 +29,21 @@ class WriteAuthorizer
             return [];
         }
 
+        $source = $context->getSource();
         $violations = [];
 
         foreach ($this->webhookLoader->getOwnership($webhookIds) as $ownership) {
             if ($ownership->belongsToApp()) {
                 $violations[] = WebhookException::appWebhookNotModifiable($ownership->webhookId);
+
+                continue;
             }
+
+            if (!$source instanceof AdminApiSource || $source->isAdmin() || $ownership->isOwnedBy($source)) {
+                continue;
+            }
+
+            $violations[] = WebhookException::webhookNotOwned($ownership->webhookId);
         }
 
         return $violations;

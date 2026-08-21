@@ -21,6 +21,7 @@ class WebhookException extends HttpException
     public const MAXIMUM_REDIRECTS_EXCEEDED = 'FRAMEWORK__WEBHOOK_MAXIMUM_REDIRECTS_EXCEEDED';
     public const WEBHOOK_OWNER_MISSING = 'FRAMEWORK__WEBHOOK_OWNER_MISSING';
     public const APP_WEBHOOK_NOT_MODIFIABLE = 'FRAMEWORK__APP_WEBHOOK_NOT_MODIFIABLE';
+    public const WEBHOOK_NOT_OWNED = 'FRAMEWORK__WEBHOOK_NOT_OWNED';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -118,6 +119,16 @@ class WebhookException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::APP_WEBHOOK_NOT_MODIFIABLE,
             'Webhook "{{ webhookId }}" belongs to an app and can only be changed by that app.',
+            ['webhookId' => $webhookId]
+        );
+    }
+
+    public static function webhookNotOwned(string $webhookId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::WEBHOOK_NOT_OWNED,
+            'Webhook "{{ webhookId }}" can only be changed by its owner.',
             ['webhookId' => $webhookId]
         );
     }

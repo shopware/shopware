@@ -8,7 +8,8 @@ meta:
     hints:
       - "Add a navigationTree data requirement with source 'navigation' to load the tree."
       - "The highlighted category follows the page, no configuration needed."
-      - "Set displayType to 'collapsible' to let shoppers open and close the levels below a category; expandAll then only decides which branches start open, not whether children are rendered."
+      - "Set displayType to 'static' for a fixed tree, or to 'collapse' to let shoppers open and close the levels below a category."
+      - "In collapse mode expandAll only decides which branches start open, not whether children are rendered."
 
 properties:
   navigationTree:
@@ -35,10 +36,10 @@ properties:
     default: "static"
     enum:
       - "static"
-      - "collapsible"
+      - "collapse"
     adminUI:
       component: "select"
-      helpText: "'Static' renders the tree as it is. 'Collapsible' adds a plus button to every category whose sub-levels are rendered, so shoppers can open them. This mode renders the whole tree down to the navigation depth of the sales channel, which makes every page carrying the element heavier on a deep catalogue."
+      helpText: "'Static' renders the tree as it is. 'Collapse' adds a plus button to every category whose sub-levels are rendered, so shoppers can open them. That mode renders the whole tree down to the navigation depth of the sales channel, which makes every page carrying the element heavier on a deep catalogue."
 
   expandAll:
     type: boolean
@@ -46,7 +47,7 @@ properties:
     description: "Render all children instead of only the branch containing the active category."
     default: false
     adminUI:
-      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel. In collapsible mode this sets which branches start open."
+      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel. In collapse mode this sets which branches start open."
 
   ariaLabel:
     type: string

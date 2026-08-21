@@ -14,7 +14,7 @@
     expanded = true,
 %}
 
-{% set isCollapsible = displayType == 'collapsible' %}
+{% set isCollapse = displayType == 'collapse' %}
 {% set isPanel = panelId is not null %}
 
 {% set treeItemsCVA = cva({
@@ -26,7 +26,7 @@
         },
         displayType: {
             static: null,
-            collapsible: ['is--collapsible'],
+            collapse: ['is--collapse'],
         },
         panel: {
             true: ['collapse'],
@@ -63,15 +63,10 @@
         {# NavigationRoute loads the active path beyond the requested depth on purpose, so the limit
            must not reach it — clipping it would drop the item carrying aria-current. #}
         {% set showChildren = treeItem.children|length > 0
-            and (onActivePath or ((expandAll or isCollapsible) and navigationLevel < navigationMaxDepth)) %}
+            and (onActivePath or ((expandAll or isCollapse) and navigationLevel < navigationMaxDepth)) %}
 
-        {# A branch has to be in the DOM to be expandable at all, so in collapsible mode expandAll
-           picks the initial state instead of gating the markup. #}
-        {% set startExpanded = not isCollapsible or expandAll or onActivePath %}
-
-        {# Keyed off the rendered children, not off children|length: the depth limit can drop the
-           children of a node that has some, and a toggle controlling nothing is worse than none. #}
-        {% set childPanelId = (isCollapsible and showChildren) ? ('sw-navigation-tree-panel-' ~ random()) : null %}
+        {% set startExpanded = not isCollapse or expandAll or onActivePath %}
+        {% set childPanelId = (isCollapse and showChildren) ? ('sw-navigation-tree-panel-' ~ random()) : null %}
 
         <li class="sw-navigation-tree-items__item">
             {% if category.seoUrl %}
@@ -89,9 +84,6 @@
                 </span>
             {% endif %}
 
-            {# The toggle sits beside the label instead of replacing it, following the footer
-               column accordion: the label keeps navigating, and a span never has to carry
-               aria-expanded, which assistive technology would ignore on it. #}
             {% if childPanelId %}
                 <twig:Sw:Button
                     variant="inline"

@@ -109,9 +109,8 @@ class NavigationTreeComponentTest extends TestCase
     }
 
     /**
-     * The Studio derives the control from this schema and ships no code of its own for it, so a
-     * toSchema() regression that dropped the enum would render a select with no options while
-     * every render test here kept passing.
+     * The Studio ships no code for this control, so a dropped enum would render an empty select
+     * while every render test here kept passing.
      */
     public function testDisplayTypeReachesTheSchemaWithItsOptions(): void
     {
@@ -121,7 +120,7 @@ class NavigationTreeComponentTest extends TestCase
         $displayType = $types->get('Sw:Navigation:Tree')->properties()['displayType']->toSchema();
 
         static::assertSame('static', $displayType['default']);
-        static::assertSame(['static', 'collapsible'], $displayType['enum']);
+        static::assertSame(['static', 'collapse'], $displayType['enum']);
         static::assertSame('select', $displayType['adminUI']['component'] ?? null);
     }
 
@@ -279,44 +278,38 @@ class NavigationTreeComponentTest extends TestCase
         static::assertStringNotContainsString('<button', $html);
         static::assertStringNotContainsString('aria-expanded', $html);
         static::assertStringNotContainsString('data-bs-toggle', $html);
-        static::assertStringNotContainsString('is--collapsible', $html);
+        static::assertStringNotContainsString('is--collapse', $html);
     }
 
-    /**
-     * A toggle pointing at an id that is not on the page silently does nothing, so the wiring is
-     * asserted end to end rather than attribute by attribute.
-     */
-    public function testCollapsibleModeWiresTheToggleToThePanelItControls(): void
+    public function testCollapseModeWiresTheToggleToThePanelItControls(): void
     {
         $child = $this->treeItem('Shirts', '/shirts');
         $parent = $this->treeItem('Clothing', '/clothing', children: [$child]);
 
         $html = $this->render([
             'navigationTree' => [$parent],
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
         ]);
 
         static::assertStringContainsString('data-bs-toggle="collapse"', $html);
         static::assertSame(1, preg_match('/aria-controls="([^"]+)"/', $html, $matches));
         static::assertStringContainsString('data-bs-target="#' . $matches[1] . '"', $html);
         static::assertStringContainsString('id="' . $matches[1] . '"', $html);
-
-        // The label still navigates; only the button beside it discloses.
         static::assertStringContainsString('href="/clothing"', $html);
     }
 
     /**
-     * Two icons swapped by state, matching the footer column accordion. A missing icon file makes
-     * Sw:Icon render nothing at all, which would leave the button visually empty.
+     * Sw:Icon renders nothing at all when the icon file is missing, so the button would ship empty
+     * with every other assertion here still passing.
      */
-    public function testCollapsibleModeRendersThePlusAndMinusIcons(): void
+    public function testCollapseModeRendersThePlusAndMinusIcons(): void
     {
         $child = $this->treeItem('Shirts', '/shirts');
         $parent = $this->treeItem('Clothing', '/clothing', children: [$child]);
 
         $html = $this->render([
             'navigationTree' => [$parent],
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
         ]);
 
         static::assertStringContainsString('sw-icon--default-plus', $html);
@@ -325,14 +318,14 @@ class NavigationTreeComponentTest extends TestCase
         static::assertSame(2, substr_count($html, '<svg'));
     }
 
-    public function testCollapsibleModeGivesTheToggleANameOfItsOwn(): void
+    public function testCollapseModeGivesTheToggleANameOfItsOwn(): void
     {
         $child = $this->treeItem('Shirts', '/shirts');
         $parent = $this->treeItem('Clothing', '/clothing', children: [$child]);
 
         $html = $this->render([
             'navigationTree' => [$parent],
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
         ]);
 
         // Naming it after the category alone would give the row two controls with one name.
@@ -340,7 +333,7 @@ class NavigationTreeComponentTest extends TestCase
         static::assertStringNotContainsString('aria-label="Clothing"', $html);
     }
 
-    public function testCollapsibleModeStartsTheActiveBranchOpenAndLeavesSiblingsClosed(): void
+    public function testCollapseModeStartsTheActiveBranchOpenAndLeavesSiblingsClosed(): void
     {
         $activeChild = $this->treeItem('ActiveChild', '/active-child');
         $activeBranch = $this->treeItem('ActiveBranch', '/active-branch', children: [$activeChild]);
@@ -350,7 +343,7 @@ class NavigationTreeComponentTest extends TestCase
 
         $html = $this->render([
             'navigationTree' => [$activeBranch, $siblingBranch],
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
             'activePath' => [$activeBranch->getCategory()->getId()],
         ]);
 
@@ -363,15 +356,14 @@ class NavigationTreeComponentTest extends TestCase
         static::assertSame(1, substr_count($html, 'collapse show'));
     }
 
-    public function testCollapsibleModeUsesExpandAllAsTheInitialState(): void
+    public function testCollapseModeUsesExpandAllAsTheInitialState(): void
     {
         $child = $this->treeItem('HiddenChild', '/hidden-child');
         $branch = $this->treeItem('Branch', '/branch', children: [$child]);
 
-        $closed = $this->render(['navigationTree' => [$branch], 'displayType' => 'collapsible']);
-        $open = $this->render(['navigationTree' => [$branch], 'displayType' => 'collapsible', 'expandAll' => true]);
+        $closed = $this->render(['navigationTree' => [$branch], 'displayType' => 'collapse']);
+        $open = $this->render(['navigationTree' => [$branch], 'displayType' => 'collapse', 'expandAll' => true]);
 
-        // expandAll stops gating the markup here: a branch has to exist to be expandable.
         static::assertStringContainsString('HiddenChild', $closed);
         static::assertStringContainsString('HiddenChild', $open);
 
@@ -379,11 +371,7 @@ class NavigationTreeComponentTest extends TestCase
         static::assertStringContainsString('aria-expanded="true"', $open);
     }
 
-    /**
-     * A toggle whose panel was clipped by the depth limit would control nothing, so the button keys
-     * off the rendered children rather than off the children the tree carries.
-     */
-    public function testCollapsibleModeRendersNoToggleWhenTheDepthLimitDropsTheChildren(): void
+    public function testCollapseModeRendersNoToggleWhenTheDepthLimitDropsTheChildren(): void
     {
         $level3 = $this->treeItem('Level3', '/level-3');
         $level2 = $this->treeItem('Level2', '/level-2', children: [$level3]);
@@ -392,7 +380,7 @@ class NavigationTreeComponentTest extends TestCase
         $html = $this->render([
             'navigationTree' => [$level1],
             'navigationMaxDepth' => 2,
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
         ]);
 
         static::assertStringContainsString('Level2', $html);
@@ -400,7 +388,7 @@ class NavigationTreeComponentTest extends TestCase
         static::assertSame(1, substr_count($html, 'data-bs-toggle="collapse"'));
     }
 
-    public function testCollapsibleModeKeepsTheActivePathBeyondTheRenderDepth(): void
+    public function testCollapseModeKeepsTheActivePathBeyondTheRenderDepth(): void
     {
         $active = $this->treeItem('Sneakers', '/sneakers');
         $middle = $this->treeItem('Shoes', '/shoes', children: [$active]);
@@ -409,31 +397,29 @@ class NavigationTreeComponentTest extends TestCase
         $html = $this->render([
             'navigationTree' => [$top],
             'navigationMaxDepth' => 2,
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
             'activeId' => $active->getCategory()->getId(),
             'activePath' => [$top->getCategory()->getId(), $middle->getCategory()->getId()],
         ]);
 
         static::assertStringContainsString('Sneakers', $html);
         static::assertSame(1, substr_count($html, 'aria-current="page"'));
-
-        // Every panel on the active path starts open, so nothing hides the current page.
         static::assertSame(2, substr_count($html, 'aria-expanded="true"'));
         static::assertSame(0, substr_count($html, 'aria-expanded="false"'));
     }
 
     /**
-     * The toggle sits beside the label instead of replacing it, so a folder stays a span. Putting
-     * aria-expanded on a span would make the state invisible to assistive technology.
+     * Assistive technology ignores aria-expanded on a span, so the toggle has to be its own
+     * control rather than the folder itself.
      */
-    public function testCollapsibleModeKeepsAFolderASpanAndPutsTheToggleBesideIt(): void
+    public function testCollapseModeKeepsAFolderASpanAndPutsTheToggleBesideIt(): void
     {
         $child = $this->treeItem('Shirts', '/shirts');
         $folder = $this->treeItem('Structure', null, CategoryDefinition::TYPE_FOLDER, children: [$child]);
 
         $html = $this->render([
             'navigationTree' => [$folder],
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
         ]);
 
         static::assertStringContainsString('sw-navigation-tree-items__folder nav-link', $html);
@@ -442,13 +428,13 @@ class NavigationTreeComponentTest extends TestCase
         static::assertStringNotContainsString('<span class="sw-navigation-tree-items__folder nav-link" aria-expanded', $html);
     }
 
-    public function testCollapsibleModeKeepsAChildlessFolderNonInteractive(): void
+    public function testCollapseModeKeepsAChildlessFolderNonInteractive(): void
     {
         $folder = $this->treeItem('Structure', null, CategoryDefinition::TYPE_FOLDER);
 
         $html = $this->render([
             'navigationTree' => [$folder],
-            'displayType' => 'collapsible',
+            'displayType' => 'collapse',
         ]);
 
         static::assertStringContainsString('sw-navigation-tree-items__folder nav-link', $html);
@@ -510,8 +496,8 @@ class NavigationTreeComponentTest extends TestCase
     /**
      * Every prop is passed explicitly so the component's global-reading defaults
      * (`shopware.navigation`, `context.salesChannel`) are never evaluated. The translator is the
-     * exception since collapsible mode names its toggle from `general.toggleSubcategories`: a
-     * missing snippet makes those tests fail on the name rather than on what they assert.
+     * exception. Collapse mode names its toggle from `general.toggleSubcategories`, so a missing
+     * snippet makes those tests fail on the name rather than on what they assert.
      *
      * @param array<string, mixed> $props
      */

@@ -4,10 +4,12 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -22,19 +24,27 @@ class ElasticsearchTestAnalyzerCommand extends Command
 
     /**
      * @internal
+     *
+     * @param array<string, mixed> $analysis the `elasticsearch.analysis` section (analyzer, tokenizer, char_filter, filter)
      */
-    public function __construct(private readonly Client $client)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly array $analysis = [],
+        private readonly bool $dimensionNormalize = false,
+    ) {
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
-            ->addArgument('term', InputArgument::REQUIRED);
+            ->addArgument('term', InputArgument::REQUIRED)
+            ->addOption(
+                'all',
+                'a',
+                InputOption::VALUE_NONE,
+                'Also run the built-in Elasticsearch analyzers (standard, whitespace, ..., english, german, ...) for comparison.',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -42,25 +52,16 @@ class ElasticsearchTestAnalyzerCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $term = $input->getArgument('term');
-
-        $iteration = $this->getAnalyzers();
+        $includeBuiltIn = (bool) $input->getOption('all');
 
         $rows = [];
-        foreach ($iteration as $headline => $analyzers) {
+        foreach ($this->getSections($includeBuiltIn) as $headline => $analyzers) {
             $rows[] = [$headline];
             $rows[] = ['###############'];
-            foreach ($analyzers as $analyzer) {
-                /** @var array{'tokens': array{token: string}[]} $analyzed */
-                $analyzed = $this->client->indices()->analyze([
-                    'body' => [
-                        'analyzer' => $analyzer,
-                        'text' => $term,
-                    ],
-                ]);
-
+            foreach ($analyzers as $name => $body) {
                 $rows[] = [
-                    'Analyzer' => $analyzer,
-                    'Tokens' => implode(' ', array_column($analyzed['tokens'], 'token')),
+                    'Analyzer' => $name,
+                    'Tokens' => $this->analyze($body, $term),
                 ];
             }
 
@@ -126,5 +127,140 @@ class ElasticsearchTestAnalyzerCommand extends Command
                 'thai',
             ],
         ];
+    }
+
+    /**
+     * A single unusable analyzer must not abort the whole report, so failures are rendered
+     * in place of the tokens.
+     *
+     * @param array<string, mixed> $body
+     */
+    private function analyze(array $body, mixed $term): string
+    {
+        $body['text'] = $term;
+
+        try {
+            /** @var array{'tokens': array{token: string}[]} $analyzed */
+            $analyzed = $this->client->indices()->analyze(['body' => $body]);
+        } catch (\Throwable $e) {
+            return \sprintf('<error: %s>', $e->getMessage());
+        }
+
+        return implode(' ', array_column($analyzed['tokens'], 'token'));
+    }
+
+    /**
+     * Builds the table sections, each entry being an _analyze request body keyed by display name.
+     *
+     * @return array<string, array<string, array<string, mixed>>>
+     */
+    private function getSections(bool $includeBuiltIn): array
+    {
+        $sections = [
+            'Custom analyzers (storefront elasticsearch.yaml)' => $this->buildCustomBodies($this->analysis, $this->dimensionNormalize),
+        ];
+
+        if (!$includeBuiltIn) {
+            return $sections;
+        }
+
+        foreach ($this->getAnalyzers() as $headline => $analyzers) {
+            if ($analyzers === []) {
+                continue;
+            }
+
+            $sections[$headline] = $this->buildBuiltInBodies($analyzers);
+        }
+
+        return $sections;
+    }
+
+    /**
+     * @param array<string> $names
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildBuiltInBodies(array $names): array
+    {
+        $bodies = [];
+        foreach ($names as $name) {
+            $bodies[$name] = ['analyzer' => $name];
+        }
+
+        return $bodies;
+    }
+
+    /**
+     * Resolves each configured analyzer to an inline _analyze body so it can be tested without
+     * requiring a live index that has the custom analyzer installed.
+     *
+     * @param array<string, mixed> $analysis
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildCustomBodies(array $analysis, bool $dimensionNormalize): array
+    {
+        $analyzers = $analysis['analyzer'] ?? [];
+
+        if (!\is_array($analyzers)) {
+            return [];
+        }
+
+        if ($dimensionNormalize) {
+            // Mirror what IndexCreator does when creating the index, otherwise the reported
+            // tokens differ from the ones the live index actually produces.
+            $analyzers = IndexCreator::withDimensionNormalize($analyzers);
+        }
+
+        $bodies = [];
+        foreach ($analyzers as $name => $config) {
+            if (!\is_array($config)) {
+                continue;
+            }
+
+            $body = [];
+            if (isset($config['tokenizer'])) {
+                $body['tokenizer'] = $this->resolveReference($config['tokenizer'], $analysis['tokenizer'] ?? []);
+            }
+            if (isset($config['char_filter']) && \is_array($config['char_filter'])) {
+                $body['char_filter'] = $this->resolveReferences($config['char_filter'], $analysis['char_filter'] ?? []);
+            }
+            if (isset($config['filter']) && \is_array($config['filter'])) {
+                $body['filter'] = $this->resolveReferences($config['filter'], $analysis['filter'] ?? []);
+            }
+
+            $bodies[$name] = $body;
+        }
+
+        return $bodies;
+    }
+
+    /**
+     * @param array<mixed> $references
+     *
+     * @return list<mixed>
+     */
+    private function resolveReferences(array $references, mixed $definitions): array
+    {
+        $resolved = [];
+        foreach ($references as $reference) {
+            $resolved[] = $this->resolveReference($reference, $definitions);
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * Replaces a name reference with its inline definition from the matching `analysis`
+     * section (tokenizer, char_filter, filter) so _analyze can resolve it without hitting
+     * a real index. Built-in names are passed through untouched.
+     */
+    private function resolveReference(mixed $reference, mixed $definitions): mixed
+    {
+        if (\is_string($reference) && \is_array($definitions) && isset($definitions[$reference])) {
+            return $definitions[$reference];
+        }
+
+        return $reference;
     }
 }

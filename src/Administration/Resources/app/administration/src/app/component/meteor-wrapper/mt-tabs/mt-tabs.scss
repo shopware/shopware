@@ -5,7 +5,7 @@
     margin: 0 auto 55px;
 }
 
-.mt-tabs-wrapper:has(+ .mt-tabs__custom-content) .mt-tabs.mt-tabs--small {
+.mt-tabs.mt-tabs--small:has(+ .mt-tabs__custom-content) {
     margin-bottom: 0;
 }
 

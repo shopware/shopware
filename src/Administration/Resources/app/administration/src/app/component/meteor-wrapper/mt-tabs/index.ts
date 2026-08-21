@@ -77,7 +77,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        rootAttributes(): Record<string, unknown> {
+        meteorAttributes(): Record<string, unknown> {
             const attributes = { ...this.$attrs };
             delete attributes['position-identifier'];
 

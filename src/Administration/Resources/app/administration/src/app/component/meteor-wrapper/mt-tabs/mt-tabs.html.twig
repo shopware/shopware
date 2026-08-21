@@ -1,17 +1,13 @@
 {% block mt_tabs %}
-<div
-    v-bind="rootAttributes"
-    class="mt-tabs-wrapper"
->
-    <mt-tabs-original
-        ref="mtTabsOriginal"
-        :default-item="activeItemName"
-        :items="mergedItems"
-        :small="small"
-        :vertical="vertical"
-        @new-item-active="onNewItemActive"
-    />
-</div>
+<mt-tabs-original
+    v-bind="meteorAttributes"
+    ref="mtTabsOriginal"
+    :default-item="activeItemName"
+    :items="mergedItems"
+    :small="small"
+    :vertical="vertical"
+    @new-item-active="onNewItemActive"
+/>
 
 <div
     v-if="hasCustomContent"

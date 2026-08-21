@@ -642,8 +642,7 @@ export default class CookieConfiguration extends Plugin {
         const cookiePermission = CookieStorage.getItem(cookiePreference);
 
         if (!cookiePermission) {
-            const showCookieBarEvent = new CustomEvent('showCookieBar');
-            document.dispatchEvent(showCookieBarEvent);
+            this._showCookieBar();
         }
     }
 

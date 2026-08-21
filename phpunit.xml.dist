@@ -46,24 +46,18 @@
                  invalid #[CoversClass] targets. src/Core/Migration and src/Core/Framework/Migration are
                  deliberately NOT listed. -->
             <directory suffix="Definition.php">src/Core/Framework/</directory>
-            <directory suffix="Definition.php">src/Core/System/</directory>
 
             <directory suffix="Entity.php">src/Core/Framework/</directory>
-            <directory suffix="Entity.php">src/Core/System/</directory>
 
             <directory suffix="Event.php">src/Core/Framework/</directory>
             <directory suffix="Event.php">src/Core/Maintenance/</directory>
             <directory suffix="Event.php">src/Core/Service/</directory>
-            <directory suffix="Event.php">src/Core/System/</directory>
 
             <directory suffix="Field.php">src/Core/Framework/</directory>
-            <directory suffix="Field.php">src/Core/System/</directory>
 
             <directory suffix="Struct.php">src/Core/Framework/</directory>
-            <directory suffix="Struct.php">src/Core/System/</directory>
 
             <directory suffix="Collection.php">src/Core/Installer/</directory>
-            <directory suffix="Collection.php">src/Core/System/</directory>
             <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>
             <directory suffix="Collection.php">src/Core/Framework/Api/</directory>
             <directory suffix="Collection.php">src/Core/Framework/App/</directory>

@@ -43,8 +43,6 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      */
     protected array $droppedProperties = [];
 
-    private ?PrimitiveDefaultProvider $primitiveDefaultProvider = null;
-
     public function affected(): array
     {
         return $this->affected;
@@ -128,14 +126,13 @@ abstract class AbstractLayoutMutation implements LayoutMutation
      * The type's primitive property defaults to seed into a stored element, keyed by property key and wrapped
      * for storage. The single rule lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary
      * seeder so a type's defaults are defined once; the wrapping is applied here, at the one place a mutation
-     * puts a raw default into a stored element. The provider is stateless; a mutation is not a DI service, so
-     * it is instantiated once per mutation instance and memoized rather than injected.
+     * puts a raw default into a stored element.
      *
      * @return array<string, StoredValue>
      */
     protected function primitiveDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array
     {
-        $defaults = ($this->primitiveDefaultProvider ??= new PrimitiveDefaultProvider())->forType($registry, $type);
+        $defaults = (new PrimitiveDefaultProvider())->forType($registry, $type);
 
         return array_map(StoredValue::fromDecoded(...), $defaults);
     }

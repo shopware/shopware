@@ -60,7 +60,6 @@ class PersistedLayoutMutator
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored
             // elements directly.
             $mutated = $mutation->apply(new StoredTree($layout->getLayout()));
-            $affected = $mutation->affected();
 
             $this->contentLayoutRepository->update([[
                 'id' => $layoutId,
@@ -69,18 +68,7 @@ class PersistedLayoutMutator
 
             $analysis = $this->diagnose($layout->getRootSource(), $mutated, $context);
 
-            // This MutationResult assembly is intentionally duplicated in MutationPipeline::run() (see the note
-            // there): sharing it would couple Mutation/ to a Diagnostics/LayoutAnalysis-shaped helper or require
-            // a banned static helper.
-            return new MutationResult(
-                $mutated,
-                array_intersect_key($analysis->resolutions, array_flip($affected)),
-                $analysis->report,
-                $affected,
-                $mutation->orphaned(),
-                $mutation->droppedWiring(),
-                $mutation->droppedProperties(),
-            );
+            return MutationResult::fromAnalyzedMutation($mutated, $analysis, $mutation);
         } finally {
             $lock->release();
         }

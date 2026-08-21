@@ -56,7 +56,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     #[TestDox('serializes the persisted mutation result into the layout, resolutions, diagnostics and affected ids')]
     public function testInsertSerializesMutationResult(): void
     {
-        $result = new MutationResult(new StoredTree([new StoredElement('el-1', 'Sw:Card')]), ['el-1' => []], new DiagnosticsReport([]), ['el-1']);
+        $result = MutationResult::fromParts(new StoredTree([new StoredElement('el-1', 'Sw:Card')]), ['el-1' => []], new DiagnosticsReport([]), ['el-1']);
         $controller = $this->controller($this->mutatorReturning($result));
 
         $response = $controller->insert('layout-1', new ContentLayoutInsertRequest('Sw:Card', null), Context::createDefaultContext());
@@ -80,7 +80,7 @@ class ContentLayoutMutationControllerTest extends TestCase
                 $capturedId = $layoutId;
                 $capturedVersion = $expectedVersion;
 
-                return new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
+                return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
         );
 
@@ -104,7 +104,7 @@ class ContentLayoutMutationControllerTest extends TestCase
             function (string $layoutId, ?string $expectedVersion, LayoutMutation $mutation) use (&$captured): MutationResult {
                 $captured = $mutation;
 
-                return new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
+                return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
         );
 
@@ -150,21 +150,21 @@ class ContentLayoutMutationControllerTest extends TestCase
     public static function serializesOptionalReplaceFieldsProvider(): iterable
     {
         yield 'orphaned subtrees surface for re-attachment' => [
-            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [new StoredElement('orphan', 'Sw:Block')]),
+            MutationResult::fromParts(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [new StoredElement('orphan', 'Sw:Block')]),
             static function (array $body): void {
                 static::assertSame('orphan', $body['orphaned'][0]['id']);
             },
         ];
 
         yield 'dropped wiring keys are reported' => [
-            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
+            MutationResult::fromParts(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
             static function (array $body): void {
                 static::assertSame(['legacy'], $body['droppedWiring']);
             },
         ];
 
         yield 'dropped property values are reported' => [
-            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => StoredValue::ofString('Old headline')]),
+            MutationResult::fromParts(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => StoredValue::ofString('Old headline')]),
             static function (array $body): void {
                 static::assertSame('Old headline', $body['droppedProperties']['headline']);
             },
@@ -174,7 +174,7 @@ class ContentLayoutMutationControllerTest extends TestCase
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
     public function testEmptyResolutionsEncodeAsJsonObject(): void
     {
-        $controller = $this->controller($this->mutatorReturning(new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), [])));
+        $controller = $this->controller($this->mutatorReturning(MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), [])));
 
         $response = $controller->remove('layout-1', new ContentLayoutRemoveRequest('el', null), Context::createDefaultContext());
 

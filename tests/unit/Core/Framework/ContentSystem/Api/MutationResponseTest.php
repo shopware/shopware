@@ -28,7 +28,7 @@ class MutationResponseTest extends TestCase
     public function testEmptyMapFieldsEncodeAsJsonObjects(): void
     {
         $response = MutationResponse::fromResult(
-            new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []),
+            MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []),
             $this->elementCodec(),
         );
 
@@ -42,7 +42,7 @@ class MutationResponseTest extends TestCase
     public function testEmptyListFieldsEncodeAsJsonArrays(): void
     {
         $response = MutationResponse::fromResult(
-            new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []),
+            MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []),
             $this->elementCodec(),
         );
 
@@ -58,7 +58,7 @@ class MutationResponseTest extends TestCase
     public function testSerializesExactlyTheSevenWireKeys(): void
     {
         $response = MutationResponse::fromResult(
-            new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []),
+            MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []),
             $this->elementCodec(),
         );
 
@@ -75,7 +75,7 @@ class MutationResponseTest extends TestCase
     #[TestDox('maps every MutationResult field through to its serialized wire counterpart')]
     public function testMapsEveryResultFieldThrough(): void
     {
-        $result = new MutationResult(
+        $result = MutationResult::fromParts(
             new StoredTree([new StoredElement('el-1', 'Sw:Card')]),
             ['el-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')]],
             new DiagnosticsReport([]),

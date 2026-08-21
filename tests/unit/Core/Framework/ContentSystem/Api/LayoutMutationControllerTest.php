@@ -60,7 +60,7 @@ class LayoutMutationControllerTest extends TestCase
     #[TestDox('serializes the mutation result into the layout, resolutions, diagnostics and affected ids')]
     public function testInsertSerializesMutationResult(): void
     {
-        $result = new MutationResult(new StoredTree([new StoredElement('el-1', 'Sw:Card')]), ['el-1' => []], new DiagnosticsReport([]), ['el-1']);
+        $result = MutationResult::fromParts(new StoredTree([new StoredElement('el-1', 'Sw:Card')]), ['el-1' => []], new DiagnosticsReport([]), ['el-1']);
         $controller = $this->controller($this->pipelineReturning($result));
 
         $response = $controller->insert(new InsertElementRequest('Sw:Card'), Context::createDefaultContext());
@@ -86,7 +86,7 @@ class LayoutMutationControllerTest extends TestCase
         $pipeline->method('run')->willReturnCallback(function (LayoutMutation $mutation) use (&$captured): MutationResult {
             $captured = $mutation;
 
-            return new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
+            return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
         });
 
         $invoke($this->controller($pipeline));
@@ -147,7 +147,7 @@ class LayoutMutationControllerTest extends TestCase
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]
     public function testEmptyResolutionsEncodeAsJsonObject(): void
     {
-        $result = new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
+        $result = MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
         $controller = $this->controller($this->pipelineReturning($result));
 
         $response = $controller->remove(new RemoveElementRequest('el'), Context::createDefaultContext());
@@ -198,21 +198,21 @@ class LayoutMutationControllerTest extends TestCase
     public static function replaceOptionalFieldsProvider(): iterable
     {
         yield 'orphaned subtrees surface for re-attachment' => [
-            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [new StoredElement('orphan', 'Sw:Block')]),
+            MutationResult::fromParts(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [new StoredElement('orphan', 'Sw:Block')]),
             'orphaned',
             static fn (mixed $value): mixed => $value[0]['id'],
             'orphan',
         ];
 
         yield 'dropped wiring keys are reported' => [
-            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
+            MutationResult::fromParts(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], ['legacy']),
             'droppedWiring',
             static fn (mixed $value): mixed => $value,
             ['legacy'],
         ];
 
         yield 'dropped property values are reported' => [
-            new MutationResult(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => StoredValue::ofString('Old headline')]),
+            MutationResult::fromParts(new StoredTree([new StoredElement('el', 'Sw:New')]), [], new DiagnosticsReport([]), ['el'], [], [], ['headline' => StoredValue::ofString('Old headline')]),
             'droppedProperties',
             static fn (mixed $value): mixed => $value['headline'],
             'Old headline',
@@ -225,7 +225,7 @@ class LayoutMutationControllerTest extends TestCase
     ): LayoutMutationController {
         return new LayoutMutationController(
             $this->decoder(),
-            $pipeline ?? $this->pipelineReturning(new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), [])),
+            $pipeline ?? $this->pipelineReturning(MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), [])),
             static::createStub(AbstractContentSystemElementTypeRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $this->elementCodec(),
@@ -246,7 +246,7 @@ class LayoutMutationControllerTest extends TestCase
             function (LayoutMutation $mutation, StoredTree $tree, ?array $analyzedRootContext) use (&$captured): MutationResult {
                 $captured = $analyzedRootContext;
 
-                return new MutationResult(new StoredTree([]), [], new DiagnosticsReport([]), []);
+                return MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
             }
         );
 

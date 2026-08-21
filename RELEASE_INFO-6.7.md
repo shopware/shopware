@@ -692,11 +692,11 @@ Both page components declare `container-type: inline-size`. This creates a new c
 #### Color props without effect
 
 - `sw-page`: `headerBorderColor` (and the derived `pageColor`) no longer affect the header — the smart bar no longer renders a module-colored border.
-- `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user selected "Colored by module" for their module icons (see below). By default search results use the standard icon colors.
+- `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
 
 #### Optional module icon colors
 
-The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module icons" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
+The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
 

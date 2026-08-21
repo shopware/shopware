@@ -73,6 +73,15 @@ class UserControllerTest extends TestCase
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $adminFlag = static::getContainer()->get(Connection::class)
+            ->fetchOne(
+                'SELECT admin FROM user WHERE username = :username',
+                ['username' => 'foobar']
+            );
+
+        static::assertNotNull($adminFlag);
+        static::assertSame(0, (int) $adminFlag);
     }
 
     public function testRemoveRoleAssignment(): void

@@ -2,7 +2,7 @@ export default class ProductListing extends ShopwareComponent {
 
     static options = {
         pageParamName: 'p',
-        layoutParamName: 'layout',
+        layoutParamName: 'listingLayout',
         sortingParamName: 'order',
         layoutGridClasses: {
             horizontal: ['columns-1'],

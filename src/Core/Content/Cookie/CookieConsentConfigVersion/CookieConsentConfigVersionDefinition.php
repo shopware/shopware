@@ -47,7 +47,7 @@ class CookieConsentConfigVersionDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.8.0.0';
+        return '6.7.13.0';
     }
 
     protected function defineFields(): FieldCollection

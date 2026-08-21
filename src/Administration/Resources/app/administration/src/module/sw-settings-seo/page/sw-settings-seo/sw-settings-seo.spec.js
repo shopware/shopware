@@ -55,10 +55,38 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () =>
-                            Promise.resolve({
+                        getSchema: () => {
+                            return Promise.resolve([
+                                {
+                                    title: null,
+                                    name: null,
+                                    cards: [
+                                        {
+                                            title: {
+                                                'en-GB': 'SEO',
+                                            },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'redirectToCanonicalUrl',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Redirect to canonical URL',
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
+                        getValues: () => {
+                            return Promise.resolve({
                                 'core.seo.redirectToCanonicalUrl': true,
-                            }),
+                            });
+                        },
                     },
                 },
             },

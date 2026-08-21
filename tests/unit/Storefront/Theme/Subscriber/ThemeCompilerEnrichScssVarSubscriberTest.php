@@ -8,7 +8,10 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -24,22 +27,22 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 #[CoversClass(ThemeCompilerEnrichScssVarSubscriber::class)]
 class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 {
-    private ConfigurationService&Stub $configService;
+    private SystemConfigDefinitionService&Stub $systemConfigDefinitionService;
 
     private StorefrontPluginRegistry&Stub $storefrontPluginRegistry;
 
     protected function setUp(): void
     {
-        $this->configService = static::createStub(ConfigurationService::class);
+        $this->systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
         $this->storefrontPluginRegistry = static::createStub(StorefrontPluginRegistry::class);
     }
 
     public function testEnrichExtensionVarsReturnsNothingWithNoStorefrontPlugin(): void
     {
-        $configService = $this->createMock(ConfigurationService::class);
-        $configService->expects($this->never())->method('getResolvedConfiguration');
+        $systemConfigDefinitionService = $this->createMock(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService->expects($this->never())->method('getResolvedConfiguration');
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $this->storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $this->storefrontPluginRegistry);
 
         $subscriber->enrichExtensionVars(
             new ThemeCompilerEnrichScssVariablesEvent(
@@ -53,13 +56,14 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
     public function testOnlyDBExceptionIsSilenced(): void
     {
         $exception = new \InvalidArgumentException();
-        $this->configService->method('getResolvedConfiguration')->willThrowException($exception);
+        $this->systemConfigDefinitionService->method('getResolvedConfiguration')->willThrowException($exception);
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
                 new StorefrontPluginConfiguration('test'),
             ])
         );
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
+
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->systemConfigDefinitionService, $this->storefrontPluginRegistry);
         $this->expectExceptionObject($exception);
 
         $subscriber->enrichExtensionVars(
@@ -73,13 +77,13 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
 
     public function testDBException(): void
     {
-        $this->configService->method('getResolvedConfiguration')->willThrowException(TestExceptionFactory::createException('test'));
+        $this->systemConfigDefinitionService->method('getResolvedConfiguration')->willThrowException(TestExceptionFactory::createException('test'));
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
                 new StorefrontPluginConfiguration('test'),
             ])
         );
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->systemConfigDefinitionService, $this->storefrontPluginRegistry);
 
         $exception = null;
         try {
@@ -102,12 +106,15 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
      */
     public function testOutputsPluginCssCorrupt(): void
     {
-        $this->configService->method('getResolvedConfiguration')->willReturn([
-            'card' => [
-                'elements' => [
-                    new \DateTime(),
-                ],
-            ],
+        $this->systemConfigDefinitionService->method('getResolvedConfiguration')->willReturn([
+            new SystemConfigTab(
+                [
+                    new SystemConfigCard(
+                        [],
+                        []
+                    ),
+                ]
+            ),
         ]);
 
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
@@ -115,7 +122,7 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
                 new StorefrontPluginConfiguration('test'),
             ])
         );
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->systemConfigDefinitionService, $this->storefrontPluginRegistry);
 
         $event = new ThemeCompilerEnrichScssVariablesEvent(
             ['bla' => 'any'],
@@ -140,5 +147,44 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
             ],
             ThemeCompilerEnrichScssVarSubscriber::getSubscribedEvents()
         );
+    }
+
+    public function testConfigurationNullValuesDefaultToEmptyString(): void
+    {
+        $this->systemConfigDefinitionService->method('getResolvedConfiguration')->willReturn([
+            new SystemConfigTab(
+                [
+                    new SystemConfigCard(
+                        [
+                            new SystemConfigElement(
+                                'test',
+                                ['css' => 'test', 'defaultValue' => null],
+                                'text'
+                            ),
+                        ],
+                        []
+                    ),
+                ]
+            ),
+        ]);
+
+        $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
+            new StorefrontPluginConfigurationCollection([
+                new StorefrontPluginConfiguration('test'),
+            ])
+        );
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->systemConfigDefinitionService, $this->storefrontPluginRegistry);
+
+        $event = new ThemeCompilerEnrichScssVariablesEvent(
+            [],
+            TestDefaults::SALES_CHANNEL,
+            Context::createDefaultContext()
+        );
+
+        $subscriber->enrichExtensionVars(
+            $event
+        );
+
+        static::assertSame(['test' => ''], $event->getVariables());
     }
 }

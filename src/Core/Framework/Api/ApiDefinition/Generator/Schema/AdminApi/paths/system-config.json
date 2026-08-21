@@ -120,9 +120,36 @@
                 "tags": [
                     "System Config"
                 ],
+                "summary": "Get configuration schema (deprecated)",
+                "description": "Returns the configuration schema for the given domain.\n\n**Deprecated:** This endpoint is deprecated and will be removed in v6.8.0. Use `GET \/_action\/system-config\/get-schema` instead.",
+                "operationId": "getConfiguration",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "description": "The configuration domain.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the configuration schema."
+                    }
+                }
+            }
+        },
+        "\/_action\/system-config\/get-schema": {
+            "get": {
+                "tags": [
+                    "System Config"
+                ],
                 "summary": "Get configuration schema",
                 "description": "Returns the configuration schema for the given domain.",
-                "operationId": "getConfiguration",
+                "operationId": "getSchema",
                 "parameters": [
                     {
                         "name": "domain",

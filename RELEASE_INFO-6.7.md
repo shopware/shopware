@@ -6,6 +6,50 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### System configuration tabs
+
+With the newly added tabs feature, plugin developers can now add another layer of organization to the already existing cards in the system configuration. This allows to group related cards into individual tabs and provide a better overview for merchants when configuring a plugin. The feature is fully optional to use and works with partial usage as well - any cards not added to a tab are automatically gathered in a "General" tab.
+
+**Example usage:**
+```xml
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <tab>
+        <name>product</name>
+        <title>Product</title>
+        <title lang="de-DE">Produkt</title>
+
+        <card>
+            <title>Listing settings</title>
+            <title lang="de-DE">Listing-Einstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInListing</name>
+                <label>Display buy buttons in listings</label>
+                <label lang="de-DE">Kaufen-Buttons in Produktlistings anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+
+    <tab>
+        <name>cart</name>
+        <title>Cart</title>
+        <title lang="de-DE">Warenkorb</title>
+
+        <card>
+            <title>Cart settings</title>
+            <title lang="de-DE">Warenkorbeinstellungen</title>
+
+            <input-field type="bool">
+                <name>allowBuyInCart</name>
+                <label>Display buy buttons in cart</label>
+                <label lang="de-DE">Kaufen-Buttons im Warenkorb anzeigen</label>
+            </input-field>
+        </card>
+    </tab>
+</config>
+```
+
 ### New app script hook `cookie-group-collect`
 
 Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
@@ -117,6 +161,14 @@ Assigning a new `languageId` to a sales channel and removing the previous defaul
 Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
 
 ## Core
+
+### System config schema endpoints now require system config read access
+
+The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
+
+### Deprecation of `ConfigurationService` class
+
+Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
 
 ### An active shipping method must keep at least one usable price
 

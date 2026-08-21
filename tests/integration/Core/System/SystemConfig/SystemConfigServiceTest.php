@@ -395,7 +395,7 @@ class SystemConfigServiceTest extends TestCase
         $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, $listener);
 
         $this->systemConfigService->deleteExtensionConfiguration($extensionName, [
-            ['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]],
+            ['cards' => [['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]]]],
         ]);
 
         // Reset the memoized values

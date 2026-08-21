@@ -76,11 +76,12 @@ export default {
         return {
             currentSalesChannelId: this.salesChannelId,
             isLoading: false,
-            config: {},
+            config: [],
             actualConfigData: {},
             initialConfigData: {},
             salesChannelModel: null,
             hasCssFields: false,
+            activeTab: null,
         };
     },
 
@@ -100,6 +101,30 @@ export default {
                 'checkbox',
                 'colorpicker',
             ];
+        },
+
+        showGlobalSection() {
+            return this.showTabs || this.config.at(0)?.cards.length > 1;
+        },
+
+        showTabs() {
+            return this.config?.length > 1;
+        },
+
+        tabItems() {
+            return this.config?.map((tab) => {
+                return {
+                    name: this.getTabName(tab),
+                    label:
+                        tab.title !== null
+                            ? this.getInlineSnippet(tab.title)
+                            : this.$t('sw-settings.system-config.tabGeneral'),
+                };
+            });
+        },
+
+        defaultTabItem() {
+            return this.config?.at(0) ? this.getTabName(this.config.at(0)) : '';
         },
     },
 
@@ -140,9 +165,15 @@ export default {
 
                 await this.readConfig();
                 await this.readAll();
+
+                this.activeTab = this.getTabName(this.config.at(0));
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
+                } else {
+                    this.createNotificationError({
+                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
                 }
             } finally {
                 this.isLoading = false;
@@ -150,14 +181,17 @@ export default {
         },
 
         async readConfig() {
-            this.config = await this.systemConfigApiService.getConfig(this.domain);
-            this.config.every((card) => {
-                return card?.elements.every((field) => {
-                    if (field?.config?.css) {
-                        this.hasCssFields = true;
-                        return false;
-                    }
-                    return true;
+            this.config = await this.systemConfigApiService.getSchema(this.domain);
+
+            this.config.every((tab) => {
+                return tab?.cards.every((card) => {
+                    return card?.elements.every((field) => {
+                        if (field?.config?.css) {
+                            this.hasCssFields = true;
+                            return false;
+                        }
+                        return true;
+                    });
                 });
             });
         },
@@ -252,11 +286,13 @@ export default {
         getCacheRelevantFieldNames() {
             const fieldNames = new Set();
 
-            this.config.forEach((card) => {
-                card.elements?.forEach((element) => {
-                    if (element.config?.cacheRelevant === true) {
-                        fieldNames.add(element.name);
-                    }
+            this.config.forEach((tab) => {
+                tab.cards?.forEach((card) => {
+                    card.elements?.forEach((element) => {
+                        if (element.config?.cacheRelevant === true) {
+                            fieldNames.add(element.name);
+                        }
+                    });
                 });
             });
 
@@ -490,6 +526,10 @@ export default {
             eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
 
             return eventHandler;
+        },
+
+        getTabName(tab) {
+            return `tab-${tab.name ?? this.config.indexOf(tab)}`;
         },
     },
 };

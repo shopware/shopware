@@ -83,8 +83,8 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 - **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
 - **Cache/** - [Cache/README.md](Cache/README.md) - HTTP cache integration and invalidation
 - **Diagnostics/** - [Diagnostics/README.md](Diagnostics/README.md) - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
-- **Event/** - [Event/README.md](Event/README.md) - Hydration lifecycle event definitions
-- **Event/Listener/** - [Event/Listener/README.md](Event/Listener/README.md) - Pre/post hydration pipeline transformations
+- **Event/** - [Event/README.md](Event/README.md) - Rendering lifecycle event definitions
+- **Event/Listener/** - [Event/Listener/README.md](Event/Listener/README.md) - Listeners on the two rendering lifecycle events
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - [Hydration/README.md](Hydration/README.md) - The data-loading half of the render step: `DataLoader/` data fetching plus the remaining `DataContext/` utilities; the render step itself lives in Rendering/
 - **Layout/** - [Layout/README.md](Layout/README.md) - Element tree, entities, field types, scaffolding, element type system, universal style options

@@ -52,13 +52,14 @@ Key types extension developers encounter when working with the ContentSystem:
 | Class                      | Purpose                     |
 |----------------------------|-----------------------------|
 | `ContentTreePreparationEvent` | Dispatched over the stored tree before every preparation step |
-| `RenderedTreeFinalizationEvent` | Dispatched after the render step and the finishing steps, before the bridge |
+| `RenderedTreeFinalizationEvent` | Dispatched after the render step and the finishing steps, over the rendered forest |
 
 ### Layout / Response
 
 | Class                    | Purpose                                         |
 |--------------------------|-------------------------------------------------|
-| `ContentElement`         | Tree node: properties, slots, data requirements |
+| `StoredElement`          | Stored tree node: properties, slots, data requirements, context wiring |
+| `RenderedElement`        | Rendered tree node: `id`, `component`, flat properties, slots, style |
 | `RenderingCacheContext`  | Cache tag collection + disable flag             |
 | `ContentSystemException` | Exception class with error codes                |
 

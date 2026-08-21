@@ -4,7 +4,7 @@ Content layout tree structure and processing. Layouts are reusable templates con
 
 ## Architecture
 
-1. **Element Structure** (Element/) — ContentElement tree with slots, visitor pattern for traversal
+1. **Element Structure** (Element/) — the stored element model (`StoredElement`, `StoredValue`) plus `RenderedTreeEditor`, the whole-tree edit idiom for a rendered forest
 2. **DAL Definitions** (Entity/, Field/) — Database schema and custom field serializers
 3. **Scaffolding** (Scaffolding/) — The stored-tree preparer and the virtual-root wrapper it drives, plus the two records the preparer hands back: `TreePreparationResult` and, inside it, the `RenderScaffolding` carrying the wrap outcome to the finishing steps
 4. **Default Seeding** (`LayoutDefaultSeeder`) seeds element-type primitive defaults into the stored tree at the DAL write boundary, invoked from the `Field/` layout serializer's `normalize` hook
@@ -19,7 +19,7 @@ ContentLayoutEntity can contain multiple root elements. Each root is an independ
 
 ## Subdirectories
 
-- **[Element/](Element/README.md)** - ContentElement tree structure, visitor pattern, context and data requirement definitions
+- **[Element/](Element/README.md)** - Stored element model, the rendered-forest edit idiom, context and data requirement definitions
 - **Entity/** - DAL definitions (ContentLayoutDefinition)
 - **[Field/](Field/README.md)** - Custom DAL field types and serializers (infrastructure)
 - **Scaffolding/** - `StoredTreePreparer` (the one component that brings a stored forest into renderable shape: placeholder resolution, then the virtual-root wrap, then the partial prune), `VirtualRootWrapper` (wraps the stored roots for page-level context, recognises its own wrapper on the stored post-prune forest, and unwraps it again after the render step, as one of the finishing steps on the rendered forest), and the two records the preparer returns. `TreePreparationResult` carries the pruned tree, the pre-prune forest (which the pipeline's wiring validation judges, so a defect in a discarded subtree still fails the render) and the `RenderScaffolding`; `RenderScaffolding` is the immutable record the finishing steps read instead of re-deriving. Only `virtualRootSurvivedPrune` is read off the post-prune tree; `extractTargetId` is normalised from the `RenderingSpecification` before the prune, and the prune itself consumes it

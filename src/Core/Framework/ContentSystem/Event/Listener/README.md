@@ -1,10 +1,10 @@
 # Listener
 
-Event-driven extension points for the content hydration lifecycle. A listener replaces the stored forest via `ContentTreePreparationEvent::replaceTree()` before data loading, and replaces the rendered forest via `RenderedTreeFinalizationEvent::replaceTree()` after it. Neither event exposes its forest for mutation: both hold it privately behind `tree()`, and every element is immutable, so an edit produces new instances that only `replaceTree()` can put back.
+Event-driven extension points for the content rendering lifecycle. A listener replaces the stored forest via `ContentTreePreparationEvent::replaceTree()` before data loading, and replaces the rendered forest via `RenderedTreeFinalizationEvent::replaceTree()` after it. Neither event exposes its forest for mutation: both hold it privately behind `tree()`, and every element is immutable, so an edit produces new instances that only `replaceTree()` can put back.
 
 ## Guides
 
-- [docs/custom-listeners.md](docs/custom-listeners.md) - The plugin-facing guide to writing a hydration-lifecycle listener.
+- [docs/custom-listeners.md](docs/custom-listeners.md) - The plugin-facing guide to writing a rendering-lifecycle listener.
 
 ## Execution Order
 

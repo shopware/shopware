@@ -5,7 +5,7 @@
 ## Constraints
 
 - Loaders MUST return `ContentDataLoaderResult` — never throw exceptions
-- `load(LoaderInputs $inputs, DataRequirement $requirement, …)` — read every config/property input off `$inputs`; a loader never touches `$requirement->config` nor the `ContentElement`. `$requirement` stays in the signature as the extension-point affordance for a third-party loader keying off `source`
+- `load(LoaderInputs $inputs, DataRequirement $requirement, …)` — read every config/property input off `$inputs`; a loader never touches `$requirement->config` nor the `StoredElement`. `$requirement` stays in the signature as the extension-point affordance for a third-party loader keying off `source`
 - `LoaderInputResolver` (called by `ElementDataResolver`) dereferences each `PropertyReference` key against the element's stored properties and type-checks it; an absent or wrongly typed stored value resolves to null. Presence and type guards belong there, NOT in the loader — but a domain emptiness fallback (e.g. an empty-string activeId) stays in the loader, because an empty string is a resolved value
 - A key's fallback lives in its `ConfigKeySpecification` default, never as a `??` in `load()` — an in-body fallback drifts from the introspection schema
 - DI tag: `content_system.data_loader`, indexed by `getRequirementType()` static method

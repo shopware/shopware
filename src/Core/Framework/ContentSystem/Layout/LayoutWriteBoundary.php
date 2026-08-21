@@ -41,9 +41,8 @@ final class LayoutWriteBoundary
     }
 
     /**
-     * The seeder and the reconciler are shared with the raw-array write shapes and so declare `list<mixed>`
-     * on both ends. This narrows their output back onto the model the boundary speaks, at the one seam where
-     * the declared type is wider than what a tree-shaped call can return.
+     * The seeder and the reconciler declare `list<StoredElement>` on both ends; this rejects a collaborator
+     * that hands back anything else, so a node the stored tree cannot hold never reaches storage.
      *
      * @param list<mixed> $forest
      *

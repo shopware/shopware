@@ -46,9 +46,9 @@ class AttributionReconciler
     }
 
     /**
-     * @param list<mixed> $forest
+     * @param list<StoredElement> $forest
      *
-     * @return list<mixed>
+     * @return list<StoredElement>
      */
     public function reconcile(array $forest): array
     {
@@ -56,24 +56,11 @@ class AttributionReconciler
 
         $reconciled = [];
 
-        foreach ($forest as $node) {
-            $reconciled[] = $this->reconcileNode($node);
+        foreach ($forest as $element) {
+            $reconciled[] = $this->reconcileElement($element);
         }
 
         return $reconciled;
-    }
-
-    private function reconcileNode(mixed $node): mixed
-    {
-        if ($node instanceof StoredElement) {
-            return $this->reconcileElement($node);
-        }
-
-        if (\is_array($node)) {
-            return $this->reconcileArray($node);
-        }
-
-        return $node;
     }
 
     private function reconcileElement(StoredElement $element): StoredElement
@@ -135,115 +122,6 @@ class AttributionReconciler
             );
 
             return $specWiring['source'] === $requirement->source && $specWiring['encoded'] === $elementEncoded;
-        } catch (ContentSystemException $exception) {
-            if (!ContentSystemException::isClientDefect($exception)) {
-                throw $exception;
-            }
-
-            return false;
-        }
-    }
-
-    /**
-     * @param array<array-key, mixed> $node
-     *
-     * @return array<array-key, mixed>
-     */
-    private function reconcileArray(array $node): array
-    {
-        $slots = $node['slots'] ?? null;
-
-        if (\is_array($slots)) {
-            $node['slots'] = array_map($this->reconcileSlotChildren(...), $slots);
-        }
-
-        $attributions = $node['attributedSpecifications'] ?? null;
-
-        if (!\is_array($attributions) || $attributions === []) {
-            return $node;
-        }
-
-        $dataRequirements = $node['dataRequirements'] ?? [];
-        $dataRequirements = \is_array($dataRequirements) ? $dataRequirements : [];
-
-        $filtered = $this->reconcileRawAttributions($attributions, $dataRequirements);
-
-        if ($filtered === []) {
-            unset($node['attributedSpecifications']);
-
-            return $node;
-        }
-
-        $node['attributedSpecifications'] = $filtered;
-
-        return $node;
-    }
-
-    private function reconcileSlotChildren(mixed $children): mixed
-    {
-        if (!\is_array($children)) {
-            return $children;
-        }
-
-        return array_map($this->reconcileNode(...), $children);
-    }
-
-    /**
-     * @param array<array-key, mixed> $attributions
-     * @param array<array-key, mixed> $dataRequirements
-     *
-     * @return array<string, string>
-     */
-    private function reconcileRawAttributions(array $attributions, array $dataRequirements): array
-    {
-        $filtered = [];
-
-        foreach ($attributions as $key => $specificationId) {
-            if (!\is_string($key) || !\is_string($specificationId)) {
-                continue;
-            }
-
-            $requirementEntry = $dataRequirements[$key] ?? null;
-
-            if (!\is_array($requirementEntry)) {
-                continue;
-            }
-
-            if ($this->isHonestForRaw($specificationId, $key, $requirementEntry)) {
-                $filtered[$key] = $specificationId;
-            }
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * @param array<array-key, mixed> $requirementEntry
-     */
-    private function isHonestForRaw(string $specificationId, string $key, array $requirementEntry): bool
-    {
-        $elementSource = $requirementEntry['source'] ?? null;
-
-        if (!\is_string($elementSource)) {
-            return false;
-        }
-
-        $elementConfigData = $requirementEntry['config'] ?? [];
-        $elementConfigData = \is_array($elementConfigData) ? $elementConfigData : [];
-
-        try {
-            $specWiring = $this->specWiring($specificationId, $key);
-
-            if ($specWiring === null) {
-                return false;
-            }
-
-            $elementConfigObject = $this->configSerializerProvider->decode($elementSource, $elementConfigData);
-            $elementEncoded = $this->configCanonicalizer->canonicalize(
-                $this->configSerializerProvider->encode($elementSource, $elementConfigObject)
-            );
-
-            return $specWiring['source'] === $elementSource && $specWiring['encoded'] === $elementEncoded;
         } catch (ContentSystemException $exception) {
             if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;

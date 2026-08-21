@@ -16,10 +16,9 @@ use Shopware\Core\Framework\Log\Package;
  * slot's children; an existing value is never overwritten and an unregistered component is left untouched (the write
  * gate reports that separately).
  *
- * Handles both shapes the layout field serializer carries: {@see StoredElement} objects and raw element arrays
- * (Admin / Sync JSON). A stored element is immutable, so seeding it rebuilds the subtree through its `with*()`
- * methods and hands back a new forest rather than filling the one it was given. Shares the per-type rule with the
- * layout mutations via {@see PrimitiveDefaultProvider}.
+ * A {@see StoredElement} is immutable, so seeding it rebuilds the subtree through its `with*()` methods and hands
+ * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations
+ * via {@see PrimitiveDefaultProvider}.
  *
  * @internal
  *
@@ -35,32 +34,19 @@ class LayoutDefaultSeeder
     }
 
     /**
-     * @param list<mixed> $forest
+     * @param list<StoredElement> $forest
      *
-     * @return list<mixed>
+     * @return list<StoredElement>
      */
     public function seed(array $forest): array
     {
         $seeded = [];
 
-        foreach ($forest as $node) {
-            $seeded[] = $this->seedNode($node);
+        foreach ($forest as $element) {
+            $seeded[] = $this->seedElement($element);
         }
 
         return $seeded;
-    }
-
-    private function seedNode(mixed $node): mixed
-    {
-        if ($node instanceof StoredElement) {
-            return $this->seedElement($node);
-        }
-
-        if (\is_array($node)) {
-            return $this->seedArray($node);
-        }
-
-        return $node;
     }
 
     /**
@@ -86,49 +72,6 @@ class LayoutDefaultSeeder
         }
 
         return $element->withProperties($properties)->withSlots($slots);
-    }
-
-    /**
-     * @param array<array-key, mixed> $node
-     *
-     * @return array<array-key, mixed>
-     */
-    private function seedArray(array $node): array
-    {
-        $component = $node['component'] ?? null;
-
-        if (\is_string($component)) {
-            $defaults = $this->defaultsFor($component);
-
-            if ($defaults !== []) {
-                $properties = $node['properties'] ?? [];
-
-                // Seed only into a well-formed property map (string-keyed, or empty). A malformed `properties`
-                // (a scalar, or a non-empty list) is left untouched for the write gate to reject, rather than
-                // silently discarded or merged into a mixed-key array. PHP's `+` keeps every authored key and
-                // fills only the keys the node does not carry.
-                if (\is_array($properties) && (!\array_is_list($properties) || $properties === [])) {
-                    $node['properties'] = $properties + $defaults;
-                }
-            }
-        }
-
-        $slots = $node['slots'] ?? null;
-
-        if (\is_array($slots)) {
-            $node['slots'] = array_map($this->seedSlot(...), $slots);
-        }
-
-        return $node;
-    }
-
-    private function seedSlot(mixed $children): mixed
-    {
-        if (!\is_array($children)) {
-            return $children;
-        }
-
-        return array_map($this->seedNode(...), $children);
     }
 
     /**

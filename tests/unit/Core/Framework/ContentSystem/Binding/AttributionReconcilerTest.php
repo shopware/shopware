@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -125,74 +124,6 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
     }
 
-    #[TestDox('drops attribution when the stored config no longer decodes, without throwing out of reconcile()')]
-    public function testDropsAttributionWhenStoredConfigUndecodableWithoutThrowing(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        // The registered "entity" serializer decodes normally, except for a config that carries the "corrupt"
-        // marker — standing in for a persisted config whose shape no longer matches what decode() expects. It
-        // throws the real client-defect factory a production serializer would use for that.
-        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
-        $serializer->method('decode')->willReturnCallback(
-            static function (array $data): AbstractContentDataLoaderConfig {
-                if (($data['corrupt'] ?? false) === true) {
-                    throw ContentSystemException::invalidFieldValueType('product.config', 'array', 'string');
-                }
-
-                return new StubArrayLoaderConfig($data);
-            }
-        );
-        $serializer->method('encode')->willReturnCallback(
-            static fn (AbstractContentDataLoaderConfig $config): array => $config->jsonSerialize()
-        );
-        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['entity' => static fn () => $serializer]));
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['product' => 'spec-1'],
-            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['corrupt' => true]]],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $provider)->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertArrayNotHasKey('attributedSpecifications', $reconciled);
-        static::assertSame($node['dataRequirements'], $reconciled['dataRequirements']);
-    }
-
-    #[TestDox('drops attribution when the element\'s stored domain-loader config fails the real domain serializer\'s decode(), reclassified via the shared config-serializer decode chokepoint, without throwing out of reconcile()')]
-    public function testDropsAttributionWhenRealDomainLoaderConfigFailsToDecodeWithoutThrowing(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'navigation' => new LoaderBinding('navigation', ['rootId' => 'main-navigation', 'depth' => 3]),
-        ]);
-
-        // The real NavigationLoaderConfigSerializer, not a stub: "depth" must be a positive int, so this
-        // element's stored config fails its decode() with a CategoryException -- a domain exception, not a
-        // ContentSystemException. DataLoaderConfigSerializerProvider reclassifies it to
-        // ContentSystemException::invalidLoaderConfig() at the shared decode chokepoint; the reconciler must
-        // catch that reclassified exception and drop the attribution, not throw.
-        $serializer = new NavigationLoaderConfigSerializer();
-        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['navigation' => static fn () => $serializer]));
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['navigation' => 'spec-1'],
-            'dataRequirements' => ['navigation' => ['source' => 'navigation', 'config' => ['depth' => 'not-an-int']]],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $provider)->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertArrayNotHasKey('attributedSpecifications', $reconciled);
-        static::assertSame($node['dataRequirements'], $reconciled['dataRequirements']);
-    }
-
     #[TestDox('drops attribution when the element wiring source is no longer registered, without throwing out of reconcile()')]
     public function testDropsAttributionWhenElementSourceUnregisteredWithoutThrowing(): void
     {
@@ -267,155 +198,6 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
     }
 
-    #[TestDox('omits attributedSpecifications on a raw node when every key drops, instead of writing an empty array')]
-    public function testRawPayloadOmitsAttributedSpecificationsKeyWhenAllDropped(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['product' => 'spec-1'],
-            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['limit' => 999]]],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertArrayNotHasKey('attributedSpecifications', $reconciled);
-        static::assertSame($node['dataRequirements'], $reconciled['dataRequirements']);
-    }
-
-    #[TestDox('writes only the surviving keys back onto a raw node\'s attributedSpecifications map')]
-    public function testRawPayloadKeepsOnlySurvivingKeysInAttributionMap(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-            'media' => new LoaderBinding('entity', ['limit' => 1]),
-        ]);
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['product' => 'spec-1', 'media' => 'spec-1'],
-            'dataRequirements' => [
-                'product' => ['source' => 'entity', 'config' => ['limit' => 5]],
-                'media' => ['source' => 'entity', 'config' => ['limit' => 999]],
-            ],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertSame(['product' => 'spec-1'], $reconciled['attributedSpecifications']);
-    }
-
-    #[TestDox('drops a raw attribution entry whose key is non-string, keeping every other key\'s attribution independently')]
-    public function testRawPayloadDropsNonStringKeyAttribution(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        $node = [
-            'component' => 'card',
-            // A "0" array literal key casts to the integer 0 in PHP — the same shape json_decode(..., true)
-            // produces for a raw payload's numeric-looking attributedSpecifications key.
-            'attributedSpecifications' => ['0' => 'spec-1', 'product' => 'spec-1'],
-            'dataRequirements' => [
-                0 => ['source' => 'entity', 'config' => ['limit' => 5]],
-                'product' => ['source' => 'entity', 'config' => ['limit' => 5]],
-            ],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertSame(['product' => 'spec-1'], $reconciled['attributedSpecifications']);
-        static::assertSame($node['dataRequirements'], $reconciled['dataRequirements']);
-    }
-
-    #[TestDox('drops a raw attribution entry whose specification id is non-string, keeping every other key\'s attribution independently')]
-    public function testRawPayloadDropsNonStringSpecificationIdAttribution(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-            'media' => new LoaderBinding('entity', ['limit' => 1]),
-        ]);
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['product' => 123, 'media' => 'spec-1'],
-            'dataRequirements' => [
-                'product' => ['source' => 'entity', 'config' => ['limit' => 5]],
-                'media' => ['source' => 'entity', 'config' => ['limit' => 1]],
-            ],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertSame(['media' => 'spec-1'], $reconciled['attributedSpecifications']);
-    }
-
-    #[TestDox('drops a raw attribution entry whose requirement "source" is non-string, keeping every other key\'s attribution independently')]
-    public function testRawPayloadDropsNonStringRequirementSourceAttribution(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-            'media' => new LoaderBinding('entity', ['limit' => 1]),
-        ]);
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['product' => 'spec-1', 'media' => 'spec-1'],
-            'dataRequirements' => [
-                'product' => ['source' => 123, 'config' => ['limit' => 5]],
-                'media' => ['source' => 'entity', 'config' => ['limit' => 1]],
-            ],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertSame(['media' => 'spec-1'], $reconciled['attributedSpecifications']);
-    }
-
-    #[TestDox('drops a raw attribution entry whose requirement entry is absent, keeping every other key\'s attribution independently')]
-    public function testRawPayloadDropsAttributionWithAbsentRequirementEntry(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-            'media' => new LoaderBinding('entity', ['limit' => 1]),
-        ]);
-
-        $node = [
-            'component' => 'card',
-            'attributedSpecifications' => ['product' => 'spec-1', 'media' => 'spec-1'],
-            // "product" has no matching entry in dataRequirements at all.
-            'dataRequirements' => [
-                'media' => ['source' => 'entity', 'config' => ['limit' => 1]],
-            ],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciled = $result[0];
-        static::assertIsArray($reconciled);
-        static::assertSame(['media' => 'spec-1'], $reconciled['attributedSpecifications']);
-    }
-
     #[TestDox('recurses into slot children, dropping a nested element\'s stale attribution too')]
     public function testRecursesIntoSlotsAndDropsStaleAttributionOnChild(): void
     {
@@ -441,38 +223,6 @@ class AttributionReconcilerTest extends TestCase
 
         $reconciledChild = $reconciledParent->slots['content'][0];
         static::assertSame([], $reconciledChild->attributedSpecifications);
-    }
-
-    #[TestDox('recurses into slot children of a raw-array node, dropping a nested raw child\'s stale attribution')]
-    public function testRecursesIntoSlotsOfRawArrayNode(): void
-    {
-        // The raw-array payload is the Admin/Sync JSON shape this reconciler guards; its nested-slot walk is a
-        // distinct code path from the ContentElement slot walk, so a nested raw child must reconcile too.
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        $node = [
-            'component' => 'container',
-            'slots' => [
-                'content' => [
-                    [
-                        'component' => 'card',
-                        'attributedSpecifications' => ['product' => 'spec-1'],
-                        'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['limit' => 999]]],
-                    ],
-                ],
-            ],
-        ];
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$node]);
-
-        $reconciledParent = $result[0];
-        static::assertIsArray($reconciledParent);
-        $reconciledChild = $reconciledParent['slots']['content'][0];
-        static::assertIsArray($reconciledChild);
-        static::assertArrayNotHasKey('attributedSpecifications', $reconciledChild);
     }
 
     #[TestDox('rethrows a non-client-defect ContentSystemException instead of dropping the key')]

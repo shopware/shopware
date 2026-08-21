@@ -12,7 +12,6 @@ import {
     User,
 } from '@shopware-ag/acceptance-test-suite';
 import { satisfies } from 'compare-versions';
-import { collapseAdminMenu } from '@helpers/admin-menu-helpers';
 
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
@@ -47,7 +46,6 @@ test(
 
             await loginToAdministration(page, user, TestDataService.AdminApiClient);
             await removeSymfonyToolbar(page);
-            await collapseAdminMenu(page);
         });
 
         await test.step('Creates a screenshot of data sharing consent modal.', async () => {

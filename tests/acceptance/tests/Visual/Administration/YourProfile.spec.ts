@@ -1,6 +1,5 @@
 import { test, assertScreenshot, replaceElements, setViewport } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
-import { collapseAdminMenu } from '@helpers/admin-menu-helpers';
 
 test(
     'Visual: Administration your profile page',
@@ -8,7 +7,6 @@ test(
     async ({ ShopAdmin, AdminYourProfile, InstanceMeta }) => {
         await test.step('Creates a screenshot of the your profile page.', async () => {
             await ShopAdmin.goesTo(AdminYourProfile.url());
-            await collapseAdminMenu(AdminYourProfile.page);
             await setViewport(AdminYourProfile.page, {
                 waitForSelector: AdminYourProfile.emailField,
             });

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 abstract class PageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {

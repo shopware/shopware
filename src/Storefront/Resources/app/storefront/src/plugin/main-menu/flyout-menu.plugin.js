@@ -51,6 +51,11 @@ export default class FlyoutMenuPlugin extends Plugin {
          * Should be the same as 'flyoutIdDataAttribute'
          */
         triggerDataAttribute: 'data-flyout-menu-trigger',
+
+        /**
+         * Class to select the current page to add aria label current page to it.
+         */
+        ariaCurrentPageSelector: '.nav-item-{id}-link',
     };
 
     init() {
@@ -117,6 +122,10 @@ export default class FlyoutMenuPlugin extends Plugin {
                 el.addEventListener('mouseleave', () => this._debounce(this._closeAllFlyouts));
             });
         }
+
+        window.addEventListener('load', () => {
+            this._setAriaCurrentPage();
+        });
     }
 
     /**
@@ -262,6 +271,19 @@ export default class FlyoutMenuPlugin extends Plugin {
         if (event && event.cancelable) {
             event.preventDefault();
             event.stopImmediatePropagation();
+        }
+    }
+
+    /**
+     * Sets the aria-current attribute on the configured selector.
+     * @private
+     */
+    _setAriaCurrentPage() {
+        if (!window.activeNavigationId) { return; }
+        const selector = this.options.ariaCurrentPageSelector.replace('{id}', window.activeNavigationId);
+        const activeNavItem = this.el.querySelector(selector);
+        if (activeNavItem) {
+            activeNavItem.setAttribute('aria-current', 'page');
         }
     }
 }

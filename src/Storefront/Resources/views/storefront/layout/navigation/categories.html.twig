@@ -24,7 +24,7 @@
                                 <span itemprop="name">{{ name }}</span>
                             </div>
                         {% else %}
-                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %}"
+                            <a class="nav-item nav-link navigation-flyout-link is-level-{{ level }}{% if id == activeId or id in activePath %} active{% endif %} nav-item-{{ id }}-link"
                                href="{{ link }}"
                                itemprop="url"
                                {% if category_linknewtab(treeItem.category) %}target="_blank"

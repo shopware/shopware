@@ -8,6 +8,7 @@ use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
@@ -31,6 +32,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @internal
  */
+#[Package('framework')]
 class WebhookHealthBestEffortEventsTest extends TestCase
 {
     use IntegrationTestBehaviour;

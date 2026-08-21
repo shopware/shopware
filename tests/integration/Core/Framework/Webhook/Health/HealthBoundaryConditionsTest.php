@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -25,6 +26,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @internal
  */
+#[Package('framework')]
 class HealthBoundaryConditionsTest extends TestCase
 {
     use IntegrationTestBehaviour;

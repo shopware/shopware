@@ -9,6 +9,8 @@ import '@testing-library/jest-dom';
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
+import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
+import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -257,6 +259,13 @@ config.global.mocks = {
 };
 
 config.global.stubs = {
+    // The real implementations, mirroring what vue.adapter.ts registers from the component registry.
+    // Both render a fragment, so a template using <sw-block> must contribute no DOM element in tests
+    // either - an unresolved <sw-block> element breaks every consumer that walks the DOM instead of
+    // the component tree. Registering them here rather than in `config.global.components` is what
+    // keeps them real under shallowMount, which stubs every child component.
+    'sw-block': SwBlock,
+    'sw-block-parent': SwBlockParent,
     'sw-modal': {
         template: `
         <div class="sw-modal">
@@ -528,11 +537,17 @@ global.allowedErrors = [
             return msg0?.includes('Component is missing template or render function');
         },
     },
-    // Vue 3 component resolution warnings for non-registered components in tests
+    // Vue 3 component resolution warnings for non-registered components in tests.
+    // sw-block and sw-block-parent are excluded: they are registered globally above, and silencing
+    // them is what let an unresolved <sw-block> add a DOM element the application does not have.
     {
         method: 'warn',
         msgCheck: (msg0) => {
             if (typeof msg0 !== 'string') {
+                return false;
+            }
+
+            if (/Failed to resolve component: sw-block(-parent)?(?![-\w])/.test(msg0)) {
                 return false;
             }
 

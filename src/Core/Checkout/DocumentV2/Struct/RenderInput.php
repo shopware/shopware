@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
+use Shopware\Core\Checkout\DocumentV2\DocumentSourceEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,15 +17,22 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class RenderInput
 {
+    private const DOCUMENT_TYPE_PATTERN = '/^[a-z0-9_]+$/D';
+
     /**
      * @param array<string, AbstractRenderData> $data
+     *
+     * @throws DocumentV2Exception
      */
     public function __construct(
         public string $documentType,
         public string $documentNumber,
-        public OrderEntity $order,
+        public DocumentSourceEntity $order,
         private array $data = [],
     ) {
+        if (\preg_match(self::DOCUMENT_TYPE_PATTERN, $this->documentType) !== 1) {
+            throw DocumentV2Exception::invalidDocumentType($this->documentType);
+        }
     }
 
     public function getData(string $key): ?AbstractRenderData

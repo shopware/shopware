@@ -17,7 +17,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class CaptchaRouteListener implements EventSubscriberInterface
 {
     /**
@@ -59,10 +59,10 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
         $salesChannelId = $context ? $context->getSalesChannelId() : null;
 
         $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
+        $request = $event->getRequest();
 
         foreach ($this->captchas as $captcha) {
             $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
-            $request = $event->getRequest();
             if (
                 $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
             ) {

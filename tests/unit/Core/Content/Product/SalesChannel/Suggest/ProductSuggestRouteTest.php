@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSu
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductSuggestRoute::class)]
 class ProductSuggestRouteTest extends TestCase
 {
@@ -40,6 +42,8 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
+        $this->listingLoader->expects($this->never())->method('load');
+
         $this->expectExceptionObject(new DecorationPatternException(ProductSuggestRoute::class));
 
         $this->getProductSuggestRoute()->getDecorated();
@@ -47,6 +51,8 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testLoadThrowsExceptionForMissingSearchParameter(): void
     {
+        $this->listingLoader->expects($this->never())->method('load');
+
         $this->expectExceptionObject(ProductException::missingRequestParameter('search'));
 
         $route = new ResolvedCriteriaProductSuggestRoute(

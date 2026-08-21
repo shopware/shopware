@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
@@ -53,7 +54,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(AdministrationController::class)]
 class AdministrationControllerTest extends TestCase
 {
@@ -217,7 +218,12 @@ class AdministrationControllerTest extends TestCase
         static::assertStringContainsString('public', $cacheControl);
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
 
-        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+        // @deprecated tag:v6.8.0 - remove whole block
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertFalse($response->headers->has(AdministrationController::CACHE_ID_HEADER));
+        } else {
+            static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+        }
     }
 
     public function testIndexOmitsStaleWhileRevalidateWhenFrwIsActive(): void
@@ -458,7 +464,13 @@ class AdministrationControllerTest extends TestCase
         static::assertStringContainsString('public', $cacheControl);
         static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
 
-        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+        // @deprecated tag:v6.8.0 - CACHE_ID_HEADER is only emitted while the cache rework is inactive; the whole
+        // block is removed together with the CacheControlListener.
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertFalse($response->headers->has(AdministrationController::CACHE_ID_HEADER));
+        } else {
+            static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+        }
     }
 
     public function testResetExcludedSearchTermThrowsRoutingException(): void
@@ -711,7 +723,6 @@ class AdministrationControllerTest extends TestCase
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([$collection]);
         $customerEmailUniqueChecker = static::createStub(CustomerEmailUniqueChecker::class);
         $customerEmailUniqueChecker

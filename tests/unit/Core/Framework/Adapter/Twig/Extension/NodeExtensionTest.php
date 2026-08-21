@@ -10,11 +10,13 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\TokenParser\TokenParserInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NodeExtension::class)]
 class NodeExtensionTest extends TestCase
 {
@@ -34,7 +36,7 @@ class NodeExtensionTest extends TestCase
 
     public function testGetFinder(): void
     {
-        $finder = $this->createMock(TemplateFinder::class);
+        $finder = static::createStub(TemplateFinder::class);
         $extension = new NodeExtension(
             $finder,
             static::createStub(TemplateScopeDetector::class),

@@ -48,7 +48,7 @@ class SnippetService
         private readonly SnippetFilterFactory $snippetFilterFactory,
         private readonly ExtensionDispatcher $extensionDispatcher,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly FilesystemOperator $privateFileSystem,
+        private readonly FilesystemOperator $translationFilesystem,
         private readonly Filesystem $localFileSystem,
     ) {
     }
@@ -108,7 +108,7 @@ class SnippetService
         $unusedThemes = $event->getUnusedThemes();
         if (!Feature::isActive('v6.8.0.0')) {
             $usingThemes = $event->getUsedThemes();
-            $unusedThemes = $this->getUnusedThemes($usingThemes, $unusedThemes);
+            $unusedThemes = Feature::silent('v6.8.0.0', fn (): array => $this->getUnusedThemes($usingThemes, $unusedThemes));
         }
 
         $snippetCollection = $snippetFileCollection->filter(static fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
@@ -256,7 +256,7 @@ class SnippetService
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:visibility-change - will be removed
+     * @deprecated tag:v6.8.0 - Will be removed, provide unused themes via the SnippetsThemeResolveEvent instead
      * Keeping this method for backwards compatibility (if it's redeclared in the child classes - child method return
      * value will be used, otherwise value of $unusedThemes received via event is returned)
      *
@@ -266,6 +266,11 @@ class SnippetService
      */
     protected function getUnusedThemes(array $usingThemes = []/* , array $unusedThemes */): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return \func_num_args() === 2 ? \func_get_arg(1) : [];
     }
 
@@ -600,7 +605,7 @@ class SnippetService
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
         if ($snippetFile instanceof RemoteSnippetFile) {
-            $content = $this->privateFileSystem->read($snippetFile->getPath());
+            $content = $this->translationFilesystem->read($snippetFile->getPath());
         } else {
             $content = $this->localFileSystem->readFile($snippetFile->getPath());
         }

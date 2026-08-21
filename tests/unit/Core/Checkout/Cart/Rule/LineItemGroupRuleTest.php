@@ -18,8 +18,8 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemGroupRule::class)]
-#[Package('checkout')]
 class LineItemGroupRuleTest extends TestCase
 {
     public function testMatchReturnsFalseBecauseOfWrongScope(): void

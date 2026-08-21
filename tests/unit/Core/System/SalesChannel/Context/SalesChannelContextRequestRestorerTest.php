@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -17,12 +18,13 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelContextRequestRestorer::class)]
 class SalesChannelContextRequestRestorerTest extends TestCase
 {
     public function testItReturnsExistingContextWithoutLoadingItAgain(): void
     {
-        $existingContext = $this->createMock(SalesChannelContext::class);
+        $existingContext = static::createStub(SalesChannelContext::class);
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $existingContext);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
@@ -51,7 +53,7 @@ class SalesChannelContextRequestRestorerTest extends TestCase
 
     public function testItLoadsAndStoresContextFromSalesChannelRequestAttributes(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, Defaults::CURRENCY);

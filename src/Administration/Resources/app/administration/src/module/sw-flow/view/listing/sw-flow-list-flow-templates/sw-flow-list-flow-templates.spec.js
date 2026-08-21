@@ -20,7 +20,7 @@ const flowTemplateRepositorySearchMock = jest.fn((criteria) => {
     return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
 });
 
-async function createWrapper(privileges = [], props = {}) {
+async function createWrapper(privileges = [], props = {}, routeQuery = {}) {
     return mount(await wrapTestComponent('sw-flow-list-flow-templates', { sync: true }), {
         global: {
             stubs: {
@@ -108,10 +108,11 @@ async function createWrapper(privileges = [], props = {}) {
                     query: {
                         page: 1,
                         limit: 25,
+                        ...routeQuery,
                     },
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -194,6 +195,13 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
                 term: 'test-term',
             }),
         );
+    });
+
+    it('should set the term of the route query to criteria', async () => {
+        await createWrapper([], {}, { term: 'Order' });
+        await flushPromises();
+
+        expect(flowTemplateRepositorySearchMock).toHaveBeenLastCalledWith(expect.objectContaining({ term: 'Order' }));
     });
 
     it('should correctly align table columns', async () => {

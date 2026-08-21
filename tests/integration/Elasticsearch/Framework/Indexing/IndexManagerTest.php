@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Elasticsearch\Framework\Indexing;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class IndexManagerTest extends TestCase
 {
     use KernelTestBehaviour;

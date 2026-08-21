@@ -14,8 +14,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(XorRule::class)]
-#[Package('checkout')]
 class XorRuleTest extends TestCase
 {
     public function testSingleTrueRule(): void

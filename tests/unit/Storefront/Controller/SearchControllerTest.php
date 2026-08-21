@@ -25,6 +25,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\SearchController;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -44,7 +45,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(SearchController::class)]
 class SearchControllerTest extends TestCase
 {
@@ -358,7 +359,7 @@ class SearchControllerTest extends TestCase
         $router
             ->expects($this->once())
             ->method('generate')
-            ->with('frontend.detail.page', ['productId' => '123'])
+            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => '123'])
             ->willReturn('http://localhost/product/123');
 
         $requestContext = new RequestContext();
@@ -376,7 +377,7 @@ class SearchControllerTest extends TestCase
         static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(StorefrontRedirectEvent::class, $redirectEvent);
         static::assertSame(Response::HTTP_FOUND, $redirectEvent->getStatus());
-        static::assertSame('frontend.detail.page', $redirectEvent->getRoute());
+        static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $redirectEvent->getRoute());
         static::assertSame([
             'productId' => '123',
         ], $redirectEvent->getParameters());

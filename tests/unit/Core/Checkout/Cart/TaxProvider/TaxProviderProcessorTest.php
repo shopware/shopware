@@ -27,8 +27,10 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
+use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\Context;
@@ -69,7 +71,8 @@ class TaxProviderProcessorTest extends TestCase
                 new PercentageTaxRuleBuilder(),
                 new TaxAdjustmentCalculator()
             ),
-            new CashRounding()
+            new CashRounding(),
+            new TransactionProcessor()
         );
     }
 
@@ -110,7 +113,8 @@ class TaxProviderProcessorTest extends TestCase
             static::createStub(LoggerInterface::class),
             $this->adjustment,
             $taxProviderRegistry,
-            static::createStub(TaxProviderPayloadService::class)
+            static::createStub(TaxProviderPayloadService::class),
+            static::createStub(AppCapability::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -204,7 +208,8 @@ class TaxProviderProcessorTest extends TestCase
             static::createStub(LoggerInterface::class),
             $adjustment,
             $taxProviderRegistry,
-            static::createStub(TaxProviderPayloadService::class)
+            static::createStub(TaxProviderPayloadService::class),
+            static::createStub(AppCapability::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -257,7 +262,8 @@ class TaxProviderProcessorTest extends TestCase
             static::createStub(LoggerInterface::class),
             $this->adjustment,
             $registry,
-            static::createStub(TaxProviderPayloadService::class)
+            static::createStub(TaxProviderPayloadService::class),
+            static::createStub(AppCapability::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -307,7 +313,8 @@ class TaxProviderProcessorTest extends TestCase
             static::createStub(LoggerInterface::class),
             $this->adjustment,
             $taxProviderRegistry,
-            static::createStub(TaxProviderPayloadService::class)
+            static::createStub(TaxProviderPayloadService::class),
+            static::createStub(AppCapability::class)
         );
 
         $expected = new TaxProviderExceptions();
@@ -348,7 +355,8 @@ class TaxProviderProcessorTest extends TestCase
             static::createStub(LoggerInterface::class),
             $taxAdjuster,
             $registry,
-            static::createStub(TaxProviderPayloadService::class)
+            static::createStub(TaxProviderPayloadService::class),
+            static::createStub(AppCapability::class)
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -405,7 +413,8 @@ class TaxProviderProcessorTest extends TestCase
             $logger,
             static::createStub(TaxAdjustment::class),
             $registry,
-            static::createStub(TaxProviderPayloadService::class)
+            static::createStub(TaxProviderPayloadService::class),
+            static::createStub(AppCapability::class)
         );
 
         $this->expectException(TaxProviderExceptions::class);
@@ -426,7 +435,9 @@ class TaxProviderProcessorTest extends TestCase
         $taxProvider->setActive(true);
         $taxProvider->setPriority(1);
         $taxProvider->setIdentifier(TestConstantTaxRateProvider::class);
-        $taxProvider->setApp(new AppEntity());
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $taxProvider->setApp($app);
         $taxProvider->setProcessUrl('https://example.com');
 
         $collection = new TaxProviderCollection([$taxProvider]);
@@ -463,12 +474,66 @@ class TaxProviderProcessorTest extends TestCase
             )
             ->willReturn(new TaxProviderResult([$this->ids->get('line-item-1') => $taxes]));
 
+        $capabilityAccess = static::createStub(AppCapability::class);
+        $capabilityAccess->method('whenGranted')->willReturnCallback(
+            static fn (string $appId, string $action, callable $callback): mixed => $callback()
+        );
+
         $processor = new TaxProviderProcessor(
             $repo,
             static::createStub(LoggerInterface::class),
             $this->adjustment,
             $taxProviderRegistry,
-            $taxProviderPayloadService
+            $taxProviderPayloadService,
+            $capabilityAccess
+        );
+
+        $processor->process($cart, $salesChannelContext);
+    }
+
+    public function testAppProviderIsNotCalledWithoutGrantedPermission(): void
+    {
+        $cart = $this->createCart();
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext
+            ->method('getTotalRounding')
+            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $taxProvider = new TaxProviderEntity();
+        $taxProvider->setId(Uuid::randomHex());
+        $taxProvider->setActive(true);
+        $taxProvider->setPriority(1);
+        $taxProvider->setIdentifier(TestConstantTaxRateProvider::class);
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $taxProvider->setApp($app);
+        $taxProvider->setProcessUrl('https://example.com');
+
+        $result = new EntitySearchResult(
+            TaxProviderDefinition::ENTITY_NAME,
+            1,
+            new TaxProviderCollection([$taxProvider]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $repo = static::createStub(EntityRepository::class);
+        $repo->method('search')->willReturn($result);
+
+        $payloadService = $this->createMock(TaxProviderPayloadService::class);
+        $payloadService->expects($this->never())->method('request');
+
+        $capabilityAccess = static::createStub(AppCapability::class);
+        $capabilityAccess->method('whenGranted')->willReturn(null);
+
+        $processor = new TaxProviderProcessor(
+            $repo,
+            static::createStub(LoggerInterface::class),
+            $this->adjustment,
+            new TaxProviderRegistry([new TestConstantTaxRateProvider()]),
+            $payloadService,
+            $capabilityAccess
         );
 
         $processor->process($cart, $salesChannelContext);
@@ -506,7 +571,8 @@ class TaxProviderProcessorTest extends TestCase
             $logger,
             $taxAdjuster,
             $registry,
-            $payloadService
+            $payloadService,
+            static::createStub(AppCapability::class)
         );
 
         $cart = new Cart('foo');

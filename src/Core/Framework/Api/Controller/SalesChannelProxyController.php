@@ -56,8 +56,8 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;
@@ -201,6 +201,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/modify-shipping-costs',
         name: 'api.proxy.modify-shipping-costs',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_PATCH]
     )]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
@@ -225,6 +226,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/disable-automatic-promotions',
         name: 'api.proxy.disable-automatic-promotions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_PATCH]
     )]
     public function disableAutomaticPromotions(Request $request): JsonResponse
@@ -245,6 +247,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/enable-automatic-promotions',
         name: 'api.proxy.enable-automatic-promotions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_PATCH]
     )]
     public function enableAutomaticPromotions(Request $request): JsonResponse

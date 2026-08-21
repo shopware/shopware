@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -24,6 +25,7 @@ use Symfony\Component\Lock\Store\InMemoryStore;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppUrlVerifier::class)]
 class AppUrlVerifierTest extends TestCase
 {
@@ -602,7 +604,7 @@ class AppUrlVerifierTest extends TestCase
     }
 
     /**
-     * @param array{status: VerificationStatus, tries: int, return: bool, httpCalls: int} $step
+     * @param array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool} $step
      */
     private function assertStep(?VerificationState $state, array $step, bool $return, int $numHttpCalls): void
     {

@@ -7,6 +7,7 @@ use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule;
+use Shopware\Core\Framework\Log\Package;
 use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
 
 /**
@@ -16,6 +17,7 @@ use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
  *
  * @internal
  */
+#[Package('framework')]
 class NoReturnSetterMethodWithFluentSettersRuleTest extends RuleTestCase
 {
     /**

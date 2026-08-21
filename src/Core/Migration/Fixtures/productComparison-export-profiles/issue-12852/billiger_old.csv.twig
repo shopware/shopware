@@ -1,0 +1,38 @@
+"{{ product.productNumber }}",{#- -#}
+"{{ product.manufacturer.translated.name ?? '' }}",{#- -#}
+"{{ product.manufacturerNumber }}",{#- -#}
+"{{ product.ean }}",{#- -#}
+"{{ product.translated.name|length > 80 ? product.translated.name|slice(0, 80) ~ '...' : product.translated.name }}",{#- -#}
+"{{ product.translated.description|raw|length > 900 ? product.translated.description|raw|slice(0,900) ~ '...' : product.translated.description|raw }}{#- -#}
+",{#- -#}
+"{%- if product.categories.count > 0 -%}
+    {{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}{#- -#}
+{%- endif -%}",{#- -#}
+{% set price = product.calculatedPrice %}
+{%- if product.calculatedPrices.count > 0 -%}
+    {% set price = product.calculatedPrices.last %}
+{%- endif -%}
+"{{ price.unitPrice }}",{#- -#}
+"{%- if price.referencePrice is not null -%}
+    {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}
+{%- endif -%}",{#- -#}
+"{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",{#- -#}
+"{% if product.cover is not null %}{{ product.cover.media.url }}{% endif %}",{#- -#}
+"{%- if product.availableStock >= product.minPurchase and product.deliveryTime -%}
+    {{ "detail.deliveryTimeAvailable"|trans({'%name%': product.deliveryTime.translation('name')}) }}{#- -#}
+{%- elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime -%}
+    {{ "detail.deliveryTimeRestock"|trans({'%count%': product.restockTime,'%restockTime%': product.restockTime,'%name%': product.deliveryTime.translation('name')}) }}{#- -#}
+{%- else -%}
+    {{ "detail.soldOut"|trans }}{#- -#}
+{%- endif -%}",{#- -#}
+"4.95",{# change your default delivery costs #}{#- -#}
+,{#- -#}
+"{% if product.purchaseUnit and product.unit %}{{ product.purchaseUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
+"{% if product.referenceUnit and product.unit %}{{ product.referenceUnit }} {{ product.unit.shortCode }}{% endif %}",{#- -#}
+"{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",{#- -#}
+{%- if product.media|length > 1 -%}
+    "{%- for mediaAssociation in product.media|slice(0, 5) -%}
+        {{ mediaAssociation.media.url }}
+        {%- if not loop.last -%},{%- endif -%}
+    {%- endfor -%}"
+{%- endif -%}{#- -#}

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -35,6 +36,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
+#[Package('discovery')]
 class WishlistControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -107,9 +109,11 @@ class WishlistControllerTest extends TestCase
 
         $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use ($productId): void {
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
-            static::assertCount(1, $result);
-            static::assertInstanceOf(Entity::class, $result->first());
-            static::assertSame($productId, $result->first()->get('id'));
+            $entities = $result->getEntities();
+            static::assertCount(1, $entities);
+            $first = $entities->first();
+            static::assertInstanceOf(Entity::class, $first);
+            static::assertSame($productId, $first->get('id'));
         });
 
         $browser->request('POST', '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
@@ -253,7 +257,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -263,7 +267,7 @@ class WishlistControllerTest extends TestCase
         $response = $this->request('GET', '/wishlist', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -280,7 +284,7 @@ class WishlistControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(GuestWishlistPageletLoadedHook::HOOK_NAME, $traces);
     }
@@ -293,7 +297,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -306,7 +310,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
     }
@@ -342,7 +346,7 @@ class WishlistControllerTest extends TestCase
 
         $repo->create([$customer], Context::createDefaultContext());
 
-        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $entity);
 

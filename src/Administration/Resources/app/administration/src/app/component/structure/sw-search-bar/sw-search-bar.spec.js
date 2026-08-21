@@ -308,6 +308,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
@@ -1478,6 +1479,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         expect(wrapper.vm.isComponentMounted).toBe(false);
         expect(wrapper.vm.currentSearchType).toBeNull();
+    });
+
+    it('should search in the listing when the initial search type is not a registered global search type', async () => {
+        // mirrors an admin ES / Advanced Search instance, where the prop defaults to true
+        wrapper = await createWrapper({
+            initialSearchType: 'flow_template',
+            typeSearchAlwaysInContainer: true,
+        });
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+        await searchInput.setValue('Order');
+
+        await swSearchBarComponent.methods.doListSearch.flush();
+        await flushPromises();
+
+        expect(wrapper.emitted('search')).toEqual([['Order']]);
+        expect(spyLoadTypeSearchResults).not.toHaveBeenCalled();
     });
 
     it('should search global with ES when adminEsEnable is true', async () => {

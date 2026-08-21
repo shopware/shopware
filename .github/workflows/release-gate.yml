@@ -1,0 +1,53 @@
+name: Release gate
+
+# Pre-release coverage for patch releases. Runs on pushes to maintenance/release
+# branches (e.g. 6.6.x, 6.7.11.x) so a green branch means "safe to tag".
+# It runs a tuned subset of the nightly suite (see the 'release' profile in
+# acceptance.yml / integration.yml): all supported PHP versions + upgrade tests +
+# acceptance + the admin/php/storefront unit suites, skipping the heavy nightly-only
+# bits (major simulation, visual/Currents, downstream, redis image matrix).
+on:
+  push:
+    branches:
+      - '[0-9]+.[0-9]+.x' # minor maintenance branches, e.g. 6.5.x, 6.6.x
+      - '[0-9]+.[0-9]+.[0-9]+.x' # patch lines, e.g. 6.7.11.x, 6.7.12.x
+  workflow_dispatch:
+
+# Coalesce rapid backport merges on the same branch; only the newest run matters.
+concurrency:
+  group: release-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  pull-requests: read
+  security-events: write
+
+jobs:
+  acceptance:
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      profile: release
+      currents: false
+  integration:
+    uses: ./.github/workflows/integration.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      profile: release
+  admin:
+    uses: ./.github/workflows/admin.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  php:
+    uses: ./.github/workflows/php.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  storefront:
+    uses: ./.github/workflows/storefront.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'

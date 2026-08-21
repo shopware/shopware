@@ -16,6 +16,7 @@ use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
@@ -205,6 +207,7 @@ class AssetServiceTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->willThrowException(new \InvalidArgumentException('foo'));
 
@@ -236,6 +239,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('ExampleBundle')
             ->willThrowException(new \InvalidArgumentException());
@@ -363,6 +367,7 @@ class AssetServiceTest extends TestCase
         ksort($manifest);
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -448,6 +453,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Extension\LockExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
@@ -19,6 +20,7 @@ use Symfony\Component\Lock\SharedLockInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(PromotionRedemptionLocker::class)]
 class PromotionRedemptionLockerTest extends TestCase
 {
@@ -64,6 +66,45 @@ class PromotionRedemptionLockerTest extends TestCase
         static::assertNotNull($lockExtension);
 
         static::assertSame([$lineItem->getPayloadValue('code') => $lock], $lockExtension->locks);
+    }
+
+    public function testAcquireSharedLockByPromotionIdForGlobalRedemptionLimit(): void
+    {
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+
+        $lockFactory->expects($this->once())
+            ->method('createLock')
+            ->with('promotion-promotion-id', 5.0, true)
+            ->willReturn($lock);
+
+        $locker = new PromotionRedemptionLocker($lockFactory);
+
+        $cart = new Cart('test');
+        $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
+        $lineItem->setPayloadValue('code', 'individual-promotion-code');
+        $lineItem->setPayloadValue('promotionId', 'promotion-id');
+        $lineItem->setPayloadValue('limitedRedemptions', true);
+        $lineItem->setPayloadValue('hasGlobalRedemptionLimit', true);
+        $cart->add($lineItem);
+        $secondLineItem = new LineItem('other-id', PromotionProcessor::LINE_ITEM_TYPE);
+        $secondLineItem->setPayloadValue('code', 'another-individual-promotion-code');
+        $secondLineItem->setPayloadValue('promotionId', 'promotion-id');
+        $secondLineItem->setPayloadValue('limitedRedemptions', true);
+        $secondLineItem->setPayloadValue('hasGlobalRedemptionLimit', true);
+        $cart->add($secondLineItem);
+        $extension = new CheckoutPlaceOrderExtension($cart, Generator::generateSalesChannelContext(), new RequestDataBag());
+
+        $locker->acquireLocks($extension);
+
+        $lockExtension = $extension->getExtensionOfType(LockExtension::KEY, LockExtension::class);
+        static::assertNotNull($lockExtension);
+
+        static::assertSame(['promotion-id' => $lock], $lockExtension->locks);
     }
 
     public function testAcquireLockWithMultiplePromotionItem(): void

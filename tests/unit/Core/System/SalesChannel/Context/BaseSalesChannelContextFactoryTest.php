@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -53,13 +54,15 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type ContextOptions from BaseSalesChannelContextFactory
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(BaseSalesChannelContextFactory::class)]
 class BaseSalesChannelContextFactoryTest extends TestCase
 {
     /**
-     * @param array<string, mixed> $options
+     * @param ContextOptions $options
      * @param array<string, array<mixed>> $entitySearchResult
      * @param false|array<string, mixed> $fetchDataResult
      */
@@ -75,24 +78,15 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             $this->expectExceptionObject($expectedException);
         }
 
-        /** @var StaticEntityRepository<CurrencyCollection> $currencyRepository */
-        $currencyRepository = new StaticEntityRepository([new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CustomerGroupCollection> $customerGroupRepository */
-        $customerGroupRepository = new StaticEntityRepository([new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CountryCollection> $countryRepository */
-        $countryRepository = new StaticEntityRepository([new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<TaxCollection> $taxRepository */
-        $taxRepository = new StaticEntityRepository([new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
-        $paymentMethodRepository = new StaticEntityRepository([new PaymentMethodCollection($entitySearchResult[PaymentMethodDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<ShippingMethodCollection> $shippingMethodRepository */
-        $shippingMethodRepository = new StaticEntityRepository([new ShippingMethodCollection($entitySearchResult[ShippingMethodDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection($entitySearchResult[SalesChannelDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CountryStateCollection> $countryStateRepository */
-        $countryStateRepository = new StaticEntityRepository([new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository */
-        $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
+        $currencyRepository = StaticEntityRepository::of(CurrencyCollection::class, [new CurrencyCollection($entitySearchResult[CurrencyDefinition::ENTITY_NAME] ?? [])]);
+        $customerGroupRepository = StaticEntityRepository::of(CustomerGroupCollection::class, [new CustomerGroupCollection($entitySearchResult[CustomerGroupDefinition::ENTITY_NAME] ?? [])]);
+        $countryRepository = StaticEntityRepository::of(CountryCollection::class, [new CountryCollection($entitySearchResult[CountryDefinition::ENTITY_NAME] ?? [])]);
+        $taxRepository = StaticEntityRepository::of(TaxCollection::class, [new TaxCollection($entitySearchResult[TaxDefinition::ENTITY_NAME] ?? [])]);
+        $paymentMethodRepository = StaticEntityRepository::of(PaymentMethodCollection::class, [new PaymentMethodCollection($entitySearchResult[PaymentMethodDefinition::ENTITY_NAME] ?? [])]);
+        $shippingMethodRepository = StaticEntityRepository::of(ShippingMethodCollection::class, [new ShippingMethodCollection($entitySearchResult[ShippingMethodDefinition::ENTITY_NAME] ?? [])]);
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection($entitySearchResult[SalesChannelDefinition::ENTITY_NAME] ?? [])]);
+        $countryStateRepository = StaticEntityRepository::of(CountryStateCollection::class, [new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
+        $currencyCountryRepository = StaticEntityRepository::of(CurrencyCountryRoundingCollection::class, [new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
         /** @var StaticEntityRepository<EntityCollection<PartialEntity>> $languageRepository */
         $languageRepository = new StaticEntityRepository([new EntityCollection($entitySearchResult[LanguageDefinition::ENTITY_NAME] ?? [])]);
 
@@ -647,6 +641,62 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     Defaults::LANGUAGE_SYSTEM => $language,
                 ],
             ],
+            'expectedException' => null,
+        ];
+
+        $successfulFetchDataResult = [
+            'sales_channel_default_language_id' => Uuid::randomBytes(),
+            'sales_channel_currency_factor' => 1,
+            'sales_channel_currency_id' => Uuid::randomBytes(),
+            'sales_channel_language_ids' => Defaults::LANGUAGE_SYSTEM,
+        ];
+        $successfulEntitySearchResult = [
+            SalesChannelDefinition::ENTITY_NAME => [
+                TestDefaults::SALES_CHANNEL => $salesChannelEntity,
+            ],
+            CurrencyDefinition::ENTITY_NAME => [
+                $currencyId => $currency,
+            ],
+            CountryDefinition::ENTITY_NAME => [
+                $countryId => $country,
+            ],
+            PaymentMethodDefinition::ENTITY_NAME => [
+                $paymentMethodId => $paymentMethod,
+            ],
+            ShippingMethodDefinition::ENTITY_NAME => [
+                $shippingMethodId => $shippingMethod,
+            ],
+            CustomerGroupDefinition::ENTITY_NAME => [
+                $customerGroupId => $customerGroup,
+            ],
+            LanguageDefinition::ENTITY_NAME => [
+                Defaults::LANGUAGE_SYSTEM => $language,
+            ],
+        ];
+
+        yield 'create base context with original context' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $currencyId,
+                SalesChannelContextService::COUNTRY_ID => $countryId,
+                SalesChannelContextService::ORIGINAL_CONTEXT => Context::createDefaultContext(),
+            ],
+            'fetchDataResult' => $successfulFetchDataResult,
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => $successfulEntitySearchResult,
+            'expectedException' => null,
+        ];
+
+        yield 'create base context with version id' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $currencyId,
+                SalesChannelContextService::COUNTRY_ID => $countryId,
+                SalesChannelContextService::VERSION_ID => Defaults::LIVE_VERSION,
+            ],
+            'fetchDataResult' => $successfulFetchDataResult,
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => $successfulEntitySearchResult,
             'expectedException' => null,
         ];
     }

@@ -52,12 +52,16 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to promotion reset writing storefront session state.) */
-        if (!$mainRequest->hasSession()) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
-        $mainRequest->getSession()->set(self::SESSION_KEY_PROMOTION_CODES, []);
+        $session = $mainRequest->getSession();
+        if (!$session->isStarted()) {
+            return;
+        }
+
+        $session->set(self::SESSION_KEY_PROMOTION_CODES, []);
     }
 
     /**
@@ -149,6 +153,12 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             ->filter(static fn (LineItem $lineItem) => $lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE && $lineItem->getPayloadValue('promotionId') === $removedLineItem->getPayloadValue('promotionId'));
 
         foreach ($lineItemsOfSamePromotion as $lineItemOfSamePromotion) {
+            // a sibling discount may already have been removed by a nested call to this
+            // method, triggered by the event dispatched below for an earlier sibling
+            if (!$cart->has($lineItemOfSamePromotion->getId())) {
+                continue;
+            }
+
             $cart->remove($lineItemOfSamePromotion->getId());
 
             $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItemOfSamePromotion, $cart, $context));

@@ -60,13 +60,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Wrong Channel GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow, $otherRow, $matchingRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -89,6 +87,51 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
     }
 
+    public function testLoadPicksMatchingSalesChannelFilenameInfixesOverGlobal(): void
+    {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenameInfixes: ['zugferd_embedded_pdf' => 'global-infix'],
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenameInfixes: ['zugferd_embedded_pdf' => 'channel-infix'],
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(['zugferd_embedded_pdf' => 'channel-infix'], $bundle->config->filenameInfixes);
+    }
+
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
     {
         $globalRow = $this->createBaseConfig(
@@ -103,13 +146,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Unrelated GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow, $unrelatedRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -141,13 +182,11 @@ class DocumentConfigLoaderTest extends TestCase
             itemsPerPage: 0,
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -160,8 +199,8 @@ class DocumentConfigLoaderTest extends TestCase
             $this->createSystemConfigService(),
         );
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/itemsPerPage/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/itemsPerPage/');
 
         $loader->load(
             DocumentType::INVOICE->value,
@@ -179,13 +218,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Legacy GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -225,13 +262,11 @@ class DocumentConfigLoaderTest extends TestCase
             companyName: 'Legacy GmbH',
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -246,8 +281,8 @@ class DocumentConfigLoaderTest extends TestCase
             ], $salesChannelId),
         );
 
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/companyCountry|companyStreet|companyZipcode|companyCity/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/companyCountry|companyStreet|companyZipcode|companyCity/');
 
         $loader->load(
             DocumentType::INVOICE->value,
@@ -266,13 +301,11 @@ class DocumentConfigLoaderTest extends TestCase
             logoId: self::LEGACY_LOGO_ID,
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -309,13 +342,11 @@ class DocumentConfigLoaderTest extends TestCase
             logoId: self::LEGACY_LOGO_ID,
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentRepo */
         $documentRepo = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$globalRow])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepo */
         $countryRepo = new StaticEntityRepository(
             [new CountryCollection([$this->createCountry()])],
             new CountryDefinition(),
@@ -337,6 +368,9 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame(self::LEGACY_LOGO_ID, $bundle->config->logo?->getId());
     }
 
+    /**
+     * @param array<string, string>|null $filenameInfixes
+     */
     private function createBaseConfig(
         bool $global,
         string $pageSize,
@@ -344,6 +378,7 @@ class DocumentConfigLoaderTest extends TestCase
         ?string $salesChannelId = null,
         int $itemsPerPage = 10,
         ?string $logoId = null,
+        ?array $filenameInfixes = null,
     ): DocumentBaseConfigEntity {
         $entity = new DocumentBaseConfigEntity();
         $entity->setUniqueIdentifier(Uuid::randomHex());
@@ -352,6 +387,7 @@ class DocumentConfigLoaderTest extends TestCase
         $entity->setPageSize($pageSize);
         $entity->setPageOrientation('portrait');
         $entity->setItemsPerPage($itemsPerPage);
+        $entity->setFilenameInfixes($filenameInfixes);
         $entity->setConfig([
             'companyName' => $companyName,
             'companyStreet' => 'Example Street 1',
@@ -393,7 +429,6 @@ class DocumentConfigLoaderTest extends TestCase
      */
     private function createMediaRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository(
             [new MediaCollection([
                 $this->createMedia(self::COMPANY_INFO_LOGO_ID),

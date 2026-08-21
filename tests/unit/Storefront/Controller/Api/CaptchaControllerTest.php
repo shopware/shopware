@@ -11,8 +11,8 @@ use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CaptchaController::class)]
-#[Package('checkout')]
 class CaptchaControllerTest extends TestCase
 {
     private const CAPTCHA_NAME = 'lorem-ipsum';

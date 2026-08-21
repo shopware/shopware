@@ -6,30 +6,25 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UninstallAppCommand::class)]
 class UninstallAppCommandTest extends TestCase
 {
     private AbstractAppLifecycle&Stub $appLifecycle;
 
-    /**
-     * @var Stub&EntityRepository<AppCollection>
-     */
-    private EntityRepository&Stub $appRepository;
+    private AppStorage&Stub $appStorage;
 
     private UninstallAppCommand $command;
 
@@ -37,8 +32,8 @@ class UninstallAppCommandTest extends TestCase
     {
         parent::setUp();
         $this->appLifecycle = static::createStub(AbstractAppLifecycle::class);
-        $this->appRepository = static::createStub(EntityRepository::class);
-        $this->command = new UninstallAppCommand($this->appLifecycle, $this->appRepository);
+        $this->appStorage = static::createStub(AppStorage::class);
+        $this->command = new UninstallAppCommand($this->appLifecycle, $this->appStorage);
     }
 
     #[TestDox('--skip-theme-compile sets the skip-theme-compilation state on the context delegated to the lifecycle')]
@@ -97,25 +92,10 @@ class UninstallAppCommandTest extends TestCase
         static::assertFalse($captured()['keepUserData']);
     }
 
-    #[TestDox('Throws InvalidArgumentException when the name argument is not a string')]
-    public function testThrowsWhenNameArgumentIsNotString(): void
-    {
-        $input = static::createStub(InputInterface::class);
-        $input->method('getArgument')->willReturn(null);
-
-        $execute = new \ReflectionMethod(UninstallAppCommand::class, 'execute');
-
-        $this->expectExceptionObject(new \InvalidArgumentException('Argument $name must be an string'));
-
-        $execute->invoke($this->command, $input, new BufferedOutput());
-    }
-
     #[TestDox('Returns FAILURE with an error when the named app is not installed')]
     public function testFailsWhenAppNotFound(): void
     {
-        $result = static::createStub(EntitySearchResult::class);
-        $result->method('getEntities')->willReturn(new AppCollection([]));
-        $this->appRepository->method('search')->willReturn($result);
+        $this->appStorage->method('findByName')->willReturn(null);
 
         $tester = new CommandTester($this->command);
         $status = $tester->execute(['name' => 'Nope']);
@@ -130,9 +110,7 @@ class UninstallAppCommandTest extends TestCase
         $app->setUniqueIdentifier('app-id');
         $app->assign(['id' => 'app-id', 'name' => 'AcmeApp', 'aclRoleId' => 'role-id']);
 
-        $result = static::createStub(EntitySearchResult::class);
-        $result->method('getEntities')->willReturn(new AppCollection([$app]));
-        $this->appRepository->method('search')->willReturn($result);
+        $this->appStorage->method('findByName')->willReturn($app);
     }
 
     /**

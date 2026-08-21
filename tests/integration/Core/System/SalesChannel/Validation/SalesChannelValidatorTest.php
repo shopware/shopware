@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -17,7 +20,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -314,6 +319,36 @@ class SalesChannelValidatorTest extends TestCase
         }
     }
 
+    public function testChangingTheDefaultLanguageAndRemovingThePreviousDefaultInOneWrite(): void
+    {
+        $id = Uuid::randomHex();
+        $newDefaultId = $this->getDeDeLanguageId();
+        $context = Context::createDefaultContext();
+
+        $this->getSalesChannelRepository()->create([
+            $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM, $newDefaultId]),
+        ], $context);
+
+        static::getContainer()->get(SyncService::class)->sync([
+            new SyncOperation('write', SalesChannelDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [
+                ['id' => $id, 'languageId' => $newDefaultId],
+            ]),
+            new SyncOperation('delete', SalesChannelLanguageDefinition::ENTITY_NAME, SyncOperation::ACTION_DELETE, [
+                ['salesChannelId' => $id, 'languageId' => Defaults::LANGUAGE_SYSTEM],
+            ]),
+        ], $context, new SyncBehavior());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('languages');
+
+        $salesChannel = $this->getSalesChannelRepository()->search($criteria, $context)->getEntities()->first();
+
+        static::assertNotNull($salesChannel);
+        static::assertSame($newDefaultId, $salesChannel->getLanguageId());
+        static::assertNotNull($salesChannel->getLanguages());
+        static::assertSame([$newDefaultId], array_values($salesChannel->getLanguages()->getIds()));
+    }
+
     public function testDeletingSalesChannelWillNotBeValidated(): void
     {
         $id = Uuid::randomHex();
@@ -329,7 +364,7 @@ class SalesChannelValidatorTest extends TestCase
             'id' => $id,
         ]], Context::createDefaultContext());
 
-        $result = $salesChannelRepository->search(new Criteria([$id]), $context);
+        $result = $salesChannelRepository->search(new Criteria([$id]), $context)->getEntities();
         static::assertCount(0, $result);
     }
 

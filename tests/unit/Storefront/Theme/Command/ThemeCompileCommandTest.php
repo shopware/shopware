@@ -11,13 +11,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeCompileCommand::class)]
 class ThemeCompileCommandTest extends TestCase
 {
@@ -38,7 +39,7 @@ class ThemeCompileCommandTest extends TestCase
             ->with(static::anything(), false)
             ->willReturn([$salesChannelId => $themeId]);
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--keep-assets' => $keepAssetsOption]);
         $commandTester->assertCommandIsSuccessful();
@@ -55,7 +56,7 @@ class ThemeCompileCommandTest extends TestCase
             ->with(static::anything(), $activeOnly)
             ->willReturn([]);
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--active-only' => $activeOnly]);
         $commandTester->assertCommandIsSuccessful();
@@ -80,7 +81,7 @@ class ThemeCompileCommandTest extends TestCase
             ->with(static::anything(), false)
             ->willReturn([$salesChannelId => $themeId]);
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--sync' => true]);
         $commandTester->assertCommandIsSuccessful();
@@ -125,7 +126,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--skip' => [$salesChannelIdSkip1, $salesChannelIdSkip2]]);
         $commandTester->assertCommandIsSuccessful();
@@ -170,7 +171,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--only' => [$salesChannelIdIncluded1, $salesChannelIdIncluded2]]);
         $commandTester->assertCommandIsSuccessful();
@@ -216,7 +217,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--skip-themes' => [$themeIdSkip]]);
         $commandTester->assertCommandIsSuccessful();
@@ -262,7 +263,7 @@ class ThemeCompileCommandTest extends TestCase
                 }
             );
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $commandTester->execute(['--only-themes' => [$themeIdIncluded]]);
         $commandTester->assertCommandIsSuccessful();
@@ -278,7 +279,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->never())
             ->method('compileTheme');
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $salesChannelId = Uuid::randomHex();
         $commandTester->execute([
@@ -298,7 +299,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->never())
             ->method('compileTheme');
 
-        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), static::createStub(UnusedThemeDirectoryDeleter::class)));
 
         $themeId = Uuid::randomHex();
         $commandTester->execute([
@@ -306,6 +307,45 @@ class ThemeCompileCommandTest extends TestCase
             '--skip-themes' => [$themeId],
         ]);
         static::assertSame(1, $commandTester->getStatusCode());
+    }
+
+    public function testItDeletesUnusedThemeFilesAfterCompilation(): void
+    {
+        $themeService = static::createStub(ThemeService::class);
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects($this->once())
+            ->method('load')
+            ->willReturn(['sales-channel-id' => 'theme-id']);
+
+        $unusedThemeFilesDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
+        $unusedThemeFilesDeleter->expects($this->once())
+            ->method('deleteUnusedDirectories')
+            ->willReturn(3);
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), $unusedThemeFilesDeleter));
+
+        $commandTester->execute([]);
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testItSkipsCleanupWhenNoCleanupOptionIsPassed(): void
+    {
+        $themeService = static::createStub(ThemeService::class);
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects($this->once())
+            ->method('load')
+            ->willReturn(['sales-channel-id' => 'theme-id']);
+
+        $unusedThemeFilesDeleter = static::createMock(UnusedThemeDirectoryDeleter::class);
+        $unusedThemeFilesDeleter->expects($this->never())
+            ->method('deleteUnusedDirectories');
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock(), $unusedThemeFilesDeleter));
+
+        $commandTester->execute(['--no-cleanup' => true]);
+        $commandTester->assertCommandIsSuccessful();
     }
 
     /**

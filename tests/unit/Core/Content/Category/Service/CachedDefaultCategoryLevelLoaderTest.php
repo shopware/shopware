@@ -25,8 +25,8 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 /**
  * @internal
  */
-#[CoversClass(CachedDefaultCategoryLevelLoader::class)]
 #[Package('discovery')]
+#[CoversClass(CachedDefaultCategoryLevelLoader::class)]
 class CachedDefaultCategoryLevelLoaderTest extends TestCase
 {
     private TagAwareCacheInterface&Stub $cache;
@@ -166,7 +166,8 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
             $depth
         );
 
-        static::assertEquals($expectedCollection, $result);
+        // the first call built the levels itself and returns them without a cache round trip
+        static::assertSame($expectedCollection, $result);
         static::assertEquals($result2, $result);
         static::assertSame(2, $eventsThrown);
 

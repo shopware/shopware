@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -27,6 +28,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginInstallCommand::class)]
 class PluginInstallCommandTest extends TestCase
 {
@@ -47,7 +49,6 @@ class PluginInstallCommandTest extends TestCase
         $this->cacheClearer = static::createStub(CacheClearer::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (Criteria $criteria, Context $context): PluginCollection => $this->plugins,
         ]);
@@ -88,6 +89,32 @@ class PluginInstallCommandTest extends TestCase
         ], ['interactive' => false]));
 
         static::assertSame(['BasePlugin', 'DependentPlugin', 'IndependentPlugin'], $installedPlugins);
+    }
+
+    public function testInstallSortsStorePluginBeforePluginRequiringItsStoreAlias(): void
+    {
+        $dependentPlugin = $this->createPluginEntity('StoreDependentPlugin', 'a-vendor/store-dependent-plugin');
+        $storePlugin = $this->createPluginEntity('StoreDependencyPlugin', 'store.shopware.com/store-dependency-plugin');
+        $this->plugins->fill([$dependentPlugin, $storePlugin]);
+
+        $installedPlugins = [];
+        $installContext = static::createStub(InstallContext::class);
+
+        $this->pluginLifecycleService
+            ->expects($this->exactly(2))
+            ->method('installPlugin')
+            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use (&$installedPlugins, $installContext): InstallContext {
+                $installedPlugins[] = $plugin->getName();
+                $plugin->setInstalledAt(new \DateTimeImmutable());
+
+                return $installContext;
+            });
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
+            'plugins' => ['StoreDependentPlugin', 'StoreDependencyPlugin'],
+        ], ['interactive' => false]));
+
+        static::assertSame(['StoreDependencyPlugin', 'StoreDependentPlugin'], $installedPlugins);
     }
 
     public function testInstallFailsWhenPluginComposerJsonIsMissingDuringRequirementSorting(): void

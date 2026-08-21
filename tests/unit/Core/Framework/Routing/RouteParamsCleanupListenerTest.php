@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RouteParamsCleanupListener;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RouteParamsCleanupListener::class)]
 class RouteParamsCleanupListenerTest extends TestCase
 {
@@ -40,6 +42,13 @@ class RouteParamsCleanupListenerTest extends TestCase
 
         yield 'route scope filled gets dropped' => [
             new Request(attributes: ['_route_params' => [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => []]]),
+            [
+                '_route_params' => [],
+            ],
+        ];
+
+        yield 'openapi default filled gets dropped' => [
+            new Request(attributes: ['_route_params' => [PlatformRequest::ATTRIBUTE_OPENAPI => false]]),
             [
                 '_route_params' => [],
             ],

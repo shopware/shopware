@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
@@ -15,6 +16,7 @@ use Twig\Source;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SwTwigFunction::class)]
 class SwTwigFunctionTest extends TestCase
 {
@@ -76,6 +78,18 @@ class SwTwigFunctionTest extends TestCase
             'attribute' => 'getNonExistentProperty',
             'arguments' => ['arg1', 'arg2'],
             'expected' => 'result',
+        ];
+
+        yield 'hasser method' => [
+            'object' => $object,
+            'attribute' => 'children',
+            'expected' => true,
+        ];
+
+        yield 'isser method takes precedence over hasser method' => [
+            'object' => $object,
+            'attribute' => 'variants',
+            'expected' => false,
         ];
     }
 
@@ -167,5 +181,20 @@ class StructForTests extends Struct
         }
 
         return 'result';
+    }
+
+    public function hasChildren(): bool
+    {
+        return true;
+    }
+
+    public function isVariants(): bool
+    {
+        return false;
+    }
+
+    public function hasVariants(): bool
+    {
+        return true;
     }
 }

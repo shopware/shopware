@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Installer\Controller\DatabaseImportController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -26,6 +27,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseImportController::class)]
 class DatabaseImportControllerTest extends TestCase
 {
@@ -113,6 +115,7 @@ class DatabaseImportControllerTest extends TestCase
     {
         $this->databaseMigrator->expects($this->never())->method('migrate');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $session = new Session(new MockArraySessionStorage());
         $request = Request::create('/installer/database-import');
@@ -129,6 +132,7 @@ class DatabaseImportControllerTest extends TestCase
     public function testDatabaseMigrateWithoutOffset(): void
     {
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $connection = static::createStub(Connection::class);
         $this->connectionFactory->method('getConnection')
@@ -159,6 +163,7 @@ class DatabaseImportControllerTest extends TestCase
     public function testDatabaseMigrateWillReportException(): void
     {
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $connection = static::createStub(Connection::class);
         $this->connectionFactory->method('getConnection')

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
@@ -38,6 +39,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchProductDefinition::class)]
 class ElasticsearchProductDefinitionTest extends TestCase
 {
@@ -532,10 +534,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ];
 
         if (Feature::isActive('v6.8.0.0')) {
-            unset($expectedMapping['properties']['visibilities']);
-            unset($expectedMapping['properties']['categoriesRo']);
             unset($expectedMapping['properties']['states']);
         }
+
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
     }
 
@@ -969,7 +970,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
-        $connection = $this->getConnectionWithProductData('PRODUCT-123', 'PARENT-456');
+        $connection = $this->getConnectionWithProductData('PARENT-456');
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
@@ -1005,7 +1006,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
-        $connection = $this->getConnectionWithProductData('PRODUCT-123', null);
+        $connection = $this->getConnectionWithProductData(null);
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
@@ -1042,7 +1043,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $connection = $this->getConnectionWithProductData(
-            productNumber: 'PRODUCT-123',
             parentProductNumber: 'PARENT-456',
             name: 'Child Product',
             parentName: 'Parent Product'
@@ -1170,7 +1170,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
     }
 
     private function getConnectionWithProductData(
-        string $productNumber,
         ?string $parentProductNumber,
         string $name = 'Test Product',
         ?string $parentName = null
@@ -1179,8 +1178,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $baseProductData = [
             'id' => $this->ids->get('product-1'),
-            'parentId' => $parentProductNumber ?? null,
-            'productNumber' => $productNumber,
+            'parentId' => $parentProductNumber,
+            'productNumber' => 'PRODUCT-123',
             'parentProductNumber' => $parentProductNumber,
             'autoIncrement' => 1,
             'ean' => '',

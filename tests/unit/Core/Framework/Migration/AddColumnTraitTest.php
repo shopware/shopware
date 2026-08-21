@@ -12,11 +12,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\AddColumnTrait;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AddColumnTrait::class)]
 class AddColumnTraitTest extends TestCase
 {

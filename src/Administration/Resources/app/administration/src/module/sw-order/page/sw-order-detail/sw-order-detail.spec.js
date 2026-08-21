@@ -7,7 +7,7 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(order = {}) {
+async function createWrapper(order = {}, { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {}) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
@@ -21,6 +21,7 @@ async function createWrapper(order = {}) {
         global: {
             mocks: {
                 $route: {
+                    name: routeName,
                     params: {
                         id: 'order123',
                     },
@@ -44,6 +45,9 @@ async function createWrapper(order = {}) {
                         },
                     },
                 },
+                $router: {
+                    push: routerPush,
+                },
             },
             stubs: {
                 'sw-page': {
@@ -66,8 +70,40 @@ async function createWrapper(order = {}) {
 
                 'sw-loader': true,
                 'router-view': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': {
+                    name: 'sw-tabs',
+                    template: '<div class="sw-tabs"><slot></slot></div>',
+                    props: [
+                        'positionIdentifier',
+                    ],
+                },
+                'sw-tabs-item': {
+                    name: 'sw-tabs-item',
+                    template: '<div class="sw-tabs-item"></div>',
+                    props: [
+                        'route',
+                        'title',
+                    ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                },
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
                 'sw-order-save-changes-beforehand-modal': true,
@@ -122,6 +158,85 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await nextTick();
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch', async () => {
+        wrapper = await createWrapper();
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-detail');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
+        wrapper = await createWrapper(
+            {},
+            {
+                routeName: 'sw.order.detail.details',
+            },
+        );
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.order.detail.details');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-order.detail.tabGeneral',
+                name: 'sw.order.detail.general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDetails',
+                name: 'sw.order.detail.details',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDocuments',
+                name: 'sw.order.detail.documents',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is clicked', async () => {
+        const routerPush = jest.fn();
+        wrapper = await createWrapper(
+            {},
+            {
+                routerPush,
+            },
+        );
+
+        const documentsTab = wrapper.vm.orderDetailTabs.find((tab) => tab.name === 'sw.order.detail.documents');
+
+        documentsTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.order.detail.documents',
+            params: { id: 'order123' },
+        });
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass the document warning state to meteor tabs', async () => {
+        wrapper = await createWrapper();
+
+        wrapper.vm.hasOrderDeepEdit = true;
+        await nextTick();
+
+        const documentsTab = wrapper
+            .getComponent({ name: 'mt-tabs' })
+            .props('items')
+            .find((tab) => tab.name === 'sw.order.detail.documents');
+
+        expect(documentsTab).toEqual(
+            expect.objectContaining({
+                badge: 'warning',
+            }),
+        );
     });
 
     it('should created a new version when component was created', async () => {
@@ -283,6 +398,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
+            primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
@@ -332,6 +448,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
+            primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
@@ -408,6 +525,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            primaryOrderDeliveryId: 'delivery123',
             primaryOrderDelivery: {
                 id: 'delivery123',
             },

@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,8 +46,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('discovery')]
+#[Group('store-api')]
 #[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {
@@ -131,7 +132,9 @@ class CategoryRouteTest extends TestCase
                 $salesChannelContext,
                 [
                     'content' => [
-                        'value' => $expected,
+                        'field' => [
+                            'value' => $expected,
+                        ],
                     ],
                 ],
                 new EntityResolverContext($salesChannelContext, $request, new CategoryDefinition(), $category),
@@ -196,6 +199,62 @@ class CategoryRouteTest extends TestCase
         );
     }
 
+    public function testHomeRouteIsTaggedWithNavigationCategoryId(): void
+    {
+        $request = new Request();
+        $category = $this->buildPageCategory(['en']);
+        $cmsPage = $this->buildCmsPage();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setNavigationCategoryId($category->getId());
+        $salesChannel->setNavigationCategoryDepth(2);
+        $salesChannel->setTaxCalculationType(Generator::TAX_CALCULATION_TYPE);
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            new Context(new SalesChannelApiSource(Uuid::randomHex()), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]),
+            salesChannel: $salesChannel,
+        );
+
+        $categoryRepository = $this->createMock(SalesChannelRepository::class);
+        $categoryRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'category',
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $cmsPageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $cmsPageLoader->method('load')->willReturn(new EntitySearchResult(
+            'cms-page',
+            1,
+            new CmsPageCollection([$cmsPage]),
+            null,
+            new Criteria(),
+            $salesChannelContext->getContext(),
+        ));
+
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with(CategoryRoute::buildName($category->getId()));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepository,
+            $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
+            new CategoryDefinition(),
+            $cacheTagCollector,
+        );
+
+        $categoryRoute->load(CategoryRoute::HOME, $request, $salesChannelContext);
+    }
+
     private function buildCmsPage(): CmsPageEntity
     {
         $cmsSlot = new CmsSlotEntity();
@@ -249,7 +308,9 @@ class CategoryRouteTest extends TestCase
         $category->setType(CategoryDefinition::TYPE_PAGE);
         $category->addTranslated('slotConfig', [
             'content' => [
-                'value' => 'en config',
+                'field' => [
+                    'value' => 'en config',
+                ],
             ],
         ]);
 
@@ -259,7 +320,9 @@ class CategoryRouteTest extends TestCase
             $translation->setLanguageId(self::LANGUAGE_IDS[$languageCode]);
             $translation->setSlotConfig([
                 'content' => [
-                    'value' => $languageCode . ' config',
+                    'field' => [
+                        'value' => $languageCode . ' config',
+                    ],
                 ],
             ]);
 

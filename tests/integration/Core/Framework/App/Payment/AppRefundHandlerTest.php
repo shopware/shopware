@@ -9,10 +9,12 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     public function testRefund(): void

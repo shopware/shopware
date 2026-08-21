@@ -85,6 +85,8 @@ class LanguageEntity extends Entity
 
     protected bool $active;
 
+    protected bool $translationAutoUpdate = true;
+
     protected ?LocaleEntity $locale = null;
 
     protected ?LanguageEntity $parent = null;
@@ -282,6 +284,16 @@ class LanguageEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getTranslationAutoUpdate(): bool
+    {
+        return $this->translationAutoUpdate;
+    }
+
+    public function setTranslationAutoUpdate(bool $translationAutoUpdate): void
+    {
+        $this->translationAutoUpdate = $translationAutoUpdate;
     }
 
     public function getLocale(): ?LocaleEntity

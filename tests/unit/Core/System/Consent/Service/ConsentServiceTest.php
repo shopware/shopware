@@ -106,6 +106,10 @@ class ConsentServiceTest extends TestCase
 
     public function testGetConsentStatusThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
     {
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));
 
         $service = $this->createService(null, [
@@ -167,6 +171,10 @@ class ConsentServiceTest extends TestCase
     public function testGetConsentStatusThrowsExceptionWhenConsentNotFound(): void
     {
         $service = $this->createService(null, []);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
 
         $this->expectExceptionObject(ConsentException::notFound('non-existent'));
 
@@ -369,6 +377,14 @@ class ConsentServiceTest extends TestCase
     {
         $service = $this->createService(null, []);
 
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
         $this->expectExceptionObject(ConsentException::notFound('non-existent'));
 
         $source = new AdminApiSource('user-123');
@@ -465,6 +481,14 @@ class ConsentServiceTest extends TestCase
     {
         $service = $this->createService(null, []);
 
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
         $this->expectExceptionObject(ConsentException::notFound('non-existent'));
 
         $source = new AdminApiSource('user-123');
@@ -478,6 +502,14 @@ class ConsentServiceTest extends TestCase
         $service = $this->createService(null, [
             new TestDefinition('consent-1', ConsentScope\System::NAME, ['permission-1', 'missing-1', 'missing-2']),
         ]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
 
         $this->expectExceptionObject(ConsentException::insufficientPermissions('consent-1', ['missing-1', 'missing-2']));
 

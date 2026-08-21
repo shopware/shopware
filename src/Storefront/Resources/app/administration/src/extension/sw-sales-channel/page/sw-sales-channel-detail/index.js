@@ -42,7 +42,9 @@ Component.override('sw-sales-channel-detail', {
                     message: this.$t('sw-theme-manager.general.messageSaveError'),
                 });
             } finally {
-                this.salesChannel.extensions.themes = [...(this.salesChannel.getOrigin().extensions?.themes ?? [])];
+                const themes = this.salesChannel.extensions?.themes;
+
+                themes?.splice(0, themes.length, ...(this.salesChannel.getOrigin().extensions?.themes ?? []));
             }
         },
     },

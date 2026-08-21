@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import { h } from 'vue';
 
 async function createWrapper(options = {}) {
-    const { props = {}, slots = {}, routerPush = jest.fn() } = options;
+    const { props = {}, slots = {}, routerPush = jest.fn(), attrs = {} } = options;
 
     return mount(await wrapTestComponent('mt-tabs', { sync: true }), {
         props: {
@@ -14,6 +14,7 @@ async function createWrapper(options = {}) {
             positionIdentifier: 'jest-test-component',
             ...props,
         },
+        attrs,
         slots,
         global: {
             stubs: {
@@ -73,6 +74,23 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
 
         const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
         expect(mtTabsOriginal.props('small')).toBe(true);
+    });
+
+    it('should pass supported Meteor props and keep consumer attributes on the wrapper', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                vertical: true,
+            },
+            attrs: {
+                class: 'mt-tabs-consumer-class',
+            },
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+
+        expect(mtTabsOriginal.props('vertical')).toBe(true);
+        expect(mtTabsOriginal.classes()).not.toContain('mt-tabs-consumer-class');
+        expect(wrapper.get('.mt-tabs-wrapper').classes()).toContain('mt-tabs-consumer-class');
     });
 
     it('should pass the merged items from the props and extension store to the final component', async () => {

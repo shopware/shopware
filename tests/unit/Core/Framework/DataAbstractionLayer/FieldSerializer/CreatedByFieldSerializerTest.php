@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(CreatedByFieldSerializer::class)]
 class CreatedByFieldSerializerTest extends TestCase
 {

@@ -7,10 +7,7 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(
-    order = {},
-    { featureActive = false, routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {},
-) {
+async function createWrapper(order = {}, { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {}) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
@@ -118,9 +115,6 @@ async function createWrapper(
                     create: () => repositoryFactoryMock,
                 },
                 orderService: {},
-                feature: {
-                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                },
             },
         },
         props: {
@@ -200,7 +194,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
     });
 
-    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the fallback tabs branch', async () => {
         wrapper = await createWrapper();
 
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
@@ -209,11 +204,10 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor tabs when the major feature flag is active', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs', async () => {
         wrapper = await createWrapper(
             {},
             {
-                featureActive: true,
                 routeName: 'sw.order.detail.details',
             },
         );
@@ -242,12 +236,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
-    it('should navigate when a meteor route tab is clicked', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is clicked', async () => {
         const routerPush = jest.fn();
         wrapper = await createWrapper(
             {},
             {
-                featureActive: true,
                 routerPush,
             },
         );
@@ -262,13 +255,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         });
     });
 
-    it('should pass the document warning state to meteor tabs', async () => {
-        wrapper = await createWrapper(
-            {},
-            {
-                featureActive: true,
-            },
-        );
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass the document warning state to meteor tabs', async () => {
+        wrapper = await createWrapper();
 
         wrapper.vm.hasOrderDeepEdit = true;
         await nextTick();
@@ -444,6 +432,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
+            primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
@@ -493,6 +482,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
+            primaryOrderDeliveryId: 'deliveryId',
             lineItems: [
                 lineItemWithExistingProduct,
                 promotionLineItem,
@@ -569,6 +559,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            primaryOrderDeliveryId: 'delivery123',
             primaryOrderDelivery: {
                 id: 'delivery123',
             },

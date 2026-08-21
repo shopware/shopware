@@ -158,6 +158,10 @@ A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced th
 
 They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
 
+### Failed payment mail flow
+
+Shopware now ships a default Flow Builder flow, flow template, and mail template for `state_enter.order_transaction.state.failed`.
+
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
 - Products get a new `guaranteeMonths` field for an optional commercial durability guarantee beyond the statutory two years (must be empty, or a half-year value greater than 24 months).

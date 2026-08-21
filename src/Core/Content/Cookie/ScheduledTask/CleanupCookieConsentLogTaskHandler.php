@@ -24,8 +24,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @see \Shopware\Tests\Integration\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandlerTest
  */
-#[AsMessageHandler(handles: CleanupCookieConsentLogTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: CleanupCookieConsentLogTask::class)]
 final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
 {
     public const CONFIG_KEY_RETENTION_DAYS = 'core.cookieConsent.logRetentionDays';

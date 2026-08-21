@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieConsentLog\CookieConsentLogEntity;
 use Shopware\Core\Content\Cookie\CookieException;
@@ -37,7 +37,7 @@ class CookieConsentLogRouteTest extends TestCase
 
     private CookieConsentLogRoute $route;
 
-    private RateLimiter&MockObject $rateLimiter;
+    private RateLimiter&Stub $rateLimiter;
 
     /**
      * @var list<array<string, mixed>>
@@ -60,7 +60,7 @@ class CookieConsentLogRouteTest extends TestCase
 
         $this->eventDispatcher = new CollectingEventDispatcher();
 
-        $this->rateLimiter = static::createMock(RateLimiter::class);
+        $this->rateLimiter = static::createStub(RateLimiter::class);
 
         $this->route = new CookieConsentLogRoute(
             $cookieRoute,
@@ -274,7 +274,8 @@ class CookieConsentLogRouteTest extends TestCase
 
     public function testTheClientIpIsUsedAsRateLimitKey(): void
     {
-        $this->rateLimiter->expects($this->once())
+        $rateLimiter = static::createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::COOKIE_CONSENT_LOG, '203.0.113.7');
 
@@ -283,7 +284,7 @@ class CookieConsentLogRouteTest extends TestCase
             content: (string) json_encode(['consentAction' => 'accept_all']),
         );
 
-        $this->route->log($request, Generator::generateSalesChannelContext());
+        $this->createRoute($rateLimiter)->log($request, Generator::generateSalesChannelContext());
     }
 
     public function testAnExceededRateLimitStoresNothing(): void
@@ -322,9 +323,35 @@ class CookieConsentLogRouteTest extends TestCase
     public function testARequestWithoutAClientIpIsNotRateLimited(): void
     {
         // The limiter is keyed by IP only, so a request without one cannot be attributed
-        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $rateLimiter = static::createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('ensureAccepted');
 
-        $this->log(['consentAction' => 'accept_all']);
+        $request = new Request(content: (string) json_encode(['consentAction' => 'accept_all']));
+        $response = $this->createRoute($rateLimiter)->log($request, Generator::generateSalesChannelContext());
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    /**
+     * Builds an isolated route for tests that place expectations on the rate limiter,
+     * so the shared stub in setUp() never mixes stub and mock roles.
+     */
+    private function createRoute(RateLimiter $rateLimiter): CookieConsentLogRoute
+    {
+        $cookieRoute = static::createStub(AbstractCookieRoute::class);
+        $cookieRoute->method('getCookieGroups')
+            ->willReturn(new CookieRouteResponse($this->cookieGroups(), 'server-hash', 'language-id'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('executeStatement')->willReturn(1);
+
+        return new CookieConsentLogRoute(
+            $cookieRoute,
+            $connection,
+            new CollectingEventDispatcher(),
+            new MockClock('2026-07-13 12:00:00'),
+            $rateLimiter,
+        );
     }
 
     /**

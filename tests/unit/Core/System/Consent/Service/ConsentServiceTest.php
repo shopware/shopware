@@ -615,6 +615,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
+            ->expects($this->once())
             ->method('fetchAllConsentStates')
             ->willReturn([]);
 
@@ -633,6 +634,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
+            ->expects($this->once())
             ->method('fetchAllConsentStates')
             ->willReturn([]);
 
@@ -650,6 +652,7 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
+            ->expects($this->once())
             ->method('fetchAllConsentStates')
             ->willReturn([]);
 

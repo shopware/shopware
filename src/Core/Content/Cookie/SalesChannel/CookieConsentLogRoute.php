@@ -38,8 +38,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @experimental stableVersion:v6.8.0 feature:COOKIE_GROUPS_STORE_API
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 {
     final public const ACTION_ACCEPT_ALL = 'accept_all';

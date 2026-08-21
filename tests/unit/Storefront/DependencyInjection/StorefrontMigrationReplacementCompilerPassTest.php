@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(StorefrontMigrationReplacementCompilerPass::class)]
 class StorefrontMigrationReplacementCompilerPassTest extends TestCase
 {

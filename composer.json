@@ -336,6 +336,7 @@
         "stylelint:storefront:fix": "Code Style checks for all Storefront SCSS files and fixes them if possible",
         "translation:lint-filenames": "Validates snippet filesnames",
         "translation:lint-filenames:fix": "Validates snippet filesnames and migrates them if necessary",
+        "translation:metadata:delete": "Deletes the local Crowdin translation metadata lock file",
         "translation:install": "Downloads and installs translations from the translations GitHub repository",
         "translation:lint": "Validates existence of snippets in all core-supported languages",
         "translation:update": "Updates all installed translations from the translations GitHub repository",
@@ -534,6 +535,7 @@
         "setup": [
             "@composer install -o",
             "mkdir -p custom/plugins || true",
+            "@translation:metadata:delete",
             "@init:db",
             "@init:js",
             "@build:js",
@@ -583,6 +585,7 @@
         "stylelint:storefront:fix": "@npm:storefront run lint:scss-fix",
         "translation:lint-filenames": "php bin/shopware translation:lint-filenames",
         "translation:lint-filenames:fix": "php bin/shopware translation:lint-filenames --fix",
+        "translation:metadata:delete": "rm -f files/translation/crowdin-metadata.lock",
         "translation:install": "php bin/shopware translation:install",
         "translation:lint": "@php bin/shopware translation:validate",
         "translation:update": "php bin/shopware translation:update",

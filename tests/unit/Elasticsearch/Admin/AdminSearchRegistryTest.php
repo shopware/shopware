@@ -32,6 +32,7 @@ use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -77,6 +78,36 @@ class AdminSearchRegistryTest extends TestCase
         $indexers = $registry->getIndexers();
 
         static::assertSame(['promotion' => $this->indexer], $indexers);
+    }
+
+    public function testIndexerLookupIsResolvedOnceFromTheTaggedIterator(): void
+    {
+        $consumed = 0;
+        $indexer = $this->indexer;
+
+        $registry = new AdminSearchRegistry(
+            new RewindableGenerator(static function () use (&$consumed, $indexer): \Generator {
+                ++$consumed;
+
+                yield 'promotion' => $indexer;
+            }, 1),
+            static::createStub(Connection::class),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(Client::class),
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger()),
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
+
+        static::assertTrue($registry->hasIndexer('promotion'));
+        static::assertSame($this->indexer, $registry->getIndexer('promotion'));
+        static::assertTrue($registry->hasIndexer('promotion'));
+
+        static::assertSame(1, $consumed);
     }
 
     public function testUpdateMapping(): void

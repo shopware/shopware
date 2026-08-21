@@ -41,7 +41,7 @@ Element ids are a rendered-model contract, not bookkeeping: partial extraction a
 
 `RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so the idiom itself neither mints nor drops nodes. That guarantee is about cardinality only. The mapper's signature is `callable(RenderedElement): RenderedElement` and whatever it returns is what lands in the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom therefore does not discharge the id obligation — that stays with the listener, as above.
 
-Placeholder resolution runs in FULL mode only, and it runs after this event either way, so a listener that introduces a `{{token}}` resolves it itself rather than expecting the pipeline to.
+Placeholder resolution runs in FULL mode only, and it runs before this event, so a listener that introduces a `{{token}}` resolves it itself either way rather than expecting the pipeline to.
 
 ## Working with RenderedElement
 

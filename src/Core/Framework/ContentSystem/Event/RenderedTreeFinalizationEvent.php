@@ -16,8 +16,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * Listeners see the tree the response is built from: the render step has run and both finishing steps are
  * behind it, so the virtual root is unwrapped and a partial render is already reduced to its target subtree.
- * The dispatch position is the same in both rendering modes, and every pipeline step runs before it, so a
- * listener at any priority sees the same tree — core claims no priority band.
+ * The dispatch position is the same in both rendering modes, and every step that shapes the tree runs
+ * before it. What runs after the dispatch is the duplicate-element-id check over the forest a listener
+ * handed back, and the assembly of the result; neither changes the tree. So a listener at any priority
+ * sees the same tree — core claims no priority band.
  *
  * A listener's structural output must not depend on the rendering mode, which is why this event exposes no
  * mode at all. Property values are the part of a rendered element that does differ between the two: SKELETON

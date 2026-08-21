@@ -8,7 +8,7 @@ the same way: `replaceTree()`. Neither exposes `RenderingMode`.
 ## Key Classes
 
 - `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
-- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the bridge; allows layout finalization
+- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back; allows layout finalization
 
 ## Lifecycle
 
@@ -16,14 +16,20 @@ the same way: `replaceTree()`. Neither exposes `RenderingMode`.
 ContentTreePreparationEvent
   → StoredTreePreparer: placeholder resolution (FULL mode only)
       → virtual-root wrap → partial prune
-  → wiring validation (on the pre-prune forest)
+  → duplicate-element-id check + wiring validation (on the pre-prune forest)
   → redistribute derivation (on the pruned tree)
   → render step: ElementLowering (FULL resolves data and context;
       SKELETON mints structure only)
   → virtual-root unwrap → partial extract (both on the rendered forest)
 → RenderedTreeFinalizationEvent
-  → bridge onto ContentElement (paired by element id)
+  → duplicate-element-id check (on the forest the event handed back)
 ```
+
+The duplicate-element-id check runs twice on purpose. The first pass judges the pre-prune stored forest, so a
+twin the prune or the later target extract would have removed still fails the render instead of leaving the
+response serving one of two ambiguous elements. The second judges the finished rendered forest, because a
+finalization listener may replace the tree and a duplicate it introduces is invisible to the first pass. Both
+throw `CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID` (500), and both run in either rendering mode.
 
 The steps run inside `ContentPipeline::load()`, not as listeners, so a listener cannot interleave with
 them: the preparation event sees the tree before every preparation step, and the finalization event sees it

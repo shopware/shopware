@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Event\ContentTreePreparationEvent;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\RenderScaffolding;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
@@ -66,6 +69,8 @@ class ContentPipeline
         $preparation = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
         $scaffolding = $preparation->scaffolding;
 
+        $this->rejectRepeatedStoredId($preparation->prePruneForest);
+
         $storedTree = $this->wiringPlanner->plan($preparation->prePruneForest, $preparation->tree);
 
         $lowered = $this->elementLowering->lower(
@@ -92,11 +97,77 @@ class ContentPipeline
         // result carries and what the index is built over.
         $finishedTree = $finalizationEvent->tree();
 
+        $this->rejectRepeatedRenderedId($finishedTree);
+
         return new RenderResult(
             $finishedTree,
             $finalizationEvent->layout,
             $collectValueIndex ? $this->indexFactory->create($finishedTree, $lowered->provenance) : null,
         );
+    }
+
+    /**
+     * Element ids are unique across a forest by contract, and every consumer downstream of here addresses an
+     * element by id alone. The stored forest is judged before the lowering, and the pre-prune forest is what
+     * gets judged: a partial render's prune drops whole sibling subtrees and the later target extract drops
+     * every non-target root, so a twin removed by either would go unreported while the response quietly
+     * served one of two ambiguous elements. This is the same stance wiring validation takes on the same
+     * forest, for the same reason.
+     *
+     * A collision with the virtual root is a deliberate throw. The forest handed in here is captured after
+     * the virtual-root wrap, so whenever the render wraps it carries the synthetic wrapper element under the
+     * reserved id {@see VirtualRootWrapper::VIRTUAL_ROOT_ID} (`__page_context_root__`). A stored element
+     * authored under that literal id therefore collides with the wrapper and fails the render.
+     *
+     * The write gate cannot see that particular collision, which is why it lands at render time: the virtual
+     * root is minted during rendering and is never part of a stored tree, so the `StoredTree::validate()` run
+     * on the write path only ever sees the authored elements. A layout carrying the reserved id passes every
+     * write gate and then fails every render that wraps.
+     *
+     * @param list<StoredElement> $forest
+     */
+    private function rejectRepeatedStoredId(array $forest): void
+    {
+        foreach ((new StoredTree($forest))->validate() as $violation) {
+            if ($violation->code !== ViolationCode::DuplicateElementId) {
+                continue;
+            }
+
+            throw ContentSystemException::duplicateElementId($violation->elementId);
+        }
+    }
+
+    /**
+     * The stored check cannot stand in for this one: a finalization listener may hand back a tree of its own,
+     * and that replacement is what the result carries, so a duplicate it introduces is invisible to a check
+     * that ran before the lowering. {@see StoredTree} is stored-side and cannot hold a rendered element, so
+     * the walk is written out here rather than reused.
+     *
+     * @param list<RenderedElement> $forest
+     */
+    private function rejectRepeatedRenderedId(array $forest): void
+    {
+        $seen = [];
+        $this->walkRenderedIds($forest, $seen);
+    }
+
+    /**
+     * @param list<RenderedElement> $elements
+     * @param array<string, true> $seen
+     */
+    private function walkRenderedIds(array $elements, array &$seen): void
+    {
+        foreach ($elements as $element) {
+            if (isset($seen[$element->id])) {
+                throw ContentSystemException::duplicateElementId($element->id);
+            }
+
+            $seen[$element->id] = true;
+
+            foreach ($element->slots as $children) {
+                $this->walkRenderedIds($children, $seen);
+            }
+        }
     }
 
     /**

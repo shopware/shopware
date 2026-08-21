@@ -159,8 +159,13 @@ final readonly class ResolvedValueIndexFactory
     /**
      * Two elements sharing an id would merge their assignments into one entry and serve each other's values,
      * so the walk rejects the second one. Element ids are unique across a forest by contract and the DAL write
-     * enforces it, but the read path validates nothing — and a finalization listener can put back a forest
-     * that repeats one, so the guard belongs on this walk rather than upstream of it.
+     * enforces it, but the read path validates nothing, so this stays a second-layer assertion for DIRECT
+     * callers of the factory. Reached through `ContentPipeline` it is unreachable: the pipeline rejects a
+     * repeated id in the finished forest right after the finalization event and before it calls this factory,
+     * so a listener's duplicate fails there first.
+     *
+     * Kept rather than deleted on purpose. It is an assertion, not dead code: the factory is a public seam a
+     * caller can reach without the pipeline in front of it, and the corruption it names is silent.
      *
      * @param IndexState $state
      */

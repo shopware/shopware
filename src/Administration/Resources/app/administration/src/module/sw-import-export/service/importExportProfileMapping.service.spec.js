@@ -33,7 +33,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     it('uses the product type requirement for the active schema', () => {
         expect(Shopware.EntityDefinition.get('product').properties.type.flags.required).toBe(
-            Shopware.Feature.isActive('v6.8.0.0'),
+            Shopware.Feature.isActive('v6.8.0.0') ? true : undefined,
         );
     });
 

@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Constraint;
 
 /**
  * @phpstan-import-type CustomFieldTypeArray from CustomFieldType
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppScriptConditionEntity extends Entity

@@ -409,8 +409,7 @@ class RegisterRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertEmpty($contextToken);
+        static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);

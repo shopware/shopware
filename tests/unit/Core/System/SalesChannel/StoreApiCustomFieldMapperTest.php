@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(StoreApiCustomFieldMapper::class)]
 class StoreApiCustomFieldMapperTest extends TestCase
 {

@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -196,6 +197,62 @@ class CategoryRouteTest extends TestCase
             $salesChannelContext,
             $request
         );
+    }
+
+    public function testHomeRouteIsTaggedWithNavigationCategoryId(): void
+    {
+        $request = new Request();
+        $category = $this->buildPageCategory(['en']);
+        $cmsPage = $this->buildCmsPage();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setNavigationCategoryId($category->getId());
+        $salesChannel->setNavigationCategoryDepth(2);
+        $salesChannel->setTaxCalculationType(Generator::TAX_CALCULATION_TYPE);
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            new Context(new SalesChannelApiSource(Uuid::randomHex()), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]),
+            salesChannel: $salesChannel,
+        );
+
+        $categoryRepository = $this->createMock(SalesChannelRepository::class);
+        $categoryRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'category',
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $cmsPageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $cmsPageLoader->method('load')->willReturn(new EntitySearchResult(
+            'cms-page',
+            1,
+            new CmsPageCollection([$cmsPage]),
+            null,
+            new Criteria(),
+            $salesChannelContext->getContext(),
+        ));
+
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with(CategoryRoute::buildName($category->getId()));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepository,
+            $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
+            new CategoryDefinition(),
+            $cacheTagCollector,
+        );
+
+        $categoryRoute->load(CategoryRoute::HOME, $request, $salesChannelContext);
     }
 
     private function buildCmsPage(): CmsPageEntity

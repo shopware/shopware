@@ -28,6 +28,24 @@ class EnrichExportCriteriaEventTest extends TestCase
         static::assertSame($context, $event->getContext());
     }
 
+    public function testCriteriaAndLogEntityCanBeReplaced(): void
+    {
+        $criteria = new Criteria();
+        $logEntity = new ImportExportLogEntity();
+        $event = new EnrichExportCriteriaEvent($criteria, $logEntity, Context::createDefaultContext());
+
+        static::assertSame($criteria, $event->getCriteria());
+        static::assertSame($logEntity, $event->getLogEntity());
+
+        $newCriteria = new Criteria();
+        $newLogEntity = new ImportExportLogEntity();
+        $event->setCriteria($newCriteria);
+        $event->setLogEntity($newLogEntity);
+
+        static::assertSame($newCriteria, $event->getCriteria());
+        static::assertSame($newLogEntity, $event->getLogEntity());
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetNullableContextReturnsContextWhenFeatureInactiveAndContextProvided(): void
     {

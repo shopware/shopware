@@ -40,6 +40,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        searchType(): string {
+            if (this.$route.name === 'sw.flow.index.templates') {
+                return 'flow_template';
+            }
+
+            return 'flow';
+        },
+
         flowRepository(): Repository<'flow'> {
             return this.repositoryFactory.create('flow');
         },

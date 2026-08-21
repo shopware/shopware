@@ -4,6 +4,18 @@
 
 <details>
 
+## Composition API extension system is no longer a public entry point
+
+The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
+
+The same applies to the override-component mounting hooks `Shopware.Component.registerOverrideComponent()` and `Shopware.Component.getOverrideComponents()`, which exist so a generated override component can be rendered once, hidden, at boot — that is what causes its setup body to run and register its override callback.
+
+Nothing is removed from the `Shopware.Component` global — generated component code resolves these at runtime — but they are no longer intended to be called directly, and their signatures may change without a deprecation.
+
+Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `attachOverrides(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `overrideComponentSetup()`. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
+
+See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
+
 ## Locale-aware sorting for product property group options
 
 To ensure product property group options are sorted more precisely based on locale code:
@@ -236,19 +248,15 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
 
-## Newsletter route methods removed and response changed
+## Newsletter route methods removed
 
-The following methods have been removed:
+`AbstractNewsletterSubscribeRoute::subscribe()`, `AbstractNewsletterConfirmRoute::confirm()` and
+`AbstractNewsletterUnsubscribeRoute::unsubscribe()` have been removed. Their replacements
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` are now abstract
+and have to be implemented by every class that extends one of those routes.
 
-- `AbstractNewsletterSubscribeRoute::subscribe()`
-- `AbstractNewsletterConfirmRoute::confirm()`
-- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
-
-The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
-
-- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
-- `confirmWithResponse()` returns `SuccessResponse`
-- `unsubscribeWithResponse()` returns `SuccessResponse`
+The return type is `StoreApiResponse`, so an implementation written against 6.7 needs no change. A
+leftover implementation of the removed method is harmless.
 
 ## Removed `/api/_action/mail-template/validate` route
 
@@ -326,6 +334,22 @@ return static function (RoutingConfigurator $routes): void {
 ```
 
 XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
+
+## `ThumbnailService::updateThumbnails()` received a new optional `$force` parameter
+
+`Shopware\Core\Content\Media\Thumbnail\ThumbnailService::updateThumbnails()` received a new optional parameter `bool $force = false` that regenerates thumbnails for all configured sizes even when a thumbnail already exists. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
+```
+
+After:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict, bool $force = false): int
+```
 
 ## Landing page slot config must not be null
 
@@ -1141,6 +1165,10 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 # Administration
 
+## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
+
+The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
 <details>
 
 ### Block removals
@@ -1344,10 +1372,11 @@ This change addresses the security vulnerability CVE-2023-45857 present in older
 **Shopware 6.7.x:**
 - Default: axios 0.30.2
 - Opt-in to v1: `useAxiosV1: true`
+- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
 
 **Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Default: axios 1.x
-- Opt-out to v0: `useAxiosV1: false`
+- Direct HTTP request default: axios 1.x
+- Direct HTTP request opt-out to v0: `useAxiosV1: false`
 
 ### Key differences between axios 0.30.2 and axios 1.x
 
@@ -1385,27 +1414,19 @@ if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
 }
 ```
 
-**Version-Specific Interceptors and Defaults:**
+**Interceptors and Defaults:**
 
-During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
 
 ```javascript
-// Access interceptors for specific version
-httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
-httpClient.interceptorsV1 // Always axios 1.x interceptors
-httpClient.interceptors   // Current default version (v1 in 6.8+)
+const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
+httpClient.defaults.headers.common['my-header'] = 'value';
 
-// Access defaults for specific version
-httpClient.defaultsV0 // Always axios 0.30.2 defaults
-httpClient.defaultsV1 // Always axios 1.x defaults
-httpClient.defaults   // Current default version (v1 in 6.8+)
-
-// Example: Add interceptor to both versions during transition
-httpClient.interceptorsV0.request.use(myRequestHandler);
-httpClient.interceptorsV1.request.use(myRequestHandler);
+// Removes the interceptor from both internal clients
+httpClient.interceptors.request.eject(interceptorId);
 ```
 
-This allows plugins to configure both axios versions simultaneously during the migration period.
+Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
 
 ### Migration guide
 
@@ -1416,7 +1437,7 @@ However, if you use request cancellation or depend on specific axios behavior:
 2. **Test your plugin** with axios v1 before the 6.8 release
 3. **Review error handling** for version-specific error codes
 
-**If you need axios 0.30.2 temporarily:**
+**If a direct HTTP request needs axios 0.30.2 temporarily:**
 ```javascript
 // Explicitly opt-out to use axios 0.30.2
 httpClient.request({
@@ -1433,6 +1454,7 @@ The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
 Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
 ## Removal of "sw-empty-state"
 

@@ -93,7 +93,6 @@ class ServiceWebhookPolicyTest extends TestCase
             appActive: true,
             appVersion: null,
             appSecret: null,
-            appAclRoleId: null,
         );
     }
 

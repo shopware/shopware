@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieConsentLog\CookieConsentLogEntity;
 use Shopware\Core\Content\Cookie\CookieException;
@@ -16,6 +17,8 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Clock\MockClock;
@@ -31,6 +34,8 @@ class CookieConsentLogRouteTest extends TestCase
     private CollectingEventDispatcher $eventDispatcher;
 
     private CookieConsentLogRoute $route;
+
+    private RateLimiter&MockObject $rateLimiter;
 
     /**
      * @var list<array<string, mixed>>
@@ -55,11 +60,14 @@ class CookieConsentLogRouteTest extends TestCase
 
         $this->eventDispatcher = new CollectingEventDispatcher();
 
+        $this->rateLimiter = static::createMock(RateLimiter::class);
+
         $this->route = new CookieConsentLogRoute(
             $cookieRoute,
             $connection,
             $this->eventDispatcher,
             new MockClock('2026-07-13 12:00:00'),
+            $this->rateLimiter,
         );
     }
 
@@ -262,6 +270,61 @@ class CookieConsentLogRouteTest extends TestCase
         ));
 
         $this->log(['consentAction' => 'accept_all', 'renderedConfigHash' => ['not' => 'a-string']]);
+    }
+
+    public function testTheClientIpIsUsedAsRateLimitKey(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::COOKIE_CONSENT_LOG, '203.0.113.7');
+
+        $request = new Request(
+            server: ['REMOTE_ADDR' => '203.0.113.7'],
+            content: (string) json_encode(['consentAction' => 'accept_all']),
+        );
+
+        $this->route->log($request, Generator::generateSalesChannelContext());
+    }
+
+    public function testAnExceededRateLimitStoresNothing(): void
+    {
+        $this->rateLimiter->method('ensureAccepted')
+            ->willThrowException(RateLimiterException::limitExceeded(2_000_000_000));
+
+        $request = new Request(
+            server: ['REMOTE_ADDR' => '203.0.113.7'],
+            content: (string) json_encode(['consentAction' => 'accept_all']),
+        );
+
+        $this->expectException(RateLimiterException::class);
+
+        try {
+            $this->route->log($request, Generator::generateSalesChannelContext());
+        } finally {
+            static::assertSame([], $this->insertedParameters);
+            static::assertSame([], $this->eventDispatcher->getEvents());
+        }
+    }
+
+    public function testTheRateLimitIsCheckedBeforeThePayloadIsParsed(): void
+    {
+        $this->rateLimiter->method('ensureAccepted')
+            ->willThrowException(RateLimiterException::limitExceeded(2_000_000_000));
+
+        // A malformed body must not buy a free request past the limiter
+        $request = new Request(server: ['REMOTE_ADDR' => '203.0.113.7'], content: 'no-json{');
+
+        $this->expectException(RateLimiterException::class);
+
+        $this->route->log($request, Generator::generateSalesChannelContext());
+    }
+
+    public function testARequestWithoutAClientIpIsNotRateLimited(): void
+    {
+        // The limiter is keyed by IP only, so a request without one cannot be attributed
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+
+        $this->log(['consentAction' => 'accept_all']);
     }
 
     /**

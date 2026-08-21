@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -62,6 +63,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ClockInterface $clock,
+        private readonly RateLimiter $rateLimiter,
     ) {
     }
 
@@ -73,6 +75,8 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
     #[Route(path: '/store-api/cookie-consent-log', name: 'store-api.cookie.consent-log', methods: [Request::METHOD_POST])]
     public function log(Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
     {
+        $this->ensureNotRateLimited($request);
+
         $payload = $this->validatePayload($request);
 
         $currentConfig = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
@@ -136,6 +140,22 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         ));
 
         return new NoContentResponse();
+    }
+
+    /**
+     * The route is anonymous and every accepted request inserts a row, so the number of
+     * decisions a single client can write has to be capped. Checked before the payload is
+     * parsed, so malformed requests count against the limit too. The IP is only the limiter
+     * key, it is never stored with the decision.
+     */
+    private function ensureNotRateLimited(Request $request): void
+    {
+        $clientIp = $request->getClientIp();
+        if ($clientIp === null) {
+            return;
+        }
+
+        $this->rateLimiter->ensureAccepted(RateLimiter::COOKIE_CONSENT_LOG, $clientIp);
     }
 
     /**

@@ -14,6 +14,7 @@ The built-in cookie banner now logs every consent decision server-side, so shop 
 - A snapshot of the cookie banner configuration is stored once per configuration hash in the new `cookie_consent_config_version` table, preserving what the banner looked like when consent was given.
 - Both tables are readable through the Admin API (e.g. `POST /api/search/cookie-consent-log`) for compliance exports.
 - The new event `Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent` is dispatched for every logged decision.
+- Both routes are rate limited per client IP (`cookie_consent_log`, 60 requests per 60 seconds, `sliding_window`), because the endpoint is anonymous and every accepted request inserts a row. The IP is only used as the limiter key and is never stored with the decision.
 - The new daily scheduled task `cookie_consent_log.cleanup` deletes log entries older than the retention period, configurable via the `core.cookieConsent.logRetentionDays` system config (default: 120 days, `0` deletes immediately, negative values disable the cleanup), and removes banner snapshots that are no longer referenced.
 - The Store API `/store-api/cookie-groups` response now additionally exposes the translation-independent `technicalName` of each cookie group.
 

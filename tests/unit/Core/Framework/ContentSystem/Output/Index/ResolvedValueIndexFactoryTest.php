@@ -614,6 +614,50 @@ class ResolvedValueIndexFactoryTest extends TestCase
     }
 
     /**
+     * The identity key alone decides a loader-resolved value's ref, so two keys differing only in their inputs
+     * hash stay apart even when their values are equal: one source resolving two inputs to the same string is
+     * two resolutions, and collapsing them would serve the second element the first's.
+     *
+     * Every other distinct-ref test here holds an object, which takes the instance branch and so never reaches
+     * the value-equality scan — which is how a loader miss falling through into that scan went unseen.
+     *
+     * @param string|list<string> $value
+     */
+    #[DataProvider('equalLoaderValueProvider')]
+    #[TestDox('two loader-resolved keys with different identities and equal values get distinct refs')]
+    public function testEqualLoaderValuesUnderDifferentIdentitiesGetDistinctRefs(string|array $value): void
+    {
+        $index = $this->factory()->create(
+            [
+                RenderedElementBuilder::create('Sw:Tile', 'element-1')->withProperty('teaser', $value)->build(),
+                RenderedElementBuilder::create('Sw:Tile', 'element-2')->withProperty('teaser', $value)->build(),
+            ],
+            [
+                'element-1' => ['teaser' => $this->loaderProvenance($value, inputsHash: 'inputs-a')],
+                'element-2' => ['teaser' => $this->loaderProvenance($value, inputsHash: 'inputs-b')],
+            ]
+        );
+
+        $assignments = $index->assignments();
+        static::assertNotSame($assignments['element-1']['teaser'], $assignments['element-2']['teaser']);
+        static::assertSame($value, $index->value($assignments['element-1']['teaser']));
+        static::assertSame($value, $index->value($assignments['element-2']['teaser']));
+        static::assertSame([$value, $value], array_values($index->data()));
+    }
+
+    /**
+     * The two shapes the value-equality scan can answer for: a scalar by `===`, a list positionally. An object
+     * has no place here — it cannot reach the scan at all, which is exactly why this case was missing.
+     *
+     * @return \Generator<string, array{string|list<string>}>
+     */
+    public static function equalLoaderValueProvider(): \Generator
+    {
+        yield 'two equal scalars' => ['a teaser headline'];
+        yield 'two equal lists' => [['first', 'second']];
+    }
+
+    /**
      * @return \Generator<string, array{mixed, mixed, bool}>
      */
     public static function valueEqualityProvider(): \Generator

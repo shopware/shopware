@@ -45,13 +45,15 @@ use Shopware\Core\Framework\Log\Package;
  * - the loader-identity map, keyed on `source|configHash|<identity>` and consulted for `LoaderResolved` keys
  *   only. `<identity>` is the value's `getApiAlias()` and `getUniqueIdentifier()` together for an {@see Entity}
  *   — a uid is unique within an entity type and not across types, so the type is part of the identity — and the
- *   provenance's `inputsHash` otherwise. This rule exclusively owns genuine loader output: on a hit the key governs alone
- *   and no values are compared, because two loads of one thing never hand back one instance — the DAL keeps
+ *   provenance's `inputsHash` otherwise. This rule exclusively owns genuine loader output: the key decides
+ *   alone, a hit reusing the ref it names and a miss minting a fresh one, and no values are compared on
+ *   either path, because two loads of one thing never hand back one instance — the DAL keeps
  *   no identity map, `EntityHydrator::$hydrated` being reset per `hydrate()` call — and neither instance
  *   identity nor value equality can then collapse them. That is what makes two elements loading the same
  *   entity share a ref, and equally what makes two elements loading the same collection, tree or listing
  *   result under one source, config and inputs share a ref.
- * - the instance map, `spl_object_id()` => ref, for every object value whatever its origin. This one is
+ * - the instance map, `spl_object_id()` => ref, consulted for every object value the loader rule does not own
+ *   and written by every ref an object value receives, genuine loader output included. This one is
  *   load-bearing: a context delivery that broadcasts a provider's value hands the child the same PHP
  *   instance — a broadcast is an `array_fill` of one value, and no distribution strategy and no dotted-path
  *   resolution mints an object — so consulting the instance map makes a delivered value share the provider's
@@ -296,6 +298,12 @@ final readonly class ResolvedValueIndexFactory
      * carries, because that comparison is exactly what cannot work here: two loads of one thing yield two
      * instances, so any value-level test would refuse the dedup this rule exists to perform.
      *
+     * Which is why a miss MINTS rather than handing the value to {@see valueRef()}: that path decides by the
+     * value, and two loader-resolved values whose keys differ are two resolutions whatever their values look
+     * like — one loader source resolving two inputs to the same string is not one resolution, and collapsing
+     * the pair would make the second element's key serve the first's resolution. The mint still registers an
+     * object in the instance map, so a later delivery of that very instance keeps sharing this ref.
+     *
      * A null never reaches the key. It is a value with no identity, and every null shares one ref regardless
      * of origin — registering the shared null ref under an identity key would hand it to the next element
      * whose loader resolved that same source, config and inputs to something that is not null.
@@ -329,7 +337,7 @@ final readonly class ResolvedValueIndexFactory
             return $known;
         }
 
-        $ref = $this->valueRef($value, $state);
+        $ref = $this->mintRef($value, $state);
         $state['loaderRefs'][$identityKey] = $ref;
 
         return $ref;

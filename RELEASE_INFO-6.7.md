@@ -101,9 +101,9 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled for the delivery country previously kept the tax exemption only while the VAT ID matched the delivery country's VAT ID pattern, so a customer with a Dutch VAT ID lost it as soon as the delivery address moved to Belgium.
 
-`TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. A country whose VAT ID pattern is not a valid regular expression is now skipped instead of rejecting every VAT ID, so a broken pattern no longer removes the exemption by itself. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
+`TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
 
-`Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained a constructor requiring `Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider`. The constructor is internal API; if you replace the `TaxDetector` service in the container with your own definition, pass the provider as its first argument.
+`Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained an internal constructor taking `VatIdPatternProvider`. If you need to change this behaviour, decorate `AbstractTaxDetector` rather than replacing the `TaxDetector` service.
 
 ### E-invoice line positions state the correct price base quantity
 

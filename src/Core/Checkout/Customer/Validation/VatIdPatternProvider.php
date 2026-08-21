@@ -106,8 +106,8 @@ class VatIdPatternProvider implements ResetInterface
 
     public function matches(string $pattern, string $vatId): bool
     {
-        // A pattern a merchant broke matches nothing, rather than raising a warning on every
-        // VAT ID it is checked against. `getEuPatterns()` drops such a pattern for the same reason.
+        // A pattern a merchant broke matches nothing, rather than spams a warning on every
+        // VAT ID it is checked against
         return @preg_match($this->toRegex($pattern), $vatId) === 1;
     }
 

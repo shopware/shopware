@@ -61,10 +61,6 @@ class CookieRouteTest extends TestCase
         // Verify languageId is included and matches the sales channel context
         static::assertSame($salesChannelContext->getLanguageId(), $response1->getLanguageId());
         static::assertSame($salesChannelContext->getLanguageId(), $response2->getLanguageId());
-
-        // Verify the sales channel domain id is included and matches the sales channel context
-        static::assertSame($salesChannelContext->getDomainId(), $response1->getSalesChannelDomainId());
-        static::assertSame($salesChannelContext->getDomainId(), $response2->getSalesChannelDomainId());
     }
 
     public function testHashChangesWithDifferentCookieConfiguration(): void

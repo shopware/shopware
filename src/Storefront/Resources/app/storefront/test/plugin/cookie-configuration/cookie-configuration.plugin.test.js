@@ -581,13 +581,11 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockFetch).not.toHaveBeenCalled();
         });
 
-        test('shows the banner without clearing shared consent when the current key has no hash yet', async () => {
+        test('shows the cookie bar without clearing consent when no hash exists for the current language', async () => {
             const languageId = 'test-language-id';
-            const currentHash = 'abc123hash';
             const mockApiResponse = {
-                hash: currentHash,
+                hash: 'abc123hash',
                 languageId: languageId,
-                salesChannelDomainId: 'other-domain',
                 elements: [
                     {
                         technicalName: 'required-group',
@@ -603,12 +601,12 @@ describe('CookieConfiguration plugin tests', () => {
                 json: () => Promise.resolve(mockApiResponse)
             });
 
-            // User has already consented on another sales channel sharing this domain.
+            // User has made a choice for another language, but not for this one
             CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
 
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-            const setItemSpy = jest.spyOn(CookieStorage, 'setItem');
 
+            // Mock dispatchEvent to simulate showCookieBar event
             const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation((event) => {
                 if (event.type === 'showCookieBar') {
                     mockCookiePermissionPlugin._setBodyPadding();
@@ -619,18 +617,21 @@ describe('CookieConfiguration plugin tests', () => {
 
             await plugin._checkCookieConfigurationHash();
 
-            // The banner is shown so the user can consent on this sales channel.
-            expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
+            expect(mockFetch).toHaveBeenCalledWith(window.router['frontend.cookie.groups'], {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
 
-            // The shared cookie-preference must NOT be removed - that would re-trigger the banner
-            // on the other sales channel on the domain (issue #19354).
+            // The shared cookie-preference must NOT be removed - that would reset consent given
+            // for another language and re-trigger the banner there.
             expect(removeItemSpy).not.toHaveBeenCalledWith('cookie-preference');
 
-            // The hash is not stored yet: the user has not made a choice on this channel.
-            expect(setItemSpy).not.toHaveBeenCalledWith(plugin.options.cookieConfigHash, expect.anything(), expect.anything());
+            // Cookie bar is shown so the user can consent for this language.
+            expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
 
             removeItemSpy.mockRestore();
-            setItemSpy.mockRestore();
             dispatchEventSpy.mockRestore();
         });
 
@@ -751,108 +752,6 @@ describe('CookieConfiguration plugin tests', () => {
 
             removeItemSpy.mockRestore();
             setItemSpy.mockRestore();
-        });
-
-        test('prompts on a new storefront domain but keeps the other domain consent on a shared host', async () => {
-            const languageId = 'shared-lang';
-            const domainAKey = 'domain-a';
-            const hashB = 'domain-b-hash';
-
-            // Domain A has already been consented on this shared host.
-            CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
-            CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [domainAKey]: 'domain-a-hash' }), '30');
-
-            // Now the user navigates to domain B (same host, different storefront/cookie config).
-            mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve({
-                    hash: hashB,
-                    languageId,
-                    salesChannelDomainId: 'domain-b',
-                    elements: [],
-                }),
-            });
-
-            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-
-            const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation((event) => {
-                if (event.type === 'showCookieBar') {
-                    mockCookiePermissionPlugin._showCookieBar();
-                }
-                return true;
-            });
-
-            await plugin._checkCookieConfigurationHash();
-
-            // The banner is shown so the user can consent on domain B ...
-            expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
-
-            // ... but domain A's consent (shared cookie-preference and its stored hash) is untouched,
-            // so navigating back to domain A does not reset or re-prompt.
-            expect(removeItemSpy).not.toHaveBeenCalledWith('cookie-preference');
-            const stored = JSON.parse(CookieStorage.getItem(plugin.options.cookieConfigHash));
-            expect(stored[domainAKey]).toBe('domain-a-hash');
-
-            removeItemSpy.mockRestore();
-            dispatchEventSpy.mockRestore();
-        });
-
-        test('does not reset when the current storefront domain hash still matches', async () => {
-            const languageId = 'shared-lang';
-            const domainKey = 'domain-a';
-            const hash = 'domain-a-hash';
-
-            CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
-            CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [domainKey]: hash }), '30');
-
-            mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve({
-                    hash,
-                    languageId,
-                    salesChannelDomainId: 'domain-a',
-                    elements: [],
-                }),
-            });
-
-            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-
-            await plugin._checkCookieConfigurationHash();
-
-            expect(removeItemSpy).not.toHaveBeenCalled();
-            expect(mockCookiePermissionPlugin._showCookieBar).not.toHaveBeenCalled();
-
-            removeItemSpy.mockRestore();
-        });
-
-        test('recognizes consent stored under the language id before per-domain keying (upgrade)', async () => {
-            const languageId = 'legacy-lang';
-            const hash = 'legacy-hash';
-
-            // Consent stored the old way: keyed by language id, no sales channel domain key.
-            CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
-            CookieStorage.setItem(plugin.options.cookieConfigHash, JSON.stringify({ [languageId]: hash }), '30');
-
-            mockFetch.mockResolvedValueOnce({
-                json: () => Promise.resolve({
-                    hash,
-                    languageId,
-                    salesChannelDomainId: 'domain-a',
-                    elements: [],
-                }),
-            });
-
-            const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-
-            await plugin._checkCookieConfigurationHash();
-
-            // The previous consent must be recognized: no reset, no banner.
-            expect(removeItemSpy).not.toHaveBeenCalled();
-            expect(mockCookiePermissionPlugin._showCookieBar).not.toHaveBeenCalled();
-
-            // It is migrated forward to the sales channel domain key.
-            const stored = JSON.parse(CookieStorage.getItem(plugin.options.cookieConfigHash));
-            expect(stored['domain-a']).toBe(hash);
-
-            removeItemSpy.mockRestore();
         });
 
         test('handles API errors gracefully', async () => {
@@ -1747,15 +1646,6 @@ describe('CookieConfiguration plugin tests', () => {
     describe('Per-language hash storage helpers', () => {
         afterEach(() => {
             jest.restoreAllMocks();
-        });
-
-        test.each([
-            ['sales channel domain id when present', { salesChannelDomainId: 'domain-1', languageId: 'lang-1' }, 'domain-1'],
-            ['language id when domain id missing', { languageId: 'lang-1' }, 'lang-1'],
-            ['language id when domain id empty', { salesChannelDomainId: '', languageId: 'lang-1' }, 'lang-1'],
-            ['empty string when nothing provided', {}, ''],
-        ])('_getStorageKey builds %s', (_name, data, expected) => {
-            expect(plugin._getStorageKey(data)).toBe(expected);
         });
 
         test.each([

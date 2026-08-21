@@ -236,6 +236,7 @@ class StateMachineRegistry implements ResetInterface
 
     private function resolveSourceType(ContextSource $source): ?string
     {
+        // read from the source itself, so a custom ContextSource can contribute its own type
         $type = get_object_vars($source)['type'] ?? null;
 
         return \is_string($type) ? $type : null;

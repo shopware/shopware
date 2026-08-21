@@ -44,6 +44,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ContextTokenSessionWriter $contextTokenSessionWriter,
     ) {
     }
 
@@ -131,53 +132,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function updateSessionAfterLogin(CustomerLoginEvent $event): void
     {
-        $token = $event->getContextToken();
-
-        $this->updateSession($token);
+        $this->contextTokenSessionWriter->write($event->getContextToken());
     }
 
     public function updateSessionAfterLogout(): void
     {
-        $newToken = Random::getAlphanumericString(32);
-
-        $this->updateSession($newToken, true);
-    }
-
-    public function updateSession(string $token, bool $destroyOldSession = false): void
-    {
-        $mainRequest = $this->requestStack->getMainRequest();
-        if (!$mainRequest) {
-            return;
-        }
-        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-        if (!\in_array(StorefrontRouteScope::ID, $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []), true)) {
-            return;
-        }
-
-        // Storefront sessions are started during kernel.request, before customer login and logout events are dispatched.
-        if (!$mainRequest->hasSession(true)) {
-            return;
-        }
-
-        $session = $mainRequest->getSession();
-        $session->migrate($destroyOldSession);
-        $session->set('sessionId', $session->getId());
-
-        // When customer binding is enabled, store tokens per sales channel
-        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
-        if ($bindingEnabled) {
-            $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-            if ($salesChannelId) {
-                $tokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
-                $session->set($tokenKey, $token);
-            }
-        }
-
-        // Always set the default key for backward compatibility
-        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $this->contextTokenSessionWriter->write(Random::getAlphanumericString(32), true);
     }
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
@@ -264,7 +224,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->updateSession($context->getToken());
+        $this->contextTokenSessionWriter->write($context->getToken());
     }
 
     private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null, ?string $tokenKey = null): bool

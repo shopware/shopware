@@ -93,6 +93,27 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'Could not find payment method with id "myCustomPaymentMethod"',
         ];
 
+        yield SalesChannelException::CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED => [
+            'exception' => SalesChannelException::contextHandoffTokenExpiredOrConsumed(),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => SalesChannelException::CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED,
+            'message' => 'The context handoff token is expired or was already consumed.',
+        ];
+
+        yield SalesChannelException::CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH => [
+            'exception' => SalesChannelException::contextHandoffSalesChannelMismatch(),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => SalesChannelException::CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH,
+            'message' => 'The context handoff token was not issued for the requested sales channel.',
+        ];
+
+        yield SalesChannelException::CONTEXT_HANDOFF_THROTTLED => [
+            'exception' => SalesChannelException::contextHandoffThrottled(42),
+            'statusCode' => Response::HTTP_TOO_MANY_REQUESTS,
+            'errorCode' => SalesChannelException::CONTEXT_HANDOFF_THROTTLED,
+            'message' => 'Too many context handoff token requests, try again in 42 seconds.',
+        ];
+
         yield SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE => [
             'exception' => SalesChannelException::contextTokenNotAccessible(),
             'statusCode' => Response::HTTP_BAD_REQUEST,

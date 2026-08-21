@@ -229,6 +229,110 @@
                     }
                 ]
             }
+        },
+        "/context/handoff/generate": {
+            "post": {
+                "tags": [
+                    "System & Context"
+                ],
+                "summary": "Generate a context handoff token",
+                "description": "Creates a short lived, single use handoff token for the current context. The token can be redeemed once via `/context/handoff/redeem` to continue the same context in another client, without ever transferring the raw `sw-context-token`.",
+                "operationId": "generateContextHandoffToken",
+                "responses": {
+                    "200": {
+                        "description": "Returns the handoff token and the point in time it expires at.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "token",
+                                        "expiresAt"
+                                    ],
+                                    "properties": {
+                                        "token": {
+                                            "description": "The signed handoff token.",
+                                            "type": "string",
+                                            "format": "jwt"
+                                        },
+                                        "expiresAt": {
+                                            "description": "Expiration date of the handoff token.",
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `sw-context-token` header is missing."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many handoff tokens were requested from this client."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ]
+            }
+        },
+        "/context/handoff/redeem": {
+            "post": {
+                "tags": [
+                    "System & Context"
+                ],
+                "summary": "Redeem a context handoff token",
+                "description": "Exchanges a handoff token for the context it refers to. The resolved context token is returned in the `sw-context-token` header. A handoff token can only be redeemed once.",
+                "operationId": "redeemContextHandoffToken",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "description": "The handoff token that was created via `/context/handoff/generate`.",
+                                        "type": "string",
+                                        "format": "jwt"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The handoff token is invalid. The `errors[].code` tells the cases apart: `UTIL__INVALID_JWT` (malformed, unsigned or expired token), `SYSTEM__CONTEXT_HANDOFF_TOKEN_EXPIRED_OR_CONSUMED` (already redeemed or no longer known) and `SYSTEM__CONTEXT_HANDOFF_SALES_CHANNEL_MISMATCH` (issued for another sales channel)."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
         }
     }
 }

@@ -41,6 +41,8 @@ class RateLimiter
 
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
+    final public const CONTEXT_HANDOFF = 'context_handoff';
+
     /**
      * @var array<string, RateLimiterFactory>
      */

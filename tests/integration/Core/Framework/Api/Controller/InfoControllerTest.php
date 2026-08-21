@@ -85,6 +85,8 @@ class InfoControllerTest extends TestCase
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
                 'firstMigrationDate' => null,
+                // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+                'disableUiShellUpdateModal' => false,
                 'private_allowed_extensions' => [
                     'jpg',
                     'jpeg',

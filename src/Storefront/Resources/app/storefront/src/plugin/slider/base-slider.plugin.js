@@ -168,6 +168,10 @@ export default class BaseSliderPlugin extends Plugin {
     getActiveSlideElement() {
         const info = this._slider.getInfo();
 
+        if (!info.slideItems) {
+            return undefined;
+        }
+
         return info.slideItems[info.displayIndex];
     }
 

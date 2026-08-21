@@ -1,0 +1,13 @@
+.sw-experience-studio-media-collection-field {
+    display: flex;
+    flex-direction: column;
+
+    // More dense appearance for media upload so it fits in the sidebar
+    .sw-media-upload-v2 .sw-media-upload-v2__button {
+        min-width: 0;
+    }
+
+    .sw-media-upload-v2__dropzone.is--multi {
+        padding: var(--scale-size-16);
+    }
+}

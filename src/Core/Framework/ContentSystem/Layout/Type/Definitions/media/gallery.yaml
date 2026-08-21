@@ -1,0 +1,85 @@
+meta:
+  label: "Gallery"
+  description: "Media gallery element showing multiple images with thumbnail navigation."
+  icon: "image-text"
+  category: "content"
+  copilot:
+    summary: "Media gallery element."
+    hints:
+      - "Requires one or more media entities."
+
+properties:
+  mediaItems:
+    type: Shopware\Core\Content\Media\MediaCollection
+    required: true
+    title: "Media"
+    description: "The images to be shown in the gallery."
+    resolvedBy: mediaIds
+    adminUI:
+      component: "media-collection"
+
+  displayMode:
+    type: string
+    title: "Display Mode"
+    description: "How the gallery images are sized."
+    default: "auto"
+    enum:
+      - "auto"
+      - "fixedHeight"
+    adminUI:
+      component: "select"
+
+  maxHeight:
+    type: integer
+    required: false
+    title: "Max Height"
+    description: "Maximum image height in px, used in fixed height mode."
+    default: null
+    adminUI:
+      component: "number"
+      visibleWhen:
+        field: "displayMode"
+        equals: "fixedHeight"
+
+  thumbnailSize:
+    type: integer
+    title: "Thumbnail Size"
+    description: "Size of the thumbnails navigation images in px."
+    default: 70
+    adminUI:
+      component: "number"
+
+  thumbnailNavigationPosition:
+    type: string
+    title: "Thumbnail Navigation Position"
+    description: "Position of the thumbnail navigation."
+    default: "left"
+    enum:
+      - "left"
+      - "bottom"
+    adminUI:
+      component: "select"
+
+  showNavigationArrows:
+    type: boolean
+    title: "Show Navigation Arrows"
+    description: "Show the navigation arrows."
+    default: true
+
+  showMagnifier:
+    type: boolean
+    title: "Show Magnifier"
+    description: "Show the magnifier when hovering over the images."
+    default: true
+
+  showFullScreenGallery:
+    type: boolean
+    title: "Show Fullscreen Gallery"
+    description: "Show the fullscreen gallery when clicking on the images."
+    default: true
+
+  autoplayVideos:
+    type: boolean
+    title: "Autoplay Videos"
+    description: "Automatically play videos shown in the gallery."
+    default: true

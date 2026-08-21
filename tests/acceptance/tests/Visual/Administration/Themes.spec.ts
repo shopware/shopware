@@ -1,5 +1,4 @@
 import { test, assertScreenshot, setViewport, replaceElements } from '@fixtures/AcceptanceTest';
-import { collapseAdminMenu } from '@helpers/admin-menu-helpers';
 
 test(
     'Visual: Administration themes page',
@@ -7,7 +6,6 @@ test(
     async ({ ShopAdmin, AdminThemesListing, AdminThemesDetail }) => {
         await test.step('Creates a screenshot of the themes page.', async () => {
             await ShopAdmin.goesTo(AdminThemesListing.url());
-            await collapseAdminMenu(AdminThemesListing.page);
             await setViewport(AdminThemesListing.page, {
                 waitForSelector: AdminThemesListing.installedTheme('Shopware default theme'),
             });

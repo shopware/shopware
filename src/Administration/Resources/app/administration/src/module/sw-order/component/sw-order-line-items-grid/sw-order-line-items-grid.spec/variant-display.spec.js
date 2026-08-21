@@ -125,9 +125,24 @@ describe('module/sw-order/component/sw-order-line-items-grid/variant-display', (
         expect(specifications[1].text()).toContain('L');
     });
 
-    it('still shows the variant characteristics when the product has been deleted', async () => {
-        // deleting a product sets `order_line_item.product_id` to null, the payload is kept
-        const wrapper = await createWrapper([createProductItem({ productId: null })]);
+    // sw-order-detail converts line items whose product was deleted into custom items on page
+    // load, so this is the state the grid actually receives for a deleted product.
+    it('still shows the variant characteristics of a converted product line item', async () => {
+        const wrapper = await createWrapper([
+            createProductItem({
+                type: 'custom',
+                productId: null,
+                referencedId: null,
+                payload: {
+                    options: [
+                        { group: 'Color', option: 'Red' },
+                        { group: 'Size', option: 'L' },
+                    ],
+                    productNumber: 'product number',
+                    isConvertedProductLineItem: true,
+                },
+            }),
+        ]);
         const label = wrapper.find('.sw-data-grid__row--0').find('.sw-data-grid__cell--label');
 
         expect(label.find('.router-link').exists()).toBe(false);
@@ -142,9 +157,19 @@ describe('module/sw-order/component/sw-order-line-items-grid/variant-display', (
         expect(specifications[1].text()).toContain('L');
     });
 
+    it('shows only the label for a custom item without variant options', async () => {
+        const wrapper = await createWrapper([
+            createProductItem({ type: 'custom', productId: null, referencedId: null, payload: [] }),
+        ]);
+        const label = wrapper.find('.sw-data-grid__row--0').find('.sw-data-grid__cell--label');
+
+        expect(label.find('.sw-order-line-items-grid__item-label').text()).toBe('Product item');
+        expect(label.find('.sw-product-variant-info').exists()).toBe(false);
+    });
+
     it('shows only the label for a product item without variant options', async () => {
         const wrapper = await createWrapper([
-            createProductItem({ productId: null, payload: { productNumber: 'product number' } }),
+            createProductItem({ payload: { productNumber: 'product number' } }),
         ]);
         const label = wrapper.find('.sw-data-grid__row--0').find('.sw-data-grid__cell--label');
 

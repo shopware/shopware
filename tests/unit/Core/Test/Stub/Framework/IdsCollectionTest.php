@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Test\Stub\Framework;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,7 +12,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(IdsCollection::class)]
+#[CoversNothing]
 class IdsCollectionTest extends TestCase
 {
     public function testIdsCollection(): void

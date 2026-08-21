@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Test\Filesystem\Adapter;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(MemoryAdapterFactory::class)]
+#[CoversNothing]
 class MemoryAdapterFactoryTest extends TestCase
 {
     protected function setUp(): void

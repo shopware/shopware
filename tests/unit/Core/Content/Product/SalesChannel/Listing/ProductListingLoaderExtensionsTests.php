@@ -29,8 +29,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(ResolveListingIdsExample::class)]
-#[CoversClass(ResolveListingExample::class)]
 #[CoversClass(ResolveListingExtension::class)]
 #[CoversClass(ResolveListingIdsExtension::class)]
 class ProductListingLoaderExtensionsTests extends TestCase

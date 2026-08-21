@@ -35,7 +35,9 @@
             <file>src/Core/DevOps/StaticAnalyze/console-application.php</file>
             <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
             <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
-            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
+            <!-- untested metric value objects, pending backfill -->
+            <file>src/Core/Framework/Telemetry/Metrics/Metric/ConfiguredMetric.php</file>
+            <file>src/Core/Framework/Telemetry/Metrics/Metric/Type.php</file>
 
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
@@ -44,7 +46,30 @@
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Migration/Traits</directory>
-            <directory suffix=".php">src/Core/Test</directory>
+            <directory suffix=".php">src/Core/Test/Annotation</directory>
+            <directory suffix=".php">src/Core/Test/Assert</directory>
+            <directory suffix=".php">src/Core/Test/Constraint</directory>
+            <directory suffix=".php">src/Core/Test/Integration</directory>
+            <directory suffix=".php">src/Core/Test/Stub</directory>
+            <file>src/Core/Test/AppSystemTestBehaviour.php</file>
+            <file>src/Core/Test/FixtureLoader.php</file>
+            <file>src/Core/Test/Generator.php</file>
+            <file>src/Core/Test/TestBuilderTrait.php</file>
+            <file>src/Core/Test/TestDefaults.php</file>
+            <!-- untested phpunit extension machinery, pending backfill -->
+            <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/DatabaseDiffExtension.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/Subscriber/BeforeTestMethodCalledSubscriber.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/Subscriber/TestFinishedSubscriber.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogExtension.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogPayload.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogPayloadCollection.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/Gateway/DatadogGateway.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/Subscriber/TestFailedSubscriber.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/Subscriber/TestFinishedSubscriber.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/Subscriber/TestPreparedSubscriber.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/FeatureFlag/SavedConfig.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/FeatureFlag/Subscriber/TestFinishedSubscriber.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/FeatureFlag/Subscriber/TestSkippedSubscriber.php</file>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
 

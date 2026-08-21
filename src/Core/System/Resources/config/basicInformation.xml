@@ -43,6 +43,15 @@
             <helpText lang="de-DE">Setzt den Metatag "isFamilyFriendly" für Suchmaschinen</helpText>
         </input-field>
 
+        <component name="sw-entity-single-select">
+            <name>sellerCountryId</name>
+            <entity>country</entity>
+            <label>Shop owner's country</label>
+            <label lang="de-DE">Shopbetreiber-Land</label>
+            <placeholder>Select a country...</placeholder>
+            <placeholder lang="de-DE">Land auswählen ...</placeholder>
+        </component>
+
         <input-field type="text-editor">
             <name>address</name>
             <label>Shop owner's address</label>

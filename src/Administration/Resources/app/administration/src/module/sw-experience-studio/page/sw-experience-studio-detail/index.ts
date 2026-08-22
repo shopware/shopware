@@ -19,7 +19,6 @@ import type {
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
     findElementLocation,
-    sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
@@ -312,10 +311,6 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        sanitizeLayoutForWrite(layout: ContentElementNode[]): ContentElementNode[] {
-            return sanitizeContentElementLayoutForWrite(layout, this.styleOptionStore.optionsByName);
-        },
-
         async loadLayout(): Promise<void> {
             this.isLoading = true;
 
@@ -713,7 +708,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.editorStore.pushToHistory(layoutElements, this.selectedElementId);
-            this.layout.layout = this.sanitizeLayoutForWrite(workingLayout);
+            this.layout.layout = workingLayout;
 
             if (result.selectedElementId !== undefined) {
                 this.selectedElementId = result.selectedElementId;
@@ -951,7 +946,8 @@ export default Shopware.Component.wrapComponentConfig({
             operationPayload: Record<string, unknown>,
         ): Record<string, unknown> {
             return {
-                layout: this.sanitizeLayoutForWrite(layout),
+                // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+                layout: cloneDeep(layout),
                 rootSource: this.resolveMutationRootSource(),
                 ...operationPayload,
             };
@@ -1005,7 +1001,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
-                this.layout.layout = this.sanitizeLayoutForWrite(response.layout);
+                this.layout.layout = response.layout;
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
@@ -1232,7 +1228,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const layout = this.layout;
-            layout.layout = this.sanitizeLayoutForWrite(layout.layout);
+            // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+            layout.layout = cloneDeep(layout.layout);
 
             this.isLoading = true;
 

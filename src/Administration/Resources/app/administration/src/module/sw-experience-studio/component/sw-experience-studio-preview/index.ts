@@ -1,8 +1,9 @@
 import template from './sw-experience-studio-preview.html.twig';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentLayoutEntity } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
-import { sanitizeContentElementLayoutForWrite } from 'src/module/sw-experience-studio/util/content-element.util';
 import './sw-experience-studio-preview.scss';
+
+const { cloneDeep } = Shopware.Utils.object;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
 
@@ -499,11 +500,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.previewLoadError = null;
 
             try {
-                const styleOptions = this.styleOptions as Record<string, ContentSystemStyleOptionSpecification>;
-                const previewLayout = sanitizeContentElementLayoutForWrite(
-                    serializedLayout,
-                    styleOptions,
-                );
+                // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+                const previewLayout = cloneDeep(serializedLayout);
 
                 const previewUrl = await previewService.previewEntityUrl({
                     layout: previewLayout,

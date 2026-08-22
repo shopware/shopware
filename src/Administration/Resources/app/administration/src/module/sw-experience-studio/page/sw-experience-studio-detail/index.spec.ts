@@ -113,8 +113,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
         const vm = {
             resolveMutationRootSource: () => null,
-            // Identity stub; delete with the write sanitizer.
-            sanitizeLayoutForWrite: (layout: ContentElementNode[]) => layout,
         };
 
         const payload = methods.createDraftMutationPayload.call(
@@ -129,6 +127,27 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             layout: [element],
             rootSource: null,
             type: 'Sw:Content:Text',
+        });
+    });
+
+    it('carries attributed specification values into the draft mutation request body', () => {
+        const element: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            attributedSpecifications: {
+                'Sw:Content:Text': 'SwagBlog',
+                headline: 'SwagPromotion',
+            },
+        };
+        const vm = {
+            resolveMutationRootSource: () => null,
+        };
+
+        const payload = methods.createDraftMutationPayload.call(vm, [element], {}) as { layout: ContentElementNode[] };
+
+        expect(payload.layout[0].attributedSpecifications).toEqual({
+            'Sw:Content:Text': 'SwagBlog',
+            headline: 'SwagPromotion',
         });
     });
 
@@ -223,8 +242,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             editorStore: {
                 pushToHistory,
             },
-            // Identity stub; delete with the write sanitizer.
-            sanitizeLayoutForWrite: (layout: ContentElementNode[]) => layout,
             requestDraftMutation: jest.fn().mockResolvedValue({
                 layout: [respondedElement],
                 resolutions: {},
@@ -278,8 +295,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             editorStore: {
                 pushToHistory: jest.fn(),
             },
-            // Identity stub; delete with the write sanitizer.
-            sanitizeLayoutForWrite: (layout: ContentElementNode[]) => layout,
             requestDraftMutation: jest
                 .fn()
                 .mockImplementationOnce(() => new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {

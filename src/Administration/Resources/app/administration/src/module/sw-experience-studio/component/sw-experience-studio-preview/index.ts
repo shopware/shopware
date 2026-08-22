@@ -1,5 +1,4 @@
 import template from './sw-experience-studio-preview.html.twig';
-import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentLayoutEntity } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import './sw-experience-studio-preview.scss';
 
@@ -76,11 +75,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
-        },
-        styleOptions: {
-            type: Object as PropType<Record<string, ContentSystemStyleOptionSpecification>>,
-            required: false,
-            default: () => ({}),
         },
     },
 

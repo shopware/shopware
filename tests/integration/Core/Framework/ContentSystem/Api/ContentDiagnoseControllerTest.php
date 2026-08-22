@@ -69,6 +69,30 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame('definitely-not-a-style-option', $violations[0]['key']);
     }
 
+    #[TestDox('reports a numeric wiring key as an invalid_config violation attributed to the offending element')]
+    public function testDiagnoseReportsNumericWiringKeyAsInvalidConfigViolation(): void
+    {
+        $elementId = $this->ids->get('element');
+        $element = [
+            'id' => $elementId,
+            'component' => $this->registeredComponent(),
+            'properties' => [1 => 'x'],
+        ];
+
+        $body = $this->diagnose(['layout' => [$element]]);
+
+        static::assertFalse($body['diagnostics']['wellFormed']);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'invalid_config',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame($elementId, $violations[0]['elementId']);
+        static::assertSame('Element property map key must be string, got int', $violations[0]['message']);
+    }
+
     #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
     public function testDiagnoseWithRootSource(): void
     {

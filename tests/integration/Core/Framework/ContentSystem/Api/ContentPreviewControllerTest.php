@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -133,6 +134,65 @@ class ContentPreviewControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
         static::assertStringContainsString('CONTENT_SYSTEM__ELEMENT_TYPES_INVALID', (string) $response->getContent());
         static::assertStringContainsString('definitely-not-a-style-option', (string) $response->getContent());
+    }
+
+    #[TestDox('rejects a numeric wiring key in the draft layout with a 400 invalidLayoutStructure before rendering')]
+    public function testPreviewReturns400ForNumericWiringKey(): void
+    {
+        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
+        $component = array_key_first($registered);
+        static::assertIsString($component);
+
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => $component,
+                'properties' => [1 => 'x'],
+            ]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_LAYOUT_STRUCTURE, array_column($body['errors'], 'code'));
+    }
+
+    #[TestDox('previewUrl rejects a numeric wiring key with 400 invalidLayoutStructure')]
+    public function testPreviewUrlReturns400ForNumericWiringKey(): void
+    {
+        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
+        $component = array_key_first($registered);
+        static::assertIsString($component);
+
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => $component,
+                'properties' => [1 => 'x'],
+            ]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_LAYOUT_STRUCTURE, array_column($body['errors'], 'code'));
+        // ContentPreviewController::previewUrl (57,59) calls build() then store() with no branch between
+        // them, and build() decodes the layout at ContentPreviewPageBuilder::build (64) before anything
+        // else runs — a numeric wiring key throws there, so a 400 carrying no "url" is the observable
+        // signature that decode ran and store never did.
+        // Residual: this does not observe the payload store directly, so a future reordering that stored
+        // before decoding would not be caught by this test.
+        static::assertStringNotContainsString('"url"', (string) $response->getContent());
     }
 
     #[TestDox('previewUrl rejects an unregistered component with 400 and mints no token')]

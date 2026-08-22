@@ -187,6 +187,27 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
+    #[TestDox('rejects a numeric wiring key in the draft layout with a 400 invalidLayoutStructure before any mutation runs')]
+    public function testNumericWiringKeyReturns400(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'remove-element', [
+            'layout' => [[
+                'id' => 'block-a',
+                'component' => $component,
+                'properties' => [1 => 'x'],
+            ]],
+            'elementId' => 'block-a',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::INVALID_LAYOUT_STRUCTURE, array_column($body['errors'], 'code'));
+    }
+
     #[TestDox('rejects non-string wrap target ids at the request boundary with a 400')]
     public function testWrapRejectsNonStringElementIds(): void
     {

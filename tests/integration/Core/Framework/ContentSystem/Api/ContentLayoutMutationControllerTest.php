@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\Collection;
 
 /**
  * @internal
@@ -493,6 +494,45 @@ class ContentLayoutMutationControllerTest extends TestCase
         // the bump and its updated_at is unchanged, so the mismatched insert persisted nothing
         static::assertCount(2, $this->layoutIds($layoutId));
         static::assertEquals($before, $this->reload($layoutId)->getUpdatedAt());
+    }
+
+    #[TestDox('rejects a persisted attach carrying an unknown style option via the DAL write\'s extra-fields violation, without ever reaching the diagnostics gate')]
+    public function testAttachElementWithUnknownStyleOptionIsRejectedByDalConstraintNotDiagnostics(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        // StoredElementCodec::decodeStyle() is registry-free: an unknown style option rides through decode
+        // verbatim (see Layout/Element/Style/AGENTS.md), so this element passes DraftLayoutDecoder::decodeOne()
+        // unrejected and only meets a gate once PersistedLayoutMutator commits the mutated tree through the DAL.
+        $incoming = $this->element('incoming', TestElementTypeLoader::RESOLVABLE);
+        $incoming['style'] = ['definitely-not-a-style-option' => ['xs' => 'x']];
+
+        $this->request('attach-element', $layoutId, [
+            'element' => $incoming,
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $codes = array_column($body['errors'], 'code');
+        $details = array_column($body['errors'], 'detail');
+
+        // (A) rejection is named specifically as the style constraint's extra-fields violation (Symfony
+        // Collection::allowExtraFields: false on Layout/Codec/StoredTreeConstraints::styleConstraints()),
+        // not merely "some 400 happened".
+        static::assertContains(Collection::NO_SUCH_FIELD_ERROR, $codes, (string) $response->getContent());
+        static::assertContains('This field was not expected.', $details, (string) $response->getContent());
+
+        // (B) the diagnostics gate never ran: no diagnostics report in the body at all, and specifically no
+        // unknown_style_option violation anywhere in the error list — the precedence pin, not a duplicate of
+        // the DAL-write-level rejection already covered by ElementStylePersistenceTest::testRejectsUnknownStyleOption.
+        static::assertArrayNotHasKey('diagnostics', $body);
+        static::assertNotContains(ViolationCode::UnknownStyleOption->value, $codes);
+
+        // nothing was written: the attach never landed
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
     /**

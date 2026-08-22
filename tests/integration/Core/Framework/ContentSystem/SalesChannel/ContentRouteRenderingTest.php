@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -221,6 +222,22 @@ class ContentRouteRenderingTest extends TestCase
         // `createdAt`, `updatedAt` and `path` are ApiAware on media and legitimately survive the gate: this
         // test pins what protection removes, not everything an entity may say.
         static::assertArrayHasKey('createdAt', $media);
+    }
+
+    #[TestDox('carries the media entity\'s encoded url on a full-format property')]
+    public function testFullFormatCarriesMediaUrl(): void
+    {
+        $this->createNestedLayout();
+
+        $expectedUrl = $this->independentlyLoadedMediaUrl();
+        // The fixture media is public with a path, so the DAL's own runtime computation of `url` really
+        // produced a value; a same-empty-string comparison below would otherwise pass vacuously.
+        static::assertNotSame('', $expectedUrl);
+
+        $media = $this->fullFormatMediaPayload();
+
+        static::assertArrayHasKey('url', $media);
+        static::assertSame($expectedUrl, $media['url']);
     }
 
     #[TestDox('serves the same full-format body whether or not the request asks for a field selection')]
@@ -746,6 +763,25 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame($this->ids->get('image'), $image->id);
 
         return $image->dataRequirements;
+    }
+
+    /**
+     * The fixture image's `url` as an independent `media.repository` search hands it back, read through a
+     * fresh search rather than through anything the content route's rendering pipeline itself calls. `url` is
+     * a Runtime, ApiAware field computed at read time from `path`/`private`/`updatedAt` (falling back to
+     * `createdAt`), so its value carries a per-run timestamp; reading it off a second, independent load of the
+     * same persisted entity keeps that timestamp matching by construction instead of stripping it.
+     */
+    private function independentlyLoadedMediaUrl(): string
+    {
+        $media = $this->repository('media.repository')
+            ->search(new Criteria([$this->ids->get('media')]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+
+        return $media->getUrl();
     }
 
     /**

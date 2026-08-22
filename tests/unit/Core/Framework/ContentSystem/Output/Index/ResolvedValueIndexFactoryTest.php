@@ -9,6 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentity;
@@ -22,6 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\RenderedElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubExtractorEntity;
+use Shopware\Core\Test\Stub\ContentSystem\StubPathStruct;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 
 /**
@@ -391,6 +398,142 @@ class ResolvedValueIndexFactoryTest extends TestCase
         static::assertCount(2, $index->data());
     }
 
+    /**
+     * A keyed distribution picks one entry out of the provider's map, so the child holds an entry and the
+     * parent holds the map. Two different values, two refs — the complement of
+     * {@see testBroadcastDeliverySharesTheProviderRef}, where the child holds the provider's own instance.
+     *
+     * The delivered value comes out of the real
+     * {@see KeyedDistributionConfig::distribute()} rather than being written by hand, so what the index sees
+     * is what the strategy actually produces.
+     */
+    #[TestDox('a keyed delivery holds a selected entry, not the provider map, and takes its own ref')]
+    public function testKeyedDeliveryTakesItsOwnRef(): void
+    {
+        $left = new StubStruct();
+        $right = new StubStruct();
+        $providerValue = ['left' => $left, 'right' => $right];
+
+        $delivered = KeyedDistributionConfig::simple()->distribute(
+            $providerValue,
+            [$this->consumer(['data_key' => 'right'])]
+        )[0];
+        static::assertSame($right, $delivered);
+
+        $this->assertDeliveredValueTakesItsOwnRef($providerValue, $delivered);
+    }
+
+    /**
+     * The same for a `keyProperty` other than the default. The consumer carries BOTH keys and they name
+     * different entries, so a strategy that ignored the configured key would deliver `$left` and the
+     * precondition below would catch it before the ref assertions run.
+     */
+    #[TestDox('a keyed delivery under a custom keyProperty selects by that key and takes its own ref')]
+    public function testKeyedDeliveryWithCustomKeyPropertyTakesItsOwnRef(): void
+    {
+        $left = new StubStruct();
+        $right = new StubStruct();
+        $providerValue = ['left' => $left, 'right' => $right];
+
+        $delivered = KeyedDistributionConfig::fromArray(['keyProperty' => 'slot_name'])->distribute(
+            $providerValue,
+            [$this->consumer(['slot_name' => 'right', 'data_key' => 'left'])]
+        )[0];
+        static::assertSame($right, $delivered);
+
+        $this->assertDeliveredValueTakesItsOwnRef($providerValue, $delivered);
+    }
+
+    /**
+     * An indexed distribution hands each consumer the item at its own position, so the child again holds an
+     * item while the parent holds the list.
+     */
+    #[TestDox('an indexed delivery holds one positional item, not the provider list, and takes its own ref')]
+    public function testIndexedDeliveryTakesItsOwnRef(): void
+    {
+        $first = new StubStruct();
+        $second = new StubStruct();
+        $providerValue = [$first, $second];
+
+        $delivered = IndexedDistributionConfig::simple()->distribute(
+            $providerValue,
+            [$this->consumer(), $this->consumer()]
+        )[1];
+        static::assertSame($second, $delivered);
+
+        $this->assertDeliveredValueTakesItsOwnRef($providerValue, $delivered);
+    }
+
+    /**
+     * A sliced distribution hands each consumer a chunk. The chunk is a NEW array rather than an object, so
+     * this is the one transforming strategy whose delivered value is separated from the provider's by the
+     * value-equality map instead of the instance map: a one-item chunk is not equal to the two-item provider
+     * list, so it takes its own ref.
+     */
+    #[TestDox('a sliced delivery holds its own chunk, not the provider list, and takes its own ref')]
+    public function testSlicedDeliveryTakesItsOwnRef(): void
+    {
+        $first = new StubStruct();
+        $second = new StubStruct();
+        $providerValue = [$first, $second];
+
+        $delivered = SlicedDistributionConfig::withSliceSize(1)->distribute(
+            $providerValue,
+            [$this->consumer(), $this->consumer()]
+        )[0];
+        static::assertSame([$first], $delivered);
+
+        $this->assertDeliveredValueTakesItsOwnRef($providerValue, $delivered);
+    }
+
+    /**
+     * An iterator distribution hands out the provider map's values in order, so the child holds a value of
+     * the map while the parent holds the map itself.
+     */
+    #[TestDox('an iterator delivery holds one iterated value, not the provider map, and takes its own ref')]
+    public function testIteratorDeliveryTakesItsOwnRef(): void
+    {
+        $first = new StubStruct();
+        $second = new StubStruct();
+        $providerValue = ['first' => $first, 'second' => $second];
+
+        $delivered = IteratorDistributionConfig::simple()->distribute(
+            $providerValue,
+            [$this->consumer(), $this->consumer()]
+        )[0];
+        static::assertSame($first, $delivered);
+
+        $this->assertDeliveredValueTakesItsOwnRef($providerValue, $delivered);
+    }
+
+    /**
+     * The fifth transform case, and the one a broadcast alone does not produce: the broadcast hands the child
+     * the provider's own instance, and the dotted consumer key then resolves THROUGH it. What lands on the
+     * child is the nested struct, so the sharing that a non-dotted broadcast gets does not apply — which is
+     * why the precondition asserts the broadcast handed over the provider instance before the path runs.
+     */
+    #[TestDox('a dotted broadcast delivery holds the traversed value, not the provider struct, and takes its own ref')]
+    public function testDottedBroadcastDeliveryTakesItsOwnRef(): void
+    {
+        $nested = new StubPathStruct(name: 'inner');
+        $providerValue = new StubPathStruct(child: $nested);
+
+        $broadcast = BroadcastDistributionConfig::simple()->distribute($providerValue, [$this->consumer()])[0];
+        static::assertSame($providerValue, $broadcast);
+
+        $resolver = new ContextPathResolver();
+        $delivered = $resolver->resolvePath(
+            $broadcast,
+            $resolver->parseContextKey('provider.child'),
+            true,
+            'provider.child',
+            'child'
+        );
+        static::assertSame($nested, $delivered);
+
+        $this->assertDeliveredValueTakesItsOwnRef($providerValue, $delivered);
+    }
+
     #[TestDox('every loader that found nothing shares one null-valued ref')]
     public function testLoaderNullsShareOneRef(): void
     {
@@ -695,6 +838,48 @@ class ResolvedValueIndexFactoryTest extends TestCase
                 $exception->getMessage()
             );
         }
+    }
+
+    /**
+     * The consumer shape the five strategies inspect, as
+     * {@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor} assembles it: the child's
+     * component and its unwrapped stored property values.
+     *
+     * @param array<string, mixed> $properties
+     *
+     * @return array{component: string, properties: array<string, mixed>}
+     */
+    private function consumer(array $properties = []): array
+    {
+        return ['component' => 'Sw:Tile', 'properties' => $properties];
+    }
+
+    /**
+     * The not-sharing half of the distribution rule, in one shape for every transforming strategy: a parent
+     * holding the provider value and one child holding what the strategy delivered to it. Both keys are named
+     * `provider` so nothing but the value can separate the two refs, and the two value assertions are what
+     * make the ref assertion mean something — distinct refs carrying the wrong values would be no better than
+     * one shared ref.
+     */
+    private function assertDeliveredValueTakesItsOwnRef(mixed $providerValue, mixed $deliveredValue): void
+    {
+        $child = RenderedElementBuilder::create('Sw:Tile', 'child')
+            ->withProperty('provider', $deliveredValue)
+            ->build();
+        $parent = RenderedElementBuilder::create('Sw:Tile', 'parent')
+            ->withProperty('provider', $providerValue)
+            ->withSlot('main', [$child])
+            ->build();
+
+        $index = $this->factory()->create([$parent], [
+            'parent' => ['provider' => $this->loaderProvenance($providerValue)],
+            'child' => ['provider' => new ValueProvenance(ValueOrigin::DeliveredContext)],
+        ]);
+
+        $assignments = $index->assignments();
+        static::assertNotSame($assignments['parent']['provider'], $assignments['child']['provider']);
+        static::assertSame($providerValue, $index->value($assignments['parent']['provider']));
+        static::assertSame($deliveredValue, $index->value($assignments['child']['provider']));
     }
 
     /**

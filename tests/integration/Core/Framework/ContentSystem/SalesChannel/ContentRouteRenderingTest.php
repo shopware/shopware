@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -27,6 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -76,12 +78,28 @@ class ContentRouteRenderingTest extends TestCase
 
     private KernelBrowser $browser;
 
+    private ?\Closure $finalizationListener = null;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->ids = new IdsCollection();
         $this->browser = $this->createSalesChannelBrowser();
+    }
+
+    /**
+     * The kernel outlives the test case, so a listener left on its dispatcher would rewrite the rendered
+     * forest of every later test in the process.
+     */
+    protected function tearDown(): void
+    {
+        if ($this->finalizationListener !== null) {
+            $this->eventDispatcher()->removeListener(RenderedTreeFinalizationEvent::class, $this->finalizationListener);
+            $this->finalizationListener = null;
+        }
+
+        parent::tearDown();
     }
 
     #[TestDox('serves the stored element ids, components, slot names and slot nesting in the full format')]
@@ -327,6 +345,54 @@ class ContentRouteRenderingTest extends TestCase
         foreach ($this->flatten($skeleton) as $element) {
             static::assertArrayNotHasKey('properties', $element);
         }
+    }
+
+    #[TestDox('keeps the skeleton structurally identical to the full format while a finalization listener rewrites both trees')]
+    public function testSkeletonIsFullMinusPropertiesUnderAFinalizationListener(): void
+    {
+        $this->createNestedLayout();
+
+        // Fixture guard: the stored order is text before inner-grid, so a served order of inner-grid before
+        // text can only be the listener's reversal and not the layout as authored.
+        static::assertSame(
+            [$this->ids->get('text'), $this->ids->get('inner-grid')],
+            array_map(static fn (StoredElement $element): string => $element->id, $this->storedRoots()[0]->slots['content']),
+        );
+
+        /** @var list<list<string>> $invocations */
+        $invocations = [];
+        $this->registerFinalizationListener(function (RenderedTreeFinalizationEvent $event) use (&$invocations): void {
+            $invocations[] = $this->contentElementIds($event->tree());
+
+            $event->replaceTree(array_map($this->reverseSlotOrder(...), $event->tree()));
+        });
+
+        $full = $this->rootElements($this->requestJson($this->uri('content')));
+
+        // The listener is observed to have run inside the full request before anything is concluded from that
+        // response — a listener that silently never fires would make every assertion below vacuous.
+        static::assertCount(1, $invocations, 'The finalization listener must run inside the full-format request.');
+
+        $skeleton = $this->rootElements($this->requestJson($this->uri('content-skeleton')));
+
+        static::assertCount(2, $invocations, 'The finalization listener must run inside the skeleton request too.');
+        static::assertSame($invocations[0], $invocations[1], 'Both modes must hand the listener the same forest.');
+
+        // The listener really transformed the served tree rather than handing back what it was given.
+        static::assertSame(
+            [$this->ids->get('inner-grid'), $this->ids->get('text')],
+            array_column($this->slotChildren($full[0], 'content'), 'id'),
+        );
+
+        // The two requests really were the two modes: only the full one carries property values at all.
+        static::assertArrayHasKey('properties', $full[0]);
+        static::assertNotSame([], $full[0]['properties']);
+        static::assertArrayNotHasKey('properties', $skeleton[0]);
+
+        static::assertSame(
+            array_map($this->structuralProjection(...), $full),
+            array_map($this->structuralProjection(...), $skeleton),
+        );
     }
 
     #[TestDox('serves decomposed skeletons structurally identical to the skeleton format')]
@@ -821,6 +887,36 @@ class ContentRouteRenderingTest extends TestCase
         }
 
         return $ids;
+    }
+
+    private function registerFinalizationListener(\Closure $listener): void
+    {
+        $this->finalizationListener = $listener;
+        $this->eventDispatcher()->addListener(RenderedTreeFinalizationEvent::class, $listener);
+    }
+
+    private function eventDispatcher(): EventDispatcherInterface
+    {
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        static::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
+
+        return $dispatcher;
+    }
+
+    /**
+     * Reverses every slot's child list, forest-wide. The decision reads slot membership and child order only,
+     * both of which a skeleton render mints exactly as a full one does, so the transformation is the same in
+     * both modes. Nothing here looks at a property value, which is the one part of a rendered element that
+     * does differ by mode.
+     */
+    private function reverseSlotOrder(RenderedElement $element): RenderedElement
+    {
+        $slots = [];
+        foreach ($element->slots as $name => $children) {
+            $slots[$name] = array_reverse(array_map($this->reverseSlotOrder(...), $children));
+        }
+
+        return $element->withSlots($slots);
     }
 
     private function uri(string $format): string

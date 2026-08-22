@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
@@ -92,6 +93,22 @@ class MutationPipelineTest extends TestCase
         static::assertSame(['legacy'], $result->droppedWiring);
     }
 
+    #[TestDox('passes dropped static property values from the op through to the result')]
+    public function testRunCarriesDroppedProperties(): void
+    {
+        $droppedHeadline = StoredValue::ofString('Old headline');
+
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])));
+
+        $result = $pipeline->run(
+            $this->mutation(new StoredTree([new StoredElement('el-1', 'Sw:New')]), ['el-1'], [], [], ['headline' => $droppedHeadline]),
+            $this->inputTree(),
+            null,
+        );
+
+        static::assertSame(['headline' => $droppedHeadline], $result->droppedProperties);
+    }
+
     #[TestDox('forwards the mutated stored roots unconverted, with the root context, to the diagnostics pass')]
     public function testRunForwardsMutatedStoredRootsAndRootContextToDiagnostics(): void
     {
@@ -121,14 +138,16 @@ class MutationPipelineTest extends TestCase
      * @param list<StoredElement> $orphaned
      * @param list<string> $affected
      * @param list<string> $droppedWiring
+     * @param array<string, StoredValue> $droppedProperties
      */
-    private function mutation(StoredTree $appliedTree, array $affected, array $orphaned = [], array $droppedWiring = []): LayoutMutation
+    private function mutation(StoredTree $appliedTree, array $affected, array $orphaned = [], array $droppedWiring = [], array $droppedProperties = []): LayoutMutation
     {
         $mutation = static::createStub(LayoutMutation::class);
         $mutation->method('apply')->willReturn($appliedTree);
         $mutation->method('affected')->willReturn($affected);
         $mutation->method('orphaned')->willReturn($orphaned);
         $mutation->method('droppedWiring')->willReturn($droppedWiring);
+        $mutation->method('droppedProperties')->willReturn($droppedProperties);
 
         return $mutation;
     }

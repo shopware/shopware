@@ -1,5 +1,5 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
-import type { ContentElementNode } from '../types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/api/content-element.types';
 import { normalizeElementStyleForWrite } from './style-settings.util';
 
 const { cloneDeep } = Shopware.Utils.object;

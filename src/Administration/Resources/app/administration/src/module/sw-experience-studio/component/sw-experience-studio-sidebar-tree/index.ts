@@ -1,5 +1,5 @@
-import type { ContentElementNode } from '../../types/content-element.types';
-import { castContentElementNodes } from '../../util/content-element-label.util';
+import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentLayoutEntity } from '../../util/content-layout-repository.util';
 
 import template from './sw-experience-studio-sidebar-tree.html.twig';
 import './sw-experience-studio-sidebar-tree.scss';
@@ -35,7 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         layout: {
-            type: Object,
+            type: Object as PropType<ContentLayoutEntity | null>,
             required: false,
             default: null,
         },
@@ -61,9 +61,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         layoutElements(): ContentElementNode[] {
-            const layout = this.layout as Entity<'content_layout'> | null;
-
-            return castContentElementNodes(layout?.layout);
+            return this.layout?.layout ?? [];
         },
 
         hasElements(): boolean {

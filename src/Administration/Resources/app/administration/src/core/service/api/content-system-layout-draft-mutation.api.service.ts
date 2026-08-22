@@ -3,24 +3,12 @@
  */
 
 import type { AxiosInstance } from 'axios';
+import type { ContentElementNode } from './content-element.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
-/**
- * @private
- */
-export type ContentLayoutDraftMutationElement = {
-    id: string;
-    component: string;
-    properties?: Record<string, unknown>;
-    dataRequirements?: unknown;
-    providesContext?: unknown;
-    acceptsContext?: unknown;
-    slots?: Record<string, ContentLayoutDraftMutationElement[]>;
-};
-
 type ContentLayoutDraftMutationEnvelope = {
-    layout: ContentLayoutDraftMutationElement[];
+    layout: ContentElementNode[];
     rootSource: string | null;
 };
 
@@ -69,11 +57,11 @@ type ContentLayoutDraftMutationDiagnostics = {
  * @private
  */
 export type ContentLayoutDraftMutationResponse = {
-    layout: ContentLayoutDraftMutationElement[];
+    layout: ContentElementNode[];
     resolutions: Record<string, unknown>;
     diagnostics: ContentLayoutDraftMutationDiagnostics;
     affectedElementIds: string[];
-    orphaned: ContentLayoutDraftMutationElement[];
+    orphaned: ContentElementNode[];
     droppedWiring: string[];
     droppedProperties: Record<string, unknown>;
 };

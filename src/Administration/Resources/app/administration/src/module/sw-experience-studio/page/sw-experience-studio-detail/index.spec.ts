@@ -1,3 +1,5 @@
+import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentLayoutDraftMutationResponse } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import detailComponent from './index';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
@@ -101,30 +103,33 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(methods.resolveMutationRootSource.call(vm)).toBeNull();
     });
 
-    it('creates draft mutation payload with sanitized layout and rootSource', () => {
+    it('creates draft mutation payload from typed layout elements and rootSource', () => {
+        const element: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            properties: {
+                text: 'Hello',
+            },
+        };
         const vm = {
             resolveMutationRootSource: () => null,
+            // Identity stub; delete with the write sanitizer.
+            sanitizeLayoutForWrite: (layout: ContentElementNode[]) => layout,
         };
 
         const payload = methods.createDraftMutationPayload.call(
             vm,
-            [
-                {
-                    id: 'element-1',
-                    component: 'Sw:Content:Text',
-                    properties: {
-                        text: 'Hello',
-                    },
-                },
-            ],
+            [element],
             {
                 type: 'Sw:Content:Text',
             },
         );
 
-        expect(payload.rootSource).toBeNull();
-        expect(payload.layout).toHaveLength(1);
-        expect(payload.type).toBe('Sw:Content:Text');
+        expect(payload).toEqual({
+            layout: [element],
+            rootSource: null,
+            type: 'Sw:Content:Text',
+        });
     });
 
     it('derives preview entity type from layout rootSource', () => {
@@ -202,9 +207,13 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
     it('records history and applies latest successful draft mutation response', async () => {
         const pushToHistory = jest.fn();
+        const respondedElement: ContentElementNode = {
+            id: 'element-2',
+            component: 'Sw:Content:Text',
+        };
         const vm = {
             layout: {
-                layout: [],
+                layout: [] as ContentElementNode[],
             },
             allowSave: true,
             mutationRequestSequence: 0,
@@ -214,13 +223,10 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             editorStore: {
                 pushToHistory,
             },
+            // Identity stub; delete with the write sanitizer.
+            sanitizeLayoutForWrite: (layout: ContentElementNode[]) => layout,
             requestDraftMutation: jest.fn().mockResolvedValue({
-                layout: [
-                    {
-                        id: 'element-2',
-                        component: 'Sw:Content:Text',
-                    },
-                ],
+                layout: [respondedElement],
                 resolutions: {},
                 diagnostics: {
                     wellFormed: true,
@@ -235,7 +241,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             notifyMutationError: jest.fn(),
             extractMutationErrorCodes: jest.fn().mockReturnValue([]),
         };
-        const previousLayout = [
+        const previousLayout: ContentElementNode[] = [
             {
                 id: 'element-1',
                 component: 'Sw:Content:Text',
@@ -247,21 +253,22 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             'insert',
             previousLayout,
             { type: 'Sw:Content:Text' },
-            (response: { affectedElementIds: string[] }) => response.affectedElementIds[0] ?? null,
+            (response: ContentLayoutDraftMutationResponse) => response.affectedElementIds[0] ?? null,
         );
 
         expect(vm.requestDraftMutation).toHaveBeenCalledWith('insert', previousLayout, { type: 'Sw:Content:Text' });
         expect(pushToHistory).toHaveBeenCalledWith(previousLayout, 'element-1');
         expect(vm.selectedElementId).toBe('element-2');
-        expect(vm.layout.layout).toHaveLength(1);
+        expect(vm.layout.layout).toEqual([respondedElement]);
         expect(vm.isLoading).toBe(false);
     });
 
     it('ignores stale mutation responses by request id', async () => {
-        let resolveFirstRequest: ((value: unknown) => void) | null = null;
+        let resolveFirstRequest!: (response: ContentLayoutDraftMutationResponse) => void;
+        const newerElement: ContentElementNode = { id: 'newer', component: 'Sw:Content:Text' };
         const vm = {
             layout: {
-                layout: [],
+                layout: [] as ContentElementNode[],
             },
             allowSave: true,
             mutationRequestSequence: 0,
@@ -271,13 +278,15 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             editorStore: {
                 pushToHistory: jest.fn(),
             },
+            // Identity stub; delete with the write sanitizer.
+            sanitizeLayoutForWrite: (layout: ContentElementNode[]) => layout,
             requestDraftMutation: jest
                 .fn()
-                .mockImplementationOnce(() => new Promise((resolve) => {
+                .mockImplementationOnce(() => new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
                     resolveFirstRequest = resolve;
                 }))
                 .mockResolvedValueOnce({
-                    layout: [{ id: 'newer', component: 'Sw:Content:Text' }],
+                    layout: [newerElement],
                     resolutions: {},
                     diagnostics: { wellFormed: true, resolvable: true, violations: [] },
                     affectedElementIds: ['newer'],
@@ -300,11 +309,11 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             'insert',
             [{ id: 'second', component: 'Sw:Content:Text' }],
             { type: 'Sw:Content:Text' },
-            (response: { affectedElementIds: string[] }) => response.affectedElementIds[0] ?? null,
+            (response: ContentLayoutDraftMutationResponse) => response.affectedElementIds[0] ?? null,
         );
 
         await secondCall;
-        resolveFirstRequest?.({
+        resolveFirstRequest({
             layout: [{ id: 'stale', component: 'Sw:Content:Text' }],
             resolutions: {},
             diagnostics: { wellFormed: true, resolvable: true, violations: [] },
@@ -315,7 +324,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
         await firstCall;
 
-        expect(vm.layout.layout[0].id).toBe('newer');
+        expect(vm.layout.layout).toEqual([newerElement]);
     });
 
     it('calls move mutation endpoint for move operations', async () => {

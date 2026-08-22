@@ -1,4 +1,4 @@
-import type { ContentElementNode } from '../../types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/api/content-element.types';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
@@ -31,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         element: {
-            type: Object,
+            type: Object as PropType<ContentElementNode>,
             required: true,
         },
         selectedElementId: {
@@ -89,7 +89,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         contentElement(): ContentElementNode {
-            return this.element as ContentElementNode;
+            return this.element;
         },
 
         elementTypeStore() {

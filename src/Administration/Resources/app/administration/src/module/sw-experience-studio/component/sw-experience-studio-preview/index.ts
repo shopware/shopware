@@ -1,6 +1,6 @@
 import template from './sw-experience-studio-preview.html.twig';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
-import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
+import type { ContentLayoutEntity } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { sanitizeContentElementLayoutForWrite } from 'src/module/sw-experience-studio/util/content-element.util';
 import './sw-experience-studio-preview.scss';
 
@@ -47,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         layout: {
-            type: Object,
+            type: Object as PropType<ContentLayoutEntity | null>,
             required: false,
             default: null,
         },
@@ -479,7 +479,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         async loadPreview(): Promise<void> {
             const previewService = Shopware.Service('contentSystemPreviewService') as ContentSystemPreviewService;
-            const layout = this.layout as Entity<'content_layout'> | null;
+            const layout = this.layout;
             const salesChannelId = this.salesChannelId as string | null;
             const entityType = this.entityType as string | null;
             const entityId = this.entityId as string | null;
@@ -501,7 +501,7 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 const styleOptions = this.styleOptions as Record<string, ContentSystemStyleOptionSpecification>;
                 const previewLayout = sanitizeContentElementLayoutForWrite(
-                    serializedLayout as ContentElementNode[],
+                    serializedLayout,
                     styleOptions,
                 );
 

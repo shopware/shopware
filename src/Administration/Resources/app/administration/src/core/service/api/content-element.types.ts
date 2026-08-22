@@ -11,4 +11,5 @@ export interface ContentElementNode {
     slots?: Record<string, ContentElementNode[]>;
     providesContext?: unknown;
     acceptsContext?: unknown;
+    attributedSpecifications?: Record<string, string>;
 }

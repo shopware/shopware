@@ -10,9 +10,13 @@ import type {
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 
-import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/api/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
-import { castContentElementNodes } from 'src/module/sw-experience-studio/util/content-element-label.util';
+import type {
+    ContentLayoutEntity,
+    ContentLayoutRepository,
+} from 'src/module/sw-experience-studio/util/content-layout-repository.util';
+import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
@@ -106,7 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     data(): {
-        layout: Entity<'content_layout'> | null;
+        layout: ContentLayoutEntity | null;
         isLoading: boolean;
         isSaveSuccessful: boolean;
         currentViewport: Viewport;
@@ -152,8 +156,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        layoutRepository(): Repository<'content_layout'> {
-            return this.repositoryFactory.create('content_layout');
+        layoutRepository(): ContentLayoutRepository {
+            return createContentLayoutRepository(this.repositoryFactory.create('content_layout'));
         },
 
         salesChannelRepository(): Repository<'sales_channel'> {
@@ -247,7 +251,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
             const location = findElementLocation(layoutElements, this.selectedElementId);
 
             if (!location) {
@@ -656,7 +660,7 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                const parentLocation = findElementLocation(castContentElementNodes(this.layout.layout), payload.parentElementId);
+                const parentLocation = findElementLocation(this.layout.layout, payload.parentElementId);
                 const parentElement = parentLocation ? parentLocation.elements[parentLocation.index] : null;
 
                 if (!parentElement) {
@@ -673,7 +677,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            const layoutElements = this.layout ? castContentElementNodes(this.layout.layout) : [];
+            const layoutElements = this.layout ? this.layout.layout : [];
             const insertPayload: Omit<ContentLayoutDraftInsertPayload, 'layout' | 'rootSource'> = {
                 type: component,
             };
@@ -700,7 +704,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
             const workingLayout = cloneDeep(layoutElements);
             const result = mutator(workingLayout);
 
@@ -721,7 +725,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
 
             await this.executeStructuralDraftMutation(
                 'duplicate',
@@ -738,7 +742,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
 
             await this.executeStructuralDraftMutation(
                 'remove',
@@ -752,7 +756,7 @@ export default Shopware.Component.wrapComponentConfig({
                     }
 
                     const selectedLocation = findElementLocation(
-                        castContentElementNodes(response.layout as ContentElementNode[]),
+                        response.layout,
                         this.selectedElementId,
                     );
 
@@ -766,7 +770,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
             const normalizedMoveIndex = this.normalizeMoveIndex(layoutElements, payload);
 
             await this.executeStructuralDraftMutation(
@@ -836,7 +840,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
             const draggedLocation = findElementLocation(layoutElements, payload.elementId);
             const draggedElement = draggedLocation ? draggedLocation.elements[draggedLocation.index] : null;
 
@@ -1001,7 +1005,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
-                this.layout.layout = this.sanitizeLayoutForWrite(response.layout as ContentElementNode[]);
+                this.layout.layout = this.sanitizeLayoutForWrite(response.layout);
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {
@@ -1031,7 +1035,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return [];
             }
 
-            const parentLocation = findElementLocation(castContentElementNodes(this.layout.layout), payload.parentElementId);
+            const parentLocation = findElementLocation(this.layout.layout, payload.parentElementId);
             const parentElement = parentLocation ? parentLocation.elements[parentLocation.index] : null;
 
             if (!parentElement) {
@@ -1114,7 +1118,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            const location = findElementLocation(castContentElementNodes(this.layout.layout), elementId);
+            const location = findElementLocation(this.layout.layout, elementId);
 
             if (!location) {
                 return null;
@@ -1154,7 +1158,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
             const previousEntry = this.editorStore.undo(layoutElements, this.selectedElementId);
 
             if (!previousEntry) {
@@ -1170,7 +1174,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const layoutElements = castContentElementNodes(this.layout.layout);
+            const layoutElements = this.layout.layout;
             const nextEntry = this.editorStore.redo(layoutElements, this.selectedElementId);
 
             if (!nextEntry) {
@@ -1228,7 +1232,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const layout = this.layout;
-            layout.layout = this.sanitizeLayoutForWrite(castContentElementNodes(layout.layout));
+            layout.layout = this.sanitizeLayoutForWrite(layout.layout);
 
             this.isLoading = true;
 

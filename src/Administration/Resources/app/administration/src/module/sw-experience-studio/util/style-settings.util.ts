@@ -49,30 +49,6 @@ export function isBreakpointMapValue(value: unknown): value is Record<string, un
  * @private
  * @sw-package discovery
  */
-export function isUnsetScalarStyleValue(value: unknown, option: ContentSystemStyleOptionSpecification): boolean {
-    if (value === null || value === undefined || value === '') {
-        return true;
-    }
-
-    if (option.default !== null && option.default !== undefined) {
-        return value === option.default;
-    }
-
-    if (
-        (option.type === 'integer' || option.type === 'number') &&
-        option.range?.min !== undefined &&
-        value === option.range.min
-    ) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @private
- * @sw-package discovery
- */
 export function isViewportSpecificBreakpointMap(
     value: unknown,
     breakpoints: readonly string[] = STYLE_BREAKPOINTS,

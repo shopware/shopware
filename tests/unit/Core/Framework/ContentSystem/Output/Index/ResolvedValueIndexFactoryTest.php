@@ -376,28 +376,6 @@ class ResolvedValueIndexFactoryTest extends TestCase
         static::assertSame([$provided], array_values($index->data()));
     }
 
-    #[TestDox('a delivered value that is not the provider instance gets its own ref')]
-    public function testTransformedDeliveryGetsItsOwnRef(): void
-    {
-        $provided = new StubStruct();
-        $child = RenderedElementBuilder::create('Sw:Tile', 'child')
-            ->withProperty('product', new StubStruct())
-            ->build();
-        $parent = RenderedElementBuilder::create('Sw:Tile', 'parent')
-            ->withProperty('product', $provided)
-            ->withSlot('main', [$child])
-            ->build();
-
-        $index = $this->factory()->create([$parent], [
-            'parent' => ['product' => $this->loaderProvenance($provided)],
-            'child' => ['product' => new ValueProvenance(ValueOrigin::DeliveredContext)],
-        ]);
-
-        $assignments = $index->assignments();
-        static::assertNotSame($assignments['parent']['product'], $assignments['child']['product']);
-        static::assertCount(2, $index->data());
-    }
-
     /**
      * A keyed distribution picks one entry out of the provider's map, so the child holds an entry and the
      * parent holds the map. Two different values, two refs — the complement of

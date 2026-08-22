@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
@@ -28,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,6 +44,15 @@ use Symfony\Component\HttpFoundation\Response;
  * cases. Deliberately not pinned here: the property set an element carries, the ref-id grammar of the
  * decomposed/data formats (their assignment-to-data referential integrity is pinned, no literal ref id is),
  * and what a loader that finds nothing writes.
+ *
+ * One state outside the request is pinned too: the element-type registry's `cache.system` entry, the backing
+ * cache both the render step and the index build read their type specifications through.
+ * `CachedContentSystemElementTypeRegistry` populates that entry on its first lookup in a request, and every
+ * later lookup in the same request — including the index build, which always runs after rendering's own
+ * lookup — reads the populated entry, so a cold render and a warm render are never observably different at the
+ * index and this file makes no such comparison. What is pinned instead: a render leaves the entry populated,
+ * and the served index's primitive-key membership and emission order come from whatever specification the
+ * entry currently holds.
  *
  * Two step orderings inside the rendering pipeline are pinned by outcome rather than by declaration:
  * redistribute wiring validation judging a subtree the partial-render prune would discard, and the page-level
@@ -73,6 +84,14 @@ class ContentRouteRenderingTest extends TestCase
     private const PAGE_CONTEXT_KEY = 'category.id';
 
     private const PAGE_CONTEXT_PROPERTY = 'pageCategoryId';
+
+    /**
+     * The `cache.system` key `CachedContentSystemElementTypeRegistry` stores its specification map under —
+     * the backing cache both the render step and the index build read the element types through.
+     *
+     * @see \Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry
+     */
+    private const ELEMENT_TYPE_CACHE_KEY = 'content_system.element_types';
 
     private IdsCollection $ids;
 
@@ -578,6 +597,68 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
+    #[TestDox('serves the resolved-value index\'s primitive keys and their order from the cached element-type specification')]
+    public function testIndexPrimitiveKeysAndOrderComeFromTheCachedElementTypeSpecification(): void
+    {
+        $this->createNestedLayout();
+
+        $pool = $this->elementTypeCachePool();
+
+        $pool->deleteItem(self::ELEMENT_TYPE_CACHE_KEY);
+        static::assertFalse(
+            $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY)->isHit(),
+            'The element-type cache must be cold before the render.',
+        );
+
+        $rendered = $this->requestJson($this->uri('content-data'));
+
+        // The entry was evicted and is back, so the request that just ran populated it: the registry really
+        // does warm this backing entry from inside the request rather than reading around it.
+        $cachedTypes = $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY);
+        static::assertTrue($cachedTypes->isHit(), 'A render must leave the element-type cache populated.');
+
+        // The image element's assignment keys arrive in exactly the order the CACHED spec declares its
+        // primitives in, followed by the loader-resolved key. This does not isolate which reader of the cache
+        // enforces that order, for the same reason the probe below states.
+        $declaredPrimitives = $this->declaredPrimitiveKeys($cachedTypes->get(), 'Sw:Media:Image');
+        static::assertNotSame([], $declaredPrimitives);
+        static::assertSame(
+            [...$declaredPrimitives, 'media'],
+            array_keys($this->assignments($rendered)[$this->ids->get('image')] ?? []),
+            'The cached element-type specification must order the image element\'s emitted keys.',
+        );
+
+        // The dependency proof, observed rather than inferred. A render served while the cached map is missing
+        // the image type must lose that element's declared primitives from the index — only a render that READS
+        // this cache entry can react to what was put in it, so a run that recomputed the types instead would
+        // serve the unchanged five keys here and fail. This does not isolate the index build's own registry
+        // read: `RenderedElementFactory` reads the same cache entry to decide which declared primitives exist
+        // at all, so the probe proves the served index depends on the cached specification without attributing
+        // that dependency to one reader over the other.
+        $poisoned = $cachedTypes->get();
+        static::assertIsArray($poisoned);
+        unset($poisoned['Sw:Media:Image']);
+        static::assertTrue(
+            $this->overwriteElementTypeCache($pool, $poisoned),
+            'The element-type cache entry must be writable from the test.',
+        );
+
+        $probe = $this->requestJson($this->uri('content-data'));
+
+        static::assertSame(
+            ['media'],
+            array_keys($this->assignments($probe)[$this->ids->get('image')] ?? []),
+            'A render reading the cached element types must emit no declared primitive for a type the cache no '
+            . 'longer carries.',
+        );
+
+        // Restore what the earlier render computed, so no later test in this process observes the poisoned map.
+        static::assertTrue(
+            $this->overwriteElementTypeCache($pool, $cachedTypes->get()),
+            'The element-type cache entry must be writable from the test.',
+        );
+    }
+
     #[TestDox('serves decomposed skeleton nodes with id, component and the element alias at every depth, and no property values')]
     public function testDecomposedSkeletonNodesCarryStructureAndAliasButNoProperties(): void
     {
@@ -893,6 +974,53 @@ class ContentRouteRenderingTest extends TestCase
     {
         $this->finalizationListener = $listener;
         $this->eventDispatcher()->addListener(RenderedTreeFinalizationEvent::class, $listener);
+    }
+
+    /**
+     * `cache.system` is the pool the cached element-type registry reads its specification map through, so
+     * evicting and rewriting this pool's entry is what puts a render into a cold or a warm backing-cache
+     * state from outside the registry.
+     */
+    private function elementTypeCachePool(): AdapterInterface
+    {
+        $pool = static::getContainer()->get('cache.system');
+        static::assertInstanceOf(AdapterInterface::class, $pool);
+
+        return $pool;
+    }
+
+    private function overwriteElementTypeCache(AdapterInterface $pool, mixed $types): bool
+    {
+        $item = $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY);
+        $item->set($types);
+
+        return $pool->save($item);
+    }
+
+    /**
+     * The primitive property keys `$type` declares, read off the CACHED specification map rather than off a
+     * fresh registry load, in declaration order — the order
+     * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory} emits an element's
+     * declared primitives in.
+     *
+     * @return list<string>
+     */
+    private function declaredPrimitiveKeys(mixed $cached, string $type): array
+    {
+        static::assertIsArray($cached);
+        static::assertArrayHasKey($type, $cached);
+
+        $specification = $cached[$type];
+        static::assertInstanceOf(ContentSystemElementTypeSpecification::class, $specification);
+
+        $keys = [];
+        foreach ($specification->properties() as $key => $property) {
+            if ($property->type()->isPrimitive()) {
+                $keys[] = $key;
+            }
+        }
+
+        return $keys;
     }
 
     private function eventDispatcher(): EventDispatcherInterface

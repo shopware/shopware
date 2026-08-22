@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -85,6 +88,12 @@ class ContentRouteRenderingTest extends TestCase
     private const PAGE_CONTEXT_KEY = 'category.id';
 
     private const PAGE_CONTEXT_PROPERTY = 'pageCategoryId';
+
+    /**
+     * The undotted, unaliased context key of the seo fixture's root, and therefore also the rendered property
+     * name the whole `CategoryEntity` arrives under.
+     */
+    private const SEO_CONTEXT_PROPERTY = 'category';
 
     /**
      * The `cache.system` key `CachedContentSystemElementTypeRegistry` stores its specification map under —
@@ -925,6 +934,34 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
+    #[TestDox('leaves a seo-aware entity on a rendered element property un-enriched when the seo-url header is set')]
+    public function testSeoUrlEnrichmentNeverReachesAnEntityOnARenderedProperty(): void
+    {
+        $this->createSeoAwareCategoryLayout();
+
+        // Fixture guard: a canonical seo url for this category really exists, so `StoreApiSeoResolver::enrich()`
+        // would have something to write. Without it the un-enriched body below would prove nothing.
+        static::assertSame([$this->ids->get('seo-url')], $this->storedCanonicalSeoUrlIds());
+
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        // Presence first: the seo-aware entity really is on the property the absence below is asserted over.
+        static::assertIsArray($root['properties']);
+        static::assertArrayHasKey(self::SEO_CONTEXT_PROPERTY, $root['properties']);
+        $category = $root['properties'][self::SEO_CONTEXT_PROPERTY];
+        static::assertIsArray($category);
+        static::assertSame($this->ids->get('category'), $category['id'] ?? null);
+        static::assertArrayHasKey('seoUrls', $category);
+
+        // `StoreApiSeoResolver` walks `getVars()` and descends only a Struct, a Collection or an array of
+        // Structs. `RenderedElement` is none of those, so the walk stops above this entity and the association
+        // it would have filled stays at the null the hydration left. A non-null value here means the traversal
+        // reached the rendered element.
+        static::assertNull($category['seoUrls']);
+    }
+
     #[TestDox('fails a partial render on a wiring defect in a sibling subtree the prune discards')]
     public function testRedistributeExpansionValidatesSubtreesThePartialRenderDiscards(): void
     {
@@ -1466,6 +1503,68 @@ class ContentRouteRenderingTest extends TestCase
                 ]],
             ],
         ]]);
+    }
+
+    /**
+     * A category carrying a canonical seo url, consumed whole by the layout root: an undotted, unaliased
+     * consumer takes the delivered value as it stands, so the hydrated `CategoryEntity` — a seo-aware one —
+     * becomes the value of the root's `category` property rather than a scalar off it.
+     *
+     * Deliberately a third builder rather than a variation of `createNestedLayout()` or
+     * `createContextDependentNestedLayout()`: neither of those consumes the entity undotted (both take
+     * `category.id`, a string), and neither category carries a seo url for anything to enrich.
+     */
+    private function createSeoAwareCategoryLayout(): void
+    {
+        $this->repository('category.repository')->create([[
+            'id' => $this->ids->create('category'),
+            'name' => 'Content route seo category',
+            'active' => true,
+            'seoUrls' => [[
+                'id' => $this->ids->create('seo-url'),
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
+                'pathInfo' => 'content-route-seo',
+                'seoPathInfo' => 'content-route-seo',
+                'isCanonical' => true,
+            ]],
+        ]], Context::createDefaultContext());
+
+        $this->persistLayout([[
+            'id' => $this->ids->get('root-grid'),
+            'component' => 'Sw:Grid:Container',
+            'properties' => [],
+            'acceptsContext' => [
+                self::SEO_CONTEXT_PROPERTY => [
+                    'type' => 'single',
+                    'required' => false,
+                ],
+            ],
+        ]]);
+    }
+
+    /**
+     * The canonical seo-url ids `StoreApiSeoResolver::enrich()` would find for the fixture category, read on
+     * three of its four filters: canonical, the route name registered for the category definition, and that
+     * category as the foreign key. The resolver's fourth filter, languageId, is satisfied without being
+     * reproduced here: the fixture's seo-url row and `createSalesChannelBrowser()` both use the system language.
+     *
+     * @return list<string>
+     */
+    private function storedCanonicalSeoUrlIds(): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('isCanonical', true));
+        $criteria->addFilter(new EqualsFilter('routeName', TestNavigationSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('foreignKey', $this->ids->get('category')));
+
+        $ids = [];
+        foreach ($this->repository('seo_url.repository')->searchIds($criteria, Context::createDefaultContext())->getIds() as $id) {
+            static::assertIsString($id);
+            $ids[] = $id;
+        }
+
+        return $ids;
     }
 
     private function createDottedRedistributeLayout(): void

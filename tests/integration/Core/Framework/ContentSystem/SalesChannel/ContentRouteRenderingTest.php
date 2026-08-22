@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryConte
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -885,6 +886,45 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
+    #[TestDox('serves only the addressed subtree when the prune had to keep the target\'s context-providing ancestor')]
+    public function testPartialRenderExtractsATargetWhoseAncestorThePruneKeeps(): void
+    {
+        $this->createContextDependentNestedLayout();
+
+        // Fixture guard: the target is itself a context consumer, so `findDataRootIndex()` cannot stop at the
+        // target's own index and the prune has to keep the ancestor above it.
+        $ancestor = $this->storedRoots()[0];
+        static::assertSame($this->ids->get('root-grid'), $ancestor->id);
+        $target = $ancestor->slots['content'][0];
+        static::assertSame($this->ids->get('inner-grid'), $target->id);
+        static::assertTrue((new ContextDependencyAnalyzer())->requiresParentData($target));
+
+        // The ancestor really is part of the whole-layout render, so its absence from the partial body below
+        // is something the render removed rather than something the fixture never had.
+        static::assertContains($this->ids->get('root-grid'), $this->servedElementIds());
+
+        $partialRoots = $this->rootElements(
+            $this->requestJson($this->uri('content') . '?elementId=' . $this->ids->get('inner-grid'))
+        );
+
+        static::assertSame([$this->ids->get('inner-grid')], array_column($partialRoots, 'id'));
+
+        // The complete flattened id list: the ancestor is gone and the target's own descendant is not.
+        $servedIds = array_column($this->flatten($partialRoots), 'id');
+        static::assertSame([$this->ids->get('inner-grid'), $this->ids->get('text')], $servedIds);
+        static::assertNotContains($this->ids->get('root-grid'), $servedIds);
+
+        // The ancestor was still in the tree when the render step ran: context is distributed parent to child
+        // only, so a target that carries the redistributed page-level value can only have received it from an
+        // ancestor the prune kept. The value's absence would mean the prune had already dropped the ancestor,
+        // leaving nothing for the extract to remove.
+        static::assertIsArray($partialRoots[0]['properties'] ?? null);
+        static::assertSame(
+            $this->ids->get('category'),
+            $partialRoots[0]['properties'][self::PAGE_CONTEXT_PROPERTY] ?? null,
+        );
+    }
+
     #[TestDox('fails a partial render on a wiring defect in a sibling subtree the prune discards')]
     public function testRedistributeExpansionValidatesSubtreesThePartialRenderDiscards(): void
     {
@@ -1375,6 +1415,55 @@ class ContentRouteRenderingTest extends TestCase
                         ],
                     ],
                 ],
+            ],
+        ]]);
+    }
+
+    /**
+     * A partial-render target that is itself a context consumer: the root grid redistributes the page-level
+     * `category` context it receives, and the nested target consumes `category.id` out of that redistribution.
+     * The target therefore answers `requiresParentData()` true, so the pre-render prune keeps the ancestor for
+     * the sake of that delivery and the post-render extract is the only step that removes it again.
+     *
+     * Deliberately a second builder rather than a variation of `createNestedLayout()`: that fixture backs most
+     * of this file, and there the only context consumer is the root itself.
+     */
+    private function createContextDependentNestedLayout(): void
+    {
+        $this->createCategory();
+        $this->persistLayout([[
+            'id' => $this->ids->get('root-grid'),
+            'component' => 'Sw:Grid:Container',
+            'properties' => [],
+            // Undotted, because a redistributing consumer may not be keyed by a path, and unaliased, so the
+            // derived broadcast provider hands the category on to children under the key they declare.
+            'acceptsContext' => [
+                'category' => [
+                    'type' => 'single',
+                    'required' => false,
+                    'redistribute' => true,
+                ],
+            ],
+            'slots' => [
+                'content' => [[
+                    'id' => $this->ids->get('inner-grid'),
+                    'component' => 'Sw:Grid:Container',
+                    'properties' => [],
+                    'acceptsContext' => [
+                        self::PAGE_CONTEXT_KEY => [
+                            'type' => 'single',
+                            'required' => false,
+                            'propertyAlias' => self::PAGE_CONTEXT_PROPERTY,
+                        ],
+                    ],
+                    'slots' => [
+                        'content' => [[
+                            'id' => $this->ids->get('text'),
+                            'component' => 'Sw:Content:Text',
+                            'properties' => ['text' => self::TEXT_VALUE],
+                        ]],
+                    ],
+                ]],
             ],
         ]]);
     }

@@ -83,6 +83,30 @@ class CartPersisterTest extends TestCase
         static::assertInstanceOf(CartSavedEvent::class, $eventDispatcher->getEvents()[1]);
     }
 
+    public function testSaveOfEmptiedPersistedCartResetsPersistedState(): void
+    {
+        $cart = new Cart('token');
+        $cart->setPersisted(true);
+
+        $statement = $this->createMock(Statement::class);
+        $statement->expects($this->once())
+            ->method('executeStatement')
+            ->willReturn(1);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('prepare')
+            ->with(static::stringContains('DELETE FROM `cart`'))
+            ->willReturn($statement);
+
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+
+        $persister->save($cart, Generator::generateSalesChannelContext());
+
+        static::assertFalse($cart->isPersisted());
+    }
+
     public function testSaveDoesNotDispatchSavedEventWhenPersistedCartUpdateAffectsZeroRows(): void
     {
         $cart = new Cart('token');

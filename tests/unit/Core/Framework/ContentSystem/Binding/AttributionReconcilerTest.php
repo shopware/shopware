@@ -124,8 +124,8 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
     }
 
-    #[TestDox('drops attribution when the element wiring source is no longer registered, without throwing out of reconcile()')]
-    public function testDropsAttributionWhenElementSourceUnregisteredWithoutThrowing(): void
+    #[TestDox('rejects the write when the element wiring source has no registered config serializer, instead of dropping the attribution')]
+    public function testThrowsWhenElementSourceUnregistered(): void
     {
         $specification = $this->specification('spec-1', [
             'product' => new LoaderBinding('entity', ['limit' => 5]),
@@ -141,12 +141,17 @@ class AttributionReconcilerTest extends TestCase
             ->withAttributedSpecification('product', 'spec-1')
             ->build();
 
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
+        $reconciler = $this->reconciler(['spec-1' => $specification], $this->provider());
 
-        $reconciled = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciled);
-        static::assertSame([], $reconciled->attributedSpecifications);
+        // CONFIG_SERIALIZER_NOT_REGISTERED is a CLIENT_DEFECT_CODE, and used to be swallowed here: the write
+        // stored the element with its attribution silently dropped, indistinguishable from an element nothing
+        // ever claimed. The wiring cannot be encoded, so it cannot be judged, so the write is refused.
+        $expected = ContentSystemException::configSerializerNotRegistered('removed_plugin_source');
+        static::assertTrue(ContentSystemException::isClientDefect($expected));
+
+        $this->expectExceptionObject($expected);
+
+        $reconciler->reconcile([$element]);
     }
 
     #[TestDox('keeps attribution and passes properties through unchanged, since stored property values are never compared')]

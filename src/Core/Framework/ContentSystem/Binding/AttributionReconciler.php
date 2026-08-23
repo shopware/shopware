@@ -20,9 +20,14 @@ use Shopware\Core\Framework\Log\Package;
  * `decode($x)->jsonSerialize()`. A serializer that normalizes or coerces values on decode, or whose
  * `encode` diverges from `jsonSerialize`, would silently drop an attribution that is in fact still honest.
  *
- * Only a {@see ContentSystemException} whose code is a client defect
- * ({@see ContentSystemException::isClientDefect()}) is caught and treated as "not honest"; every other
- * exception, including a registry-build failure, propagates.
+ * Nothing is caught here. A wiring the comparison cannot even encode — an element whose requirement source
+ * has no registered config serializer, which raises
+ * {@see ContentSystemException::configSerializerNotRegistered()} — is a wiring the write cannot judge, not
+ * an unattributed element, so it escapes and refuses the write rather than being recorded as "not honest".
+ * {@see \Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer::normalize()}
+ * remaps it, like every other {@see ContentSystemException} raised under the write boundary, to a
+ * `WriteConstraintViolationException` carrying that error code, so the caller is told what was wrong with the
+ * payload.
  *
  * @internal
  *
@@ -110,30 +115,30 @@ class AttributionReconciler
 
     private function isHonestForElement(string $specificationId, string $key, DataRequirement $requirement): bool
     {
-        try {
-            $specWiring = $this->specWiring($specificationId, $key);
+        $specWiring = $this->specWiring($specificationId, $key);
 
-            if ($specWiring === null) {
-                return false;
-            }
-
-            $elementEncoded = $this->configCanonicalizer->canonicalize(
-                $this->configSerializerProvider->encode($requirement->source, $requirement->config)
-            );
-
-            return $specWiring['source'] === $requirement->source && $specWiring['encoded'] === $elementEncoded;
-        } catch (ContentSystemException $exception) {
-            if (!ContentSystemException::isClientDefect($exception)) {
-                throw $exception;
-            }
-
+        if ($specWiring === null) {
             return false;
         }
+
+        $elementEncoded = $this->configCanonicalizer->canonicalize(
+            $this->configSerializerProvider->encode($requirement->source, $requirement->config)
+        );
+
+        return $specWiring['source'] === $requirement->source && $specWiring['encoded'] === $elementEncoded;
     }
 
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
      * config, or null when the specification or its binding for $key no longer exists.
+     *
+     * Null is an answer, not a missing collaborator: an attribution names a specification the registry
+     * assembles at runtime from element-type directories and active app rows, and no write gate checks that
+     * name — {@see \Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec} decodes an
+     * `attributedSpecifications` entry on its shape alone. An uninstalled plugin, a deactivated app, a
+     * specification that dropped the key in a new version, or a caller who simply sent an unknown id all
+     * leave a live attribution with nothing behind it, and "nothing claims this wiring" is exactly the
+     * comparison's negative result.
      *
      * @return array{source: string, encoded: array<int|string, mixed>}|null
      */

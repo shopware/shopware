@@ -378,10 +378,10 @@ export default Shopware.Component.wrapComponentConfig({
                     const payload = event.data as PreviewMessagePayload;
 
                     if (
-                        payload?.type !== 'scroll-position'
-                        || payload.requestId !== requestId
-                        || typeof payload.top !== 'number'
-                        || typeof payload.left !== 'number'
+                        payload?.type !== 'scroll-position' ||
+                        payload.requestId !== requestId ||
+                        typeof payload.top !== 'number' ||
+                        typeof payload.left !== 'number'
                     ) {
                         return;
                     }
@@ -395,18 +395,22 @@ export default Shopware.Component.wrapComponentConfig({
                 window.addEventListener('message', onMessage);
                 timeoutId = window.setTimeout(() => finish(null), 250);
 
-                activeFrameWindow.postMessage({
-                    source: 'sw-experience-studio-admin',
-                    type: 'capture-scroll',
-                    requestId,
-                }, activeOrigin);
+                activeFrameWindow.postMessage(
+                    {
+                        source: 'sw-experience-studio-admin',
+                        type: 'capture-scroll',
+                        requestId,
+                    },
+                    activeOrigin,
+                );
             });
         },
 
         restoreFrameScrollPosition(frame: 'a' | 'b', scrollPosition: PreviewScrollPosition): Promise<void> {
-            const frameElement = frame === 'a'
-                ? this.$refs.iframeA as HTMLIFrameElement | null
-                : this.$refs.iframeB as HTMLIFrameElement | null;
+            const frameElement =
+                frame === 'a'
+                    ? (this.$refs.iframeA as HTMLIFrameElement | null)
+                    : (this.$refs.iframeB as HTMLIFrameElement | null);
 
             const frameWindow = frameElement?.contentWindow;
             const frameOrigin = this.getFrameOrigin(frame);
@@ -435,11 +439,11 @@ export default Shopware.Component.wrapComponentConfig({
                     const payload = event.data as PreviewMessagePayload;
 
                     if (
-                        event.source !== frameWindow
-                        || event.origin !== frameOrigin
-                        || payload?.source !== 'sw-experience-studio-preview'
-                        || payload?.type !== 'scroll-restored'
-                        || payload.requestId !== requestId
+                        event.source !== frameWindow ||
+                        event.origin !== frameOrigin ||
+                        payload?.source !== 'sw-experience-studio-preview' ||
+                        payload?.type !== 'scroll-restored' ||
+                        payload.requestId !== requestId
                     ) {
                         return;
                     }
@@ -450,13 +454,16 @@ export default Shopware.Component.wrapComponentConfig({
                 window.addEventListener('message', onMessage);
                 timeoutId = window.setTimeout(() => finish(), 250);
 
-                frameWindow.postMessage({
-                    source: 'sw-experience-studio-admin',
-                    type: 'restore-scroll',
-                    requestId,
-                    top: scrollPosition.top,
-                    left: scrollPosition.left,
-                }, frameOrigin);
+                frameWindow.postMessage(
+                    {
+                        source: 'sw-experience-studio-admin',
+                        type: 'restore-scroll',
+                        requestId,
+                        top: scrollPosition.top,
+                        left: scrollPosition.left,
+                    },
+                    frameOrigin,
+                );
             });
         },
 

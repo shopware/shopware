@@ -1,8 +1,10 @@
 import sidebarTreeNodeComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node', () => {
-    const computed = (sidebarTreeNodeComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
-    const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+    const computed = (sidebarTreeNodeComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> })
+        .computed;
+    const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
+        .methods;
 
     it('uses configured type icon when available', () => {
         const vm = {
@@ -86,7 +88,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         expect(
             methods.validateMoveDrop.call(
                 vm,
-                { elementId: 'parent', subtreeIds: ['parent', 'child'] },
+                {
+                    elementId: 'parent',
+                    subtreeIds: [
+                        'parent',
+                        'child',
+                    ],
+                },
                 { newParentElementId: 'child', newSlotName: 'main', newIndex: 0 },
             ),
         ).toBe(false);

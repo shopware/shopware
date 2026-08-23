@@ -173,11 +173,15 @@ export type SerializeBoxSpacingOptions = {
  * @private
  * @sw-package discovery
  */
-export function isBoxSpacingStyleOption(option: {
-    adminUI?: {
-        component?: string;
-    } | null;
-} | undefined): boolean {
+export function isBoxSpacingStyleOption(
+    option:
+        | {
+              adminUI?: {
+                  component?: string;
+              } | null;
+          }
+        | undefined,
+): boolean {
     return option?.adminUI?.component === 'box-spacing';
 }
 
@@ -210,10 +214,15 @@ export function normalizeBoxSpacingCSSValue(value: unknown): string {
 export function normalizeBoxSpacingStyleValueForWrite(value: unknown): unknown {
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         return Object.fromEntries(
-            Object.entries(value).map(([breakpoint, entryValue]) => [
-                breakpoint,
-                normalizeBoxSpacingCSSValue(entryValue),
-            ]),
+            Object.entries(value).map(
+                ([
+                    breakpoint,
+                    entryValue,
+                ]) => [
+                    breakpoint,
+                    normalizeBoxSpacingCSSValue(entryValue),
+                ],
+            ),
         );
     }
 
@@ -224,10 +233,7 @@ export function normalizeBoxSpacingStyleValueForWrite(value: unknown): unknown {
  * @private
  * @sw-package discovery
  */
-export function serializeBoxSpacing(
-    sides: BoxSpacingSides,
-    options: SerializeBoxSpacingOptions = {},
-): string {
+export function serializeBoxSpacing(sides: BoxSpacingSides, options: SerializeBoxSpacingOptions = {}): string {
     const hasAnyInput = [
         sides.top,
         sides.right,

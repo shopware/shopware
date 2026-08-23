@@ -1,7 +1,8 @@
 import sidebarTreeComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree', () => {
-    const methods = (sidebarTreeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+    const methods = (sidebarTreeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
+        .methods;
 
     it('emits move payload when element is dropped in root area', () => {
         const $emit = jest.fn();

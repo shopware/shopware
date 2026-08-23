@@ -139,10 +139,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        onRootDrop(
-            dragData: { elementId: string } | null,
-            dropData: Omit<MoveElementPayload, 'elementId'> | null,
-        ): void {
+        onRootDrop(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): void {
             if (!dragData || !dropData) {
                 return;
             }

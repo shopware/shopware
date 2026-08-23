@@ -50,10 +50,7 @@ const experienceStudioEditorStore = Shopware.Store.register({
             this.future = [];
         },
 
-        undo(
-            currentLayout: ContentElementNode[],
-            currentSelectedElementId: string | null,
-        ): EditorHistoryEntry | null {
+        undo(currentLayout: ContentElementNode[], currentSelectedElementId: string | null): EditorHistoryEntry | null {
             const previousEntry = this.past.pop();
 
             if (!previousEntry) {
@@ -66,10 +63,7 @@ const experienceStudioEditorStore = Shopware.Store.register({
             return previousEntry;
         },
 
-        redo(
-            currentLayout: ContentElementNode[],
-            currentSelectedElementId: string | null,
-        ): EditorHistoryEntry | null {
+        redo(currentLayout: ContentElementNode[], currentSelectedElementId: string | null): EditorHistoryEntry | null {
             const nextEntry = this.future.pop();
 
             if (!nextEntry) {

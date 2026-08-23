@@ -109,10 +109,12 @@ export default Shopware.Component.wrapComponentConfig({
         slotEntries(): Array<{ name: string; elements: ContentElementNode[] }> {
             const slots = this.contentElement.slots ?? {};
             const definedSlots = this.elementTypeStore.getByName(this.contentElement.component)?.slots ?? [];
-            const slotNames = Array.from(new Set([
-                ...definedSlots.map((slot) => slot.name),
-                ...Object.keys(slots),
-            ]));
+            const slotNames = Array.from(
+                new Set([
+                    ...definedSlots.map((slot) => slot.name),
+                    ...Object.keys(slots),
+                ]),
+            );
 
             return slotNames.map((name) => ({
                 name,
@@ -170,7 +172,10 @@ export default Shopware.Component.wrapComponentConfig({
             const nestedSlotElements = Object.values(element.slots ?? {}).flatMap((slotElements) => slotElements);
             const nestedIds = nestedSlotElements.flatMap((childElement) => this.collectSubtreeIds(childElement));
 
-            return [element.id, ...nestedIds];
+            return [
+                element.id,
+                ...nestedIds,
+            ];
         },
 
         dragConfig() {
@@ -218,10 +223,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            if (
-                dropData.newParentElementId
-                && dragData.subtreeIds.includes(dropData.newParentElementId)
-            ) {
+            if (dropData.newParentElementId && dragData.subtreeIds.includes(dropData.newParentElementId)) {
                 return false;
             }
 
@@ -237,10 +239,7 @@ export default Shopware.Component.wrapComponentConfig({
             return true;
         },
 
-        onDropElement(
-            dragData: { elementId: string } | null,
-            dropData: Omit<MoveElementPayload, 'elementId'> | null,
-        ): void {
+        onDropElement(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): void {
             if (!dragData || !dropData) {
                 return;
             }

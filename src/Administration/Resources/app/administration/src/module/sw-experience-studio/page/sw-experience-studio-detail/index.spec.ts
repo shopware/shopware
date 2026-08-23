@@ -115,13 +115,9 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             resolveMutationRootSource: () => null,
         };
 
-        const payload = methods.createDraftMutationPayload.call(
-            vm,
-            [element],
-            {
-                type: 'Sw:Content:Text',
-            },
-        );
+        const payload = methods.createDraftMutationPayload.call(vm, [element], {
+            type: 'Sw:Content:Text',
+        });
 
         expect(payload).toEqual({
             layout: [element],
@@ -297,9 +293,12 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             },
             requestDraftMutation: jest
                 .fn()
-                .mockImplementationOnce(() => new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
-                    resolveFirstRequest = resolve;
-                }))
+                .mockImplementationOnce(
+                    () =>
+                        new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
+                            resolveFirstRequest = resolve;
+                        }),
+                )
                 .mockResolvedValueOnce({
                     layout: [newerElement],
                     resolutions: {},
@@ -369,16 +368,11 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             }),
         };
 
-        await methods.requestDraftMutation.call(
-            vm,
-            'move',
-            [],
-            {
-                elementId: 'element-1',
-                newParentId: null,
-                newSlot: null,
-            },
-        );
+        await methods.requestDraftMutation.call(vm, 'move', [], {
+            elementId: 'element-1',
+            newParentId: null,
+            newSlot: null,
+        });
 
         expect(moveElement).toHaveBeenCalledWith({
             layout: [],

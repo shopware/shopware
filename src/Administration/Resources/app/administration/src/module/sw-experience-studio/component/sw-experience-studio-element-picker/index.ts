@@ -10,7 +10,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            categoryOrder: ['layout', 'content', 'commerce'],
+            categoryOrder: [
+                'layout',
+                'content',
+                'commerce',
+            ],
             fallbackCategoryKey: 'other',
         };
     },

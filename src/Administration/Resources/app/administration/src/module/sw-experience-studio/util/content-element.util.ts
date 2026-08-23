@@ -15,10 +15,7 @@ export interface ElementLocation {
  * @private
  * @sw-package discovery
  */
-export function findElementLocation(
-    layout: ContentElementNode[],
-    elementId: string,
-): ElementLocation | null {
+export function findElementLocation(layout: ContentElementNode[], elementId: string): ElementLocation | null {
     const rootIndex = layout.findIndex((element) => element.id === elementId);
 
     if (rootIndex !== -1) {
@@ -94,7 +91,10 @@ export function updateElementStyleInLayout(
         ...cloneDeep(style),
     };
 
-    for (const [key, value] of Object.entries(style)) {
+    for (const [
+        key,
+        value,
+    ] of Object.entries(style)) {
         if (value === null || value === undefined) {
             delete element.style[key];
         }
@@ -107,10 +107,7 @@ export function updateElementStyleInLayout(
     return true;
 }
 
-function findElementLocationInElement(
-    parent: ContentElementNode,
-    elementId: string,
-): ElementLocation | null {
+function findElementLocationInElement(parent: ContentElementNode, elementId: string): ElementLocation | null {
     const slots = parent.slots ?? {};
 
     for (const slotElements of Object.values(slots)) {

@@ -34,9 +34,11 @@ const { cloneDeep } = Shopware.Utils.object;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
 
-type LayoutMutationResult = false | {
-    selectedElementId?: string | null;
-};
+type LayoutMutationResult =
+    | false
+    | {
+          selectedElementId?: string | null;
+      };
 
 type AddElementPayload = {
     parentElementId: string | null;
@@ -321,11 +323,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.layout.version = '1.0.0';
                 this.layout.layout = [];
             } else {
-                this.layout = await this.layoutRepository.get(
-                    this.layoutId,
-                    Shopware.Context.api,
-                    this.layoutLoadCriteria,
-                );
+                this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
             }
 
             this.createWizardName = this.layout?.name ?? '';
@@ -381,10 +379,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 const repository = this.repositoryFactory.create(previewEntityType);
-                const entities = await repository.search(
-                    this.defaultPreviewEntityCriteria,
-                    Shopware.Context.api,
-                );
+                const entities = await repository.search(this.defaultPreviewEntityCriteria, Shopware.Context.api);
                 const firstEntity = entities.first();
 
                 if (!this.previewEntityId && firstEntity?.id) {
@@ -692,9 +687,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.onCloseElementPicker();
         },
 
-        applyLayoutMutation(
-            mutator: (layout: ContentElementNode[]) => LayoutMutationResult,
-        ): void {
+        applyLayoutMutation(mutator: (layout: ContentElementNode[]) => LayoutMutationResult): void {
             if (!this.layout || !this.allowSave) {
                 return;
             }
@@ -750,10 +743,7 @@ export default Shopware.Component.wrapComponentConfig({
                         return null;
                     }
 
-                    const selectedLocation = findElementLocation(
-                        response.layout,
-                        this.selectedElementId,
-                    );
+                    const selectedLocation = findElementLocation(response.layout, this.selectedElementId);
 
                     return selectedLocation ? this.selectedElementId : null;
                 },
@@ -873,19 +863,13 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
-        onElementSettingsChange(payload: {
-            elementId: string;
-            properties: Record<string, unknown>;
-        }): void {
+        onElementSettingsChange(payload: { elementId: string; properties: Record<string, unknown> }): void {
             this.applyLayoutMutation((layout) => {
                 return updateElementPropertiesInLayout(layout, payload.elementId, payload.properties) ? {} : false;
             });
         },
 
-        onElementStyleChange(payload: {
-            elementId: string;
-            style: Record<string, unknown>;
-        }): void {
+        onElementStyleChange(payload: { elementId: string; style: Record<string, unknown> }): void {
             this.applyLayoutMutation((layout) => {
                 return updateElementStyleInLayout(layout, payload.elementId, payload.style) ? {} : false;
             });
@@ -900,13 +884,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         extractMutationErrorCodes(error: unknown): string[] {
-            const responseErrors = (error as {
-                response?: {
-                    data?: {
-                        errors?: Array<{ code?: unknown }>;
+            const responseErrors = (
+                error as {
+                    response?: {
+                        data?: {
+                            errors?: Array<{ code?: unknown }>;
+                        };
                     };
-                };
-            }).response?.data?.errors;
+                }
+            ).response?.data?.errors;
 
             if (!Array.isArray(responseErrors)) {
                 return [];
@@ -930,7 +916,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (codes.some((code) => structuralErrorCodes.has(code))) {
                 this.createNotificationError({
-                    message: 'The layout edit is not valid in the current structure. Please review your change and try again.',
+                    message:
+                        'The layout edit is not valid in the current structure. Please review your change and try again.',
                 });
 
                 return;
@@ -1189,9 +1176,9 @@ export default Shopware.Component.wrapComponentConfig({
             const target = event.target;
 
             if (
-                target instanceof HTMLInputElement
-                || target instanceof HTMLTextAreaElement
-                || (target instanceof HTMLElement && target.isContentEditable)
+                target instanceof HTMLInputElement ||
+                target instanceof HTMLTextAreaElement ||
+                (target instanceof HTMLElement && target.isContentEditable)
             ) {
                 return;
             }
@@ -1234,11 +1221,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             await this.layoutRepository.save(layout, Shopware.Context.api);
-            this.layout = await this.layoutRepository.get(
-                layout.id,
-                Shopware.Context.api,
-                this.layoutLoadCriteria,
-            );
+            this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
             this.applyPreviewContextDefaults();
 
             this.createNotificationSuccess({

@@ -117,11 +117,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (!this.isLinked) {
-                const syncValue = this.sides.top
-                    || this.sides.right
-                    || this.sides.bottom
-                    || this.sides.left
-                    || '';
+                const syncValue = this.sides.top || this.sides.right || this.sides.bottom || this.sides.left || '';
 
                 this.sides = {
                     top: syncValue,

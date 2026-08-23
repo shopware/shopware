@@ -210,6 +210,26 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         }
     }
 
+    #[TestDox('throws when two tagged loaders declare the same source')]
+    public function testProcessThrowsForDuplicateLoaderSource(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(FirstDuplicateSourceLoader::class, $this->taggedLoader(FirstDuplicateSourceLoader::class));
+        $container->setDefinition(SecondDuplicateSourceLoader::class, $this->taggedLoader(SecondDuplicateSourceLoader::class));
+        $container->setDefinition(DuplicateSourceLoaderConfigSerializer::class, $this->taggedSerializer(DuplicateSourceLoaderConfigSerializer::class));
+
+        try {
+            (new ContentSystemDataLoaderCompilerPass())->process($container);
+
+            static::fail('Expected the compiler pass to reject the second loader declaring an already-declared source.');
+        } catch (DependencyInjectionException $exception) {
+            static::assertSame(DependencyInjectionException::DATA_LOADER_DUPLICATE_SOURCE, $exception->getErrorCode());
+            static::assertStringContainsString(FirstDuplicateSourceLoader::class, $exception->getMessage());
+            static::assertStringContainsString(SecondDuplicateSourceLoader::class, $exception->getMessage());
+            static::assertStringContainsString('test_duplicate_source', $exception->getMessage());
+        }
+    }
+
     /**
      * @return iterable<string, array{string, class-string, \Exception}>
      */
@@ -478,6 +498,17 @@ class OrphanSourceConfigSerializer extends StubConfigSerializer
     public static function getSource(): string
     {
         return 'test_orphan_source';
+    }
+}
+
+/**
+ * @internal
+ */
+class DuplicateSourceLoaderConfigSerializer extends StubConfigSerializer
+{
+    public static function getSource(): string
+    {
+        return 'test_duplicate_source';
     }
 }
 
@@ -1028,6 +1059,45 @@ class NonLiteralMergeTargetLoader extends AbstractContentDataLoader
             new ConfigKeySpecification('associations', ConfigKeyKind::PropertyReference, 'string', required: false),
             new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'list<string>', mergesInto: 'associations'),
         ]);
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * The first of a pair declaring one source: registered first, so it is the loader already in the map when the
+ * second one reaches the duplicate guard.
+ *
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class FirstDuplicateSourceLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_duplicate_source';
+    }
+
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
+ */
+class SecondDuplicateSourceLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'test_duplicate_source';
     }
 
     public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult

@@ -17,6 +17,7 @@ class DependencyInjectionException extends HttpException
     public const MISSING_ASSIGNABLE_DEFINITION = 'FRAMEWORK__MISSING_ASSIGNABLE_DEFINITION';
     public const ROOT_SOURCE_NAMESPACE_COLLISION = 'FRAMEWORK__ROOT_SOURCE_NAMESPACE_COLLISION';
     public const DATA_LOADER_RESERVED_SOURCE = 'FRAMEWORK__DATA_LOADER_RESERVED_SOURCE';
+    public const DATA_LOADER_DUPLICATE_SOURCE = 'FRAMEWORK__DATA_LOADER_DUPLICATE_SOURCE';
     public const DATA_LOADER_CONFIG_KEY_DUPLICATE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_DUPLICATE';
     public const DATA_LOADER_CONFIG_KEY_INVALID_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_TYPE';
     public const DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE';
@@ -93,6 +94,20 @@ class DependencyInjectionException extends HttpException
                 'Data loader "%s" uses the reserved source name "%s". The names "loader" and "config" are reserved by the binding sugar grammar and cannot name a loader source.',
                 $loaderClass,
                 $source
+            )
+        );
+    }
+
+    public static function dataLoaderDuplicateSource(string $loaderClass, string $existingLoaderClass, string $source): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_DUPLICATE_SOURCE,
+            \sprintf(
+                'Data loader "%s" declares the source "%s", which data loader "%s" already declares. A source must resolve to exactly one loader; decorate the registered loader instead of registering a second one under the same source.',
+                $loaderClass,
+                $source,
+                $existingLoaderClass
             )
         );
     }

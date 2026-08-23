@@ -378,7 +378,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             try {
-                const repository = this.repositoryFactory.create(previewEntityType);
+                const repository = this.repositoryFactory.create(previewEntityType as keyof EntitySchema.Entities);
                 const entities = await repository.search(this.defaultPreviewEntityCriteria, Shopware.Context.api);
                 const firstEntity = entities.first();
 

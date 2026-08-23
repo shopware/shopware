@@ -1,9 +1,10 @@
 # Rendering
 
-Turns one stored element forest into the rendered forest it serves as: resolves each element's data, resolves what context every element received, and mints the rendered tree.
+Turns one stored element forest into the rendered forest it serves as: resolves each element's data, resolves what context every element received, and mints the rendered tree. The wiring step that precedes it — context-wiring validation and redistribute derivation, both still on stored elements — lives here too, in `WiringPlanner`.
 
 ## Key Classes
 
+- `WiringPlanner` - Runs before the render step: validates the stored forest's context wiring on the pre-prune forest, then derives the redistribute broadcast providers on the pruned tree and returns that tree. `ContentPipeline` is its sole production caller
 - `ElementLowering` - Entry point, owns the render step as a whole and the FULL/SKELETON distinction
 - `ContextDeliveryResolver` - Walks the stored forest top-down and returns a `ContextDeliveryIndex`
 - `ContextDistributor` - The rule for ONE parent and its direct children: computes what each child receives and returns it

@@ -62,10 +62,12 @@ A client derives the specifications applicable to an element from the `bindingSp
 | `duplicate_element_id`       | intrinsic | error      |
 | `invalid_config`             | intrinsic | error      |
 | `mismatched_reference_type`  | intrinsic | error      |
+| `unknown_style_option`       | intrinsic | error      |
 | `orphaned_provider`          | intrinsic | warning    |
 | `unresolved_required`        | binding   | error      |
 | `ambiguous_required`         | binding   | error      |
 | `broken_required_chain`      | binding   | error      |
+| `unfilled_required_input`    | binding   | error      |
 | `unresolved_optional`        | binding   | warning    |
 
 `mismatched_reference_type` flags a stored reference wiring (any `dataRequirements` entry the element carries, not only one recorded in `attributedSpecifications`) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead; a config that resolves and fits produces no violation — it becomes a `stored` resolution instead (see the `origin` note above).

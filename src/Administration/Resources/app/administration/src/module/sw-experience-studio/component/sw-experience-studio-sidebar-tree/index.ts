@@ -134,7 +134,9 @@ export default Shopware.Component.wrapComponentConfig({
                     newSlotName: null,
                     newIndex: null,
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 validateDrop: this.validateMoveDrop,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onRootDrop,
             };
         },

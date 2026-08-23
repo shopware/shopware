@@ -187,6 +187,7 @@ export default Shopware.Component.wrapComponentConfig({
                     elementComponent: this.contentElement.component,
                     subtreeIds: this.collectSubtreeIds(this.contentElement),
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onDropElement,
             };
         },
@@ -199,6 +200,7 @@ export default Shopware.Component.wrapComponentConfig({
                     newSlotName: slotName,
                     newIndex: null,
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 validateDrop: this.validateMoveDrop,
             };
         },
@@ -211,6 +213,7 @@ export default Shopware.Component.wrapComponentConfig({
                     newSlotName: this.parentSlotName,
                     newIndex: this.indexInParent,
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 validateDrop: this.validateMoveDrop,
             };
         },

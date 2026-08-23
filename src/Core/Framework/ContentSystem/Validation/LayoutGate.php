@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The layout gate: the two gate predicates. It never throws — it returns a {@see DiagnosticsReport}.
  * Well-formedness gates persistence; resolvability for the declared root source gates serving.
+ *
+ * @internal
  */
 #[Package('framework')]
 class LayoutGate

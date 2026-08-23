@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * The data format's route response. It carries the whole render result, of which the response listener reads
  * only the resolved-value index: this format serves the values and their assignments without the structure.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

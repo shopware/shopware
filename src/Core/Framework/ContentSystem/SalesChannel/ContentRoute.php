@@ -21,6 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

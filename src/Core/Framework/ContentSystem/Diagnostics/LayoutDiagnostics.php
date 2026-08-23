@@ -26,6 +26,8 @@ use Shopware\Core\Framework\Log\Package;
  * With a null root context only the intrinsic (well-formedness) subset runs; binding checks require a
  * root context.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

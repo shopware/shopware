@@ -6,6 +6,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 abstract class AbstractContentSystemElementTypeRegistry
 {

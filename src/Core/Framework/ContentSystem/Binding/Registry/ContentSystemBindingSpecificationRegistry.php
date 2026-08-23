@@ -8,6 +8,9 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ContentSystemBindingSpecificationRegistry extends AbstractContentSystemBindingSpecificationRegistry
 {

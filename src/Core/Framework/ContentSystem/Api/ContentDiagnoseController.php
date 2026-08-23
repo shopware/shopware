@@ -19,6 +19,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 /**
  * No SalesChannelContext is built; diagnosis needs only the admin Context, passed straight through.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

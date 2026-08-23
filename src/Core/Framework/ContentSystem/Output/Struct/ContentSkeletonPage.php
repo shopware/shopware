@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * This struct reaches the wire through `StructEncoder`, so its property names ARE the response keys — which
  * is why they carry no `layout` prefix: one page vocabulary across the four formats.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

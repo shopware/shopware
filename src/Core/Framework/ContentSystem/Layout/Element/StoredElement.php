@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
  * Property values are {@see StoredValue}s rather than raw PHP values, which is what keeps a hydrated
  * entity out of the stored tree by type rather than by convention. The render-time counterpart carries
  * raw values, a flat property map and no wiring at all.
+ *
+ * @internal
  */
 #[Package('framework')]
 final readonly class StoredElement implements \JsonSerializable

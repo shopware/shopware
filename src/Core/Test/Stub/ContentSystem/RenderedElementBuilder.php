@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * The rendering-side test terminal. Unlike {@see StoredElementBuilder} it wraps nothing: a rendered
  * property value is already the raw PHP value the model carries, hydrated entities included.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

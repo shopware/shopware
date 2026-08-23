@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Previews how a draft content layout renders with real entity data, without persisting the layout.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

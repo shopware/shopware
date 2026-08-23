@@ -40,6 +40,7 @@ class InternalClassRule implements Rule
     private const INTERNAL_NAMESPACES = [
         '\\DevOps\\StaticAnalyze',
         '\\Core\\Maintenance',
+        '\\ContentSystem\\',
     ];
     private const SUBSCRIBER_EXCEPTIONS = [
         RefreshIndexCommand::class,

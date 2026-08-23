@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * to {} when empty; the element tree's own maps stay [] (the shape every other read path emits). Safe only on
  * this path; a future requirement that caches or reconstructs this object must revisit it.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

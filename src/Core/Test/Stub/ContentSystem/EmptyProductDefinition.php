@@ -7,6 +7,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * - cacheTags = null  → Loader is not cache-aware, page must not be cached
  * - cacheTags = []    → Cache-aware, no tags needed (e.g., data already tagged elsewhere)
  * - cacheTags = [...] → Cache-aware with specific invalidation tags
+ *
+ * @internal
  */
 #[Package('framework')]
 final class ContentDataLoaderResult

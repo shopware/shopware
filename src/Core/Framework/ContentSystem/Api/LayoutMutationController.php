@@ -33,6 +33,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 /**
  * The stateless draft-tree counterpart to {@see ContentLayoutMutationController}.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

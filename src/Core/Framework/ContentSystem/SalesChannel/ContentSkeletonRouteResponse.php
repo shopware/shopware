@@ -6,6 +6,8 @@ use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonPage;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

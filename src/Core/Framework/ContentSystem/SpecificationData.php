@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Bundles the data requirements derived from the entity definition with the
  * placeholder values derived from the request path and query parameters.
+ *
+ * @internal
  */
 #[Package('framework')]
 final readonly class SpecificationData

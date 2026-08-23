@@ -6,6 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

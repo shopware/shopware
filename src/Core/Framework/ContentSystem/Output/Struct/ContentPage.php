@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * It is not what any response body is encoded from. The full, decomposed and data encoders read the
  * {@see RenderResult} itself, so the wire shape does not pass through this class.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

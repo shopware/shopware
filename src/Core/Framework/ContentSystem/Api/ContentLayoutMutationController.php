@@ -31,6 +31,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 /**
  * The persisted counterpart to {@see LayoutMutationController}.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

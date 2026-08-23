@@ -18,6 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * "Is a preview envelope" means exactly what {@see ContentPreviewRequest} declares, and the declaration is
  * never restated here: the accepted field set is read off that DTO's constructor by reflection, and its
  * constraints are enforced by validating the constructed DTO against its own attributes.
+ *
+ * @internal
  */
 #[Package('framework')]
 class ContentPreviewPayloadStore

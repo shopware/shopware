@@ -6,6 +6,9 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecifica
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 abstract class AbstractContentSystemBindingSpecificationRegistry
 {

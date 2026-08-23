@@ -16,6 +16,10 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeMarkers
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
@@ -45,6 +49,13 @@ class DecorationPatternRule implements Rule
         RefreshableAppDryRun::class,
         RefreshableAppDryRun::class,
         AbstractAppLifecycle::class,
+        // The content system is enrolled in InternalClassRule::INTERNAL_NAMESPACES as '\ContentSystem\', so
+        // these abstracts carry @internal while keeping getDecorated for internal decoration only. One unit
+        // with that enrollment: de-internalizing the module removes both together.
+        AbstractContentSystemBindingSpecificationRegistry::class,
+        AbstractContentSystemStyleOptionRegistry::class,
+        AbstractContentSystemElementTypeRegistry::class,
+        AbstractContentRoute::class,
     ];
 
     public function getNodeType(): string

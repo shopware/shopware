@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * Single authority over the universal style option set, read by both validation and introspection.
+ *
+ * @internal
  */
 #[Package('framework')]
 abstract class AbstractContentSystemStyleOptionRegistry

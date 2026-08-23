@@ -30,6 +30,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * A listener replaces the forest rather than editing it: a rendered element is immutable, so an edit
  * produces new instances that only `replaceTree()` can put back.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

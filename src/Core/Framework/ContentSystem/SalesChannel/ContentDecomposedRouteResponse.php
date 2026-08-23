@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  * needs both halves of it: the rendered forest for the skeletons and the resolved-value index for the data and
  * assignment maps.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

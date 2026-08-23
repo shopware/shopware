@@ -16,6 +16,8 @@ use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

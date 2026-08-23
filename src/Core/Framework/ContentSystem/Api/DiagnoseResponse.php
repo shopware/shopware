@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * StructNormalizer::denormalize(). The transforming jsonSerialize() (empty map cast to {}) is safe only on this
  * path; a future requirement that caches or reconstructs this object must revisit it.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

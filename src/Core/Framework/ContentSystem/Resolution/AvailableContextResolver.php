@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Public Core service so the diagnostics kernel and the future mutation operations share one context walk.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

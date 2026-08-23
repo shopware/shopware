@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataContext;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 enum ContextType: string
 {

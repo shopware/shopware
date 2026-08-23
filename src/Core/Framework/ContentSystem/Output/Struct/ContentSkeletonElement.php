@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * place. The decomposed format used to share this struct through a second factory; it writes its own skeletons
  * now, so the only wire shape reaching a client from here is the skeleton format's.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 final readonly class ContextDefinitions
 {

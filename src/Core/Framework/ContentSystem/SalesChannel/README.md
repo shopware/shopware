@@ -4,7 +4,7 @@ Store API entry point. A single `ContentRoute` class serves all formats and cont
 
 ## Key Classes
 
-- `AbstractContentRoute` - Decorator base for route extension
+- `AbstractContentRoute` - Base class of `ContentRoute`. Route decoration is not an offered extension surface
 - `ContentRoute` - DI-parameterized: `RenderingSpecificationResolver` + `ContentSection` + content-layout `EntityRepository` + `AbstractResponseFactory`
 
 ## Endpoints

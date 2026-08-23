@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * FULL: Complete pipeline - preparation, render, finalization.
  * SKELETON: Skip hydration - returns layout structure without loaded data.
+ *
+ * @internal
  */
 #[Package('framework')]
 enum RenderingMode: string

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The typed named constructors and {@see fromDecoded()} are the only ingress for a raw PHP value; every
  * other operation takes and returns wrapped values.
+ *
+ * @internal
  */
 #[Package('framework')]
 final readonly class StoredValue implements \JsonSerializable

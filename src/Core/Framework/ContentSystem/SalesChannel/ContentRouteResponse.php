@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  * different parts of it: the response listener encodes the rendered forest, while an in-process consumer
  * takes the typed page.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

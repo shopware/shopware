@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -38,7 +39,7 @@ final class BindingApplicator
     /**
      * Wires a `resolves` entry only into a key the element carries no data requirement for yet, and attributes only
      * those keys — carried or already-bound wiring, and its attribution, is left untouched. The merge is the same
-     * existing-wins idiom {@see \Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder} uses for property
+     * existing-wins idiom {@see LayoutDefaultSeeder} uses for property
      * seeding (`$properties + $defaults`): the element's own map is the left-hand operand, so its keys win.
      */
     public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId): StoredElement

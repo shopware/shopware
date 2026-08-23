@@ -15,7 +15,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependen
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
@@ -99,7 +101,7 @@ class ContentRouteRenderingTest extends TestCase
      * The `cache.system` key `CachedContentSystemElementTypeRegistry` stores its specification map under —
      * the backing cache both the render step and the index build read the element types through.
      *
-     * @see \Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry
+     * @see CachedContentSystemElementTypeRegistry
      */
     private const ELEMENT_TYPE_CACHE_KEY = 'content_system.element_types';
 
@@ -1077,7 +1079,7 @@ class ContentRouteRenderingTest extends TestCase
     /**
      * The primitive property keys `$type` declares, read off the CACHED specification map rather than off a
      * fresh registry load, in declaration order — the order
-     * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory} emits an element's
+     * {@see ResolvedValueIndexFactory} emits an element's
      * declared primitives in.
      *
      * @return list<string>

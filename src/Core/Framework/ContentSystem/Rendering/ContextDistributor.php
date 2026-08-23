@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -43,13 +44,13 @@ final readonly class ContextDistributor
 
     /**
      * `$parentValues` is the parent's full working value map — its stored values, its loader-resolved values
-     * and the context delivered to it, merged in {@see \Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory}
+     * and the context delivered to it, merged in {@see RenderedElementFactory}
      * precedence order. Deliberately NOT the union-filtered rendered map: an undeclared stored key is a
      * legitimate provider source, and filtering first would make it quietly stop delivering with no error
      * anywhere.
      *
      * A provider whose value is `null` distributes nothing to anyone and writes no key. That gate lives here
-     * rather than in the strategies: {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig}
+     * rather than in the strategies: {@see BroadcastDistributionConfig}
      * has no null check of its own and would hand the null to every consumer at once.
      *
      * @param array<string, mixed> $parentValues the parent's merged working values, keyed by property

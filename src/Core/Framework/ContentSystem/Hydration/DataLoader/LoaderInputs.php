@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -29,7 +30,7 @@ final readonly class LoaderInputs
 
     /**
      * The whole resolved map, for a caller that must characterise the invocation rather than read one input:
-     * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory} hashes it so two
+     * {@see LoaderValueIdentityFactory} hashes it so two
      * loads of one source with different inputs cannot share a response reference. Not for loaders — they read
      * declared keys through the typed accessors, which is what keeps an undeclared read an authoring error.
      *

@@ -140,7 +140,7 @@ final readonly class WiringPlanner
      * Rejects two providers of one element that deliver to children under the same child-facing key.
      *
      * The child-facing key is the key the distributor matches children on
-     * ({@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor::distribute()}:
+     * ({@see ContextDistributor::distribute()}:
      * `distributionConfig->getConsumerAlias() ?? providerKey`). Two providers sharing it both deliver to
      * the same children and the later one silently wins by iteration order, so the layout is rejected
      * instead. The set judges the element's full delivery surface: the authored providers plus the
@@ -253,7 +253,7 @@ final readonly class WiringPlanner
      *
      * The provider is keyed by the property the consumer actually writes its received value to
      * (`propertyAlias ?? contextKey`), because a provider's key is the property
-     * {@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor} reads the
+     * {@see ContextDistributor} reads the
      * value from. The name children receive it under is a separate concern, carried by the broadcast
      * config's `consumerAlias` — the same selection mechanism an authored provider uses. Keying the
      * provider by `consumerAlias` instead would name a property the element never wrote, so a chained

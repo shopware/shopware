@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
 
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableTypeValidator;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnumValidator;
 use Shopware\Core\Framework\Log\Package;
 
 /**

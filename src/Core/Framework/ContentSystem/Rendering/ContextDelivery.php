@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 

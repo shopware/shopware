@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\ContentSystem\Output\Encoder;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -22,10 +24,10 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * that skipped it would publish every field of it. A non-`Struct` object value passes through untouched. What
  * is never safe is a non-`Struct` object holding a `Struct` anywhere in its object graph: this method sees one
  * opaque wrapper, so the contained `Struct` goes past the gate unrun. The index carries every rendered
- * property value whatever its {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin}, so the
+ * property value whatever its {@see ValueOrigin}, so the
  * bar is on whatever produced the value rather than on the subscribers of one event — a
- * {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener writing under
- * {@see \Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin::Injected} is the widest producer, not
+ * {@see RenderedTreeFinalizationEvent} listener writing under
+ * {@see ValueOrigin::Injected} is the widest producer, not
  * the only one. No producer of a property value on this path may hand over a non-`Struct` object containing a
  * `Struct` anywhere in its object graph; this encoder cannot enforce that, so the contract has to carry it.
  *

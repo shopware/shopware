@@ -7,8 +7,10 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -24,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  * has no registered config serializer, which raises
  * {@see ContentSystemException::configSerializerNotRegistered()} — is a wiring the write cannot judge, not
  * an unattributed element, so it escapes and refuses the write rather than being recorded as "not honest".
- * {@see \Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer::normalize()}
+ * {@see StoredElementListFieldSerializer::normalize()}
  * remaps it, like every other {@see ContentSystemException} raised under the write boundary, to a
  * `WriteConstraintViolationException` carrying that error code, so the caller is told what was wrong with the
  * payload.
@@ -134,7 +136,7 @@ class AttributionReconciler
      *
      * Null is an answer, not a missing collaborator: an attribution names a specification the registry
      * assembles at runtime from element-type directories and active app rows, and no write gate checks that
-     * name — {@see \Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec} decodes an
+     * name — {@see StoredElementCodec} decodes an
      * `attributedSpecifications` entry on its shape alone. An uninstalled plugin, a deactivated app, a
      * specification that dropped the key in a new version, or a caller who simply sent an unknown id all
      * leave a live attribution with nothing behind it, and "nothing claims this wiring" is exactly the

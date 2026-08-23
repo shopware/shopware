@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteRespo
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDataRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -93,7 +94,7 @@ class ContentResponseEncodingListener implements EventSubscriberInterface
 
     /**
      * A null says the response keeps its struct, which today is
-     * {@see \Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse} and only it. The
+     * {@see ContentSkeletonRouteResponse} and only it. The
      * preview response is not a case here: it is built by the full format's factory, so it arrives as a
      * {@see ContentRouteResponse} and is encoded as one.
      */

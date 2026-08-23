@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\RenderedTreeEditor;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
@@ -10,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Mints the rendered tree for one stored forest, folding {@see RenderedElementFactory} over it. The element
- * factory mints one element and this mints the forest; {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\RenderedTreeEditor}
+ * factory mints one element and this mints the forest; {@see RenderedTreeEditor}
  * is the third of the family, editing one that already exists.
  *
  * The fold runs bottom-up, and the type system is what makes it so: `RenderedElementFactory::create()` takes

@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\ContentSystem\Output\Index;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -60,7 +62,7 @@ use Shopware\Core\Framework\Log\Package;
  *   ref exactly when it *is* the provider's value. A transformed delivery (keyed, indexed, sliced, iterator,
  *   dotted) is a different value and gets a different ref with no special-casing anywhere.
  * - the value map, for non-object non-null values, comparing by the value equality
- *   {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue::equals()} defines: scalars by
+ *   {@see StoredValue::equals()} defines: scalars by
  *   `===`, lists positionally, maps per key with key order irrelevant, and a list never equal to a map.
  *
  * A loader-resolved key whose finished value is NOT the loader's own — a finalization listener replaced it,
@@ -262,7 +264,7 @@ final readonly class ResolvedValueIndexFactory
     }
 
     /**
-     * Reads the same way {@see \Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory} does,
+     * Reads the same way {@see RenderedElementFactory} does,
      * including that a component naming no registered type declares nothing rather than failing.
      *
      * @return array<string, PropertySpecification>
@@ -456,7 +458,7 @@ final readonly class ResolvedValueIndexFactory
 
     /**
      * The value map's equality, mirroring
-     * {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue::equals()}: scalars by `===`,
+     * {@see StoredValue::equals()}: scalars by `===`,
      * lists positionally, maps per key with key order irrelevant, and a list never equal to a map. Rendered
      * values are raw PHP rather than wrapped, so they can hold an object where a stored value cannot; a nested
      * object compares by identity, which is the same rule objects follow at the top level.

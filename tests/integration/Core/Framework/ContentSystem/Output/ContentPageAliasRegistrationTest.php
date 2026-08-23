@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
+use Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel\ContentRouteRenderingTest;
 
 /**
  * Pins the one constraint that makes `Output/Struct/EncodedContentPage` safe: a content page alias resolves to
@@ -28,7 +29,7 @@ use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
  * Each alias is read from its own source of truth rather than repeated as a literal, so a rename re-points the
  * pin at the new name. The wire strings themselves are pinned separately, by the per-format `apiAlias`
  * assertions in
- * {@see \Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel\ContentRouteRenderingTest}.
+ * {@see ContentRouteRenderingTest}.
  *
  * @internal
  */

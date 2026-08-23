@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,7 +27,7 @@ use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfig;
  *
  * - Parent context: a required `media` reference satisfied by a root-ambient `MediaEntity` context (not by the
  *   element's own stored wiring) is resolvable and never gates, even with no `mediaId` value; the rule fires only
- *   on a {@see \Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin::Stored} resolution.
+ *   on a {@see CandidateOrigin::Stored} resolution.
  * - Navigation shape: the same reference wired through a loader whose only `propertyReference` key is defaulted
  *   ({@see TestNavigationShapedLoader}, tag-registered in services_test.php) resolves via its own stored wiring but
  *   demands no input, because no config key is a required `propertyReference`. This is the shipped `navigation`

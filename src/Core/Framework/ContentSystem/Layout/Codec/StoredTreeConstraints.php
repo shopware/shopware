@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
@@ -119,7 +120,7 @@ final class StoredTreeConstraints
     /**
      * One string-keyed wiring map: the container itself, its key types, and — when given — the constraints
      * every entry carries. Decode rejects a non-string key in each of these maps, through
-     * {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement}'s constructor, through
+     * {@see StoredElement}'s constructor, through
      * {@see StoredElementCodec}'s own key checks, or through its `stringKeyed()` guard, so pairing the key
      * check with the container check here keeps a map added later in step by construction.
      *

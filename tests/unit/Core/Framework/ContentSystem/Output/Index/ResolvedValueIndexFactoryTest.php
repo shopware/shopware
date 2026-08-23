@@ -22,6 +22,7 @@ use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -820,7 +821,7 @@ class ResolvedValueIndexFactoryTest extends TestCase
 
     /**
      * The consumer shape the five strategies inspect, as
-     * {@see \Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor} assembles it: the child's
+     * {@see ContextDistributor} assembles it: the child's
      * component and its unwrapped stored property values.
      *
      * @param array<string, mixed> $properties

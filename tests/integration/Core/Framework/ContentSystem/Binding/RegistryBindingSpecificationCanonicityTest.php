@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * Proves at the registry level: every specification the aggregated registry serves in the integration
- * environment carries only canonical {@see \Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding}s,
+ * environment carries only canonical {@see LoaderBinding}s,
  * each `resolves` entry's loader is a registered data-loader source and its config decodes through that loader's
  * config serializer without error. This is the runtime counterpart to the load-time canonicalization the sugar
  * ladder performs: no sugar shape survives into a registered specification. The registry is built from the real

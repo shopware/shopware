@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type;
 
+use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -22,7 +25,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The two binding-derived tiers are one traversal of this type's binding specifications, discriminated per
  * config key: an entry is `resolvedByStorage` when its specification is the type's synthesized default
- * ({@see \Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification::isDefault()}:
+ * ({@see BindingSpecification::isDefault()}:
  * `id === type`, which holds exactly for what the `resolvedBy` shorthand synthesizes, because an authored
  * `bindings:` key equal to the type name is rejected as a reserved id) AND the key is the one the synthesizer
  * treats as the storage key ({@see ResolvedByLoaderBranch::STORAGE_KEY_CONFIG_KEY}). Every other
@@ -38,9 +41,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * No error path guards {@see DataLoaderProvider::get()}, which throws on an unregistered source: a registered
  * binding specification always names a registered loader, because
- * {@see \Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification} resolves
+ * {@see TypeConsistentBindingSpecification} resolves
  * every `resolves` entry's produced type through the loader at load time and
- * {@see \Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader} skips a row
+ * {@see DatabaseBindingSpecificationLoader} skips a row
  * that fails validation. If that invariant ever breaks, the throw is the correct outcome: a swallowed loader
  * would publish a storage schema silently missing keys, indistinguishable from a type that stores nothing.
  *

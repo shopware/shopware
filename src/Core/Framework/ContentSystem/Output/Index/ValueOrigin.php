@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Index;
 
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -10,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * stated and enforced; this declaration only keeps the two readable side by side.
  *
  * The first four cases are the four members
- * {@see \Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory} composes a rendered
+ * {@see RenderedElementFactory} composes a rendered
  * element's property map from, named after the terms that class states them in, so the two sets can be read
  * against each other without a translation table. The fifth has no counterpart there because it names a key
  * that class never wrote.
@@ -44,7 +46,7 @@ enum ValueOrigin
     /**
      * A rendered property key with no provenance at all.
      *
-     * A listener on {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} replaces
+     * A listener on {@see RenderedTreeFinalizationEvent} replaces
      * the whole rendered forest, so it may put any key on any element, and the index is built after that event
      * has run. Such a key was never produced by a pipeline tier and nothing recorded a provenance entry for it,
      * yet it is on the element and the response has to carry its value — so it gets a ref like every other key,

@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
@@ -23,13 +27,13 @@ use Shopware\Core\Framework\Log\Package;
  * - requirement keys — the keys of the element's data requirements, carrying the resolved loader value
  * - delivered context keys — the keys context was actually delivered under, carrying the delivered value
  * - distribution-referenced keys — stored keys a parent's distribution config dereferences by name (today
- *   only {@see \Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig::$keyProperty}),
+ *   only {@see KeyedDistributionConfig::$keyProperty}),
  *   carrying the stored value under that key, unless that key is a declared reference property
  *
  * "Delivered" means delivered: a consumer key the element declares but which no ancestor fulfilled is not
  * a member, so it does not appear at all rather than appearing as null. An explicit null on a rendered
  * property means a resolution ran and found nothing, and it has exactly two producers: a loader's
- * {@see \Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult::notFound()},
+ * {@see ContentDataLoaderResult::notFound()},
  * and a context delivery that resolved to nothing (an under-supplied distribution strategy handing an
  * unmatched consumer null, or an optional dotted consumer key whose value cannot be traversed). Neither
  * authoring nor non-delivery is among them — an authored null and an undelivered consumer key are both
@@ -142,7 +146,7 @@ final readonly class RenderedElementFactory
      * not the null variant. An authored null is no value, so it contributes no key, which is what keeps
      * authoring out of the producer set for a rendered null — that null always means some resolution ran
      * and found nothing, never that someone typed one. It is also the reading the resolvability gate
-     * already takes: {@see \Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics} counts a
+     * already takes: {@see LayoutDiagnostics} counts a
      * required property holding an authored null as unresolved, so a value the gate refuses to call
      * satisfied must not render as a satisfied one.
      *
@@ -175,7 +179,7 @@ final readonly class RenderedElementFactory
     /**
      * The declared tier's half of the invariant above: it carries the declared primitives and leaves every
      * declared reference to whichever loader resolves it. `isPrimitive()` is the same predicate
-     * {@see \Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider} keys off, so the
+     * {@see PrimitiveDefaultProvider} keys off, so the
      * set seeded into storage and the set served from it are the same set by construction.
      *
      * @param array<string, PropertySpecification> $declaredProperties

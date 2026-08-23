@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto;
 
+use Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
@@ -24,7 +25,7 @@ final readonly class BindingSpecificationDtoCollection
 {
     /**
      * @param array<string, BindingSpecificationDto> $bindings keyed by binding id, each dto already canonicalized
-     *                                                         ({@see \Shopware\Core\Framework\ContentSystem\Binding\Serialization\BindingSpecificationCanonicalizer}); the semantic constraint assumes
+     *                                                         ({@see BindingSpecificationCanonicalizer}); the semantic constraint assumes
      *                                                         canonical `{loader, config}` resolves entries and skips sugared (non-array) ones, leaving only the
      *                                                         shape constraint to reject them
      * @param array<string, ContentSystemElementTypeSpecification> $typeOverlay type-name → spec, resolved before the

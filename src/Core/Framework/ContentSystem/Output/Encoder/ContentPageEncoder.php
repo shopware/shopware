@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Encoder;
 
+use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\EncodedContentPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
@@ -29,7 +30,7 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * whatever produced the value rather than on the subscribers of one event. The tiers that fill a rendered
  * property differ only in how wide the opening is: a stored value is a JSON value and a loader value is a
  * `?Struct`, while a delivered context value is whatever a dotted consumer key found on an entity, and a
- * {@see \Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent} listener replacing the
+ * {@see RenderedTreeFinalizationEvent} listener replacing the
  * rendered forest may write anything at all under any key. No producer of a property value on this path may
  * hand over a non-`Struct` object containing a `Struct` anywhere in its object graph; this encoder cannot
  * enforce that, so the extension contract has to carry it.

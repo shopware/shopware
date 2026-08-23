@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -210,7 +211,7 @@ class AvailableContextResolver
 
     /**
      * Rejects an element whose providers would deliver to children under a shared child-facing key — the
-     * gate-side mirror of {@see \Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner}'s wiring
+     * gate-side mirror of {@see WiringPlanner}'s wiring
      * validation, judging the same set the serving path serves: the declared providers (matched by
      * `distributionConfig->getConsumerAlias() ?? providerKey`, the key {@see expose()} and the distributor
      * both match children on) plus the broadcast providers the redistribution derivation adds from

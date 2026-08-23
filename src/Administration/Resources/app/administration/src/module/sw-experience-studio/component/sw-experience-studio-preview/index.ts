@@ -359,9 +359,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             return new Promise((resolve) => {
                 let timeoutId: number | null = null;
+                let onMessage: ((event: MessageEvent) => void) | null = null;
 
                 const finish = (result: PreviewScrollPosition | null): void => {
-                    window.removeEventListener('message', onMessage);
+                    if (onMessage) {
+                        window.removeEventListener('message', onMessage);
+                    }
 
                     if (timeoutId !== null) {
                         window.clearTimeout(timeoutId);
@@ -370,7 +373,7 @@ export default Shopware.Component.wrapComponentConfig({
                     resolve(result);
                 };
 
-                const onMessage = (event: MessageEvent): void => {
+                onMessage = (event: MessageEvent): void => {
                     if (!this.isTrustedPreviewMessage(event)) {
                         return;
                     }
@@ -424,9 +427,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             return new Promise((resolve) => {
                 let timeoutId: number | null = null;
+                let onMessage: ((event: MessageEvent) => void) | null = null;
 
                 const finish = (): void => {
-                    window.removeEventListener('message', onMessage);
+                    if (onMessage) {
+                        window.removeEventListener('message', onMessage);
+                    }
 
                     if (timeoutId !== null) {
                         window.clearTimeout(timeoutId);
@@ -435,7 +441,7 @@ export default Shopware.Component.wrapComponentConfig({
                     resolve();
                 };
 
-                const onMessage = (event: MessageEvent): void => {
+                onMessage = (event: MessageEvent): void => {
                     const payload = event.data as PreviewMessagePayload;
 
                     if (

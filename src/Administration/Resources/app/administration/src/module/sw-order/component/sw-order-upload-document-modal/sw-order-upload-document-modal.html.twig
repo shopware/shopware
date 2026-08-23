@@ -1,0 +1,143 @@
+{% block sw_order_upload_document_modal %}
+<sw-modal
+    class="sw-order-upload-document-modal"
+    :title="$t('sw-order.components.uploadDocumentModal.title')"
+    :is-loading="isModalLoading"
+    @modal-close="onCancel"
+>
+    <div class="sw-order-upload-document-modal__header-fields">
+        <mt-select
+            v-model="documentTypeId"
+            class="sw-order-upload-document-modal__document-type"
+            :label="$t('sw-order.components.createDocumentModal.labelDocumentType')"
+            :placeholder="$t('sw-order.components.createDocumentModal.placeholderDocumentType')"
+            :options="documentTypeOptions"
+            :disabled="isLoading"
+            required
+        />
+
+        <mt-select
+            v-model="selectedFileFormat"
+            class="sw-order-upload-document-modal__file-format"
+            label-property="label"
+            value-property="value"
+            :label="$t('sw-order.components.uploadDocumentModal.labelFileFormat')"
+            :placeholder="$t('sw-order.components.uploadDocumentModal.placeholderFileFormat')"
+            :options="fileFormatOptions"
+            :disabled="!currentDocumentType || isModalLoading"
+            :help-text="$t('sw-order.components.uploadDocumentModal.helpTextFileFormat')"
+            required
+        />
+    </div>
+
+    <div class="sw-order-upload-document-modal__body">
+        <hr
+            v-if="!isModalLoading"
+            class="sw-order-upload-document-modal__divider"
+        >
+
+        <div
+            v-if="!isModalLoading && !currentDocumentType"
+            class="sw-order-upload-document-modal__empty-state"
+        >
+            <mt-empty-state
+                centered
+                icon="regular-files"
+                :headline="$t('sw-order.components.createDocumentModal.emptyStateTitle')"
+            />
+        </div>
+
+        <div
+            v-else-if="!isModalLoading"
+            class="sw-order-upload-document-modal__content"
+        >
+            <div class="sw-order-upload-document-modal__type-specific-fields">
+                <mt-text-field
+                    v-model="documentConfig.documentNumber"
+                    class="sw-order-upload-document-modal__document-number"
+                    :label="isStornoDocument ? $t('sw-order.documentModal.labelDocumentStornoNumber') : $t('sw-order.documentModal.labelDocumentNumber')"
+                    :error="documentNumberErrorMessage"
+                    required
+                />
+            </div>
+
+            <div class="sw-order-upload-document-modal__upload">
+                <sw-upload-listener
+                    auto-upload
+                    :upload-tag="order.id"
+                    @media-upload-finish="successfulUploadFromUrl"
+                />
+
+                <sw-media-upload-v2
+                    ref="fileInput"
+                    variant="small"
+                    class="sw-order-upload-document-modal__file-input"
+                    use-file-data
+                    required
+                    :source="selectedDocumentFile"
+                    :label="$t('sw-order.components.uploadDocumentModal.labelDocumentUpload')"
+                    :allow-multi-select="false"
+                    :file-accept="fileAcceptTypes"
+                    :max-file-size="features.uploadFileSizeLimit"
+                    :button-label="$t('sw-order.components.uploadDocumentModal.buttonUploadFile')"
+                    default-folder="document"
+                    :upload-tag="order.id"
+                    @media-upload-add-file="onAddDocument"
+                    @media-upload-remove-image="removeCustomDocument"
+                />
+            </div>
+        </div>
+    </div>
+
+    <template #modal-footer>
+        <mt-button
+            size="small"
+            variant="secondary"
+            :disabled="isLoadingDocument"
+            @click="onCancel"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+
+        <sw-button-group split-button>
+            <mt-button
+                class="sw-order-upload-document-modal__upload-button"
+                variant="primary"
+                size="small"
+                :disabled="invalidInput"
+                :is-loading="isLoadingDocument"
+                @click="onUploadDocument"
+            >
+                {{ $t('sw-order.components.uploadDocumentModal.upload') }}
+            </mt-button>
+
+            <sw-context-button
+                class="sw-order-upload-document-modal__upload-button-arrow"
+                :disabled="invalidInput"
+            >
+                <template #button>
+                    <mt-button
+                        square
+                        variant="primary"
+                        size="small"
+                        :disabled="invalidInput"
+                    >
+                        <mt-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </mt-button>
+                </template>
+
+                <sw-context-menu-item
+                    class="sw-order-upload-document-modal__upload-button-send"
+                    :disabled="invalidInput"
+                    @click="onUploadDocument('send')"
+                >
+                    {{ $t('sw-order.components.uploadDocumentModal.uploadAndSend') }}
+                </sw-context-menu-item>
+            </sw-context-button>
+        </sw-button-group>
+    </template>
+</sw-modal>
+{% endblock %}

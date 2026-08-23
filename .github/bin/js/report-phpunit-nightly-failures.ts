@@ -36,11 +36,8 @@ interface DomainIssue extends IssueContent {
 }
 
 interface IssuePayload {
-  parent: IssueContent;
-  domains: DomainIssue[];
+  issues: DomainIssue[];
 }
-
-export const ISSUE_MARKER = '<!-- nightly-phpunit-failures -->';
 
 const MAX_TESTS_PER_DOMAIN = 40;
 const UNROUTED_LABEL = 'needs manual routing';
@@ -62,7 +59,7 @@ const PACKAGE_LABELS: Record<string, string> = {
   'data-services': 'service/data-intelligence',
 };
 
-const PACKAGE_ATTRIBUTE = /#\[Package\('([^']+)'\)\]/;
+const PACKAGE_ATTRIBUTE = /#\[Package\('([^']+)'\)\]|@sw-package\s+([\w@:-]+)/;
 
 function decodeXmlEntities(value: string): string {
   return value
@@ -130,15 +127,57 @@ export function parseJUnitReport(xml: string): FailedTest[] {
   return failures;
 }
 
+/**
+ * jest-junit reports carry no file attribute and duplicate the describe chain into both
+ * classname and name; the testsuite name is the root describe title. The spec file is
+ * recovered from the failure stack trace, falling back to the suite title when it is a
+ * component path by convention.
+ */
+export function parseJestJUnitReport(xml: string, appRoot: string): FailedTest[] {
+  const failures: FailedTest[] = [];
+
+  for (const suite of xml.matchAll(/<testsuite\b([^>]*)>([\s\S]*?)<\/testsuite>/g)) {
+    const suiteName = parseAttributes(suite[1])['name'] ?? 'unknown';
+    // any stack trace in the suite names the spec file; a path-like suite title is the
+    // component directory by convention — either carries the routing @sw-package marker
+    const suiteSpecFile = suite[2].match(/[^\s():]+\.spec\.[jt]s/)?.[0];
+    const suiteFile = suiteSpecFile
+      ? toRepoRelative(suiteSpecFile)
+      : (suiteName.startsWith('src/') ? `${appRoot}/${suiteName}` : '');
+
+    for (const testcase of suite[2].matchAll(/<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g)) {
+      const body = testcase[2];
+      const failure = body?.match(/<(failure|error)\b[^>]*>([\s\S]*?)<\/\1>/);
+      if (!failure) {
+        continue;
+      }
+
+      const attributes = parseAttributes(testcase[1]);
+      const name = attributes['name'] ?? 'unknown';
+
+      failures.push({
+        className: suiteName,
+        testName: name.startsWith(`${suiteName} `) ? name.slice(suiteName.length + 1) : name,
+        file: suiteFile,
+        message: firstMessageLine(decodeXmlEntities(failure[2])),
+      });
+    }
+  }
+
+  return failures;
+}
+
 function tryReadPackageKey(file: string): string | null {
   try {
-    return readFileSync(file, 'utf8').match(PACKAGE_ATTRIBUTE)?.[1] ?? null;
+    const match = readFileSync(file, 'utf8').match(PACKAGE_ATTRIBUTE);
+
+    return match?.[1] ?? match?.[2] ?? null;
   } catch {
     return null;
   }
 }
 
-// Dominant #[Package] key among the PHP files of one directory (non-recursive).
+// Dominant package key among the PHP/JS/TS files of one directory (non-recursive).
 function dominantPackageKey(directory: string): string | null {
   let entries;
   try {
@@ -149,7 +188,7 @@ function dominantPackageKey(directory: string): string | null {
 
   const counts = new Map<string, number>();
   for (const entry of entries) {
-    if (!entry.isFile() || !entry.name.endsWith('.php')) {
+    if (!entry.isFile() || !/\.(php|js|ts)$/.test(entry.name)) {
       continue;
     }
     const key = tryReadPackageKey(join(directory, entry.name));
@@ -175,9 +214,20 @@ export function resolvePackageKey(testFile: string, repoRoot: string): string | 
     return null;
   }
 
+  // Jest failures reference their component directory instead of a file
+  const stats = statSync(join(repoRoot, testFile), { throwIfNoEntry: false });
+  if (stats?.isDirectory()) {
+    return dominantPackageKey(join(repoRoot, testFile));
+  }
+
   const ownKey = tryReadPackageKey(join(repoRoot, testFile));
   if (ownKey) {
     return ownKey;
+  }
+
+  // Jest specs sit next to their component sources
+  if (/\.spec\.[jt]s$/.test(testFile)) {
+    return dominantPackageKey(join(repoRoot, dirname(testFile)));
   }
 
   // tests/{integration,unit}/ mirrors src/, tests/migration/<Bundle>/ mirrors
@@ -225,37 +275,29 @@ function formatTest(test: FailedTest): string {
   return `- \`${shortClass}::${test.testName}\`${message}`;
 }
 
-function testCount(count: number): string {
-  return count === 1 ? '1 failing test' : `${count} failing tests`;
-}
-
 const TRIAGE_NOTE =
-  'Grouping uses the test files\' `#[Package]` markers only. Root-cause clustering, routing overrides, ' +
-  'and re-routing between the domain sub-issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
+  'Grouping uses the test files\' `#[Package]`/`@sw-package` markers only. Root-cause clustering, routing overrides, ' +
+  'and re-routing between the per-domain issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
 
-function buildParentLines(groups: DomainGroup[], runUrl: string): string[] {
-  const totalCount = groups.reduce((sum, group) => sum + group.tests.length, 0);
-  const lines = [`Run: ${runUrl}`, `Failing tests: ${totalCount}`];
+// A run can fail without producing any junit report (infrastructure failure,
+// a shard dying before reporting). That still needs an issue — a run that
+// reports nothing must not look like a run without failures.
+function buildNoReportsIssue(issueTitle: string, runUrl: string): DomainIssue {
+  const marker = '<!-- nightly-phpunit-failures:no-reports -->';
+  const title = `${issueTitle}: no test reports`;
+  const lines = [
+    `Run: ${runUrl}`,
+    '',
+    'No junit reports were produced: the failure is outside the reported test suites (PHPUnit and Jest), or a job died before reporting. Check the run logs.',
+  ];
 
-  if (groups.length === 0) {
-    lines.push('');
-    lines.push(
-      'No junit reports were produced: the failure is outside PHPUnit, or a shard died before reporting. Check the run logs.'
-    );
-    return lines;
-  }
-
-  lines.push('');
-  for (const group of groups) {
-    const packageKeys = group.packageKeys.size > 0 ? [...group.packageKeys].sort().join(', ') : 'none resolved';
-    lines.push(`- **${group.label}**: ${testCount(group.tests.length)} (package keys: ${packageKeys})`);
-  }
-  lines.push('');
-  lines.push('Per-domain details live in the sub-issues.');
-  lines.push('');
-  lines.push(TRIAGE_NOTE);
-
-  return lines;
+  return {
+    issueTitle: title,
+    issueMarker: marker,
+    label: null,
+    issueBody: [marker, `# ${title}`, '', 'Latest failure:', '', ...lines].join('\n').trimEnd(),
+    commentBody: [marker, '## Scheduled test failure update', '', ...lines].join('\n').trimEnd(),
+  };
 }
 
 function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
@@ -272,26 +314,11 @@ function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
 }
 
 export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], runUrl: string): IssuePayload {
-  const parentLines = buildParentLines(groups, runUrl);
-  const parent: IssueContent = {
-    issueTitle,
-    issueMarker: ISSUE_MARKER,
-    issueBody: [
-      ISSUE_MARKER,
-      `# ${issueTitle}`,
-      '',
-      'This issue tracks failing scheduled PHPUnit runs: one sub-issue per owning domain, new failures are added as comments.',
-      '',
-      'Latest failure:',
-      '',
-      ...parentLines,
-    ]
-      .join('\n')
-      .trimEnd(),
-    commentBody: [ISSUE_MARKER, '## Scheduled PHPUnit failure update', '', ...parentLines].join('\n').trimEnd(),
-  };
+  if (groups.length === 0) {
+    return { issues: [buildNoReportsIssue(issueTitle, runUrl)] };
+  }
 
-  const domains = groups.map((group): DomainIssue => {
+  const issues = groups.map((group): DomainIssue => {
     const slug = group.label === UNROUTED_LABEL ? 'needs-manual-routing' : group.label;
     const marker = `<!-- nightly-phpunit-failures:${slug} -->`;
     const title = `${issueTitle}: ${group.label}`;
@@ -305,7 +332,9 @@ export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], run
         marker,
         `# ${title}`,
         '',
-        'Failing scheduled PHPUnit tests grouped to this domain by their `#[Package]` markers. New failures are added as comments.',
+        'Failing scheduled tests grouped to this domain, PHPUnit by its `#[Package]` markers, Jest by its `@sw-package` markers. New failures are added as comments.',
+        '',
+        TRIAGE_NOTE,
         '',
         'Latest failure:',
         '',
@@ -313,11 +342,11 @@ export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], run
       ]
         .join('\n')
         .trimEnd(),
-      commentBody: [marker, '## Scheduled PHPUnit failure update', '', ...lines].join('\n').trimEnd(),
+      commentBody: [marker, '## Scheduled test failure update', '', ...lines].join('\n').trimEnd(),
     };
   });
 
-  return { parent, domains };
+  return { issues };
 }
 
 function collectXmlFiles(directory: string): string[] {
@@ -358,7 +387,7 @@ function main(): void {
   const seen = new Set<string>();
   const failures: FailedTest[] = [];
   for (const xmlFile of xmlFiles) {
-    for (const failure of parseJUnitReport(readFileSync(xmlFile, 'utf8'))) {
+    for (const failure of parseReport(xmlFile)) {
       const key = `${failure.className}::${failure.testName}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -371,6 +400,25 @@ function main(): void {
 
   writeFileSync(payloadFile, `${JSON.stringify(payload)}\n`, 'utf8');
   console.log(`${failures.length} failing tests aggregated from ${xmlFiles.length} junit reports.`);
+}
+
+/** Jest artifacts land in jest-* subdirectories (see report-phpunit-failures.yml). */
+export function jestAppRoot(xmlFile: string): string | null {
+  const segment = xmlFile.split('/').find((part) => part.startsWith('jest-'));
+  if (!segment) {
+    return null;
+  }
+
+  return segment.includes('storefront')
+    ? 'src/Storefront/Resources/app/storefront'
+    : 'src/Administration/Resources/app/administration';
+}
+
+function parseReport(xmlFile: string): FailedTest[] {
+  const xml = readFileSync(xmlFile, 'utf8');
+  const appRoot = jestAppRoot(xmlFile);
+
+  return appRoot === null ? parseJUnitReport(xml) : parseJestJUnitReport(xml, appRoot);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

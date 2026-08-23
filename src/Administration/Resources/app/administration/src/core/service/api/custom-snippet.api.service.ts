@@ -1,4 +1,5 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -45,7 +46,7 @@ interface Address {
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class CustomSnippetApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
+    constructor(httpClient: HttpClient, loginService: LoginService) {
         super(httpClient, loginService, 'custom-snippet', 'application/json');
 
         this.name = 'customSnippetApiService';

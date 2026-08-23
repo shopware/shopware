@@ -1,0 +1,83 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartPrice": {
+                "type": "object",
+                "description": "Represents the total calculated price of a cart or order, including taxes and the tax status.",
+                "properties": {
+                    "netPrice": {
+                        "type": "number"
+                    },
+                    "totalPrice": {
+                        "type": "number"
+                    },
+                    "positionPrice": {
+                        "type": "number"
+                    },
+                    "rawTotal": {
+                        "type": "number"
+                    },
+                    "taxStatus": {
+                        "type": "string",
+                        "enum": ["gross", "net", "tax-free"]
+                    },
+                    "calculatedTaxes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "apiAlias": {
+                                    "type": "string",
+                                    "const": "cart_tax_calculated"
+                                },
+                                "tax": {
+                                    "type": "number"
+                                },
+                                "taxRate": {
+                                    "type": "number"
+                                },
+                                "price": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["apiAlias", "tax", "taxRate", "price"]
+                        }
+                    },
+                    "taxRules": {
+                        "type": "array",
+                        "description": "Currently active tax rules and/or rates",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "taxRate": {
+                                    "type": "number",
+                                    "format": "float"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "cart_price"
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "netPrice",
+                    "totalPrice",
+                    "positionPrice",
+                    "rawTotal",
+                    "taxStatus",
+                    "calculatedTaxes",
+                    "taxRules"
+                ]
+            }
+        }
+    }
+}

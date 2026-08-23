@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
@@ -14,7 +14,7 @@ use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\CloneStructUnitEnum;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CloneTrait::class)]
+#[CoversTrait(CloneTrait::class)]
 class CloneStructTest extends TestCase
 {
     public function testClone(): void

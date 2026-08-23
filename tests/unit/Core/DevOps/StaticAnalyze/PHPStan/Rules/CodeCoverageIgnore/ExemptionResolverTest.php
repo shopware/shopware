@@ -7,7 +7,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PHPStan\Reflection\ReflectionProvider;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -18,10 +18,10 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ExemptionResolver::class)]
+#[CoversNothing]
 class ExemptionResolverTest extends TestCase
 {
-    private const EXISTING_TEST = 'Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest';
+    private const EXISTING_TEST = 'Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookHealthServiceTest';
 
     /**
      * @param array<string, string> $useMap
@@ -53,7 +53,7 @@ class ExemptionResolverTest extends TestCase
         yield 'docblock without @see' => ['/** @internal */', [], false];
 
         yield 'FQCN to existing integration test exempts' => [
-            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest */',
+            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest */',
             [],
             true,
         ];
@@ -71,25 +71,25 @@ class ExemptionResolverTest extends TestCase
         ];
 
         yield '::method suffix on the reference is stripped' => [
-            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest::testFoo */',
+            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest::testFoo */',
             [],
             true,
         ];
 
         yield 'short-form @see resolved through the use map exempts' => [
-            '/** @see RelatedWebhooksTest */',
-            ['RelatedWebhooksTest' => 'Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest'],
+            '/** @see WebhookHealthServiceTest */',
+            ['WebhookHealthServiceTest' => 'Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest'],
             true,
         ];
 
         yield 'short-form @see not in the use map does not exempt' => [
-            '/** @see RelatedWebhooksTest */',
+            '/** @see WebhookHealthServiceTest */',
             [],
             false,
         ];
 
         yield 'multiple @see; one valid is enough' => [
-            "/**\n * @see SomeBogus\n * @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest\n */",
+            "/**\n * @see SomeBogus\n * @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest\n */",
             [],
             true,
         ];

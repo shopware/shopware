@@ -313,7 +313,7 @@ type CheckedPullRequest = { number: number; baseRefName: string; labels: string[
  * so commits are resolved back to their PRs. The ref-named PR is always included so
  * a failed lookup cannot silently pass it.
  */
-async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, core: Logger, repo: Repo, mergeGroup: MergeGroupPayload): Promise<number[]> {
+export async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, core: Logger, repo: Repo, mergeGroup: MergeGroupPayload): Promise<number[]> {
     const numbers = new Set<number>();
 
     const named = MERGE_GROUP_REF_PATTERN.exec(mergeGroup.head_ref)?.[1];

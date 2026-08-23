@@ -20,10 +20,18 @@ class TranslationConfigLoaderTest extends TestCase
     public function testContainerExposesTranslationConfigParameterWithDefaults(): void
     {
         static::assertSame([
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
             'repository_url' => null,
             'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url_snippet_key' => null,
+            'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,
+            'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
         ], static::getContainer()->getParameter('shopware.translation'));

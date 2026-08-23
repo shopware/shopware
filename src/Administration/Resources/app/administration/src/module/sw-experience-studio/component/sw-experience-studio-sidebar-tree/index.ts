@@ -45,7 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: null,
         },
         validateMoveTarget: {
-            type: Function,
+            type: Function as unknown as PropType<((payload: MoveElementPayload) => boolean) | null>,
             required: false,
             default: null,
         },
@@ -128,7 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         rootDropConfig() {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 data: {
                     newParentElementId: null,
                     newSlotName: null,

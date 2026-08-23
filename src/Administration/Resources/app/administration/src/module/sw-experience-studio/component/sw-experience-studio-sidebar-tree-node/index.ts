@@ -50,7 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: false,
         },
         validateMoveTarget: {
-            type: Function,
+            type: Function as unknown as PropType<((payload: MoveElementPayload) => boolean) | null>,
             required: false,
             default: null,
         },
@@ -180,7 +180,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         dragConfig() {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 disabled: !this.allowDragAndDrop,
                 data: {
                     elementId: this.contentElement.id,
@@ -194,7 +194,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         dropConfigForSlot(slotName: string) {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 data: {
                     newParentElementId: this.contentElement.id,
                     newSlotName: slotName,
@@ -207,7 +207,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         dropConfigForElement() {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 data: {
                     newParentElementId: this.parentElementId,
                     newSlotName: this.parentSlotName,

@@ -13,6 +13,8 @@ Three formats write their own body out of the finished render, each through a pa
 
 The decomposed and data formats are siblings over the same `Index/ResolvedValueIndex` rather than one derived from the other, which is why the `data`/`assignments` pair and the per-leaf protection gate over its values are encoded in the one place both read.
 
+Which PHP instance a ref ends up carrying follows from which of `Index/ResolvedValueIndexFactory`'s three lookups deduped it. A ref carries the instance present when it was minted (`mintRef()` writes `data[$ref]` once and never rewrites it). A later loader-resolved key deduped through the loader-identity map reuses that ref by identity key alone, without comparing values, so the wire serves the first element's instance whether or not the second load produced the same object. It is written for the case where it did not: the DAL keeps no identity map, so two entity loads of one row hand back two instances that no value-level test could collapse. A key deduped through the instance map (`spl_object_id`) is the same instance by construction, which is what makes a broadcast delivery share its provider's ref. The value map never sees an object at all: it runs only for non-object non-null values, compared by `StoredValue::equals()` semantics. Every explicit null shares one ref regardless of origin.
+
 The fourth format keeps passing through the framework encoder as a plain struct:
 - **skeleton** → `Format/SkeletonResponseFactory` projects the forest through `Struct/ContentSkeletonElement::fromRendered()`, keeping id, component, slots and style and dropping every property value
 

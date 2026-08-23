@@ -12,7 +12,7 @@ Strategy determines how provider data is distributed to direct children.
 
 **Sliced** - Data split into chunks per child, with `sliceSize` items per chunk (default: `10`). E.g., 12 products with `sliceSize: 4` across 3 columns = 4 per column.
 
-**Iterator** - Sequential distribution: each child receives one item in order. E.g., 10 products distributed to 10 card elements, one each.
+**Iterator** - Sequential distribution by position, consumer count ignored. E.g., 10 products distributed to 10 card elements, one each. Positions are counted over the children that consume this key, not over every direct child. The counts need not match: a consuming child past the last item receives nothing (unlike **Indexed**, which pads with null so each one gets a delivery), and items past the last consuming child are dropped.
 
 ## Context Flow Rules
 

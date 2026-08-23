@@ -25,10 +25,6 @@ class DevOps extends Bundle
         $loader->load('services.php');
 
         $environment = $container->getParameter('kernel.environment');
-        if ($environment === 'e2e') {
-            $loader->load('services_e2e.php');
-        }
-
         if ($environment === 'dev') {
             $loader->load('services_dev.php');
         }

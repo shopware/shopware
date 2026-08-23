@@ -46,7 +46,12 @@ readonly class RememberDeletedAppsSecretSubscriber implements EventSubscriberInt
             return;
         }
 
-        $this->deletedAppsGateway->insertSecretForDeletedApp($app->getName(), $secret);
+        // An app that adopted a candidate stops trusting the committed secret, so a reinstall needs both.
+        $this->deletedAppsGateway->insertSecretsForDeletedApp(
+            $app->getName(),
+            $secret,
+            $app->getUnconfirmedAppSecrets() ?? []
+        );
     }
 
     public function removeDeletedAppSecret(AppInstalledEvent $event): void

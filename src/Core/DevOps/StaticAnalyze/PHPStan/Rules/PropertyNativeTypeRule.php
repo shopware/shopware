@@ -67,6 +67,8 @@ class PropertyNativeTypeRule implements Rule
             return $errors;
         }
 
+        $methodDocComment = $constructor->getDocComment();
+
         foreach ($constructor->getParams() as $param) {
             // If a constructor parameter is promoted it has a flag from 1-4
             if ($param->flags === 0) {
@@ -88,7 +90,6 @@ class PropertyNativeTypeRule implements Rule
             }
 
             // Check constructor doc comment, as resource and callable cannot be typed natively
-            $methodDocComment = $constructor->getDocComment();
             if ($methodDocComment instanceof Doc
                 && (str_contains($methodDocComment->getText(), \sprintf('@param resource $%s', $name))
                     || str_contains($methodDocComment->getText(), \sprintf('@param callable $%s', $name)))

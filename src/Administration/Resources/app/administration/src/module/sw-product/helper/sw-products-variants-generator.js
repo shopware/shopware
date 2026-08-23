@@ -116,6 +116,46 @@ export default class VariantsGenerator extends EventEmitter {
     }
 
     /**
+     * Saves the variant listing config of the parent product.
+     * Required because `generateVariants` applies a default config for completely new variant products,
+     * which would otherwise be dropped when the product detail page reloads after the generation.
+     *
+     * @returns {Promise}
+     */
+    saveVariantListingConfig() {
+        const variantListingConfig = this.product?.variantListingConfig;
+
+        if (!this.product?.id || !variantListingConfig || !this.hasVariantListingConfigChanges()) {
+            return Promise.resolve();
+        }
+
+        const payload = [
+            {
+                id: this.product.id,
+                variantListingConfig: deepCopyObject(variantListingConfig),
+            },
+        ];
+
+        return this.syncService.sync(
+            [
+                {
+                    entity: 'product',
+                    action: 'upsert',
+                    payload,
+                },
+            ],
+            {},
+            { 'single-operation': 1 },
+        );
+    }
+
+    hasVariantListingConfigChanges() {
+        const { changes } = this.changesetGenerator.generate(this.product);
+
+        return changes !== null && hasOwnProperty(changes, 'variantListingConfig');
+    }
+
+    /**
      * Saves the variants to the database via sync api.
      */
     saveVariants(queues) {

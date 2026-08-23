@@ -191,6 +191,8 @@ jobs:
           set -e
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
+      - name: Unblock the BC baseline install
+        run: composer config --global --json policy.advisories.ignore-id '["PKSA-p9gd-j6gr-6f9t"]'
       - name: BC Checker lastest tag
         if: github.event_name != 'pull_request'
         run: composer run bc-check
@@ -232,7 +234,7 @@ jobs:
         run: |
           echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> "$GITHUB_ENV"
           curl localhost:8000/
-          npm i -g @redocly/cli@2.19.0 @shopware/api-gen
+          npm i -g @redocly/cli@2.46.1 @shopware/api-gen
           STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
           export STOREFRONT_ID
           OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
@@ -267,12 +269,19 @@ jobs:
 
       - name: Lint OpenApi StoreAPI schema
         run: |
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+          set -euo pipefail
+          redocly lint ./api-types/storeApiSchema.json
+          redocly lint --format json ./api-types/storeApiSchema.json > redocly-store-api-lint.json 2> /dev/null
+          warnings=$(jq '.totals.warnings' redocly-store-api-lint.json)
+          if [ "$warnings" -ne 0 ]; then
+            echo "Store API Redocly warnings are treated as errors in CI." >&2
+            echo "Redocly reported $warnings Store API warning(s)." >&2
+            exit 1
+          fi
 
-      - name: Generate & Lint OpenApi API schema
+      - name: Generate OpenApi API schema
         run: |
           api-gen loadSchema --apiType=admin && api-gen generate --apiType=admin
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

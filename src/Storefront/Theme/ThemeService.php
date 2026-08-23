@@ -36,6 +36,16 @@ class ThemeService implements ResetInterface
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
     public const STATE_NO_QUEUE = 'state-no-queue';
 
+    /**
+     * Context state that defers applying a theme assignment until its background compile finished.
+     */
+    public const STATE_DEFER_ASSIGNMENT = 'theme-defer-assignment';
+
+    /**
+     * Per-sales-channel config key holding the latest requested theme, to detect superseded compiles.
+     */
+    public const CONFIG_KEY_PENDING_THEME = 'storefront.pendingThemeAssignment';
+
     private bool $notified = false;
 
     /**
@@ -88,7 +98,9 @@ class ThemeService implements ResetInterface
             $context
         );
 
-        // refresh the runtime config only if not using the StaticFileConfigLoader (no database)
+        // Refresh the runtime config values when the static file loader is used.
+        // The static file loader is only used for the compiled theme configuration;
+        // the resolved values are still stored in the runtime config table.
         if (!$this->configLoader instanceof StaticFileConfigLoader) {
             $importMap = null;
             if ($this->themeCompiler instanceof ThemeCompiler) {
@@ -107,6 +119,8 @@ class ThemeService implements ResetInterface
                 $configurationCollection,
                 $importMap,
             );
+        } else {
+            $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
         }
     }
 
@@ -233,20 +247,45 @@ class ThemeService implements ResetInterface
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
-        RetryableTransaction::transactional($this->connection, function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
-            if (!$skipCompile) {
-                $this->compileTheme($salesChannelId, $themeId, $context);
+        // Mark the requested theme as the sales channel's target for every switch, so a deferred
+        // compile finishing out of order detects it was superseded (also by a synchronous switch)
+        // and the admin can show an in-flight switch. On success it equals the now-live theme, so
+        // nothing shows as pending; on failure it is restored so it never outlives the switch.
+        $previousPendingTheme = $this->configService->getString(self::CONFIG_KEY_PENDING_THEME, $salesChannelId);
+        $this->configService->set(self::CONFIG_KEY_PENDING_THEME, $themeId, $salesChannelId, false);
+
+        try {
+            // Deferred switch: apply the mapping only after compiling, so the storefront keeps
+            // serving the current theme. Other callers apply synchronously.
+            if (!$skipCompile && $context->hasState(self::STATE_DEFER_ASSIGNMENT) && $this->isAsyncCompilation($context)) {
+                $this->handleAsync($salesChannelId, $themeId, true, $context, true);
+
+                return true;
             }
 
-            $this->themeSalesChannelRepository->upsert([[
-                'themeId' => $themeId,
-                'salesChannelId' => $salesChannelId,
-            ]], $context);
-        });
+            RetryableTransaction::transactional($this->connection, function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
+                if (!$skipCompile) {
+                    $this->compileTheme($salesChannelId, $themeId, $context);
+                }
 
-        $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId, $context));
+                $this->themeSalesChannelRepository->upsert([[
+                    'themeId' => $themeId,
+                    'salesChannelId' => $salesChannelId,
+                ]], $context);
+            });
 
-        return true;
+            $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId, $context));
+
+            return true;
+        } catch (\Throwable $e) {
+            // The switch could not be started/applied: restore the marker, but only while it still
+            // points at this request, so a newer request's marker is never clobbered.
+            if ($this->configService->getString(self::CONFIG_KEY_PENDING_THEME, $salesChannelId) === $themeId) {
+                $this->configService->set(self::CONFIG_KEY_PENDING_THEME, $previousPendingTheme, $salesChannelId, false);
+            }
+
+            throw $e;
+        }
     }
 
     public function resetTheme(string $themeId, Context $context): void
@@ -426,14 +465,16 @@ class ThemeService implements ResetInterface
         string $salesChannelId,
         string $themeId,
         bool $withAssets,
-        Context $context
+        Context $context,
+        bool $assign = false
     ): void {
         $this->messageBus->dispatch(
             new CompileThemeMessage(
                 $salesChannelId,
                 $themeId,
                 $withAssets,
-                $context
+                $context,
+                $assign
             )
         );
 

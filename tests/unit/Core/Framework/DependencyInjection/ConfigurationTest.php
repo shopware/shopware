@@ -78,6 +78,9 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['use_local_filesystem']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['scheduled_task']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['scheduled_task']->getChildNodeDefinitions()['enabled']);
     }
 
     public function testTranslationConfigRejectsInvalidListType(): void
@@ -106,10 +109,18 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url_snippet_key' => null,
+            'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,
+            'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
         ], $config['translation']);
     }
 

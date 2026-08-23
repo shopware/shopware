@@ -34,7 +34,7 @@ const defaultProps = {
     disabled: false,
 };
 
-async function createWrapper(props = defaultProps, { featureActive = false } = {}) {
+async function createWrapper(props = defaultProps) {
     return mount(
         await wrapTestComponent('sw-custom-field-translated-labels', {
             sync: true,
@@ -47,9 +47,6 @@ async function createWrapper(props = defaultProps, { featureActive = false } = {
                 },
                 provide: {
                     acl: {},
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                 },
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
@@ -125,7 +122,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         expect(wrapper.vm.config.label1[en]).toBe(value !== '' ? value : null);
     });
 
-    it('should render multiple locales with deprecated tabs when the major feature flag is inactive', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render multiple locales with deprecated tabs', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -146,8 +144,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         ).toBe('label1 (locale.de-DE)');
     });
 
-    it('should render multiple locales with meteor tabs when the major feature flag is active', async () => {
-        const wrapper = await createWrapper(defaultProps, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should render multiple locales with meteor tabs', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
@@ -172,8 +170,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         ).toBe('label1 (locale.en-GB)');
     });
 
-    it('should switch meteor tab content when the active tab changes', async () => {
-        const wrapper = await createWrapper(defaultProps, { featureActive: true });
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });

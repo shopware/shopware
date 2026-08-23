@@ -191,6 +191,10 @@ export default Shopware.Component.wrapComponentConfig({
         isModalLoading() {
             return this.isLoading || this.isLoadingProducts;
         },
+
+        allowedCategoryTypes() {
+            return ['page'];
+        },
     },
 
     created() {

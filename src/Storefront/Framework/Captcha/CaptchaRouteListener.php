@@ -58,10 +58,10 @@ readonly class CaptchaRouteListener implements EventSubscriberInterface
         $salesChannelId = $context ? $context->getSalesChannelId() : null;
 
         $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
+        $request = $event->getRequest();
 
         foreach ($this->captchas as $captcha) {
             $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
-            $request = $event->getRequest();
             if (!$captcha->supports($request, $captchaConfig)) {
                 continue;
             }

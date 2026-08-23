@@ -46,12 +46,12 @@ class CmsSlotsDataResolverTest extends TestCase
 
     private TextCmsElementResolver&MockObject $textResolver;
 
-    private DefinitionInstanceRegistry&MockObject $registry;
+    private DefinitionInstanceRegistry&Stub $registry;
 
     /**
-     * @var SalesChannelRepository<SalesChannelProductCollection>&MockObject
+     * @var SalesChannelRepository<SalesChannelProductCollection>&Stub
      */
-    private SalesChannelRepository&MockObject $productRepository;
+    private SalesChannelRepository&Stub $productRepository;
 
     private EventDispatcher&Stub $dispatcher;
 
@@ -62,8 +62,8 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->formResolver = $this->createMock(FormCmsElementResolver::class);
         $this->htmlResolver = $this->createMock(HtmlCmsElementResolver::class);
         $this->textResolver = $this->createMock(TextCmsElementResolver::class);
-        $this->registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->registry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->productRepository = static::createStub(SalesChannelRepository::class);
         $this->dispatcher = static::createStub(EventDispatcher::class);
         $this->extensions = new ExtensionDispatcher($this->dispatcher);
     }
@@ -129,6 +129,8 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $this->formResolver->method('getType')->willReturn('form');
         $this->formResolver->expects($this->once())->method('enrich');
+        $this->htmlResolver->expects($this->never())->method('enrich');
+        $this->textResolver->expects($this->never())->method('enrich');
 
         $criteria = new Criteria(['id-1', 'id-2']);
         $criteriaCollection = new CriteriaCollection();
@@ -200,6 +202,8 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $this->formResolver->method('getType')->willReturn('form');
         $this->formResolver->method('collect')->willReturn($collection);
+        $this->htmlResolver->expects($this->never())->method('enrich');
+        $this->textResolver->expects($this->never())->method('enrich');
 
         $context = Generator::generateSalesChannelContext();
         $resolverContext = new ResolverContext($context, new Request());

@@ -45,7 +45,8 @@ class Criteria extends Struct implements \Stringable
     final public const TOTAL_COUNT_MODE_EXACT = 1;
 
     /**
-     * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
+     * fetches limit * 6 + 1 rows and returns a bounded lookahead count. Should be used if pagination
+     * can work with "next page exists" (fast), but does not need an exact total.
      */
     final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
@@ -162,6 +163,14 @@ class Criteria extends Struct implements \Stringable
     public function getLimit(): ?int
     {
         return $this->limit;
+    }
+
+    public function getNextPagesLimit(): int
+    {
+        // Fetch the current page and the next five pages so pagination can render a bounded six-page
+        // window without an exact COUNT query. The additional row is a sentinel: its presence means
+        // there are results beyond that window, so the exact last page is unknown.
+        return (int) $this->limit * 6 + 1;
     }
 
     public function getTotalCountMode(): int
@@ -544,6 +553,9 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * Allowlist of properties per api alias that the API serializes. Shapes the response only, the data is
+     * still read from the database — use {@see addFields()} to skip it there as well.
+     *
      * @param array<string, list<string>>|null $includes
      */
     public function setIncludes(?array $includes): void
@@ -560,6 +572,9 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * Denylist of properties per api alias that the API serializes. Shapes the response only, the data is
+     * still read from the database — use {@see excludeFields()} to skip it there as well.
+     *
      * @param array<string, list<string>>|null $excludes
      */
     public function setExcludes(?array $excludes): void
@@ -622,6 +637,10 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * Allowlist of storage fields to read. Reduces the read itself, but returns PartialEntity instances in a
+     * generic EntityCollection instead of the classes of the definition. Not to be confused with
+     * {@see setIncludes()}, which only shapes the API response.
+     *
      * @param list<string> $fields
      */
     public function addFields(array $fields): self
@@ -644,8 +663,21 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
+     * Drops the allowlist added via {@see addFields()}, so the read returns the entity and collection class of
+     * the definition again instead of PartialEntity instances. Leaves {@see excludeFields()} untouched, as the
+     * denylist keeps the typed entity.
+     */
+    public function resetFields(): self
+    {
+        $this->fields = [];
+
+        return $this;
+    }
+
+    /**
      * Denylist counterpart to {@see addFields()}: loads the full, typed entity but omits the given
      * storage fields. Cannot be combined with addFields(); required and write-protected fields cannot be excluded.
+     * Not to be confused with {@see setExcludes()}, which only shapes the API response.
      *
      * @param list<string> $fields
      */
@@ -666,6 +698,17 @@ class Criteria extends Struct implements \Stringable
     public function getExcludedFields(): array
     {
         return $this->excludedFields;
+    }
+
+    /**
+     * Drops the denylist added via {@see excludeFields()}, so the read covers all storage fields again. Leaves
+     * {@see addFields()} untouched, {@see resetFields()} drops that allowlist.
+     */
+    public function resetExcludedFields(): self
+    {
+        $this->excludedFields = [];
+
+        return $this;
     }
 
     /**

@@ -65,4 +65,28 @@ class AppSecretResolverTest extends TestCase
     {
         static::assertNull($this->resolver->resolve('does-not-exist'));
     }
+
+    public function testResolvesManySecretsInOneCall(): void
+    {
+        $withSecret = $this->appFixture->createAppFromData(['appSecret' => 's3cr3t']);
+        $rotated = $this->appFixture->createAppFromData(['appSecret' => 'rotated']);
+        $withoutSecret = $this->appFixture->createAppFromData();
+
+        $secrets = $this->resolver->resolveMany([
+            $withSecret->getName(),
+            $rotated->getName(),
+            $withoutSecret->getName(),
+            'does-not-exist',
+        ]);
+
+        static::assertSame([
+            $withSecret->getName() => 's3cr3t',
+            $rotated->getName() => 'rotated',
+        ], $secrets);
+    }
+
+    public function testResolvesManyReturnsNothingForAnEmptyList(): void
+    {
+        static::assertSame([], $this->resolver->resolveMany([]));
+    }
 }

@@ -673,6 +673,12 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
+### App admin modules use generic feature storage
+
+App-declared admin modules are now persisted through the generic app feature storage instead of the `modules` and `main_module` fields on the `app` entity. Installed apps do not need to change their manifests.
+
+`AppEntity::getModules()`, `getMainModule()` and their setters are deprecated. They remain callable for backwards compatibility, but the app system no longer populates or consumes the fields; modules are served through `ModuleLoader`.
+
 ## Hosting & Configuration
 
 ### Local translation files and optional automatic updates

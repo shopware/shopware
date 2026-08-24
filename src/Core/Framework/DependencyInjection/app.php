@@ -91,7 +91,6 @@ use Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\FlowEventLifecycleHandler;
-use Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
@@ -106,8 +105,9 @@ use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\App\Lifecycle\Update\AppUpdater;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
-use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler;
+use Shopware\Core\Framework\App\Module\ModuleFeatureDefinition;
+use Shopware\Core\Framework\App\Module\ModuleLoader;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
@@ -221,6 +221,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('app.repository'),
             service(ShopIdProvider::class),
             service(QuerySigner::class),
+            service(AppFeatureStorage::class),
+            service(AppSecretResolver::class),
         ]);
 
     $services->set(TranslationValidator::class)
@@ -306,12 +308,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('tax_provider.repository'),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -400]);
-
-    $services->set(ModuleLifecycleHandler::class)
-        ->args([
-            service('app.repository'),
-        ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -500]);
 
     $services->set(ShippingMethodLifecycleHandler::class)
         ->args([
@@ -475,6 +471,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('app.repository'),
         ])
         ->tag('kernel.event_listener');
+
+    $services->set(ModuleFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
     $services->set(AppPaymentHandler::class)
         ->args([

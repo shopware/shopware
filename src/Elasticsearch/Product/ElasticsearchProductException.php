@@ -27,11 +27,14 @@ class ElasticsearchProductException extends HttpException
     }
 
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'previous', newType: BadRequestHttpException::class)]
+    // @phpstan-ignore parameter.deprecatedClass (BadRequest400Exception is deprecated upstream; this BC path is removed in v6.8.0.)
     public static function cannotChangeFieldType(BadRequest400Exception|BadRequestHttpException $previous): self
     {
+        // @phpstan-ignore instanceof.deprecatedClass (BadRequest400Exception is deprecated upstream; this BC path is removed in v6.8.0.)
         if ($previous instanceof BadRequest400Exception) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
+                // @phpstan-ignore classConstant.deprecatedClass (BadRequest400Exception is deprecated upstream; this BC path is removed in v6.8.0.)
                 \sprintf('Passing %s to %s is deprecated and support will be removed in v6.8.0.0. Please pass an instance of %s instead.', BadRequest400Exception::class, __METHOD__, BadRequestHttpException::class)
             );
         }
@@ -46,11 +49,14 @@ class ElasticsearchProductException extends HttpException
     }
 
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'previous', newType: BadRequestHttpException::class)]
+    // @phpstan-ignore parameter.deprecatedClass (BadRequest400Exception is deprecated upstream; this BC path is removed in v6.8.0.)
     public static function cannotChangeCustomFieldType(BadRequest400Exception|BadRequestHttpException $previous): self
     {
+        // @phpstan-ignore instanceof.deprecatedClass (BadRequest400Exception is deprecated upstream; this BC path is removed in v6.8.0.)
         if ($previous instanceof BadRequest400Exception) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
+                // @phpstan-ignore classConstant.deprecatedClass (BadRequest400Exception is deprecated upstream; this BC path is removed in v6.8.0.)
                 \sprintf('Passing %s to %s is deprecated and support will be removed in v6.8.0.0. Please pass an instance of %s instead.', BadRequest400Exception::class, __METHOD__, BadRequestHttpException::class)
             );
         }

@@ -312,6 +312,15 @@ class PropertyLevelViolations
     protected readonly string $alreadyReadonly;
 }
 
+class PromotedPropertyLevelViolations
+{
+    public function __construct(
+        #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+        protected string $unchangedType,
+    ) {
+    }
+}
+
 class ValidPropertyUsage
 {
     #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]

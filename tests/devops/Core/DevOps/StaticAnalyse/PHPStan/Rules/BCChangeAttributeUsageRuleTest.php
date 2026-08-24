@@ -136,6 +136,10 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'BecomesReadonly on "PropertyLevelViolations::$alreadyReadonly": the property is already readonly.',
                 311,
             ],
+            [
+                'PropertyTypeNarrowing on "PromotedPropertyLevelViolations::$unchangedType": announced type "string" is identical to the current property type.',
+                318,
+            ],
         ]);
     }
 

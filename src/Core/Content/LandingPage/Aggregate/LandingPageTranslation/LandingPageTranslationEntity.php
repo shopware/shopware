@@ -111,6 +111,9 @@ class LandingPageTranslationEntity extends TranslationEntity
         return $this->slotConfig;
     }
 
+    /**
+     * @param array<string, array<string, array<string, mixed>>|null>|null $slotConfig
+     */
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'slotConfig', newType: 'array', description: 'The parameter becomes required and non-nullable.')]
     public function setSlotConfig(?array $slotConfig): void
     {

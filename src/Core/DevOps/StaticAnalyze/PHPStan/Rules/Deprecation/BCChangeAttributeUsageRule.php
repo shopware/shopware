@@ -4,6 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
@@ -112,11 +113,23 @@ class BCChangeAttributeUsageRule implements Rule
         $classIsFinal = $class->isFinal() || \str_contains((string) $class->getDocComment(), '@final');
 
         $methodNodes = [];
+        $propertyNodes = [];
         foreach ($node->getOriginalNode()->getMethods() as $methodNode) {
             $methodNodes[$methodNode->name->toLowerString()] = $methodNode;
+
+            if ($methodNode->name->toLowerString() !== '__construct') {
+                continue;
+            }
+
+            foreach ($methodNode->params as $parameter) {
+                if ($parameter->flags === 0 || !$parameter->var instanceof Variable || !\is_string($parameter->var->name)) {
+                    continue;
+                }
+
+                $propertyNodes[\strtolower($parameter->var->name)] = $parameter;
+            }
         }
 
-        $propertyNodes = [];
         foreach ($node->getOriginalNode()->getProperties() as $propertyNode) {
             foreach ($propertyNode->props as $property) {
                 $propertyNodes[$property->name->toLowerString()] = $propertyNode;
@@ -163,7 +176,7 @@ class BCChangeAttributeUsageRule implements Rule
             }
 
             $symbol = \sprintf('%s::$%s', $class->getShortName(), $property->getName());
-            $line = $propertyNodes[\strtolower($property->getName())]?->getStartLine() ?? $classLine;
+            $line = ($propertyNodes[\strtolower($property->getName())] ?? null)?->getStartLine() ?? $classLine;
             foreach ($this->bcChangeAttributes($property->getAttributes()) as $attribute) {
                 $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
                 $errors = [...$errors, ...$this->validatePropertyLevel($attribute, $property, $symbol, $line)];

@@ -83,7 +83,7 @@ class TaxDetector extends AbstractTaxDetector
 
                 // An intra-EU B2B supply is tax free because the customer holds a VAT ID of some
                 // member state, not because that state is the destination of the delivery.
-                if ($this->vatIdPatternProvider->matchEuVatId($vatId) === null) {
+                if ($this->vatIdPatternProvider->getStateByEuVatId($vatId) === null) {
                     return false;
                 }
             }

@@ -66,7 +66,7 @@ class VatIdPatternProvider implements ResetInterface
     /**
      * @return string|null the ISO code of the member state the VAT ID belongs to, null if it belongs to none
      */
-    public function matchEuVatId(string $vatId): ?string
+    public function getStateByEuVatId(string $vatId): ?string
     {
         foreach ($this->getEuPatterns() as $iso => $pattern) {
             if ($this->matches($pattern, $vatId)) {

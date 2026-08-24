@@ -50,31 +50,31 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
-    public function testMatchEuVatIdReturnsTheMemberStateItBelongsTo(): void
+    public function testGetStateByEuVatIdReturnsTheMemberStateItBelongsTo(): void
     {
         $provider = $this->createProvider([
             ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
             ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
-        static::assertSame('NL', $provider->matchEuVatId('NL123456789B01'));
+        static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
     }
 
-    public function testMatchEuVatIdReturnsNullForANonEuVatId(): void
+    public function testGetStateByEuVatIdReturnsNullForANonEuVatId(): void
     {
         $provider = $this->createProvider([
             ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
             ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
-        static::assertNull($provider->matchEuVatId('CHE123456789'));
+        static::assertNull($provider->getStateByEuVatId('CHE123456789'));
     }
 
-    public function testMatchEuVatIdReturnsNullWhenNoCountryHasAPattern(): void
+    public function testGetStateByEuVatIdReturnsNullWhenNoCountryHasAPattern(): void
     {
         $provider = $this->createProvider([]);
 
-        static::assertNull($provider->matchEuVatId('NL123456789B01'));
+        static::assertNull($provider->getStateByEuVatId('NL123456789B01'));
     }
 
     public function testTheEuPatternsAreReadOnce(): void
@@ -86,8 +86,8 @@ class VatIdPatternProviderTest extends TestCase
 
         $provider = new VatIdPatternProvider($connection);
 
-        static::assertSame('NL', $provider->matchEuVatId('NL123456789B01'));
-        static::assertSame('NL', $provider->matchEuVatId('NL987654321B02'));
+        static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
+        static::assertSame('NL', $provider->getStateByEuVatId('NL987654321B02'));
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 

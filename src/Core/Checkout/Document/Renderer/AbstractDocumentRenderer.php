@@ -108,6 +108,7 @@ abstract class AbstractDocumentRenderer
             return true;
         }
 
+        $vatIdPattern = $country->getVatIdPattern();
         $vatIds = $order->getOrderCustomer()?->getVatIds();
         if (!\is_array($vatIds)) {
             return false;
@@ -115,7 +116,11 @@ abstract class AbstractDocumentRenderer
 
         $violations = $validator->validate($vatIds, [
             new NotBlank(),
-            new CustomerVatIdentification(countryId: $country->getId()),
+            // The exemption follows the member state that issued the VAT ID, not the delivery country
+            new CustomerVatIdentification(
+                countryId: $country->getId(),
+                matchesAnyEuVat: $vatIdPattern !== null && $vatIdPattern !== '',
+            ),
         ]);
 
         return $violations->count() === 0;

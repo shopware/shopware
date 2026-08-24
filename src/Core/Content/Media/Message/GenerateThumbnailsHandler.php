@@ -48,7 +48,7 @@ final readonly class GenerateThumbnailsHandler
         if ($msg instanceof UpdateThumbnailsMessage) {
             foreach ($entities as $media) {
                 try {
-                    $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict());
+                    $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict(), $msg->isForce());
                 } catch (\Throwable $e) {
                     $this->logger->error('Thumbnail generation failed for media {mediaId}', [
                         'mediaId' => $media->getId(),

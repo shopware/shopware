@@ -45,34 +45,23 @@
                  suffix (e.g. Migration...Field, MigrationCollection), which PHPUnit 12 then reports as
                  invalid #[CoversClass] targets. src/Core/Migration and src/Core/Framework/Migration are
                  deliberately NOT listed. -->
-            <directory suffix="Definition.php">src/Core/Checkout/</directory>
-            <directory suffix="Definition.php">src/Core/Content/</directory>
             <directory suffix="Definition.php">src/Core/Framework/</directory>
             <directory suffix="Definition.php">src/Core/System/</directory>
 
-            <directory suffix="Entity.php">src/Core/Checkout/</directory>
-            <directory suffix="Entity.php">src/Core/Content/</directory>
             <directory suffix="Entity.php">src/Core/Framework/</directory>
             <directory suffix="Entity.php">src/Core/System/</directory>
 
-            <directory suffix="Event.php">src/Core/Checkout/</directory>
-            <directory suffix="Event.php">src/Core/Content/</directory>
             <directory suffix="Event.php">src/Core/Framework/</directory>
             <directory suffix="Event.php">src/Core/Maintenance/</directory>
             <directory suffix="Event.php">src/Core/Service/</directory>
             <directory suffix="Event.php">src/Core/System/</directory>
 
-            <directory suffix="Field.php">src/Core/Content/</directory>
             <directory suffix="Field.php">src/Core/Framework/</directory>
             <directory suffix="Field.php">src/Core/System/</directory>
 
-            <directory suffix="Struct.php">src/Core/Checkout/</directory>
-            <directory suffix="Struct.php">src/Core/Content/</directory>
             <directory suffix="Struct.php">src/Core/Framework/</directory>
             <directory suffix="Struct.php">src/Core/System/</directory>
 
-            <directory suffix="Collection.php">src/Core/Checkout/</directory>
-            <directory suffix="Collection.php">src/Core/Content/</directory>
             <directory suffix="Collection.php">src/Core/Installer/</directory>
             <directory suffix="Collection.php">src/Core/System/</directory>
             <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>
@@ -95,7 +84,12 @@
 
             <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
             <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
-            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
+            <!-- Static-analysis tooling; the Danger rules stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze/PHPStan</directory>
+            <file>src/Core/DevOps/StaticAnalyze/StaticAnalyzeKernel.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/console-application.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
             <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
 
             <directory suffix="Definition.php">src/Storefront/Checkout</directory>
@@ -136,7 +130,8 @@
 
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <!-- Only the test fixtures under DevOps/Test; the tooling classes stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Migration/Traits</directory>

@@ -68,6 +68,7 @@ class UserDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return [
+            'admin' => false,
             'timeZone' => 'UTC',
         ];
     }

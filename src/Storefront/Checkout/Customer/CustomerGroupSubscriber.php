@@ -15,10 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Tests\Integration\Storefront\Checkout\Customer\CustomerGroupSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -33,6 +33,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
+
+    private const HEADLESS_ROUTE_NAME = 'store-api.customer-group-registration';
 
     /**
      * @internal
@@ -115,7 +117,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsAnyFilter('foreignKey', $ids))
-            ->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
+            ->addFilter(new EqualsAnyFilter('routeName', [self::ROUTE_NAME, self::HEADLESS_ROUTE_NAME]));
 
         $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds();
 
@@ -133,10 +135,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     {
         $criteria = (new Criteria($ids))
             ->addFilter(new EqualsFilter('registrationActive', true))
-            ->addAssociations(['registrationSalesChannels.languages', 'translations']);
-
-        $criteria->getAssociation('registrationSalesChannels')
-            ->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
+            ->addAssociations(['registrationSalesChannels.languages', 'registrationSalesChannels.domains', 'translations']);
 
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
         $buildUrls = [];
@@ -151,9 +150,8 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
-                if ($registrationSalesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
-                    continue;
-                }
+                $isHeadless = $registrationSalesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API;
+                $routeName = $isHeadless ? self::HEADLESS_ROUTE_NAME : self::ROUTE_NAME;
 
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $languageCriteria = new Criteria($languageIds);
@@ -167,23 +165,33 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                         continue;
                     }
 
+                    // headless SEO URLs are only created for languages with an external storefront domain,
+                    // mirroring the SEO URL generation of products, categories and landing pages
+                    if ($isHeadless && !$this->hasExternalStorefrontDomain($registrationSalesChannel, $languageId)) {
+                        continue;
+                    }
+
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
                     if ($title === '') {
                         continue;
                     }
 
-                    if (!isset($buildUrls[$languageId])) {
-                        $buildUrls[$languageId] = [
+                    $buildKey = $languageId . '-' . $routeName;
+
+                    if (!isset($buildUrls[$buildKey])) {
+                        $buildUrls[$buildKey] = [
+                            'languageId' => $languageId,
+                            'routeName' => $routeName,
                             'urls' => [],
                             'salesChannel' => $registrationSalesChannel,
                         ];
                     }
 
-                    $buildUrls[$languageId]['urls'][] = [
+                    $buildUrls[$buildKey]['urls'][] = [
                         'salesChannelId' => $registrationSalesChannel->getId(),
                         'foreignKey' => $group->getId(),
-                        'routeName' => self::ROUTE_NAME,
+                        'routeName' => $routeName,
                         'pathInfo' => '/customer-group-registration/' . $group->getId(),
                         'isCanonical' => true,
                         'isDeleted' => false,
@@ -193,22 +201,38 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             }
         }
 
-        foreach ($buildUrls as $languageId => $config) {
+        foreach ($buildUrls as $config) {
             $context = new Context(
                 $context->getSource(),
                 $context->getRuleIds(),
                 $context->getCurrencyId(),
-                [$languageId]
+                [$config['languageId']]
             );
 
             $this->persister->updateSeoUrls(
                 $context,
-                self::ROUTE_NAME,
+                $config['routeName'],
                 array_column($config['urls'], 'foreignKey'),
                 $config['urls'],
                 $config['salesChannel']
             );
         }
+    }
+
+    private function hasExternalStorefrontDomain(SalesChannelEntity $salesChannel, string $languageId): bool
+    {
+        $domains = $salesChannel->getDomains();
+        if ($domains === null) {
+            return false;
+        }
+
+        foreach ($domains as $domain) {
+            if ($domain->getLanguageId() === $languageId && $domain->getIsExternalStorefront()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function getTranslatedTitle(?CustomerGroupTranslationCollection $translations, LanguageEntity $language): string

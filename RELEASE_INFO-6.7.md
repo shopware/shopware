@@ -2,6 +2,10 @@
 
 ## Core
 
+### Customer group registration SEO URLs for headless sales channels
+
+Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0). The rows are written with the route name `store-api.customer-group-registration` — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`. Headless sales channels without an external storefront domain keep getting no rows; storefront sales channels are unaffected.
+
 ### Customer imports validate customer number patterns
 
 Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.

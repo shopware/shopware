@@ -168,9 +168,8 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
         const vueFile = await createVueFile(source, 'sw-cached-component.vue');
-        // The plugin loads the shared transform through node's own require, which shares node's module
-        // cache with this createRequire - so spying on the cached module's export intercepts the
-        // plugin's calls.
+        // The plugin requires the shared transform through node's module cache, so spying on the
+        // cached export intercepts its calls.
         const nodeRequire = createRequire(path.join(process.cwd(), 'package.json'));
         const transformModule = nodeRequire(path.join(process.cwd(), 'build/vue-setup-transform/index.js')) as {
             transformShopwareSetupSfc: (code: string, fileName: string) => unknown;
@@ -179,8 +178,7 @@ swDefinePublic({ count });
 
         const { loaded } = await resolveAndLoadVueFile(plugin, vueFile);
 
-        // resolveId + load together transform the source exactly once; load re-reads the file only to
-        // verify the stash is still current and then serves the resolveId result.
+        // One transform for resolveId + load; load only re-reads to verify the stash is current.
         expect(loaded).toHaveProperty('code');
         expect(
             transformSpy.mock.calls.filter(
@@ -212,10 +210,8 @@ swDefinePublic({ count });
             path.join(path.dirname(vueFile), 'entry.js'),
         );
 
-        // The edit lands between resolveId (which stashes a transform of the old content) and load.
-        // This is the dev-server shape of issue #19469: Vite's import-analysis re-resolves the watched
-        // original file after every transform of the virtual module, and that stash then sits through
-        // the user's next edit - serving it made every edit arrive one save late.
+        // Edit between resolveId (stash of the old content) and load - the issue #19469 shape where
+        // a stale stash made every edit arrive one save late in the dev server.
         await fs.writeFile(
             vueFile,
             `<script setup>
@@ -356,18 +352,15 @@ swDefinePublic({ count });
             const context = createHotUpdateContext([virtualId]);
             const otherModule = { id: '/example/other-module.ts' };
 
-            // Vite computes hot updates purely from `moduleGraph.getModulesByFile(<changed file>)`, and
-            // resolveId substitutes the virtual id before the real file can ever become a module - so
-            // without this mapping an edit invalidated nothing and the dev server kept serving the stale
-            // transform until it was restarted (issue #19469).
+            // Vite keys hot updates by changed file, and the real file never becomes a module - without
+            // this mapping an edit invalidated nothing (issue #19469).
             const result = plugin.hotUpdate.call(context, {
                 file: '/example/sw-my-component.vue',
                 modules: [otherModule],
                 type: 'update',
             });
 
-            // The modules Vite already considers affected stay in the list; the virtual module is
-            // appended, not substituted.
+            // Appended to the modules Vite already considers affected, not substituted.
             expect(result).toEqual([
                 otherModule,
                 { id: virtualId },
@@ -378,8 +371,7 @@ swDefinePublic({ count });
             const plugin = createPlugin();
             const context = createHotUpdateContext([]);
 
-            // A plain SFC without Shopware setup macros stays a real module; @vitejs/plugin-vue handles
-            // its hot update natively.
+            // A plain SFC stays a real module; @vitejs/plugin-vue handles its hot update natively.
             const result = plugin.hotUpdate.call(context, {
                 file: '/example/PlainComponent.vue',
                 modules: [],
@@ -393,8 +385,7 @@ swDefinePublic({ count });
             const plugin = createPlugin();
             const context = createHotUpdateContext([]);
 
-            // The fixed point of the mapping: a change event for the virtual id itself must not be mapped
-            // to `<id>.shopware-setup.vue.shopware-setup.vue`.
+            // The mapping's fixed point: the virtual id must not be mapped onto itself again.
             const result = plugin.hotUpdate.call(context, {
                 file: '/example/sw-my-component.vue.shopware-setup.vue',
                 modules: [],

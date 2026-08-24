@@ -28,6 +28,16 @@ class ProductListingResult extends EntitySearchResult
     protected ?string $streamId = null;
 
     /**
+     * Declared here, not inherited: listing processors set the page and limit after construction, so the listing
+     * result owns this state independently of the search result it was created from.
+     */
+    // @phpstan-ignore property.parentPropertyFinalByPhpDoc (the listing result keeps its own page state)
+    protected int $page = 1;
+
+    // @phpstan-ignore property.parentPropertyFinalByPhpDoc (the listing result keeps its own limit state)
+    protected ?int $limit = null;
+
+    /**
      * Construction entry point with a stable signature across the v6.8.0 cut. Callers that adopt this method now will keep working after the structural change.
      *
      * @param EntitySearchResult<ProductCollection> $result
@@ -57,7 +67,6 @@ class ProductListingResult extends EntitySearchResult
      */
     public function setPage(int $page): void
     {
-        /** @phpstan-ignore shopware.futureIncompatibility.propertyBecomesReadonly (ProductListingResult no longer extends EntitySearchResult in v6.8.0, so this code path will be removed.) */
         $this->page = $page;
     }
 
@@ -66,7 +75,6 @@ class ProductListingResult extends EntitySearchResult
      */
     public function setLimit(int $limit): void
     {
-        /** @phpstan-ignore shopware.futureIncompatibility.propertyBecomesReadonly (ProductListingResult no longer extends EntitySearchResult in v6.8.0, so this code path will be removed.) */
         $this->limit = $limit;
     }
 

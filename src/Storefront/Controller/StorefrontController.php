@@ -9,6 +9,9 @@ use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
@@ -16,6 +19,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
@@ -57,8 +61,24 @@ abstract class StorefrontController extends AbstractController
         $services[ScriptExecutor::class] = ScriptExecutor::class;
         $services['translator'] = TranslatorInterface::class;
         $services[RequestTransformerInterface::class] = RequestTransformerInterface::class;
+        $services[AbstractContentRoute::class] = AbstractContentRoute::class;
 
         return $services;
+    }
+
+    protected function loadContentPage(string $path, Request $request, SalesChannelContext $context): ?ContentPage
+    {
+        try {
+            $contentPageResponse = $this->container->get(AbstractContentRoute::class)->load($path, $request, $context);
+        } catch (\Exception) {
+            return null;
+        }
+
+        if (!$contentPageResponse instanceof ContentRouteResponse) {
+            return null;
+        }
+
+        return $contentPageResponse->getContentPage();
     }
 
     /**

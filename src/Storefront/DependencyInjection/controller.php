@@ -59,7 +59,6 @@ use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
-use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -321,7 +320,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(FooterPageletLoader::class),
             service(CategoryUrlGenerator::class),
             service(SeoUrlPlaceholderHandlerInterface::class),
-            service(AbstractContentRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

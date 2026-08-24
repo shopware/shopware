@@ -265,7 +265,7 @@ final class DocumentV2Controller extends AbstractController
     )]
     public function downloadArchive(Request $request, Context $context): Response
     {
-        $documentIds = $request->toArray()['documentIds'] ?? null;
+        $documentIds = $request->getPayload()->all()['documentIds'] ?? null;
 
         if (!\is_array($documentIds) || $documentIds === []) {
             throw DocumentV2Exception::invalidRequestParameter('documentIds');

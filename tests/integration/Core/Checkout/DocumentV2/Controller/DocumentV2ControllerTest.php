@@ -342,9 +342,10 @@ class DocumentV2ControllerTest extends TestCase
         $this->getBrowser()->request(
             'POST',
             '/api/_action/order/document-v2/download-archive',
-            [
-                'documentIds' => [$document->getId()],
-            ],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['documentIds' => [$document->getId()]], \JSON_THROW_ON_ERROR),
         );
 
         $response = $this->getBrowser()->getResponse();

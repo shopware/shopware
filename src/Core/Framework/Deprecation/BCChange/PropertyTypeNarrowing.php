@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class PropertyTypeNarrowing implements CallSiteCompatibilityChange
+final class PropertyTypeNarrowing implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     public function __construct(
         public readonly string $version,

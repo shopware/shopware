@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class BecomesReadonly implements CallSiteCompatibilityChange
+final class BecomesReadonly implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     public function __construct(
         public readonly string $version,

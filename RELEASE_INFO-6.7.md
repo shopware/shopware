@@ -10,6 +10,276 @@ Aggregation names and range aggregation keys containing a backtick, question mar
 ### User and integration cloning is no longer available
 
 `POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
+Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
+
+### Store API context token response header is restricted on cacheable reads
+
+Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
+
+### The Store API cart route no longer loads the cart twice
+
+`GET|POST /store-api/checkout/cart` returns the cart that the sales channel context resolution already loaded and calculated for the context token, instead of reading and calculating it a second time. `CartLoadedEvent` is therefore dispatched once per request instead of twice, and the cart processors run once. The response itself is unchanged.
+
+`Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute::load()` takes the cart as an optional third argument for this, filled by the `CartValueResolver` like on the other cart routes. Calling the route without a cart, or with a `token` that differs from the passed cart, still reads from the cart storage.
+
+`AbstractCartLoadRoute::load()` is unchanged for now, so decorations keep working, but the parameter is added there in 6.8. Add it to your own `load()` declaration and forward it to the decorated route before you upgrade. Until you do, the route reads and calculates the cart again behind your decoration, because the resolver has no parameter to fill.
+
+### Sales channel file routes require read access
+
+The list, detail and preview routes under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}` now require `sales_channel_file:read`. Clients with that privilege receive previews using the saved template overrides; supplying unsaved `templateOverrides` additionally requires `sales_channel_file:update`.
+Resolving the sales channel context now calculates the cart through `CartCalculator` rather than the `CartRuleLoader` underneath it. The cart that `CartService` holds for the current request, and with it every cart the `CartValueResolver` hands to a controller, therefore carries the context hash of its current state instead of the one stored at its last persist, and its line items are no longer flagged as modified. Read `Cart::getHash()` if you compare a cart against `/store-api/checkout/order`; a cart calculation is also measured once per request now, where the context resolution used to calculate without emitting `cart.calculation.duration`.
+
+### Dedicated error code for invalid child line item quantity
+
+`CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
+
+### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
+
+Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
+
+## Administration
+
+### Order drafts are cleaned up when leaving the detail page
+
+Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
+
+### Optional order confirmation mail for Administration-created orders
+
+When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
+
+### Shipping prices can be linked to the tax rate
+
+The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.
+
+Extensions that override the `sw_settings_shipping_price_matrix_price_grid_currencies_list` block or style the removed `.sw-settings-shipping-price-matrix__price-input` class must be adjusted to the `sw-price-field` markup. The gross and net input `name` attributes are unchanged.
+### Admin UI shell rework (sidebar, top bar, smart bar)
+
+The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.
+
+#### Removed Twig blocks
+
+The following blocks have been removed and can no longer be extended:
+
+- `src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig`
+  - `sw_admin_menu_toggle_sidebar`
+  - `sw_admin_menu_toggle_sidebar_icon`
+  - `sw_admin_menu_toggle_sidebar_text`
+  - `sw_admin_menu_user_actions`
+  - `sw_admin_menu_user_actions_label`
+  - `sw_admin_menu_user_actions_list`
+- `src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig`
+  - `sw_admin_menu_item_arrow_indicato` (sic)
+  - `sw_admin_menu_item_arrow_indicator`
+  - `sw_admin_menu_item_external_arrow_indicato` (sic)
+  - `sw_admin_menu_item_external_icon`
+  - `sw_admin_menu_item_external_text`
+- `src/app/component/base/sw-version/sw-version.html.twig`
+  - `sw_version_name`
+  - `sw_version_name_text`
+  - `sw_version_status`
+  - `sw_version_status_badge`
+- `src/app/component/structure/sw-search-bar/sw-search-bar.html.twig`
+  - `sw_search_bar_version_display`
+- `src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig`
+  - `sw_sales_channel_menu_context_button_collapsed`
+
+#### Repurposed block: `sw_admin_menu_user_actions_items`
+
+The user menu in the sidebar footer became an `mt-action-menu` dropdown. The block `sw_admin_menu_user_actions_items` still exists, but its content now renders inside `mt-action-menu` instead of a `<ul>` navigation list. Overrides that add `<li><router-link>` entries produce broken markup inside the dropdown and need to render `mt-action-menu-group` / `mt-action-menu-item` elements instead:
+
+```twig
+{% block sw_admin_menu_user_actions_items %}
+    {% parent %}
+
+    <mt-action-menu-group>
+        <mt-action-menu-item
+            icon="regular-cog"
+            @click="onMyAction"
+        >
+            My entry
+        </mt-action-menu-item>
+    </mt-action-menu-group>
+{% endblock %}
+```
+
+#### Restructured blocks in `sw-page.html.twig`
+
+- A new `sw_page_top_bar` block wraps the top bar. `sw_page_top_bar_actions` is no longer nested inside `sw_page_search_bar` — overrides that copied the previous markup render the top bar actions twice.
+- The root element of `sw_page_smart_bar` changed from a `<template>` to a `<div class="sw-page__smart-bar">`.
+
+#### Smart bar back button styling removed
+
+The `.smart-bar__back-btn` CSS ruleset was removed from `sw-page.scss`. `#smart-bar-back` slot overrides that render a bare `<router-link class="smart-bar__back-btn">` with icons lose their styling. Migrate to the pattern the default back button uses:
+
+```twig
+<template #smart-bar-back>
+    <router-link
+        v-slot="{ href, navigate }"
+        :to="myBackRoute"
+        custom
+    >
+        <mt-button
+            is="a"
+            class="smart-bar__back-btn"
+            variant="secondary"
+            size="default"
+            square
+            :href="href"
+            :aria-label="$t('global.sw-page.backButton')"
+            @click="navigate"
+        >
+            <mt-icon
+                name="solid-long-arrow-left"
+                size="12px"
+            />
+        </mt-button>
+    </router-link>
+</template>
+```
+
+#### Removed snippets and static asset
+
+- `global.sidebar.buttonCollapse` has been removed.
+- `sw-extension.sw-extension-app-module-error-page.error.phrase` and `.error.info` have been removed; the app module error page uses `mt-empty-state` with the new `.error.description` snippet.
+- The static asset `static/img/error-pages/app-error.svg` has been removed. External URLs pointing to it return a 404.
+
+#### Extension SDK: `ui.sidebar.close()` closes asynchronously
+
+Closing a sidebar via the Extension SDK now plays a close animation (~400 ms) before the sidebar deactivates, instead of removing it immediately. With `prefers-reduced-motion` the sidebar still closes without delay. Do not rely on the sidebar being gone synchronously after calling `close()`.
+
+#### `sw-page` and `sw-meteor-page` are CSS containers
+
+Both page components declare `container-type: inline-size`. This creates a new containing block and stacking context: plugin content inside a page that uses `position: fixed` is now positioned relative to the page container instead of the viewport, and `z-index` values no longer compete with elements outside the page.
+
+#### Color props without effect
+
+- `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
+
+#### Optional module icon colors
+
+The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
+
+The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
+
+### Individual promotion codes are released again when their promotion line item is deleted
+
+Deleting a promotion line item from an order (or deleting the order) now releases the redeemed individual promotion code, so the customer can use it again. This restores the 6.6 behaviour that was lost in the 6.7 rewrite of `PromotionRedemptionUpdater`: since 6.7.0.0 a used individual code stayed permanently redeemed even after a merchant removed the promotion from the order — a common workflow when a payment fails and the order is edited, which previously forced merchants to generate and send a new code. The release is scoped to codes whose redemption payload references the order the line item is deleted from; the promotion usage counters were already recalculated correctly and are unchanged.
+
+### Bulk operations in the My Extensions listing
+
+The "My Extensions" listing can now act on several extensions at once instead of one card at a time, which noticeably speeds up maintaining shops with many extensions. Selecting one or more extensions replaces the listing controls with a bulk actions bar.
+
+The bar offers the same actions already available per card:
+- **Install**, **activate**, **deactivate**, **update**, and **uninstall** for all selected extensions in one step.
+- Each action is enabled only when it applies to at least one selected extension (for example, *activate* counts only "installed but inactive" extensions) and shows how many of the selection it affects.
+- All actions respect the existing `system.plugin_maintain` permission and the runtime extension-management setting, exactly like the single-card actions.
+
+The listing reloads once after the batch finishes rather than after every individual extension. With nothing selected, the listing behaves exactly as before, so the feature is fully opt-in.
+### Product detail empty states use `mt-empty-state`
+
+The empty states of the product detail tabs "Advanced pricing" and "Cross Selling" now render `mt-empty-state` instead of custom markup with an illustration. The headline, description, icon and the link to the parent product are `mt-empty-state` props.
+
+The Twig blocks of `sw-product-detail-context-prices.html.twig` and `sw-product-detail-cross-selling.html.twig` that wrapped the image, icon and description texts still exist with their previous render conditions, but are empty and deprecated for removal in v6.8.0.
+
+`sw_product_detail_cross_selling_empty_state_icon` and `sw_product_detail_cross_selling_empty_state_actions` no longer wrap a `<template #icon>` / `<template #actions>`; overrides that reproduced these slot wrappers must drop them. The add button lives in `sw_product_detail_cross_selling_empty_state_actions_add` inside the `button` slot of `mt-empty-state`.
+
+The `assetFilter` computed of both components is deprecated for removal in v6.8.0; use `Shopware.Filter.getByName('asset')` instead.
+
+The classes `.sw-product-detail-context-prices__parent-prices-link` and `.sw-product-detail-cross-selling__parent-cross-sellings-link` no longer exist; the parent link is rendered as `.mt-empty-state__link`.
+
+### Native-setup editor support comes from the extension tooling
+
+Editor support for native-setup authoring is now generated by the extension tooling instead of copied by hand. Run `composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install): the generated ESLint config declares the compile-time macro globals (`swDefinePublic`, `swDefineOverride`, `useSwPreviousState`, `useSwProps`, `useSwContext`) and enables the `sw-core-rules/valid-shopware-setup` and `sw-core-rules/native-setup-filename` guards, and the generated type surface carries the macro declarations so they type-check.
+
+The workspace templates in `build/vue-setup-transform/templates/custom-plugin-workspace` are removed with it. They imported `eslint-plugin-vue` and `@typescript-eslint/parser` through explicit paths into the Administration's `node_modules`, so a dependency bump broke every copied workspace at once. If you copied `eslint.config.mjs` to `custom/eslint.config.mjs` or `plugin-tsconfig.json` to `custom/plugins/<PluginName>/tsconfig.json`, delete them and run the setup command instead.
+### Extension pages use `mt-empty-state`
+
+The empty states of Extensions > My extensions (previously a `sw-meteor-card` with custom markup) and the extension store landing page (previously custom markup with an illustration) now render `mt-empty-state`. The existing Twig blocks are unchanged and wrap the new markup.
+
+The `assetFilter` computed of `sw-extension-my-extensions-listing` and `sw-extension-store-landing-page` is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
+
+The landing page copy moved to the new snippets `sw-extension-store.landing-page.activationHeadline` and `.activationDescription`; shops that overrode the removed keys below need to move their text there. The "Now available" badge (`landing-page.label`) was removed without replacement:
+
+- `sw-extension-store.landing-page.label`
+- `sw-extension-store.landing-page.activationDescriptionTitleFirst`
+- `sw-extension-store.landing-page.activationDescriptionTitleSecond`
+- `sw-extension-store.landing-page.activationDescriptionTitleDescription`
+
+The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.sw-extension-store-landing-page__wrapper` no longer carries a background, border or fixed width, and `__wrapper-content` / `__wrapper-activated` no longer carry styles.
+### Extension empty states use `mt-empty-state`
+
+The empty states of Extensions > My extensions and the Shopware Store activation page render `mt-empty-state`. The Twig blocks and snippet keys are unchanged, but overrides that build on the previous markup need to adapt: the listing empty state is no longer a `sw-meteor-card`, and on the activation page the "Now available" badge (`.sw-extension-store-landing-page__wrapper-label`) and the `sw-label` of the success and error states no longer exist.
+
+The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
+
+## Storefront
+
+### Passive privacy notices without a checkbox
+
+Storefront privacy notices now use passive wording when `core.loginRegistration.requireDataProtectionCheckbox` is disabled. Contact and newsletter forms use the privacy-only snippet keys `contact.privacyNoticeTextModal` and `contact.privacyNoticeInformation`, while forms that include the terms of service use `general.privacyNoticeTextModal` and `general.privacyNoticeInformation`. Themes and custom snippet sets can override the new `*.privacyNoticeInformation` keys to adjust the non-blocking notice.
+
+The regular registration action now uses `account.registerSubmit`, while the checkout registration and guest-order authentication use `checkout.registerSubmit`.
+
+### Semantic footer markup
+
+With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.
+
+- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
+- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column will become `<li>` instead of `<div role="listitem">`.
+
+### Clear message when adding a second code of the same promotion
+
+Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
+
+### Edit order page selects the payment method of the order
+
+The payment selection on `/account/order/edit/{orderId}` belongs to the order instead of the session. `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage::getSelectedPaymentMethodId()` returns the payment method of the order, or the one the customer picked on the page, and the templates of that page use `page.selectedPaymentMethodId` instead of `context.paymentMethod.id`. Themes that override `page_checkout_aside_actions_payment_method_id` or `page_checkout_change_payment_form` should do the same.
+
+`frontend.account.edit-order.change-payment-method` passes the selected method to the edit order page as the `paymentMethodId` query parameter. It still switches the payment method of the sales channel context, so templates that render `context.paymentMethod` on that page keep working, but that context switch is deprecated and will be removed with v6.8.0.0.
+
+### Postal codes are validated in the browser
+
+The country `<option>` rendered by `component/address/field/address-country-field.html.twig` now carries `data-zipcode-pattern` and `data-check-zipcode-pattern`, next to the existing `data-zipcode-required`. `CountryStateSelectPlugin` reads them and applies the pattern to every `[data-input-name="zipcodeInput"]` field, so an invalid postal code is reported on submit instead of only after the rest of the form passes.
+
+If your theme overrides `component_address_field_country` and renders its own `<option>` markup, add both attributes to keep postal code validation working in the browser. Server-side validation is unchanged.
+
+### Essential characteristics render select, entity and price custom fields
+
+Custom fields of the types `select`, `entity` and `price` are now rendered when they are part of a product's essential characteristics. Their line item payload gained an optional `display` key next to the untouched `content`:
+
+```
+lineItem.payload.features[].value = { id, type, content, display }
+```
+
+`display` holds a list of resolved option or entity labels for `select` and `entity`, and the price of the current currency and tax state as a float for `price`. It is only present on line items built after the update, so templates overriding `component/product/feature/types/feature-custom-field.html.twig` must treat it as optional. A characteristic that cannot be resolved is dropped from the payload, and `component/product/feature/item.html.twig` no longer emits an empty list item for a characteristic its template renders nothing for.
+
+### The buy button shows a loading indicator while the product is added
+
+`AddToCartPlugin` puts a loading indicator on the buy button when the form is submitted and removes it once the off-canvas cart has opened or the request is through. The button is disabled in the meantime, so a second click can no longer add the product a second time.
+
+The button is looked up with the plugin's existing `buyButtonSelector` option, which defaults to `button[type="submit"].btn-buy`. The new `loadingIndicatorPosition` option (`before`, `after` or `inner`, default `inner`) controls where the indicator is rendered. A buy button that does not match `buyButtonSelector` is left untouched.
+
+Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
+
+## App System
+
+### Target validation can be disabled for local development
+
+The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
+
+While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
+# 6.7.14.1
+
+## Security Fixes
+
+### Password recovery events are no longer delivered to webhooks
+
+`user.recovery.request` and `customer.recovery.request` are no longer sent to webhooks and are removed from the generated webhook events reference. Both stay available in Flow Builder.
+
+App manifests subscribing to them keep validating until 6.8, so such apps can still be installed and updated. Doing so triggers a deprecation; from 6.8 the manifest is rejected.
+
+An event opts out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
 
 # 6.7.14.0
 

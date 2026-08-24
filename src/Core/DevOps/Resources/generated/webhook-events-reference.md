@@ -16,7 +16,8 @@
 |`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
-|`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
+|`document.generation.completed` | Triggers when a document is generated or uploaded for an order | - | {"documentId":"string","documentType":"string","documentNumber":"string","orderId":"string","orderVersionId":"string"}
+|`document.generation.deleted` | Triggers when a document is deleted | - | {"documentId":"string","documentNumber":"string","deletedAt":"string","orderId":"string","orderVersionId":"string"}
 |`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}
@@ -86,7 +87,6 @@
 |`state_leave.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
-|`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"entity":"user_recovery","resetUrl":"string"}
 |`sales_channel.written` | Triggers when a sales_channel is written | `sales_channel:read` | {"entity":"sales_channel","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`sales_channel.deleted` | Triggers when a sales_channel is deleted | `sales_channel:read` | {"entity":"sales_channel","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`sales_channel_domain.written` | Triggers when a sales_channel_domain is written | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":"update insert","primaryKey":"array string","payload":"array"}

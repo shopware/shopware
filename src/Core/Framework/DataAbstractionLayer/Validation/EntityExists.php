@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
@@ -21,9 +22,7 @@ class EntityExists extends Constraint
         self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.';
 
     protected string $entity;

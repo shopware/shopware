@@ -220,6 +220,7 @@
 
                 <template #modal-footer>
                     <mt-checkbox
+                        v-if="!isCliUpdateSelected"
                         v-model:checked="checkedBackupCheckbox"
                         class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                         :label="$t('sw-settings-shopware-updates.updateModal.backupLabel')"
@@ -231,15 +232,16 @@
                             variant="secondary"
                             @click="updateModalShown = false"
                         >
-                            {{ $t('global.default.cancel') }}
+                            {{ $t(isCliUpdateSelected ? 'global.default.close' : 'global.default.cancel') }}
                         </mt-button>
 
                         <mt-button
+                            v-if="!isCliUpdateSelected"
                             :disabled="!checkedBackupCheckbox"
                             variant="primary"
                             size="small"
                             class="sw-settings-shopware-updates-check__start-update-button"
-                            @click="confirmUpdateMethod()"
+                            @click="startUpdateProcess()"
                         >
                             {{ $t('sw-settings-shopware-updates.methodModal.actions.continue') }}
                         </mt-button>

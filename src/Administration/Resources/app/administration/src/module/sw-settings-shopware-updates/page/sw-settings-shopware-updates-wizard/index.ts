@@ -175,15 +175,6 @@ export default Component.wrapComponentConfig({
             });
         },
 
-        confirmUpdateMethod() {
-            if (this.chosenUpdateMethod === 'cli') {
-                this.updateModalShown = false;
-                return;
-            }
-
-            this.startUpdateProcess();
-        },
-
         startUpdateProcess() {
             this.updateModalShown = false;
             this.$emit('update-started');

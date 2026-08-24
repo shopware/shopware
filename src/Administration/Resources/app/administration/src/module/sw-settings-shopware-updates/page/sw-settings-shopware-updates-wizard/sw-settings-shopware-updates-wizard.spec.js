@@ -383,22 +383,15 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 
-    it('continuing with the recommended CLI method does not start the web installer', async () => {
-        wrapper.vm.requirements = [];
+    it('hides continue and the backup checkbox for the recommended CLI method', async () => {
         wrapper.vm.updateModalShown = true;
         await flushPromises();
 
         expect(wrapper.vm.chosenUpdateMethod).toBe('cli');
-
-        const downloadRecoverySpy = jest.spyOn(wrapper.vm, 'downloadRecovery');
-
-        await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
-        await wrapper.get('.sw-settings-shopware-updates-check__start-update-button').trigger('click');
-        await flushPromises();
-
-        expect(wrapper.vm.updateModalShown).toBe(false);
+        expect(wrapper.find('.sw-settings-shopware-updates-check__start-update-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-shopware-updates-check__start-update-backup-checkbox').exists()).toBe(false);
+        expect(wrapper.findByText('button', 'global.default.close').exists()).toBe(true);
         expect(wrapper.emitted('update-started')).toBeFalsy();
-        expect(downloadRecoverySpy).not.toHaveBeenCalled();
         expect(wrapper.vm.updaterIsRunning).toBe(false);
     });
 
@@ -417,6 +410,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
 
     it('disables continue until a backup is confirmed', async () => {
         wrapper.vm.updateModalShown = true;
+        await flushPromises();
+
+        await wrapper.get('.sw-settings-shopware-updates-method-option--web input').setValue();
         await flushPromises();
 
         expect(wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled')).toBeDefined();

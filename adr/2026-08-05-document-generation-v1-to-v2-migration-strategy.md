@@ -53,8 +53,7 @@ document stays usable in v1 surfaces after the flag is switched off whenever at 
 
 The read path for v1 auto-generates missing media for non-static documents. For documents that already carry `document_file`
 rows, it skips this and fails gracefully instead. Otherwise, switching back would produce a divergent v1 rendering from the
-nearly empty v2 `document.config`. This guard is the single deliberate exception to v1 taking no dependency on v2 and will
-be removed alongside v1.
+nearly empty v2 `document.config`. This guard prevents v1 from regenerating v2 documents and will be removed alongside v1.
 
 #### Legacy Zugferd types
 
@@ -74,9 +73,8 @@ The v2 admin API routes are available regardless of the flag state. The flag onl
 Entry points for v2 are annotated `@experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK` and may change
 until v2 becomes the default in 6.8.
 
-For customer-facing downloads, the storefront and Store API routes gain a flag-gated branch. This branch resolves files
-through the new document file structure first before falling back to legacy media fields. The URLs do not change and the
-routes survive the removal of v1 in 6.9.
+For customer-facing downloads, the storefront and Store API routes keep their URLs and resolve persisted files through the
+shared compatibility read path. The routes survive the removal of v1 in 6.9.
 
 ### Public Extension Surface
 

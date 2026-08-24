@@ -21,16 +21,6 @@ class CustomerZipCode extends Constraint
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
 
-    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use isCaseSensitiveCheck() instead.')]
-    public bool $caseSensitiveCheck = true;
-
-    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getCountryId() instead.')]
-    public ?string $countryId;
-
-    private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
-
-    private string $messageRequired = 'Postal code is required for that country';
-
     /**
      * @param ?array{countryId?: ?string, caseSensitiveCheck?: bool} $options
      */
@@ -38,10 +28,12 @@ class CustomerZipCode extends Constraint
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
     public function __construct(
         $options = null,
-        bool $caseSensitiveCheck = true,
-        ?string $countryId = null,
-        string $message = 'This value is not a valid ZIP code for country {{ iso }}',
-        string $messageRequired = 'Postal code is required for that country'
+        #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use isCaseSensitiveCheck() instead.')]
+        public bool $caseSensitiveCheck = true,
+        #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getCountryId() instead.')]
+        public ?string $countryId = null,
+        private string $message = 'This value is not a valid ZIP code for country {{ iso }}',
+        private string $messageRequired = 'Postal code is required for that country'
     ) {
         if ($options !== null) {
             Feature::triggerDeprecationOrThrow(
@@ -52,11 +44,6 @@ class CustomerZipCode extends Constraint
 
         if ($options === null || Feature::isActive('v6.8.0.0')) {
             parent::__construct();
-
-            $this->caseSensitiveCheck = $caseSensitiveCheck;
-            $this->countryId = $countryId;
-            $this->message = $message;
-            $this->messageRequired = $messageRequired;
         } else {
             if (!\is_array($options)) {
                 $options = [

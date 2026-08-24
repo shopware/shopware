@@ -20,6 +20,8 @@ type ContentEntity<T extends keyof EntitySchema.Entities> = Entity<T> & WithSlot
 /**
  * @private
  * @sw-package discovery
+ *
+ * Duplicated in `src/app/composables/use-cms-state`; change both together.
  */
 export default Shopware.Mixin.register(
     'cms-state',

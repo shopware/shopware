@@ -75,7 +75,7 @@ const documentBaseConfigRepositoryMock = {
                 documentTypeId: 'documentTypeId1',
                 config: {},
                 documentType: { id: 'documentTypeId1', technicalName: 'invoice' },
-                filenameInfixes: {},
+                filenameInfixes: null,
             });
         }
 

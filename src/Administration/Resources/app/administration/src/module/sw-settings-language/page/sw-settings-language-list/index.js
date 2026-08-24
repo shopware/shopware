@@ -302,6 +302,10 @@ export default {
             return 'updateAvailable';
         },
 
+        onAddLanguage() {
+            this.showAddLanguageModal = true;
+        },
+
         async onLanguageAdded(locale) {
             this.showAddLanguageModal = false;
 

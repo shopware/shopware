@@ -6,7 +6,7 @@
         "schemas": {
             "ContentSkeletonElement": {
                 "type": "object",
-                "description": "A node of the skeleton format's element tree: structure only, with every property value stripped. The skeleton is a function of structure alone, so the same layout and request produce the same skeleton whatever data resolution found. This is the skeleton format's node and only that — the decomposed format serves its own node shape (`ContentDecomposedElement`) with a different grammar for `slots` and `apiAlias`.",
+                "description": "A node of the skeleton format's element tree: structure only, with every property value stripped. The skeleton is a function of structure alone, so the same layout and request produce the same skeleton whatever data resolution found. This is the skeleton format's node and only that — the decomposed format serves its own node shape (`ContentDecomposedElement`) with a different grammar for `apiAlias`.",
                 "required": ["id", "component", "slots"],
                 "properties": {
                     "id": {
@@ -18,7 +18,7 @@
                         "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Media:Image)."
                     },
                     "slots": {
-                        "description": "Child element subtrees keyed by slot name, each slot holding an ordered list of child skeleton nodes. Always present on every node at every depth: unlike the other formats this key is never omitted, and a node with no slots carries it as an empty JSON array `[]` rather than an empty object.",
+                        "description": "Child element subtrees keyed by slot name, each slot holding an ordered list of child skeleton nodes. Always present on every node at every depth, and a node with no slots carries it as an empty JSON array `[]` rather than an empty object. `ContentDecomposedElement` states the same grammar; the two node types differ on `apiAlias` placement, not on this key.",
                         "oneOf": [
                             {
                                 "type": "array",

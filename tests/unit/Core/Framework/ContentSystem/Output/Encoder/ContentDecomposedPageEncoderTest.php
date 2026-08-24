@@ -89,15 +89,35 @@ class ContentDecomposedPageEncoderTest extends TestCase
         static::assertSame('root', $node['id']);
         static::assertSame('Sw:Grid:Container', $node['component']);
         static::assertSame(['col-span' => ['xs' => 6]], $node['style']);
-        static::assertSame(['id', 'component', 'apiAlias'], array_keys($node['slots']['content'][0]));
+        static::assertSame(['id', 'component', 'slots', 'apiAlias'], array_keys($node['slots']['content'][0]));
     }
 
-    #[TestDox('omits slots and style on a node that has neither')]
-    public function testEncodeOmitsEmptySlotsAndStyle(): void
+    #[TestDox('omits style, but not slots, on a node that has neither')]
+    public function testEncodeOmitsEmptyStyleButNotSlots(): void
     {
         $node = $this->encode([new RenderedElement('leaf', 'Sw:Content:Text')])['skeletons'][0];
 
-        static::assertSame(['id', 'component', 'apiAlias'], array_keys($node));
+        static::assertSame(['id', 'component', 'slots', 'apiAlias'], array_keys($node));
+        static::assertSame([], $node['slots']);
+    }
+
+    /**
+     * Pins the WIRE shape, not just the PHP value: `assertSame([], $node['slots'])` above already tells apart an
+     * array from a `\stdClass`, because `EncodedContentPage::jsonSerialize()` returns the encoder's body
+     * verbatim with no JSON round trip in between — but that PHP-level check is not the property this test
+     * exists to pin. The property is what `json_encode` prints, since that is what a client reads: an empty PHP
+     * array always prints `[]` and a `\stdClass` always prints `{}`, and this asserts the former appears on the
+     * wire for a slot-less node rather than assuming the PHP-level check already proves it.
+     */
+    #[TestDox('serializes an empty slots map as a JSON array, never an object')]
+    public function testEncodeSerializesEmptySlotsAsAJsonArrayOnTheWire(): void
+    {
+        $body = $this->encode([new RenderedElement('leaf', 'Sw:Content:Text')]);
+
+        $json = json_encode($body['skeletons'][0], \JSON_THROW_ON_ERROR);
+
+        static::assertStringContainsString('"slots":[]', $json);
+        static::assertStringNotContainsString('"slots":{}', $json);
     }
 
     #[TestDox('carries the element alias last on every node at every depth, not only on a root')]

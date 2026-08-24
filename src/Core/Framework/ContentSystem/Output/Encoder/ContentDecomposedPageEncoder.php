@@ -61,9 +61,9 @@ class ContentDecomposedPageEncoder
     }
 
     /**
-     * `id` and `component` are always present, `slots` and `style` are omitted when empty, and the `apiAlias`
-     * goes last on every node at every depth — the full format's element conventions, minus the properties this
-     * format serves out of `data` instead.
+     * `id`, `component` and `slots` are always present — an empty `slots` map serializes as `[]`, never `{}` —
+     * `style` is omitted when empty, and the `apiAlias` goes last on every node at every depth — the full
+     * format's element conventions, minus the properties this format serves out of `data` instead.
      *
      * @return array<string, mixed>
      */
@@ -74,14 +74,12 @@ class ContentDecomposedPageEncoder
             'component' => $element->component,
         ];
 
-        if ($element->slots !== []) {
-            $slots = [];
-            foreach ($element->slots as $name => $children) {
-                $slots[$name] = array_map($this->encodeSkeleton(...), $children);
-            }
-
-            $data['slots'] = $slots;
+        $slots = [];
+        foreach ($element->slots as $name => $children) {
+            $slots[$name] = array_map($this->encodeSkeleton(...), $children);
         }
+
+        $data['slots'] = $slots;
 
         if (!$element->style->isEmpty()) {
             $data['style'] = $element->style->toArray();

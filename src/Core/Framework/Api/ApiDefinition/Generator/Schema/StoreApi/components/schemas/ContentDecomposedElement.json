@@ -6,8 +6,8 @@
         "schemas": {
             "ContentDecomposedElement": {
                 "type": "object",
-                "description": "A node of the decomposed format's skeleton tree: the element's structure with no property values, which this format serves separately through the page's `data` and `assignments` maps, keyed by this node's `id`. The grammar is: `id` and `component` always present; `slots` present only when the element has children, omitted entirely otherwise; `style` present only when the element carries style, omitted entirely otherwise; `apiAlias` present on every node at every depth and written last. Key order on the wire is `id`, `component`, `slots`, `style`, `apiAlias`. This node type is used by the decomposed format alone and is not interchangeable with any other format's node.",
-                "required": ["id", "component", "apiAlias"],
+                "description": "A node of the decomposed format's skeleton tree: the element's structure with no property values, which this format serves separately through the page's `data` and `assignments` maps, keyed by this node's `id`. The grammar is: `id`, `component` and `slots` always present, an empty `slots` map serialized as `[]`; `style` present only when the element carries style, omitted entirely otherwise; `apiAlias` present on every node at every depth and written last. Key order on the wire is `id`, `component`, `slots`, `style`, `apiAlias`. This node type shares its `slots` grammar with the skeleton format's node (`ContentSkeletonElement`) and differs from it only on `apiAlias` placement.",
+                "required": ["id", "component", "slots", "apiAlias"],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18,12 +18,21 @@
                         "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Media:Image)."
                     },
                     "slots": {
-                        "type": "object",
-                        "description": "Child element subtrees keyed by slot name, each slot holding an ordered list of child nodes. Omitted entirely when the element has no slots — never serialized as an empty container.",
-                        "additionalProperties": {
-                            "type": "array",
-                            "items": { "$ref": "#/components/schemas/ContentDecomposedElement" }
-                        }
+                        "description": "Child element subtrees keyed by slot name, each slot holding an ordered list of child nodes. Always present on every node at every depth: a node with no slots carries it as an empty JSON array `[]` rather than an empty object.",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty slot map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/ContentDecomposedElement" }
+                                }
+                            }
+                        ]
                     },
                     "style": {
                         "type": "object",

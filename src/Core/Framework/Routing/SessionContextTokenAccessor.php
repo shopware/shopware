@@ -22,6 +22,11 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  * front of PHP: a reverse proxy can bypass or partition its cache on a request header, which it
  * can never do on a cookie that the store-api cache strategy deliberately ignores.
  *
+ * Declaring the header is also a contract: when the session cannot be used - no session cookie, a
+ * cross-site fetch, a shared-cacheable route, the feature disabled, or a session that cannot be
+ * resumed - the request fails with a diagnosable error instead of silently degrading to a fresh
+ * context (see SalesChannelRequestContextResolver).
+ *
  * The session keys mirror \Shopware\Storefront\Framework\Routing\StorefrontSubscriber::startSession():
  * with `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled the storefront keeps the
  * token under a sales-channel-suffixed key, and it always mirrors the current token into the plain key.
@@ -78,37 +83,57 @@ class SessionContextTokenAccessor
     }
 
     /**
-     * Whether this request may consult the storefront session at all.
-     *
-     * Requires the explicit `sw-context-source: session` opt-in, a cookie for the configured
-     * session name - so that an existing session is resumed and none is ever created - and, when
-     * the browser tells us, a same-origin or same-site fetch.
-     *
-     * Routes flagged for shared HTTP caching are excluded entirely: the store-api cache strategy
-     * keys cache entries on headers and deliberately ignores cookies, so a session resolved
-     * response on such a route would be indistinguishable from the anonymous cached variant - the
-     * shopper would get their own context on a cache miss and the anonymous one on a cache hit.
-     * The routes this feature exists for (cart, checkout, account) are never shared-cacheable.
+     * Whether the client declared that its context lives in the storefront session.
+     */
+    public function isRequested(Request $request): bool
+    {
+        return $request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) === self::CONTEXT_SOURCE_SESSION;
+    }
+
+    /**
+     * Whether this request may consult the storefront session at all: it declared the session as
+     * its context source, and nothing stands in the way of honoring that.
      */
     public function isEligible(Request $request): bool
     {
-        if (!$this->enabled) {
-            return false;
-        }
+        return $this->isRequested($request) && $this->ineligibilityReason($request) === null;
+    }
 
-        if ($request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) !== self::CONTEXT_SOURCE_SESSION) {
-            return false;
+    /**
+     * Why an opted-in request may not consult the storefront session, or null when it may.
+     *
+     * Public so the resolver can turn the reason into a client-facing error: declaring the session
+     * as context source is a contract, and silently degrading to a fresh throwaway context would
+     * surface as an inexplicably empty cart instead of a diagnosable response.
+     *
+     * The individual conditions: an existing session must be resumable - never created - so a
+     * cookie for the configured session name is required; the fetch must be same-origin or
+     * same-site when the browser tells us; and routes flagged for shared HTTP caching are excluded
+     * entirely, because the store-api cache strategy keys cache entries on headers and deliberately
+     * ignores cookies - a session resolved response on such a route would be indistinguishable from
+     * the anonymous cached variant, giving the shopper their own context on a cache miss and the
+     * anonymous one on a cache hit. The routes this feature exists for (cart, checkout, account)
+     * are never shared-cacheable.
+     */
+    public function ineligibilityReason(Request $request): ?string
+    {
+        if (!$this->enabled) {
+            return 'session context resolution is disabled (see shopware.routing.session_context_token.enabled)';
         }
 
         if ($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_HTTP_CACHE)) {
-            return false;
+            return 'the route is shared-cacheable and must stay independent of the session cookie';
         }
 
         if ($request->cookies->get($this->sessionName) === null) {
-            return false;
+            return 'the request carries no storefront session cookie';
         }
 
-        return $this->isSameSiteFetch($request);
+        if (!$this->isSameSiteFetch($request)) {
+            return 'the request is not a same-origin or same-site fetch';
+        }
+
+        return null;
     }
 
     /**

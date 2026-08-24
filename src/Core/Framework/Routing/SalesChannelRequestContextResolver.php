@@ -96,22 +96,38 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     }
 
     /**
-     * Last resort before a brand new token is minted: a same-origin caller that declared
-     * `sw-context-source: session` and sent the storefront session cookie but no `sw-context-token`
-     * header continues the shopper's storefront context.
+     * A caller that declared `sw-context-source: session` and sent no `sw-context-token` header
+     * continues the shopper's storefront context.
      *
-     * The token is put on the request headers, so every downstream consumer - context service, cart,
-     * rotation - sees exactly what it would have seen for a client sent token, and the request is
-     * marked so the response can be kept out of shared caches.
+     * The declaration is a contract: when the session cannot be used, the request fails instead of
+     * silently falling through to a fresh throwaway token - to a session-based client a fresh token
+     * per request would surface as an inexplicably empty cart, while the error names the condition
+     * that was not met.
+     *
+     * On success the token is put on the request headers, so every downstream consumer - context
+     * service, cart, rotation - sees exactly what it would have seen for a client sent token, and
+     * the request is marked so the response can be kept out of shared caches.
      */
     private function resolveContextTokenFromSession(Request $request): void
     {
+        if (!$this->sessionContextToken->isRequested($request)) {
+            return;
+        }
+
+        $reason = $this->sessionContextToken->ineligibilityReason($request);
+
+        if ($reason !== null) {
+            throw RoutingException::sessionContextNotResolvable($reason);
+        }
+
         $salesChannelId = (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
         $token = $this->sessionContextToken->read($request, $salesChannelId);
 
         if ($token === null) {
-            return;
+            throw RoutingException::sessionContextNotResolvable(
+                'the session cookie does not resume a storefront session holding a context token'
+            );
         }
 
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);

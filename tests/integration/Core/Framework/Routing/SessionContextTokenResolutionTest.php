@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\SessionContextTokenSyncListener;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -97,7 +98,7 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertSame($plainToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
-    public function testWithoutSessionCookieAFreshTokenIsMinted(): void
+    public function testWithoutSessionCookieTheDeclaredSessionSourceFails(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
 
@@ -107,15 +108,11 @@ class SessionContextTokenResolutionTest extends TestCase
         // borrow a session, even when one happens to be attached to the request object.
         $request->cookies->remove($this->sessionName);
 
+        $this->expectExceptionObject(
+            RoutingException::sessionContextNotResolvable('the request carries no storefront session cookie')
+        );
+
         $this->resolve($request);
-
-        $token = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-
-        static::assertNotSame($sessionToken, $token);
-        static::assertNotNull($token);
-        static::assertSame(32, \strlen($token));
-        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
-        static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
     }
 
     public function testExplicitHeaderTokenWinsOverTheSession(): void
@@ -155,16 +152,15 @@ class SessionContextTokenResolutionTest extends TestCase
         $request->headers->set('Sec-Fetch-Site', $fetchSite);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
-        $this->resolve($request);
-
-        if ($shouldResolve) {
-            static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-
-            return;
+        if (!$shouldResolve) {
+            $this->expectExceptionObject(
+                RoutingException::sessionContextNotResolvable('the request is not a same-origin or same-site fetch')
+            );
         }
 
-        static::assertNotSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        $this->resolve($request);
+
+        static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testRotationIsWrittenBackToTheSession(): void
@@ -257,7 +253,7 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
     }
 
-    public function testACookieThatDoesNotResumeASessionIsIgnored(): void
+    public function testACookieThatDoesNotResumeASessionFails(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
 
@@ -270,13 +266,27 @@ class SessionContextTokenResolutionTest extends TestCase
             cookieValue: 'a-stale-or-forged-session-id'
         );
 
-        $this->resolve($request);
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the session cookie does not resume a storefront session holding a context token'
+        ));
 
-        static::assertNotSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        $this->resolve($request);
     }
 
-    public function testSharedCacheableRoutesNeverConsultTheSession(): void
+    public function testASessionWithoutAContextTokenFails(): void
+    {
+        $request = $this->createStoreApiRequest();
+        // A resumable session that was not started by the storefront holds no context token.
+        $this->attachSession($request, []);
+
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the session cookie does not resume a storefront session holding a context token'
+        ));
+
+        $this->resolve($request);
+    }
+
+    public function testSharedCacheableRoutesRejectTheDeclaredSessionSource(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
 
@@ -284,15 +294,13 @@ class SessionContextTokenResolutionTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
 
-        $this->resolve($request);
+        // The store-api cache is keyed on headers and ignores cookies, so a cacheable route must
+        // stay cookie independent - and the declared session source fails loudly instead.
+        $this->expectExceptionObject(RoutingException::sessionContextNotResolvable(
+            'the route is shared-cacheable and must stay independent of the session cookie'
+        ));
 
-        static::assertNotSame(
-            $sessionToken,
-            $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
-            'the store-api cache is keyed on headers and ignores cookies, so a cacheable route must stay cookie independent'
-        );
-        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
-        static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+        $this->resolve($request);
     }
 
     public function testAForeignHeaderTokenCannotRepointTheSession(): void

@@ -32,7 +32,7 @@ class ProductListingResult extends EntitySearchResult
      * result owns this state independently of the search result it was created from.
      */
     // @phpstan-ignore property.parentPropertyFinalByPhpDoc (the listing result keeps its own page state)
-    protected int $page = 1;
+    protected int $page;
 
     // @phpstan-ignore property.parentPropertyFinalByPhpDoc (the listing result keeps its own limit state)
     protected ?int $limit = null;

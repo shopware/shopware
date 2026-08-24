@@ -7,7 +7,6 @@
 Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
 
 # 6.7.14.0
-# 6.7.14.0 (upcoming)
 
 ## Features
 

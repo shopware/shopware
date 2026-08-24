@@ -20,6 +20,7 @@ use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 
@@ -309,12 +311,28 @@ class BCChangeAttributeUsageRule implements Rule
     }
 
     /**
-     * @param \ReflectionProperty<object> $property
-     *
      * @return list<IdentifierRuleError>
      */
     private function validatePropertyLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionProperty $property, string $symbol, int $line): array
     {
+        if ($attribute->getName() === BecomesReadonly::class && $property->isReadOnly()) {
+            return [$this->error($line, \sprintf('BecomesReadonly on "%s": the property is already readonly.', $symbol))];
+        }
+
+        if ($attribute->getName() === PropertyTypeNarrowing::class) {
+            $newType = $this->argument($attribute, 'newType', 1);
+            if (!\is_string($newType)) {
+                return [];
+            }
+
+            $currentType = $property->getType();
+            if ($currentType instanceof \ReflectionNamedType
+                && ($currentType->allowsNull() ? '?' : '') . $currentType->getName() === $newType
+            ) {
+                return [$this->error($line, \sprintf('PropertyTypeNarrowing on "%s": announced type "%s" is identical to the current property type.', $symbol, $newType))];
+            }
+        }
+
         if ($attribute->getName() !== VisibilityChange::class) {
             return [];
         }

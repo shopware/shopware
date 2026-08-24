@@ -259,7 +259,17 @@ class ZugferdDocument
         $type = $isCharge ? self::CHARGE_AMOUNT : self::ALLOWANCE_AMOUNT;
         $this->addMappedPrice($type, $lineItem->getPrice());
 
-        foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
+        $allowanceCharge = [
+            'isCharge' => $isCharge,
+            'taxTypeCode' => 'VAT',
+            'calculationPercent' => $isPercentage ? $discountValue : null,
+            'reasonCode' => ZugferdAllowanceCodes::DISCOUNT,
+            'reason' => $lineItem->getReferencedId() ?? $lineItem->getLabel(),
+        ];
+
+        $calculatedTaxes = $lineItem->getPrice()->getCalculatedTaxes();
+
+        foreach ($calculatedTaxes as $calculatedTax) {
             $actualAmount = $this->getPriceWithFallback($calculatedTax, $lineItem->getPrice());
 
             if (!Feature::isActive('v6.8.0.0')) {
@@ -269,17 +279,28 @@ class ZugferdDocument
                     $this->addAllowanceAmount($actualAmount);
                 }
             }
+
             $this->zugferdBuilder->addDocumentAllowanceCharge(
                 ...[
+                    ...$allowanceCharge,
                     'actualAmount' => abs($actualAmount),
-                    'isCharge' => $isCharge,
                     'taxCategoryCode' => $this->getTaxCode($calculatedTax),
-                    'taxTypeCode' => 'VAT',
                     'rateApplicablePercent' => $calculatedTax->getTaxRate(),
-                    'calculationPercent' => $isPercentage ? $discountValue : null,
-                    'basisAmount' => $isPercentage ? round(abs($actualAmount) * 100 / $discountValue, 2) : null,
-                    'reasonCode' => ZugferdAllowanceCodes::DISCOUNT,
-                    'reason' => $lineItem->getReferencedId() ?? $lineItem->getLabel(),
+                    'basisAmount' => $this->getPercentageBasisAmount($isPercentage, $discountValue, $actualAmount),
+                ]
+            );
+        }
+
+        if ($calculatedTaxes->count() === 0) {
+            $actualAmount = $this->getPriceWithFallback(null, $lineItem->getPrice());
+
+            $this->zugferdBuilder->addDocumentAllowanceCharge(
+                ...[
+                    ...$allowanceCharge,
+                    'actualAmount' => abs($actualAmount),
+                    'taxCategoryCode' => $this->getTaxCode(null),
+                    'rateApplicablePercent' => 0.0,
+                    'basisAmount' => $this->getPercentageBasisAmount($isPercentage, $discountValue, $actualAmount),
                 ]
             );
         }
@@ -344,7 +365,9 @@ class ZugferdDocument
                 $shippingCosts
             );
 
-            foreach ($shippingCosts->getCalculatedTaxes() as $calculatedTax) {
+            $calculatedTaxes = $shippingCosts->getCalculatedTaxes();
+
+            foreach ($calculatedTaxes as $calculatedTax) {
                 $actualAmount = $this->getPriceWithFallback($calculatedTax, $shippingCosts);
 
                 if (!Feature::isActive('v6.8.0.0')) {
@@ -361,6 +384,20 @@ class ZugferdDocument
                     $this->getTaxCode($calculatedTax),
                     'VAT',
                     $calculatedTax->getTaxRate(),
+                    reasonCode: $this->getDeliveryReasonCode($isCharge, $this->currentDocumentType),
+                    reason: $this->getDeliveryReason($isCharge, $this->currentDocumentType)
+                );
+            }
+
+            if ($calculatedTaxes->count() === 0) {
+                $actualAmount = $this->getPriceWithFallback(null, $shippingCosts);
+
+                $this->zugferdBuilder->addDocumentAllowanceCharge(
+                    abs($actualAmount),
+                    $isCharge,
+                    $this->getTaxCode(null),
+                    'VAT',
+                    0.0,
                     reasonCode: $this->getDeliveryReasonCode($isCharge, $this->currentDocumentType),
                     reason: $this->getDeliveryReason($isCharge, $this->currentDocumentType)
                 );
@@ -514,6 +551,15 @@ class ZugferdDocument
         }
 
         return 'Delivery refund';
+    }
+
+    private function getPercentageBasisAmount(bool $isPercentage, float $discountValue, float $actualAmount): ?float
+    {
+        if (!$isPercentage || $discountValue === 0.0) {
+            return null;
+        }
+
+        return round(abs($actualAmount) * 100 / $discountValue, 2);
     }
 
     private function summary(OrderEntity $order, AmountCalculator $calculator): void

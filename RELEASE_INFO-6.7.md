@@ -2,6 +2,12 @@
 
 ## Core
 
+### Customer imports validate customer number patterns
+
+Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
+
+Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
+
 ### Document V1/V2 file compatibility
 
 Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
@@ -125,12 +131,6 @@ Assigning a new `languageId` to a sales channel and removing the previous defaul
 Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
 
 ## Core
-
-### Customer imports validate customer number patterns
-
-Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
-
-Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
 ### An active shipping method must keep at least one usable price
 

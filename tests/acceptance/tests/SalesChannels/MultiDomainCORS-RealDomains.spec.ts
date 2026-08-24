@@ -12,10 +12,13 @@ test(
         ],
     },
     async ({ ShopCustomer, ShopAdmin, TestDataService, InstanceMeta }) => {
-        // On PaaS, APP_URL is a real remote host, not localhost - the nip.io trick below only
-        // works when the shop itself is reachable at 127.0.0.1 (local dev, or CI's single
+        // On PaaS/SaaS, APP_URL is a real remote host, not localhost - the nip.io trick below
+        // only works when the shop itself is reachable at 127.0.0.1 (local dev, or CI's single
         // webserver setup), so it fails there with ERR_CONNECTION_REFUSED.
-        test.skip(InstanceMeta.isPaaS, 'The second-domain nip.io trick only works when the shop is reachable at 127.0.0.1.');
+        test.skip(
+            InstanceMeta.isPaaS || InstanceMeta.isSaaS,
+            'The second-domain nip.io trick only works when the shop is reachable at 127.0.0.1.',
+        );
 
         // CI only exposes a single webserver (APP_URL), so we cannot rely on a second port or
         // hostname being reachable. `nip.io` is a wildcard DNS service that resolves any

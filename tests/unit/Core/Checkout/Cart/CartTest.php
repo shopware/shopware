@@ -21,6 +21,26 @@ class CartTest extends TestCase
         static::assertCount(0, $cart->getLineItems()->filterGoods());
     }
 
+    public function testChangingTheTokenDropsThePersistedState(): void
+    {
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cart->setToken('other');
+
+        static::assertFalse($cart->isPersisted());
+    }
+
+    public function testKeepingTheTokenKeepsThePersistedState(): void
+    {
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cart->setToken('test');
+
+        static::assertTrue($cart->isPersisted());
+    }
+
     public function testCartWithLineItemsHasGoods(): void
     {
         $cart = new Cart('test');

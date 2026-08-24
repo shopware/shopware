@@ -2079,6 +2079,14 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Footer collapse headlines and columns now use semantic elements
+
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements. 
+
+- Collapse section headlines: `<div role="heading">` became `<h2>`.
+- Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column: `<div role="listitem">` became `<li>`.
+
 ## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) have been removed. Use `loadDomains()` instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.

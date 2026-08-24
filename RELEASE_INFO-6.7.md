@@ -8,6 +8,16 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+## Storefront
+
+### Semantic footer markup
+
+With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.
+
+- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
+- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column will become `<li>` instead of `<div role="listitem">`.
+
 # 6.7.14.0 (upcoming)
 
 ## Features

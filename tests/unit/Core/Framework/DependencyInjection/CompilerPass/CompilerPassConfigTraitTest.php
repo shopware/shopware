@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CompilerPassConfigTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBa
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CompilerPassConfigTrait::class)]
+#[CoversTrait(CompilerPassConfigTrait::class)]
 class CompilerPassConfigTraitTest extends TestCase
 {
     public function testAutoConfigure(): void

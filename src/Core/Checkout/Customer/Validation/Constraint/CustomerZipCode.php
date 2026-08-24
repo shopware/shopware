@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
@@ -20,31 +21,18 @@ class CustomerZipCode extends Constraint
         self::ZIP_CODE_INVALID => 'ZIP_CODE_INVALID',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $caseSensitiveCheck property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use isCaseSensitiveCheck() instead.')]
     public bool $caseSensitiveCheck = true;
 
-    /**
-     * @deprecated tag:v6.8.0 - $countryId property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getCountryId() instead.')]
     public ?string $countryId;
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
     private string $message = 'This value is not a valid ZIP code for country {{ iso }}';
 
-    /**
-     * @deprecated tag:v6.8.0 - $messageRequired property access modifier will be changed to protected and is injectable via constructor
-     */
     private string $messageRequired = 'Postal code is required for that country';
 
     /**
      * @param ?array{countryId?: ?string, caseSensitiveCheck?: bool} $options
-     *
-     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId access modifier will be changed to protected, please use getters instead
-     * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck, $countryId, $message and $messageRequired properties will be natively typed as constructor property promotion
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]

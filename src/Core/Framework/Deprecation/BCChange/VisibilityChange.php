@@ -7,14 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * Signals that the visibility of the method will be reduced in the given version.
+ * Signals that the visibility of a method or property will be reduced in the given version.
  *
- * Call sites outside the announced visibility scope must stop calling the method before the
- * change happens. Overrides in extending classes must not declare a wider visibility than the
- * announced one once the change happens.
+ * Call sites outside the announced visibility scope must stop accessing the symbol before the
+ * change happens. Overrides in extending classes must not declare a wider method visibility than
+ * the announced one once the change happens.
  */
 #[Package('framework')]
-#[\Attribute(\Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
 final class VisibilityChange implements CallSiteCompatibilityChange, ExtenderCompatibilityChange
 {
     /**

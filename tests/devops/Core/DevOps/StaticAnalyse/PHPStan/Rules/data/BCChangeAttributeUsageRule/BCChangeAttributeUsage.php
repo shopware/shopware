@@ -297,3 +297,15 @@ class ParameterRemovalCases
         }
     }
 }
+
+class PropertyLevelViolations
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    protected string $alreadyProtected;
+}
+
+class ValidPropertyUsage
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    public string $becomesProtected;
+}

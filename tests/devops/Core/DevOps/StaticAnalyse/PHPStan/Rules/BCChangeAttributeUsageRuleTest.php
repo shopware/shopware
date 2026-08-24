@@ -124,6 +124,10 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter "$optional" does not exist.',
                 287,
             ],
+            [
+                'VisibilityChange on "PropertyLevelViolations::$alreadyProtected": announced visibility "protected" is not narrower than the current visibility.',
+                303,
+            ],
         ]);
     }
 

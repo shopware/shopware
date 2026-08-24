@@ -114,6 +114,13 @@ class BCChangeAttributeUsageRule implements Rule
             $methodNodes[$methodNode->name->toLowerString()] = $methodNode;
         }
 
+        $propertyNodes = [];
+        foreach ($node->getOriginalNode()->getProperties() as $propertyNode) {
+            foreach ($propertyNode->props as $property) {
+                $propertyNodes[$property->name->toLowerString()] = $propertyNode;
+            }
+        }
+
         $errors = [];
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
             $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
@@ -145,6 +152,19 @@ class BCChangeAttributeUsageRule implements Rule
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
+            }
+        }
+
+        foreach ($class->getProperties() as $property) {
+            if ($property->getDeclaringClass()->getName() !== $class->getName()) {
+                continue;
+            }
+
+            $symbol = \sprintf('%s::$%s', $class->getShortName(), $property->getName());
+            $line = $propertyNodes[\strtolower($property->getName())]?->getStartLine() ?? $classLine;
+            foreach ($this->bcChangeAttributes($property->getAttributes()) as $attribute) {
+                $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
+                $errors = [...$errors, ...$this->validatePropertyLevel($attribute, $property, $symbol, $line)];
             }
         }
 
@@ -283,6 +303,31 @@ class BCChangeAttributeUsageRule implements Rule
                 $symbol,
                 $parameterName
             ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionProperty<object> $property
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validatePropertyLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionProperty $property, string $symbol, int $line): array
+    {
+        if ($attribute->getName() !== VisibilityChange::class) {
+            return [];
+        }
+
+        $newVisibility = $this->argument($attribute, 'newVisibility', 1);
+        if ($newVisibility === 'protected' && !$property->isPublic()) {
+            return [$this->error($line, \sprintf(
+                'VisibilityChange on "%s": announced visibility "protected" is not narrower than the current visibility.',
+                $symbol
+            ))];
+        }
+        if ($newVisibility === 'private' && $property->isPrivate()) {
+            return [$this->error($line, \sprintf('VisibilityChange on "%s": the property is already private.', $symbol))];
         }
 
         return [];

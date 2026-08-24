@@ -34,8 +34,6 @@ class DocumentPersisterCompatTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('DOCUMENT_GENERATION_REWORK', $this);
-
         $this->context = Context::createDefaultContext();
 
         $shippingAddressId = Uuid::randomHex();

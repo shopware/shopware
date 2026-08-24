@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1787216476AddDocumentNumberTypeNameUniqueIndex;
 
 /**
@@ -16,6 +17,11 @@ use Shopware\Core\Migration\V6_7\Migration1787216476AddDocumentNumberTypeNameUni
 #[CoversClass(Migration1787216476AddDocumentNumberTypeNameUniqueIndex::class)]
 class Migration1787216476AddDocumentNumberTypeNameUniqueIndexTest extends TestCase
 {
+    /**
+     * @var list<string>
+     */
+    private array $seededIds = [];
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -28,6 +34,7 @@ class Migration1787216476AddDocumentNumberTypeNameUniqueIndexTest extends TestCa
 
     protected function tearDown(): void
     {
+        $this->removeSeededDocuments();
         $this->dropIndex();
 
         parent::tearDown();
@@ -42,6 +49,51 @@ class Migration1787216476AddDocumentNumberTypeNameUniqueIndexTest extends TestCa
         $migration->update($this->connection);
 
         static::assertTrue($this->indexExists());
+    }
+
+    public function testUpdateSkipsIndexWhenDuplicatesExist(): void
+    {
+        static::assertFalse($this->indexExists());
+
+        $this->seedDocument();
+        $this->seedDocument();
+
+        (new Migration1787216476AddDocumentNumberTypeNameUniqueIndex())->update($this->connection);
+
+        static::assertFalse($this->indexExists());
+    }
+
+    private function seedDocument(): void
+    {
+        $id = Uuid::randomBytes();
+
+        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0');
+
+        try {
+            $this->connection->insert('document', [
+                'id' => $id,
+                'document_type_id' => Uuid::randomBytes(),
+                'order_id' => Uuid::randomBytes(),
+                'order_version_id' => Uuid::randomBytes(),
+                'type_name' => 'invoice',
+                'config' => \json_encode(['documentNumber' => 'INV-1'], \JSON_THROW_ON_ERROR),
+                'deep_link_code' => Uuid::randomHex(),
+                'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s.v'),
+            ]);
+        } finally {
+            $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1');
+        }
+
+        $this->seededIds[] = $id;
+    }
+
+    private function removeSeededDocuments(): void
+    {
+        foreach ($this->seededIds as $id) {
+            $this->connection->delete('document', ['id' => $id]);
+        }
+
+        $this->seededIds = [];
     }
 
     private function indexExists(): bool

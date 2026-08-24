@@ -40,6 +40,8 @@ class Migration1787216476AddDocumentNumberTypeNameUniqueIndex extends MigrationS
              LIMIT 1'
         );
 
+        // No unique index existed before this migration, so a shop can carry pre-existing duplicate
+        // (document_number, type_name) rows. Adding the index would abort the whole update, so we skip it instead.
         if ($hasDuplicates !== false) {
             return;
         }

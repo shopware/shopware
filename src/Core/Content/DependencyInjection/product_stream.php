@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamFilterChangeSetSubscriber;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTask;
@@ -49,6 +50,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ])
         ->tag('shopware.entity_indexer', ['priority' => 100]);
+
+    $services->set(ProductStreamFilterChangeSetSubscriber::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set(UpdateProductStreamMappingTask::class)
         ->tag('shopware.scheduled.task');

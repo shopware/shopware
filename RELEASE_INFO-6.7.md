@@ -8,6 +8,12 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Dynamic product group assignments follow condition changes
+
+Deleting, editing or moving a condition now updates `product_stream_mapping` and the derived `product.streamIds`; previously only adding one did, so rules, promotions and product exports could match on removed conditions.
+
+A group left without conditions, or invalid for another reason, now loses its assignments. A product export bound to such a group fails instead of exporting what it matched before.
+
 ## Administration
 
 ### Admin UI shell rework (sidebar, top bar, smart bar)

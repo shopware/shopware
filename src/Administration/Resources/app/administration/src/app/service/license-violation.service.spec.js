@@ -10,6 +10,9 @@ const extensionApiServiceMock = {
 const cacheApiServiceMock = {
     clear: jest.fn(() => Promise.resolve()),
 };
+const extensionStoreActionServiceMock = {
+    getMyExtensions: jest.fn(() => Promise.resolve([])),
+};
 
 /**
  * @sw-package framework
@@ -17,7 +20,10 @@ const cacheApiServiceMock = {
 describe('app/service/license-violation.service.js', () => {
     Shopware.Service().register('shopwareExtensionService', () => extensionApiServiceMock);
     Shopware.Service().register('cacheApiService', () => cacheApiServiceMock);
-    const licenseViolationService = LicenseViolationService(Application.getContainer('service').storeService);
+    const licenseViolationService = LicenseViolationService(
+        Application.getContainer('service').storeService,
+        extensionStoreActionServiceMock,
+    );
 
     beforeEach(async () => {
         jest.clearAllMocks();
@@ -60,6 +66,28 @@ describe('app/service/license-violation.service.js', () => {
         const violations = licenseViolationService.getViolationsFromCache();
 
         expect(violations).toEqual({ test: true });
+    });
+
+    it('should remove cached violations for extensions that are no longer installed', async () => {
+        const violation = {
+            name: 'RemovedExtension',
+            extensions: {
+                licenseViolation: {
+                    type: { level: 'violation' },
+                },
+            },
+        };
+
+        localStorage.setItem('licenseViolationCache', JSON.stringify([violation]));
+        localStorage.setItem('lastLicenseViolationsFetched', String(Date.now()));
+        extensionStoreActionServiceMock.getMyExtensions.mockResolvedValueOnce([]);
+        jest.spyOn(licenseViolationService, '_getLocationHostname').mockReturnValue('shopware.com');
+
+        const response = await licenseViolationService.checkForLicenseViolations();
+
+        expect(response.violations).toEqual([]);
+        expect(JSON.parse(localStorage.getItem('licenseViolationCache'))).toEqual([]);
+        expect(extensionStoreActionServiceMock.getMyExtensions).toHaveBeenCalled();
     });
 
     it('should not be expired', async () => {

@@ -155,6 +155,23 @@ export default {
 
             const matchingPlugin = this.plugins.find((plugin) => plugin.name === violation.name);
 
+            if (!matchingPlugin) {
+                this.licenseViolationService.resetLicenseViolations();
+
+                const licenseViolationStore = Shopware.Store.get('licenseViolation');
+                licenseViolationStore.violations = licenseViolationStore.violations.filter(
+                    (item) => item.name !== violation.name,
+                );
+
+                this.createNotificationInfo({
+                    message: this.$t('sw-license-violation.alreadyRemoved'),
+                });
+
+                this.finishLoading('deletePlugin');
+
+                return Promise.resolve();
+            }
+
             return this.licenseViolationService
                 .forceDeletePlugin(matchingPlugin)
                 .then(() => {

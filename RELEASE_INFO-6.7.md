@@ -118,6 +118,13 @@ Removing the language that the same write assigns as the new default is now reje
 
 ## Core
 
+### Company tax exemption accepts VAT IDs from any EU member state
+
+A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled for the delivery country previously kept the tax exemption only while the VAT ID matched the delivery country's VAT ID pattern, so a customer with a Dutch VAT ID lost it as soon as the delivery address moved to Belgium.
+
+`TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
+
+`Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained an internal constructor taking `VatIdPatternProvider`. If you need to change this behaviour, decorate `AbstractTaxDetector` rather than replacing the `TaxDetector` service.
 ### An active shipping method must keep at least one usable price
 
 Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.

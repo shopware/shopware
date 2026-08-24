@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * Reads the VAT ID format patterns configured in Settings > Countries and matches VAT IDs against them,
@@ -13,8 +14,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('checkout')]
-class VatIdPatternProvider
+class VatIdPatternProvider implements ResetInterface
 {
+    /**
+     * @var array<string, string>|null
+     */
+    private ?array $euPatterns = null;
+
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -26,6 +32,10 @@ class VatIdPatternProvider
      */
     public function getEuPatterns(): array
     {
+        if ($this->euPatterns !== null) {
+            return $this->euPatterns;
+        }
+
         $sql = <<<'SQL'
             SELECT `iso`, `vat_id_pattern`
             FROM `country`
@@ -45,13 +55,18 @@ class VatIdPatternProvider
             }
         }
 
-        return $patterns;
+        return $this->euPatterns = $patterns;
+    }
+
+    public function reset(): void
+    {
+        $this->euPatterns = null;
     }
 
     /**
      * @return string|null the ISO code of the member state the VAT ID belongs to, null if it belongs to none
      */
-    public function matchEuVatId(string $vatId): ?string
+    public function getStateByEuVatId(string $vatId): ?string
     {
         foreach ($this->getEuPatterns() as $iso => $pattern) {
             if ($this->matches($pattern, $vatId)) {
@@ -91,7 +106,9 @@ class VatIdPatternProvider
 
     public function matches(string $pattern, string $vatId): bool
     {
-        return preg_match($this->toRegex($pattern), $vatId) === 1;
+        // A pattern a merchant broke matches nothing, rather than spams a warning on every
+        // VAT ID it is checked against
+        return @preg_match($this->toRegex($pattern), $vatId) === 1;
     }
 
     private function compiles(string $pattern): bool

@@ -50,31 +50,60 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
-    public function testMatchEuVatIdReturnsTheMemberStateItBelongsTo(): void
+    public function testGetStateByEuVatIdReturnsTheMemberStateItBelongsTo(): void
     {
         $provider = $this->createProvider([
             ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
             ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
-        static::assertSame('NL', $provider->matchEuVatId('NL123456789B01'));
+        static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
     }
 
-    public function testMatchEuVatIdReturnsNullForANonEuVatId(): void
+    public function testGetStateByEuVatIdReturnsNullForANonEuVatId(): void
     {
         $provider = $this->createProvider([
             ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
             ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
-        static::assertNull($provider->matchEuVatId('CHE123456789'));
+        static::assertNull($provider->getStateByEuVatId('CHE123456789'));
     }
 
-    public function testMatchEuVatIdReturnsNullWhenNoCountryHasAPattern(): void
+    public function testGetStateByEuVatIdReturnsNullWhenNoCountryHasAPattern(): void
     {
         $provider = $this->createProvider([]);
 
-        static::assertNull($provider->matchEuVatId('NL123456789B01'));
+        static::assertNull($provider->getStateByEuVatId('NL123456789B01'));
+    }
+
+    public function testTheEuPatternsAreReadOnce(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
+
+        $provider = new VatIdPatternProvider($connection);
+
+        static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
+        static::assertSame('NL', $provider->getStateByEuVatId('NL987654321B02'));
+        static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
+    }
+
+    public function testResetMakesTheEuPatternsBeReadAgain(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturn([['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
+
+        $provider = new VatIdPatternProvider($connection);
+
+        $provider->getEuPatterns();
+        $provider->reset();
+
+        static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
     public function testCountrySettingsReportThePatternAndTheSwitch(): void
@@ -171,6 +200,10 @@ class VatIdPatternProviderTest extends TestCase
         yield 'shipped Greek pattern accepts both the EL and GR prefix' => ['(EL|GR)\d{9}', 'EL123456789', true];
 
         yield 'shipped Romanian pattern rejects a leading zero via its lookahead' => ['RO(?!0)\d{1,10}', 'RO0123456789', false];
+
+        yield 'a pattern that does not compile matches nothing' => ['BE[0-9', 'BE0123456789', false];
+
+        yield 'a pattern that breaks out of the delimiters matches nothing' => ['BE/i', 'BE0123456789', false];
     }
 
     /**

@@ -430,4 +430,83 @@ class TaxDetectorTest extends TestCase
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
+
+    public function testIsNetDeliveryWithCompanyFreeTaxAndVatIdOfOtherEuMemberState(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $beCountry = $this->enableCompanyTaxFree('BE');
+
+        // The shipped Belgian pattern is `BE\d{10}`, so this Dutch VAT ID can only be accepted
+        // through the patterns of the other member states.
+        $customer = new CustomerEntity();
+        $customer->setCompany('ABC Company');
+        $customer->setVatIds(['NL123456789B01']);
+
+        $context->expects($this->once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($beCountry)
+        );
+
+        $context->expects($this->once())->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $detector = static::getContainer()->get(TaxDetector::class);
+        static::assertTrue($detector->isNetDelivery($context));
+    }
+
+    public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdOfNonEuCountry(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $beCountry = $this->enableCompanyTaxFree('BE');
+
+        $customer = new CustomerEntity();
+        $customer->setCompany('Swiss Company');
+        $customer->setVatIds(['CHE123456789']);
+
+        $context->expects($this->once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($beCountry)
+        );
+
+        $context->expects($this->once())->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $detector = static::getContainer()->get(TaxDetector::class);
+        static::assertFalse($detector->isNetDelivery($context));
+    }
+
+    private function enableCompanyTaxFree(string $iso): CountryEntity
+    {
+        /** @var EntityRepository<CountryCollection> $countryRepository */
+        $countryRepository = static::getContainer()->get('country.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('iso', $iso));
+        $criteria->setLimit(1);
+
+        $country = $countryRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($country);
+
+        $countryRepository->update([[
+            'id' => $country->getId(),
+            'customerTax' => [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'checkVatIdPattern' => true,
+        ]], Context::createDefaultContext());
+
+        $country = $countryRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($country);
+
+        return $country;
+    }
 }

@@ -708,7 +708,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(ContentPreviewPageBuilder::class),
-            service(FullResponseFactory::class),
             service(ContentPreviewPayloadStore::class),
         ]);
 

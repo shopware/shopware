@@ -11,9 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
-use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
-use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -28,35 +26,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewController::class)]
 class ContentPreviewControllerTest extends TestCase
 {
-    #[TestDox('preview delegates to the page builder and wraps its render result in the factory response')]
-    public function testPreviewWrapsPageBuilderResultInFactoryResponse(): void
-    {
-        $payload = $this->request();
-        $context = Context::createDefaultContext();
-        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null);
-        $response = new ContentRouteResponse($renderResult);
-
-        $pageBuilder = static::createMock(ContentPreviewPageBuilder::class);
-        $pageBuilder->expects($this->once())
-            ->method('build')
-            ->with(static::identicalTo($payload), static::identicalTo($context))
-            ->willReturn(['result' => $renderResult, 'salesChannelContext' => Generator::generateSalesChannelContext()]);
-
-        $responseFactory = static::createMock(AbstractResponseFactory::class);
-        $responseFactory->expects($this->once())
-            ->method('createResponse')
-            ->with(static::identicalTo($renderResult))
-            ->willReturn($response);
-
-        $controller = new ContentPreviewController(
-            $pageBuilder,
-            $responseFactory,
-            static::createStub(ContentPreviewPayloadStore::class),
-        );
-
-        static::assertSame($response, $controller->preview($payload, $context));
-    }
-
     #[TestDox('previewUrl admits the draft through the page builder before storing it')]
     public function testPreviewUrlReturnsUrlForStoredToken(): void
     {
@@ -78,7 +47,7 @@ class ContentPreviewControllerTest extends TestCase
             ->with(static::identicalTo($payload))
             ->willReturn('preview-token-123');
 
-        $controller = new ContentPreviewController($pageBuilder, static::createStub(AbstractResponseFactory::class), $payloadStore);
+        $controller = new ContentPreviewController($pageBuilder, $payloadStore);
 
         $request = Request::create('https://admin.example.com/api/_action/content-system/preview/entity/url');
 
@@ -105,7 +74,7 @@ class ContentPreviewControllerTest extends TestCase
         $payloadStore = static::createMock(ContentPreviewPayloadStore::class);
         $payloadStore->expects($this->never())->method('store');
 
-        $controller = new ContentPreviewController($pageBuilder, static::createStub(AbstractResponseFactory::class), $payloadStore);
+        $controller = new ContentPreviewController($pageBuilder, $payloadStore);
 
         $this->expectExceptionObject($rejection);
 

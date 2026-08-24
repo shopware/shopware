@@ -2,12 +2,12 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "/_action/content-system/preview/entity": {
+        "/_action/content-system/preview/entity/url": {
             "post": {
                 "tags": ["Content System"],
-                "summary": "Preview a draft layout against real entity data",
-                "operationId": "contentSystemPreviewEntity",
-                "description": "Renders an externally supplied, unsaved draft layout against real entity data and returns a fully hydrated `ContentPage` in the full format. The layout is neither persisted nor required to have an assignment; the target entity only needs to exist. A `SalesChannelContext` is synthesized from `salesChannelId` (optionally overridden by `languageId`/`currencyId`/`domainId`/`customerId`), and `queryParameters` are forwarded as the render request's query (where `elementId` selects a single element for partial preview). Requires the `content_layout:read` privilege. The render is always fresh: no persistence, no caching. A missing or invalid envelope field, an `entityType` matching no source, or a layout with an intrinsic defect is rejected with `400`.",
+                "summary": "Create a shareable preview URL for a draft layout",
+                "operationId": "contentSystemPreviewEntityUrl",
+                "description": "Stores an externally supplied, unsaved draft layout behind a short-lived token and returns a URL that renders it against real entity data. The layout is neither persisted nor required to have an assignment; the target entity only needs to exist. Before anything is stored, the draft is admitted through the same build that opening the returned URL runs, so a draft that build refuses is rejected with `400` and never becomes a token. A `SalesChannelContext` is synthesized from `salesChannelId` (optionally overridden by `languageId`/`currencyId`/`domainId`/`customerId`), and `queryParameters` are forwarded as the render request's query (where `elementId` selects a single element for partial preview). Requires the `content_layout:read` privilege. A missing or invalid envelope field, an `entityType` matching no source, or a layout with an intrinsic defect is rejected with `400`.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -46,33 +46,6 @@
                                     }
                                 }
                             }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The fully hydrated content page. Not persisted, not cached.",
-                        "content": {
-                            "application/json": {
-                                "schema": { "$ref": "#/components/schemas/ContentPage" }
-                            }
-                        }
-                    },
-                    "400": { "$ref": "#/components/responses/400" }
-                }
-            }
-        },
-        "/_action/content-system/preview/entity/url": {
-            "post": {
-                "tags": ["Content System"],
-                "summary": "Create a shareable preview URL for a draft layout",
-                "operationId": "contentSystemPreviewEntityUrl",
-                "description": "Stores an externally supplied draft-layout preview payload behind a short-lived token and returns a URL that renders it. Same envelope as the entity preview action. Requires the `content_layout:read` privilege.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": { "$ref": "#/components/schemas/ContentPreviewEntityRequest" }
                         }
                     }
                 },

@@ -6,7 +6,10 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use League\Flysystem\FilesystemOperator;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\Command\DownloadTranslationCommand;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
@@ -16,6 +19,8 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SalesChannel\SalesChannelSnippetLoader;
+use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
@@ -198,6 +203,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('shopware.filesystem.translation', FilesystemOperator::class)
         ->factory([service(TranslationFilesystemFactory::class), 'create']);
+
+    $services->set(SalesChannelSnippetLoader::class)
+        ->args([
+            service(Translator::class),
+            service(LanguageLocaleCodeProvider::class),
+            service('sales_channel.language.repository'),
+        ]);
+
+    $services->set(SnippetRoute::class)
+        ->public()
+        ->args([
+            service(SalesChannelSnippetLoader::class),
+            service(CacheTagCollector::class),
+        ]);
 
     $services->set(SnippetFileHandler::class)
         ->args([

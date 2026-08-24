@@ -14,7 +14,7 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1773225412AddZugferdEmbeddedCancellationInvoice extends MigrationStep
 {
     use ImportTranslationsTrait;

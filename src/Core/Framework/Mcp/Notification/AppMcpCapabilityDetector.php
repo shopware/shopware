@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Mcp\Notification;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -16,18 +18,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AppMcpCapabilityDetector
 {
     public function __construct(
-        private readonly Connection $connection,
+        private readonly AppFeatureStorage $storage,
     ) {
     }
 
     public function persistedForApp(string $appId): McpListChangedNotificationSet
     {
-        $appId = Uuid::fromHexToBytes($appId);
-
         return new McpListChangedNotificationSet(
-            tools: $this->hasCapabilityRows('app_mcp_tool', $appId),
-            resources: $this->hasCapabilityRows('app_mcp_resource', $appId),
-            prompts: $this->hasCapabilityRows('app_mcp_prompt', $appId),
+            tools: $this->storage->forApp($appId, McpToolConfig::class) !== [],
+            resources: $this->storage->forApp($appId, McpResourceConfig::class) !== [],
+            prompts: $this->storage->forApp($appId, McpPromptConfig::class) !== [],
         );
     }
 
@@ -42,13 +42,5 @@ class AppMcpCapabilityDetector
             resources: $mcp->getResources() !== null && $mcp->getResources()->getResources() !== [],
             prompts: $mcp->getPrompts() !== null && $mcp->getPrompts()->getPrompts() !== [],
         );
-    }
-
-    private function hasCapabilityRows(string $table, string $appId): bool
-    {
-        return $this->connection->fetchOne(
-            \sprintf('SELECT 1 FROM `%s` WHERE `app_id` = :appId LIMIT 1', $table),
-            ['appId' => $appId],
-        ) !== false;
     }
 }

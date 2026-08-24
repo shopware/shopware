@@ -145,6 +145,46 @@ class CustomerGroupSubscriberTest extends TestCase
         static::assertCount(0, $urls);
     }
 
+    public function testUrlsAreWrittenForHeadlessSalesChannelWithExternalStorefrontDomain(): void
+    {
+        $s1 = $this->createSalesChannel([
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://frontend.' . Uuid::randomHex() . '.test',
+                    'isExternalStorefront' => true,
+                ],
+            ],
+        ])['id'];
+
+        $id = Uuid::randomHex();
+
+        $this->customerGroupRepository->create([
+            [
+                'id' => $id,
+                'name' => 'Test',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+                'registrationSalesChannels' => [['id' => $s1]],
+            ],
+        ], Context::createDefaultContext());
+
+        $urls = $this->getSeoUrlsById($id);
+
+        static::assertCount(1, $urls);
+
+        $url = $urls->first();
+
+        static::assertNotNull($url);
+        static::assertSame($s1, $url->getSalesChannelId());
+        static::assertSame($id, $url->getForeignKey());
+        static::assertSame('store-api.customer-group-registration', $url->getRouteName());
+        static::assertSame('test', $url->getSeoPathInfo());
+    }
+
     public function testUrlsAreNotWrittenWhenRegistrationIsDisabled(): void
     {
         $s1 = $this->createSalesChannel()['id'];

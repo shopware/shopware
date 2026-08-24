@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -395,6 +396,57 @@ class ProductControllerTest extends TestCase
         static::assertSame('EUR', $productJsonLd['offers']['priceSpecification']['priceCurrency']);
     }
 
+    #[DataProvider('jsonLdDeliveryTimeProvider')]
+    public function testProductJsonLdConvertsDeliveryTimeToWholeDays(string $unit, int $min, int $max, int $expectedMin, int $expectedMax): void
+    {
+        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
+
+        $deliveryTimeId = Uuid::randomHex();
+        static::getContainer()->get('delivery_time.repository')->create([[
+            'id' => $deliveryTimeId,
+            'name' => 'Test delivery time',
+            'min' => $min,
+            'max' => $max,
+            'unit' => $unit,
+        ]], Context::createDefaultContext());
+
+        $productId = $this->createProduct(['deliveryTimeId' => $deliveryTimeId]);
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+        $this->checkStatusCode($response);
+
+        $productJsonLd = $this->extractProductJsonLd(new Crawler((string) $response->getContent()));
+        $handlingTime = $productJsonLd['offers']['shippingDetails']['deliveryTime']['handlingTime'];
+
+        static::assertSame($expectedMin, $handlingTime['minValue']);
+        static::assertSame($expectedMax, $handlingTime['maxValue']);
+        static::assertSame('DAY', $handlingTime['unitCode']);
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: int, 2: int, 3: int, 4: int}>
+     */
+    public static function jsonLdDeliveryTimeProvider(): iterable
+    {
+        yield 'days remain unchanged' => [DeliveryTimeEntity::DELIVERY_TIME_DAY, 1, 3, 1, 3];
+        yield 'weeks are converted to days' => [DeliveryTimeEntity::DELIVERY_TIME_WEEK, 1, 3, 7, 21];
+        yield 'months use a thirty day approximation' => [DeliveryTimeEntity::DELIVERY_TIME_MONTH, 1, 2, 30, 60];
+        yield 'years use a three hundred sixty-five day approximation' => [DeliveryTimeEntity::DELIVERY_TIME_YEAR, 1, 1, 365, 365];
+        yield 'hours are rounded up to whole days' => [DeliveryTimeEntity::DELIVERY_TIME_HOUR, 1, 2, 1, 1];
+    }
+
+    public function testProductJsonLdOmitsShippingDetailsWithoutDeliveryTime(): void
+    {
+        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
+
+        $productId = $this->createProduct();
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+        $this->checkStatusCode($response);
+
+        $productJsonLd = $this->extractProductJsonLd(new Crawler((string) $response->getContent()));
+
+        static::assertArrayNotHasKey('shippingDetails', $productJsonLd['offers']);
+    }
+
     public function testProductPageDepthMicrodataUsesDepthItemProp(): void
     {
         Feature::skipTestIfActive('JSON_LD_DATA', $this);
@@ -642,6 +694,23 @@ class ProductControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         return $request;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractProductJsonLd(Crawler $crawler): array
+    {
+        foreach ($crawler->filter('script[type="application/ld+json"]') as $script) {
+            $data = \json_decode($script->textContent, true, 512, \JSON_THROW_ON_ERROR);
+            if (($data['@type'] ?? null) === 'Product') {
+                static::assertIsArray($data);
+
+                return $data;
+            }
+        }
+
+        static::fail('Product JSON-LD was not found.');
     }
 
     /**

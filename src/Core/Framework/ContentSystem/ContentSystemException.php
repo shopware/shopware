@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -447,14 +448,18 @@ class ContentSystemException extends HttpException
      *
      * $first and $second name the colliding providers: the provider map key for an authored provider, the
      * consumer context key for a derived one.
+     *
+     * $elementId is the element that DECLARES both providers. It is carried as data only and has no
+     * placeholder in the message: {@see LayoutDiagnostics::analyze()} reads it back to stamp the
+     * violation with the declaring element rather than the element it happens to be looping over.
      */
-    public static function providerDeliveryCollision(string $childKey, string $first, string $second): self
+    public static function providerDeliveryCollision(string $childKey, string $first, string $second, string $elementId): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PROVIDER_DELIVERY_COLLISION,
             'Child-facing key "{{ childKey }}" is used by both "{{ first }}" and "{{ second }}". Each child-facing key must be unique within an element.',
-            ['childKey' => $childKey, 'first' => $first, 'second' => $second]
+            ['childKey' => $childKey, 'first' => $first, 'second' => $second, 'elementId' => $elementId]
         );
     }
 

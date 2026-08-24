@@ -72,7 +72,7 @@ final readonly class WiringPlanner
 
             $this->validatePropertyAliases($consumers);
             $this->validateRedistribution($consumers, $element->contextDefinitions->getAllProviders());
-            $this->validateProviderDeliveryKeys($consumers, $element->contextDefinitions->getAllProviders());
+            $this->validateProviderDeliveryKeys($consumers, $element->contextDefinitions->getAllProviders(), $element->id);
 
             foreach ($element->slots as $children) {
                 $this->validateWiring($children);
@@ -151,7 +151,7 @@ final readonly class WiringPlanner
      * @param array<string, ContextConsumer> $consumers
      * @param array<string, ContextProvider> $existingProviders
      */
-    private function validateProviderDeliveryKeys(array $consumers, array $existingProviders): void
+    private function validateProviderDeliveryKeys(array $consumers, array $existingProviders, string $elementId): void
     {
         $childKeys = [];
 
@@ -159,7 +159,7 @@ final readonly class WiringPlanner
             $childKey = $provider->distributionConfig->getConsumerAlias() ?? $providerKey;
 
             if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], $providerKey);
+                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], $providerKey, $elementId);
             }
 
             $childKeys[$childKey] = $providerKey;
@@ -173,7 +173,7 @@ final readonly class WiringPlanner
             $childKey = $this->derivedChildKey($consumer, $contextKey);
 
             if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], $contextKey);
+                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], $contextKey, $elementId);
             }
 
             $childKeys[$childKey] = $contextKey;

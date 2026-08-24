@@ -93,7 +93,7 @@ class ContentSystemExceptionTest extends TestCase
         // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
         // catalogue membership is pinned by a separate test.
         yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
-        yield 'a provider delivery collision as a client defect' => [ContentSystemException::providerDeliveryCollision('item', 'product', 'category'), true];
+        yield 'a provider delivery collision as a client defect' => [ContentSystemException::providerDeliveryCollision('item', 'product', 'category', 'el-1'), true];
         // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
         // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
@@ -246,7 +246,7 @@ class ContentSystemExceptionTest extends TestCase
         ];
 
         yield 'provider delivery collision' => [
-            ContentSystemException::providerDeliveryCollision('item', 'product', 'category'),
+            ContentSystemException::providerDeliveryCollision('item', 'product', 'category', 'el-1'),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION',
             'Each child-facing key must be unique within an element',

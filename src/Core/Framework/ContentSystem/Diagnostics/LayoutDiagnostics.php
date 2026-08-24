@@ -57,6 +57,7 @@ class LayoutDiagnostics
 
         $violations = [];
         $resolutions = [];
+        $seenCollisions = [];
 
         // Read once per analysis rather than per element: the strict view is the same one the write boundary's
         // constraint descriptor reads, so the two cannot disagree about which options exist.
@@ -80,8 +81,44 @@ class LayoutDiagnostics
 
                 // The context walk's one client-defect code: two providers of one element delivering to
                 // children under the same child-facing key. A colliding element resolves nothing, so it
-                // gets the violation and no resolutions entry.
-                $violations[] = new Violation(ViolationCode::InvalidConfig, $element->id, null, $exception->getMessage());
+                // gets the violation and no resolutions entry — and neither does any descendant of it,
+                // whose available context is genuinely unresolvable while the ancestor collides.
+                //
+                // The owner comes off the exception rather than from $element, and no test can currently
+                // tell the two apart: flatten() is pre-order and resolve() validates its target before any
+                // ancestor, so the owner always raises its own collision first and that entry is the one
+                // the dedup keeps. Swapping this for $element->id leaves the suite green. It is not
+                // redundant — it is what keeps the stamp right if either of those two traversal properties
+                // ever changes, and nothing else pins them. Under a post-order walk the descendant would
+                // raise first and $element->id would name an innocent element on the one surviving entry.
+                $ownerId = $exception->getParameter('elementId');
+                $first = $exception->getParameter('first');
+                $second = $exception->getParameter('second');
+
+                if (!\is_string($ownerId) || !\is_string($first) || !\is_string($second)) {
+                    // Every client defect the context walk raises is a provider-delivery collision, and
+                    // every one of those carries the declaring element and both colliding provider keys.
+                    // Anything else is an internal fault mistyped as a client defect: surface it rather
+                    // than stamp a violation onto an element that may not be the one at fault.
+                    throw $exception;
+                }
+
+                // The violation names the element that DECLARES the collision, not the element the loop is
+                // on: resolve() re-validates the whole ancestor path per element, so an owner with d
+                // descendants raises the same collision d + 1 times, and the loop element names an innocent
+                // descendant on d of them. Stamping the owner alone would only make those d + 1 entries
+                // identical, so the seen-set collapses exact repeats — same code, same owner, same pair of
+                // colliding keys. Keying it on the owner and the pair rather than on the code alone is what
+                // keeps two elements' collisions apart.
+                $collisionKey = implode("\0", [ViolationCode::InvalidConfig->value, $ownerId, $first, $second]);
+
+                if (isset($seenCollisions[$collisionKey])) {
+                    continue;
+                }
+
+                $seenCollisions[$collisionKey] = true;
+
+                $violations[] = new Violation(ViolationCode::InvalidConfig, $ownerId, null, $exception->getMessage());
 
                 continue;
             }

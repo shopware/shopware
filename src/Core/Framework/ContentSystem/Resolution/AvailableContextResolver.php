@@ -228,7 +228,7 @@ class AvailableContextResolver
             $childKey = $provider->distributionConfig->getConsumerAlias() ?? (string) $providerKey;
 
             if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $providerKey);
+                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $providerKey, $element->id);
             }
 
             $childKeys[$childKey] = (string) $providerKey;
@@ -242,7 +242,7 @@ class AvailableContextResolver
             $childKey = $consumer->consumerAlias ?? (string) $contextKey;
 
             if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $contextKey);
+                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $contextKey, $element->id);
             }
 
             $childKeys[$childKey] = (string) $contextKey;

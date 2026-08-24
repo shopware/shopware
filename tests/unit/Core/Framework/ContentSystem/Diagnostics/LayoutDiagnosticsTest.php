@@ -578,6 +578,63 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertArrayNotHasKey('el-1', $analysis->resolutions);
     }
 
+    #[TestDox('reports a colliding element with descendants exactly once, naming the element that declares the collision')]
+    public function testProviderDeliveryCollisionOnAnElementWithDescendantsIsReportedOnce(): void
+    {
+        // Descendant axis: the collision sits on an element with three descendants. analyze() calls
+        // resolve() once per element and resolve() re-validates the whole ancestor path from scratch, so
+        // the same collision surfaces four times — once for the owner, once per descendant. The count is
+        // the discriminating assertion: a presence assertion holds with all four entries present, three of
+        // them naming a descendant that declares nothing.
+        $grandchild = StoredElementBuilder::create('Sw:Block', 'el-grandchild')->build();
+        $child = StoredElementBuilder::create('Sw:Block', 'el-child')->withSlot('content', [$grandchild])->build();
+        $sibling = StoredElementBuilder::create('Sw:Block', 'el-sibling')->build();
+        $owner = StoredElementBuilder::create('Sw:Block', 'el-owner')
+            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+            ->withSlot('content', [$child, $sibling])
+            ->build();
+
+        // The intrinsic ERROR subset: the owner's two providers are consumed by nobody, so the full list
+        // also carries two orphaned_provider warnings that say nothing about the collision.
+        $violations = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$owner], null)->report->intrinsicErrors();
+
+        static::assertCount(1, $violations);
+        static::assertSame('el-owner', $violations[0]->elementId);
+        static::assertSame([], array_values(array_intersect(
+            array_map(static fn (Violation $violation): string => $violation->elementId, $violations),
+            ['el-child', 'el-grandchild', 'el-sibling'],
+        )));
+    }
+
+    #[TestDox('reports a collision per declaring element, so the repeat suppression does not collapse two elements')]
+    public function testProviderDeliveryCollisionsOnDistinctElementsAreReportedSeparately(): void
+    {
+        // Dedup discrimination: each owner carries a child, so each collision is raised twice and the
+        // suppression has to fire — but it is keyed on the declaring element, not on the violation code
+        // alone, so the two owners still report separately. A key too broad to tell them apart would
+        // report once and pass every other collision test in this file.
+        $ownerA = StoredElementBuilder::create('Sw:Block', 'el-owner-a')
+            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+            ->withSlot('content', [StoredElementBuilder::create('Sw:Block', 'el-child-a')->build()])
+            ->build();
+        $ownerB = StoredElementBuilder::create('Sw:Block', 'el-owner-b')
+            ->withProvider('manufacturer', BroadcastDistributionConfig::aliased('box'))
+            ->withProvider('media', BroadcastDistributionConfig::aliased('box'))
+            ->withSlot('content', [StoredElementBuilder::create('Sw:Block', 'el-child-b')->build()])
+            ->build();
+
+        $violations = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$ownerA, $ownerB], null)->report->intrinsicErrors();
+
+        static::assertSame(
+            ['el-owner-a', 'el-owner-b'],
+            array_map(static fn (Violation $violation): string => $violation->elementId, $violations),
+        );
+    }
+
     #[TestDox('produces an unresolved_required binding error for a required reference with no candidate')]
     public function testUnresolvedRequired(): void
     {

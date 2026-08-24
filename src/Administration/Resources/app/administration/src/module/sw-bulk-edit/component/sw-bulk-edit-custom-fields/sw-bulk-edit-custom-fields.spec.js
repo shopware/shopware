@@ -130,6 +130,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-custom-fields__change').exists()).toBe(true);
+        expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(true);
     });
 
     it('should only emit selected custom fields when user toggle to the change type field', async () => {

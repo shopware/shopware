@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -24,6 +26,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class ContentPreviewController
 {
     /**
+     * The same refusal {@see ContentRoute} makes: field selection is not part of the content contract, and a
+     * draft admitted here is rendered by the same pipeline the store-api routes serve from. The list is
+     * repeated rather than shared because a shared holder would have to be a service, and neither surface
+     * takes one for this.
+     */
+    private const FIELD_SELECTION_PARAMETERS = ['includes', 'excludes'];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -45,6 +55,8 @@ class ContentPreviewController
         Request $request,
         Context $context,
     ): JsonResponse {
+        $this->rejectFieldSelection($request);
+
         $this->previewPageBuilder->build($payload, $context);
 
         $token = $this->payloadStore->store($payload);
@@ -58,5 +70,18 @@ class ContentPreviewController
         return new JsonResponse([
             'url' => $url,
         ]);
+    }
+
+    /**
+     * All three bags, because the framework's field-selection helper reads all three, and this action is a
+     * POST whose parameters arrive in the request bag.
+     */
+    private function rejectFieldSelection(Request $request): void
+    {
+        foreach (self::FIELD_SELECTION_PARAMETERS as $parameter) {
+            if ($request->attributes->has($parameter) || $request->query->has($parameter) || $request->request->has($parameter)) {
+                throw ContentSystemException::fieldSelectionNotSupported($parameter);
+            }
+        }
     }
 }

@@ -120,6 +120,34 @@ class ContentPreviewControllerTest extends TestCase
         static::assertStringContainsString('definitely-not-a-style-option', (string) $response->getContent());
     }
 
+    /**
+     * The refusal runs ahead of the build gate, so the envelope below is deliberately one the builder would
+     * itself reject: a 400 naming the parameter rather than the component is what shows the order.
+     */
+    #[TestDox('previewUrl rejects a query field selection with 400 field_selection_not_supported')]
+    public function testPreviewUrlReturns400ForFieldSelection(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL . '?includes[content_page][]=id', [
+            'layout' => [['id' => 'el-1', 'component' => 'Sw:Test:PreviewProbe']],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+        static::assertSame(
+            [ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED],
+            array_column($body['errors'], 'code'),
+        );
+        static::assertStringContainsString('includes', (string) $response->getContent());
+        static::assertStringNotContainsString('"url"', (string) $response->getContent());
+    }
+
     #[TestDox('previewUrl rejects an unknown entity type with 400')]
     public function testPreviewUrlReturns400ForUnknownEntityType(): void
     {

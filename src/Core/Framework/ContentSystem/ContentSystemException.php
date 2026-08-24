@@ -86,6 +86,7 @@ class ContentSystemException extends HttpException
     public const LOADER_INPUT_TYPE_MISMATCH = 'CONTENT_SYSTEM__LOADER_INPUT_TYPE_MISMATCH';
     public const LOADER_CONFIG_KEY_WITHOUT_PROPERTY = 'CONTENT_SYSTEM__LOADER_CONFIG_KEY_WITHOUT_PROPERTY';
     public const RESOLVED_VALUE_INDEX_MISSING = 'CONTENT_SYSTEM__RESOLVED_VALUE_INDEX_MISSING';
+    public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -310,6 +311,23 @@ class ContentSystemException extends HttpException
             self::RESOLVED_VALUE_INDEX_MISSING,
             'The render result for layout "{{ layoutId }}" carries no resolved-value index, but the format being served requires one.',
             ['layoutId' => $layoutId]
+        );
+    }
+
+    /**
+     * The 400 for a content request carrying `includes` or `excludes`. Field selection is not part of the
+     * content-route contract, so the parameter is refused by name rather than stripped and served around.
+     *
+     * Deliberately absent from {@see CLIENT_DEFECT_CODES}: that list classifies defects in client-supplied
+     * layout data, and diagnostics never sees this rejection.
+     */
+    public static function fieldSelectionNotSupported(string $parameter): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FIELD_SELECTION_NOT_SUPPORTED,
+            'Field selection is not supported by this route. Remove the "{{ parameter }}" parameter from the request.',
+            ['parameter' => $parameter]
         );
     }
 

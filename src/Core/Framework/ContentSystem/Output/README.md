@@ -32,5 +32,5 @@ Header and footer sources never resolve a target element, so those sections neve
 
 - **Struct/** - Response data structures: `ContentPage`, the page the encoded formats' responses build off the render result and expose as their struct, and `ContentSkeletonPage` / `ContentSkeletonElement` for the skeleton format, plus `EncodedContentPage`, the carrier that hands an already-encoded body and the alias it reports to the framework's response encoding
 - **Format/** - Response factory implementations (Full, Decomposed, Skeleton, Data)
-- **Encoder/** - The module's own wire shape: `ContentPageEncoder`, `ContentDecomposedPageEncoder` and `ContentDataPageEncoder`, the `ResolvedValueIndexEncoder` the latter two share, and `ContentResponseEncodingListener`, which removes `includes`/`excludes` from every content response and swaps those three formats' responses for the carrier
+- **Encoder/** - The module's own wire shape: `ContentPageEncoder`, `ContentDecomposedPageEncoder` and `ContentDataPageEncoder`, the `ResolvedValueIndexEncoder` the latter two share, and `ContentResponseEncodingListener`, which swaps those three formats' responses for the carrier
 - **Index/** - `ResolvedValueIndex` and its factory, the value model the decomposed and data formats are built on

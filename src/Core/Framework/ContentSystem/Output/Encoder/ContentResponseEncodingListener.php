@@ -6,27 +6,24 @@ use Shopware\Core\Framework\ContentSystem\Output\Struct\EncodedContentPage;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDataRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentDecomposedRouteResponse;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Where a content response stops being a struct the framework encodes and becomes a body the module wrote.
  *
- * It does two things to every content response, and the selection is by response class: the four format
- * responses and the admin preview response share {@see AbstractContentRouteResponse}, while route scope and
- * route name discriminate neither (the generated routes share the store-api scope, and the preview route has
- * none of it).
+ * It encodes, and nothing else. The selection is by response class: the four format responses share
+ * {@see AbstractContentRouteResponse}, while route scope and route name discriminate neither.
  *
- * FIELD SELECTION IS REMOVED, not honoured. `includes` and `excludes` are unset in all three parameter bags,
- * so the framework builds an empty allow-all field set and neither top-level nor dotted-selector filtering can
- * reach a content body. All three bags because the parameter helper reads all three, and the intercepted
- * preview route is a POST whose parameters arrive in the request bag.
+ * FIELD SELECTION IS REFUSED, not filtered here. A request carrying `includes` or `excludes` never reaches a
+ * response at all: {@see ContentRoute::load()} rejects it with a 400 at request admission, so this listener
+ * touches no parameter bag and every content body it produces is unfiltered by construction.
  *
  * THREE FORMATS ARE REPLACED by a carrier bearing the module's own body — full, decomposed and data — each
  * through its own encoder. Status and headers are copied across explicitly, because a store-api response holds
@@ -53,8 +50,6 @@ class ContentResponseEncodingListener implements EventSubscriberInterface
      */
     private const PRIORITY = 10500;
 
-    private const FIELD_SELECTION_PARAMETERS = ['includes', 'excludes'];
-
     public function __construct(
         private readonly ContentPageEncoder $pageEncoder,
         private readonly ContentDecomposedPageEncoder $decomposedPageEncoder,
@@ -77,8 +72,6 @@ class ContentResponseEncodingListener implements EventSubscriberInterface
             return;
         }
 
-        $this->removeFieldSelection($event->getRequest());
-
         $body = $this->encode($response);
 
         if ($body === null) {
@@ -94,9 +87,7 @@ class ContentResponseEncodingListener implements EventSubscriberInterface
 
     /**
      * A null says the response keeps its struct, which today is
-     * {@see ContentSkeletonRouteResponse} and only it. The
-     * preview response is not a case here: it is built by the full format's factory, so it arrives as a
-     * {@see ContentRouteResponse} and is encoded as one.
+     * {@see ContentSkeletonRouteResponse} and only it.
      */
     private function encode(AbstractContentRouteResponse $response): ?EncodedContentPage
     {
@@ -106,14 +97,5 @@ class ContentResponseEncodingListener implements EventSubscriberInterface
             $response instanceof ContentDataRouteResponse => $this->dataPageEncoder->encode($response->getRenderResult()),
             default => null,
         };
-    }
-
-    private function removeFieldSelection(Request $request): void
-    {
-        foreach (self::FIELD_SELECTION_PARAMETERS as $parameter) {
-            $request->attributes->remove($parameter);
-            $request->query->remove($parameter);
-            $request->request->remove($parameter);
-        }
     }
 }

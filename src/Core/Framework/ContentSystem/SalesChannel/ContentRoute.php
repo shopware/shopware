@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\SalesChannel;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheFinalizer;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
@@ -29,6 +30,14 @@ use Symfony\Component\HttpFoundation\Request;
 class ContentRoute extends AbstractContentRoute
 {
     /**
+     * Field selection is not part of the content-route contract. The parameter list is repeated in
+     * {@see ContentPreviewController}, which admits the same response class through the same encoding listener
+     * and therefore needs the same refusal; a shared holder would have to be a service, and neither surface
+     * takes one for this.
+     */
+    private const FIELD_SELECTION_PARAMETERS = ['includes', 'excludes'];
+
+    /**
      * @internal
      *
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
@@ -51,6 +60,8 @@ class ContentRoute extends AbstractContentRoute
 
     public function load(string $path, Request $request, SalesChannelContext $context): AbstractContentRouteResponse
     {
+        $this->rejectFieldSelection($request);
+
         $resolved = $this->specificationResolver->resolve($path, $request, $context);
         $specification = $resolved->specification;
 
@@ -82,5 +93,17 @@ class ContentRoute extends AbstractContentRoute
         $this->cacheFinalizer->finalize($request, $cacheContext);
 
         return $this->responseFactory->createResponse($result);
+    }
+
+    /**
+     * All three bags, because the framework's field-selection helper reads all three.
+     */
+    private function rejectFieldSelection(Request $request): void
+    {
+        foreach (self::FIELD_SELECTION_PARAMETERS as $parameter) {
+            if ($request->attributes->has($parameter) || $request->query->has($parameter) || $request->request->has($parameter)) {
+                throw ContentSystemException::fieldSelectionNotSupported($parameter);
+            }
+        }
     }
 }

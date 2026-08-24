@@ -15,6 +15,8 @@ All endpoints use HTTP GET with cache enabled. `?elementId` partial rendering is
 
 **Header/Footer:** Same format variants at `/store-api/content-header*` and `/store-api/content-footer*`.
 
+Field selection is not supported on any of the twelve routes. A request carrying an `includes` or `excludes` parameter, in the attribute, query or request bag, is rejected with HTTP 400 (`CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED`) before the pipeline runs, in every format including skeleton. The parameter is named in the error message.
+
 Routes registered programmatically via `ContentRouteLoader` in Routing/, not via PHP attributes.
 
 ## Subdirectories

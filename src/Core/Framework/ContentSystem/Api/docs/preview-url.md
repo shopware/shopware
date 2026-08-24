@@ -14,14 +14,14 @@ The payload is held by `Api/ContentPreviewPayloadStore` under a 32-character tok
 
 The `ContentPreviewRequest` envelope:
 
-| Field                                                | Required | Notes                                                                                                                        |
-|------------------------------------------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
-| `layout`                                             | yes      | Raw element-tree array; decoded through the same path as a stored layout (`Layout/Codec/StoredElementCodec::decode()`). |
-| `entityType`                                         | yes      | One of the `content-system-entity-types.json` values; selected by exact match, never as a URL segment.                       |
-| `entityId`                                           | yes      | Id of the entity to hydrate against; the entity must exist.                                                                  |
-| `salesChannelId`                                     | yes      | Sales channel whose context is synthesized for rendering.                                                                    |
-| `languageId`, `currencyId`, `domainId`, `customerId` | no       | Override the synthesized sales channel context.                                                                              |
-| `queryParameters`                                    | no       | Forwarded as request query; `elementId` selects a single element for partial preview.                                        |
+| Field | Required | Notes |
+|---|---|---|
+| `layout` | yes | Raw element-tree array; decoded through the same path as a stored layout (`Layout/Codec/StoredElementCodec::decode()`). |
+| `entityType` | yes | One of the `content-system-entity-types.json` values; selected by exact match, never as a URL segment. |
+| `entityId` | yes | Id of the entity to hydrate against; the entity must exist. |
+| `salesChannelId` | yes | Sales channel whose context is synthesized for rendering. |
+| `languageId`, `currencyId`, `domainId`, `customerId` | no | Override the synthesized sales channel context. |
+| `queryParameters` | no | Forwarded as request query; `elementId` selects a single element for partial preview. |
 
 ## Response
 
@@ -35,15 +35,16 @@ The `ContentPreviewRequest` envelope:
 
 Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Because the mint runs the one build gate, it renders against real entity data too, so a fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
 
-| Condition                                                                                                      | HTTP      | Factory / source                                                                                                      |
-|----------------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------|
-| Missing/invalid envelope field                                                                                 | 400       | `#[MapRequestPayload]` validation (forced to 400)                                                                     |
-| `entityType` matches no specification source                                                                   | 400       | `unknownEntityType`                                                                                                   |
+| Condition | HTTP | Factory / source |
+|---|---|---|
+| Missing/invalid envelope field | 400 | `#[MapRequestPayload]` validation (forced to 400) |
+| An `includes` or `excludes` parameter in any of the attribute, query or request bag | 400 | `fieldSelectionNotSupported` — field selection is refused here as it is on the store-api content routes |
+| `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |
 | Layout has an intrinsic error the structural decode does not catch: an unregistered `component`, an element config a bound source rejects (`invalid_config`), or a `style` key no style option declares (`unknown_style_option`) | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
-| Target entity not found / unresolvable data requirement                                                        | 500       | data-loader / hydration exception (e.g. `ContentSystemException::dataLoaderNotRegistered`)                            |
-| Invalid sales channel id                                                                                       | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`)                                                              |
-| The cache rejects the payload write                                                                            | 500       | `ContentSystemException::previewPayloadStoreFailed`                                                                   |
+| Target entity not found / unresolvable data requirement | 500 | data-loader / hydration exception (e.g. `ContentSystemException::dataLoaderNotRegistered`) |
+| Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
+| The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
 Entity resolution and hydration run at mint time as well as when the URL is opened, so `unknownEntityType` and hydration faults surface here too.
 

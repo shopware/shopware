@@ -129,50 +129,23 @@ class ContentResponseEncodingListenerTest extends TestCase
         static::assertSame($response, $event->getResponse());
     }
 
-    #[TestDox('removes the field selection from all three bags of a skeleton response it does not replace')]
-    public function testOnResponseStripsFieldSelectionFromEveryBagOfTheSkeletonResponse(): void
-    {
-        $request = new Request();
-        $request->attributes->set('includes', ['content_skeleton_page' => ['elements']]);
-        $request->attributes->set('excludes', ['content_skeleton_element' => ['style']]);
-        $request->query->set('includes', ['content_skeleton_page' => ['elements']]);
-        $request->query->set('excludes', ['content_skeleton_element' => ['style']]);
-        $request->request->set('includes', ['content_skeleton_page' => ['elements']]);
-        $request->request->set('excludes', ['content_skeleton_element' => ['style']]);
-
-        $response = new ContentSkeletonRouteResponse(new ContentSkeletonPage('layout-1', [], 'Landing', '1.0.0'));
-        $event = $this->event($request, $response);
-
-        $this->listener()->onResponse($event);
-
-        static::assertSame($response, $event->getResponse());
-        static::assertFalse($request->attributes->has('includes'));
-        static::assertFalse($request->attributes->has('excludes'));
-        static::assertFalse($request->query->has('includes'));
-        static::assertFalse($request->query->has('excludes'));
-        static::assertFalse($request->request->has('includes'));
-        static::assertFalse($request->request->has('excludes'));
-    }
-
     #[TestDox('leaves a response that is not a content response untouched')]
     public function testOnResponseIgnoresAnUnrelatedResponse(): void
     {
         $response = new Response('unrelated');
-        $request = new Request(['includes' => ['product' => ['name']]]);
-        $event = $this->event($request, $response);
+        $event = $this->event(new Request(), $response);
 
         $this->listener()->onResponse($event);
 
         static::assertSame($response, $event->getResponse());
-        static::assertTrue($request->query->has('includes'), 'An unrelated response must keep its field selection.');
     }
 
     /**
      * @param 'attributes'|'query'|'request' $bag
      */
     #[DataProvider('fieldSelectionBagProvider')]
-    #[TestDox('removes the field selection from the $bag bag of a content response')]
-    public function testOnResponseRemovesFieldSelectionFromEveryBag(string $bag): void
+    #[TestDox('leaves the $bag bag of a content request untouched: the refusal happens at the route, not here')]
+    public function testOnResponseLeavesEveryParameterBagUntouched(string $bag): void
     {
         $request = new Request();
         $request->{$bag}->set('includes', ['content_page' => ['elements']]);
@@ -182,8 +155,8 @@ class ContentResponseEncodingListenerTest extends TestCase
 
         $this->listener()->onResponse($event);
 
-        static::assertFalse($request->{$bag}->has('includes'));
-        static::assertFalse($request->{$bag}->has('excludes'));
+        static::assertTrue($request->{$bag}->has('includes'));
+        static::assertTrue($request->{$bag}->has('excludes'));
     }
 
     /**
@@ -194,17 +167,6 @@ class ContentResponseEncodingListenerTest extends TestCase
         yield 'attributes' => ['attributes'];
         yield 'query' => ['query'];
         yield 'request' => ['request'];
-    }
-
-    #[TestDox('removes the field selection from a format it does not replace, so no content format can be filtered')]
-    public function testOnResponseRemovesFieldSelectionForANonReplacedFormat(): void
-    {
-        $request = new Request(['includes' => ['content_skeleton_page' => ['elements']]]);
-        $event = $this->event($request, new ContentSkeletonRouteResponse(new ContentSkeletonPage('layout-1', [], 'Landing', '1.0.0')));
-
-        $this->listener()->onResponse($event);
-
-        static::assertFalse($request->query->has('includes'));
     }
 
     private function listener(): ContentResponseEncodingListener

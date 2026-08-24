@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -289,23 +290,68 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame($expectedUrl, $media['url']);
     }
 
-    #[TestDox('serves the same full-format body whether or not the request asks for a field selection')]
-    public function testFullFormatIgnoresIncludesAndExcludes(): void
+    /**
+     * All four formats, because the refusal sits in `ContentRoute::load()` ahead of the format's own factory
+     * and skeleton is the format a response-side filter would have missed.
+     */
+    #[DataProvider('contentFormatProvider')]
+    #[TestDox('rejects an includes parameter on the $format route with a 400 before it renders anything')]
+    public function testEveryFormatRejectsIncludes(string $format): void
     {
         $this->createNestedLayout();
 
-        $unfiltered = $this->requestJson($this->uri('content'));
+        // The same route serves a 200 without the parameter, so the 400 below is the parameter and not a
+        // broken fixture.
+        $this->requestJson($this->uri($format));
 
-        $filtered = $this->requestJson($this->uri('content')
-            . '?includes[content_page][]=id'
-            . '&includes[content_element][]=id'
-            . '&excludes[content_element][]=properties');
+        $this->browser->request('GET', $this->uri($format) . '?includes[content_page][]=id');
 
-        static::assertSame($unfiltered, $filtered, 'A content response must ignore includes and excludes entirely.');
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
+    }
 
-        $dotted = $this->requestJson($this->uri('content') . '?includes[content_page][]=elements.component');
+    #[DataProvider('contentFormatProvider')]
+    #[TestDox('rejects an excludes parameter on the $format route with a 400 before it renders anything')]
+    public function testEveryFormatRejectsExcludes(string $format): void
+    {
+        $this->createNestedLayout();
 
-        static::assertSame($unfiltered, $dotted, 'A dotted selector must not unlock nested filtering either.');
+        $this->browser->request('GET', $this->uri($format) . '?excludes[content_element][]=properties');
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function contentFormatProvider(): iterable
+    {
+        yield 'full' => ['content'];
+        yield 'decomposed' => ['content-decomposed'];
+        yield 'skeleton' => ['content-skeleton'];
+        yield 'data' => ['content-data'];
+    }
+
+    #[TestDox('names the offending parameter in the field-selection rejection')]
+    public function testFieldSelectionRejectionNamesTheOffendingParameter(): void
+    {
+        $this->createNestedLayout();
+
+        $this->browser->request('GET', $this->uri('content') . '?excludes[content_element][]=properties');
+
+        $detail = $this->errorDetail();
+
+        static::assertStringContainsString('excludes', $detail);
+        static::assertStringNotContainsString('includes', $detail, 'The message must name the parameter that was actually sent.');
+    }
+
+    #[TestDox('rejects a dotted field selector rather than serving an unfiltered body')]
+    public function testDottedFieldSelectorIsRejected(): void
+    {
+        $this->createNestedLayout();
+
+        $this->browser->request('GET', $this->uri('content') . '?includes[content_page][]=elements.component');
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
     }
 
     #[TestDox('serves a full-format body whose elements are the same forest the in-process consumer reads')]
@@ -706,57 +752,6 @@ class ContentRouteRenderingTest extends TestCase
         ], $shapes);
     }
 
-    #[TestDox('serves the same decomposed body whether or not the request asks for a field selection')]
-    public function testDecomposedFormatIgnoresIncludesAndExcludes(): void
-    {
-        $this->createNestedLayout();
-
-        $unfiltered = $this->requestJson($this->uri('content-decomposed'));
-
-        // The keys the selections below try to remove are present to begin with, so an unchanged body is the
-        // listener neutering the parameters rather than a selection that had nothing to take away.
-        static::assertArrayHasKey('data', $unfiltered);
-        static::assertArrayHasKey('assignments', $unfiltered);
-        static::assertArrayHasKey('skeletons', $unfiltered);
-
-        $filtered = $this->requestJson($this->uri('content-decomposed')
-            . '?includes[content_decomposed_page][]=id'
-            . '&includes[content_skeleton_element][]=id'
-            . '&excludes[content_decomposed_page][]=assignments');
-
-        static::assertSame($unfiltered, $filtered, 'A decomposed response must ignore includes and excludes entirely.');
-
-        $dotted = $this->requestJson($this->uri('content-decomposed')
-            . '?includes[content_decomposed_page][]=skeletons.id'
-            . '&includes[content_decomposed_page][]=assignments.' . $this->ids->get('text'));
-
-        static::assertSame($unfiltered, $dotted, 'A dotted selector must not unlock nested filtering of a decomposed body either.');
-    }
-
-    #[TestDox('serves the same data body whether or not the request asks for a field selection')]
-    public function testDataFormatIgnoresIncludesAndExcludes(): void
-    {
-        $this->createNestedLayout();
-
-        $unfiltered = $this->requestJson($this->uri('content-data'));
-
-        static::assertArrayHasKey('data', $unfiltered);
-        static::assertArrayHasKey('assignments', $unfiltered);
-
-        $filtered = $this->requestJson($this->uri('content-data')
-            . '?includes[content_data_page][]=data'
-            . '&excludes[content_data_page][]=assignments');
-
-        static::assertSame($unfiltered, $filtered, 'A data response must ignore includes and excludes entirely.');
-
-        // A dotted selector naming an element id rather than a ref: refs are response-local, so nothing outside
-        // a response may name one, but an element id is a stable handle a client really would filter by.
-        $dotted = $this->requestJson($this->uri('content-data')
-            . '?includes[content_data_page][]=assignments.' . $this->ids->get('text'));
-
-        static::assertSame($unfiltered, $dotted, 'A dotted selector must not unlock nested filtering of a data body either.');
-    }
-
     #[TestDox('names only elements the skeleton response carries in the assignments of a data response')]
     public function testDataAssignmentsNameOnlyElementsTheSkeletonResponseCarries(): void
     {
@@ -1146,6 +1141,22 @@ class ContentRouteRenderingTest extends TestCase
         static::assertIsArray($body);
 
         return $body;
+    }
+
+    /**
+     * The `detail` of the single error the last response carries, so a test can assert what the message names.
+     */
+    private function errorDetail(): string
+    {
+        $body = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($body);
+        static::assertIsArray($body['errors'] ?? null);
+        static::assertCount(1, $body['errors']);
+        static::assertIsArray($body['errors'][0]);
+        static::assertIsString($body['errors'][0]['detail'] ?? null);
+
+        return $body['errors'][0]['detail'];
     }
 
     private function assertErrorCode(int $status, string $code): void

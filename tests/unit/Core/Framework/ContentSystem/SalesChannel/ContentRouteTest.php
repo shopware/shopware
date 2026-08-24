@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -149,6 +150,41 @@ class ContentRouteTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::layoutNotFound('layout-1'));
 
         $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+    }
+
+    /**
+     * @param 'attributes'|'query'|'request' $bag
+     */
+    #[DataProvider('fieldSelectionProvider')]
+    #[TestDox('rejects a $parameter parameter arriving in the $bag bag, naming it, before specification resolution runs')]
+    public function testLoadRejectsFieldSelectionFromEveryBag(string $bag, string $parameter): void
+    {
+        $request = new Request();
+        $request->{$bag}->set($parameter, ['content_page' => ['elements']]);
+
+        // The refusal has to happen at admission: a resolver that runs at all fails the test rather than
+        // letting a later throw stand in for the early one.
+        $this->specificationResolver->method('resolve')
+            ->willThrowException(new \LogicException('Specification resolution must not run for a rejected request.'));
+
+        $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
+
+        $this->expectExceptionObject(ContentSystemException::fieldSelectionNotSupported($parameter));
+
+        $route->load('/product/abc', $request, Generator::generateSalesChannelContext());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function fieldSelectionProvider(): iterable
+    {
+        yield 'includes in attributes' => ['attributes', 'includes'];
+        yield 'includes in query' => ['query', 'includes'];
+        yield 'includes in request' => ['request', 'includes'];
+        yield 'excludes in attributes' => ['attributes', 'excludes'];
+        yield 'excludes in query' => ['query', 'excludes'];
+        yield 'excludes in request' => ['request', 'excludes'];
     }
 
     #[TestDox('throws DecorationPatternException from getDecorated')]

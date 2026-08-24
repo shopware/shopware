@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
@@ -83,6 +84,42 @@ class ContentPreviewControllerTest extends TestCase
             Request::create('https://admin.example.com/api/_action/content-system/preview/entity/url'),
             Context::createDefaultContext(),
         );
+    }
+
+    /**
+     * @param 'attributes'|'query'|'request' $bag
+     */
+    #[DataProvider('fieldSelectionProvider')]
+    #[TestDox('previewUrl rejects a $parameter parameter arriving in the $bag bag, naming it, before the page builder runs')]
+    public function testPreviewUrlRejectsFieldSelectionFromEveryBag(string $bag, string $parameter): void
+    {
+        $httpRequest = Request::create('https://admin.example.com/api/_action/content-system/preview/entity/url');
+        $httpRequest->{$bag}->set($parameter, ['content_page' => ['elements']]);
+
+        $pageBuilder = static::createMock(ContentPreviewPageBuilder::class);
+        $pageBuilder->expects($this->never())->method('build');
+
+        $payloadStore = static::createMock(ContentPreviewPayloadStore::class);
+        $payloadStore->expects($this->never())->method('store');
+
+        $controller = new ContentPreviewController($pageBuilder, $payloadStore);
+
+        $this->expectExceptionObject(ContentSystemException::fieldSelectionNotSupported($parameter));
+
+        $controller->previewUrl($this->request(), $httpRequest, Context::createDefaultContext());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function fieldSelectionProvider(): iterable
+    {
+        yield 'includes in attributes' => ['attributes', 'includes'];
+        yield 'includes in query' => ['query', 'includes'];
+        yield 'includes in request' => ['request', 'includes'];
+        yield 'excludes in attributes' => ['attributes', 'excludes'];
+        yield 'excludes in query' => ['query', 'excludes'];
+        yield 'excludes in request' => ['request', 'excludes'];
     }
 
     private function request(): ContentPreviewRequest

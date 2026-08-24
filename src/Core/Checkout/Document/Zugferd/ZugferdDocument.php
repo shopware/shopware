@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -251,6 +252,10 @@ class ZugferdDocument
             return $this;
         }
 
+        if (FloatComparator::equals($lineItem->getPrice()->getTotalPrice(), 0.0)) {
+            return $this;
+        }
+
         $discountValue = (float) ($lineItem->getPayload()['value'] ?? 0);
         $isPercentage = (($lineItem->getPayload()['discountType'] ?? null) === PromotionDiscountEntity::TYPE_PERCENTAGE)
             && (abs($lineItem->getTotalPrice()) !== (float) ($lineItem->getPayload()['maxValue'] ?? null));
@@ -269,7 +274,7 @@ class ZugferdDocument
 
         $calculatedTaxes = $lineItem->getPrice()->getCalculatedTaxes();
 
-        foreach ($calculatedTaxes as $calculatedTax) {
+        foreach ($this->normalizeCalculatedTaxes($calculatedTaxes) as $calculatedTax) {
             $actualAmount = $this->getPriceWithFallback($calculatedTax, $lineItem->getPrice());
 
             if (!Feature::isActive('v6.8.0.0')) {
@@ -285,21 +290,7 @@ class ZugferdDocument
                     ...$allowanceCharge,
                     'actualAmount' => abs($actualAmount),
                     'taxCategoryCode' => $this->getTaxCode($calculatedTax),
-                    'rateApplicablePercent' => $calculatedTax->getTaxRate(),
-                    'basisAmount' => $this->getPercentageBasisAmount($isPercentage, $discountValue, $actualAmount),
-                ]
-            );
-        }
-
-        if ($calculatedTaxes->count() === 0) {
-            $actualAmount = $this->getPriceWithFallback(null, $lineItem->getPrice());
-
-            $this->zugferdBuilder->addDocumentAllowanceCharge(
-                ...[
-                    ...$allowanceCharge,
-                    'actualAmount' => abs($actualAmount),
-                    'taxCategoryCode' => $this->getTaxCode(null),
-                    'rateApplicablePercent' => 0.0,
+                    'rateApplicablePercent' => $calculatedTax?->getTaxRate() ?? 0.0,
                     'basisAmount' => $this->getPercentageBasisAmount($isPercentage, $discountValue, $actualAmount),
                 ]
             );
@@ -367,7 +358,7 @@ class ZugferdDocument
 
             $calculatedTaxes = $shippingCosts->getCalculatedTaxes();
 
-            foreach ($calculatedTaxes as $calculatedTax) {
+            foreach ($this->normalizeCalculatedTaxes($calculatedTaxes) as $calculatedTax) {
                 $actualAmount = $this->getPriceWithFallback($calculatedTax, $shippingCosts);
 
                 if (!Feature::isActive('v6.8.0.0')) {
@@ -383,21 +374,7 @@ class ZugferdDocument
                     $isCharge,
                     $this->getTaxCode($calculatedTax),
                     'VAT',
-                    $calculatedTax->getTaxRate(),
-                    reasonCode: $this->getDeliveryReasonCode($isCharge, $this->currentDocumentType),
-                    reason: $this->getDeliveryReason($isCharge, $this->currentDocumentType)
-                );
-            }
-
-            if ($calculatedTaxes->count() === 0) {
-                $actualAmount = $this->getPriceWithFallback(null, $shippingCosts);
-
-                $this->zugferdBuilder->addDocumentAllowanceCharge(
-                    abs($actualAmount),
-                    $isCharge,
-                    $this->getTaxCode(null),
-                    'VAT',
-                    0.0,
+                    $calculatedTax?->getTaxRate() ?? 0.0,
                     reasonCode: $this->getDeliveryReasonCode($isCharge, $this->currentDocumentType),
                     reason: $this->getDeliveryReason($isCharge, $this->currentDocumentType)
                 );
@@ -517,6 +494,21 @@ class ZugferdDocument
         }
 
         $this->mappedPrices[$type][] = $price;
+    }
+
+    /**
+     * Yields the calculated taxes to emit an allowance/charge group for, falling back to a single
+     * untaxed group (rate 0.0, category Z) when the price carries no calculated taxes.
+     *
+     * @return list<CalculatedTax|null>
+     */
+    protected function normalizeCalculatedTaxes(CalculatedTaxCollection $calculatedTaxes): array
+    {
+        if ($calculatedTaxes->count() <= 0) {
+            return [null];
+        }
+
+        return array_values($calculatedTaxes->getElements());
     }
 
     protected function getTaxCode(?CalculatedTax $tax): string

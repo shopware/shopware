@@ -1,4 +1,12 @@
-# 6.7.14.0 (upcoming)
+# 6.7.15.0 (upcoming)
+
+## Core
+
+### Document V1/V2 file compatibility
+
+Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
+
+# 6.7.14.0
 
 ## Features
 
@@ -123,9 +131,6 @@ Removing the language that the same write assigns as the new default is now reje
 Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
-### Document V1/V2 file compatibility
-
-Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
 
 ### An active shipping method must keep at least one usable price
 

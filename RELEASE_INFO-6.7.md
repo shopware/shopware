@@ -1,5 +1,11 @@
 # 6.7.15.0 (upcoming)
 
+## API
+
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
 # 6.7.14.0 (upcoming)
 
 ## Features

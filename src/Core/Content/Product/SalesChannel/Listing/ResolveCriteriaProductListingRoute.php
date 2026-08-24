@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
-use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -24,8 +23,7 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly AbstractProductListingRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CompositeListingProcessor $processor,
-        private readonly SortingListingProcessor $sortingProcessor,
+        private readonly CompositeListingProcessor $processor
     ) {
     }
 
@@ -43,12 +41,6 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $context)
         );
-
-        // Re-resolve sorting after event listeners have had a chance to
-        // modify the sortings extension (e.g. add runtime sortings with
-        // custom field order). This ensures createDalSorting() uses the
-        // final state of the sortings collection.
-        $this->sortingProcessor->resolveSorting($request, $criteria, $context);
 
         $response = $this->getDecorated()->load($categoryId, $request, $context, $criteria);
 

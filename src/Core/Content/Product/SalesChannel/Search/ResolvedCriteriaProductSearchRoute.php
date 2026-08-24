@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
-use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -26,8 +25,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CompositeListingProcessor $processor,
-        private readonly SortingListingProcessor $sortingProcessor,
+        private readonly CompositeListingProcessor $processor
     ) {
     }
 
@@ -49,9 +47,6 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             new ProductSearchCriteriaEvent($request, $criteria, $context),
             ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
-
-        // Re-resolve sorting after event listeners have modified sortings
-        $this->sortingProcessor->resolveSorting($request, $criteria, $context);
 
         $response = $this->getDecorated()->load($request, $context, $criteria);
 

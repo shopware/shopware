@@ -170,6 +170,23 @@ Both page components declare `container-type: inline-size`. This creates a new c
 The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
+### New event to register product listing sortings at runtime
+
+`Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductListingCollectSortingEvent::class => 'addSorting'];
+}
+
+public function addSorting(ProductListingCollectSortingEvent $event): void
+{
+    $event->getSortings()->add($mySorting);
+}
+```
+
+Runtime sortings added to the `sortings` criteria extension from `ProductListingCriteriaEvent`, `ProductSearchCriteriaEvent` or `ProductSuggestCriteriaEvent` were never applied, because those events are dispatched after the sorting has already been resolved. Use the new event instead.
 
 ### Bulk operations in the My Extensions listing
 

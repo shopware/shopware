@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('inventory')]
 class SortingListingProcessor extends AbstractListingProcessor
@@ -30,7 +32,8 @@ class SortingListingProcessor extends AbstractListingProcessor
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityRepository $sortingRepository
+        private readonly EntityRepository $sortingRepository,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -50,26 +53,7 @@ class SortingListingProcessor extends AbstractListingProcessor
         $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
         $sortings->merge($this->getAvailableSortings($request, $context->getContext()));
 
-        $criteria->addExtension('sortings', $sortings);
-
-        // Sorting resolution is deferred to resolveSorting() so that
-        // ProductListingCriteriaEvent listeners can modify sortings first.
-        $this->resolveSorting($request, $criteria, $context);
-    }
-
-    /**
-     * Resolves the current sorting from the criteria's sortings extension and
-     * applies DAL FieldSorting objects to the criteria. Called after event
-     * listeners have had a chance to modify the sortings extension.
-     */
-    public function resolveSorting(Request $request, Criteria $criteria, SalesChannelContext $context): void
-    {
-        /** @var ProductSortingCollection|null $sortings */
-        $sortings = $criteria->getExtension('sortings');
-
-        if ($sortings === null) {
-            return;
-        }
+        $this->dispatcher->dispatch(new ProductListingCollectSortingEvent($request, $sortings, $context));
 
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
@@ -79,13 +63,12 @@ class SortingListingProcessor extends AbstractListingProcessor
                 $fallbackSorting = new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING);
             }
 
-            // Clear any previously applied sortings so runtime changes take effect
-            $criteria->resetSorting();
-
             $criteria->addSorting(
                 ...$currentSorting->createDalSorting($fallbackSorting)
             );
         }
+
+        $criteria->addExtension('sortings', $sortings);
     }
 
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void

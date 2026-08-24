@@ -9,6 +9,7 @@ use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\PhpDoc\TypeStringResolver;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\ExpressionTypeResolverExtension;
 use PHPStan\Type\Type;
@@ -50,7 +51,9 @@ class FuturePropertyTypeExtension implements ExpressionTypeResolverExtension
         return null;
     }
 
-    /** @return list<\PHPStan\Reflection\ClassReflection> */
+    /**
+     * @return list<ClassReflection>
+     */
     private function propertyClasses(PropertyFetch|StaticPropertyFetch $fetch, Scope $scope): array
     {
         if ($fetch instanceof PropertyFetch) {

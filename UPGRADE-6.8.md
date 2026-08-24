@@ -339,6 +339,9 @@ public function load(Request $request, SalesChannelContext $context, ?Cart $cart
 ```
 
 A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
+## Sitemap: AlreadyLockedException removed
+
+`Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException` is removed. It has not been thrown since the sitemap exceptions were consolidated into `SitemapException`; concurrent sitemap generation throws `Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException` instead (a `SitemapException` with the unchanged error code `CONTENT__SITEMAP_ALREADY_LOCKED` and HTTP status 400). Catch `SitemapAlreadyLockedException` where you caught `AlreadyLockedException` before.
 
 ## XML configuration is no longer supported
 

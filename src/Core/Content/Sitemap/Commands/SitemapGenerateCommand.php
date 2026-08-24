@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Commands;
 
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapSalesChannelLoader;
 use Shopware\Core\Framework\Context;
@@ -67,7 +67,7 @@ class SitemapGenerateCommand extends Command
 
                 try {
                     $this->generateSitemap($salesChannelContext, $input->getOption('force'));
-                } catch (AlreadyLockedException $exception) {
+                } catch (SitemapAlreadyLockedException $exception) {
                     $output->writeln(\sprintf('ERROR: %s', $exception->getMessage()));
                 }
             }

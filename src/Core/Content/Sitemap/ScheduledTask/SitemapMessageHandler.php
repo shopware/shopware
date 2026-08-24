@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -49,7 +49,7 @@ final readonly class SitemapMessageHandler
 
         try {
             $this->sitemapExporter->generate($salesChannelContext, true, $message->getLastProvider(), $message->getNextOffset());
-        } catch (AlreadyLockedException $exception) {
+        } catch (SitemapAlreadyLockedException $exception) {
             $this->logger->error(\sprintf('ERROR: %s', $exception->getMessage()));
         }
     }

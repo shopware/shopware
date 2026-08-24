@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Sitemap;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
@@ -27,6 +28,7 @@ class SitemapExceptionTest extends TestCase
     public function testSitemapAlreadyLocked(): void
     {
         $exception = SitemapException::sitemapAlreadyLocked(Generator::generateSalesChannelContext());
+        static::assertSame(SitemapAlreadyLockedException::class, $exception::class);
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame('CONTENT__SITEMAP_ALREADY_LOCKED', $exception->getErrorCode());
         static::assertSame('Cannot acquire lock for sales channel 98432def39fc4624b33213a56b8c944d and language 2fbb5fe2e29a4d70aa5854ce7ce3e20b', $exception->getMessage());

@@ -8,6 +8,16 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+## Storefront
+
+### Semantic footer markup
+
+With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.
+
+- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
+- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column will become `<li>` instead of `<div role="listitem">`.
+
 # 6.7.14.0 (upcoming)
 
 ## Features
@@ -577,13 +587,6 @@ The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
-### Semantic footer markup
-
-With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements. 
-
-- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
-- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
-- Footer column will become `<li>` instead of `<div role="listitem">`.
 ### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
 
 A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.

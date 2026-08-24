@@ -590,9 +590,10 @@
                 "required": ["documentIds"],
                 "properties": {
                   "documentIds": {
-                    "description": "Identifiers of the documents to include in the archive.",
+                    "description": "Identifiers of the documents to include in the archive. At most 100 per request.",
                     "type": "array",
                     "minItems": 1,
+                    "maxItems": 100,
                     "items": {
                       "type": "string",
                       "pattern": "^[0-9a-f]{32}$"

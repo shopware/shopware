@@ -247,18 +247,28 @@ class DocumentArchiveGeneratorTest extends TestCase
         // Two different orders can legitimately produce the same document number (e.g. separate
         // sales channels with independent number ranges), so the same file name can occur twice.
         // The archive must still tell them apart by order number.
+        $firstOrder = new OrderEntity();
+        $firstOrder->setId(Uuid::randomHex());
+        $firstOrder->setOrderNumber('10000');
+
         $firstInvoice = new DocumentEntity();
         $firstInvoice->setId(Uuid::randomHex());
+        $firstInvoice->setOrderId($firstOrder->getId());
+        $firstInvoice->setOrder($firstOrder);
         $firstInvoice->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($firstInvoice, '10000');
         $firstInvoice->setDocumentFiles(new DocumentFileCollection([
             $this->createDocumentFile($firstInvoiceMediaId, DocumentFormat::PDF->value, 'invoice_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
         ]));
 
+        $secondOrder = new OrderEntity();
+        $secondOrder->setId(Uuid::randomHex());
+        $secondOrder->setOrderNumber('10001');
+
         $secondInvoice = new DocumentEntity();
         $secondInvoice->setId(Uuid::randomHex());
+        $secondInvoice->setOrderId($secondOrder->getId());
+        $secondInvoice->setOrder($secondOrder);
         $secondInvoice->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($secondInvoice, '10001');
         $secondInvoice->setDocumentFiles(new DocumentFileCollection([
             $this->createDocumentFile($secondInvoiceMediaId, DocumentFormat::PDF->value, 'invoice_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
         ]));
@@ -370,6 +380,28 @@ class DocumentArchiveGeneratorTest extends TestCase
         ]);
     }
 
+    public function testArchiveThrowsWhenMoreDocumentsThanTheLimitAreRequested(): void
+    {
+        $documents = new DocumentCollection();
+        for ($i = 0; $i <= DocumentArchiveGenerator::MAX_DOCUMENTS; ++$i) {
+            $document = new DocumentEntity();
+            $document->setId(Uuid::randomHex());
+            $document->setConfig(['documentNumber' => (string) $i]);
+            $document->setDocumentFiles(new DocumentFileCollection());
+            $documents->add($document);
+        }
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->never())->method('loadFile');
+
+        static::expectExceptionObject(DocumentV2Exception::documentArchiveLimitExceeded(
+            DocumentArchiveGenerator::MAX_DOCUMENTS + 1,
+            DocumentArchiveGenerator::MAX_DOCUMENTS,
+        ));
+
+        $this->createArchiveGenerator($mediaService)->archive($documents, Context::createDefaultContext());
+    }
+
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator
     {
         return new DocumentArchiveGenerator(
@@ -430,15 +462,5 @@ class DocumentArchiveGeneratorTest extends TestCase
         $documentFile->setMedia($media);
 
         return $documentFile;
-    }
-
-    private function assignOrder(DocumentEntity $document, string $orderNumber): void
-    {
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setOrderNumber($orderNumber);
-
-        $document->setOrderId($order->getId());
-        $document->setOrder($order);
     }
 }

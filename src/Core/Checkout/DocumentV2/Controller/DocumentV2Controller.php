@@ -271,10 +271,17 @@ final class DocumentV2Controller extends AbstractController
             throw DocumentV2Exception::invalidRequestParameter('documentIds');
         }
 
-        $documentIds = array_values(array_filter($documentIds, \is_string(...)));
+        $documentIds = array_values(array_unique(array_filter($documentIds, \is_string(...))));
 
         if ($documentIds === []) {
             throw DocumentV2Exception::invalidRequestParameter('documentIds');
+        }
+
+        if (\count($documentIds) > DocumentArchiveGenerator::MAX_DOCUMENTS) {
+            throw DocumentV2Exception::documentArchiveLimitExceeded(
+                \count($documentIds),
+                DocumentArchiveGenerator::MAX_DOCUMENTS,
+            );
         }
 
         $documents = $this->loadDocuments($documentIds, $context);

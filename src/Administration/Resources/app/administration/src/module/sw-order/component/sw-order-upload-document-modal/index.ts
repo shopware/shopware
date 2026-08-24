@@ -19,7 +19,6 @@ export default Component.wrapComponentConfig({
     template,
 
     inject: [
-        'documentV2ApiService',
         'documentV2Service',
         'numberRangeService',
         'repositoryFactory',
@@ -212,7 +211,7 @@ export default Component.wrapComponentConfig({
             }
 
             try {
-                this.supportedDocumentTypes = (await this.documentV2ApiService.getAvailableTypes()).documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.components.createDocumentModal.error.loadSupportedDocumentFileFormats'),

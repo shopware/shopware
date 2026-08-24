@@ -736,6 +736,42 @@ class DocumentV2ControllerTest extends TestCase
         (new Filesystem())->remove($tempFile);
     }
 
+    public function testDownloadArchiveThrowsWhenMoreDocumentsThanTheLimitAreRequested(): void
+    {
+        $controller = new DocumentV2Controller(
+            $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
+            new DocumentRendererRegistry([]),
+            $this->createTypeRegistry(),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $this->createDocumentFileResolver(),
+        );
+
+        $documentIds = [];
+        for ($i = 0; $i <= DocumentArchiveGenerator::MAX_DOCUMENTS; ++$i) {
+            $documentIds[] = Uuid::randomHex();
+        }
+
+        static::expectExceptionObject(DocumentV2Exception::documentArchiveLimitExceeded(
+            DocumentArchiveGenerator::MAX_DOCUMENTS + 1,
+            DocumentArchiveGenerator::MAX_DOCUMENTS,
+        ));
+
+        $controller->downloadArchive(
+            Request::create(
+                '/api/_action/order/document-v2/download-archive',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode(['documentIds' => $documentIds], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
+    }
+
     public function testDownloadArchiveThrowsWhenDocumentIdsAreMissing(): void
     {
         $controller = new DocumentV2Controller(

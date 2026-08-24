@@ -11,7 +11,7 @@ const documentTypesFixtures = [
     },
 ];
 
-async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
             stubs: {
@@ -25,15 +25,10 @@ async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
                         };
                     },
                 },
-                documentV2ApiService: {
-                    getAvailableTypes: jest.fn().mockResolvedValue({
-                        documentTypes: {
-                            invoice: { formats: ['pdf'] },
-                        },
-                    }),
-                    ...documentV2ApiServiceOverrides,
-                },
                 documentV2Service: {
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({
+                        invoice: { formats: ['pdf'] },
+                    }),
                     getDocumentTypeSnippet: (technicalName) =>
                         `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },

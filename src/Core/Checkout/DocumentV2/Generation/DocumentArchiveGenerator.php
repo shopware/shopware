@@ -20,6 +20,8 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('after-sales')]
 final class DocumentArchiveGenerator
 {
+    public const MAX_DOCUMENTS = 100;
+
     public function __construct(
         private readonly MediaService $mediaService,
         private readonly Filesystem $filesystem,
@@ -29,6 +31,10 @@ final class DocumentArchiveGenerator
 
     public function archive(DocumentCollection $documents, Context $context): ?RenderedDocument
     {
+        if ($documents->count() > self::MAX_DOCUMENTS) {
+            throw DocumentV2Exception::documentArchiveLimitExceeded($documents->count(), self::MAX_DOCUMENTS);
+        }
+
         $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-');
 
         if ($tempFile === false) {

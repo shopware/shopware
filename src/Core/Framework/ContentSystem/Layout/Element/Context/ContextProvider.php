@@ -6,9 +6,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('framework')]
 final readonly class ContextProvider implements \JsonSerializable
 {

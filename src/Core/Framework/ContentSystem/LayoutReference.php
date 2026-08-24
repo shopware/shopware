@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('framework')]
 final readonly class LayoutReference
 {

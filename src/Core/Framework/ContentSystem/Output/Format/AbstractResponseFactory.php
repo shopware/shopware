@@ -7,9 +7,6 @@ use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('framework')]
 abstract class AbstractResponseFactory
 {

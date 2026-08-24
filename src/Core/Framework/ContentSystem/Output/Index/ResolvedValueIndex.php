@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Log\Package;
  * The two guards below are grammar invariants, not input validation. A served layout is stored data rather
  * than something a client sent, so a violation is an internal fault (HTTP 500) and never a client defect: the
  * only way to get here is a producer that built the two maps inconsistently.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class ResolvedValueIndex

@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('framework')]
 abstract class AbstractContentSystemStyleOptionLoader
 {

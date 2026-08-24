@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
  * The already-resolved inputs of one loader invocation: one entry per key the loader declared. A null value
  * means the input is unresolved; a key that is absent from the map was never declared and reading it is a
  * loader authoring bug, not a runtime condition.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class LoaderInputs

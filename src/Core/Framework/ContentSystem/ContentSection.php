@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Single source of truth for route path segments and cache tags per section.
- *
- * @internal
  */
 #[Package('framework')]
 enum ContentSection: string

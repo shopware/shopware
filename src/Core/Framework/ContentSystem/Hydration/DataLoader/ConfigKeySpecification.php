@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * One declared config key of a {@see LoaderConfigSpecification}. Presence is modeled explicitly
  * (`hasDefault`) so "no default" is distinct from "default is null".
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class ConfigKeySpecification

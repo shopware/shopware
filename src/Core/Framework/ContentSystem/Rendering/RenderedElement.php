@@ -27,8 +27,6 @@ use Shopware\Core\Framework\Log\Package;
  * where it was built — as a `TypeError` inside {@see RenderedTreeEditor} or as a Twig error while a
  * `<twig:Slot>` iterates the children. Property *values* stay unchecked on purpose: they are raw PHP
  * values, hydrated entities included, so there is nothing to check them against.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class RenderedElement

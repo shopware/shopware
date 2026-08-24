@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
  * `col-span`), an adminUI passthrough block, and the value vocabulary/bounds on the
  * StyleOptionValueType. toSchema() serializes it for introspection.
  *
- * @internal
- *
  * @phpstan-type StyleOptionSchema = array{
  *     type: string,
  *     enum: list<string|int|float|bool>|null,

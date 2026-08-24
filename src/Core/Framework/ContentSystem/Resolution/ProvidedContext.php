@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * A single context value available at an element's position: a provider's key/FQCN plus how it is distributed.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class ProvidedContext

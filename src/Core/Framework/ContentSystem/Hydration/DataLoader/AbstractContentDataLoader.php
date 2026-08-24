@@ -24,8 +24,6 @@ use Symfony\Component\TypeInfo\TypeContext\TypeContextFactory;
  * - ContentDataLoaderResult::cached($data, ...$tags) → Data with cache tags
  * - ContentDataLoaderResult::cachedExternally($data) → Data, tags handled elsewhere
  *
- * @internal
- *
  * @template TData of Struct
  */
 #[Package('framework')]

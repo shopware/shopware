@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Log\Package;
  * A node's slot children are mapped before the node itself, and the node handed to the mapper already
  * carries those mapped children, so whatever the mapper returns is what ends up in the tree. Elements a
  * mapper introduces are not themselves mapped — one pass is one pass.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class RenderedTreeEditor

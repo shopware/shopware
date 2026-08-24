@@ -12,8 +12,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * @internal
- *
  * @final
  */
 #[Package('framework')]

@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Immutable by contract: the mutation subsystem aliases instances by reference, so changing one
  * in place would be unsafe.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class ElementStyle

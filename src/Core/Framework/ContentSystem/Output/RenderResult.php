@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The index is nullable because it is optional output, not because it may be missing: a format that serves
  * property values inline needs no index, and skeleton rendering has no property values to index at all.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class RenderResult

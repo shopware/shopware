@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @internal
- *
  * @extends StoreApiResponse<Struct>
  */
 #[Package('framework')]

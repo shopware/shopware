@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * Describes one type a data loader can produce, together with the config template that produces it. The
  * completion residue (keys the caller must still supply) is derived from the loader's config specification.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class LoaderTypeCapability

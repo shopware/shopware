@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The property key is the shared identifier connecting this type spec to element instances.
  *
- * @internal
- *
  * @phpstan-import-type CopilotSchema from CopilotSpecification
  * @phpstan-import-type PropertySchema from PropertySpecification
  * @phpstan-import-type SlotSchema from SlotSpecification

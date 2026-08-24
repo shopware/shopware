@@ -26,8 +26,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Node-local invariants (numeric wiring keys) throw from the element constructor. Tree-global
  * well-formedness is reported, not thrown: {@see validate()} returns the violations it finds.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class StoredTree

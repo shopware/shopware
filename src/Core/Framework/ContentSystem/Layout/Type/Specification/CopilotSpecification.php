@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- *
  * @phpstan-type CopilotSchema = array{summary: string, hints: list<string>}
  */
 #[Package('framework')]

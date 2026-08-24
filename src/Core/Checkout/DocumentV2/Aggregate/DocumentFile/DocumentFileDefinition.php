@@ -5,15 +5,15 @@ namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -25,6 +25,8 @@ use Shopware\Core\Framework\Log\Package;
  * only exist during rendering are not stored here.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class DocumentFileDefinition extends EntityDefinition
@@ -51,32 +53,18 @@ class DocumentFileDefinition extends EntityDefinition
         return '6.7.10.0';
     }
 
-    /**
-     * TODO: Intentionally disabled default timestamps for now so `createdAt` / `updatedAt` stay
-     * non-ApiAware while `document_file` is still internal.
-     * Remove this override `defaultFields()` and remove explicit timestamp fields
-     * (CreatedAtField, UpdatedAtField) once the public API fields are finalized.
-     */
-    protected function defaultFields(): array
-    {
-        return [];
-    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the document file.'),
 
-            (new FkField('document_id', 'documentId', DocumentDefinition::class))->addFlags(new Required()),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
+            (new FkField('document_id', 'documentId', DocumentDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the document.'),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the media.'),
 
-            (new StringField('document_format', 'documentFormat', 255))->addFlags(new Required()),
+            (new StringField('document_format', 'documentFormat', 255))->addFlags(new ApiAware(), new Required())->setDescription('Document format of the document file.'),
 
             new ManyToOneAssociationField('document', 'document_id', DocumentDefinition::class, 'id', false),
-            new OneToOneAssociationField('media', 'media_id', 'id', MediaDefinition::class),
-
-            new CreatedAtField(),
-            new UpdatedAtField(),
+            (new OneToOneAssociationField('media', 'media_id', 'id', MediaDefinition::class))->addFlags(new RestrictDelete()),
         ]);
     }
 }

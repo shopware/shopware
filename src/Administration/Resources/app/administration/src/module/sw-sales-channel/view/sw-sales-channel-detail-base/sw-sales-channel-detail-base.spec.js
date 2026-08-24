@@ -1280,6 +1280,77 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
     });
 
+    describe('onStorefrontSelectionChange', () => {
+        const storefront = {
+            id: 'storefront-id',
+            languageId: 'french-id',
+            language: { id: 'french-id', name: 'French' },
+            currencyId: 'currency-id',
+        };
+
+        function createLanguagesCollection(ids) {
+            return {
+                has: (id) => ids.includes(id),
+                add: jest.fn(),
+            };
+        }
+
+        async function createStorefrontSelectionWrapper(languages, entity = storefront) {
+            return createWrapper({
+                props: {
+                    salesChannel: {
+                        typeId: PRODUCT_COMPARISON_TYPE_ID,
+                        languages,
+                    },
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => Promise.resolve(entity),
+                            search: () => Promise.resolve([]),
+                        }),
+                    },
+                },
+            });
+        }
+
+        it('should add the storefront language to the sales channel languages', async () => {
+            const languages = createLanguagesCollection([]);
+            const wrapper = await createStorefrontSelectionWrapper(languages);
+
+            wrapper.vm.onStorefrontSelectionChange('storefront-id');
+            await flushPromises();
+
+            expect(wrapper.vm.salesChannel.languageId).toBe('french-id');
+            expect(languages.add).toHaveBeenCalledWith(storefront.language);
+        });
+
+        it('should not add the storefront language when it is already in the languages collection', async () => {
+            const languages = createLanguagesCollection(['french-id']);
+            const wrapper = await createStorefrontSelectionWrapper(languages);
+
+            wrapper.vm.onStorefrontSelectionChange('storefront-id');
+            await flushPromises();
+
+            expect(wrapper.vm.salesChannel.languageId).toBe('french-id');
+            expect(languages.add).not.toHaveBeenCalled();
+        });
+
+        it('should not fail when the storefront language association is not loaded', async () => {
+            const languages = createLanguagesCollection([]);
+            const wrapper = await createStorefrontSelectionWrapper(languages, {
+                ...storefront,
+                language: null,
+            });
+
+            wrapper.vm.onStorefrontSelectionChange('storefront-id');
+            await flushPromises();
+
+            expect(wrapper.vm.salesChannel.languageId).toBe('french-id');
+            expect(languages.add).not.toHaveBeenCalled();
+        });
+    });
+
     it('should build unserved languages alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
         const collection = [

@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -17,7 +17,7 @@ type SessionUser = {
  * @private
  */
 export default class UserConfigService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = '_info/config-me') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = '_info/config-me') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'userConfigService';
     }

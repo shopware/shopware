@@ -19,6 +19,7 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       profile: nightly
+      currents: false
       major: only
   integration-major:
     uses: ./.github/workflows/integration-major.yml
@@ -36,4 +37,4 @@ jobs:
       contents: read
       issues: write
     with:
-      report-title: "[nightly] Nightly Major PHPUnit failures"
+      report-title: "[nightly] Nightly Major test failures"

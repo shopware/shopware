@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -54,6 +55,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-rule',
     ];
 
+    public function __construct(private readonly ServiceMap $serviceMap)
+    {
+    }
+
     public function getNodeType(): string
     {
         return ClassMethod::class;
@@ -61,7 +66,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract() || $node->isMagic()) {
+        if (!($node->isPublic() || $node->isProtected()) || $node->isAbstract()) {
             return [];
         }
 
@@ -81,7 +86,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -172,5 +177,11 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return false;
+    }
+
+    private function isServiceConstructor(ClassMethod $node, ClassReflection $class): bool
+    {
+        return $node->name->toString() === '__construct'
+            && $this->serviceMap->getService($class->getName()) !== null;
     }
 }

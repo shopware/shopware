@@ -469,20 +469,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper = await createWrapper();
 
         const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');
+        const customFields = { customFieldName: 'custom field value' };
 
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-bulk-edit__custom-fields').vm.$emit('change', customFields);
+        await flushPromises();
 
-        await wrapper
-            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change.mt-field--checkbox__container input')
-            .setValue('checked');
-
-        await wrapper.vm.$nextTick();
-
-        expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
+        expect(spyOnCustomFieldsChange).toHaveBeenCalledWith(customFields);
         wrapper.vm.onCustomFieldsChange.mockRestore();
-        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName');
+        expect(wrapper.vm.bulkEditData.customFields.value).toEqual(customFields);
     });
 
     it('should call onChangeDocument when a document field changed is changed', async () => {

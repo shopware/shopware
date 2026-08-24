@@ -44,7 +44,17 @@ final class DocumentArchiveGenerator
         }
 
         try {
-            if (!$this->writeDocumentFiles($archive, $documents, $context)) {
+            $hasFiles = false;
+
+            try {
+                foreach ($documents as $document) {
+                    $hasFiles = $this->writeDocumentFiles($archive, $document, $context) || $hasFiles;
+                }
+            } finally {
+                $archive->close();
+            }
+
+            if (!$hasFiles) {
                 return null;
             }
 
@@ -60,56 +70,30 @@ final class DocumentArchiveGenerator
     }
 
     /**
-     * @return bool whether any files were written to the archive
-     */
-    private function writeDocumentFiles(\ZipArchive $archive, DocumentCollection $documents, Context $context): bool
-    {
-        try {
-            $hasFiles = false;
-
-            // Entry names are unique across the whole archive, so a collision would silently
-            // overwrite a previously added file instead of adding a second one.
-            $entryNames = [];
-
-            foreach ($documents as $document) {
-                $hasFiles = $this->writeDocument($archive, $document, $entryNames, $context) || $hasFiles;
-            }
-
-            return $hasFiles;
-        } finally {
-            $archive->close();
-        }
-    }
-
-    /**
-     * Writes every stored format of a single document, falling back to the documents written by
-     * document generation v1, which kept the media on the document itself instead of in document_file.
-     *
-     * @param array<string, true> $entryNames
-     *
      * @return bool whether any files were written for this document
      */
-    private function writeDocument(
-        \ZipArchive $archive,
-        DocumentEntity $document,
-        array &$entryNames,
-        Context $context,
-    ): bool {
+    private function writeDocumentFiles(\ZipArchive $archive, DocumentEntity $document, Context $context): bool
+    {
         $hasFiles = false;
 
-        // A document can hold the same media both in document_file and in one of the legacy
-        // fields, so it must not be added to the archive twice.
         $mediaIds = [];
-
+        $entryNames = [];
         foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
             $media = $documentFile->getMedia();
-            $entryName = $this->createEntryName($document, $documentFile, $media);
-
-            if (!$this->addFile($archive, $entryName, $media, $entryNames, $context)) {
+            $entryName = $this->createEntryName($documentFile, $media, $document);
+            $normalizedEntryName = strtolower($entryName);
+            if (isset($entryNames[$normalizedEntryName])) {
                 continue;
             }
 
+            $content = $this->loadMediaContent($media, $context);
+
+            if (!$archive->addFromString($entryName, $content)) {
+                throw DocumentV2Exception::documentArchiveFailed();
+            }
+
             $mediaIds[$media->getId()] = true;
+            $entryNames[$normalizedEntryName] = true;
             $hasFiles = true;
         }
 
@@ -123,44 +107,24 @@ final class DocumentArchiveGenerator
                 continue;
             }
 
-            $entryName = $this->createLegacyEntryName($document, $media, $fileExtension);
-
-            if (!$this->addFile($archive, $entryName, $media, $entryNames, $context)) {
+            $entryName = $this->createLegacyEntryName($media, $fileExtension, $document);
+            $normalizedEntryName = strtolower($entryName);
+            if (isset($entryNames[$normalizedEntryName])) {
                 continue;
             }
 
+            $content = $this->loadMediaContent($media, $context);
+
+            if (!$archive->addFromString($entryName, $content)) {
+                throw DocumentV2Exception::documentArchiveFailed();
+            }
+
             $mediaIds[$media->getId()] = true;
+            $entryNames[$normalizedEntryName] = true;
             $hasFiles = true;
         }
 
         return $hasFiles;
-    }
-
-    /**
-     * @param array<string, true> $entryNames
-     *
-     * @return bool whether the file was added, false if the entry name is already taken
-     */
-    private function addFile(
-        \ZipArchive $archive,
-        string $entryName,
-        MediaEntity $media,
-        array &$entryNames,
-        Context $context,
-    ): bool {
-        $normalizedEntryName = strtolower($entryName);
-
-        if (isset($entryNames[$normalizedEntryName])) {
-            return false;
-        }
-
-        if (!$archive->addFromString($entryName, $this->loadMediaContent($media, $context))) {
-            throw DocumentV2Exception::documentArchiveFailed();
-        }
-
-        $entryNames[$normalizedEntryName] = true;
-
-        return true;
     }
 
     private function loadMediaContent(MediaEntity $media, Context $context): string
@@ -171,11 +135,7 @@ final class DocumentArchiveGenerator
         );
     }
 
-    /**
-     * Prefixes every file with the order number, since the same document number can be issued
-     * for different orders and the file name itself is only unique within one order.
-     */
-    private function createEntryName(DocumentEntity $document, DocumentFileEntity $documentFile, MediaEntity $media): string
+    private function createEntryName(DocumentFileEntity $documentFile, MediaEntity $media, DocumentEntity $document): string
     {
         $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($documentFile->getDocumentFormat());
 
@@ -183,34 +143,39 @@ final class DocumentArchiveGenerator
             throw DocumentV2Exception::documentFileExtensionUnavailable($document->getId(), $documentFile->getDocumentFormat());
         }
 
-        return $this->createFileName($document, $media, $fileExtension);
+        $fileName = $media->getFileName() ?? $document->getId();
+
+        return \sprintf('%s_%s.%s', $this->createOrderPrefix($document), $fileName, $fileExtension);
     }
 
-    private function createLegacyEntryName(DocumentEntity $document, MediaEntity $media, string $fileExtension): string
+    private function createLegacyEntryName(MediaEntity $media, string $fileExtension, DocumentEntity $document): string
     {
-        return $this->createFileName($document, $media, $fileExtension);
-    }
-
-    private function createFileName(DocumentEntity $document, MediaEntity $media, string $fileExtension): string
-    {
-        $orderNumber = $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
         $fileName = $media->getFileName() ?: $document->getId();
 
-        return \sprintf('%s_%s.%s', $orderNumber, $fileName, $fileExtension);
+        return \sprintf('%s_%s.%s', $this->createOrderPrefix($document), $fileName, $fileExtension);
+    }
+
+    /**
+     * The same document number can be issued for different orders, so the file name alone is only
+     * unique within one order.
+     */
+    private function createOrderPrefix(DocumentEntity $document): string
+    {
+        return $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
     }
 
     private function createArchiveName(DocumentCollection $documents): string
     {
-        if ($documents->count() === 1) {
-            $document = $documents->first();
-            \assert($document !== null);
-
-            $documentNumber = $document->getConfig()['documentNumber'] ?? null;
-            $fileName = \is_string($documentNumber) && $documentNumber !== '' ? $documentNumber : $document->getId();
-
-            return $fileName . '.zip';
+        if ($documents->count() !== 1) {
+            return 'documents.zip';
         }
 
-        return 'documents.zip';
+        $document = $documents->first();
+        \assert($document !== null);
+
+        $documentNumber = $document->getConfig()['documentNumber'] ?? null;
+        $fileName = \is_string($documentNumber) && $documentNumber !== '' ? $documentNumber : $document->getId();
+
+        return $fileName . '.zip';
     }
 }

@@ -31,9 +31,10 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * property differ only in how wide the opening is: a stored value is a JSON value and a loader value is a
  * `?Struct`, while a delivered context value is whatever a dotted consumer key found on an entity, and a
  * {@see RenderedTreeFinalizationEvent} listener replacing the
- * rendered forest may write anything at all under any key. No producer of a property value on this path may
- * hand over a non-`Struct` object containing a `Struct` anywhere in its object graph; this encoder cannot
- * enforce that, so the extension contract has to carry it.
+ * rendered forest may write anything at all under any key. {@see RenderedElement}'s constructor closes that
+ * opening for all of them: it admits a property value only from a closed domain — scalar, null, arrays
+ * recursively of the same domain, `Struct`, `\DateTimeInterface` and `\BackedEnum` — so a non-`Struct` object
+ * concealing a `Struct` is rejected where it is written rather than published from here.
  *
  * @internal
  *

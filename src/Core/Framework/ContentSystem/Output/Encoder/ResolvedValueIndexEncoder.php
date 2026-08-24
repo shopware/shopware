@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndex;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -28,8 +29,10 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * bar is on whatever produced the value rather than on the subscribers of one event — a
  * {@see RenderedTreeFinalizationEvent} listener writing under
  * {@see ValueOrigin::Injected} is the widest producer, not
- * the only one. No producer of a property value on this path may hand over a non-`Struct` object containing a
- * `Struct` anywhere in its object graph; this encoder cannot enforce that, so the contract has to carry it.
+ * the only one. {@see RenderedElement}'s constructor closes that opening for every one of them: it admits a
+ * property value only from a closed domain — scalar, null, arrays recursively of the same domain, `Struct`,
+ * `\DateTimeInterface` and `\BackedEnum` — so a non-`Struct` object concealing a `Struct` is rejected where it
+ * is written rather than published from here.
  *
  * The index is optional output on the render result, but not for the formats that read it: the pipeline builds
  * one whenever the format asks for it, and both formats reading it always ask. A missing index is therefore a

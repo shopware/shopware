@@ -87,6 +87,7 @@ class ContentSystemException extends HttpException
     public const LOADER_CONFIG_KEY_WITHOUT_PROPERTY = 'CONTENT_SYSTEM__LOADER_CONFIG_KEY_WITHOUT_PROPERTY';
     public const RESOLVED_VALUE_INDEX_MISSING = 'CONTENT_SYSTEM__RESOLVED_VALUE_INDEX_MISSING';
     public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
+    public const UNSUPPORTED_PROPERTY_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_PROPERTY_VALUE_TYPE';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -228,6 +229,21 @@ class ContentSystemException extends HttpException
             self::INVALID_MAP_VALUE,
             '{{ mapType }} value for "{{ key }}" must be {{ expectedType }}, got {{ actualType }}',
             ['mapType' => $mapType, 'key' => $key, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A producer defect rather than client input, so it is a 500 and deliberately absent from
+     * {@see self::CLIENT_DEFECT_CODES}: whatever filled the property handed over a value type the rendered
+     * model does not admit, which no layout a client can send produces on its own.
+     */
+    public static function unsupportedPropertyValueType(string $key, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_PROPERTY_VALUE_TYPE,
+            'Rendered element property "{{ key }}" holds a value of unsupported type {{ actualType }}; permitted are scalars, null, arrays of those, Struct, DateTimeInterface and BackedEnum',
+            ['key' => $key, 'actualType' => $actualType]
         );
     }
 

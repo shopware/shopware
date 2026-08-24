@@ -7,10 +7,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -94,6 +97,25 @@ class RenderedElementTest extends TestCase
     {
         yield 'integer key' => [[0 => 'Hello']];
         yield 'numeric string key' => [['12' => 'Hello']];
+    }
+
+    /**
+     * The whole permitted property value domain, one row per member. `\DateTimeInterface` and `\BackedEnum`
+     * are in it because the bar is concealment rather than objecthood: neither can hold a `Struct` in its
+     * object graph, so neither can carry one past the response encoders' protection gate.
+     *
+     * @return iterable<string, array{mixed}>
+     */
+    public static function permittedPropertyValueProvider(): iterable
+    {
+        yield 'string' => ['Hello'];
+        yield 'integer' => [42];
+        yield 'float' => [1.5];
+        yield 'boolean' => [true];
+        yield 'null' => [null];
+        yield 'struct' => [new StubStruct()];
+        yield 'date time' => [new \DateTimeImmutable('2026-01-01 12:00:00')];
+        yield 'backed enum' => [Breakpoint::Md];
     }
 
     /**
@@ -274,6 +296,88 @@ class RenderedElementTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
 
         $element->withProperty('12', 'Hello');
+    }
+
+    #[TestDox('accepts every permitted property value type at the top level of the property map')]
+    #[DataProvider('permittedPropertyValueProvider')]
+    public function testConstructorAcceptsAPermittedPropertyValue(mixed $value): void
+    {
+        $element = new RenderedElement('element-1', 'core:text', ['payload' => $value]);
+
+        static::assertSame($value, $element->properties['payload']);
+    }
+
+    #[TestDox('accepts every permitted property value type nested inside an array')]
+    #[DataProvider('permittedPropertyValueProvider')]
+    public function testConstructorAcceptsAPermittedPropertyValueNestedInsideAnArray(mixed $value): void
+    {
+        $element = new RenderedElement('element-1', 'core:text', ['payload' => ['rows' => [$value]]]);
+
+        static::assertSame($value, $element->properties['payload']['rows'][0]);
+    }
+
+    /**
+     * The value walk descends into arrays; the numeric-key ban deliberately does not follow it. A nested
+     * array may be a list, whose keys are integers by definition, so folding the two walks together would
+     * make every list-valued property throw.
+     */
+    #[TestDox('accepts a list-valued property, whose integer keys the numeric-key ban does not reach')]
+    public function testConstructorAcceptsAListValuedProperty(): void
+    {
+        $element = new RenderedElement('element-1', 'core:text', ['tags' => ['a', 'b']]);
+
+        static::assertSame(['a', 'b'], $element->properties['tags']);
+    }
+
+    /**
+     * The permitted domain names `\BackedEnum`, not `\UnitEnum`. A pure enum case carries no scalar the
+     * encoder can serialize, so widening the check to `\UnitEnum` would admit a value that reaches the wire
+     * as an empty object. {@see ValueOrigin} is one this module already declares, so the case is a value
+     * that really exists here rather than a fixture invented to fail.
+     */
+    #[TestDox('rejects a pure enum case, which is a UnitEnum but not a BackedEnum')]
+    public function testConstructorRejectsAPureEnumPropertyValue(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::unsupportedPropertyValueType('mode', ValueOrigin::class)
+        );
+
+        new RenderedElement('element-1', 'core:text', ['mode' => ValueOrigin::DeclaredPrimitive]);
+    }
+
+    #[TestDox('rejects a property value that is an object outside the permitted domain')]
+    public function testConstructorRejectsAnUnsupportedObjectPropertyValue(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::unsupportedPropertyValueType('payload', 'stdClass')
+        );
+
+        new RenderedElement('element-1', 'core:text', ['payload' => new \stdClass()]);
+    }
+
+    #[TestDox('rejects an unsupported object however deep inside an array it is buried')]
+    public function testConstructorRejectsAnUnsupportedObjectNestedInsideAnArray(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::unsupportedPropertyValueType('payload', 'stdClass')
+        );
+
+        new RenderedElement('element-1', 'core:text', ['payload' => ['rows' => [['cell' => new \stdClass()]]]]);
+    }
+
+    #[TestDox('reports an unsupported property value as a producer defect, not as a client defect')]
+    public function testUnsupportedPropertyValueIsAProducerDefect(): void
+    {
+        try {
+            new RenderedElement('element-1', 'core:text', ['payload' => new \stdClass()]);
+        } catch (ContentSystemException $exception) {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertFalse(ContentSystemException::isClientDefect($exception));
+
+            return;
+        }
+
+        static::fail('Expected the constructor to reject an unsupported property value');
     }
 
     #[TestDox('accepts a slot holding several rendered elements')]

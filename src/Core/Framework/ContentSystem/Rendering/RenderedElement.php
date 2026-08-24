@@ -8,6 +8,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 
 /**
  * One element as rendering and the Store API see it, and the counterpart to {@see StoredElement} on the far
@@ -23,10 +25,13 @@ use Shopware\Core\Framework\Log\Package;
  * rendering listener transforms a tree with; {@see RenderedTreeEditor} applies one across a whole forest.
  * Unlike the storage model, the constructor carries no mint-site restriction: anything may build one.
  *
- * What the constructor does check is the map keys and the slot shape. A malformed slot map fails far from
- * where it was built — as a `TypeError` inside {@see RenderedTreeEditor} or as a Twig error while a
- * `<twig:Slot>` iterates the children. Property *values* stay unchecked on purpose: they are raw PHP
- * values, hydrated entities included, so there is nothing to check them against.
+ * What the constructor does check is the map keys, the slot shape and the property value domain. A malformed
+ * slot map fails far from where it was built — as a `TypeError` inside {@see RenderedTreeEditor} or as a Twig
+ * error while a `<twig:Slot>` iterates the children. A property value is admitted only if it is a scalar,
+ * null, an array recursively of the same domain, a {@see Struct}, a `\DateTimeInterface` or a `\BackedEnum`;
+ * anything else is rejected as a producer defect. That closes the concealment hole the output encoders
+ * describe: a non-`Struct` object holding a `Struct` somewhere in its object graph would carry that `Struct`
+ * past {@see StructEncoder::encode()}, the framework's protection gate, and publish every field of it.
  */
 #[Package('framework')]
 final readonly class RenderedElement
@@ -43,6 +48,7 @@ final readonly class RenderedElement
         public ElementStyle $style = new ElementStyle(),
     ) {
         $this->rejectNumericPropertyKeys($properties);
+        $this->rejectUnsupportedPropertyValues($properties);
         $this->rejectMalformedSlots($slots);
     }
 
@@ -119,6 +125,52 @@ final readonly class RenderedElement
                 throw ContentSystemException::invalidMapKey('Rendered element property map', 'int');
             }
         }
+    }
+
+    /**
+     * Deliberately a second walk rather than an extension of {@see rejectNumericPropertyKeys()}, which stays
+     * flat over the top-level map: this one descends into nested arrays, and a nested array may be a list
+     * whose keys are integers by definition. The numeric-key ban is about property *names*, so folding the
+     * two together would reject every list-valued property.
+     *
+     * @param array<array-key, mixed> $properties
+     */
+    private function rejectUnsupportedPropertyValues(array $properties): void
+    {
+        foreach ($properties as $key => $value) {
+            $this->rejectUnsupportedPropertyValue((string) $key, $value);
+        }
+    }
+
+    /**
+     * The permitted domain is scalar, null, an array recursively of the same domain, {@see Struct},
+     * `\DateTimeInterface` and `\BackedEnum`; objects are matched by `instanceof`, so a subclass of any of
+     * them is admitted too. The two non-`Struct` object types are in because the bar is concealment rather
+     * than objecthood: neither can hold a `Struct` in its object graph, and both already reach the wire
+     * unchanged, since {@see StructEncoder::encode()} recurses only into a value that is itself a `Struct`
+     * or an array of them and passes every other object through raw.
+     *
+     * The key names the top-level property the value hangs under, at whatever depth the offender sits.
+     */
+    private function rejectUnsupportedPropertyValue(string $key, mixed $value): void
+    {
+        if ($value === null || \is_scalar($value)) {
+            return;
+        }
+
+        if (\is_array($value)) {
+            foreach ($value as $nested) {
+                $this->rejectUnsupportedPropertyValue($key, $nested);
+            }
+
+            return;
+        }
+
+        if ($value instanceof Struct || $value instanceof \DateTimeInterface || $value instanceof \BackedEnum) {
+            return;
+        }
+
+        throw ContentSystemException::unsupportedPropertyValueType($key, get_debug_type($value));
     }
 
     /**

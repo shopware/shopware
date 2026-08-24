@@ -6,6 +6,7 @@ use Shopware\Core\DevOps\Docs\ArrayWriter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -37,6 +38,7 @@ class DocsAppEventCommand extends Command
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly HookableEventCollector $hookableEventCollector,
+        private readonly PolicyRegistry $policies,
         private readonly iterable $hookableEventDescribers,
         private readonly Environment $twig
     ) {
@@ -105,6 +107,11 @@ class DocsAppEventCommand extends Command
         $eventDoc = new ArrayWriter(self::EVENT_DESCRIPTIONS);
 
         foreach ($businessEvents as $event) {
+            // Events no policy permits for a generic subscriber never deliver; don't document them.
+            if (!$this->policies->permitsSubscription($event->getName(), null)) {
+                continue;
+            }
+
             $eventDoc->ensure($event->getName());
 
             $eventsDoc[] = HookableEventDoc::fromBusinessEvent(
@@ -135,6 +142,10 @@ class DocsAppEventCommand extends Command
     {
         foreach ($this->hookableEventDescribers as $describer) {
             foreach ($describer->describe() as $eventDescription) {
+                if (!$this->policies->permitsSubscription($eventDescription->eventName, null)) {
+                    continue;
+                }
+
                 $permissions = $eventDescription->privileges ? '`' . implode('` `', $eventDescription->privileges) . '`' : '-';
 
                 $eventsDoc[] = new HookableEventDoc(

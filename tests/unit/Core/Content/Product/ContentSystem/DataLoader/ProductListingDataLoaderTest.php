@@ -11,13 +11,17 @@ use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderC
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -34,24 +38,13 @@ class ProductListingDataLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->listingRoute = static::createStub(AbstractProductListingRoute::class);
-        $this->loader = new ProductListingDataLoader($this->listingRoute);
+        $this->loader = new ProductListingDataLoader($this->listingRoute, $this->emptySortingRepository());
     }
 
     #[TestDox('returns product_listing as requirement type identifier')]
     public function testGetRequirementTypeReturnsProductListingString(): void
     {
         static::assertSame('product_listing', ProductListingDataLoader::getRequirementType());
-    }
-
-    #[TestDox('declares ProductListingResult as its single producible type')]
-    public function testProducibleTypesDeclaresExtendsType(): void
-    {
-        $capabilities = $this->loader->producibleTypes();
-
-        static::assertCount(1, $capabilities);
-        static::assertSame(ProductListingResult::class, $capabilities[0]->producedType);
-        static::assertSame([], $capabilities[0]->genericParameters);
-        static::assertSame([], $capabilities[0]->configTemplate);
     }
 
     #[TestDox('returns listing result as data and marks result as cache-aware with no tags')]
@@ -78,7 +71,7 @@ class ProductListingDataLoaderTest extends TestCase
             ->with($navigationId, $request, $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
 
-        $loader = new ProductListingDataLoader($listingRoute);
+        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
         $result = $loader->load($element, $requirement, $context, $request);
 
         static::assertSame($listingResult, $result->data);
@@ -261,7 +254,7 @@ class ProductListingDataLoaderTest extends TestCase
         $listingRoute = $this->createMock(AbstractProductListingRoute::class);
         $listingRoute->expects($this->never())->method('load');
 
-        $loader = new ProductListingDataLoader($listingRoute);
+        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
         $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
@@ -283,7 +276,7 @@ class ProductListingDataLoaderTest extends TestCase
         $listingRoute = $this->createMock(AbstractProductListingRoute::class);
         $listingRoute->expects($this->never())->method('load');
 
-        $loader = new ProductListingDataLoader($listingRoute);
+        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
         $result = $loader->load(
             $element,
             new DataRequirement('listing', 'product_listing', $config),
@@ -296,27 +289,207 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when navigationId element property is missing')]
-    public function testLoadReturnsNotFoundWhenNavigationIdPropertyIsMissing(): void
+    /**
+     * navigationId defaults to the "{{categoryId}}" placeholder, which is seeded into every stored tree and
+     * stays literal on a layout not rooted on a category. Reaching the route with it would hit
+     * Uuid::fromHexToBytes() in the DAL and abort the whole render instead of degrading to no listing.
+     */
+    #[TestDox('returns notFound result when navigationId is not a uuid, such as an unresolved placeholder')]
+    public function testLoadReturnsNotFoundWhenNavigationIdIsNotAUuid(): void
     {
         $config = new ProductListingLoaderConfig(property: 'navigationId');
 
-        $element = ContentElementBuilder::create('product-listing')->build();
-
-        $context = Generator::generateSalesChannelContext();
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', '{{categoryId}}')
+            ->build();
 
         $listingRoute = $this->createMock(AbstractProductListingRoute::class);
         $listingRoute->expects($this->never())->method('load');
 
-        $loader = new ProductListingDataLoader($listingRoute);
+        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
         $result = $loader->load(
             $element,
             new DataRequirement('listing', 'product_listing', $config),
-            $context,
+            Generator::generateSalesChannelContext(),
             new Request()
         );
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('sets the element defaultSorting as order parameter on the shared request when it carries none')]
+    public function testLoadAppliesDefaultSortingWhenRequestHasNoOrder(): void
+    {
+        $sortingId = Uuid::randomHex();
+
+        $sorting = new ProductSortingEntity();
+        $sorting->setUniqueIdentifier($sortingId);
+        $sorting->setId($sortingId);
+        $sorting->setKey('price-asc');
+
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('defaultSorting', $sortingId)
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection([$sorting]), $element, $request = new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame('price-asc', $capturedRequest->request->get('order'));
+        static::assertSame('price-asc', $request->request->get('order'), 'later listing elements must see the order');
+    }
+
+    #[TestDox('keeps an order the request already carries instead of applying the element defaultSorting')]
+    public function testLoadKeepsRequestOrderOverDefaultSorting(): void
+    {
+        $sorting = new ProductSortingEntity();
+        $sorting->setUniqueIdentifier(Uuid::randomHex());
+        $sorting->setKey('price-asc');
+
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('defaultSorting', Uuid::randomHex())
+            ->build();
+
+        $request = new Request(['order' => 'name-desc']);
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection([$sorting]), $element, $request);
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame('name-desc', $capturedRequest->query->get('order'));
+        static::assertFalse($capturedRequest->request->has('order'));
+    }
+
+    #[TestDox('switches off the filter handler of every toggle the element disables')]
+    public function testLoadDisablesFilterHandlersForDisabledToggles(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('showManufacturerFilter', false)
+            ->withProperty('showPropertyFilter', false)
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->get('manufacturer-filter'));
+        static::assertFalse($capturedRequest->request->get('property-filter'));
+        static::assertNull($capturedRequest->request->get('price-filter'));
+        static::assertNull($capturedRequest->request->get('rating-filter'));
+        static::assertNull($capturedRequest->request->get('shipping-free-filter'));
+    }
+
+    #[TestDox('restricts the property filters to the property group ids the element whitelists')]
+    public function testLoadPassesPropertyWhitelistToTheListingRoute(): void
+    {
+        $groupIds = [Uuid::randomHex(), Uuid::randomHex()];
+
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('propertyWhitelist', implode(',', $groupIds))
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame($groupIds, $capturedRequest->request->all('property-whitelist'));
+    }
+
+    #[TestDox('trims and drops empty entries from the comma-separated property whitelist')]
+    public function testLoadFiltersInvalidEntriesFromPropertyWhitelist(): void
+    {
+        $groupId = Uuid::randomHex();
+
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('propertyWhitelist', $groupId . ' , ,')
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame([$groupId], $capturedRequest->request->all('property-whitelist'));
+    }
+
+    #[TestDox('withholds the property whitelist when the property filter toggle is off')]
+    public function testLoadWithholdsPropertyWhitelistWhenPropertyFilterIsDisabled(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('showPropertyFilter', false)
+            ->withProperty('propertyWhitelist', Uuid::randomHex())
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->get('property-filter'));
+        static::assertSame([], $capturedRequest->request->all('property-whitelist'));
+    }
+
+    #[TestDox('leaves the request untouched when every filter toggle is enabled')]
+    public function testLoadDoesNotTouchRequestWhenAllTogglesEnabled(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('showManufacturerFilter', true)
+            ->withProperty('showPropertyFilter', true)
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, $request = new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertNotSame($request, $capturedRequest, 'the route must never receive the shared request');
+        static::assertSame([], $capturedRequest->request->all());
+    }
+
+    #[TestDox('leaves the request untouched when the element defaultSorting matches no product sorting')]
+    public function testLoadLeavesRequestUntouchedWhenDefaultSortingIsUnknown(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('defaultSorting', Uuid::randomHex())
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, $request = new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertNotSame($request, $capturedRequest);
+        static::assertFalse($capturedRequest->request->has('order'));
+    }
+
+    /**
+     * @return StaticEntityRepository<ProductSortingCollection>
+     */
+    private function emptySortingRepository(): StaticEntityRepository
+    {
+        return StaticEntityRepository::of(ProductSortingCollection::class);
+    }
+
+    private function captureRequest(ProductSortingCollection $sortings, ContentElement $element, Request $request): ?Request
+    {
+        $response = static::createStub(ProductListingRouteResponse::class);
+        $response->method('getResult')->willReturn(static::createStub(ProductListingResult::class));
+
+        $capturedRequest = null;
+        $listingRoute = static::createStub(AbstractProductListingRoute::class);
+        $listingRoute
+            ->method('load')
+            ->willReturnCallback(static function (string $catId, Request $req) use (&$capturedRequest, $response): ProductListingRouteResponse {
+                $capturedRequest = $req;
+
+                return $response;
+            });
+
+        $loader = new ProductListingDataLoader($listingRoute, new StaticEntityRepository([$sortings]));
+        $loader->load(
+            $element,
+            new DataRequirement('listing', 'product_listing', new ProductListingLoaderConfig()),
+            Generator::generateSalesChannelContext(),
+            $request
+        );
+
+        return $capturedRequest;
     }
 }

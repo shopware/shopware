@@ -10,9 +10,18 @@
     availableSortings = null,
     filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
     showLayoutSwitch = true,
+    showPriceFilter = true,
+    showRatingFilter = true,
+    showManufacturerFilter = true,
+    showShippingFreeFilter = true,
+    showPropertyFilter = true,
+    showSorting = true,
     visibleFilterCount = 3,
     slots = [],
     displayType = 'inline',
+    navigationId = null,
+    propertyWhitelist = null,
+    defaultSorting = null,
 %}
 
 {% set totalCount = totalCount ?? listing.total ?? 0 %}
@@ -126,10 +135,15 @@
     {% if shippingFreeAggregation is not null and shippingFreeAggregation.max > 0 %}
         {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
 
-        <twig:Sw:Filter:Type:BooleanFilter
-            name="shipping-free"
-            :displayName="shippingFreeFilterName">
-        </twig:Sw:Filter:Type:BooleanFilter>
+        <twig:Sw:Filter:Item
+            :filterName="shippingFreeFilterName"
+            :displayType="displayType"
+        >
+            <twig:Sw:Filter:Type:BooleanFilter
+                name="shipping-free"
+                :displayName="shippingFreeFilterName">
+            </twig:Sw:Filter:Type:BooleanFilter>
+        </twig:Sw:Filter:Item>
     {% endif %}
 {% endset %}
 
@@ -192,7 +206,7 @@
                 {{ 'listing.resultCount'|trans({ '%count%': totalCount })|sw_sanitize }}
             </span>
 
-            {% if availableSortings and availableSortings.elements and availableSortings.elements|length > 0 %}
+            {% if showSorting and availableSortings and availableSortings.elements and availableSortings.elements|length > 0 %}
                 <twig:Sw:Filter:Sorting :currentSorting="currentSorting" :sortings="availableSortings.elements" />
             {% endif %}
 

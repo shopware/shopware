@@ -18,6 +18,12 @@
           "shadow": "Schatten",
           "background": "Hintergrund"
         }
+      },
+      "sw-filter-panel": {
+        "panels": {
+          "filter": "Filter",
+          "sorting": "Sortierung"
+        }
       }
     },
     "list": {

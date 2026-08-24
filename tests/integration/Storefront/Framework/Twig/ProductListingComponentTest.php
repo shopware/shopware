@@ -27,7 +27,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ProductListingComponentTest extends TestCase
 {
     use IntegrationTestBehaviour;

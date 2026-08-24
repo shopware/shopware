@@ -342,6 +342,17 @@
                             @update:value="onUpdateField(field.key, $event)"
                         />
 
+                        <sw-entity-multi-id-select
+                            v-else-if="getControlType(field.property) === 'entity-multi' && getEntityRepository(field.property)"
+                            v-bind="getControlProps(field.property)"
+                            :repository="getEntityRepository(field.property)"
+                            :label="field.property.title"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :value="getIdListValue(field.key, field.property)"
+                            :disabled="!allowEdit || undefined"
+                            @update:value="onUpdateIdList(field.key, $event)"
+                        />
+
                         <sw-media-field
                             v-else-if="getControlType(field.property) === 'media'"
                             v-bind="getControlProps(field.property)"

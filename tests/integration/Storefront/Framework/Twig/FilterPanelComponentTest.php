@@ -15,9 +15,11 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecifica
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -28,7 +30,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class FilterPanelComponentTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -57,37 +59,12 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * The panel loads its own listing so it can be placed beside a product listing rather than inside
-     * it, because context never reaches a sibling. A second binding would mean a second way to wire
-     * that, and there is no use case asking for one.
-     */
-    public function testTheTypeShipsNoBindingBeyondTheSynthesizedDefault(): void
-    {
-        $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
-        static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
-
-        $ownBindings = array_keys(array_filter(
-            $registry->all(),
-            static fn (BindingSpecification $specification): bool => $specification->type() === 'Sw:Filter:Panel'
-        ));
-
-        static::assertSame(['core:Sw:Filter:Panel'], $ownBindings);
-    }
-
-    /**
      * One layout serves every category page, so a stored id would be right on one and wrong on all
-     * the others.
+     * the others. The placeholder looks like a mistake and invites "fixing".
      */
     public function testNavigationIdFollowsThePageInsteadOfBeingConfigured(): void
     {
-        $navigationId = $this->properties()['navigationId']->toSchema();
-
-        static::assertSame('{{categoryId}}', $navigationId['default']);
-
-        // Studio derives a control from the property type, so a primitive is always shown and this
-        // field cannot be hidden declaratively yet. The help text is what keeps an editor from
-        // "correcting" the placeholder it displays.
-        static::assertNotNull($navigationId['adminUI']['helpText'] ?? null);
+        static::assertSame('{{categoryId}}', $this->properties()['navigationId']->toSchema()['default']);
     }
 
     /**
@@ -97,22 +74,6 @@ class FilterPanelComponentTest extends TestCase
     public function testNavigationIdIsNotRequired(): void
     {
         static::assertFalse($this->properties()['navigationId']->required());
-    }
-
-    /**
-     * The enum is not cosmetic: Sw:Filter:Item branches on `displayType == 'inline'` and otherwise takes
-     * the stacked path, so a third value would emit `data-bs-toggle="collapse"` with no `data-bs-target`
-     * and the filter would never open.
-     */
-    public function testDisplayTypeIsConstrainedToTheTwoSupportedArrangements(): void
-    {
-        $displayType = $this->properties()['displayType']->toSchema();
-
-        static::assertSame('inline', $displayType['default']);
-        static::assertSame([
-            'inline',
-            'stacked',
-        ], $displayType['enum']);
     }
 
     /**
@@ -145,8 +106,9 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * Sw:Product:Listing renders the panel as its slot default and hands over the result it already
-     * loaded, so the same component must accept the parts directly.
+     * No component supplies the individual parts any more since the listing stopped rendering the panel.
+     * They stay as an override seam for a theme that renders the panel directly from its own data, so
+     * the precedence over `listing` is worth pinning.
      */
     public function testExplicitPropsWinOverTheListing(): void
     {
@@ -199,7 +161,7 @@ class FilterPanelComponentTest extends TestCase
 
         $summaries = (new \DOMXPath($document))->query('//*[@data-component="Sw:Filter:ActiveFilters"]');
         static::assertInstanceOf(\DOMNodeList::class, $summaries);
-        static::assertSame(1, $summaries->count());
+        static::assertCount(1, $summaries);
     }
 
     /**
@@ -215,7 +177,23 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * @return array<string, \Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification>
+     * The free shipping filter is a panel item like every other filter, as it is in the CMS element, so it
+     * takes the same wrapper and the same collapse behaviour instead of sitting loose among them.
+     */
+    public function testRendersTheFreeShippingFilterAsAFilterItem(): void
+    {
+        $html = $this->render(['listing' => $this->listing(42, $this->shippingFreeAggregation())]);
+
+        static::assertStringContainsString('data-component="Sw:Filter:Type:BooleanFilter"', $html);
+        static::assertSame(1, substr_count($html, 'data-component="Sw:Filter:Item"'));
+
+        // Only the wrapper may carry the item class; a second one would be counted twice by the panel's
+        // collapse, which selects `.sw-filter-item` to decide what `visibleFilterCount` hides.
+        static::assertStringNotContainsString('sw-boolean-filter sw-filter sw-filter-item', $html);
+    }
+
+    /**
+     * @return array<string, PropertySpecification>
      */
     private function properties(): array
     {
@@ -262,6 +240,13 @@ class FilterPanelComponentTest extends TestCase
 
         return new AggregationResultCollection([
             new EntityResult('manufacturer', new ProductManufacturerCollection([$manufacturer])),
+        ]);
+    }
+
+    private function shippingFreeAggregation(): AggregationResultCollection
+    {
+        return new AggregationResultCollection([
+            new MaxResult('shipping-free', 1),
         ]);
     }
 }

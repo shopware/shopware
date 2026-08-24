@@ -62,6 +62,8 @@ export type SettingsFieldDefinition = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    inject: ['repositoryFactory'],
+
     props: {
         fields: {
             type: Array as PropType<SettingsFieldDefinition[]>,
@@ -523,6 +525,34 @@ export default Shopware.Component.wrapComponentConfig({
             const entity = property.adminUI?.entity;
 
             return typeof entity === 'string' && entity.length > 0 ? entity : null;
+        },
+
+        getEntityRepository(property: ContentSystemElementTypeProperty): unknown {
+            const entity = this.getEntityName(property);
+
+            return entity === null ? null : this.repositoryFactory.create(entity as keyof EntitySchema.Entities);
+        },
+
+        /**
+         * Id lists are stored comma-separated because the element type system has no list type.
+         */
+        getIdListValue(key: string, property: ContentSystemElementTypeProperty): string[] {
+            const value = this.getPropertyValue(key, property);
+
+            if (typeof value !== 'string' || value === '') {
+                return [];
+            }
+
+            return value
+                .split(',')
+                .map((id) => id.trim())
+                .filter((id) => id.length > 0);
+        },
+
+        onUpdateIdList(key: string, ids: unknown): void {
+            const value = Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string') : [];
+
+            this.onUpdateField(key, value.join(','));
         },
 
         getControlProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {

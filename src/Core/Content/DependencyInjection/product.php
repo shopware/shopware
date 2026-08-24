@@ -878,6 +878,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductListingDataLoader::class)
         ->args([
             service(ProductListingRoute::class),
+            service('product_sorting.repository'),
         ])
         ->tag('content_system.data_loader');
 

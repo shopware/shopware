@@ -42,6 +42,8 @@
 /storefront/component/line-item/type/generic.html.twig
 /storefront/component/line-item/type/container.html.twig
 /storefront/component/product/card/box-standard.html.twig
+# @deprecated tag:v6.8.0 - Will be removed when footer is updated to use list elements
+/storefront/layout/footer/footer.html.twig
 
 # break statement in for loop is not vanilla twig
 # this should be fixed with: https://shopware.atlassian.net/browse/NEXT-39634

@@ -223,8 +223,13 @@ abstract class EntityDefinition
         }
 
         foreach ($this->extensions as $extension) {
-            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields
-            $extension->modifyFields(new FieldCollection($fields));
+            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields.
+            // Key by property name so extensions can look fields up via FieldCollection::get().
+            $modifiable = new FieldCollection();
+            foreach ($fields as $field) {
+                $modifiable->set($field->getPropertyName(), $field);
+            }
+            $extension->modifyFields($modifiable);
         }
 
         $this->fields = $fields->compile($this->registry);

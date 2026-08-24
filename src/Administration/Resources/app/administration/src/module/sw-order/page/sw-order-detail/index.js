@@ -257,6 +257,10 @@ export default {
     },
 
     beforeUnmount() {
+        // Deselecting happens here and not in `beforeRouteLeave`, because leaving while editing
+        // is confirmed through the leave page warning, which resumes the navigation on its own.
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+
         this.beforeDestroyComponent();
     },
 
@@ -264,10 +268,11 @@ export default {
         if (this.isOrderEditing) {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
-        } else {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
-            next();
+
+            return;
         }
+
+        next();
     },
 
     created() {

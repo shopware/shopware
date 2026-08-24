@@ -113,7 +113,7 @@ async function createWrapper({
                     create: () => ({
                         search: () => Promise.resolve([promotionData]),
                         get: () => Promise.resolve([promotionData]),
-                        create: () => {},
+                        create: () => ({ id: 'newPromotionId' }),
                     }),
                 },
                 feature: {
@@ -142,6 +142,50 @@ async function createWrapper({
 }
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
+    afterEach(() => {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should select the displayed promotion for app action buttons', async () => {
+        await createWrapper({ promotionId: 'promotionId' });
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            'promotionId',
+        ]);
+    });
+
+    it('should select the new promotion for app action buttons when navigating to another promotion', async () => {
+        const wrapper = await createWrapper({ promotionId: 'promotionId' });
+        await flushPromises();
+
+        await wrapper.setProps({ promotionId: 'otherPromotionId' });
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            'otherPromotionId',
+        ]);
+    });
+
+    it('should deselect the promotion for app action buttons when creating a new promotion', async () => {
+        const wrapper = await createWrapper({ promotionId: 'promotionId' });
+        await flushPromises();
+
+        await wrapper.setProps({ promotionId: null });
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
+    it('should deselect the promotion for app action buttons when leaving the detail page', async () => {
+        const wrapper = await createWrapper({ promotionId: 'promotionId' });
+        await flushPromises();
+
+        wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm);
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
     it('should disable the save button when privilege does not exist', async () => {
         global.activeAclRoles = [];
 

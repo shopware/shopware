@@ -6,8 +6,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- *
  * @final
  */
 #[Package('framework')]

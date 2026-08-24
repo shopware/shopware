@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
  * decode()/encode() cycle to carry real values (e.g. structural config comparison) rather than the fixed empty
  * shape {@see StubLoaderConfig} returns.
  *
- * @internal
- *
  * @final
  */
 #[Package('framework')]

@@ -20,8 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
  * it never raises `UnfilledRequiredInput`. Tagged `content_system.data_loader` in services_test.php. It produces
  * `MediaEntity` so it can wire onto the shipped `Sw:Media:Image` type's required `media` reference.
  *
- * @internal
- *
  * @final
  *
  * @extends AbstractContentDataLoader<MediaEntity>

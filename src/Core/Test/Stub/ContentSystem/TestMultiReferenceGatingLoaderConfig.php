@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
  * The config object of {@see TestMultiReferenceGatingLoader}: an entity name, two required property references, and
  * one optional defaulted property reference. Its `jsonSerialize()` is the encode form the `UnfilledRequiredInput`
  * rule reads.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class TestMultiReferenceGatingLoaderConfig extends AbstractContentDataLoaderConfig

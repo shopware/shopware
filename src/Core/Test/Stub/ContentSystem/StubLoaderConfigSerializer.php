@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
  * Encodes {@see StubLoaderConfig}, for the tests whose element carries a requirement whose config the render
  * path has to hash. The source is `entity`, the source those fixtures declare.
  *
- * @internal
- *
  * @final
  */
 #[Package('framework')]

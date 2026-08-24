@@ -234,6 +234,13 @@ class InternalClassRule implements Rule
     {
         $namespace = $node->getClassReflection()->getName();
 
+        if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
+            // Test stub classes are public builders by design, as isTestClass() already encodes.
+            // This exempts them from the namespace requirement only; a stub extending an
+            // @internal abstract still has to be @internal or @final.
+            return null;
+        }
+
         foreach (self::INTERNAL_NAMESPACES as $internalNamespace) {
             if (\str_contains($namespace, $internalNamespace)) {
                 return $internalNamespace;

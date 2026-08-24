@@ -24,8 +24,6 @@ use Symfony\Component\HttpFoundation\Request;
  * synthesis, the derived `required` flag, and per-key `UnfilledRequiredInput` gating, with zero changes to
  * `Binding/` or `Diagnostics/`.
  *
- * @internal
- *
  * @final
  *
  * @extends AbstractContentDataLoader<MediaEntity>

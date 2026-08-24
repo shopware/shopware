@@ -19,8 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * The storage-side test terminal: it takes raw PHP property values and wraps them through
  * {@see StoredValue::fromDecoded()}, so a test never has to spell out the wrapping by hand.
  *
- * @internal
- *
  * @final
  */
 #[Package('framework')]

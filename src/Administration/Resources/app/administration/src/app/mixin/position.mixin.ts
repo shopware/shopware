@@ -9,6 +9,8 @@ import { defineComponent } from 'vue';
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-position`; change both together.
  */
 export default Shopware.Mixin.register(
     'position',

@@ -661,15 +661,6 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
-### Detail page action buttons target the displayed record
-
-Action buttons registered for `view="detail"` now receive the id of the record currently on screen. Previously the id in `data.ids` could point at a record that was no longer displayed, so an action triggered during that window acted on the wrong record. This affects the following detail pages:
-
-* **Customer** - the id kept pointing at the previously opened customer until the new customer's data had finished loading, for example when navigating between customers through the admin search bar.
-* **Promotion** - opening the create page kept the id of the promotion viewed before it.
-* **Order** - leaving the page while the order had unsaved changes kept the id of that order.
-* **CMS layout** - navigating from one layout to another kept the id of the layout viewed before it.
-
 ## Hosting & Configuration
 
 ### Local translation files and optional automatic updates

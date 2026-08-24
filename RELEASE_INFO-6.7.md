@@ -8,7 +8,7 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
-# 6.7.14.0
+# 6.7.14.0 (upcoming)
 
 ## Features
 

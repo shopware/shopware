@@ -5,6 +5,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import type { SourceMap } from 'rollup';
@@ -30,12 +31,14 @@ type ProbeResult = {
     base: ProbeSide;
     override: ProbeSide;
 };
+type HotUpdateModule = { id: string };
 type CallableSetupPlugin = {
     name: string;
     enforce: string;
     resolveId(source: string, importer: string): Promise<string | null>;
     load(id: string): Promise<LoadedModule | null>;
     transform(code: string, id: string): Promise<LoadedModule | null>;
+    hotUpdate(options: { file: string; modules: HotUpdateModule[]; type: string }): HotUpdateModule[] | undefined;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
     generateBundle: unknown;
 };
@@ -56,6 +59,41 @@ async function createVueFile(source: string, fileName = 'component.vue') {
     await fs.writeFile(vueFile, source);
 
     return vueFile;
+}
+
+/**
+ * Copies a fixture directory to a temp root and runs its `probe.ts` through jiti, returning the JSON it
+ * prints. Runs in a separate node process on purpose: the probe drives a real Vite build, which cannot
+ * run inside Jest's CJS sandbox. jiti transpiles the TypeScript probe on the fly on every supported
+ * node version (native type stripping only exists from v22.6+, the admin supports >= 20).
+ */
+async function runFixtureProbe<TResult>(fixtureName: string, tempPrefix: string): Promise<TResult> {
+    const fixtureDirectory = path.join(__dirname, 'fixtures', fixtureName);
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), tempPrefix));
+
+    await fs.cp(fixtureDirectory, root, { recursive: true });
+
+    const jitiDir = path.dirname(require.resolve('jiti/package.json'));
+    const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
+        bin: { jiti: string };
+    };
+    const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
+    const { stdout } = await execFileAsync(
+        process.execPath,
+        [
+            jitiBin,
+            path.join(root, 'probe.ts'),
+        ],
+        {
+            cwd: process.cwd(),
+            env: {
+                ...process.env,
+                SHOPWARE_ADMIN_ROOT: process.cwd(),
+            },
+        },
+    );
+
+    return JSON.parse(stdout) as TResult;
 }
 
 async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
@@ -130,16 +168,65 @@ const count = 1;
 swDefinePublic({ count });
 </script>`;
         const vueFile = await createVueFile(source, 'sw-cached-component.vue');
-        const transformSpy = jest.spyOn(fs, 'readFile');
+        // The plugin loads the shared transform through node's own require, which shares node's module
+        // cache with this createRequire - so spying on the cached module's export intercepts the
+        // plugin's calls.
+        const nodeRequire = createRequire(path.join(process.cwd(), 'package.json'));
+        const transformModule = nodeRequire(path.join(process.cwd(), 'build/vue-setup-transform/index.js')) as {
+            transformShopwareSetupSfc: (code: string, fileName: string) => unknown;
+        };
+        const transformSpy = jest.spyOn(transformModule, 'transformShopwareSetupSfc');
 
         const { loaded } = await resolveAndLoadVueFile(plugin, vueFile);
 
-        // resolveId + load together read (and therefore transform) the source exactly once; the second
-        // pass is served from the resolveId cache.
+        // resolveId + load together transform the source exactly once; load re-reads the file only to
+        // verify the stash is still current and then serves the resolveId result.
         expect(loaded).toHaveProperty('code');
-        expect(transformSpy.mock.calls.filter(([file]) => file === vueFile)).toHaveLength(1);
+        expect(
+            transformSpy.mock.calls.filter(
+                ([
+                    ,
+                    fileName,
+                ]) => fileName === vueFile,
+            ),
+        ).toHaveLength(1);
 
         transformSpy.mockRestore();
+    });
+
+    it('serves the current file content when the file changed after resolveId stashed its transform', async () => {
+        const plugin = createPlugin();
+        const vueFile = await createVueFile(
+            `<script setup>
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+            'sw-stale-stash-component.vue',
+        );
+        const context = {
+            resolve: jest.fn().mockResolvedValue({ id: vueFile }),
+        };
+        const resolvedId = await plugin.resolveId.call(
+            context,
+            `./${path.basename(vueFile)}`,
+            path.join(path.dirname(vueFile), 'entry.js'),
+        );
+
+        // The edit lands between resolveId (which stashes a transform of the old content) and load.
+        // This is the dev-server shape of issue #19469: Vite's import-analysis re-resolves the watched
+        // original file after every transform of the virtual module, and that stash then sits through
+        // the user's next edit - serving it made every edit arrive one save late.
+        await fs.writeFile(
+            vueFile,
+            `<script setup>
+const countEdited = 2;
+swDefinePublic({ countEdited });
+</script>`,
+        );
+
+        const loaded = await plugin.load.call({ addWatchFile: jest.fn() }, resolvedId as string);
+
+        expect(loaded?.code).toContain('countEdited');
     });
 
     it('delegates .override.vue files to the shared override transform', async () => {
@@ -252,37 +339,80 @@ swDefinePublic({ count });
         );
     });
 
+    describe('hot updates', () => {
+        function createHotUpdateContext(knownVirtualIds: string[]) {
+            return {
+                environment: {
+                    moduleGraph: {
+                        getModuleById: jest.fn((id: string) => (knownVirtualIds.includes(id) ? { id } : undefined)),
+                    },
+                },
+            };
+        }
+
+        it('maps a changed .vue file to its virtual module so the dev server invalidates it', () => {
+            const plugin = createPlugin();
+            const virtualId = '/example/sw-my-component.vue.shopware-setup.vue';
+            const context = createHotUpdateContext([virtualId]);
+            const otherModule = { id: '/example/other-module.ts' };
+
+            // Vite computes hot updates purely from `moduleGraph.getModulesByFile(<changed file>)`, and
+            // resolveId substitutes the virtual id before the real file can ever become a module - so
+            // without this mapping an edit invalidated nothing and the dev server kept serving the stale
+            // transform until it was restarted (issue #19469).
+            const result = plugin.hotUpdate.call(context, {
+                file: '/example/sw-my-component.vue',
+                modules: [otherModule],
+                type: 'update',
+            });
+
+            // The modules Vite already considers affected stay in the list; the virtual module is
+            // appended, not substituted.
+            expect(result).toEqual([
+                otherModule,
+                { id: virtualId },
+            ]);
+        });
+
+        it('leaves a .vue file alone that was never redirected to a virtual module', () => {
+            const plugin = createPlugin();
+            const context = createHotUpdateContext([]);
+
+            // A plain SFC without Shopware setup macros stays a real module; @vitejs/plugin-vue handles
+            // its hot update natively.
+            const result = plugin.hotUpdate.call(context, {
+                file: '/example/PlainComponent.vue',
+                modules: [],
+                type: 'update',
+            });
+
+            expect(result).toBeUndefined();
+        });
+
+        it('does not map a virtual module id onto itself', () => {
+            const plugin = createPlugin();
+            const context = createHotUpdateContext([]);
+
+            // The fixed point of the mapping: a change event for the virtual id itself must not be mapped
+            // to `<id>.shopware-setup.vue.shopware-setup.vue`.
+            const result = plugin.hotUpdate.call(context, {
+                file: '/example/sw-my-component.vue.shopware-setup.vue',
+                modules: [],
+                type: 'update',
+            });
+
+            expect(result).toBeUndefined();
+            expect(context.environment.moduleGraph.getModuleById).not.toHaveBeenCalled();
+        });
+    });
+
     it('maps the written sourcemap back to the authored SFCs, for base and override alike', async () => {
         expect.hasAssertions();
 
-        const fixtureDirectory = path.join(__dirname, 'fixtures/sourcemap-composition');
-        const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-map-'));
-
-        await fs.cp(fixtureDirectory, root, { recursive: true });
-
-        // Run the TypeScript probe through jiti's CLI rather than `node probe.ts` directly: node only
-        // strips types natively from v22.6+/v23.6, but the admin supports node >= 20, so native execution
-        // would break there. jiti transpiles on the fly on every supported node.
-        const jitiDir = path.dirname(require.resolve('jiti/package.json'));
-        const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
-            bin: { jiti: string };
-        };
-        const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
-        const { stdout } = await execFileAsync(
-            process.execPath,
-            [
-                jitiBin,
-                path.join(root, 'probe.ts'),
-            ],
-            {
-                cwd: process.cwd(),
-                env: {
-                    ...process.env,
-                    SHOPWARE_ADMIN_ROOT: process.cwd(),
-                },
-            },
+        const { sources, loweredSourceCount, base, override } = await runFixtureProbe<ProbeResult>(
+            'sourcemap-composition',
+            'sw-setup-vite-map-',
         );
-        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is
         // serialized from the emitted asset, so asserting on the chunk object hid a bug where every

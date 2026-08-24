@@ -9,6 +9,8 @@ const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
 /**
  * @private
  * @sw-package discovery
+ *
+ * Duplicated in `src/app/composables/use-cms-element-deprecated`; change both together.
  */
 export default Mixin.register(
     'cms-element',

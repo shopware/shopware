@@ -75,6 +75,18 @@ class Cart extends Struct
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
     }
 
+    public function __clone()
+    {
+        // cart errors extend \Exception and cannot be cloned - the clone shares the error instances instead,
+        // matching how the cart processor carries persistent errors over into recalculated carts
+        $errors = $this->errors;
+        $this->errors = new ErrorCollection();
+
+        parent::__clone();
+
+        $this->errors = new ErrorCollection($errors->getElements());
+    }
+
     public function getToken(): string
     {
         return $this->token;

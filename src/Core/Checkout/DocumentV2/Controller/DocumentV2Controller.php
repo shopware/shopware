@@ -13,10 +13,10 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolv
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
@@ -61,6 +61,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly EntityRepository $documentTypeRepository,
         private readonly MediaService $mediaService,
         private readonly FileNameProvider $fileNameProvider,
+        private readonly DocumentFileResolver $documentFileResolver,
     ) {
     }
 
@@ -180,12 +181,9 @@ final class DocumentV2Controller extends AbstractController
                 'orderVersionId' => $this->requirePayloadString($payload, 'orderVersionId'),
                 'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
                 'documentMediaFileId' => $mediaId,
-                'referencedDocumentId' => $payload->getString('referencedDocumentId') ?: null,
                 'static' => true,
                 'deepLinkCode' => $deepLinkCode,
                 'config' => [
-                    'documentComment' => $payload->getString('documentComment'),
-                    'documentDate' => $payload->getString('documentDate') ?: null,
                     'documentNumber' => $payload->getString('documentNumber'),
                 ],
             ],
@@ -224,29 +222,30 @@ final class DocumentV2Controller extends AbstractController
             throw DocumentV2Exception::documentNotFound($documentId);
         }
 
-        $media = $this->findMediaByFormat($document, $format);
-
-        if (!$media instanceof MediaEntity) {
+        $resolvedFile = $this->documentFileResolver->resolve($document, $format);
+        if ($resolvedFile === null) {
             throw DocumentV2Exception::documentFormatUnavailable($documentId, $format);
         }
 
-        $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($format);
-
-        if ($fileExtension === null) {
-            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format);
+        $fileExtension = $resolvedFile->fileExtension;
+        if ($fileExtension === '') {
+            $fileExtension = $this->documentRendererRegistry->getFileExtension($format);
+            if ($fileExtension === null) {
+                throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format);
+            }
         }
 
         $content = $context->scope(
             Context::SYSTEM_SCOPE,
-            fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),
+            fn (Context $scopedContext): string => $this->mediaService->loadFile($resolvedFile->media->getId(), $scopedContext),
         );
 
-        $fileName = ($media->getFileName() ?? $documentId) . '.' . $fileExtension;
+        $fileName = $resolvedFile->fileName . '.' . $fileExtension;
 
         return $this->createResponse(
             $fileName,
             $content,
-            $media->getMimeType() ?? 'application/octet-stream',
+            $resolvedFile->mimeType,
             HeaderUtils::DISPOSITION_ATTACHMENT,
         );
     }
@@ -284,24 +283,16 @@ final class DocumentV2Controller extends AbstractController
     private function loadDocument(string $documentId, Context $context): ?DocumentEntity
     {
         $criteria = (new Criteria([$documentId]))
-            ->addAssociation('documentFiles.media');
+            ->addAssociations([
+                'documentFiles.media',
+                'documentMediaFile',
+                'documentA11yMediaFile',
+                'documentType',
+            ]);
 
         $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
 
         return $document instanceof DocumentEntity ? $document : null;
-    }
-
-    private function findMediaByFormat(DocumentEntity $document, string $format): ?MediaEntity
-    {
-        foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
-            if ($documentFile->getDocumentFormat() !== $format) {
-                continue;
-            }
-
-            return $documentFile->getMedia();
-        }
-
-        return null;
     }
 
     /**

@@ -66,15 +66,51 @@ final class DocumentArchiveGenerator
         try {
             $hasFiles = false;
 
+            $mediaIds = [];
+            $entryNames = [];
             foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
                 $media = $documentFile->getMedia();
                 $entryName = $this->createEntryName($documentFile, $media, $document->getId());
+                $normalizedEntryName = strtolower($entryName);
+                if (isset($entryNames[$normalizedEntryName])) {
+                    continue;
+                }
+
                 $content = $this->loadMediaContent($media, $context);
 
                 if (!$archive->addFromString($entryName, $content)) {
                     throw DocumentV2Exception::documentArchiveFailed();
                 }
 
+                $mediaIds[$media->getId()] = true;
+                $entryNames[$normalizedEntryName] = true;
+                $hasFiles = true;
+            }
+
+            foreach ([$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()] as $media) {
+                if ($media === null || isset($mediaIds[$media->getId()])) {
+                    continue;
+                }
+
+                $fileExtension = $media->getFileExtension();
+                if ($fileExtension === null || $fileExtension === '') {
+                    continue;
+                }
+
+                $entryName = $this->createLegacyEntryName($media, $fileExtension, $document->getId());
+                $normalizedEntryName = strtolower($entryName);
+                if (isset($entryNames[$normalizedEntryName])) {
+                    continue;
+                }
+
+                $content = $this->loadMediaContent($media, $context);
+
+                if (!$archive->addFromString($entryName, $content)) {
+                    throw DocumentV2Exception::documentArchiveFailed();
+                }
+
+                $mediaIds[$media->getId()] = true;
+                $entryNames[$normalizedEntryName] = true;
                 $hasFiles = true;
             }
 
@@ -101,6 +137,13 @@ final class DocumentArchiveGenerator
         }
 
         $fileName = $media->getFileName() ?? $documentId;
+
+        return \sprintf('%s.%s', $fileName, $fileExtension);
+    }
+
+    private function createLegacyEntryName(MediaEntity $media, string $fileExtension, string $documentId): string
+    {
+        $fileName = $media->getFileName() ?: $documentId;
 
         return \sprintf('%s.%s', $fileName, $fileExtension);
     }

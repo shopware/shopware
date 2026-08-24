@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductFeatureSetEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductFeatureSetCollection extends EntityCollection

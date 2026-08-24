@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -241,6 +242,38 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertInstanceOf(Context::class, $context);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
+    }
+
+    public function testContextUsesQueueIndexingWhenRequested(): void
+    {
+        $context = $this->resolveContextWithIndexingBehavior(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+
+        static::assertTrue($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
+        static::assertFalse($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
+    }
+
+    public function testContextDisablesIndexingWhenRequested(): void
+    {
+        $context = $this->resolveContextWithIndexingBehavior(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        static::assertTrue($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
+        static::assertFalse($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
+    }
+
+    public function testContextKeepsSynchronousIndexingWhenBehaviorIsNotProvided(): void
+    {
+        $context = $this->resolveContextWithIndexingBehavior();
+
+        static::assertFalse($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
+        static::assertFalse($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
+    }
+
+    public function testContextIgnoresUnsupportedIndexingBehavior(): void
+    {
+        $context = $this->resolveContextWithIndexingBehavior('unsupported');
+
+        static::assertFalse($context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
+        static::assertFalse($context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
     }
 
     public function testResolveAdminSourceAddsDefaultUserPrivileges(): void
@@ -1100,5 +1133,25 @@ class ApiRequestContextResolverTest extends TestCase
         );
 
         return $accessKey;
+    }
+
+    private function resolveContextWithIndexingBehavior(?string $behavior = null): Context
+    {
+        $user = $this->createUser([], true);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+        if ($behavior !== null) {
+            $request->headers->set(PlatformRequest::HEADER_INDEXING_BEHAVIOR, $behavior);
+        }
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+
+        return $context;
     }
 }

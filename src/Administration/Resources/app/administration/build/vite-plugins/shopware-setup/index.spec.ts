@@ -61,41 +61,6 @@ async function createVueFile(source: string, fileName = 'component.vue') {
     return vueFile;
 }
 
-/**
- * Copies a fixture directory to a temp root and runs its `probe.ts` through jiti, returning the JSON it
- * prints. Runs in a separate node process on purpose: the probe drives a real Vite build, which cannot
- * run inside Jest's CJS sandbox. jiti transpiles the TypeScript probe on the fly on every supported
- * node version (native type stripping only exists from v22.6+, the admin supports >= 20).
- */
-async function runFixtureProbe<TResult>(fixtureName: string, tempPrefix: string): Promise<TResult> {
-    const fixtureDirectory = path.join(__dirname, 'fixtures', fixtureName);
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), tempPrefix));
-
-    await fs.cp(fixtureDirectory, root, { recursive: true });
-
-    const jitiDir = path.dirname(require.resolve('jiti/package.json'));
-    const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
-        bin: { jiti: string };
-    };
-    const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
-    const { stdout } = await execFileAsync(
-        process.execPath,
-        [
-            jitiBin,
-            path.join(root, 'probe.ts'),
-        ],
-        {
-            cwd: process.cwd(),
-            env: {
-                ...process.env,
-                SHOPWARE_ADMIN_ROOT: process.cwd(),
-            },
-        },
-    );
-
-    return JSON.parse(stdout) as TResult;
-}
-
 async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
     const context = {
         resolve: jest.fn().mockResolvedValue({ id: vueFile }),
@@ -400,10 +365,34 @@ swDefinePublic({ count });
     it('maps the written sourcemap back to the authored SFCs, for base and override alike', async () => {
         expect.hasAssertions();
 
-        const { sources, loweredSourceCount, base, override } = await runFixtureProbe<ProbeResult>(
-            'sourcemap-composition',
-            'sw-setup-vite-map-',
+        const fixtureDirectory = path.join(__dirname, 'fixtures/sourcemap-composition');
+        const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-map-'));
+
+        await fs.cp(fixtureDirectory, root, { recursive: true });
+
+        // Run the TypeScript probe through jiti's CLI rather than `node probe.ts` directly: node only
+        // strips types natively from v22.6+/v23.6, but the admin supports node >= 20, so native execution
+        // would break there. jiti transpiles on the fly on every supported node.
+        const jitiDir = path.dirname(require.resolve('jiti/package.json'));
+        const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
+            bin: { jiti: string };
+        };
+        const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
+        const { stdout } = await execFileAsync(
+            process.execPath,
+            [
+                jitiBin,
+                path.join(root, 'probe.ts'),
+            ],
+            {
+                cwd: process.cwd(),
+                env: {
+                    ...process.env,
+                    SHOPWARE_ADMIN_ROOT: process.cwd(),
+                },
+            },
         );
+        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is
         // serialized from the emitted asset, so asserting on the chunk object hid a bug where every

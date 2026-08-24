@@ -111,8 +111,10 @@
                     <label
                         class="sw-settings-shopware-updates-method-option sw-settings-shopware-updates-method-option--cli"
                         :class="{ 'is--selected': isCliUpdateSelected }"
+                        for="sw-settings-shopware-updates-method-cli"
                     >
                         <input
+                            id="sw-settings-shopware-updates-method-cli"
                             v-model="chosenUpdateMethod"
                             class="sw-settings-shopware-updates-method-option__input"
                             type="radio"
@@ -169,8 +171,10 @@
                     <label
                         class="sw-settings-shopware-updates-method-option sw-settings-shopware-updates-method-option--web"
                         :class="{ 'is--selected': !isCliUpdateSelected }"
+                        for="sw-settings-shopware-updates-method-web"
                     >
                         <input
+                            id="sw-settings-shopware-updates-method-web"
                             v-model="chosenUpdateMethod"
                             class="sw-settings-shopware-updates-method-option__input"
                             type="radio"

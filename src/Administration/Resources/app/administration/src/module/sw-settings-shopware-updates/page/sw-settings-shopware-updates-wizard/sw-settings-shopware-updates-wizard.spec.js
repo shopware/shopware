@@ -385,8 +385,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
 
     it('continuing with the recommended CLI method does not start the web installer', async () => {
         wrapper.vm.requirements = [];
-
-        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        wrapper.vm.updateModalShown = true;
         await flushPromises();
 
         expect(wrapper.vm.chosenUpdateMethod).toBe('cli');
@@ -404,10 +403,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     });
 
     it('shows plugin deactivation options only for the web installer', async () => {
-        wrapper.vm.requirements = [];
         wrapper.vm.plugins = [{ statusName: 'incompatible' }];
-
-        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        wrapper.vm.updateModalShown = true;
         await flushPromises();
 
         expect(wrapper.find('sw-radio-field-stub').exists()).toBe(false);
@@ -419,15 +416,15 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     });
 
     it('disables continue until a backup is confirmed', async () => {
-        wrapper.vm.requirements = [];
-
-        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        wrapper.vm.updateModalShown = true;
         await flushPromises();
 
         expect(wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled')).toBeDefined();
 
         await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
 
-        expect(wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled')).toBeUndefined();
+        expect(
+            wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled'),
+        ).toBeUndefined();
     });
 });

@@ -375,6 +375,15 @@ This affects every write path, not just Settings > Shop > SEO:
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
+### Newsletter route methods keep the `StoreApiResponse` return type
+
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
+`StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
+This withdraws the return type change announced with 6.7.9.0.
+
+A decorator that puts its logic in these methods answers with the response containing the `status`
+field, and keeps working on 6.8, where the deprecated `subscribe()`, `confirm()` and `unsubscribe()`
+are removed. Those are still required in 6.7 and have to answer with `NoContentResponse`.
 ### Admin search falls back to the database for entities without an Elasticsearch admin indexer
 
 With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` silently returned no results for entities that have no admin search indexer, because those entities were dropped from the request. They are now searched over the DAL instead, so an entity registered in the Administration search (`searchTypeService.upsertType()` or a module `defaultSearchConfiguration`) is findable without shipping an indexer. Registering an `AbstractAdminIndexer` for the entity is still the faster option.
@@ -424,6 +433,13 @@ A few things to know before you start:
 * **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
 
 Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
+
+### SFC migration codemod now emits native setup components
+
+The `codemod:sfc-migration` developer tool has been rewritten to output the native setup SFC format (`<script setup>` with `swDefinePublic`) instead of the previous `createExtendableSetup()` form, which the build toolchain no longer accepts. The default remains a read-only preview; `--write` creates validated Vue drafts only. Replacing an eligible legacy entry point requires the separate explicit `--replace-originals` option, and Twig templates are retained.
+
+What changed for users of the tool: every generated file must pass the build transform and Vue's compiler before it is written; components that convert only partially receive a `.vue` draft with `TODO(sfc-migration)` comments while their original `index.js` + `.html.twig` stay in place and keep working; components using `mixins` or `Component.extend()` are skipped and reported instead of receiving an Options API `<script>` fallback, which the build now rejects. See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md`.
+
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)

@@ -65,10 +65,15 @@ class TestPackageMatchRuleTest extends RuleTestCase
         $this->analyse([self::FIXTURE_DIR . '/UnpackagedCoveredFixture.php'], []);
     }
 
-    #[TestDox('skips tests outside the core unit and integration suites, like the migration suite')]
-    public function testMigrationSuiteNotEnforced(): void
+    #[TestDox('compares migration tests against their covered class')]
+    public function testMigrationSuiteEnforced(): void
     {
-        $this->analyse([self::FIXTURE_DIR . '/MigrationSuiteFixture.php'], []);
+        $this->analyse([self::FIXTURE_DIR . '/MigrationSuiteFixture.php'], [
+            [
+                'The #[Package(\'framework\')] attribute of this test does not match the covered Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TestPackageMatchRule\Covered\CheckoutService (checkout)',
+                10,
+            ],
+        ]);
     }
 
     #[TestDox('skips tests of downstream repositories, which carry their own package taxonomy')]

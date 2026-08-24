@@ -334,7 +334,7 @@ describe('core/service/documentV2.service.ts', () => {
         ],
         [
             'foo',
-            'foo',
+            'sw-order.components.createDocumentModal.fileFormats.foo',
         ],
     ])('should get correct file format snippet', (fileFormat, expectedSnippet) => {
         const documentV2Service = new DocumentV2Service();
@@ -361,7 +361,7 @@ describe('core/service/documentV2.service.ts', () => {
         ],
         [
             'foo',
-            'foo',
+            'sw-order.components.createDocumentModal.documentTypes.foo',
         ],
     ])('should get correct document type snippet', (documentType, expectedSnippet) => {
         const documentV2Service = new DocumentV2Service();

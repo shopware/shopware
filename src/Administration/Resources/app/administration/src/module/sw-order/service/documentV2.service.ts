@@ -190,7 +190,7 @@ export default class DocumentV2Service {
             } as Record<string, string>
         )[format];
 
-        return translationKey ?? format;
+        return translationKey ?? `sw-order.components.createDocumentModal.fileFormats.${format}`;
     }
 
     public getDocumentTypeSnippet(technicalName: string): string {
@@ -204,6 +204,6 @@ export default class DocumentV2Service {
             } as Record<string, string>
         )[technicalName];
 
-        return translationKey ?? technicalName;
+        return translationKey ?? `sw-order.components.createDocumentModal.documentTypes.${technicalName}`;
     }
 }

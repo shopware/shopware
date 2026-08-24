@@ -270,6 +270,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                             });
                         },
                     },
+                    documentV2Service: {},
+                    documentV2ApiService: {
+                        getAvailableTypes: () => Promise.resolve({ documentTypes: {} }),
+                    },
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
@@ -799,6 +803,52 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
             },
         });
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+    });
+
+    function setInvoiceFileFormats(fileFormats) {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'invoice',
+            value: {
+                documentDate: '',
+                documentComment: null,
+                forceDocumentCreation: false,
+                fileFormats,
+            },
+        });
+    }
+
+    it('should disable the save action when a selected document generation type has no file formats', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+
+        setInvoiceFileFormats([]);
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
+
+        setInvoiceFileFormats(['pdf']);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+
+        global.activeFeatureFlags = [];
+    });
+
+    it('should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+
+        setInvoiceFileFormats([]);
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+        await wrapper.vm.$nextTick();
+
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
     });
 

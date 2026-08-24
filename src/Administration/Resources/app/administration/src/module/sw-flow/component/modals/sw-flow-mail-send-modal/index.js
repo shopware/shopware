@@ -23,7 +23,6 @@ export default {
         'repositoryFactory',
         'validationApiService',
         'documentV2Service',
-        'documentV2ApiService',
     ],
 
     emits: [
@@ -355,8 +354,7 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2ApiService.getAvailableTypes();
-                this.supportedDocumentTypes = response.documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,

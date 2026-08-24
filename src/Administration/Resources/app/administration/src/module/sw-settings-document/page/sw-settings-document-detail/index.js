@@ -365,7 +365,6 @@ export default {
         'feature',
         'customFieldDataProviderService',
         'documentV2Service',
-        'documentV2ApiService',
     ],
 
     mixins: [
@@ -631,9 +630,7 @@ export default {
         },
 
         async loadAvailableDocumentTypes() {
-            const response = await this.documentV2ApiService.getAvailableTypes();
-
-            this.availableDocumentTypes = response.documentTypes;
+            this.availableDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
         },
 
         async onChangeType(documentType) {

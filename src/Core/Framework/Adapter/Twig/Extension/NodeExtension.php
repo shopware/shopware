@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TokenParser\TokenParserInterface;
@@ -19,10 +21,8 @@ class NodeExtension extends AbstractExtension
     /**
      * @internal
      */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'finder', newType: TemplateFinderInterface::class)]
     public function __construct(
-        /**
-         * @deprecated tag:v6.8.0 - Replace TemplateFinder with TemplateFinderInterface
-         */
         private readonly TemplateFinder $finder,
         private readonly TemplateScopeDetector $templateScopeDetector,
     ) {

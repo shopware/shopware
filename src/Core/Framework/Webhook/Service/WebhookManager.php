@@ -106,10 +106,9 @@ class WebhookManager implements ResetInterface
             $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
 
             if ($messages !== []) {
-                /** @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $forceSynchronous will be removed; lifecycle events will go async with retries */
                 $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
 
-                $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent);
+                Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent));
             }
 
             return;

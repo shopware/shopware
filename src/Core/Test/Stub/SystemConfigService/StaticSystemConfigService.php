@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Test\Stub\SystemConfigService;
 
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -25,9 +26,7 @@ class StaticSystemConfigService extends SystemConfigService
         return $this->lookupValue($this->config, $key);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Parameter $silent will be added in v6.8.0, default will be true
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         if ($salesChannelId) {
@@ -39,9 +38,7 @@ class StaticSystemConfigService extends SystemConfigService
         $this->config[$key] = $value;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Parameter $silent will be added in v6.8.0, default will be true
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         foreach ($values as $k => $v) {

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -31,10 +33,10 @@ abstract class AbstractNewsletterSubscribeRoute
     abstract public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become abstract with NewsletterSubscribeRouteResponse return type in v6.8.0.
-     *
      * @return StoreApiResponse<covariant Struct>
      */
+    #[BecomesAbstract(version: 'v6.8.0')]
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: NewsletterSubscribeRouteResponse::class)]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse
     {
         Feature::triggerDeprecationOrThrow(

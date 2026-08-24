@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -46,9 +47,7 @@ class PropertyGroupCollection extends EntityCollection
         });
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - The method will require a locale code parameter in v6.8.0.0.
-     */
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'localeCode', parameterType: 'string')]
     public function sortByConfig(/* string $localeCode = 'en_GB' */): void
     {
         $localeCode = \func_num_args() === 1 ? func_get_arg(0) : 'en_GB';

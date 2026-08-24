@@ -17,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -122,28 +123,15 @@ class WebhookDeliveryServiceTest extends TestCase
         static::assertCount(0, $this->bus->getMessages());
     }
 
-    public function testProcessDeliversBatchSynchronouslyWhenForceSynchronous(): void
+    public function testProcessRejectsDeprecatedForceSynchronousParameter(): void
     {
         $msg = $this->createMessage();
-        $webhookRequest = $this->createWebhookRequest();
-
-        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
-        $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
-            ->with(static::isInstanceOf(OutboxInsert::class))
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
-        $this->webhookOutboxStore->expects($this->never())->method('markRunning');
-
-        $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
-
-        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
-            ->willReturn(true);
-        $this->webhookHealthService->expects($this->once())->method('resetErrorCount');
-        $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService(isAdminWorkerEnabled: false);
-        $service->process([$msg], forceSynchronous: true);
 
-        static::assertCount(0, $this->bus->getMessages());
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: $forceSynchronous is deprecated and all deliveries become asynchronous in v6.8.0.'));
+
+        $service->process([$msg], forceSynchronous: true);
     }
 
     public function testDeliverSuccessfulCallsMarkSuccessAndResetsErrorCount(): void

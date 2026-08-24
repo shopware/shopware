@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
@@ -42,11 +43,11 @@ class CustomerZipCode extends Constraint
     /**
      * @param ?array{countryId?: ?string, caseSensitiveCheck?: bool} $options
      *
-     * @deprecated tag:v6.8.0 - Parameter $options will be removed
      * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck and $countryId access modifier will be changed to protected, please use getters instead
      * @deprecated tag:v6.8.0 - Parameter $caseSensitiveCheck, $countryId, $message and $messageRequired properties will be natively typed as constructor property promotion
      */
     #[HasNamedArguments]
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
     public function __construct(
         $options = null,
         bool $caseSensitiveCheck = true,

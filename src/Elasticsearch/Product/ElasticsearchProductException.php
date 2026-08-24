@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Product;
 
 use OpenSearch\Common\Exceptions\BadRequest400Exception;
 use OpenSearch\Exception\BadRequestHttpException;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -25,9 +26,7 @@ class ElasticsearchProductException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - $previous will only accept BadRequestHttpException
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'previous', newType: BadRequestHttpException::class)]
     public static function cannotChangeFieldType(BadRequest400Exception|BadRequestHttpException $previous): self
     {
         if ($previous instanceof BadRequest400Exception) {
@@ -46,9 +45,7 @@ class ElasticsearchProductException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - $previous will only accept BadRequestHttpException
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'previous', newType: BadRequestHttpException::class)]
     public static function cannotChangeCustomFieldType(BadRequest400Exception|BadRequestHttpException $previous): self
     {
         if ($previous instanceof BadRequest400Exception) {

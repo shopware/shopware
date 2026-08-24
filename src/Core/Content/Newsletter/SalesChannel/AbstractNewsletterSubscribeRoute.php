@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
-use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -33,7 +32,6 @@ abstract class AbstractNewsletterSubscribeRoute
      * @return StoreApiResponse<covariant Struct>
      */
     #[BecomesAbstract(version: 'v6.8.0', description: 'Implement it in your decorator; subscribe() is removed.')]
-    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: NewsletterSubscribeRouteResponse::class)]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse
     {
         Feature::triggerDeprecationOrThrow(

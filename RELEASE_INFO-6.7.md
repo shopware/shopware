@@ -2,6 +2,10 @@
 
 ## Core
 
+### Concurrent sitemap generation is skipped gracefully again
+
+`sitemap:generate` (without `--force`) no longer aborts with `CONTENT__SITEMAP_ALREADY_LOCKED` when another process is currently generating the sitemap of the same sales channel and language — the affected channel is skipped with an error message and the command continues, as originally intended. The generation lock now throws `Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException` (extending `SitemapException`, error code and HTTP status unchanged). The never-thrown `Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException` is deprecated and will be removed in v6.8.0 — catch `SitemapAlreadyLockedException` instead.
+
 ### Customer imports validate customer number patterns
 
 Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.

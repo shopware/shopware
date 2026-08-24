@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
@@ -58,7 +58,7 @@ class SitemapRoute extends AbstractSitemapRoute
 
         try {
             $this->generateSitemap($context, true);
-        } catch (AlreadyLockedException) {
+        } catch (SitemapAlreadyLockedException) {
             // Silent catch, lock couldn't be acquired. Some other process already generates the sitemap.
         }
 

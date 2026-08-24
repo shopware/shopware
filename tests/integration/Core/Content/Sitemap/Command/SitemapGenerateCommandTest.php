@@ -14,7 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -93,5 +95,49 @@ class SitemapGenerateCommandTest extends TestCase
 
         $input = new ArrayInput([]);
         $this->command->run($input, new NullOutput());
+    }
+
+    public function testContinuesWhenSitemapGenerationIsLocked(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM sales_channel');
+
+        $storefrontId = Uuid::randomHex();
+        $this->createSalesChannel([
+            'id' => $storefrontId,
+            'name' => 'storefront',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://valid.test',
+            ]],
+        ]);
+
+        // hold the lock like a concurrently running generation would
+        $cache = static::getContainer()->get('cache.system');
+        $lockKey = \sprintf('sitemap-exporter-running-%s-%s', $storefrontId, Defaults::LANGUAGE_SYSTEM);
+        $lock = $cache->getItem($lockKey);
+        $lock->set(true);
+        $cache->save($lock);
+
+        $command = new SitemapGenerateCommand(
+            static::getContainer()->get('sales_channel.repository'),
+            static::getContainer()->get(SitemapExporter::class),
+            static::getContainer()->get(SalesChannelContextFactory::class),
+            $this->createMock(EventDispatcher::class)
+        );
+
+        $output = new BufferedOutput();
+
+        try {
+            $status = $command->run(new ArrayInput([]), $output);
+        } finally {
+            $cache->deleteItem($lockKey);
+        }
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertStringContainsString('ERROR: Cannot acquire lock', $output->fetch());
     }
 }

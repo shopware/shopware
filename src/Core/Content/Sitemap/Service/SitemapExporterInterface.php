@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Service;
 
-use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
+use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -17,7 +17,7 @@ interface SitemapExporterInterface
     public const STRATEGY_LIVE = 3;
 
     /**
-     * @throws AlreadyLockedException
+     * @throws SitemapException
      */
     public function generate(SalesChannelContext $context, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult;
 }

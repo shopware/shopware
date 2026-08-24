@@ -331,6 +331,7 @@
       "labelShowHistoryModal": "Statusverlauf anzeigen",
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
+      "labelCustomer": "Kunde",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
       "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
@@ -471,6 +472,7 @@
       "modalTitle": "Statusverlauf",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Kunde",
       "column": {
         "createdAt": "Datum",
         "entity": "Geändert",

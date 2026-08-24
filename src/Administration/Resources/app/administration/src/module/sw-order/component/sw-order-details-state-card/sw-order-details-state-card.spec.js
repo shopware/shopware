@@ -53,7 +53,15 @@ orderMock.deliveries.first = () => ({
     },
 });
 
-async function createWrapper() {
+const lastStateChangeByAdminUser = {
+    user: {
+        firstName: 'John',
+        lastName: 'Doe',
+    },
+    createdAt: new Date(),
+};
+
+async function createWrapper(lastStateChange = lastStateChangeByAdminUser) {
     return mount(await wrapTestComponent('sw-order-details-state-card', { sync: true }), {
         props: {
             order: orderMock,
@@ -88,15 +96,7 @@ async function createWrapper() {
                             search: () => {
                                 if (entity === 'state_machine_history') {
                                     return Promise.resolve({
-                                        first: () => {
-                                            return {
-                                                user: {
-                                                    firstName: 'John',
-                                                    lastName: 'Doe',
-                                                },
-                                                createdAt: new Date(),
-                                            };
-                                        },
+                                        first: () => lastStateChange,
                                     });
                                 }
 
@@ -136,11 +136,11 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
         Shopware.Store.unregister('swOrderDetail');
         Shopware.Store.register({
             id: 'swOrderDetail',
-            state: {
+            state: () => ({
                 isLoading: false,
                 isSavedSuccessful: false,
                 versionContext: {},
-            },
+            }),
         });
     });
 
@@ -154,5 +154,33 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
 
         expect(summary.text()).toBe('John Doe');
         expect(summary.findComponent('.sw-time-ago').props('date')).toEqual(new Date(170363865609544));
+    });
+
+    it('should show the customer as author when the state was changed from the storefront', async () => {
+        global.repositoryFactoryMock.showError = false;
+
+        const wrapper = await createWrapper({
+            sourceType: 'sales-channel',
+            createdAt: new Date(),
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.sw-order-detail-state-card__state-history-text').text()).toBe(
+            'sw-order.stateCard.labelCustomer',
+        );
+    });
+
+    it('should fall back to the system author for internal state changes', async () => {
+        global.repositoryFactoryMock.showError = false;
+
+        const wrapper = await createWrapper({
+            sourceType: 'system',
+            createdAt: new Date(),
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.sw-order-detail-state-card__state-history-text').text()).toBe(
+            'sw-order.stateCard.labelSystemUser',
+        );
     });
 });

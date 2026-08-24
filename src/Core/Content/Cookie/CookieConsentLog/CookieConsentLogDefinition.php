@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Cookie\CookieConsentLog;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -60,6 +62,18 @@ class CookieConsentLogDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.7.13.0';
+    }
+
+    /**
+     * The per field WriteProtected flags below only cover fields sent in a write payload,
+     * which a delete request has none of. This entity level protection also rejects
+     * deletes, so recorded consent cannot be removed through the API. Reads stay allowed.
+     */
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([
+            new WriteProtection(Context::SYSTEM_SCOPE),
+        ]);
     }
 
     protected function defineFields(): FieldCollection

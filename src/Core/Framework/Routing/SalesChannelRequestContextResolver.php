@@ -96,8 +96,9 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     }
 
     /**
-     * Last resort before a brand new token is minted: a same-origin caller that sent the storefront
-     * session cookie but no `sw-context-token` header continues the shopper's storefront context.
+     * Last resort before a brand new token is minted: a same-origin caller that declared
+     * `sw-context-source: session` and sent the storefront session cookie but no `sw-context-token`
+     * header continues the shopper's storefront context.
      *
      * The token is put on the request headers, so every downstream consumer - context service, cart,
      * rotation - sees exactly what it would have seen for a client sent token, and the request is

@@ -23,9 +23,9 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
- * Store API requests resolve their context token from the storefront session when the caller sends
- * the session cookie but no `sw-context-token` header, and token rotations are written back into
- * that session.
+ * Store API requests resolve their context token from the storefront session when the caller opts
+ * in via `sw-context-source: session` and sends the session cookie but no `sw-context-token`
+ * header, and token rotations are written back into that session.
  *
  * @internal
  *
@@ -197,6 +197,104 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
     }
 
+    public function testRotationMigratesTheSessionId(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+        $rotatedToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $session = $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+
+        $initialId = $session->getId();
+        static::assertSame(self::SESSION_ID, $initialId);
+
+        $this->respondWith($request, $rotatedToken);
+
+        $migratedId = $session->getId();
+        static::assertNotSame(
+            self::SESSION_ID,
+            $migratedId,
+            'a token rotation is a privilege boundary: a pre-planted session ID must not survive it'
+        );
+        static::assertSame(
+            $migratedId,
+            $session->get('sessionId'),
+            'the sessionId key mirrors the current ID, like the storefront keeps it after login'
+        );
+        static::assertSame($rotatedToken, $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    /**
+     * @return iterable<string, array{0: string|null}>
+     */
+    public static function missingOptInProvider(): iterable
+    {
+        yield 'no sw-context-source header at all' => [null];
+        yield 'an unrecognized sw-context-source value' => ['token'];
+    }
+
+    #[DataProvider('missingOptInProvider')]
+    public function testWithoutTheOptInHeaderATokenLessRequestKeepsItsClassicSemantics(?string $contextSource): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest(sessionOptIn: false);
+        if ($contextSource !== null) {
+            $request->headers->set(PlatformRequest::HEADER_CONTEXT_SOURCE, $contextSource);
+        }
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+
+        static::assertNotSame(
+            $sessionToken,
+            $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
+            'without the explicit opt-in a token-less request must get a fresh throwaway context, never the shoppers session'
+        );
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+    }
+
+    public function testACookieThatDoesNotResumeASessionIsIgnored(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        // What strict mode does for native sessions: an unknown cookie value ends up on a session
+        // with a freshly minted ID instead of resuming one.
+        $this->attachSession(
+            $request,
+            [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken],
+            cookieValue: 'a-stale-or-forged-session-id'
+        );
+
+        $this->resolve($request);
+
+        static::assertNotSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+    }
+
+    public function testSharedCacheableRoutesNeverConsultTheSession(): void
+    {
+        $sessionToken = Random::getAlphanumericString(32);
+
+        $request = $this->createStoreApiRequest();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
+
+        $this->resolve($request);
+
+        static::assertNotSame(
+            $sessionToken,
+            $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
+            'the store-api cache is keyed on headers and ignores cookies, so a cacheable route must stay cookie independent'
+        );
+        static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
+        static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+    }
+
     public function testAForeignHeaderTokenCannotRepointTheSession(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
@@ -230,11 +328,18 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
     }
 
-    private function createStoreApiRequest(?string $contextToken = null): Request
+    private function createStoreApiRequest(?string $contextToken = null, bool $sessionOptIn = true): Request
     {
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        if ($sessionOptIn) {
+            $request->headers->set(
+                PlatformRequest::HEADER_CONTEXT_SOURCE,
+                SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION
+            );
+        }
 
         if ($contextToken !== null) {
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
@@ -246,9 +351,13 @@ class SessionContextTokenResolutionTest extends TestCase
     /**
      * @param array<string, string> $data
      */
-    private function attachSession(Request $request, array $data): SessionInterface
+    private function attachSession(Request $request, array $data, string $cookieValue = self::SESSION_ID): SessionInterface
     {
-        $session = new Session(new MockArraySessionStorage());
+        $storage = new MockArraySessionStorage();
+        // The accessor only trusts a session whose ID matches the cookie that resumed it, exactly
+        // like a strict-mode native session.
+        $storage->setId(self::SESSION_ID);
+        $session = new Session($storage);
 
         foreach ($data as $key => $value) {
             $session->set($key, $value);
@@ -256,7 +365,7 @@ class SessionContextTokenResolutionTest extends TestCase
 
         $request->setSession($session);
         // The cookie is what tells the resolver an existing session may be resumed.
-        $request->cookies->set($this->sessionName, self::SESSION_ID);
+        $request->cookies->set($this->sessionName, $cookieValue);
 
         return $session;
     }
@@ -282,12 +391,17 @@ class SessionContextTokenResolutionTest extends TestCase
         $response = new Response();
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $responseToken);
 
-        $this->syncListener->onResponse(new ResponseEvent(
+        $event = new ResponseEvent(
             static::getContainer()->get('kernel'),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
-        ));
+        );
+
+        // The two handlers run at different kernel.response priorities in production; invoking
+        // them in that order mirrors the event dispatch.
+        $this->syncListener->syncSession($event);
+        $this->syncListener->enforceCacheControl($event);
 
         return $response;
     }

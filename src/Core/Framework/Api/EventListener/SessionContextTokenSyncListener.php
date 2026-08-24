@@ -31,10 +31,18 @@ class SessionContextTokenSyncListener implements EventSubscriberInterface
     use RouteScopeCheckTrait;
 
     /**
+     * Runs after ResponseHeaderListener (0) has mirrored the rotated context token onto the
+     * response, but before AbstractSessionListener (-1000): that listener only saves the session
+     * and attaches the migrated session cookie to the response while the session is still open,
+     * so the write-back (which regenerates the session ID) has to happen before it.
+     */
+    private const PRIORITY_SYNC = -500;
+
+    /**
      * Runs after CacheResponseSubscriber::setResponseCache (-1500), which removes and rewrites
      * Cache-Control wholesale. Only a lower priority can have the final say on the header.
      */
-    private const PRIORITY = -1600;
+    private const PRIORITY_CACHE_CONTROL = -1600;
 
     /**
      * @internal
@@ -49,12 +57,13 @@ class SessionContextTokenSyncListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::RESPONSE => [
-                ['onResponse', self::PRIORITY],
+                ['syncSession', self::PRIORITY_SYNC],
+                ['enforceCacheControl', self::PRIORITY_CACHE_CONTROL],
             ],
         ];
     }
 
-    public function onResponse(ResponseEvent $event): void
+    public function syncSession(ResponseEvent $event): void
     {
         $request = $event->getRequest();
 
@@ -66,12 +75,19 @@ class SessionContextTokenSyncListener implements EventSubscriberInterface
             return;
         }
 
-        $response = $event->getResponse();
+        $this->syncRotatedToken($request, $event->getResponse());
+    }
 
-        $this->syncRotatedToken($request, $response);
+    public function enforceCacheControl(ResponseEvent $event): void
+    {
+        $request = $event->getRequest();
+
+        if (!$this->isRequestScoped($request, StoreApiRouteScope::class)) {
+            return;
+        }
 
         if ($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION)) {
-            $this->denySharedCache($response);
+            $this->denySharedCache($event->getResponse());
         }
     }
 

@@ -60,6 +60,16 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         return productEntity;
     }
 
+    function createProductEntityWithListingConfig(originConfig, variantListingConfig = originConfig) {
+        const productEntity = entityFactory.create('product', 'product-123');
+
+        productEntity.getOrigin().variantListingConfig = originConfig;
+        productEntity.getDraft().variantListingConfig = originConfig;
+        productEntity.variantListingConfig = variantListingConfig;
+
+        return productEntity;
+    }
+
     it('should not filter variants with positive or negative prices', async () => {
         const expectedCreateQueue = [
             {
@@ -859,6 +869,97 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             expect(syncSpy).not.toHaveBeenCalled();
             expect(result).toBeUndefined();
+
+            syncSpy.mockRestore();
+        });
+    });
+    describe('saveVariantListingConfig', () => {
+        it('should apply the main product default for completely new variant products', async () => {
+            const newProduct = JSON.parse(JSON.stringify(product));
+            newProduct.variantListingConfig = null;
+
+            await new Promise((resolve) => {
+                variantsGenerator.once('queues', resolve);
+                variantsGenerator.generateVariants(currencies, newProduct);
+            });
+
+            expect(newProduct.variantListingConfig).toEqual({ displayParent: true });
+        });
+
+        it('should resolve immediately when product is missing', async () => {
+            variantsGenerator.product = null;
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync');
+
+            const result = await variantsGenerator.saveVariantListingConfig();
+
+            expect(result).toBeUndefined();
+            expect(syncSpy).not.toHaveBeenCalled();
+
+            syncSpy.mockRestore();
+        });
+
+        it('should resolve immediately when the variant listing config is not set', async () => {
+            variantsGenerator.product = createProductEntityWithListingConfig(null);
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync');
+
+            const result = await variantsGenerator.saveVariantListingConfig();
+
+            expect(result).toBeUndefined();
+            expect(syncSpy).not.toHaveBeenCalled();
+
+            syncSpy.mockRestore();
+        });
+
+        it('should upsert the variant listing config default applied during the generation', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+            const variantListingConfig = { displayParent: true };
+
+            variantsGenerator.product = createProductEntityWithListingConfig(null, variantListingConfig);
+
+            await variantsGenerator.saveVariantListingConfig();
+
+            expect(syncSpy).toHaveBeenCalledWith(
+                [
+                    {
+                        entity: 'product',
+                        action: 'upsert',
+                        payload: [
+                            {
+                                id: 'product-123',
+                                variantListingConfig,
+                            },
+                        ],
+                    },
+                ],
+                {},
+                { 'single-operation': 1 },
+            );
+
+            const calledConfig = syncSpy.mock.calls[0][0][0].payload[0].variantListingConfig;
+            expect(calledConfig).not.toBe(variantListingConfig);
+
+            syncSpy.mockRestore();
+        });
+
+        it('should resolve immediately when the variant listing config did not change', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = createProductEntityWithListingConfig({
+                displayParent: null,
+                mainVariantId: null,
+                configuratorGroupConfig: [
+                    {
+                        id: 'group-1',
+                        representation: 'box',
+                        expressionForListings: true,
+                    },
+                ],
+            });
+
+            const result = await variantsGenerator.saveVariantListingConfig();
+
+            expect(result).toBeUndefined();
+            expect(syncSpy).not.toHaveBeenCalled();
 
             syncSpy.mockRestore();
         });

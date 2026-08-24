@@ -8,8 +8,11 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -24,16 +27,38 @@ class HoneypotCaptchaTest extends TestCase
      */
     #[DataProvider('honeypotProvider')]
     #[TestDox('The honeypot captcha is valid only when the honeypot field is empty')]
-    public function testIsValid(array $requestParameters, bool $expectedValid): void
+    public function testValidate(array $requestParameters, bool $expectedValid): void
     {
         Feature::fake(['v6.8.0.0'], function () use ($requestParameters, $expectedValid): void {
             $captcha = new HoneypotCaptcha(static::createStub(ValidatorInterface::class));
 
             static::assertSame(
                 $expectedValid,
-                $captcha->isValid(new Request(request: $requestParameters), [])
+                $captcha->validate(new Request(request: $requestParameters), [])->count() === 0
             );
         });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('deprecated isValid() validates through the Symfony validator before 6.8')]
+    public function testDeprecatedIsValidUsesValidator(): void
+    {
+        // Before 6.8 the honeypot is checked with the Symfony validator.
+        $emptyValidator = static::createStub(ValidatorInterface::class);
+        $emptyValidator->method('validate')->willReturn(new ConstraintViolationList());
+        static::assertTrue((new HoneypotCaptcha($emptyValidator))->isValid(new Request(), []));
+
+        $failingValidator = static::createStub(ValidatorInterface::class);
+        $failingValidator->method('validate')->willReturn(new ConstraintViolationList([
+            new ConstraintViolation('not blank', '', [], '', 'honeypotValue', 'i-am-a-bot'),
+        ]));
+        static::assertFalse((new HoneypotCaptcha($failingValidator))->isValid(
+            new Request(request: [HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'i-am-a-bot']),
+            []
+        ));
     }
 
     /**
@@ -43,8 +68,7 @@ class HoneypotCaptchaTest extends TestCase
     {
         yield 'absent honeypot field is valid' => [[], true];
         yield 'empty honeypot field is valid' => [[HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => ''], true];
-        // InputBag::get() returns a present-but-null value as null (not the default), so without the
-        // null-coalescing fix `null === ''` would wrongly reject this empty submission.
+        // InputBag::get() returns a present-but-null value as null, which still means empty.
         yield 'present-but-null honeypot field is valid' => [[HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null], true];
         yield 'filled honeypot field is invalid' => [[HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'i-am-a-bot'], false];
     }

@@ -23,6 +23,8 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
 
     protected string $documentTypeId;
 
+    protected ?string $typeName = null;
+
     protected ?DocumentTypeEntity $documentType = null;
 
     protected ?DocumentBaseConfigEntity $documentBaseConfig = null;
@@ -57,6 +59,16 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getDocumentType(): ?DocumentTypeEntity

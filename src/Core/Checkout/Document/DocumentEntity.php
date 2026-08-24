@@ -26,6 +26,8 @@ class DocumentEntity extends Entity
 
     protected string $documentTypeId;
 
+    protected ?string $typeName = null;
+
     protected ?string $documentMediaFileId = null;
 
     protected ?OrderEntity $order = null;
@@ -146,6 +148,16 @@ class DocumentEntity extends Entity
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getReferencedDocumentId(): ?string

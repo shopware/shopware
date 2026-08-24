@@ -1,3 +1,13 @@
+# 6.7.15.0 (upcoming)
+
+## Core
+
+### Customer imports validate customer number patterns
+
+Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
+
+Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
+
 # 6.7.14.0 (upcoming)
 
 ## Features
@@ -12,6 +22,9 @@ Apps can now modify or remove cookie consent groups and entries with an app scri
 
 ## API
 
+### Added experimental Store API snippet endpoint
+
+Added new experimental Store API route `GET /store-api/snippet` (not part of the backwards compatibility promise yet, planned to be stable with v6.8.0), which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.
 ### Number range admin action endpoints now require ACL privileges
 
 Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -115,6 +128,10 @@ Removing the language that the same write assigns as the new default is now reje
 
 ## Core
 
+### Document V1/V2 file compatibility
+
+Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
+
 ### An active shipping method must keep at least one usable price
 
 Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.
@@ -154,6 +171,10 @@ A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced th
 `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
 
 They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
+
+### Failed payment mail flow
+
+Shopware now ships a default Flow Builder flow, flow template, and mail template for `state_enter.order_transaction.state.failed`.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -368,6 +389,19 @@ This affects every write path, not just Settings > Shop > SEO:
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
+### Newsletter route methods keep the `StoreApiResponse` return type
+
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
+`StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
+This withdraws the return type change announced with 6.7.9.0.
+
+A decorator that puts its logic in these methods answers with the response containing the `status`
+field, and keeps working on 6.8, where the deprecated `subscribe()`, `confirm()` and `unsubscribe()`
+are removed. Those are still required in 6.7 and have to answer with `NoContentResponse`.
+### Admin search falls back to the database for entities without an Elasticsearch admin indexer
+
+With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` silently returned no results for entities that have no admin search indexer, because those entities were dropped from the request. They are now searched over the DAL instead, so an entity registered in the Administration search (`searchTypeService.upsertType()` or a module `defaultSearchConfiguration`) is findable without shipping an indexer. Registering an `AbstractAdminIndexer` for the entity is still the faster option.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
@@ -413,6 +447,13 @@ A few things to know before you start:
 * **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
 
 Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
+
+### SFC migration codemod now emits native setup components
+
+The `codemod:sfc-migration` developer tool has been rewritten to output the native setup SFC format (`<script setup>` with `swDefinePublic`) instead of the previous `createExtendableSetup()` form, which the build toolchain no longer accepts. The default remains a read-only preview; `--write` creates validated Vue drafts only. Replacing an eligible legacy entry point requires the separate explicit `--replace-originals` option, and Twig templates are retained.
+
+What changed for users of the tool: every generated file must pass the build transform and Vue's compiler before it is written; components that convert only partially receive a `.vue` draft with `TODO(sfc-migration)` comments while their original `index.js` + `.html.twig` stay in place and keep working; components using `mixins` or `Component.extend()` are skipped and reported instead of receiving an Options API `<script>` fallback, which the build now rejects. See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md`.
+
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
@@ -535,6 +576,14 @@ const { data: media } = useDataset('sw-media-quickinfo__item', {
 The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
+
+### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
+
+A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.
+
+Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. The deprecated `isValid()`/`getViolations()` are removed in 6.8; until then the default `validate()` delegates to them, so a captcha extending `AbstractCaptcha` keeps working.
+
+One case does change: a captcha extending a shipped captcha (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overriding only `isValid()`/`getViolations()` is no longer consulted, because those implement `validate()` themselves. Migrate it to `validate()` — an unmigrated check stops being applied without an error.
 
 ### Theme CLI commands clean up unused theme directories
 

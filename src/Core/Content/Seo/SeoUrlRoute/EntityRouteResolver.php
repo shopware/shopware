@@ -52,6 +52,26 @@ class EntityRouteResolver
         return $this->router->generate($config->getRouteName(), $config->getPrimaryKeyParameter($primaryKey));
     }
 
+    /**
+     * Returns the route names of all store-api SEO URL routes registered for the given entity.
+     *
+     * @return list<string>
+     */
+    public function getEntitySeoUrlRouteNames(string $entityName): array
+    {
+        $routeNames = [];
+
+        foreach ($this->storeApiSeoUrlRoutes as $storeApiSeoUrlRoute) {
+            $config = $storeApiSeoUrlRoute->getConfig();
+
+            if ($config->getDefinition()->getEntityName() === $entityName) {
+                $routeNames[] = $config->getRouteName();
+            }
+        }
+
+        return $routeNames;
+    }
+
     public function findEntitySeoUrlRoute(string $routeName): ?EntitySeoUrlRouteInterface
     {
         foreach ($this->storeApiSeoUrlRoutes as $entitySeoUrlRoute) {

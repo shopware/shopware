@@ -66,6 +66,6 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             return true;
         }
 
-        return $matchesAnyEuVat && $this->vatIdPatternProvider->matchEuVatId($vatId) !== null;
+        return $matchesAnyEuVat && $this->vatIdPatternProvider->getStateByEuVatId($vatId) !== null;
     }
 }

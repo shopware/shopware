@@ -77,28 +77,22 @@ class DoubleSubmitGuard
             return true;
         }
 
-        if (!$acquired) {
+        try {
             if ($this->isConsumed($scope, $markerKey)) {
                 return false;
             }
 
-            $this->logger->warning('Double submit lock was not acquired within the wait deadline, submitting unguarded.', ['scope' => $scope]);
-
-            $this->submitAndMark($submit, $context, $scope, $token, $markerKey);
-
-            return true;
-        }
-
-        try {
-            if ($this->isConsumed($scope, $markerKey)) {
-                return false;
+            if (!$acquired) {
+                $this->logger->warning('Double submit lock was not acquired within the wait deadline, submitting unguarded.', ['scope' => $scope]);
             }
 
             $this->submitAndMark($submit, $context, $scope, $token, $markerKey);
 
             return true;
         } finally {
-            $this->releaseSilently($lock, $scope);
+            if ($acquired) {
+                $this->releaseSilently($lock, $scope);
+            }
         }
     }
 

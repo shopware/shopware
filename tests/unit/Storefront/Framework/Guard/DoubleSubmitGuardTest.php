@@ -342,9 +342,10 @@ class DoubleSubmitGuardTest extends TestCase
         $lock->expects($this->once())->method('acquire')->willReturn(false);
         $lock->expects($this->never())->method('release');
 
+        $warnings = [];
         $submitCalls = 0;
 
-        $this->createGuard($this->createLockFactory($lock), $cache, new NullLogger())->guard(
+        $this->createGuard($this->createLockFactory($lock), $cache, $this->createWarningCollector($warnings))->guard(
             self::SCOPE,
             $this->createContext(),
             static function () use (&$submitCalls): void {
@@ -353,6 +354,7 @@ class DoubleSubmitGuardTest extends TestCase
         );
 
         static::assertSame(0, $submitCalls);
+        static::assertSame([], $warnings, 'a suppressed submission is not a degradation, so it must not warn');
     }
 
     public function testAMissedLockDeadlineWithoutAMarkerSubmitsUnguarded(): void

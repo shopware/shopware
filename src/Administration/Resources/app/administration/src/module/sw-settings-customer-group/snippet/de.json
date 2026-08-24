@@ -19,6 +19,32 @@
       "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
       "registrationForm": "Benutzerdefiniertes Registrierungsformular"
     },
+    "priceDisplay": {
+      "cardTitle": "Preisanzeige & Berechnung",
+      "modeLabel": "Preisanzeige",
+      "modeHelpText": "Legt fest, welchen Preis Kunden dieser Gruppe sehen und welcher gespeicherte Preiswert der Berechnung zugrunde liegt.",
+      "modeGrossLabel": "Bruttopreise",
+      "modeGrossDescription": "Kunden sehen den gespeicherten Bruttopreis. Die Steuer ihres Landes ist darin bereits enthalten, dadurch ändert sich Dein Nettoerlös von Land zu Land.",
+      "modeNetLabel": "Nettopreise",
+      "modeNetDescription": "Kunden sehen den gespeicherten Nettopreis und zahlen die Steuer ihres Landes zusätzlich.",
+      "modeGrossNetBaseLabel": "Bruttopreise auf Nettopreisbasis",
+      "modeGrossNetBaseDescription": "Kunden sehen einen Bruttopreis, der aus dem gespeicherten Nettopreis und dem Steuersatz ihres Landes berechnet wird. Du erhältst immer den Nettopreis, manuell gepflegte Bruttopreise werden nicht verwendet.",
+      "preview": {
+        "intro": "Beispiel für ein Produkt mit einem Nettopreis von {netPrice} und einem gespeicherten Bruttopreis von {grossPrice}.",
+        "countryA": "Land A",
+        "countryB": "Land B",
+        "taxRate": "{rate} % MwSt.",
+        "rowCustomerSees": "Kunde sieht",
+        "rowTax": "MwSt.",
+        "rowCustomerPays": "Kunde zahlt",
+        "rowMerchantReceives": "Du erhältst (netto)",
+        "inclVat": "inkl. MwSt.",
+        "exclVat": "zzgl. MwSt.",
+        "hintGross": "Der Bruttopreis ist in jedem Land gleich (grün hervorgehoben), dadurch sinkt Dein Nettoerlös mit steigendem Steuersatz (gelb hervorgehoben).",
+        "hintNet": "Die Steuer kommt auf den Nettopreis obendrauf. Dein Nettoerlös ist dadurch in jedem Land gleich (grün hervorgehoben), der Betrag, den der Kunde zahlt, unterscheidet sich (gelb hervorgehoben).",
+        "hintGrossNetBase": "Der Bruttopreis wird pro Land aus dem Nettopreis berechnet. Kunden sehen weiterhin Bruttopreise (gelb hervorgehoben), Dein Nettoerlös bleibt überall gleich (grün hervorgehoben)."
+      }
+    },
     "registration": {
       "formTitle": "Registrierungsformular",
       "placeholderTitle": "Einen Titel eingeben ...",

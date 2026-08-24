@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent;
@@ -21,6 +22,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -36,6 +39,8 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class CacheHeadersServiceTest extends TestCase
 {
     use EventDispatcherBehaviour;
+
+    private const TAX_ID = '0191b0e4b7a97243b0f2fca1f9b0d2a1';
 
     /**
      * @var array<string, string>
@@ -168,6 +173,31 @@ class CacheHeadersServiceTest extends TestCase
 
         static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
         static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testCacheHashIgnoresTaxRulesWithoutAPriceBasis(): void
+    {
+        $event = $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $this->createCacheHashContext('language-a'),
+            $this->createFilledCart(),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertNull($event->get(HttpCacheCookieEvent::TAX_RULES));
+    }
+
+    public function testCacheHashSeparatesTaxRatesWhenAPriceBasisIsSet(): void
+    {
+        $germany = $this->applyNetBasisCacheHash(19.0);
+        $austria = $this->applyNetBasisCacheHash(20.0);
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $germany);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $austria);
+
+        static::assertNotNull($germany->get(HttpCacheCookieEvent::TAX_RULES));
+        static::assertNotSame($germany->getHash(), $austria->getHash());
     }
 
     public function testCurrencyChangeLeadsToDifferentCacheHash(): void
@@ -340,6 +370,36 @@ class CacheHeadersServiceTest extends TestCase
         $secondHash = $cookies[0]->getValue();
         // assert cache hash is different when custom cookie is different
         static::assertNotSame($firstHash, $secondHash);
+    }
+
+    private function applyNetBasisCacheHash(float $taxRate): ?HttpCacheCookieEvent
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+        $context->method('getRuleIds')->willReturn([]);
+        $context->method('getRuleIdsByAreas')->willReturn([]);
+        $context->method('getVersionId')->willReturn(Defaults::LIVE_VERSION);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getTaxState')->willReturn('gross');
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign(['priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET])
+        );
+        $context->method('getTaxRules')->willReturn(new TaxCollection([
+            (new TaxEntity())->assign([
+                'id' => self::TAX_ID,
+                '_uniqueIdentifier' => self::TAX_ID,
+                'taxRate' => $taxRate,
+                'name' => 'tax',
+                'position' => 1,
+            ]),
+        ]));
+
+        return $this->cacheHeadersService->applyCacheHash(
+            new Request(),
+            $context,
+            $this->createFilledCart(),
+            new Response()
+        );
     }
 
     private function createCacheHashContext(string $languageId): SalesChannelContext

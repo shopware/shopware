@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -15,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceC
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
@@ -68,6 +71,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
+            new PriceSelector(),
         );
     }
 
@@ -147,6 +151,175 @@ class ProductPriceCalculatorTest extends TestCase
         yield 'Net price will be used for tax free state' => [$product, CartPrice::TAX_STATE_FREE, 10];
     }
 
+    #[DataProvider('priceBasisProvider')]
+    public function testPriceBasisDecidesWhichStoredValueIsAuthoritative(string $taxState, ?string $priceBasis, float $expectedUnitPrice, float $expectedTax): void
+    {
+        $product = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(Defaults::CURRENCY, 10.0, 99.99, false),
+            ]),
+        ]);
+
+        $this->createCalculator()->calculate([$product], $this->createPriceBasisContext($taxState, $priceBasis));
+
+        $price = $product->get('calculatedPrice');
+
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        static::assertSame($expectedUnitPrice, $price->getUnitPrice());
+        static::assertSame($expectedTax, $price->getCalculatedTaxes()->getAmount());
+    }
+
+    public static function priceBasisProvider(): \Generator
+    {
+        yield 'legacy basis takes the stored gross for gross display' => [
+            CartPrice::TAX_STATE_GROSS, null, 99.99, 15.96,
+        ];
+
+        yield 'legacy basis takes the stored net for net display' => [
+            CartPrice::TAX_STATE_NET, null, 10.0, 1.9,
+        ];
+
+        yield 'legacy basis takes the stored net for tax free display' => [
+            CartPrice::TAX_STATE_FREE, null, 10.0, 0.0,
+        ];
+
+        yield 'net basis derives the gross from the stored net and ignores the stored gross' => [
+            CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_NET, 11.9, 1.9,
+        ];
+
+        yield 'net basis takes the stored net verbatim for net display' => [
+            CartPrice::TAX_STATE_NET, CustomerGroupEntity::PRICE_BASIS_NET, 10.0, 1.9,
+        ];
+
+        yield 'net basis takes the stored net verbatim for tax free display' => [
+            CartPrice::TAX_STATE_FREE, CustomerGroupEntity::PRICE_BASIS_NET, 10.0, 0.0,
+        ];
+    }
+
+    #[DataProvider('foreignCurrencyProvider')]
+    public function testFallbackToTheDefaultCurrencyPriceAppliesTheCurrencyFactor(?string $priceBasis, float $expectedUnitPrice, float $expectedTax): void
+    {
+        $product = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(Defaults::CURRENCY, 10.0, 20.0, false),
+            ]),
+        ]);
+
+        $context = $this->createPriceBasisContext(
+            CartPrice::TAX_STATE_GROSS,
+            $priceBasis,
+            currencyId: Uuid::randomHex(),
+            currencyFactor: 1.5
+        );
+
+        $this->createCalculator()->calculate([$product], $context);
+
+        $price = $product->get('calculatedPrice');
+
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        static::assertSame($expectedUnitPrice, $price->getUnitPrice());
+        static::assertSame($expectedTax, $price->getCalculatedTaxes()->getAmount());
+    }
+
+    public static function foreignCurrencyProvider(): \Generator
+    {
+        yield 'legacy basis converts the stored gross with the currency factor' => [null, 30.0, 4.79];
+
+        yield 'net basis converts the stored net and derives the gross afterwards' => [
+            CustomerGroupEntity::PRICE_BASIS_NET, 17.85, 2.85,
+        ];
+    }
+
+    public function testNetPriceBasisDerivesListAndRegulationPrices(): void
+    {
+        $product = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(
+                    currencyId: Defaults::CURRENCY,
+                    net: 10.0,
+                    gross: 99.99,
+                    linked: false,
+                    listPrice: new Price(Defaults::CURRENCY, 20.0, 199.99, false),
+                    regulationPrice: new Price(Defaults::CURRENCY, 15.0, 149.99, false)
+                ),
+            ]),
+        ]);
+
+        $context = $this->createPriceBasisContext(CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_NET);
+
+        $this->createCalculator()->calculate([$product], $context);
+
+        $price = $product->get('calculatedPrice');
+
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        static::assertSame(23.8, $price->getListPrice()?->getPrice());
+        static::assertSame(17.85, $price->getRegulationPrice()?->getPrice());
+    }
+
+    public function testNetPriceBasisSkipsTheRegulationPriceWhenTheNetValueIsZero(): void
+    {
+        $product = (new PartialEntity())->assign([
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(
+                    currencyId: Defaults::CURRENCY,
+                    net: 0.0,
+                    gross: 99.99,
+                    linked: false,
+                    regulationPrice: new Price(Defaults::CURRENCY, 15.0, 149.99, false)
+                ),
+            ]),
+        ]);
+
+        $context = $this->createPriceBasisContext(CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_NET);
+
+        $this->createCalculator()->calculate([$product], $context);
+
+        $price = $product->get('calculatedPrice');
+
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+        static::assertNull($price->getRegulationPrice());
+    }
+
+    public function testNetPriceBasisAppliesToAdvancedAndCheapestPrices(): void
+    {
+        $product = (new PartialEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'taxId' => Uuid::randomHex(),
+            'prices' => new ProductPriceCollection([
+                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    '_uniqueIdentifier' => Uuid::randomHex(),
+                    'ruleId' => Defaults::CURRENCY,
+                    'price' => new PriceCollection([new Price(Defaults::CURRENCY, 10.0, 99.99, false)]),
+                    'quantityStart' => 1,
+                    'quantityEnd' => null,
+                ]),
+            ]),
+            'cheapestPrice' => (new CheapestPrice())->assign([
+                'price' => new PriceCollection([new Price(Defaults::CURRENCY, 10.0, 99.99, false)]),
+                'variantId' => Uuid::randomHex(),
+                'hasRange' => false,
+            ]),
+        ]);
+
+        $context = $this->createPriceBasisContext(CartPrice::TAX_STATE_GROSS, CustomerGroupEntity::PRICE_BASIS_NET);
+        $context->method('getRuleIds')->willReturn([Defaults::CURRENCY]);
+
+        $this->createCalculator()->calculate([$product], $context);
+
+        $prices = $product->get('calculatedPrices');
+        static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
+        static::assertSame(11.9, $prices->first()?->getUnitPrice());
+
+        $cheapest = $product->get('calculatedCheapestPrice');
+        static::assertInstanceOf(CalculatedCheapestPrice::class, $cheapest);
+        static::assertSame(11.9, $cheapest->getUnitPrice());
+    }
+
     public function testEnsureUnitCaching(): void
     {
         $property = new \ReflectionProperty(ProductPriceCalculator::class, 'units');
@@ -175,7 +348,8 @@ class ProductPriceCalculatorTest extends TestCase
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
-            new ExtensionDispatcher($this->eventDispatcher)
+            new ExtensionDispatcher($this->eventDispatcher),
+            new PriceSelector()
         ))->getDecorated();
     }
 
@@ -503,6 +677,37 @@ class ProductPriceCalculatorTest extends TestCase
             ]),
             new PriceAssertion(20.0, 30.0, null, 40.0),
         ];
+    }
+
+    private function createCalculator(): ProductPriceCalculator
+    {
+        return new ProductPriceCalculator(
+            new StaticEntityRepository([new UnitCollection()]),
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
+                new NetPriceCalculator(new TaxCalculator(), new CashRounding())
+            ),
+            new ExtensionDispatcher($this->eventDispatcher),
+            new PriceSelector(),
+        );
+    }
+
+    private function createPriceBasisContext(string $taxState, ?string $priceBasis, string $currencyId = Defaults::CURRENCY, float $currencyFactor = 1.0): SalesChannelContext&Stub
+    {
+        $baseContext = Context::createDefaultContext();
+        $baseContext->assign(['currencyFactor' => $currencyFactor]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn($currencyId);
+        $context->method('getContext')->willReturn($baseContext);
+        $context->method('getTaxState')->willReturn($taxState);
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getCurrentCustomerGroup')->willReturn(
+            (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis])
+        );
+
+        return $context;
     }
 }
 

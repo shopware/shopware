@@ -93,17 +93,6 @@
                             />
                             {% endblock %}
 
-                            {% block sw_settings_customer_group_detail_content_card_display_gross %}
-                            <sw-boolean-radio-group
-                                v-model:value="customerGroup.displayGross"
-                                bordered
-                                :label="$t('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 1)"
-                                :label-option-false="$t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 0)"
-                                :disabled="!acl.can('customer_groups.editor') || undefined"
-                            />
-                            {% endblock %}
-
                             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_registration_form %}
 
@@ -115,7 +104,55 @@
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
+
+                            {# @deprecated tag:v6.8.0 - Will be removed. Use sw_settings_customer_group_detail_content_price_display_card_mode instead. #}
+                            {% block sw_settings_customer_group_detail_content_card_display_gross %}{% endblock %}
                         </sw-container>
+                    </template>
+                </mt-card>
+                {% endblock %}
+
+                {% block sw_settings_customer_group_detail_content_price_display_card %}
+                <mt-card
+                    :is-loading="isLoading"
+                    :title="$t('sw-settings-customer-group.priceDisplay.cardTitle')"
+                    position-identifier="sw-settings-customer-group-detail-price-display"
+                >
+                    <template v-if="!isLoading">
+                        {% block sw_settings_customer_group_detail_content_price_display_card_mode %}
+                        <sw-single-select
+                            v-model:value="priceDisplayMode"
+                            name="sw-field--customerGroup-priceDisplayMode"
+                            class="sw-settings-customer-group-detail__price-display-mode"
+                            :label="$t('sw-settings-customer-group.priceDisplay.modeLabel')"
+                            :help-text="$t('sw-settings-customer-group.priceDisplay.modeHelpText')"
+                            :options="priceDisplayModeOptions"
+                            :disabled="!acl.can('customer_groups.editor') || undefined"
+                        >
+                            <template #result-item="{ item, index, isSelected, setValue }">
+                                <sw-select-result
+                                    :class="'sw-select-option--' + item.value"
+                                    :selected="isSelected(item)"
+                                    description-position="bottom"
+                                    v-bind="{ item, index }"
+                                    @item-select="setValue"
+                                >
+                                    {{ item.label }}
+
+                                    <template #description>
+                                        {{ item.description }}
+                                    </template>
+                                </sw-select-result>
+                            </template>
+                        </sw-single-select>
+                        {% endblock %}
+
+                        {% block sw_settings_customer_group_detail_content_price_display_card_preview %}
+                        <sw-settings-customer-group-price-preview
+                            class="sw-settings-customer-group-detail__price-preview"
+                            :mode="priceDisplayMode"
+                        />
+                        {% endblock %}
                     </template>
                 </mt-card>
                 {% endblock %}

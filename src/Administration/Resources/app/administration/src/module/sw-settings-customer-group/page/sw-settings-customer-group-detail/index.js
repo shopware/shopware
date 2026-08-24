@@ -135,6 +135,47 @@ export default {
             return criteria;
         },
 
+        priceDisplayModeOptions() {
+            return [
+                {
+                    value: 'gross',
+                    label: this.$t('sw-settings-customer-group.priceDisplay.modeGrossLabel'),
+                    description: this.$t('sw-settings-customer-group.priceDisplay.modeGrossDescription'),
+                },
+                {
+                    value: 'net',
+                    label: this.$t('sw-settings-customer-group.priceDisplay.modeNetLabel'),
+                    description: this.$t('sw-settings-customer-group.priceDisplay.modeNetDescription'),
+                },
+                {
+                    value: 'grossNetBase',
+                    label: this.$t('sw-settings-customer-group.priceDisplay.modeGrossNetBaseLabel'),
+                    description: this.$t('sw-settings-customer-group.priceDisplay.modeGrossNetBaseDescription'),
+                },
+            ];
+        },
+
+        priceDisplayMode: {
+            get() {
+                if (this.customerGroup?.displayGross && this.customerGroup?.priceBasis === 'net') {
+                    return 'grossNetBase';
+                }
+
+                return this.customerGroup?.displayGross ? 'gross' : 'net';
+            },
+            set(value) {
+                if (value === 'grossNetBase') {
+                    this.customerGroup.displayGross = true;
+                    this.customerGroup.priceBasis = 'net';
+
+                    return;
+                }
+
+                this.customerGroup.displayGross = value === 'gross';
+                this.customerGroup.priceBasis = this.feature.isActive('v6.8.0.0') ? value : null;
+            },
+        },
+
         entityDescription() {
             return this.placeholder(
                 this.customerGroup,

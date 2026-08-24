@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\Hook\Pricing;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -76,9 +75,10 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
         $rules = $this->context->buildTaxRules($this->product->get('taxId'));
 
         foreach ($mapped as $quantity => $price) {
-            $value = $this->getPriceForTaxState($price, $this->context);
+            $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->context);
 
-            $definition = new QuantityPriceDefinition($value, $rules, $quantity);
+            $definition = new QuantityPriceDefinition($selected->getValue(), $rules, $quantity);
+            $definition->setIsCalculated($selected->isCalculated());
 
             $this->prices->add(
                 $this->priceStubs->calculateQuantity($definition, $this->context)
@@ -108,7 +108,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
         return $this->prices->count();
     }
 
-    private function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
+    private function getCurrencyPrice(PriceCollection $price): Price
     {
         $currency = $price->getCurrencyPrice($this->context->getCurrencyId());
 
@@ -116,10 +116,6 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
             throw ProductException::invalidPriceDefinition();
         }
 
-        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            return $currency->getGross();
-        }
-
-        return $currency->getNet();
+        return $currency;
     }
 }

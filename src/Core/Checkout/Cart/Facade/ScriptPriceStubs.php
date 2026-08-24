@@ -4,11 +4,13 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\SelectedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -33,13 +35,19 @@ class ScriptPriceStubs implements ResetInterface
     public function __construct(
         private readonly Connection $connection,
         private readonly QuantityPriceCalculator $quantityCalculator,
-        private readonly PercentagePriceCalculator $percentageCalculator
+        private readonly PercentagePriceCalculator $percentageCalculator,
+        private readonly AbstractPriceSelector $priceSelector
     ) {
     }
 
     public function calculateQuantity(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice
     {
         return $this->quantityCalculator->calculate($definition, $context);
+    }
+
+    public function select(Price $price, SalesChannelContext $context): SelectedPrice
+    {
+        return $this->priceSelector->select($price, $context);
     }
 
     public function calculatePercentage(float $percentage, CalculatedPriceCollection $prices, SalesChannelContext $context): CalculatedPrice

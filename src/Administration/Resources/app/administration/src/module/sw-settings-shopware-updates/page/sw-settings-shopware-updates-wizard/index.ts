@@ -37,6 +37,7 @@ export default Component.wrapComponentConfig({
         updaterIsRunning: boolean;
         updateModalShown: boolean;
         chosenPluginBehaviour: string;
+        chosenUpdateMethod: 'cli' | 'web';
     } {
         return {
             updateInfo: {
@@ -53,6 +54,7 @@ export default Component.wrapComponentConfig({
             updaterIsRunning: false,
             updateModalShown: false,
             chosenPluginBehaviour: '',
+            chosenUpdateMethod: 'cli',
         };
     },
 
@@ -116,6 +118,22 @@ export default Component.wrapComponentConfig({
 
             return `${deactiveAllTrans} ${isRecommended}`;
         },
+
+        isCliUpdateSelected(): boolean {
+            return this.chosenUpdateMethod === 'cli';
+        },
+
+        showWebInstallerPluginOptions(): boolean {
+            return this.chosenUpdateMethod === 'web' && this.displayIncompatiblePluginsWarning;
+        },
+
+        cliUpgradeCommand(): string {
+            return 'shopware-cli project upgrade';
+        },
+
+        cliInstallUrl(): string {
+            return 'https://developer.shopware.com/docs/products/tools/cli/';
+        },
     },
 
     created() {
@@ -155,6 +173,15 @@ export default Component.wrapComponentConfig({
 
                 this.isLoading = false;
             });
+        },
+
+        confirmUpdateMethod() {
+            if (this.chosenUpdateMethod === 'cli') {
+                this.updateModalShown = false;
+                return;
+            }
+
+            this.startUpdateProcess();
         },
 
         startUpdateProcess() {

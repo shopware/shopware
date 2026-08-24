@@ -158,7 +158,12 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-extension-component-section': true,
                         'sw-error-summary': true,
                         'sw-modal': {
-                            template: '<div><slot name="modal-footer"></slot></div>',
+                            template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
+                        },
+                        'mt-banner': true,
+                        'sw-field-copyable': true,
+                        'sw-external-link': {
+                            template: '<a class="sw-external-link" :href="$attrs.href"><slot></slot></a>',
                         },
                         'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -353,7 +358,16 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(wrapper.vm.updateModalShown).toBe(true);
 
         expect(wrapper.find('.sw-settings-shopware-updates-check__start-update').exists()).toBe(true);
+        expect(wrapper.vm.chosenUpdateMethod).toBe('cli');
+        expect(wrapper.find('.sw-settings-shopware-updates-method-option--cli').classes()).toContain('is--selected');
+        expect(wrapper.get('.sw-settings-shopware-updates-method-option__command').text()).toContain(
+            'shopware-cli project upgrade',
+        );
+        expect(wrapper.get('.sw-settings-shopware-updates-method-option__install-link').attributes('href')).toBe(
+            'https://developer.shopware.com/docs/products/tools/cli/',
+        );
 
+        await wrapper.get('.sw-settings-shopware-updates-method-option--web input').setValue();
         await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
 
         const redirectSpy = jest.fn();
@@ -367,5 +381,53 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await flushPromises();
 
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
+    });
+
+    it('continuing with the recommended CLI method does not start the web installer', async () => {
+        wrapper.vm.requirements = [];
+
+        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.chosenUpdateMethod).toBe('cli');
+
+        const downloadRecoverySpy = jest.spyOn(wrapper.vm, 'downloadRecovery');
+
+        await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
+        await wrapper.get('.sw-settings-shopware-updates-check__start-update-button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.updateModalShown).toBe(false);
+        expect(wrapper.emitted('update-started')).toBeFalsy();
+        expect(downloadRecoverySpy).not.toHaveBeenCalled();
+        expect(wrapper.vm.updaterIsRunning).toBe(false);
+    });
+
+    it('shows plugin deactivation options only for the web installer', async () => {
+        wrapper.vm.requirements = [];
+        wrapper.vm.plugins = [{ statusName: 'incompatible' }];
+
+        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-radio-field-stub').exists()).toBe(false);
+
+        await wrapper.get('.sw-settings-shopware-updates-method-option--web input').setValue();
+        await flushPromises();
+
+        expect(wrapper.find('sw-radio-field-stub').exists()).toBe(true);
+    });
+
+    it('disables continue until a backup is confirmed', async () => {
+        wrapper.vm.requirements = [];
+
+        await wrapper.get('.sw-settings-shopware-updates-wizard__start-update').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled')).toBeDefined();
+
+        await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
+
+        expect(wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled')).toBeUndefined();
     });
 });

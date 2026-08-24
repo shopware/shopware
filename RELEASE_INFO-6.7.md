@@ -1,5 +1,11 @@
 # 6.7.15.0 (upcoming)
 
+## Administration
+
+### Update wizard recommends Shopware CLI
+
+The administration update wizard now asks you to choose an update method before starting the web installer. `shopware-cli project upgrade` is the recommended path for developers and managed deployments. The existing web installer flow remains available.
+
 ## Core
 
 ### `system:install` dispatches `SystemInstallCompletedEvent`

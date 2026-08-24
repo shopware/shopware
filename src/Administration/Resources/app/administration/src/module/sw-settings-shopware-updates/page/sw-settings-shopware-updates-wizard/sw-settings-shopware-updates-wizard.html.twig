@@ -81,10 +81,11 @@
             <sw-modal
                 v-if="updateModalShown"
                 class="sw-settings-shopware-updates-check__start-update"
-                :title="$t('sw-settings-shopware-updates.general.emptyTitle')"
-                variant="small"
+                :title="$t('sw-settings-shopware-updates.methodModal.title')"
+                :subtitle="$t('sw-settings-shopware-updates.methodModal.subtitle')"
                 @modal-close="updateModalShown = false"
             >
+                {% block sw_settings_shopware_updates_wizard_method_warnings %}
                 <mt-banner
                     v-if="displayUnknownPluginsWarning"
                     variant="attention"
@@ -98,19 +99,120 @@
                 >
                     {{ $t('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
                 </mt-banner>
+                {% endblock %}
 
+                {% block sw_settings_shopware_updates_wizard_method_options %}
+                <div
+                    class="sw-settings-shopware-updates-method-options"
+                    role="radiogroup"
+                    :aria-label="$t('sw-settings-shopware-updates.methodModal.title')"
+                >
+                    {% block sw_settings_shopware_updates_wizard_method_option_cli %}
+                    <label
+                        class="sw-settings-shopware-updates-method-option sw-settings-shopware-updates-method-option--cli"
+                        :class="{ 'is--selected': isCliUpdateSelected }"
+                    >
+                        <input
+                            v-model="chosenUpdateMethod"
+                            class="sw-settings-shopware-updates-method-option__input"
+                            type="radio"
+                            name="sw-settings-shopware-updates-method"
+                            value="cli"
+                        >
+
+                        <span
+                            class="sw-settings-shopware-updates-method-option__icon"
+                            aria-hidden="true"
+                        >
+                            <mt-icon
+                                name="regular-window-terminal"
+                                size="20px"
+                            />
+                        </span>
+
+                        <span class="sw-settings-shopware-updates-method-option__content">
+                            <span class="sw-settings-shopware-updates-method-option__title">
+                                {{ $t('sw-settings-shopware-updates.methodModal.cliTitle') }}
+                            </span>
+                            <span class="sw-settings-shopware-updates-method-option__recommended">
+                                {{ $t('sw-settings-shopware-updates.methodModal.cliRecommended') }}
+                            </span>
+                            <span class="sw-settings-shopware-updates-method-option__description">
+                                {{ $t('sw-settings-shopware-updates.methodModal.cliDescription') }}
+                            </span>
+                            <span class="sw-settings-shopware-updates-method-option__hint">
+                                {{ $t('sw-settings-shopware-updates.methodModal.cliInstallHint') }}
+                            </span>
+                            <span class="sw-settings-shopware-updates-method-option__command">
+                                <code>{{ cliUpgradeCommand }}</code>
+                                <sw-field-copyable
+                                    :copyable-text="cliUpgradeCommand"
+                                    :tooltip="true"
+                                />
+                            </span>
+                            <sw-external-link
+                                class="sw-settings-shopware-updates-method-option__install-link"
+                                :href="cliInstallUrl"
+                            >
+                                {{ $t('sw-settings-shopware-updates.methodModal.cliInstallLink') }}
+                            </sw-external-link>
+                        </span>
+
+                        <span
+                            class="sw-settings-shopware-updates-method-option__radio"
+                            aria-hidden="true"
+                        ></span>
+                    </label>
+                    {% endblock %}
+
+                    {% block sw_settings_shopware_updates_wizard_method_option_web %}
+                    <label
+                        class="sw-settings-shopware-updates-method-option sw-settings-shopware-updates-method-option--web"
+                        :class="{ 'is--selected': !isCliUpdateSelected }"
+                    >
+                        <input
+                            v-model="chosenUpdateMethod"
+                            class="sw-settings-shopware-updates-method-option__input"
+                            type="radio"
+                            name="sw-settings-shopware-updates-method"
+                            value="web"
+                        >
+
+                        <span
+                            class="sw-settings-shopware-updates-method-option__icon"
+                            aria-hidden="true"
+                        >
+                            <mt-icon
+                                name="regular-globe"
+                                size="20px"
+                            />
+                        </span>
+
+                        <span class="sw-settings-shopware-updates-method-option__content">
+                            <span class="sw-settings-shopware-updates-method-option__title">
+                                {{ $t('sw-settings-shopware-updates.methodModal.webTitle') }}
+                            </span>
+                        </span>
+
+                        <span
+                            class="sw-settings-shopware-updates-method-option__radio"
+                            aria-hidden="true"
+                        ></span>
+                    </label>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_shopware_updates_wizard_method_plugin_options %}
                 <sw-radio-field
-                    v-if="displayIncompatiblePluginsWarning"
+                    v-if="showWebInstallerPluginOptions"
                     v-model:value="chosenPluginBehaviour"
                     :options="[
                         {'value': 'all', 'name': optionDeactivateAllTranslation },
                         {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
                         {'value': '', 'name': $t('sw-settings-shopware-updates.plugins.actions.deactivateNone')}]"
                 />
-
-                <template v-if="displayAllPluginsOkayInfo">
-                    {{ $t('sw-settings-shopware-updates.updateModal.messageOkay') }}
-                </template>
+                {% endblock %}
 
                 <template #modal-footer>
                     <mt-checkbox
@@ -133,9 +235,9 @@
                             variant="primary"
                             size="small"
                             class="sw-settings-shopware-updates-check__start-update-button"
-                            @click="startUpdateProcess()"
+                            @click="confirmUpdateMethod()"
                         >
-                            {{ $t('sw-settings-shopware-updates.updateModal.actions.install') }}
+                            {{ $t('sw-settings-shopware-updates.methodModal.actions.continue') }}
                         </mt-button>
                     </div>
                 </template>

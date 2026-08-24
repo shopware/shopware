@@ -73,6 +73,19 @@
       "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du eine aktuelle Datensicherung erstellt hast.",
       "messageUpdateCheck": "Die zurzeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
       "backupLabel": "Ja, ich habe meine Daten gesichert."
+    },
+    "methodModal": {
+      "title": "Wähle deine Aktualisierungsmethode",
+      "subtitle": "Vor der Aktualisierung wird eine Datensicherung empfohlen.",
+      "cliTitle": "Shopware CLI verwenden",
+      "cliRecommended": "Empfohlen für Entwickler und verwaltete Deployments",
+      "cliDescription": "Mehr Kontrolle und wiederholbare Deployments",
+      "cliInstallHint": "Installiere die Shopware CLI und führe aus:",
+      "cliInstallLink": "Shopware CLI installieren",
+      "webTitle": "Mit dem Web-Installer fortfahren",
+      "actions": {
+        "continue": "Weiter"
+      }
     }
   },
   "sw-privileges": {

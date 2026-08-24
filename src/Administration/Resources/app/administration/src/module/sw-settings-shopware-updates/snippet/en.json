@@ -73,6 +73,19 @@
       "messageOkay": "All prerequisites fulfilled. Don't forget to create a backup before updating.",
       "messageUpdateCheck": "Your current version can be updated to {version}. What do you want to do?",
       "backupLabel": "Yes, I've created a backup."
+    },
+    "methodModal": {
+      "title": "Choose your update method",
+      "subtitle": "A backup is recommended before updating.",
+      "cliTitle": "Use Shopware CLI",
+      "cliRecommended": "Recommended for developers and managed deployments",
+      "cliDescription": "More control and repeatable deployments",
+      "cliInstallHint": "Install Shopware CLI and run:",
+      "cliInstallLink": "Install Shopware CLI",
+      "webTitle": "Continue with web installer",
+      "actions": {
+        "continue": "Continue"
+      }
     }
   },
   "sw-privileges": {

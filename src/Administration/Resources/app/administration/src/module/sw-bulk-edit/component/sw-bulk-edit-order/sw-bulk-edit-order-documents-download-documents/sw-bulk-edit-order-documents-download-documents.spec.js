@@ -3,6 +3,14 @@
  */
 import { mount } from '@vue/test-utils';
 
+const documentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+    },
+];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
@@ -13,9 +21,16 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(),
+                            search: () => Promise.resolve([...documentTypesFixtures]),
                         };
                     },
+                },
+                documentV2Service: {
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({
+                        invoice: { formats: ['pdf'] },
+                    }),
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
             },
         },
@@ -26,6 +41,7 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         wrapper = await createWrapper();
     });
 
@@ -69,5 +85,37 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
             ]),
         );
         spy.mockRestore();
+    });
+
+    it('should label checkboxes with the translated document type name', async () => {
+        const fixtures = Object.assign([...documentTypesFixtures], { total: documentTypesFixtures.length });
+        jest.spyOn(wrapper.vm.documentTypeRepository, 'search').mockResolvedValueOnce(fixtures);
+
+        await wrapper.vm.createdComponent();
+        await flushPromises();
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+
+        expect(labels).toEqual(documentTypesFixtures.map((type) => type.translated.name));
+    });
+
+    it('fetches document types from the available types endpoint', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+
+        await wrapper.vm.createdComponent();
+        await flushPromises();
+
+        expect([...wrapper.vm.documentTypes]).toEqual([
+            {
+                id: 'invoice',
+                technicalName: 'invoice',
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
+                selected: false,
+            },
+        ]);
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+        expect(labels).toEqual(['sw-order.components.createDocumentModal.documentTypes.invoice']);
     });
 });

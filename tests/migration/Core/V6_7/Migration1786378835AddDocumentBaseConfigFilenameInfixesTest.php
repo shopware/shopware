@@ -30,7 +30,6 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixesTest extends TestCa
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->rollback();
     }
 
     protected function tearDown(): void
@@ -48,6 +47,8 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixesTest extends TestCa
 
     public function testMigrationAddsNullableColumn(): void
     {
+        $this->rollback();
+
         static::assertFalse($this->columnExists());
 
         $migration = new Migration1786378835AddDocumentBaseConfigFilenameInfixes();
@@ -66,6 +67,8 @@ class Migration1786378835AddDocumentBaseConfigFilenameInfixesTest extends TestCa
 
     public function testMigrationSeedsZugferdEmbeddedPdfInfixOnlyForTypesThatSupportIt(): void
     {
+        $this->rollback();
+
         $invoiceTypeId = $this->fetchDocumentTypeId('invoice');
         $deliveryNoteTypeId = $this->fetchDocumentTypeId('delivery_note');
 

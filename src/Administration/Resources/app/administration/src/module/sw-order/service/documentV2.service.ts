@@ -1,3 +1,6 @@
+import type DocumentV2ApiService from 'src/core/service/api/documentV2.api.service';
+import type { DocumentTypeFormats } from 'src/core/service/api/documentV2.api.service';
+
 interface DocumentConfig {
     documentComment: string;
     documentDate: string;
@@ -103,6 +106,24 @@ export {
  * @class
  */
 export default class DocumentV2Service {
+    private availableDocumentTypes: Promise<Record<string, DocumentTypeFormats>> | null = null;
+
+    constructor(private readonly documentV2ApiService: DocumentV2ApiService) {}
+
+    public getAvailableDocumentTypes(): Promise<Record<string, DocumentTypeFormats>> {
+        this.availableDocumentTypes ??= this.documentV2ApiService
+            .getAvailableTypes()
+            .then((response) => response.documentTypes ?? {})
+            .catch((error) => {
+                // Let the next caller retry instead of caching the failure forever.
+                this.availableDocumentTypes = null;
+
+                throw error;
+            });
+
+        return this.availableDocumentTypes;
+    }
+
     public getDocumentFamily(technicalName: string | null): string | null {
         if (!technicalName) {
             return null;

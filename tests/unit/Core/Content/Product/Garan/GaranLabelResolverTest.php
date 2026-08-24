@@ -40,6 +40,48 @@ class GaranLabelResolverTest extends TestCase
         static::assertNull($this->createResolver()->resolve($product));
     }
 
+    public function testResolvesToNullWhenManufacturerNameMissing(): void
+    {
+        $product = $this->createProduct(
+            guaranteeConfirmed: true,
+            manufacturerNumber: 'ACME-123',
+            guaranteeMonths: 36,
+            manufacturer: $this->createManufacturer(name: null, translatedName: null)
+        );
+
+        static::assertNull($this->createResolver()->resolve($product));
+    }
+
+    public function testResolvesLabelWhenManufacturerNameIsOnlyAvailableThroughTranslationFallback(): void
+    {
+        $product = $this->createProduct(
+            guaranteeConfirmed: true,
+            manufacturerNumber: 'ACME-123',
+            guaranteeMonths: 36,
+            manufacturer: $this->createManufacturer(name: null, translatedName: 'ACME')
+        );
+
+        $svg = $this->createResolver()->resolve($product);
+
+        static::assertIsString($svg);
+        static::assertStringContainsString('ACME', $svg);
+    }
+
+    public function testResolvesNestedLabelWhenManufacturerNameIsOnlyAvailableThroughTranslationFallback(): void
+    {
+        $product = $this->createProduct(
+            guaranteeConfirmed: true,
+            manufacturerNumber: 'ACME-123',
+            guaranteeMonths: 36,
+            manufacturer: $this->createManufacturer(name: null, translatedName: 'ACME')
+        );
+
+        $svg = $this->createResolver()->resolve($product, GaranLabelResolver::LABEL_TYPE_NESTED);
+
+        static::assertIsString($svg);
+        static::assertStringContainsString('nested', $svg);
+    }
+
     public function testResolvesToSvgForCompleteConfirmedProduct(): void
     {
         $product = $this->createProduct(guaranteeConfirmed: true, manufacturerNumber: 'ACME-123', guaranteeMonths: 36);
@@ -106,15 +148,25 @@ class GaranLabelResolverTest extends TestCase
         return new GaranLabelResolver(new GaranLabelDurationFormatter(), new GaranLabelRenderer($twig));
     }
 
-    private function createProduct(bool $guaranteeConfirmed, ?string $manufacturerNumber, ?int $guaranteeMonths): ProductEntity
+    /**
+     * The DAL only fills `name` with the translation of the current language, while the resolved
+     * translation chain (including the parent language fallback) ends up in `translated`.
+     */
+    private function createManufacturer(?string $name, ?string $translatedName): ProductManufacturerEntity
     {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer-id');
-        $manufacturer->setName('ACME');
+        $manufacturer->setName($name);
+        $manufacturer->setTranslated(['name' => $translatedName]);
 
+        return $manufacturer;
+    }
+
+    private function createProduct(bool $guaranteeConfirmed, ?string $manufacturerNumber, ?int $guaranteeMonths, ?ProductManufacturerEntity $manufacturer = null): ProductEntity
+    {
         $product = new ProductEntity();
         $product->setId('product-id');
-        $product->setManufacturer($manufacturer);
+        $product->setManufacturer($manufacturer ?? $this->createManufacturer(name: 'ACME', translatedName: 'ACME'));
         $product->setManufacturerNumber($manufacturerNumber);
         $product->setGuaranteeMonths($guaranteeMonths);
         $product->setGuaranteeConfirmed($guaranteeConfirmed);

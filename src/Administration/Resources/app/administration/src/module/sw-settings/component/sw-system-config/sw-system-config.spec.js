@@ -8,6 +8,7 @@
 import { mount } from '@vue/test-utils';
 import { computed, inject, ref } from 'vue';
 import ShopwareError from 'src/core/data/ShopwareError';
+import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import kebabCase from 'lodash-es/kebabCase';
 import uuid from 'test/_helper_/uuid';
@@ -84,6 +85,9 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-url-field': await wrapTestComponent('sw-url-field'),
@@ -746,6 +750,10 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
+    afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
     it('should show a select field for the sales channels', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -831,6 +839,43 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         const error = wrapper.vm.getFieldError('dummyKey');
 
         expect(error).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should show the error of the selected sales channel scope', async () => {
+        const fieldName = 'ConfigRenderer.config.textField';
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
+            'This value should not be blank.',
+        );
+
+        new ErrorResolverSystemConfig().handleWriteErrors([
+            {
+                code: 'scopedCode',
+                status: '400',
+                detail: 'This value should not be blank.',
+                meta: { parameters: {} },
+                source: { pointer: `/${uuid.get('headless')}/${fieldName}` },
+            },
+        ]);
+        await flushPromises();
+
+        expect(wrapper.vm.getFieldError(fieldName)).toEqual(expect.objectContaining({ code: 'scopedCode' }));
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).toContain(
+            'This value should not be blank.',
+        );
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
+            'This value should not be blank.',
+        );
     });
 
     it('should add a class based on the card name when provided', async () => {

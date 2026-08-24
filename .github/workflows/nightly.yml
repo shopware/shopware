@@ -63,12 +63,13 @@ jobs:
     secrets: inherit
     with:
       profile: nightly
+      currents: ${{ github.event_name == 'schedule' }}
       # Major acceptance tests are run by the dedicated nightly-major workflow while the next
       # major is prepared. Once they are green, drop this line to fold them back into nightly.
       major: exclude
   visual-tests:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
-    uses: ./.github/workflows/visual-tests.yml
+    uses: ./.github/workflows/visual-tests-docker.yml
     secrets: inherit
     with:
       currents: ${{ github.event_name == 'schedule' }}
@@ -108,7 +109,7 @@ jobs:
       contents: read
       issues: write
     with:
-      report-title: "[nightly] Nightly PHPUnit failures"
+      report-title: "[nightly] Nightly test failures"
 
   # we need this for our LTS, because gh only runs scheduled for the default branch
   nightly-other-branches:

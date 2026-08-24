@@ -331,6 +331,7 @@
       "labelShowHistoryModal": "Show status history",
       "labelLastEditedBy": "Last edited by",
       "labelSystemUser": "System",
+      "labelCustomer": "Customer",
       "labelSelectStatePlaceholder": "Select a status...",
       "labelInternalComment": "Internal comment",
       "labelSelectStateButton": "Update status",
@@ -471,6 +472,7 @@
       "modalTitle": "Status history",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Customer",
       "column": {
         "createdAt": "Date",
         "entity": "Changed",

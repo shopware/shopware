@@ -209,6 +209,11 @@ export default [
             'scripts/**/*',
             '!scripts/extensionTooling/',
             '!scripts/extensionTooling/**/*',
+            '!scripts/codemods/',
+            '!scripts/codemods/sfc-migration/',
+            '!scripts/codemods/sfc-migration/**/*',
+            // Codemod inputs are intentionally old-style Options API components.
+            'scripts/codemods/sfc-migration/__fixtures__/**/*',
             // Declaration-only type surface; admin-types imports the gitignored
             // generated entity schema, and spec-types references jest, so both
             // must stay outside the admin's own typed-lint program.
@@ -767,12 +772,20 @@ export default [
         files: [
             'extension-tooling/**/*.mjs',
             'scripts/extensionTooling/**/*.ts',
+            'scripts/codemods/sfc-migration/**/*.ts',
         ],
         rules: {
             'filename-rules/match': 'off',
             'import/extensions': 'off',
             'no-console': 'off',
             'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
+    {
+        files: ['scripts/codemods/sfc-migration/**/*.ts'],
+        rules: {
+            // The codemod emits and documents TODO(sfc-migration) markers by design.
+            'no-warning-comments': 'off',
         },
     },
 

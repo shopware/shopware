@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -330,10 +331,22 @@ const i18n = createI18n({
     },
 });
 
+// Mirrors the $dataScope global property of vue.adapter.ts, so native setup SFCs with
+// <sw-block> templates can render in tests.
+const BlockDataScopePlugin = {
+    install(app) {
+        Object.defineProperty(app.config.globalProperties, '$dataScope', {
+            get: getBlockDataScope,
+            enumerable: true,
+        });
+    },
+};
+
 // Add global plugins
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    BlockDataScopePlugin,
     i18n,
 ];
 

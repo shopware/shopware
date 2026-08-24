@@ -124,7 +124,7 @@ class ProductContentLayoutGenerator implements DemodataGeneratorInterface
                             'id' => Uuid::randomHex(),
                             'component' => 'Sw:Content:Text',
                             'properties' => [
-                                'text' => '<p>' . $faker->sentences(20, true) . '</p>',
+                                'text' => '<p>' . $faker->paragraph(20) . '</p>',
                             ],
                         ],
                     ],

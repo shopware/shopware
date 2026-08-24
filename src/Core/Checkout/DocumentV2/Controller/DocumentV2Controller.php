@@ -44,10 +44,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 final class DocumentV2Controller extends AbstractController
 {
-    /**
-     * Associations needed to resolve and read a document's files, including the media of
-     * documents that were created by document generation v1.
-     */
     private const DOCUMENT_FILE_ASSOCIATIONS = [
         'documentFiles.media',
         'documentMediaFile',

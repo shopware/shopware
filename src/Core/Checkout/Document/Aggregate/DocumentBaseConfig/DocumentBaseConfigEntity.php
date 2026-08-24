@@ -36,6 +36,8 @@ class DocumentBaseConfigEntity extends Entity
 
     protected ?string $documentTypeId = null;
 
+    protected ?string $typeName = null;
+
     protected ?string $logoId = null;
 
     /**
@@ -122,6 +124,16 @@ class DocumentBaseConfigEntity extends Entity
     public function setDocumentTypeId(?string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getDocumentNumber(): string

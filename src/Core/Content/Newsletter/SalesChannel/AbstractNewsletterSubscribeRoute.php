@@ -23,10 +23,7 @@ abstract class AbstractNewsletterSubscribeRoute
     abstract public function getDecorated(): AbstractNewsletterSubscribeRoute;
 
     /**
-     * @deprecated tag:v6.8.0
-     * Use subscribeWithResponse() instead.
-     * Starting with v6.8.0, the API route response is changing.
-     * This method will be removed.
+     * @deprecated tag:v6.8.0 - Will be removed. Implement subscribeWithResponse() instead.
      *
      * @return StoreApiResponse<covariant Struct>
      */
@@ -35,7 +32,7 @@ abstract class AbstractNewsletterSubscribeRoute
     /**
      * @return StoreApiResponse<covariant Struct>
      */
-    #[BecomesAbstract(version: 'v6.8.0')]
+    #[BecomesAbstract(version: 'v6.8.0', description: 'Implement it in your decorator; subscribe() is removed.')]
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: NewsletterSubscribeRouteResponse::class)]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): StoreApiResponse
     {

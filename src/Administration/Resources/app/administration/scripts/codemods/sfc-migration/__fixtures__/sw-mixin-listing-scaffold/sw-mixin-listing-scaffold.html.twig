@@ -1,0 +1,29 @@
+{% block sw_mixin_listing_scaffold %}
+    <div class="sw-mixin-listing-scaffold">
+        <sw-entity-listing
+            :items="items"
+            :is-loading="isLoading"
+            :criteria-limit="limit"
+            :sort-by="currentSortBy"
+            :sort-direction="sortDirection"
+            @page-change="onPageChange"
+            @column-sort="onSortColumn"
+            @saved="onSaved"
+        />
+
+        <sw-filter-panel
+            :filters="filters"
+            :active-filter-number="selectionCount"
+            @filter-toggle="onSwitchFilter"
+        />
+
+        <sw-pagination
+            :page="page"
+            :limit="limit"
+            :total="total"
+            @page-change="onPageChange"
+        />
+
+        <button class="sw-mixin-listing-scaffold__refresh" @click="onRefresh">Refresh</button>
+    </div>
+{% endblock %}

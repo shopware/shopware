@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -54,17 +55,10 @@ class DocumentArchiveGeneratorTest extends TestCase
         static::assertSame('1000.zip', $archive->getName());
         static::assertSame('application/zip', $archive->getContentType());
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-test-');
-        static::assertIsString($tempFile);
-        static::assertNotFalse(file_put_contents($tempFile, $archive->getContent()));
-
-        $zip = new \ZipArchive();
-        static::assertTrue($zip->open($tempFile));
-        static::assertSame('pdf content', $zip->getFromName('invoice_1000_pdf.pdf'));
-        static::assertSame('html content', $zip->getFromName('invoice_1000_html.html'));
-        $zip->close();
-
-        (new Filesystem())->remove($tempFile);
+        $this->assertArchiveContains($archive, [
+            'invoice_1000_pdf.pdf' => 'pdf content',
+            'invoice_1000_html.html' => 'html content',
+        ]);
     }
 
     public function testArchiveReturnsNullWithoutDocumentFiles(): void
@@ -77,6 +71,106 @@ class DocumentArchiveGeneratorTest extends TestCase
             ->archive($document, Context::createDefaultContext());
 
         static::assertNull($archive);
+    }
+
+    public function testArchiveContainsLegacyDocumentFilesWhenNoV2FilesExist(): void
+    {
+        $pdfMediaId = Uuid::randomHex();
+        $pdfMedia = new MediaEntity();
+        $pdfMedia->setId($pdfMediaId);
+        $pdfMedia->setFileName('invoice_1000');
+        $pdfMedia->setFileExtension(DocumentFormat::PDF->fileExtension());
+        $pdfMedia->setMimeType(DocumentFormat::PDF->mimeType());
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setConfig(['documentNumber' => '1000']);
+        $document->setDocumentMediaFile($pdfMedia);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('loadFile')
+            ->with($pdfMediaId, static::isInstanceOf(Context::class))
+            ->willReturn('legacy pdf content');
+
+        $archive = $this->createArchiveGenerator($mediaService)
+            ->archive($document, Context::createDefaultContext());
+
+        static::assertNotNull($archive);
+
+        $this->assertArchiveContains($archive, ['invoice_1000.pdf' => 'legacy pdf content']);
+    }
+
+    public function testArchiveContainsLegacyExtendedDocumentFormat(): void
+    {
+        $xmlMediaId = Uuid::randomHex();
+        $xmlMedia = new MediaEntity();
+        $xmlMedia->setId($xmlMediaId);
+        $xmlMedia->setFileName('invoice_1000_zugferd');
+        $xmlMedia->setFileExtension(DocumentFormat::ZUGFERD_XML->fileExtension());
+        $xmlMedia->setMimeType(DocumentFormat::ZUGFERD_XML->mimeType());
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setConfig(['documentNumber' => '1000']);
+        $document->setDocumentMediaFile($xmlMedia);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('loadFile')
+            ->with($xmlMediaId, static::isInstanceOf(Context::class))
+            ->willReturn('legacy zugferd xml content');
+
+        $archive = $this->createArchiveGenerator($mediaService)
+            ->archive($document, Context::createDefaultContext());
+
+        static::assertNotNull($archive);
+
+        $this->assertArchiveContains($archive, ['invoice_1000_zugferd.xml' => 'legacy zugferd xml content']);
+    }
+
+    public function testArchivePrefersV2FileWhenLegacyFileHasTheSameName(): void
+    {
+        $v2MediaId = Uuid::randomHex();
+        $legacyMediaId = Uuid::randomHex();
+        $v2Media = new MediaEntity();
+        $v2Media->setId($v2MediaId);
+        $v2Media->setFileName('invoice_1000');
+        $v2Media->setFileExtension(DocumentFormat::PDF->fileExtension());
+        $v2Media->setMimeType(DocumentFormat::PDF->mimeType());
+
+        $legacyMedia = new MediaEntity();
+        $legacyMedia->setId($legacyMediaId);
+        $legacyMedia->setFileName('invoice_1000');
+        $legacyMedia->setFileExtension(DocumentFormat::PDF->fileExtension());
+        $legacyMedia->setMimeType(DocumentFormat::PDF->mimeType());
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setConfig(['documentNumber' => '1000']);
+        $document->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile(
+                $v2MediaId,
+                DocumentFormat::PDF->value,
+                'invoice_1000',
+                DocumentFormat::PDF->fileExtension(),
+                DocumentFormat::PDF->mimeType(),
+            ),
+        ]));
+        $document->setDocumentMediaFile($legacyMedia);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('loadFile')
+            ->with($v2MediaId, static::isInstanceOf(Context::class))
+            ->willReturn('v2 pdf content');
+
+        $archive = $this->createArchiveGenerator($mediaService)
+            ->archive($document, Context::createDefaultContext());
+
+        static::assertNotNull($archive);
+
+        $this->assertArchiveContains($archive, ['invoice_1000.pdf' => 'v2 pdf content']);
     }
 
     public function testArchiveFallsBackToDocumentFormatExtensionWhenMediaHasNoFileExtension(): void
@@ -110,16 +204,7 @@ class DocumentArchiveGeneratorTest extends TestCase
 
         static::assertNotNull($archive);
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-test-');
-        static::assertIsString($tempFile);
-        static::assertNotFalse(file_put_contents($tempFile, $archive->getContent()));
-
-        $zip = new \ZipArchive();
-        static::assertTrue($zip->open($tempFile));
-        static::assertSame('custom content', $zip->getFromName('invoice_1000_custom.custom'));
-        $zip->close();
-
-        (new Filesystem())->remove($tempFile);
+        $this->assertArchiveContains($archive, ['invoice_1000_custom.custom' => 'custom content']);
     }
 
     public function testArchiveThrowsWhenFileExtensionIsUnavailable(): void
@@ -163,6 +248,32 @@ class DocumentArchiveGeneratorTest extends TestCase
                 new StaticDocumentRenderer('custom_format', fileExtension: 'custom'),
             ]),
         );
+    }
+
+    /**
+     * @param array<string, string> $expectedFiles
+     */
+    private function assertArchiveContains(RenderedDocument $archive, array $expectedFiles): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-test-');
+        static::assertIsString($tempFile);
+
+        $filesystem = new Filesystem();
+        try {
+            $filesystem->dumpFile($tempFile, $archive->getContent());
+
+            $zip = new \ZipArchive();
+            static::assertTrue($zip->open($tempFile));
+            static::assertSame(\count($expectedFiles), $zip->numFiles);
+
+            foreach ($expectedFiles as $fileName => $content) {
+                static::assertSame($content, $zip->getFromName($fileName));
+            }
+
+            $zip->close();
+        } finally {
+            $filesystem->remove($tempFile);
+        }
     }
 
     private function createDocumentFile(

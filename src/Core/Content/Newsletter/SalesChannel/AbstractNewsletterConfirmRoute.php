@@ -22,10 +22,7 @@ abstract class AbstractNewsletterConfirmRoute
     abstract public function getDecorated(): AbstractNewsletterConfirmRoute;
 
     /**
-     * @deprecated tag:v6.8.0
-     * Use confirmWithResponse() instead.
-     * Starting with v6.8.0, the API route response is changing.
-     * This method will be removed.
+     * @deprecated tag:v6.8.0 - Will be removed. Implement confirmWithResponse() instead.
      *
      * @return StoreApiResponse<covariant Struct>
      */
@@ -34,7 +31,7 @@ abstract class AbstractNewsletterConfirmRoute
     /**
      * @return StoreApiResponse<covariant Struct>
      */
-    #[BecomesAbstract(version: 'v6.8.0')]
+    #[BecomesAbstract(version: 'v6.8.0', description: 'Implement it in your decorator; confirm() is removed.')]
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: SuccessResponse::class)]
     public function confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {

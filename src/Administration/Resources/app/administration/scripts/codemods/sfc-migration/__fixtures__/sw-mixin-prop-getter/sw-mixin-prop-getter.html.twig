@@ -1,0 +1,7 @@
+{% block sw_mixin_prop_getter %}
+    <div class="sw-mixin-prop-getter">
+        <button class="sw-mixin-prop-getter__select" :disabled="hasVideoCover" @click="onSelect">Set cover</button>
+
+        <sw-media-modal-cover v-if="showCoverSelectionModal" @change="onCoverSelectionChange" />
+    </div>
+{% endblock %}

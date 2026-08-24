@@ -1,3 +1,11 @@
+# 6.7.15.0 (upcoming)
+
+## Administration
+
+### Optional order confirmation mail for Administration-created orders
+
+When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
+
 # 6.7.14.0 (upcoming)
 
 ## Features
@@ -389,10 +397,6 @@ are removed. Those are still required in 6.7 and have to answer with `NoContentR
 With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` silently returned no results for entities that have no admin search indexer, because those entities were dropped from the request. They are now searched over the DAL instead, so an entity registered in the Administration search (`searchTypeService.upsertType()` or a module `defaultSearchConfiguration`) is findable without shipping an indexer. Registering an `AbstractAdminIndexer` for the entity is still the faster option.
 
 ## Administration
-
-### Optional order confirmation mail for Administration-created orders
-
-When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
 

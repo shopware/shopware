@@ -729,8 +729,8 @@ class DocumentV2ControllerTest extends TestCase
 
         $zip = new \ZipArchive();
         static::assertTrue($zip->open($tempFile));
-        static::assertSame('pdf content', $zip->getFromName('10000_invoice_1000_pdf.pdf'));
-        static::assertSame('html content', $zip->getFromName('10000_invoice_1000_html.html'));
+        static::assertSame('pdf content', $zip->getFromName('invoice_1000_pdf.pdf'));
+        static::assertSame('html content', $zip->getFromName('invoice_1000_html.html'));
         $zip->close();
 
         (new Filesystem())->remove($tempFile);

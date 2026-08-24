@@ -45,10 +45,13 @@ final class DocumentArchiveGenerator
 
         try {
             $hasFiles = false;
+            $multipleOrders = $this->containsMultipleOrders($documents);
 
             try {
                 foreach ($documents as $document) {
-                    $hasFiles = $this->writeDocumentFiles($archive, $document, $context) || $hasFiles;
+                    $entryPrefix = $multipleOrders ? $this->createOrderPrefix($document) : '';
+
+                    $hasFiles = $this->writeDocumentFiles($archive, $document, $entryPrefix, $context) || $hasFiles;
                 }
             } finally {
                 $archive->close();
@@ -77,7 +80,7 @@ final class DocumentArchiveGenerator
      *
      * @return bool whether any files were written for this document
      */
-    private function writeDocumentFiles(\ZipArchive $archive, DocumentEntity $document, Context $context): bool
+    private function writeDocumentFiles(\ZipArchive $archive, DocumentEntity $document, string $entryPrefix, Context $context): bool
     {
         $hasFiles = false;
 
@@ -85,7 +88,7 @@ final class DocumentArchiveGenerator
         $entryNames = [];
         foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
             $media = $documentFile->getMedia();
-            $entryName = $this->createEntryName($documentFile, $media, $document);
+            $entryName = $this->createEntryName($documentFile, $media, $document->getId(), $entryPrefix);
             $normalizedEntryName = strtolower($entryName);
             if (isset($entryNames[$normalizedEntryName])) {
                 continue;
@@ -112,7 +115,7 @@ final class DocumentArchiveGenerator
                 continue;
             }
 
-            $entryName = $this->createLegacyEntryName($media, $fileExtension, $document);
+            $entryName = $this->createLegacyEntryName($media, $fileExtension, $document->getId(), $entryPrefix);
             $normalizedEntryName = strtolower($entryName);
             if (isset($entryNames[$normalizedEntryName])) {
                 continue;
@@ -140,29 +143,43 @@ final class DocumentArchiveGenerator
         );
     }
 
-    private function createEntryName(DocumentFileEntity $documentFile, MediaEntity $media, DocumentEntity $document): string
+    private function createEntryName(DocumentFileEntity $documentFile, MediaEntity $media, string $documentId, string $entryPrefix): string
     {
         $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($documentFile->getDocumentFormat());
 
         if ($fileExtension === null) {
-            throw DocumentV2Exception::documentFileExtensionUnavailable($document->getId(), $documentFile->getDocumentFormat());
+            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $documentFile->getDocumentFormat());
         }
 
-        $fileName = $media->getFileName() ?? $document->getId();
+        $fileName = $media->getFileName() ?? $documentId;
 
-        return \sprintf('%s_%s.%s', $this->createOrderPrefix($document), $fileName, $fileExtension);
+        return $entryPrefix . \sprintf('%s.%s', $fileName, $fileExtension);
     }
 
-    private function createLegacyEntryName(MediaEntity $media, string $fileExtension, DocumentEntity $document): string
+    private function createLegacyEntryName(MediaEntity $media, string $fileExtension, string $documentId, string $entryPrefix): string
     {
-        $fileName = $media->getFileName() ?: $document->getId();
+        $fileName = $media->getFileName() ?: $documentId;
 
-        return \sprintf('%s_%s.%s', $this->createOrderPrefix($document), $fileName, $fileExtension);
+        return $entryPrefix . \sprintf('%s.%s', $fileName, $fileExtension);
     }
 
     private function createOrderPrefix(DocumentEntity $document): string
     {
-        return $document->getOrder()?->getOrderNumber() ?? $document->getOrderId();
+        return ($document->getOrder()?->getOrderNumber() ?? $document->getOrderId()) . '_';
+    }
+
+    private function containsMultipleOrders(DocumentCollection $documents): bool
+    {
+        if ($documents->count() < 2) {
+            return false;
+        }
+
+        $orderIds = [];
+        foreach ($documents as $document) {
+            $orderIds[$document->getOrderId()] = true;
+        }
+
+        return \count($orderIds) > 1;
     }
 
     private function createArchiveName(DocumentCollection $documents): string

@@ -36,7 +36,6 @@ class DocumentArchiveGeneratorTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($document, '10000');
         $document->setDocumentFiles(new DocumentFileCollection([
             $this->createDocumentFile($pdfMediaId, DocumentFormat::PDF->value, 'invoice_1000_pdf', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
             $this->createDocumentFile($htmlMediaId, DocumentFormat::HTML->value, 'invoice_1000_html', DocumentFormat::HTML->fileExtension(), DocumentFormat::HTML->mimeType()),
@@ -59,8 +58,8 @@ class DocumentArchiveGeneratorTest extends TestCase
         static::assertSame('application/zip', $archive->getContentType());
 
         $this->assertArchiveContains($archive, [
-            '10000_invoice_1000_pdf.pdf' => 'pdf content',
-            '10000_invoice_1000_html.html' => 'html content',
+            'invoice_1000_pdf.pdf' => 'pdf content',
+            'invoice_1000_html.html' => 'html content',
         ]);
     }
 
@@ -88,7 +87,6 @@ class DocumentArchiveGeneratorTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($document, '10000');
         $document->setDocumentMediaFile($pdfMedia);
 
         $mediaService = $this->createMock(MediaService::class);
@@ -102,7 +100,7 @@ class DocumentArchiveGeneratorTest extends TestCase
 
         static::assertNotNull($archive);
 
-        $this->assertArchiveContains($archive, ['10000_invoice_1000.pdf' => 'legacy pdf content']);
+        $this->assertArchiveContains($archive, ['invoice_1000.pdf' => 'legacy pdf content']);
     }
 
     public function testArchiveContainsLegacyExtendedDocumentFormat(): void
@@ -117,7 +115,6 @@ class DocumentArchiveGeneratorTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($document, '10000');
         $document->setDocumentMediaFile($xmlMedia);
 
         $mediaService = $this->createMock(MediaService::class);
@@ -131,7 +128,7 @@ class DocumentArchiveGeneratorTest extends TestCase
 
         static::assertNotNull($archive);
 
-        $this->assertArchiveContains($archive, ['10000_invoice_1000_zugferd.xml' => 'legacy zugferd xml content']);
+        $this->assertArchiveContains($archive, ['invoice_1000_zugferd.xml' => 'legacy zugferd xml content']);
     }
 
     public function testArchivePrefersV2FileWhenLegacyFileHasTheSameName(): void
@@ -153,7 +150,6 @@ class DocumentArchiveGeneratorTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($document, '10000');
         $document->setDocumentFiles(new DocumentFileCollection([
             $this->createDocumentFile(
                 $v2MediaId,
@@ -176,7 +172,7 @@ class DocumentArchiveGeneratorTest extends TestCase
 
         static::assertNotNull($archive);
 
-        $this->assertArchiveContains($archive, ['10000_invoice_1000.pdf' => 'v2 pdf content']);
+        $this->assertArchiveContains($archive, ['invoice_1000.pdf' => 'v2 pdf content']);
     }
 
     public function testArchiveFallsBackToDocumentFormatExtensionWhenMediaHasNoFileExtension(): void
@@ -197,7 +193,6 @@ class DocumentArchiveGeneratorTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($document, '10000');
         $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
 
         $mediaService = $this->createMock(MediaService::class);
@@ -211,7 +206,7 @@ class DocumentArchiveGeneratorTest extends TestCase
 
         static::assertNotNull($archive);
 
-        $this->assertArchiveContains($archive, ['10000_invoice_1000_custom.custom' => 'custom content']);
+        $this->assertArchiveContains($archive, ['invoice_1000_custom.custom' => 'custom content']);
     }
 
     public function testArchiveThrowsWhenFileExtensionIsUnavailable(): void
@@ -233,7 +228,6 @@ class DocumentArchiveGeneratorTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setConfig(['documentNumber' => '1000']);
-        $this->assignOrder($document, '10000');
         $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
 
         $mediaService = $this->createMock(MediaService::class);
@@ -292,26 +286,88 @@ class DocumentArchiveGeneratorTest extends TestCase
 
     public function testArchiveFallsBackToOrderIdWhenOrderAssociationIsMissing(): void
     {
-        $mediaId = Uuid::randomHex();
-        $orderId = Uuid::randomHex();
+        $firstMediaId = Uuid::randomHex();
+        $secondMediaId = Uuid::randomHex();
+        $firstOrderId = Uuid::randomHex();
+        $secondOrderId = Uuid::randomHex();
 
-        $document = new DocumentEntity();
-        $document->setId(Uuid::randomHex());
-        $document->setOrderId($orderId);
-        $document->setConfig(['documentNumber' => '1000']);
-        $document->setDocumentFiles(new DocumentFileCollection([
-            $this->createDocumentFile($mediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        // Neither document has its order loaded, so the archive can only tell them apart by order id.
+        $firstInvoice = new DocumentEntity();
+        $firstInvoice->setId(Uuid::randomHex());
+        $firstInvoice->setOrderId($firstOrderId);
+        $firstInvoice->setConfig(['documentNumber' => '1000']);
+        $firstInvoice->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($firstMediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $secondInvoice = new DocumentEntity();
+        $secondInvoice->setId(Uuid::randomHex());
+        $secondInvoice->setOrderId($secondOrderId);
+        $secondInvoice->setConfig(['documentNumber' => '1000']);
+        $secondInvoice->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($secondMediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
         ]));
 
         $mediaService = $this->createMock(MediaService::class);
-        $mediaService->expects($this->once())->method('loadFile')->willReturn('pdf content');
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
+                $firstMediaId => 'first invoice content',
+                $secondMediaId => 'second invoice content',
+                default => throw new \RuntimeException('Unexpected media id.'),
+            });
 
         $archive = $this->createArchiveGenerator($mediaService)
-            ->archive(new DocumentCollection([$document]), Context::createDefaultContext());
+            ->archive(new DocumentCollection([$firstInvoice, $secondInvoice]), Context::createDefaultContext());
 
         static::assertNotNull($archive);
 
-        $this->assertArchiveContains($archive, [\sprintf('%s_document_1000.pdf', $orderId) => 'pdf content']);
+        $this->assertArchiveContains($archive, [
+            \sprintf('%s_document_1000.pdf', $firstOrderId) => 'first invoice content',
+            \sprintf('%s_document_1000.pdf', $secondOrderId) => 'second invoice content',
+        ]);
+    }
+
+    public function testArchiveDoesNotPrefixEntriesWhenAllDocumentsBelongToTheSameOrder(): void
+    {
+        $invoiceMediaId = Uuid::randomHex();
+        $deliveryNoteMediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+
+        $invoice = new DocumentEntity();
+        $invoice->setId(Uuid::randomHex());
+        $invoice->setOrderId($orderId);
+        $invoice->setConfig(['documentNumber' => '1000']);
+        $invoice->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($invoiceMediaId, DocumentFormat::PDF->value, 'invoice_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $deliveryNote = new DocumentEntity();
+        $deliveryNote->setId(Uuid::randomHex());
+        $deliveryNote->setOrderId($orderId);
+        $deliveryNote->setConfig(['documentNumber' => '2000']);
+        $deliveryNote->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($deliveryNoteMediaId, DocumentFormat::PDF->value, 'delivery_note_2000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
+                $invoiceMediaId => 'invoice content',
+                $deliveryNoteMediaId => 'delivery note content',
+                default => throw new \RuntimeException('Unexpected media id.'),
+            });
+
+        $archive = $this->createArchiveGenerator($mediaService)
+            ->archive(new DocumentCollection([$invoice, $deliveryNote]), Context::createDefaultContext());
+
+        static::assertNotNull($archive);
+
+        $this->assertArchiveContains($archive, [
+            'invoice_1000.pdf' => 'invoice content',
+            'delivery_note_2000.pdf' => 'delivery note content',
+        ]);
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator

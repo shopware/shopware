@@ -357,9 +357,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $zip = new \ZipArchive();
         static::assertTrue($zip->open($tempFile));
-        static::assertSame(1, $zip->numFiles);
-        // The entry is prefixed with the order number, so only the document part is asserted here.
-        static::assertStringEndsWith('invoice_' . $documentNumber . '.pdf', (string) $zip->getNameIndex(0));
+        static::assertSame('invoice_' . $documentNumber . '.pdf', $zip->getNameIndex(0));
         $zip->close();
 
         (new Filesystem())->remove($tempFile);

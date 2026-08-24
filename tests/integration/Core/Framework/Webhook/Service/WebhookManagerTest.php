@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
@@ -1072,7 +1073,8 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $adminWorkerEnabled
+            $adminWorkerEnabled,
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 

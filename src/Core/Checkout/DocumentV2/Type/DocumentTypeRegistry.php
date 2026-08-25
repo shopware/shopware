@@ -44,7 +44,7 @@ final class DocumentTypeRegistry implements ResetInterface
         $this->formatsByType = null;
     }
 
-    /***
+    /**
      * @return array<string, scalar>
      */
     public function getAppConfig(string $documentType): array

@@ -121,7 +121,7 @@ class DocumentAppFeatureDefinitionTest extends TestCase
         static::assertSame($config->getConfig(), $restored->getConfig());
     }
 
-    public function testOnPersistThrowsWhenIdentifierShadowsCoreDocumentType(): void
+    public function testValidateThrowsWhenIdentifierShadowsCoreDocumentType(): void
     {
         $definition = $this->buildDefinition(
             claimedBy: [],
@@ -131,10 +131,10 @@ class DocumentAppFeatureDefinitionTest extends TestCase
 
         $this->expectExceptionObject(DocumentV2Exception::documentTypeShadowsCoreType('invoice'));
 
-        $definition->onPersist($this->persistContext($this->documentTypeWithIdentifier('invoice')));
+        $definition->validate([$this->config('invoice')], $this->persistContext());
     }
 
-    public function testOnPersistThrowsWhenIdentifierIsClaimedByAnotherApp(): void
+    public function testValidateThrowsWhenIdentifierIsClaimedByAnotherApp(): void
     {
         $definition = $this->buildDefinition(
             claimedBy: ['swag_warranty' => 'OtherApp'],
@@ -144,16 +144,30 @@ class DocumentAppFeatureDefinitionTest extends TestCase
 
         $this->expectExceptionObject(DocumentV2Exception::documentTypeAlreadyRegistered('swag_warranty', 'OtherApp'));
 
-        $definition->onPersist($this->persistContext($this->documentTypes()));
+        $definition->validate([$this->config('swag_warranty')], $this->persistContext());
     }
 
-    public function testOnPersistSeedsANumberRangeForADeclaredAppType(): void
+    public function testValidateSkipsTheCollisionQueryWhenNoConfigsAreDeclared(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllKeyValue');
+
+        $definition = new DocumentAppFeatureDefinition(
+            $connection,
+            StaticEntityRepository::of(NumberRangeTypeCollection::class),
+            StaticEntityRepository::of(NumberRangeCollection::class),
+        );
+
+        $definition->validate([], $this->persistContext());
+    }
+
+    public function testPersistedSeedsANumberRangeForADeclaredAppType(): void
     {
         $typeRepository = StaticEntityRepository::of(NumberRangeTypeCollection::class, [[]]);
         $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class);
 
         $definition = $this->buildDefinition(claimedBy: [], typeRepository: $typeRepository, rangeRepository: $rangeRepository);
-        $definition->onPersist($this->persistContext($this->documentTypeWithIdentifier('swag_warranty')));
+        $definition->persisted([$this->config('swag_warranty')], $this->persistContext());
 
         static::assertCount(1, $typeRepository->creates);
 
@@ -172,25 +186,25 @@ class DocumentAppFeatureDefinitionTest extends TestCase
         static::assertTrue($range['global']);
     }
 
-    public function testOnPersistIsIdempotentWhenTheNumberRangeTypeAlreadyExists(): void
+    public function testPersistedIsIdempotentWhenTheNumberRangeTypeAlreadyExists(): void
     {
         $typeRepository = StaticEntityRepository::of(NumberRangeTypeCollection::class, [[Uuid::randomHex()]]);
         $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class);
 
         $definition = $this->buildDefinition(claimedBy: [], typeRepository: $typeRepository, rangeRepository: $rangeRepository);
-        $definition->onPersist($this->persistContext($this->documentTypeWithIdentifier('swag_warranty')));
+        $definition->persisted([$this->config('swag_warranty')], $this->persistContext());
 
         static::assertSame([], $typeRepository->creates);
         static::assertSame([], $rangeRepository->creates);
     }
 
-    public function testOnPersistDoesNothingWhenTheManifestDeclaresNoDocuments(): void
+    public function testPersistedDoesNothingWhenNoConfigsAreDeclared(): void
     {
         $typeRepository = StaticEntityRepository::of(NumberRangeTypeCollection::class);
         $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class);
 
         $definition = $this->buildDefinition(claimedBy: [], typeRepository: $typeRepository, rangeRepository: $rangeRepository);
-        $definition->onPersist($this->persistContext());
+        $definition->persisted([], $this->persistContext());
 
         static::assertSame([], $typeRepository->creates);
         static::assertSame([], $rangeRepository->creates);
@@ -209,27 +223,17 @@ class DocumentAppFeatureDefinitionTest extends TestCase
         return new DocumentAppFeatureDefinition($connection, $typeRepository, $rangeRepository);
     }
 
-    private function persistContext(string $documents = ''): AppPersistContext
+    private function persistContext(): AppPersistContext
     {
         return AppFixture::createInstallContext(
             AppFixture::createAppEntity('DocumentApp'),
-            $this->manifest($documents),
+            $this->manifest(),
         );
     }
 
-    private function documentTypeWithIdentifier(string $identifier): string
+    private function config(string $identifier): AppDocumentTypeConfig
     {
-        return <<<XML
-            <documents>
-                <document-type>
-                    <identifier>{$identifier}</identifier>
-                    <label>Test type</label>
-                    <formats>
-                        <format>html</format>
-                    </formats>
-                </document-type>
-            </documents>
-            XML;
+        return new AppDocumentTypeConfig($identifier, ['html'], ['en-GB' => 'Test type'], []);
     }
 
     private function documentTypes(): string

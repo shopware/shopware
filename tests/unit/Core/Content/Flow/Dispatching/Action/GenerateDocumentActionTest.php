@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -34,6 +35,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -41,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -269,6 +272,10 @@ class GenerateDocumentActionTest extends TestCase
         $numberRangeValueGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator->method('getValue')->willReturn('generated-number');
 
+        $appFeatureStorage = static::createStub(AppFeatureStorage::class);
+        $appFeatureStorage->method('forActiveApps')->willReturn([]);
+        $documentTypeRegistry = new DocumentTypeRegistry([], $appFeatureStorage);
+
         $generator = new DocumentV2Generator(
             new DocumentDataProviderRegistry([
                 new StaticDocumentDataProvider([DocumentType::INVOICE->value]),
@@ -280,6 +287,7 @@ class GenerateDocumentActionTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $documentTypeRegistry,
                 static::createStub(FileNameProvider::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),
@@ -288,6 +296,7 @@ class GenerateDocumentActionTest extends TestCase
                 static::createStub(Connection::class),
             ),
             $orderRepository,
+            static::createStub(ScriptExecutor::class),
         );
 
         return [$generator, $documentRepository];

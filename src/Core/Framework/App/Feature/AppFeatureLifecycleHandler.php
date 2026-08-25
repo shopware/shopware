@@ -49,26 +49,35 @@ class AppFeatureLifecycleHandler extends AbstractLifecycleHandler
         $appId = $context->app->getId();
         $rows = [];
 
+        /** @var list<array{AppFeatureDefinition<AppFeatureConfig>, list<AppFeatureConfig>}> $persisted */
+        $persisted = [];
+
         foreach ($this->registry->all() as $definition) {
-            if ($definition instanceof AppFeaturePersistListener) {
-                $definition->onPersist($context);
-            }
+            $configs = $definition->fromApp($context->manifest, $context->appFilesystem, $context->defaultLocale);
+
+            $definition->validate($configs, $context);
 
             $stored = [];
             foreach ($this->storage->forApp($appId, $definition->getConfigClass()) as $feature) {
                 $stored[$feature->config->getName()] = $feature->config;
             }
 
-            foreach ($definition->fromApp($context->manifest, $context->appFilesystem, $context->defaultLocale) as $config) {
+            foreach ($configs as $config) {
                 $rows[] = [
                     'type' => $definition->getType(),
                     'name' => $config->getName(),
                     'payload' => $definition->toPayload($config, $stored[$config->getName()] ?? null),
                 ];
             }
+
+            $persisted[] = [$definition, $configs];
         }
 
         $this->storage->syncForApp($appId, $context->app->getName(), $rows);
+
+        foreach ($persisted as [$definition, $configs]) {
+            $definition->persisted($configs, $context);
+        }
     }
 
     private function cleanup(AppRemovalContext $context): void

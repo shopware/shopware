@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
-use Shopware\Core\Framework\App\Feature\AppFeaturePersistListener;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -26,12 +25,12 @@ use Shopware\Core\System\NumberRange\NumberRangeCollection;
  *
  * @internal
  *
- * @implements AppFeatureDefinition<AppDocumentTypeConfig>
+ * @extends AppFeatureDefinition<AppDocumentTypeConfig>
  *
  * @phpstan-type DocumentPayload array{identifier: string, formats: list<string>, label: array<string, string>, config: array<string, scalar>}
  */
 #[Package('after-sales')]
-final class DocumentAppFeatureDefinition implements AppFeatureDefinition, AppFeaturePersistListener
+final class DocumentAppFeatureDefinition extends AppFeatureDefinition
 {
     final public const TYPE = 'document';
 
@@ -77,18 +76,24 @@ final class DocumentAppFeatureDefinition implements AppFeatureDefinition, AppFea
         );
     }
 
-    public function onPersist(AppPersistContext $context): void
+    /**
+     * @param list<AppDocumentTypeConfig> $configs
+     */
+    public function validate(array $configs, AppPersistContext $context): void
     {
-        $documents = $context->manifest->getDocuments();
-
-        if ($documents === null) {
+        if ($configs === []) {
             return;
         }
 
-        $documentTypes = $documents->getDocumentTypes();
+        $this->assertNoCollision($configs, $context->app->getName());
+    }
 
-        $this->assertNoCollision($documentTypes, $context->app->getName());
-        $this->seedNumberRanges($documentTypes, $context->context);
+    /**
+     * @param list<AppDocumentTypeConfig> $configs
+     */
+    public function persisted(array $configs, AppPersistContext $context): void
+    {
+        $this->seedNumberRanges($configs, $context->context);
     }
 
     /**
@@ -120,9 +125,9 @@ final class DocumentAppFeatureDefinition implements AppFeatureDefinition, AppFea
     /**
      * An app identifier may neither shadow a core document type nor one already claimed by another app.
      *
-     * @param list<DocumentPayload> $documentTypes
+     * @param list<AppDocumentTypeConfig> $configs
      */
-    private function assertNoCollision(array $documentTypes, string $appName): void
+    private function assertNoCollision(array $configs, string $appName): void
     {
         /** @var array<string, string> $claimedBy */
         $claimedBy = $this->connection->fetchAllKeyValue(
@@ -130,8 +135,8 @@ final class DocumentAppFeatureDefinition implements AppFeatureDefinition, AppFea
             ['type' => self::TYPE, 'appName' => $appName],
         );
 
-        foreach ($documentTypes as $documentType) {
-            $identifier = $documentType['identifier'];
+        foreach ($configs as $config) {
+            $identifier = $config->getName();
 
             if (DocumentType::tryFrom($identifier) !== null) {
                 throw DocumentV2Exception::documentTypeShadowsCoreType($identifier);
@@ -148,12 +153,12 @@ final class DocumentAppFeatureDefinition implements AppFeatureDefinition, AppFea
      * can allocate numbers. Ranges are created once and never removed, so a reinstalled identifier
      * continues its existing sequence instead of re-issuing already-used numbers.
      *
-     * @param list<DocumentPayload> $documentTypes
+     * @param list<AppDocumentTypeConfig> $configs
      */
-    private function seedNumberRanges(array $documentTypes, Context $context): void
+    private function seedNumberRanges(array $configs, Context $context): void
     {
-        foreach ($documentTypes as $documentType) {
-            $identifier = $documentType['identifier'];
+        foreach ($configs as $config) {
+            $identifier = $config->getName();
             $technicalName = DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $identifier;
 
             $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName));

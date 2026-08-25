@@ -11,6 +11,118 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 ### Documents can be persisted without an order reference
 
 The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order; use the `order` association only when it is available.
+## Administration
+
+### Admin UI shell rework (sidebar, top bar, smart bar)
+
+The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.
+
+#### Removed Twig blocks
+
+The following blocks have been removed and can no longer be extended:
+
+- `src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig`
+  - `sw_admin_menu_toggle_sidebar`
+  - `sw_admin_menu_toggle_sidebar_icon`
+  - `sw_admin_menu_toggle_sidebar_text`
+  - `sw_admin_menu_user_actions`
+  - `sw_admin_menu_user_actions_label`
+  - `sw_admin_menu_user_actions_list`
+- `src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig`
+  - `sw_admin_menu_item_arrow_indicato` (sic)
+  - `sw_admin_menu_item_arrow_indicator`
+  - `sw_admin_menu_item_external_arrow_indicato` (sic)
+  - `sw_admin_menu_item_external_icon`
+  - `sw_admin_menu_item_external_text`
+- `src/app/component/base/sw-version/sw-version.html.twig`
+  - `sw_version_name`
+  - `sw_version_name_text`
+  - `sw_version_status`
+  - `sw_version_status_badge`
+- `src/app/component/structure/sw-search-bar/sw-search-bar.html.twig`
+  - `sw_search_bar_version_display`
+- `src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig`
+  - `sw_sales_channel_menu_context_button_collapsed`
+
+#### Repurposed block: `sw_admin_menu_user_actions_items`
+
+The user menu in the sidebar footer became an `mt-action-menu` dropdown. The block `sw_admin_menu_user_actions_items` still exists, but its content now renders inside `mt-action-menu` instead of a `<ul>` navigation list. Overrides that add `<li><router-link>` entries produce broken markup inside the dropdown and need to render `mt-action-menu-group` / `mt-action-menu-item` elements instead:
+
+```twig
+{% block sw_admin_menu_user_actions_items %}
+    {% parent %}
+
+    <mt-action-menu-group>
+        <mt-action-menu-item
+            icon="regular-cog"
+            @click="onMyAction"
+        >
+            My entry
+        </mt-action-menu-item>
+    </mt-action-menu-group>
+{% endblock %}
+```
+
+#### Restructured blocks in `sw-page.html.twig`
+
+- A new `sw_page_top_bar` block wraps the top bar. `sw_page_top_bar_actions` is no longer nested inside `sw_page_search_bar` — overrides that copied the previous markup render the top bar actions twice.
+- The root element of `sw_page_smart_bar` changed from a `<template>` to a `<div class="sw-page__smart-bar">`.
+
+#### Smart bar back button styling removed
+
+The `.smart-bar__back-btn` CSS ruleset was removed from `sw-page.scss`. `#smart-bar-back` slot overrides that render a bare `<router-link class="smart-bar__back-btn">` with icons lose their styling. Migrate to the pattern the default back button uses:
+
+```twig
+<template #smart-bar-back>
+    <router-link
+        v-slot="{ href, navigate }"
+        :to="myBackRoute"
+        custom
+    >
+        <mt-button
+            is="a"
+            class="smart-bar__back-btn"
+            variant="secondary"
+            size="default"
+            square
+            :href="href"
+            :aria-label="$t('global.sw-page.backButton')"
+            @click="navigate"
+        >
+            <mt-icon
+                name="solid-long-arrow-left"
+                size="12px"
+            />
+        </mt-button>
+    </router-link>
+</template>
+```
+
+#### Removed snippets and static asset
+
+- `global.sidebar.buttonCollapse` has been removed.
+- `sw-extension.sw-extension-app-module-error-page.error.phrase` and `.error.info` have been removed; the app module error page uses `mt-empty-state` with the new `.error.description` snippet.
+- The static asset `static/img/error-pages/app-error.svg` has been removed. External URLs pointing to it return a 404.
+
+#### Extension SDK: `ui.sidebar.close()` closes asynchronously
+
+Closing a sidebar via the Extension SDK now plays a close animation (~400 ms) before the sidebar deactivates, instead of removing it immediately. With `prefers-reduced-motion` the sidebar still closes without delay. Do not rely on the sidebar being gone synchronously after calling `close()`.
+
+#### `sw-page` and `sw-meteor-page` are CSS containers
+
+Both page components declare `container-type: inline-size`. This creates a new containing block and stacking context: plugin content inside a page that uses `position: fixed` is now positioned relative to the page container instead of the viewport, and `z-index` values no longer compete with elements outside the page.
+
+#### Color props without effect
+
+- `sw-page`: `headerBorderColor` (and the derived `pageColor`) no longer affect the header — the smart bar no longer renders a module-colored border.
+- `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
+
+#### Optional module icon colors
+
+The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
+
+The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
+
 ## Storefront
 
 ### Semantic footer markup

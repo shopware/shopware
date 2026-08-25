@@ -98,6 +98,11 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     }
 }
 
+// TODO: remove when the issue is fixed https://github.com/shopware/meteor/issues/1341
+.mt-number-field.mt-number-field {
+    container-type: normal;
+}
+
 // TODO: remove when the bottom margin issue is fixed in checkbox field
 .mt-field--checkbox__container .mt-field--checkbox.mt-field--checkbox {
     margin-bottom: 0;

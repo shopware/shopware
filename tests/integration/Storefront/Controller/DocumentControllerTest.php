@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -37,7 +36,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -47,6 +45,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,7 +56,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class DocumentControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DocumentV2Trait;
     use StorefrontControllerTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
@@ -65,9 +64,9 @@ class DocumentControllerTest extends TestCase
 
     private const INVALID_FILE_TYPE = 'invalid';
 
-    private SalesChannelContext $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
-    private Context $context;
+    protected Context $context;
 
     private DocumentGenerator $documentGenerator;
 
@@ -343,7 +342,7 @@ class DocumentControllerTest extends TestCase
 
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
-        $this->configureV2InvoiceDocument();
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
         $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
             new DocumentGenerationRequest(
@@ -451,27 +450,6 @@ class DocumentControllerTest extends TestCase
         $cart = static::getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
 
         return static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-    }
-
-    private function configureV2InvoiceDocument(): void
-    {
-        $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
-        $documentBaseConfig = $documentBaseConfigRepository->search(
-            (new Criteria())
-                ->addFilter(new EqualsFilter('typeName', DocumentType::INVOICE->value))
-                ->addFilter(new EqualsFilter('global', true)),
-            $this->context,
-        )->getEntities()->first();
-
-        static::assertInstanceOf(DocumentBaseConfigEntity::class, $documentBaseConfig);
-
-        $config = $documentBaseConfig->getConfig() ?? [];
-        $config['companyCountryId'] = $this->getValidCountryId();
-
-        $documentBaseConfigRepository->update([[
-            'id' => $documentBaseConfig->getId(),
-            'config' => $config,
-        ]], $this->context);
     }
 
     private function createCustomer(string $paymentMethodId): string

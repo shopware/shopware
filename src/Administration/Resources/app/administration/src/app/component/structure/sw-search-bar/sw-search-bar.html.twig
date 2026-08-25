@@ -1,6 +1,24 @@
 {% block sw_search_bar %}
 <div class="sw-search-bar">
 
+    {% block sw_search_bar_button_off_canvas_toggle %}
+    <mt-button
+        class="sw-search-bar__off-canvas-toggle"
+        variant="tertiary"
+        size="default"
+        square
+        :aria-label="isOffCanvasShown ? $t('global.sw-admin-menu.linkCloseMenu') : $t('global.sw-admin-menu.linkExpandMenu')"
+        @click="toggleOffCanvas"
+    >
+        <template #iconFront>
+            <mt-icon
+                name="regular-bars"
+                size="20px"
+            />
+        </template>
+    </mt-button>
+    {% endblock %}
+
     {% block sw_search_bar_container %}
     <div class="sw-search-bar__container">
 
@@ -10,100 +28,106 @@
             class="sw-search-bar__mobile-controls"
         >
 
-            {% block sw_search_bar_button_off_canvas_toggle %}
-            <button
-                class="sw-search-bar__button"
-                @click="toggleOffCanvas"
-            >
-                <mt-icon
-                    v-if="isOffCanvasShown"
-                    name="regular-times"
-                />
-                <mt-icon
-                    v-else
-                    name="regular-bars-s"
-                />
-            </button>
-            {% endblock %}
-
-            {% block sw_search_bar_version_display %}
-            <sw-version />
-            {% endblock %}
-
             {% block sw_search_bar_button_search %}
-            <button
+            <mt-button
                 class="sw-search-bar__button"
+                variant="tertiary"
+                size="default"
+                square
+                :aria-label="$t('global.sw-search-bar.ariaLabelOpenSearch')"
                 @click="showSearchBar"
             >
-                <mt-icon name="regular-search" />
-            </button>
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-search"
+                        size="20px"
+                    />
+                </template>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
 
         {% block sw_search_bar_field %}
+        <!-- Pointer convenience only, the input stays the keyboard-reachable control. -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="isSearchBarShown"
-            class="sw-search-bar__field"
-            :class="searchBarFieldClasses"
+            class="sw-search-bar__field-wrapper"
+            @click="onClickFieldWrapper"
         >
-
-            {% block sw_search_bar_type %}
-            <span
-                class="sw-search-bar__type--v2"
-                :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
-                role="button"
-                tabindex="0"
-                @click="onOpenModuleFiltersDropDown"
-                @keydown.enter="onOpenModuleFiltersDropDown"
+            <div
+                class="sw-search-bar__field"
+                :class="searchBarFieldClasses"
             >
-                {{ getLabelSearchType() }}
-                <mt-icon
-                    name="regular-chevron-down-xxs"
-                />
-            </span>
-            {% endblock %}
 
-            {% block sw_search_bar_input %}
-            <slot name="search-input">
-                {% block sw_search_bar_slot_input %}
-                <input
-                    ref="searchInput"
-                    v-model="searchTerm"
-                    class="sw-search-bar__input"
-                    :placeholder="placeholderSearchInput"
-                    :aria-label="placeholderSearchInput"
-                    role="searchbox"
-                    @input="onSearchTermChange"
-                    @focus="onFocusInput"
-                    @blur="onBlur"
-                    @keydown.delete="resetSearchType"
-                    @keyup.esc="clearSearchTerm"
-                    @keyup.enter.prevent="onKeyUpEnter"
-                    @keydown.up.prevent="navigateUpResults"
-                    @keydown.down.prevent="navigateDownResults"
+                {% block sw_search_bar_type %}
+                <span
+                    class="sw-search-bar__type--v2"
+                    :class="{ 'is--module-colored': searchTypeColor }"
+                    :style="searchTypeColor ? { '--sw-search-bar-type-color': searchTypeColor } : null"
+                    role="button"
+                    tabindex="0"
+                    @click="onOpenModuleFiltersDropDown"
+                    @keydown.enter="onOpenModuleFiltersDropDown"
                 >
+                    {{ getLabelSearchType() }}
+                    <mt-icon
+                        name="solid-chevron-down-s"
+                        size="var(--scale-size-10)"
+                    />
+                </span>
                 {% endblock %}
-            </slot>
-            {% endblock %}
 
-            {% block sw_search_bar_icon %}
-            <button
-                class="sw-search-bar__field-icon sw-search-bar__field-close"
+                {% block sw_search_bar_input %}
+                <slot name="search-input">
+                    {% block sw_search_bar_slot_input %}
+                    <input
+                        ref="searchInput"
+                        v-model="searchTerm"
+                        class="sw-search-bar__input"
+                        :placeholder="placeholderSearchInput"
+                        :aria-label="placeholderSearchInput"
+                        role="searchbox"
+                        @input="onSearchTermChange"
+                        @focus="onFocusInput"
+                        @blur="onBlur"
+                        @keydown.delete="resetSearchType"
+                        @keyup.esc="onKeyUpEsc"
+                        @keyup.enter.prevent="onKeyUpEnter"
+                        @keydown.up.prevent="navigateUpResults"
+                        @keydown.down.prevent="navigateDownResults"
+                    >
+                    {% endblock %}
+                </slot>
+                {% endblock %}
+
+                {% block sw_search_bar_icon %}
+                <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
+                    <mt-icon
+                        name="regular-search"
+                        size="16px"
+                    />
+                </span>
+                {% endblock %}
+            </div>
+
+            {% block sw_search_bar_field_close %}
+            <mt-button
+                class="sw-search-bar__field-close"
+                variant="tertiary"
+                size="default"
+                square
+                :aria-label="$t('global.sw-search-bar.ariaLabelCloseSearch')"
                 @click="hideSearchBar"
             >
-                <mt-icon
-                    name="regular-times-s"
-                    size="16px"
-                />
-            </button>
-
-            <span class="sw-search-bar__field-icon sw-search-bar__field-search-icon">
-                <mt-icon
-                    name="regular-search-s"
-                    size="16px"
-                />
-            </span>
+                <template #iconFront>
+                    <mt-icon
+                        name="solid-times"
+                        size="12px"
+                    />
+                </template>
+            </mt-button>
             {% endblock %}
         </div>
         {% endblock %}
@@ -170,7 +194,7 @@
                                 {% block sw_search_bar_results_list_bar_item_icon %}
                                 <mt-icon
                                     name="regular-double-chevron-right-s"
-                                    color="rgb(179, 191, 204)"
+                                    color="var(--color-icon-primary-default)"
                                 />
                                 {% endblock %}
 
@@ -274,7 +298,7 @@
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         size="12px"
-                        :style="{ 'color': getEntityIconColor(type.entityName) }"
+                        :color="getTypeIconColor(type.entityName)"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
 
@@ -343,7 +367,7 @@
                     <mt-icon
                         class="sw-search-bar__type-item-icon"
                         size="14px"
-                        :style="{ 'color': getEntityIconColor(type.entityName) }"
+                        :color="getTypeIconColor(type.entityName)"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
                     {{ type.entityName ? getLabelSearchType(type.entityName) : $t('global.sw-search-bar.searchTypeAll') }}

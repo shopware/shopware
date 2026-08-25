@@ -95,9 +95,8 @@
     },
     "sw-extension-app-module-error-page": {
       "error": {
-        "heading": "Whoops! You’ve moved too fast and lost orientation.",
-        "phrase": "The page you were looking for is beyond our reach. Maybe the page has moved, no longer exists or you just like our 404-page. We’ll probably never know.",
-        "info": "Don’t worry! We’ve dispatched a rescue space-cat to guide you back to safety."
+        "heading": "Page not found",
+        "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
       }
     }
   },

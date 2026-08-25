@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -179,8 +180,8 @@ class DocumentRouteTest extends TestCase
             'loggedInCustomerId' => 'guest',
             'requestParameters' => [],
             'withValidDeepLinkCode' => false,
-            'expectedException' => DocumentException::class,
-            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
+            'expectedException' => Feature::isActive('v6.9.0.0') ? DocumentV2Exception::class : DocumentException::class,
+            'expectedErrorCode' => Feature::isActive('v6.9.0.0') ? DocumentV2Exception::DOCUMENT_NOT_FOUND : DocumentException::DOCUMENT_NOT_FOUND,
         ];
 
         yield 'guest with correct request params and valid deep link code' => [
@@ -234,8 +235,8 @@ class DocumentRouteTest extends TestCase
                 'zipcode' => '48624',
             ],
             'withValidDeepLinkCode' => false,
-            'expectedException' => DocumentException::class,
-            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
+            'expectedException' => Feature::isActive('v6.9.0.0') ? DocumentV2Exception::class : DocumentException::class,
+            'expectedErrorCode' => Feature::isActive('v6.9.0.0') ? DocumentV2Exception::DOCUMENT_NOT_FOUND : DocumentException::DOCUMENT_NOT_FOUND,
         ];
 
         yield 'customer with valid deep link code' => [
@@ -250,8 +251,8 @@ class DocumentRouteTest extends TestCase
             'loggedInCustomerId' => 'customer',
             'requestParameters' => [],
             'withValidDeepLinkCode' => false,
-            'expectedException' => DocumentException::class,
-            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
+            'expectedException' => Feature::isActive('v6.9.0.0') ? DocumentV2Exception::class : DocumentException::class,
+            'expectedErrorCode' => Feature::isActive('v6.9.0.0') ? DocumentV2Exception::DOCUMENT_NOT_FOUND : DocumentException::DOCUMENT_NOT_FOUND,
         ];
 
         yield 'customer without deep link code' => [
@@ -320,6 +321,8 @@ class DocumentRouteTest extends TestCase
         string $acceptHeader,
         string $expectedResponseContentType,
     ): void {
+        Feature::skipTestIfActive('v6.9.0.0', $this);
+
         $customerId = $this->loginBrowser($this->browser);
         $this->createOrder(
             $customerId,
@@ -385,6 +388,8 @@ class DocumentRouteTest extends TestCase
 
     public function testDownloadShouldThrowExceptionWhenRequestedFileTypeHasNoGeneratedDocument(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this);
+
         $customerId = $this->ids->get('customer');
         $this->createOrder($customerId);
 
@@ -426,6 +431,8 @@ class DocumentRouteTest extends TestCase
 
     public function testDownloadShouldThrowExceptionWithUnsupportedAcceptHeader(): void
     {
+        Feature::skipTestIfActive('v6.9.0.0', $this);
+
         $customerId = $this->ids->get('customer');
         $this->createOrder($customerId);
 

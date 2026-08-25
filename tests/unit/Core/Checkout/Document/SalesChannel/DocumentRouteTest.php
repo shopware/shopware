@@ -871,11 +871,8 @@ class DocumentRouteTest extends TestCase
 
         $response = $route->download(
             $document->getId(),
-            new Request(),
+            new Request(['format' => DocumentFormat::ZUGFERD_EMBEDDED_PDF->value]),
             $context,
-            '',
-            null,
-            DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
         );
 
         static::assertSame('content', $response->getContent());
@@ -1034,6 +1031,43 @@ class DocumentRouteTest extends TestCase
             );
 
             static::assertSame('legacy content', $response->getContent());
+        });
+    }
+
+    public function testDownloadRejectsUnsupportedFileTypeForALegacyDocumentWhenV690IsActive(): void
+    {
+        Feature::fake(['v6.8.0.0', 'v6.9.0.0'], function (): void {
+            $customerId = Uuid::randomHex();
+            $customer = $this->createCustomer($customerId, false);
+            $order = $this->createOrder($customerId);
+            $document = $this->createDocument($order);
+
+            $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+                new DocumentCollection([$document]), // DocumentRoute::loadDocument()
+            ], new DocumentDefinition());
+
+            $route = new DocumentRoute(
+                static::createMock(DocumentGenerator::class),
+                $this->createDocumentReaderStub(),
+                $documentRepository,
+                new GuestAuthenticator(),
+                new \ArrayIterator([]),
+            );
+
+            $context = static::createStub(SalesChannelContext::class);
+            $context->method('getCustomer')->willReturn($customer);
+            $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+            $this->expectExceptionObject(DocumentException::documentFileTypeNotSupported(self::INVALID_FILE_TYPE));
+
+            $route->download(
+                $document->getId(),
+                new Request(),
+                $context,
+                '',
+                self::INVALID_FILE_TYPE,
+                self::INVALID_FILE_TYPE,
+            );
         });
     }
 

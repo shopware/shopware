@@ -73,6 +73,10 @@ final class DocumentRoute extends AbstractDocumentRoute
         ?string $fileType = null,
         ?string $format = null,
     ): Response {
+        if ($format === null && $request->query->has('format')) {
+            $format = $request->query->getString('format');
+        }
+
         $documentEntity = $this->loadDocument($documentId, $context->getContext());
 
         $this->checkAuth($documentEntity, $request, $context);
@@ -118,6 +122,10 @@ final class DocumentRoute extends AbstractDocumentRoute
                 $download,
                 $document->getContentType()
             );
+        }
+
+        if (!$isDocumentV2 && Feature::isActive('v6.8.0.0') && $fileType !== null && !isset($this->getSupportedFileTypes()[$fileType])) {
+            throw DocumentException::documentFileTypeNotSupported($fileType);
         }
 
         // V2 documents use the explicit format argument. The legacy fileType argument remains the

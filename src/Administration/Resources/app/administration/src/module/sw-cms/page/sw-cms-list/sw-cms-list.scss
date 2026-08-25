@@ -24,7 +24,7 @@
     .sw-cms-list__type-nav-horizontal {
         margin-bottom: var(--scale-size-40);
 
-        // the tabs only filter the list, so the always rendered content area stays empty
+        // sw-tabs renders this area even when no tab content exists
         .sw-tabs__custom-content {
             padding: 0;
         }

@@ -6,10 +6,9 @@
     margin: 0 auto 40px;
     position: relative;
     color: var(--color-text-primary-default);
-    border-radius: $border-radius-lg;
+    border-radius: var(--border-radius-card);
     background: var(--color-elevation-surface-raised);
-
-    @include drop-shadow-default;
+    border: 1px solid var(--color-border-secondary-default);
 
     .sw-meteor-card__header {
         .sw-meteor-card__header-grid {

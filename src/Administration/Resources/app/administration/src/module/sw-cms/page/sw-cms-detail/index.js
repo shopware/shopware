@@ -329,7 +329,6 @@ export default {
                 path: 'page',
                 scope: this,
             });
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;

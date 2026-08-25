@@ -45,13 +45,21 @@ test(
         expect(versionResponse.ok(), '/_info/config request failed').toBeTruthy();
         const config = (await versionResponse.json()) as { version: string };
 
-        await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
-            timeout: 60000,
-        });
+        // The updated instance re-enables the first run wizard, whose modal cannot be closed from
+        // the UI and covers the admin menu. Mark it as finished before interacting with the menu.
+        const firstRunWizardResponse = await AdminApiContext.post('./_action/store/frw/finish');
+        expect(firstRunWizardResponse.ok(), '/_action/store/frw/finish request failed').toBeTruthy();
+        await page.reload();
 
         // test admin login
         // Wait until the page is loaded
         await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
+            timeout: 60000,
+        });
+
+        // The version is shown inside the user actions menu in the admin menu footer.
+        await page.locator('css=.sw-admin-menu__user-actions-toggle').click();
+        await expect(page.locator('css=.sw-version__info').first()).toContainText(`${config.version}`, {
             timeout: 60000,
         });
     },

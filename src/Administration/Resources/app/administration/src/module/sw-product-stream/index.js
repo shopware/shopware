@@ -29,7 +29,7 @@ Module.register('sw-product-stream', {
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    favicon: 'icon-module-products.svg',
     entity: 'product_stream',
 
     routes: {

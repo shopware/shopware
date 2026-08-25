@@ -214,49 +214,56 @@ class RemoteThumbnailLoader implements ResetInterface
 
     private function getUrl(MediaEntity|PartialEntity $mediaEntity, string $mediaUrl, string $width, string $height): ?string
     {
-        return $this->extensions->publish(
-            name: ResolveRemoteThumbnailUrlExtension::NAME,
-            extension: new ResolveRemoteThumbnailUrlExtension(
-                $mediaUrl,
-                $mediaEntity->get('path'),
+        $extension = new ResolveRemoteThumbnailUrlExtension(
+            $mediaUrl,
+            $mediaEntity->get('path'),
+            $width,
+            $height,
+            $this->pattern,
+            $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
+            $mediaEntity,
+        );
+        $function = static function (
+            string $mediaUrl,
+            string $mediaPath,
+            string $width,
+            string $height,
+            string $pattern,
+            ?\DateTimeInterface $mediaUpdatedAt,
+            Entity $mediaEntity,
+        ): string {
+            if (Feature::isActive('v6.8.0.0')) {
+                $mediaPath = $mediaEntity->get('path');
+                \assert(\is_string($mediaPath));
+                $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
+                \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
+            }
+
+            $replacements = [
+                str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
+                $mediaPath,
                 $width,
                 $height,
-                $this->pattern,
-                $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
-                $mediaEntity,
-            ),
-            function: static function (
-                string $mediaUrl,
-                string $mediaPath,
-                string $width,
-                string $height,
-                string $pattern,
-                ?\DateTimeInterface $mediaUpdatedAt,
-                Entity $mediaEntity,
-            ): string {
-                if (Feature::isActive('v6.8.0.0')) {
-                    $mediaPath = $mediaEntity->get('path');
-                    \assert(\is_string($mediaPath));
-                    $mediaUpdatedAt = $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt');
-                    \assert($mediaUpdatedAt instanceof \DateTimeInterface || $mediaUpdatedAt === null);
-                }
+                (string) $mediaUpdatedAt?->getTimestamp() ?: '',
+            ];
 
-                $replacements = [
-                    str_starts_with($mediaPath, 'http') ? '' : $mediaUrl,
-                    $mediaPath,
-                    $width,
-                    $height,
-                    (string) $mediaUpdatedAt?->getTimestamp() ?: '',
-                ];
+            $url = str_replace(
+                ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
+                $replacements,
+                $pattern
+            );
 
-                $url = str_replace(
-                    ['{mediaUrl}', '{mediaPath}', '{width}', '{height}', '{mediaUpdatedAt}'],
-                    $replacements,
-                    $pattern
-                );
+            return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
+        };
 
-                return str_starts_with($mediaPath, 'http') ? ltrim($url, '/') : $url;
-            }
+        if (!$this->extensions->hasListeners(ResolveRemoteThumbnailUrlExtension::NAME)) {
+            return $function(...$extension->getParams());
+        }
+
+        return $this->extensions->publish(
+            name: ResolveRemoteThumbnailUrlExtension::NAME,
+            extension: $extension,
+            function: $function,
         );
     }
 }

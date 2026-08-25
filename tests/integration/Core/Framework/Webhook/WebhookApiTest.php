@@ -67,7 +67,7 @@ class WebhookApiTest extends TestCase
     public function testTheUserCreatingAWebhookOwnsIt(): void
     {
         $connection = static::getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['webhook:create']);
+        $user = TestUser::createNewTestUser($connection, ['webhook:create', 'product:read']);
         $user->authorizeBrowser($this->getBrowser());
 
         $webhookId = Uuid::randomHex();
@@ -183,7 +183,7 @@ class WebhookApiTest extends TestCase
     public function testWebhookCanBeUpdatedByItsOwner(): void
     {
         $connection = static::getContainer()->get(Connection::class);
-        $owner = TestUser::createNewTestUser($connection, ['webhook:create', 'webhook:update']);
+        $owner = TestUser::createNewTestUser($connection, ['webhook:create', 'webhook:update', 'product:read']);
         $owner->authorizeBrowser($this->getBrowser());
 
         $webhookId = Uuid::randomHex();

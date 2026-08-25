@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Subscription;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 
@@ -66,5 +67,17 @@ final class Subscriber
     public static function none(): self
     {
         return new self(SubscriberType::None, null);
+    }
+
+    /**
+     * Whoever creates a webhook through the Admin API: an admin, an integration or a non-admin user.
+     */
+    public static function fromSource(AdminApiSource $source): self
+    {
+        return match (true) {
+            $source->isAdmin() => self::admin(),
+            $source->getIntegrationId() !== null => self::integration(),
+            default => self::user(),
+        };
     }
 }

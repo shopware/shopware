@@ -441,4 +441,76 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         expect(normalizedIndex).toBe(1);
     });
+
+    it('adopts the server-canonical layout returned by the save reload without client-side re-normalization', async () => {
+        // Authored client-side: style as a bare scalar, no seeded default, keys in author order.
+        const authoredElement: ContentElementNode = {
+            component: 'Sw:Filter:Panel',
+            style: { 'col-span': 6 },
+            id: 'element-1',
+            properties: { visibleFilterCount: 5 },
+        };
+        // Server-canonical: `ElementStyleNormalizer::normalizeValue()` broadcasts a breakpoint-aware
+        // scalar across every `Breakpoint::values()` entry, `LayoutDefaultSeeder::seedElement()` appends
+        // the `showLayoutSwitch: true` default the type declares and the author left out, and
+        // `StoredElement::jsonSerialize()` fixes the key order.
+        const canonicalElement: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Filter:Panel',
+            properties: { visibleFilterCount: 5, showLayoutSwitch: true },
+            style: { 'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 } },
+        };
+        const reloadedLayout = {
+            id: 'layout-1',
+            name: 'Landing page',
+            layout: [canonicalElement],
+        };
+        const save = jest.fn().mockResolvedValue(undefined);
+        const get = jest.fn().mockResolvedValue(reloadedLayout);
+        const vm = {
+            layout: {
+                id: 'layout-1',
+                name: 'Landing page',
+                layout: [authoredElement],
+            } as unknown as typeof reloadedLayout,
+            allowSave: true,
+            layoutRootSource: 'product',
+            layoutLoadCriteria: {},
+            layoutRepository: { save, get },
+            applyPreviewContextDefaults: jest.fn(),
+            createNotificationSuccess: jest.fn(),
+            $t: jest.fn().mockReturnValue('saved'),
+            isCreateMode: false,
+            isLoading: false,
+        };
+
+        await methods.onSave.call(vm);
+
+        const saveCalls = save.mock.calls as unknown[][];
+
+        expect(saveCalls[0][0]).toEqual({
+            id: 'layout-1',
+            name: 'Landing page',
+            layout: [
+                {
+                    component: 'Sw:Filter:Panel',
+                    style: { 'col-span': 6 },
+                    id: 'element-1',
+                    properties: { visibleFilterCount: 5 },
+                },
+            ],
+        });
+        expect(vm.layout).toBe(reloadedLayout);
+        expect(vm.layout.layout[0]).toBe(canonicalElement);
+        expect(Object.keys(vm.layout.layout[0])).toEqual([
+            'id',
+            'component',
+            'properties',
+            'style',
+        ]);
+        expect(vm.layout.layout[0].style).toEqual({
+            'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 },
+        });
+        expect(vm.layout.layout[0].properties).toEqual({ visibleFilterCount: 5, showLayoutSwitch: true });
+    });
 });

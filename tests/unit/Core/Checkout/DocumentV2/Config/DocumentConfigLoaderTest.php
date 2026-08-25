@@ -87,7 +87,7 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
     }
 
-    public function testLoadPicksMatchingSalesChannelFilenameInfixesOverGlobal(): void
+    public function testLoadSalesChannelFilenameInfixOverridesGlobalPerFormat(): void
     {
         $matchingSalesChannelId = Uuid::randomHex();
 
@@ -132,6 +132,144 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame(['zugferd_embedded_pdf' => 'channel-infix'], $bundle->config->filenameInfixes);
     }
 
+    public function testLoadKeepsGlobalFilenameInfixesWhenSalesChannelMapIsEmpty(): void
+    {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenameInfixes: ['zugferd_embedded_pdf' => '_zugferd'],
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenameInfixes: [],
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(['zugferd_embedded_pdf' => '_zugferd'], $bundle->config->filenameInfixes);
+    }
+
+    public function testLoadMergesFilenameInfixesPerFormat(): void
+    {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenameInfixes: ['zugferd_embedded_pdf' => '_zugferd'],
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenameInfixes: ['pdf' => '_channel'],
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(
+            ['zugferd_embedded_pdf' => '_zugferd', 'pdf' => '_channel'],
+            $bundle->config->filenameInfixes,
+        );
+    }
+
+    public function testLoadKeepsSalesChannelFilenameInfixesWhenGlobalHasNone(): void
+    {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenameInfixes: null,
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenameInfixes: ['pdf' => '_channel'],
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(['pdf' => '_channel'], $bundle->config->filenameInfixes);
+    }
+
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
     {
         $globalRow = $this->createBaseConfig(
@@ -171,6 +309,7 @@ class DocumentConfigLoaderTest extends TestCase
 
         static::assertSame('A4', $bundle->config->pageSize);
         static::assertSame('Global GmbH', $bundle->company->companyName);
+        static::assertSame([], $bundle->config->filenameInfixes);
     }
 
     public function testLoadRejectsZeroItemsPerPage(): void

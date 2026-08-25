@@ -3,7 +3,6 @@
  */
 
 import template from './sw-property-detail.html.twig';
-import './sw-property-detail.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

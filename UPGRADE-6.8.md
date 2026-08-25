@@ -912,7 +912,7 @@ From now on, price definitions must explicitly implement the
 
 ## Symfony validator is not used to validate the honeypot captcha
 
-The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `validate` method of the honeypot captcha directly (`isValid` is removed in 6.8, see "Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`" in the Storefront section).
 
 ## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
 
@@ -1162,6 +1162,13 @@ If you referenced this constant, build your own field list or switch to `Criteri
 ## Removed `ProductExportResult::getTotal()`
 
 `\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.
+
+## `AbstractIncrementStorage::increaseToAtLeast()` is now abstract
+
+If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage.php`, implement `increaseToAtLeast(string $configurationId, int $value): void`.
+
+The method must raise the stored increment state to at least the given value without lowering an existing higher state.
+
 
 # Administration
 
@@ -2072,11 +2079,25 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Footer collapse headlines and columns now use semantic elements
+
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements. 
+
+- Collapse section headlines: `<div role="heading">` became `<h2>`.
+- Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column: `<div role="listitem">` became `<li>`.
+
 ## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) have been removed. Use `loadDomains()` instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.
 
 `loadDomains()` is now abstract. If you decorate `AbstractDomainLoader`, implement `loadDomains()` and return a `DomainCollection`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
+## Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`
+
+`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet.
+
+Throughout 6.7 the default `validate()` delegates to the deprecated pair, so a captcha extending `AbstractCaptcha` keeps working. A captcha extending a shipped captcha does not: those implement `validate()` themselves, so an override of only `isValid()`/`getViolations()` is silently ignored — migrate it now. Implement at least one of `validate()`/`isValid()`; the two defaults delegate to each other, so implementing neither recurses.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

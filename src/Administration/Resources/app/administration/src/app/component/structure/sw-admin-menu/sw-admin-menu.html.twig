@@ -1,24 +1,113 @@
 {% block sw_admin_menu %}
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+{% block sw_admin_menu_off_canvas_backdrop %}
+<transition name="sw-admin-menu__backdrop">
+    <div
+        v-if="isMobileViewport && isOffCanvasShown"
+        class="sw-admin-menu__backdrop"
+        @click="dismissOffCanvas"
+    ></div>
+</transition>
+{% endblock %}
+
 <aside
+    ref="swAdminMenu"
     class="sw-admin-menu"
     :class="adminMenuClasses"
     :aria-expanded="isExpanded ? 'true' : 'false'"
-    @mouseleave="onMenuLeave"
+    :inert="isMobileViewport && !isOffCanvasShown"
 >
 
     {% block sw_admin_menu_header %}
     <div class="sw-admin-menu__header">
 
         {% block sw_admin_menu_header_logo %}
-        <div
-            class="sw-admin-menu__header-logo"
-            role="img"
-        ></div>
+        <div class="sw-admin-menu__header-logo-wrapper">
+            <div class="sw-admin-menu__header-logo-box">
+                <!-- Sized via CSS: 24px on mobile, 26px on desktop. -->
+                <mt-icon
+                    class="sw-admin-menu__header-logo"
+                    name="solid-shopware"
+                    :aria-label="$t('global.sw-admin-menu.textProjectName')"
+                />
+            </div>
+
+            <button
+                v-if="!isExpanded"
+                type="button"
+                class="sw-admin-menu__header-logo-expand-button"
+                :aria-label="$t('global.sw-admin-menu.linkExpandMenu')"
+                @click.stop="onToggleSidebar"
+            >
+                <mt-icon
+                    name="regular-panel-left"
+                    size="16px"
+                />
+            </button>
+        </div>
         {% endblock %}
 
         {% block sw_admin_menu_header_version %}
-        <sw-version class="collapsible-text" />
+        <div class="collapsible-text hide-on-collapse sw-admin-menu__version">
+            {% block sw_admin_menu_header_shop_name %}
+            <mt-text
+                as="div"
+                class="sw-admin-menu__shop-name"
+                size="s"
+                weight="semibold"
+                :title="shopName"
+            >
+                {{ shopName }}
+            </mt-text>
+            {% endblock %}
+
+            {% block sw_admin_menu_header_title %}
+            <mt-text
+                as="div"
+                class="sw-admin-menu__title"
+                size="2xs"
+                color="color-text-secondary-default"
+            >
+                {{ $t('global.sw-admin-menu.textProjectName') }}
+                {% block sw_admin_menu_header_title_status %}{% endblock %}
+            </mt-text>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_admin_menu_header_toggle_sidebar %}
+        <mt-button
+            v-if="isMobileViewport"
+            class="sw-admin-menu__off-canvas-close"
+            variant="tertiary"
+            size="default"
+            square
+            :aria-label="$t('global.sw-admin-menu.linkCloseMenu')"
+            @click.stop="dismissOffCanvas"
+        >
+            <template #iconFront>
+                <mt-icon
+                    name="solid-times"
+                    size="12px"
+                />
+            </template>
+        </mt-button>
+        <mt-button
+            v-else
+            class="sw-admin-menu__collapse-button"
+            variant="tertiary"
+            size="default"
+            square
+            :aria-label="$t('global.sw-admin-menu.linkMinimizeMenu')"
+            @click.stop="onToggleSidebar"
+        >
+            <template #iconFront>
+                <mt-icon
+                    class="hide-on-collapse"
+                    name="regular-panel-left"
+                    size="16px"
+                />
+            </template>
+        </mt-button>
         {% endblock %}
     </div>
     {% endblock %}
@@ -31,6 +120,7 @@
             ref="swAdminMenuBody"
             class="sw-admin-menu__body"
             :style="scrollbarOffsetStyle"
+            @keydown="onNavigationKeydown"
         >
             {% block sw_admin_menu_navigation_main %}
             <nav
@@ -45,19 +135,27 @@
                 </h2>
 
                 {% block sw_admin_menu_navigation_main_list %}
-                <ul class="sw-admin-menu__navigation-list">
-                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+                <ul
+                    class="sw-admin-menu__navigation-list"
+                    @mouseenter="cancelFlyoutClose"
+                    @focusin="cancelFlyoutClose"
+                    @mouseleave="onNavigationListMouseLeave"
+                    @focusout="onNavigationListMouseLeave"
+                >
                     {% block sw_admin_menu_navigation_main_items %}
                     <sw-admin-menu-item
-                        v-for="(entry, index) in mainMenuEntries"
-                        :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        :tabindex="0"
-                        :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
+                        v-for="entry in mainMenuEntries"
+                        :key="entry.id || entry.path"
                         :sidebar-expanded="isExpanded"
+                        :is-expanded="isNavigationEntryExpanded(entry)"
+                        :flyout-active="isFlyoutEntryActive(entry)"
                         :entry="entry"
-                        @menu-item-click="onMenuItemClick"
-                        @menu-item-enter="onMenuItemEnter"
-                        @sub-menu-item-enter="onSubMenuItemEnter"
+                        @menu-item-hover="onMenuItemHover"
+                        @branch-toggle="onMenuBranchToggle"
+                        @flyout-focus-request="onFlyoutFocusRequest"
+                        @flyout-close-request="onFlyoutLeave"
+                        @flyout-navigate="onFlyoutNavigate"
+                        @navigation-link-click="onNavigationLinkClicked"
                     />
                     {% endblock %}
                 </ul>
@@ -72,151 +170,157 @@
     {% block sw_admin_menu_footer %}
     <div class="sw-admin-menu__footer">
 
-        {% block sw_admin_menu_toggle_sidebar %}
-        <button
-            class="sw-admin-menu__toggle"
-            @click="onToggleSidebar"
-        >
-
-            {% block sw_admin_menu_toggle_sidebar_icon %}
-            <mt-icon
-                :name="sidebarCollapseIcon"
-                size="16px"
-            />
-            {% endblock %}
-
-            {% block sw_admin_menu_toggle_sidebar_text %}
-            <span class="collapsible-text">{{ $t('global.sw-admin-menu.linkMinimizeMenu') }}</span>
-            {% endblock %}
-
-        </button>
-        {% endblock %}
-
         {% block sw_admin_menu_user_actions_toggle %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-        <div
-            class="sw-admin-menu__user-actions-toggle"
-            :class="{'is--active': isUserActionsActive}"
-            @click="onToggleUserActions"
-            @mouseenter="openUserActions"
+        <mt-dropdown-menu-root
+            :open="isUserActionsActive"
+            @update:open="isUserActionsActive = $event"
         >
+            <mt-dropdown-menu-trigger as-child>
+                <button
+                    class="sw-admin-menu__user-actions-toggle"
+                    :class="{ 'is--active': isUserActionsActive }"
+                    type="button"
+                    :aria-label="userActionsAriaLabel"
+                >
+                    <mt-loader
+                        v-if="isUserLoading"
+                        size="32px"
+                    />
 
-            <mt-loader
-                v-if="isUserLoading"
-                size="32px"
-            />
+                    {% block sw_admin_menu_user_actions_avatar %}
+                    <sw-avatar
+                        class="sw-admin-menu__avatar"
+                        :image-url="avatarUrl"
+                        :source-context="currentUser"
+                        :first-name="firstName"
+                        :last-name="lastName"
+                    />
+                    {% endblock %}
 
-            {% block sw_admin_menu_user_actions_avatar %}
-            <sw-avatar
-                class="sw-admin-menu__avatar"
-                :image-url="avatarUrl"
-                :source-context="currentUser"
-                :first-name="firstName"
-                :last-name="lastName"
-            />
-            {% endblock %}
+                    {% block sw_admin_menu_user_actions_custom_fields %}
+                    <div class="sw-admin-menu__user-custom-fields collapsible-text hide-on-collapse">
+                        <mt-text
+                            as="div"
+                            class="sw-admin-menu__user-name"
+                            size="xs"
+                            weight="semibold"
+                        >
+                            {{ userName }}
+                        </mt-text>
+                        <mt-text
+                            as="div"
+                            class="sw-admin-menu__user-type"
+                            size="2xs"
+                            color="color-text-secondary-default"
+                        >
+                            {{ userTitle }}
+                        </mt-text>
+                    </div>
+                    {% endblock %}
 
-            {% block sw_admin_menu_user_actions_custom_fields %}
-            <div class="sw-admin-menu__user-custom-fields collapsible-text">
-                <div class="sw-admin-menu__user-name">
-                    {{ userName }}
-                </div>
-                <div class="sw-admin-menu__user-type">
-                    {{ userTitle }}
-                </div>
-
-                {% block sw_admin_menu_user_actions_toggle_icon %}
-                <mt-icon
-                    :name="userActionsToggleIcon"
-                    class="sw-admin-menu__user-actions-indicator"
-                />
-                {% endblock %}
-            </div>
-            {% endblock %}
-        </div>
-        {% endblock %}
-
-        {% block sw_admin_menu_user_actions %}
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-        <div
-            class="sw-admin-menu__user-actions"
-            :class="{'is--active': isUserActionsActive}"
-            @mouseleave="closeUserActions"
-        >
-
-            {% block sw_admin_menu_user_actions_label %}
-            <div
-                v-if="!isExpanded"
-                class="sw-admin-menu__user-actions-label"
-            >
-                {{ userName }}
-            </div>
-            {% endblock %}
-
-            {% block sw_admin_menu_user_actions_list %}
-            <ul class="sw-admin-menu__navigation-list">
-
-                {% block sw_admin_menu_user_actions_items %}
-
-                {% block sw_admin_menu_user_actions_items_logout_user %}
-                <li class="sw-admin-menu__navigation-list-item">
-                    <mt-link
-                        as="a"
-                        to="#"
-                        class="sw-admin-menu__navigation-link sw-admin-menu__logout-action"
-                        @click.prevent="onLogoutUser"
-                    >
+                    {% block sw_admin_menu_user_actions_toggle_icon %}
+                    <div class="sw-admin-menu__user-actions-toggle-icon-wrapper">
                         <mt-icon
-                            class="sw-admin-menu__navigation-link-icon"
-                            name="regular-sign-out"
-                            size="16px"
+                            class="hide-on-collapse"
+                            name="regular-chevron-up-xs"
+                            size="8"
                         />
-                        {{ $t('global.sw-admin-menu.linkLogout') }}
-                    </mt-link>
-                </li>
-                {% endblock %}
-                {% endblock %}
-            </ul>
-            {% endblock %}
+                        <mt-icon
+                            class="hide-on-collapse"
+                            name="regular-chevron-down-xs"
+                            size="8"
+                        />
+                    </div>
+                    {% endblock %}
+                </button>
+            </mt-dropdown-menu-trigger>
 
-        </div>
+            <mt-dropdown-menu-portal>
+                <mt-action-menu
+                    class="sw-admin-menu__user-actions-menu"
+                    :match-trigger-width="true"
+                    :side-offset="4"
+                    side="top"
+                >
+                    {% block sw_admin_menu_user_actions_items %}
+                    <mt-action-menu-group>
+                        {% block sw_admin_menu_user_actions_items_logout_user %}
+                        <mt-action-menu-item
+                            icon="regular-sign-out"
+                            variant="critical"
+                            @click="onLogoutUser"
+                        >
+                            {{ $t('global.sw-admin-menu.linkLogout') }}
+                        </mt-action-menu-item>
+                        {% endblock %}
+                    </mt-action-menu-group>
+                    {% endblock %}
+                    {% block sw_admin_menu_user_actions_version %}
+                    <mt-action-menu-group>
+                        <mt-text
+                            as="div"
+                            class="sw-admin-menu__version-footer"
+                            size="2xs"
+                            color="color-text-secondary-default"
+                        >
+                            {{ $t('global.sw-admin-menu.textVersion') }}
+                            <sw-version />
+                        </mt-text>
+                    </mt-action-menu-group>
+                    {% endblock %}
+                </mt-action-menu>
+            </mt-dropdown-menu-portal>
+        </mt-dropdown-menu-root>
         {% endblock %}
     </div>
     {% endblock %}
 
     {% block sw_admin_menu_flyout_transition %}
-    <transition name="flyout">
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-        <ul
-            v-if="flyoutEntries.length"
-            class="sw-admin-menu_flyout-holder"
-            :style="flyoutStyle"
-            @mouseenter="onFlyoutEnter"
-            @mouseleave="onFlyoutLeave"
+    <mt-floating-ui
+        :is-opened="!isExpanded && flyoutEntries.length > 0"
+        :anchor-element="flyoutReferenceElement"
+        :floating-ui-options="{ placement: 'right-start' }"
+        :offset="12"
+        detached
+        @close="onFlyoutLeave"
+    >
+        <div
+            id="sw-admin-menu-flyout"
+            ref="swAdminMenuFlyout"
+            class="sw-admin-menu__flyout-content"
+            :class="{ 'is--closing': isFlyoutClosing }"
+            tabindex="-1"
+            @mouseenter="cancelFlyoutClose"
+            @focusin="cancelFlyoutClose"
+            @mouseleave="onFlyoutMouseLeave"
+            @focusout="onFlyoutMouseLeave"
+            @keydown="onFlyoutKeydown"
         >
-            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
-            <template
-                v-for="entry in flyoutEntries"
-                :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+            <mt-text
+                v-if="flyoutTitle"
+                as="span"
+                class="sw-admin-menu__flyout-title"
+                size="xs"
+                color="color-text-secondary-default"
             >
+                {{ flyoutTitle }}
+            </mt-text>
 
-                <li
-                    v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                    :style="{ 'border-color': flyoutColor }"
-                    class="sw-admin-menu__separator"
-                >
-                    <span class="sw-admin-menu__separator-line"></span>
-                </li>
-
+            <ul class="sw-admin-menu__flyout-list">
                 <sw-admin-menu-item
+                    v-for="entry in flyoutEntries"
+                    :key="entry.id || entry.path"
                     :entry="entry"
-                    :border-color="flyoutColor"
+                    :menu-depth="2"
+                    :sidebar-expanded="isExpanded"
                     :display-icon="false"
-                    @menu-item-enter="onSubMenuItemEnter"
+                    :collapsible-text="false"
+                    @flyout-navigate="onFlyoutNavigate"
+                    @navigation-link-click="onNavigationLinkClicked"
                 />
-            </template>
-        </ul>
-    </transition>
+            </ul>
+        </div>
+    </mt-floating-ui>
     {% endblock %}
 </aside>
 {% endblock %}

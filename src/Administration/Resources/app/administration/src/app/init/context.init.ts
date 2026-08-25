@@ -6,6 +6,7 @@ import { watch } from 'vue';
 import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
+import useTheme from '../composables/use-theme';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -39,6 +40,10 @@ export default function initializeContext(): void {
         return Shopware.Context.app.config.version ?? '';
     });
 
+    Shopware.ExtensionAPI.handle('contextTheme', () => {
+        return useTheme().resolvedTheme.value;
+    });
+
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
         return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
     });
@@ -66,6 +71,14 @@ export default function initializeContext(): void {
         return {
             modules,
         };
+    });
+
+    Shopware.ExtensionAPI.handle('contextIsService', (_, { _event_ }) => {
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+            ext.baseUrl.startsWith(_event_.origin),
+        );
+
+        return extension?.sourceType === 'service';
     });
 
     Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
@@ -180,6 +193,10 @@ export default function initializeContext(): void {
             locale: locale ?? '',
             fallbackLocale: contextStore.app.fallbackLocale ?? '',
         });
+    });
+
+    watch(useTheme().resolvedTheme, (resolvedTheme) => {
+        void publish('contextTheme', resolvedTheme);
     });
 
     Shopware.ExtensionAPI.handle('windowGetId', () => {

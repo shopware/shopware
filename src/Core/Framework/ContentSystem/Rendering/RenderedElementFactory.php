@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\Log\Package;
@@ -173,14 +175,46 @@ final readonly class RenderedElementFactory
      */
     private function isDeclaredReference(array $declaredProperties, string $key): bool
     {
-        return isset($declaredProperties[$key]) && !$declaredProperties[$key]->type()->isPrimitive();
+        return isset($declaredProperties[$key]) && !$this->constrainsToPrimitives($declaredProperties[$key]->type());
+    }
+
+    /**
+     * True when the declaration admits primitive values only. {@see PropertyType::isPrimitive()} answers false
+     * for every union, because a union's declared type is an array; an all-primitive union is still a
+     * primitive-only declaration, and reading it as a reference excluded its stored value from both tiers.
+     * The member-wise derivation is the one {@see PropertyTypeConformanceValidator::enforceableTypes()} holds,
+     * including the empty union, which constrains nothing and is therefore not primitive-only.
+     *
+     * This is the second copy of that derivation, kept deliberately: the planned consolidation moves it onto
+     * {@see PropertyType} itself, and both call sites here switch to that method when it lands.
+     */
+    private function constrainsToPrimitives(PropertyType $type): bool
+    {
+        if ($type->isPrimitive()) {
+            return true;
+        }
+
+        $declared = $type->type();
+
+        if (!\is_array($declared) || $declared === []) {
+            return false;
+        }
+
+        foreach ($declared as $member) {
+            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
      * The declared tier's half of the invariant above: it carries the declared primitives and leaves every
-     * declared reference to whichever loader resolves it. `isPrimitive()` is the same predicate
-     * {@see PrimitiveDefaultProvider} keys off, so the
-     * set seeded into storage and the set served from it are the same set by construction.
+     * declared reference to whichever loader resolves it. The served set is wider than the set
+     * {@see PrimitiveDefaultProvider} seeds: that provider keys off `isPrimitive()` alone, so a union-typed
+     * property seeds no default, while this tier serves it. Serving a stored value the seeder never wrote is
+     * the intended direction — an authored value under an all-primitive-union key belongs on the wire.
      *
      * @param array<string, PropertySpecification> $declaredProperties
      *
@@ -191,7 +225,7 @@ final readonly class RenderedElementFactory
         $keys = [];
 
         foreach ($declaredProperties as $key => $property) {
-            if ($property->type()->isPrimitive()) {
+            if ($this->constrainsToPrimitives($property->type())) {
                 $keys[] = $key;
             }
         }

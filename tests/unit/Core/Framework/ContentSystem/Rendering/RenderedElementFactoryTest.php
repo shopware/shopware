@@ -140,6 +140,64 @@ class RenderedElementFactoryTest extends TestCase
     }
 
     /**
+     * A union's declared type is an array, so `PropertyType::isPrimitive()` answers false for it. Reading that
+     * as "not primitive" excluded an all-primitive-union key from both tiers and its stored value never
+     * reached the wire.
+     */
+    #[TestDox('a key declared as an all-primitive union carries its stored value')]
+    public function testAllPrimitiveUnionPropertyContributesItsStoredValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
+            ->withProperty('columns', 3)
+            ->build();
+
+        $rendered = $this->mint($stored, [], [], [], []);
+
+        static::assertSame(['columns' => 3], $rendered->properties);
+    }
+
+    /**
+     * The other tier. `isDeclaredReference()` gates the distribution-referenced member, and reading an
+     * all-primitive union as a reference excluded the key there too — a second exclusion the declared tier's
+     * own test cannot reach.
+     */
+    #[TestDox('a distribution referenced key declared as an all-primitive union carries its stored value')]
+    public function testAllPrimitiveUnionDistributionReferencedKeyContributesItsStoredValue(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
+            ->withProperty('columns', 3)
+            ->build();
+
+        $rendered = $this->mint($stored, [], [], ['columns'], []);
+
+        static::assertSame(['columns' => 3], $rendered->properties);
+    }
+
+    #[TestDox('leaves out a union key carrying a non-primitive member')]
+    public function testUnionWithANonPrimitiveMemberStaysExcluded(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
+            ->withProperty('anything', 'stub-id')
+            ->build();
+
+        $rendered = $this->mint($stored, [], [], [], []);
+
+        static::assertSame([], $rendered->properties);
+    }
+
+    #[TestDox('leaves out a declared single-reference property on a type that also declares a union')]
+    public function testDeclaredReferenceStaysExcludedBesideAUnion(): void
+    {
+        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
+            ->withProperty('product', 'product-id')
+            ->build();
+
+        $rendered = $this->mint($stored, [], [], [], []);
+
+        static::assertSame([], $rendered->properties);
+    }
+
+    /**
      * `KeyedDistributionConfig::buildConstraints()` checks only that `keyProperty` is a non-blank string, so
      * nothing upstream stops it naming a declared reference property. This tier excludes that key rather
      * than carrying the raw id the invariant keeps off the rendered side.
@@ -508,6 +566,11 @@ class RenderedElementFactoryTest extends TestCase
                 ->build(),
             'Sw:Tile' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Tile')
                 ->primitive('label', 'string')
+                ->build(),
+            'Sw:Grid' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Grid')
+                ->union('columns', ['integer', 'string'])
+                ->union('anything', ['string', StubStruct::class])
+                ->reference('product', StubStruct::class)
                 ->build(),
         ];
 

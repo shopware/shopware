@@ -37,6 +37,19 @@ class ContentSystemElementTypeSpecificationBuilder
         return $this;
     }
 
+    /**
+     * A union-typed property: the declared type is a list of member type names, which is what makes
+     * {@see PropertyType::isPrimitive()} answer false even when every member is primitive.
+     *
+     * @param list<string> $types
+     */
+    public function union(string $key, array $types, bool $required = false): self
+    {
+        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($types, false, null, null), $required, '', '', null);
+
+        return $this;
+    }
+
     public function reference(string $key, string $fqcn, bool $required = false): self
     {
         $this->properties[$key] = new PropertySpecification('prop', new PropertyType($fqcn, false, null, null), $required, '', '', null);

@@ -50,13 +50,12 @@ use Shopware\Core\Framework\Log\Package;
  * `consumerAlias` and `propertyAlias`, and {@see decodeDataRequirements()} already gives `key`: a null
  * container carries no information a caller could act on differently from an absent one.
  *
- * This class is lenient in more than one place, each narrow and independently justified rather than a
- * general tolerance for malformed input. Individual entries inside `style` stay lenient instead of following
- * the structural-container rule above: {@see decodeStyle()}'s per-option cleaning loop drops a structurally
- * invalid option name, value or breakpoint rather than throwing, and an option name the registry no longer
- * knows still reads verbatim — so removing a style option provider does not make an already-stored layout
- * unreadable; the registry-aware check belongs to the write boundary, not here. A provider entry's
- * already-noted open key set is a second leniency: the declared distribution strategy's own fields ride
+ * This class is lenient in one place, narrow and independently justified rather than a general tolerance for
+ * malformed input. {@see decodeStyle()} is structurally strict — a malformed option name, value or breakpoint
+ * throws like any other malformed container — but stays registry-blind: an option name the registry no longer
+ * knows is a well-formed string and still reads verbatim, so removing a style option provider does not make an
+ * already-stored layout unreadable; the registry-aware check belongs to the write boundary, not here. A
+ * provider entry's already-noted open key set is the other leniency: the declared strategy's own fields ride
  * alongside `type` and `distribution` without decode enforcing the closed set it applies to every other map.
  * Those strategy fields are, in turn, judged by the distribution config's own `fromArray()`, which substitutes
  * its declared default for a field that is absent or null but rejects a present one of the wrong type; decode
@@ -494,10 +493,14 @@ final class StoredElementCodec
     }
 
     /**
-     * Registry-free structural cleaning: an option name must be a string, a scalar value is kept verbatim as a
-     * flat option, an array value is cleaned into a canonical breakpoint map, and an option left with an empty
-     * map is dropped. An option name the registry no longer knows still reads, so removing a provider does not
-     * make a stored layout undecodable.
+     * Registry-free structural decode: an option name must be a string, a scalar value is kept verbatim as a
+     * flat option, and an array value must be a non-empty map keyed by declared breakpoints with scalar
+     * values. Every malformed shape throws rather than being dropped — the write path decodes before the
+     * constraint pass judges the tree, so silently cleaning here would let a write with malformed style
+     * succeed with the style stripped.
+     *
+     * Strictness here is structural, not registry-driven: an option name the registry no longer knows is a
+     * well-formed string and still decodes, so removing a provider does not make a stored layout undecodable.
      */
     private function decodeStyle(mixed $raw): ElementStyle
     {
@@ -510,7 +513,7 @@ final class StoredElementCodec
         $clean = [];
         foreach ($raw as $optionName => $value) {
             if (!\is_string($optionName)) {
-                continue;
+                throw ContentSystemException::invalidMapKey('Element style map', get_debug_type($optionName));
             }
 
             if (\is_scalar($value)) {
@@ -520,21 +523,43 @@ final class StoredElementCodec
             }
 
             if (!\is_array($value)) {
-                continue;
+                throw ContentSystemException::invalidFieldValueType(
+                    \sprintf('style[%s]', $optionName),
+                    'scalar or breakpoint map',
+                    get_debug_type($value)
+                );
+            }
+
+            if ($value === []) {
+                throw ContentSystemException::invalidFieldValueType(
+                    \sprintf('style[%s]', $optionName),
+                    'a breakpoint map holding at least one breakpoint',
+                    'empty map'
+                );
             }
 
             $cleanMap = [];
             foreach ($value as $breakpoint => $breakpointValue) {
-                if (!\in_array($breakpoint, $breakpoints, true) || !\is_scalar($breakpointValue)) {
-                    continue;
+                if (!\in_array($breakpoint, $breakpoints, true)) {
+                    throw ContentSystemException::unknownStyleBreakpoint(
+                        $optionName,
+                        \is_string($breakpoint) ? $breakpoint : get_debug_type($breakpoint),
+                        $breakpoints
+                    );
+                }
+
+                if (!\is_scalar($breakpointValue)) {
+                    throw ContentSystemException::invalidFieldValueType(
+                        \sprintf('style[%s][%s]', $optionName, $breakpoint),
+                        'scalar',
+                        get_debug_type($breakpointValue)
+                    );
                 }
 
                 $cleanMap[$breakpoint] = $breakpointValue;
             }
 
-            if ($cleanMap !== []) {
-                $clean[$optionName] = $cleanMap;
-            }
+            $clean[$optionName] = $cleanMap;
         }
 
         return new ElementStyle($clean);

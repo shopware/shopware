@@ -426,22 +426,52 @@ class StoredTreeShapeConformanceTest extends TestCase
             . 'that removing a style option provider does not make an already-stored layout unreadable',
         ];
 
+        // Structural style defects are rejected by both sides: decode no longer cleans them away, because the
+        // write path decodes before the constraint pass judges the tree, so cleaning let a malformed style
+        // through with the offending part silently stripped. Registry-driven leniency is unaffected — see the
+        // unknown-option row above, which decode still reads.
         yield 'a numeric style option name' => [
             self::forest(['style' => [0 => 'block']]),
-            self::DESCRIPTOR_ONLY,
-            'a style entry is cleaned rather than refused on read, for the same provider-removal reason',
+            self::REJECTED,
+            '',
         ];
 
         yield 'an empty breakpoint map on a style option' => [
             self::forest(['style' => ['col-span' => []]]),
-            self::DESCRIPTOR_ONLY,
-            'decode drops an option left with no breakpoint structurally instead of throwing',
+            self::REJECTED,
+            '',
         ];
 
         yield 'a non-scalar breakpoint value on a style option' => [
             self::forest(['style' => ['col-span' => ['md' => ['6']]]]),
-            self::DESCRIPTOR_ONLY,
-            'decode drops a breakpoint whose value is not a scalar, then drops the emptied option',
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'an unknown breakpoint key on a style option' => [
+            self::forest(['style' => ['col-span' => ['bogus-breakpoint' => 6]]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a style value that is neither scalar nor array' => [
+            self::forest(['style' => ['col-span' => null]]),
+            self::REJECTED,
+            '',
+        ];
+
+        // A boolean option declares no NotBlank, so only an explicit NotNull per breakpoint keeps this row
+        // out of the descriptor-accepts/codec-rejects direction the table forbids.
+        yield 'a null breakpoint value on a boolean style option' => [
+            self::forest(['style' => ['visible' => ['md' => null]]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a boolean style option carrying false' => [
+            self::forest(['style' => ['visible' => ['md' => false]]]),
+            self::ACCEPTED,
+            '',
         ];
 
         // The id value domain: both sides must state it, because `NotBlank` exempts '0' and `Type` admits the
@@ -656,6 +686,16 @@ class StoredTreeShapeConformanceTest extends TestCase
                 'display',
                 new StyleOptionValueType('string', null, null, null, null),
                 false,
+                null,
+                'core'
+            ),
+            // Breakpoint-aware AND boolean, mirroring the shipped `display`. Boolean carries no NotBlank by
+            // design, so this is the option whose per-breakpoint null the descriptor would otherwise admit
+            // while decode refuses it — a divergence a string- or integer-typed option cannot expose.
+            'visible' => new StyleOptionSpecification(
+                'visible',
+                new StyleOptionValueType('boolean', null, null, null, null),
+                true,
                 null,
                 'core'
             ),

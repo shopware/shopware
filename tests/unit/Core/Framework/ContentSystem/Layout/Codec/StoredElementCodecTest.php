@@ -20,6 +20,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
@@ -550,25 +551,62 @@ class StoredElementCodecTest extends TestCase
         $codec->decode($wire);
     }
 
-    #[TestDox('decode drops a structurally invalid style option entry rather than throwing')]
-    public function testDecodeDropsAnInvalidStyleEntryInsteadOfThrowing(): void
+    #[TestDox('decode keeps a well-formed style entry the registry no longer knows')]
+    public function testDecodeKeepsAnUnknownButWellFormedStyleOption(): void
     {
         $wire = self::baseWire([
             'style' => [
-                0 => ['bad' => 1],
                 'flat-option' => 'red',
-                'breakpoint-option' => ['bogus-breakpoint' => 5, 'md' => 10],
-                'all-invalid-breakpoints' => ['bogus-breakpoint' => 5],
-                'null-option' => null,
+                'breakpoint-option' => ['md' => 10],
             ],
         ]);
 
         $codec = $this->codec();
 
-        static::assertSame(
-            array_merge($wire, ['style' => ['flat-option' => 'red', 'breakpoint-option' => ['md' => 10]]]),
-            $codec->encode($codec->decode($wire))
-        );
+        static::assertSame($wire, $codec->encode($codec->decode($wire)));
+    }
+
+    /**
+     * @param array<array-key, mixed> $style
+     */
+    #[DataProvider('malformedStyleProvider')]
+    #[TestDox('decode rejects $_dataName')]
+    public function testDecodeRejectsMalformedStyle(array $style, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode(self::baseWire(['style' => $style]));
+    }
+
+    /**
+     * @return iterable<string, array{array<array-key, mixed>, ContentSystemException}>
+     */
+    public static function malformedStyleProvider(): iterable
+    {
+        yield 'a non-string style option name' => [
+            [0 => ['md' => 1]],
+            ContentSystemException::invalidMapKey('Element style map', 'int'),
+        ];
+
+        yield 'a style value that is neither scalar nor array' => [
+            ['null-option' => null],
+            ContentSystemException::invalidFieldValueType('style[null-option]', 'scalar or breakpoint map', 'null'),
+        ];
+
+        yield 'an explicitly empty breakpoint map' => [
+            ['empty-option' => []],
+            ContentSystemException::invalidFieldValueType('style[empty-option]', 'a breakpoint map holding at least one breakpoint', 'empty map'),
+        ];
+
+        yield 'an unknown breakpoint key' => [
+            ['breakpoint-option' => ['bogus-breakpoint' => 5]],
+            ContentSystemException::unknownStyleBreakpoint('breakpoint-option', 'bogus-breakpoint', Breakpoint::values()),
+        ];
+
+        yield 'a non-scalar breakpoint value' => [
+            ['breakpoint-option' => ['md' => ['nested' => 1]]],
+            ContentSystemException::invalidFieldValueType('style[breakpoint-option][md]', 'scalar', 'array'),
+        ];
     }
 
     /**

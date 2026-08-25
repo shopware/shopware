@@ -460,20 +460,24 @@ final class StoredTreeConstraints
         foreach ($this->registry->all() as $name => $specification) {
             $valueConstraints = $this->deriver->derive($specification->valueType());
 
+            // NotNull at both levels, because every other constraint here skips null: `Type` returns for it,
+            // and a boolean option carries no `NotBlank` by design. Without it the descriptor would admit a
+            // payload decode refuses, which is the one direction the two sides may not diverge in.
             if (!$specification->breakpointAware()) {
-                $optionFields[$name] = new Optional($valueConstraints);
+                $optionFields[$name] = new Optional([new NotNull(), ...$valueConstraints]);
 
                 continue;
             }
 
             $breakpointFields = [];
             foreach (Breakpoint::values() as $breakpoint) {
-                $breakpointFields[$breakpoint] = new Optional($valueConstraints);
+                $breakpointFields[$breakpoint] = new Optional([new NotNull(), ...$valueConstraints]);
             }
 
             $optionFields[$name] = new Optional([
+                new NotNull(),
                 new Type('array'),
-                // An empty breakpoint map is rejected on write; the decode path drops it structurally instead
+                // An empty breakpoint map is rejected on both sides; decode throws rather than dropping it
                 new Count(min: 1),
                 new Collection(
                     fields: $breakpointFields,

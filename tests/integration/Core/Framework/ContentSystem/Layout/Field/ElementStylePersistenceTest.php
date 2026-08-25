@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Field;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
@@ -112,6 +113,27 @@ class ElementStylePersistenceTest extends TestCase
             // The range-specific phrasing distinguishes a Range violation from a Type mismatch on the same field
             static::assertStringContainsString('between 1 and 12', $exception->getMessage());
         }
+    }
+
+    #[TestDox('rejects a write whose style carries a malformed shape and stores no row')]
+    public function testRejectsMalformedStyleShapeAndStoresNoRow(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        try {
+            // The decode gate runs before the constraint pass judges the tree; without the throw the write
+            // would succeed with the unknown breakpoint silently stripped.
+            $this->repository()->create([$this->layout($layoutId, ['col-span' => ['bogus-breakpoint' => 6]])], $context);
+            static::fail('Expected the decode gate to reject the unknown breakpoint key.');
+        } catch (WriteException $exception) {
+            static::assertSame(
+                ContentSystemException::INVALID_MAP_KEY,
+                iterator_to_array($exception->getErrors(), false)[0]['code'],
+            );
+        }
+
+        static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\HttpException;
@@ -262,6 +263,23 @@ class ContentSystemException extends HttpException
             self::INVALID_MAP_KEY,
             '{{ mapType }} key must be string, got {{ actualType }}',
             ['mapType' => $mapType, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A breakpoint key no {@see Breakpoint} case declares. It carries INVALID_MAP_KEY like every other
+     * malformed wiring key, but not {@see invalidMapKey()}'s message: that one reads "key must be string",
+     * which is false here — an unknown breakpoint key is a perfectly good string that names nothing.
+     *
+     * @param list<string> $allowed
+     */
+    public static function unknownStyleBreakpoint(string $option, string $breakpoint, array $allowed): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAP_KEY,
+            'Style option "{{ option }}" has no breakpoint "{{ breakpoint }}"; expected one of {{ allowed }}.',
+            ['option' => $option, 'breakpoint' => $breakpoint, 'allowed' => implode(', ', $allowed)]
         );
     }
 

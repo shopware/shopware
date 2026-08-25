@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { h } from 'vue';
 
 const extendedRanges = [
     {
@@ -33,23 +34,45 @@ const extendedRanges = [
 const defaultRangeIndex = 1;
 const defaultRange = extendedRanges[defaultRangeIndex];
 
-async function createWrapper(additionalProps = {}) {
+async function createWrapper(additionalProps = {}, additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-chart-card', { sync: true }), {
         props: {
             positionIdentifier: 'sw-chart-card__statistics-count',
             defaultRangeIndex,
             ...additionalProps,
         },
+        ...additionalOptions,
         global: {
             stubs: {
                 'mt-card': {
-                    template: '<div class="mt-card" :is-loading="isLoading"><slot /><slot name="title"></slot></div>',
+                    template:
+                        '<div class="mt-card" :is-loading="isLoading"><slot /><slot name="title"></slot><slot name="headerRight"></slot></div>',
                     props: [
                         'helpText',
                         'isLoading',
                     ],
                 },
-                'sw-select-field-deprecated': true,
+                'mt-select': {
+                    name: 'mt-select',
+                    props: [
+                        'modelValue',
+                        'options',
+                    ],
+                    template: `
+                        <div class="mt-select">
+                            <div
+                                v-for="(option, index) in options"
+                                :key="index"
+                                class="mt-select-option"
+                            >
+                                <slot
+                                    name="result-label-property"
+                                    v-bind="{ item: option, index }"
+                                />
+                            </div>
+                        </div>
+                    `,
+                },
                 'sw-chart': true,
             },
         },
@@ -61,6 +84,86 @@ describe('src/app/component/base/sw-chart-card', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.hasHeaderLink).toBeFalsy();
+    });
+
+    it('maps the legacy range-option slot to mt-select option labels', async () => {
+        const wrapper = await createWrapper(
+            {
+                availableRanges: [
+                    '30Days',
+                    '14Days',
+                    '7Days',
+                    '24Hours',
+                    'yesterday',
+                ],
+            },
+            {
+                slots: {
+                    'range-option': ({ range }) => h('span', `Range ${range}`),
+                },
+            },
+        );
+
+        expect(wrapper.getComponent({ name: 'mt-select' }).props('options')).toEqual([
+            { value: '30Days', label: 'Range 30Days' },
+            { value: '14Days', label: 'Range 14Days' },
+            { value: '7Days', label: 'Range 7Days' },
+            { value: '24Hours', label: 'Range 24Hours' },
+            { value: 'yesterday', label: 'Range yesterday' },
+        ]);
+    });
+
+    it('forwards the option value to the legacy range-option slot', async () => {
+        const wrapper = await createWrapper(
+            {
+                availableRanges: [
+                    '30Days',
+                    '14Days',
+                ],
+            },
+            {
+                slots: {
+                    'range-option': ({ range }) => h('span', `Legacy ${range}`),
+                },
+            },
+        );
+
+        expect(wrapper.findAll('.mt-select-option').map((option) => option.text())).toEqual([
+            'Legacy 30Days',
+            'Legacy 14Days',
+        ]);
+    });
+
+    it('falls back to the range as option label when the legacy slot is not used', async () => {
+        const wrapper = await createWrapper({
+            availableRanges: [
+                '30Days',
+                '14Days',
+                '7Days',
+                '24Hours',
+                'yesterday',
+            ],
+        });
+
+        expect(wrapper.getComponent({ name: 'mt-select' }).props('options')).toEqual(
+            [
+                '30Days',
+                '14Days',
+                '7Days',
+                '24Hours',
+                'yesterday',
+            ].map((range) => ({ value: range, label: range })),
+        );
+    });
+
+    it('updates the selected range through mt-select', async () => {
+        const wrapper = await createWrapper();
+        const select = wrapper.getComponent({ name: 'mt-select' });
+
+        await select.vm.$emit('update:model-value', '7Days');
+
+        expect(wrapper.vm.selectedRange).toBe('7Days');
+        expect(wrapper.emitted('sw-chart-card-range-update')).toEqual([['7Days']]);
     });
 
     it('should set the correct range in the dropdown by default', async () => {

@@ -341,4 +341,66 @@ describe('core/service/documentV2.service.ts', () => {
 
         expect(documentV2Service.getFileFormatSnippet(fileFormat)).toStrictEqual(expectedSnippet);
     });
+
+    it.each([
+        [
+            DOCUMENT_TYPES.INVOICE,
+            'sw-order.components.createDocumentModal.documentTypes.invoice',
+        ],
+        [
+            DOCUMENT_TYPES.CREDIT_NOTE,
+            'sw-order.components.createDocumentModal.documentTypes.creditNote',
+        ],
+        [
+            DOCUMENT_TYPES.CANCELLATION_INVOICE,
+            'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
+        ],
+        [
+            DOCUMENT_TYPES.DELIVERY_NOTE,
+            'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
+        ],
+        [
+            'foo',
+            'foo',
+        ],
+    ])('should get correct document type snippet', (documentType, expectedSnippet) => {
+        const documentV2Service = new DocumentV2Service();
+
+        expect(documentV2Service.getDocumentTypeSnippet(documentType)).toStrictEqual(expectedSnippet);
+    });
+
+    it('should request the available document types only once and share the result', async () => {
+        const getAvailableTypes = jest.fn().mockResolvedValue({
+            documentTypes: { invoice: { formats: ['pdf'] } },
+        });
+        const documentV2Service = new DocumentV2Service({ getAvailableTypes });
+
+        const [
+            first,
+            second,
+        ] = await Promise.all([
+            documentV2Service.getAvailableDocumentTypes(),
+            documentV2Service.getAvailableDocumentTypes(),
+        ]);
+        const third = await documentV2Service.getAvailableDocumentTypes();
+
+        expect(getAvailableTypes).toHaveBeenCalledTimes(1);
+        expect(first).toEqual({ invoice: { formats: ['pdf'] } });
+        expect(second).toBe(first);
+        expect(third).toBe(first);
+    });
+
+    it('should not cache a failed available document types request', async () => {
+        const getAvailableTypes = jest
+            .fn()
+            .mockRejectedValueOnce(new Error('nope'))
+            .mockResolvedValue({ documentTypes: { invoice: { formats: ['pdf'] } } });
+        const documentV2Service = new DocumentV2Service({ getAvailableTypes });
+
+        await expect(documentV2Service.getAvailableDocumentTypes()).rejects.toThrow('nope');
+        await expect(documentV2Service.getAvailableDocumentTypes()).resolves.toEqual({
+            invoice: { formats: ['pdf'] },
+        });
+        expect(getAvailableTypes).toHaveBeenCalledTimes(2);
+    });
 });

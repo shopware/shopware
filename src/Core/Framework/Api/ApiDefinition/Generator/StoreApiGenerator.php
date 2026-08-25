@@ -51,6 +51,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
         private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
+        private readonly ?OpenApiRouteDefaultsFilter $routeDefaultsFilter = null,
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
     }
@@ -124,7 +125,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
-        return $finalSpecs;
+        return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
     }
 
     /**

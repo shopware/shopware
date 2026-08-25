@@ -13,7 +13,7 @@
                     "id": {
                         "type": "string",
                         "minLength": 1,
-                        "description": "Element identifier. Any non-empty string is accepted — the id is validated as a non-blank string and stored verbatim, with no format, length or character-set requirement, so an author-supplied id such as `el-1` is as valid as a generated hex id. Element ids must be unique across every root of a layout. The mutation operations mint fresh ids server-side (for example `attach-element` re-mints every id in the spliced subtree); the minted ids are reported in the response `affectedElementIds`.",
+                        "description": "Element identifier. Any non-empty string is accepted except the reserved root literal `__page_context_root__` and strings PHP casts to integers (`0`, `12`, `-3`); apart from those two exclusions the id is stored verbatim, with no format, length or character-set requirement, so an author-supplied id such as `el-1` is as valid as a generated hex id. Element ids must be unique across every root of a layout. The mutation operations mint fresh ids server-side (for example `attach-element` re-mints every id in the spliced subtree); the minted ids are reported in the response `affectedElementIds`.",
                         "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
                     },
                     "component": {

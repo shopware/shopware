@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\It
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -237,6 +238,49 @@ class StoredElementCodecTest extends TestCase
             'properties' => [],
             'elements' => [],
         ]);
+    }
+
+    #[DataProvider('rejectedElementIdProvider')]
+    #[TestDox('decode rejects $_dataName as an element id')]
+    public function testDecodeRejectsIdsOutsideTheValueDomain(string $id, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode(['id' => $id, 'component' => 'core:text', 'properties' => []]);
+    }
+
+    /**
+     * @return iterable<string, array{string, ContentSystemException}>
+     */
+    public static function rejectedElementIdProvider(): iterable
+    {
+        yield 'the reserved virtual-root literal' => [
+            VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            ContentSystemException::invalidElementId(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'it is the reserved virtual-root id'),
+        ];
+
+        yield 'the integer-castable string "0"' => [
+            '0',
+            ContentSystemException::invalidElementId('0', 'PHP casts it to an integer array key'),
+        ];
+
+        yield 'the integer-castable string "12"' => [
+            '12',
+            ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'),
+        ];
+
+        yield 'the integer-castable string "-3"' => [
+            '-3',
+            ContentSystemException::invalidElementId('-3', 'PHP casts it to an integer array key'),
+        ];
+    }
+
+    #[TestDox('decode accepts an id that only looks numeric')]
+    public function testDecodeAcceptsANonCastableNumericLookingId(): void
+    {
+        $element = $this->codec()->decode(['id' => '012', 'component' => 'core:text', 'properties' => []]);
+
+        static::assertSame('012', $element->id);
     }
 
     /**

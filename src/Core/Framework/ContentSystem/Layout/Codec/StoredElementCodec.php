@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
@@ -20,6 +21,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -147,6 +151,8 @@ final class StoredElementCodec
             throw ContentSystemException::invalidFieldValueType('id', 'string', get_debug_type($id));
         }
 
+        $this->rejectReservedOrCastableId($id);
+
         $component = $data['component'] ?? null;
         if (!\is_string($component)) {
             throw ContentSystemException::invalidFieldValueType('component', 'string', get_debug_type($component));
@@ -171,6 +177,28 @@ final class StoredElementCodec
             $this->decodeStyle($data['style'] ?? []),
             $this->decodeAttributedSpecifications($data['attributedSpecifications'] ?? []),
         );
+    }
+
+    /**
+     * The two id values the rest of the module cannot carry. {@see VirtualRootWrapper::VIRTUAL_ROOT_ID} is
+     * minted by the wrap step, so an authored element holding it collides on every wrapping render; and
+     * {@see ResolvedValueIndexFactory} keys its assignments map by element id, so an id PHP casts to an
+     * integer array key puts an integer into a map declared string-keyed — which encodes as a JSON list once
+     * those keys run 0..n-1, and as integer-looking members otherwise. The castability test puts the id through PHP's
+     * own array-key cast rather than restating the rule the codec's map-key rejections rely on.
+     *
+     * This is the shared admission point: the DAL write path reaches it through
+     * {@see StoredElementListFieldSerializer}, every draft route through {@see DraftLayoutDecoder}.
+     */
+    private function rejectReservedOrCastableId(string $id): void
+    {
+        if ($id === VirtualRootWrapper::VIRTUAL_ROOT_ID) {
+            throw ContentSystemException::invalidElementId($id, 'it is the reserved virtual-root id');
+        }
+
+        if (!\is_string(array_key_first([$id => null]))) {
+            throw ContentSystemException::invalidElementId($id, 'PHP casts it to an integer array key');
+        }
     }
 
     /**

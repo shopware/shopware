@@ -52,6 +52,7 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::PROPERTY_ALIAS_WITH_DOT_NOTATION,
             ContentSystemException::PROVIDER_DELIVERY_COLLISION,
             ContentSystemException::INVALID_MAP_KEY,
+            ContentSystemException::INVALID_ELEMENT_ID,
         ];
 
         $actual = ContentSystemException::CLIENT_DEFECT_CODES;

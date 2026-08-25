@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -90,6 +92,7 @@ class ContentSystemException extends HttpException
     public const RESOLVED_VALUE_INDEX_MISSING = 'CONTENT_SYSTEM__RESOLVED_VALUE_INDEX_MISSING';
     public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
     public const UNSUPPORTED_PROPERTY_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_PROPERTY_VALUE_TYPE';
+    public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
@@ -110,6 +113,7 @@ class ContentSystemException extends HttpException
         self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
         self::PROVIDER_DELIVERY_COLLISION,
         self::INVALID_MAP_KEY,
+        self::INVALID_ELEMENT_ID,
     ];
 
     public static function isClientDefect(\Throwable $exception): bool
@@ -144,6 +148,23 @@ class ContentSystemException extends HttpException
             self::CONFIG_SERIALIZER_NOT_REGISTERED,
             $message,
             ['source' => $source, 'elementId' => $elementId]
+        );
+    }
+
+    /**
+     * An element id outside the value domain the decode gate admits. Two values are excluded: the reserved
+     * literal {@see VirtualRootWrapper::VIRTUAL_ROOT_ID}, which an authored element carrying it would collide
+     * with on every wrapping render, and a string PHP casts to an integer array key, which puts an integer key
+     * into {@see ResolvedValueIndexFactory}'s string-keyed assignments map — encoding as a JSON list once those
+     * keys happen to run 0..n-1, and as a map with integer-looking members otherwise.
+     */
+    public static function invalidElementId(string $id, string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_ELEMENT_ID,
+            'Element id "{{ id }}" is not accepted: {{ reason }}.',
+            ['id' => $id, 'reason' => $reason]
         );
     }
 

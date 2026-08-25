@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\All;
@@ -92,7 +93,7 @@ final class StoredTreeConstraints
             new Type('array'),
             new Collection(
                 fields: [
-                    'id' => [new NotBlank(), new Type('string')],
+                    'id' => [new NotBlank(), new Type('string'), new Callback($this->validateElementIdDomain(...))],
                     'component' => [new NotBlank(), new Type('string')],
                     'properties' => new Optional($this->stringKeyedMap(new Callback($this->validatePropertyValueDepth(...)))),
                     'dataRequirements' => new Optional($this->dataRequirementConstraints()),
@@ -250,6 +251,28 @@ final class StoredTreeConstraints
      * `decodeProperties()` calls `decodeValue($value, $path, 0)`, and only an array value carries any further
      * nesting to bound.
      */
+    /**
+     * The write-side expression of the id value domain {@see StoredElementCodec::decodeElement()} admits. Both
+     * sides must state it: `NotBlank` exempts `'0'` and `Type` admits the reserved literal, so without this the
+     * descriptor would accept a payload decode refuses — a row persisted once and unreadable ever after.
+     */
+    private function validateElementIdDomain(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (!\is_string($value)) {
+            return;
+        }
+
+        if ($value === VirtualRootWrapper::VIRTUAL_ROOT_ID) {
+            $context->buildViolation('This value is the reserved virtual-root id.')->addViolation();
+
+            return;
+        }
+
+        if (!\is_string(array_key_first([$value => null]))) {
+            $context->buildViolation('This value is a string PHP casts to an integer array key.')->addViolation();
+        }
+    }
+
     private function validatePropertyValueDepth(mixed $value, ExecutionContextInterface $context): void
     {
         if (!$this->exceedsMaxValueNestingDepth($value, 0)) {

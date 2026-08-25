@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
@@ -441,6 +442,20 @@ class StoredTreeShapeConformanceTest extends TestCase
             self::forest(['style' => ['col-span' => ['md' => ['6']]]]),
             self::DESCRIPTOR_ONLY,
             'decode drops a breakpoint whose value is not a scalar, then drops the emptied option',
+        ];
+
+        // The id value domain: both sides must state it, because `NotBlank` exempts '0' and `Type` admits the
+        // reserved literal, so a descriptor-only rule would let a row persist that no later read can decode.
+        yield 'the reserved virtual-root element id' => [
+            [['id' => VirtualRootWrapper::VIRTUAL_ROOT_ID, 'component' => 'core:text']],
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'an integer-castable element id' => [
+            [['id' => '12', 'component' => 'core:text']],
+            self::REJECTED,
+            '',
         ];
 
         yield 'a blank element id' => [

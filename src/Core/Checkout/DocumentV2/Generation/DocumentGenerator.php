@@ -27,12 +27,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 
 /**
- * @internal
+ * @final
  */
 #[Package('after-sales')]
-final readonly class DocumentGenerator
+readonly class DocumentGenerator
 {
     /**
+     * @internal
+     *
      * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(

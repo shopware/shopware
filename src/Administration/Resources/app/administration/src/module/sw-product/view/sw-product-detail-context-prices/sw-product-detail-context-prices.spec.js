@@ -13,6 +13,17 @@ const createWrapper = async () => {
         }),
         {
             global: {
+                mocks: {
+                    $route: {
+                        params: {},
+                        meta: { $module: { icon: 'regular-products' } },
+                    },
+                    $router: {
+                        resolve: jest.fn((route) => ({
+                            href: `#/sw/product/detail/${route.params.id}/prices`,
+                        })),
+                    },
+                },
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-loader': true,
@@ -140,6 +151,62 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
+    });
+
+    it('should render the empty state without a parent link for a main product', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: null,
+            prices: [],
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
+        expect(emptyState.classes()).toContain('mt-empty-state');
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotExisting');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
+    });
+
+    it('should link to the parent prices while the variant inherits', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            prices: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
+        expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesInherited');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(true);
+    });
+
+    it('should describe the removed inheritance without a parent link', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            prices: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.isInherited = false;
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
+        expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotInherited');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
 
     it('first start quantity input should be disabled', async () => {

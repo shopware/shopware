@@ -45,6 +45,10 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.9.0 - Kept for overrides, the empty states no longer render an image. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -206,8 +210,27 @@ export default {
             ];
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.advancedPrices.advancedPricesNotExisting');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.advancedPrices.advancedPricesInherited');
+            }
+
+            return this.$t('sw-product.advancedPrices.advancedPricesNotInherited');
+        },
+
+        showParentPricesLink() {
+            return this.isChild && this.isInherited;
+        },
+
+        parentPricesHref() {
+            return this.$router.resolve({
+                name: 'sw.product.detail.prices',
+                params: { id: this.product.parentId },
+            }).href;
         },
     },
 

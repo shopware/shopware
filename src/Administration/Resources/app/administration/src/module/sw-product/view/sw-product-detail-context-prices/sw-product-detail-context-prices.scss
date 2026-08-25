@@ -81,31 +81,46 @@
     }
 
     .sw-product-detail-context-prices__empty-state {
-        max-width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-30));
         margin: 0 auto;
         padding: calc(var(--scale-size-40) + var(--scale-size-20)) var(--scale-size-20);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
 
         &-card {
             width: 100%;
             max-width: none;
         }
 
-        p {
-            text-align: center;
-            margin-block: var(--scale-size-10);
-        }
-
         &-select-rule {
             width: 100%;
         }
 
-        .sw-product-detail-context-prices__parent-prices-link {
-            color: var(--color-text-brand-default);
-            margin-bottom: var(--scale-size-20);
+        .mt-empty-state__button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .sw-select-rule-create {
+            width: 100%;
+            max-width: 400px;
+
+            .sw-field,
+            .mt-field {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    .sw-product-detail-context-prices__price-group-hint {
+        max-width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-30));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        p {
+            text-align: center;
+            margin-block: var(--scale-size-10);
         }
     }
 

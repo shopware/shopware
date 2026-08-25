@@ -33,6 +33,10 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.9.0 - Kept for overrides, the empty states no longer render an image. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -61,8 +65,27 @@ export default {
             return this.$t('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.crossselling.emptyStateDescription');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.crossselling.inheritedEmptyStateDescription');
+            }
+
+            return this.$t('sw-product.crossselling.notInheritedEmptyStateDescription');
+        },
+
+        showParentCrossSellingLink() {
+            return this.isChild && this.isInherited;
+        },
+
+        parentCrossSellingHref() {
+            return this.$router.resolve({
+                name: 'sw.product.detail.crossSelling',
+                params: { id: this.product.parentId },
+            }).href;
         },
 
         crossSellingRepository() {

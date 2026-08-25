@@ -62,59 +62,17 @@
         position-identifier="sw-product-detail-cross-selling-empty-state"
     >
         {% block sw_product_detail_cross_selling_empty_state %}
-        <sw-empty-state
-            :title="$t('sw-product.crossselling.cardTitleCrossSelling')"
-            :absolute="false"
-            empty-module
+        <mt-empty-state
+            class="sw-product-detail-cross-selling__empty-state"
+            role="status"
+            :centered="true"
+            :icon="$route.meta.$module.icon"
+            :headline="$t('sw-product.crossselling.cardTitleCrossSelling')"
+            :description="emptyStateDescription"
+            :link-text="showParentCrossSellingLink ? $t('sw-product.crossselling.linkCrossSellingsOfParent') : undefined"
+            :link-href="showParentCrossSellingLink ? parentCrossSellingHref : undefined"
         >
-            {% block sw_product_detail_cross_selling_empty_state_icon %}
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$t('sw-product.crossselling.cardTitleCrossSelling')"
-                >
-            </template>
-            {% endblock %}
-
-            <template #default>
-                {% block sw_product_detail_cross_selling_empty_state_content %}
-                <template v-if="isChild">
-                    {% block sw_product_detail_cross_selling_empty_state_content_child %}
-                    <template v-if="isInherited">
-                        {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}
-                        <p>{{ $t('sw-product.crossselling.inheritedEmptyStateDescription') }}</p>
-                        {% endblock %}
-
-                        {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}
-                        <router-link
-                            v-if="isChild && isInherited"
-                            :to="{ name: 'sw.product.detail.crossSelling', params: { id: product.parentId } }"
-                            class="sw-product-detail-cross-selling__parent-cross-sellings-link"
-                        >
-                            {{ $t('sw-product.crossselling.linkCrossSellingsOfParent') }}
-                            <mt-icon
-                                name="regular-long-arrow-right"
-                                size="var(--scale-size-16)"
-                            />
-                        </router-link>
-                        {% endblock %}
-                    </template>
-
-                    <template v-else>
-                        {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}
-                        <p>{{ $t('sw-product.crossselling.notInheritedEmptyStateDescription') }}</p>
-                        {% endblock %}
-                    </template>
-                    {% endblock %}
-                </template>
-
-                <template v-else>
-                    {% block sw_product_detail_cross_selling_empty_state_content_empty %}
-                    <p>{{ $t('sw-product.crossselling.emptyStateDescription') }}</p>
-                    {% endblock %}
-                </template>
-                {% endblock %}
-
+            <template #button>
                 {% block sw_product_detail_cross_selling_empty_state_inherit_switch %}
                 <template v-if="isChild">
                     <div
@@ -142,10 +100,7 @@
                     </div>
                 </template>
                 {% endblock %}
-            </template>
 
-            {% block sw_product_detail_cross_selling_empty_state_actions %}
-            <template #actions>
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
                 <mt-button
                     v-tooltip="{
@@ -155,14 +110,26 @@
                     }"
                     :disabled="isInherited || !acl.can('product.editor') || !isSystemDefaultLanguage"
                     variant="secondary"
+                    size="small"
                     @click="onAddCrossSelling"
                 >
                     {{ $t('sw-product.crossselling.buttonAddCrossSelling') }}
                 </mt-button>
                 {% endblock %}
             </template>
+        </mt-empty-state>
+
+        {# @deprecated tag:v6.9.0 - Kept as extension anchors, the icon and the descriptions became mt-empty-state props. #}
+        {% block sw_product_detail_cross_selling_empty_state_actions %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_icon %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content %}
+            {% block sw_product_detail_cross_selling_empty_state_content_child %}
+                {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}{% endblock %}
+                {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}{% endblock %}
+                {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}{% endblock %}
             {% endblock %}
-        </sw-empty-state>
+            {% block sw_product_detail_cross_selling_empty_state_content_empty %}{% endblock %}
+        {% endblock %}
         {% endblock %}
     </mt-card>
     {% endblock %}

@@ -47,7 +47,13 @@
         width: fit-content;
     }
 
-    .sw-empty-state__icon {
-        display: inline-block;
+    &__empty-state {
+        margin: 0 auto;
+
+        .mt-empty-state__button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     }
 }

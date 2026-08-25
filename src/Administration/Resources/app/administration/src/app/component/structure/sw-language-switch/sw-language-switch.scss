@@ -13,5 +13,13 @@
         .sw-block-field__block {
             height: 40px;
         }
+
+        // language names can outgrow the fixed switch width
+        .sw-entity-single-select__selection-text {
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }

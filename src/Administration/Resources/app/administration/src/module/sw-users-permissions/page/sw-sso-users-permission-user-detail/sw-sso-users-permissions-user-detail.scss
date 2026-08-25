@@ -12,15 +12,16 @@
 
         &.sw-detail-grid__information {
             grid-template-areas:
-                "FirstName LastName"
+                "FirstName ProfilePicture"
+                "LastName ProfilePicture"
                 "EMail EMail"
                 "Active Active";
         }
 
         &.sw-detail-grid__user-interface {
             grid-template-areas:
-                "Language ProfilePicture"
-                "Timezone ProfilePicture";
+                "Language Timezone"
+                "Theme .";
         }
 
         &.sw-detail-grid__roles-and-permissions {
@@ -47,12 +48,17 @@
         margin-top: 0;
     }
 
+    .sw-sso-detail-card__information-picture {
+        grid-area: ProfilePicture;
+        margin-bottom: var(--scale-size-32);
+    }
+
     .sw-sso-detail-card__user-interface-language {
         grid-area: Language;
     }
 
-    .sw-sso-detail-card__user-interface-picture {
-        grid-area: ProfilePicture;
+    .sw-sso-detail-card__user-interface-theme {
+        grid-area: Theme;
     }
 
     .sw-sso-detail-card__roles-and-permission-jobTitle {

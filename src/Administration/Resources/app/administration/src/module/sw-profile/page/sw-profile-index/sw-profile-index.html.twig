@@ -97,9 +97,13 @@
                             languageId,
                             isDisabled,
                             userRepository,
+                            userTheme,
+                            userModuleIconColors,
                         }"
                         @new-password-change="onChangeNewPassword"
                         @new-password-confirm-change="onChangeNewPasswordConfirm"
+                        @user-theme-change="onChangeUserTheme"
+                        @user-module-icon-colors-change="onChangeUserModuleIconColors"
                         @media-upload="setMediaItem"
                         @media-remove="onUnlinkAvatar"
                         @media-open="openMediaModal"

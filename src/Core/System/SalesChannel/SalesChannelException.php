@@ -31,6 +31,7 @@ class SalesChannelException extends HttpException
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
     final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
+    public const CRITERIA_TOO_MANY_NESTED_CRITERIA = 'SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA';
     public const INVALID_TYPE = 'FRAMEWORK__INVALID_TYPE';
     final public const CURRENCY_INVALID_EXCEPTION = 'SYSTEM__CURRENCY_INVALID_EXCEPTION';
     final public const COUNTRY_INVALID_EXCEPTION = 'SYSTEM__COUNTRY_INVALID_EXCEPTION';
@@ -39,6 +40,16 @@ class SalesChannelException extends HttpException
     final public const ENCODING_INVALID_STRUCT_EXCEPTION = 'SYSTEM__ENCODING_INVALID_STRUCT_EXCEPTION';
     final public const ENCODING_MISSING_AGGREGATION_EXCEPTION = 'SYSTEM__ENCODING_MISSING_AGGREGATION_EXCEPTION';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
+
+    public static function tooManyNestedCriteria(int $limit): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CRITERIA_TOO_MANY_NESTED_CRITERIA,
+            'The criteria contains more than {{ limit }} nested criteria.',
+            ['limit' => $limit]
+        );
+    }
 
     public static function salesChannelNotFound(string $salesChannelId): self
     {

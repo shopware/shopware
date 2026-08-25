@@ -69,7 +69,8 @@ class AclRoleDefinition extends EntityDefinition
     protected function defineProtections(): EntityProtectionCollection
     {
         return new EntityProtectionCollection([
-            new WriteProtection(Context::SYSTEM_SCOPE),
+            // The generic CRUD API must not create or update ACL roles.
+            new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE),
         ]);
     }
 

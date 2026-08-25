@@ -18,6 +18,8 @@ use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -37,7 +39,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $this->createMock(EntityRepository::class)
+            $this->createMock(EntityRepository::class),
+            static::createStub(RateLimiter::class)
         );
 
         static::expectException(DocumentException::class);
@@ -61,7 +64,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            static::createStub(RateLimiter::class)
         );
 
         static::expectException(DocumentException::class);
@@ -87,7 +91,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            static::createStub(RateLimiter::class)
         );
 
         static::expectException(CustomerNotLoggedInException::class);
@@ -122,7 +127,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            static::createStub(RateLimiter::class)
         );
 
         $request = new Request();
@@ -159,7 +165,7 @@ class DocumentRouteTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
-
+        $document->setDeepLinkCode('deepLinkCode');
         $document->setOrder($order);
 
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
@@ -170,6 +176,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
         );
 
         $request = new Request([
@@ -183,7 +190,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(WrongGuestCredentialsException::class);
         static::expectExceptionMessage('Wrong credentials for guest authentication');
 
-        $route->download($document->getId(), $request, $context);
+        $route->download($document->getId(), $request, $context, 'deepLinkCode');
     }
 
     public function testThrowExceptionGuestNotAuthenticated(): void
@@ -205,7 +212,7 @@ class DocumentRouteTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
-
+        $document->setDeepLinkCode('deepLinkCode');
         $document->setOrder($order);
 
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
@@ -215,7 +222,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
-            $documentRepository
+            $documentRepository,
+            static::createStub(RateLimiter::class)
         );
 
         $request = new Request();
@@ -226,7 +234,7 @@ class DocumentRouteTest extends TestCase
         static::expectException(GuestNotAuthenticatedException::class);
         static::expectExceptionMessage('Guest not authenticated.');
 
-        $route->download($document->getId(), $request, $context);
+        $route->download($document->getId(), $request, $context, 'deepLinkCode');
     }
 
     public function testThrowExceptionForGuestWithoutDeepLinkCode(): void
@@ -251,7 +259,7 @@ class DocumentRouteTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
-
+        $document->setDeepLinkCode('deepLinkCode');
         $document->setOrder($order);
 
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
@@ -262,6 +270,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
         );
 
         $request = new Request([
@@ -299,7 +308,7 @@ class DocumentRouteTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
-
+        $document->setDeepLinkCode('deepLinkCode');
         $document->setOrder($order);
 
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
@@ -310,6 +319,7 @@ class DocumentRouteTest extends TestCase
         $route = new DocumentRoute(
             $this->createMock(DocumentGenerator::class),
             $documentRepository,
+            static::createStub(RateLimiter::class),
         );
 
         $request = new Request([
@@ -322,6 +332,183 @@ class DocumentRouteTest extends TestCase
         $response = $route->download('documentId', $request, $context, 'deepLinkCode');
 
         static::assertSame($response->getStatusCode(), Response::HTTP_NO_CONTENT);
+    }
+
+    public function testAnonymousGuestCanDownload(): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('zipcode');
+
+        $customerId = Uuid::randomHex();
+        $customer = new CustomerEntity();
+        $customer->setId($customerId);
+        $customer->setGuest(true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customerId);
+        $orderCustomer->setEmail('email');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setDeepLinkCode('deepLinkCode');
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, $document->getId() . '-127.0.0.1');
+        $rateLimiter->expects($this->once())
+            ->method('reset')
+            ->with(RateLimiter::GUEST_LOGIN, $document->getId() . '-127.0.0.1');
+
+        $route = new DocumentRoute(
+            $this->createMock(DocumentGenerator::class),
+            $documentRepository,
+            $rateLimiter,
+        );
+
+        $request = new Request([
+            'email' => 'email',
+            'zipcode' => 'zipcode',
+        ], [], [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $response = $route->download($document->getId(), $request, $context, 'deepLinkCode');
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testGuestAuthenticationIsThrottled(): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('zipcode');
+
+        $customerId = Uuid::randomHex();
+        $customer = new CustomerEntity();
+        $customer->setId($customerId);
+        $customer->setGuest(true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customerId);
+        $orderCustomer->setEmail('email');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setDeepLinkCode('deepLinkCode');
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $rateLimitExceededException = static::createStub(RateLimitExceededException::class);
+        $rateLimitExceededException->method('getWaitTime')->willReturn(60);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, $document->getId() . '-127.0.0.1')
+            ->willThrowException($rateLimitExceededException);
+        $rateLimiter->expects($this->never())->method('reset');
+
+        $route = new DocumentRoute(
+            $this->createMock(DocumentGenerator::class),
+            $documentRepository,
+            $rateLimiter,
+        );
+
+        $request = new Request([
+            'email' => 'email',
+            'zipcode' => 'zipcode',
+        ], [], [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->expectExceptionObject(DocumentException::documentAuthThrottledException(60));
+
+        $route->download($document->getId(), $request, $context, 'deepLinkCode');
+    }
+
+    public function testRateLimiterFiresBeforeDeepLinkValidation(): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('zipcode');
+
+        $customerId = Uuid::randomHex();
+        $customer = new CustomerEntity();
+        $customer->setId($customerId);
+        $customer->setGuest(true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customerId);
+        $orderCustomer->setEmail('email');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setDeepLinkCode('deepLinkCode');
+        $document->setOrder($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, $document->getId() . '-127.0.0.1');
+        $rateLimiter->expects($this->never())->method('reset');
+
+        $route = new DocumentRoute(
+            $this->createMock(DocumentGenerator::class),
+            $documentRepository,
+            $rateLimiter,
+        );
+
+        $request = new Request([
+            'email' => 'invalid',
+            'zipcode' => 'invalid',
+        ], [], [], [], [], ['REMOTE_ADDR' => '127.0.0.1']);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->expectExceptionObject(DocumentException::documentNotFound($document->getId()));
+
+        $route->download($document->getId(), $request, $context, 'invalidDeepLinkCode');
     }
 
     public function testThrowExceptionForNotMatchingCustomer(): void
@@ -351,7 +538,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            static::createStub(RateLimiter::class)
         );
 
         $request = new Request();
@@ -393,7 +581,8 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             $generator,
-            $documentRepository
+            $documentRepository,
+            static::createStub(RateLimiter::class)
         );
 
         $request = new Request();

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -56,7 +56,7 @@ class WebhookManager implements ResetInterface
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
-        private readonly Client $guzzle,
+        private readonly ClientInterface $guzzle,
         private readonly MessageBusInterface $bus,
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,

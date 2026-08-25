@@ -40,7 +40,9 @@ class ContentSystemPreviewController extends StorefrontController
         SalesChannelContext $salesChannelContext,
     ): Response {
         // Strict at consumption: the store returns null only for a token with no entry, and refuses a stored
-        // entry that is not a preview envelope with its own 400 rather than handing back an emptied one.
+        // entry that is not a preview envelope with its own 500 rather than handing back an emptied one. The
+        // 500 is deliberate — only a validated envelope is ever written, so a malformed hit is server-side
+        // state and not something this caller sent.
         $payload = $this->payloadStore->load($token);
 
         if ($payload === null) {

@@ -52,8 +52,9 @@ class ContentPreviewPayloadStore
 
     /**
      * `null` means the token addresses no entry — unknown or expired — which the redemption route reports as a
-     * 404. A hit whose value does not decode into a preview request is a `previewPayloadInvalid` 400 instead:
-     * the envelope was written from a validated DTO, so a wrongly shaped one is not a preview envelope at all.
+     * 404. A hit whose value does not decode into a preview request is a `previewPayloadInvalid` 500 instead:
+     * the envelope was written from a validated DTO, so a wrongly shaped one is server-side state rather than
+     * anything the redeeming caller sent.
      */
     public function load(string $token): ?ContentPreviewRequest
     {

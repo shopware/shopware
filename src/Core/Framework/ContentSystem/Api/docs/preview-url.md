@@ -21,7 +21,7 @@ The `ContentPreviewRequest` envelope:
 | `entityId` | yes | Id of the entity to hydrate against; the entity must exist. |
 | `salesChannelId` | yes | Sales channel whose context is synthesized for rendering. |
 | `languageId`, `currencyId`, `domainId`, `customerId` | no | Override the synthesized sales channel context. |
-| `queryParameters` | no | Forwarded as request query; `elementId` selects a single element for partial preview. |
+| `queryParameters` | no | Forwarded as request query; `elementId` selects a single element for partial preview. Member names must not be strings PHP casts to integers (`0`, `12`, `-3`) — the stored envelope is a string-keyed map. |
 
 ## Response
 
@@ -38,6 +38,7 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | Condition | HTTP | Factory / source |
 |---|---|---|
 | Missing/invalid envelope field | 400 | `#[MapRequestPayload]` validation (forced to 400) |
+| A `queryParameters` member name PHP casts to an integer | 400 | `ContentPreviewRequest::rejectNonStringQueryParameterNames()`, through the same `#[MapRequestPayload]` validation |
 | An `includes` or `excludes` parameter in any of the attribute, query or request bag | 400 | `fieldSelectionNotSupported` — field selection is refused here as it is on the store-api content routes |
 | `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |

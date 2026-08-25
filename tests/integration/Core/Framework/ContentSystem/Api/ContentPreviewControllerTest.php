@@ -54,6 +54,39 @@ class ContentPreviewControllerTest extends TestCase
         static::assertStringNotContainsString('"url"', (string) $response->getContent());
     }
 
+    /**
+     * PHP casts the JSON member name `"0"` to an integer array key, which the stored envelope cannot carry.
+     * Without the DTO constraint the mint succeeds and the failure surfaces only on redemption.
+     *
+     * The layout uses a REGISTERED component on purpose: an unregistered one is itself a 400, which would
+     * leave the status and the no-token assertions passing with the constraint removed.
+     */
+    #[TestDox('previewUrl rejects a numeric queryParameters key with 400 and mints no token')]
+    public function testPreviewUrlReturns400ForNumericQueryParameterKey(): void
+    {
+        $registered = static::getContainer()->get(ContentSystemElementTypeRegistry::class)->all();
+        $component = array_key_first($registered);
+        static::assertIsString($component);
+
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [['id' => 'el-1', 'component' => $component]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'queryParameters' => ['0' => 'x'],
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // The body JSON-escapes the quotes around the key, so the message is compared after decoding.
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+        static::assertSame('Query parameter name "0" must be a string.', $body['errors'][0]['detail'] ?? null);
+        static::assertStringNotContainsString('"url"', (string) $response->getContent());
+    }
+
     #[TestDox('previewUrl rejects an unregistered component with 400 and mints no token')]
     public function testPreviewUrlReturns400ForUnregisteredComponent(): void
     {

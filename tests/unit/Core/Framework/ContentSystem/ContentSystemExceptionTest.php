@@ -130,6 +130,13 @@ class ContentSystemExceptionTest extends TestCase
             'product',
         ];
 
+        yield 'preview payload invalid' => [
+            ContentSystemException::previewPayloadInvalid('layout', 'array', 'string'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID',
+            'layout',
+        ];
+
         yield 'config serializer not registered' => [
             ContentSystemException::configSerializerNotRegistered('yaml'),
             Response::HTTP_INTERNAL_SERVER_ERROR,

@@ -714,16 +714,19 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * The client-facing 400 for a redeemed preview token whose stored envelope is not a preview request. The
-     * store writes the envelope from an already-validated DTO, so a missing or wrongly typed field means the
-     * entry behind that token is not one; the redemption route refuses it rather than substituting a default
-     * and rendering silently emptied data. Deliberately not in CLIENT_DEFECT_CODES: that list is only for
-     * element-tree config defects the diagnostics kernel catches per element.
+     * The server fault for a redeemed preview token whose stored envelope is not a preview request. The store
+     * writes the envelope from an already-validated DTO and the mint request rejects everything the envelope
+     * cannot hold, so a malformed hit is server-side state — cache corruption, or a DTO field-set change
+     * deployed inside the five-minute TTL — and never something the redeeming caller sent. The redemption
+     * route refuses it rather than substituting a default and rendering silently emptied data. A token that
+     * addresses no entry is a separate case: `load()` answers `null` and the route reports a 404. The sibling
+     * precedent for the status is {@see previewPayloadStoreFailed()}. Deliberately not in CLIENT_DEFECT_CODES:
+     * that list is only for element-tree config defects the diagnostics kernel catches per element.
      */
     public static function previewPayloadInvalid(string $field, string $expectedType, string $actualType): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PREVIEW_PAYLOAD_INVALID,
             'The stored preview payload field "{{ field }}" must be {{ expectedType }}, got {{ actualType }}.',
             ['field' => $field, 'expectedType' => $expectedType, 'actualType' => $actualType]

@@ -28,9 +28,29 @@ class DocumentGeneratedEvent extends Event implements OrderAware, MailAware, Flo
     ) {
     }
 
+    public function getDocumentId(): string
+    {
+        return $this->documentId;
+    }
+
     public function getOrderId(): string
     {
         return $this->orderId;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function getDocumentType(): string
+    {
+        return $this->documentType;
+    }
+
+    public function getDocumentNumber(): string
+    {
+        return $this->documentNumber;
     }
 
     public function getMailStruct(): MailRecipientStruct

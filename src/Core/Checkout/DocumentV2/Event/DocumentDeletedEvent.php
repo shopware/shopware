@@ -34,6 +34,35 @@ class DocumentDeletedEvent extends Event implements MailAware, FlowEventAware, S
     ) {
     }
 
+    public function getDocumentId(): string
+    {
+        return $this->documentId;
+    }
+
+    /**
+     * Exposes the scalar id for the webhook payload only; this event stays non-OrderAware,
+     * so no `order` association is hydrated from it (see class docblock).
+     */
+    public function getOrderId(): string
+    {
+        return $this->orderId;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function getDocumentNumber(): string
+    {
+        return $this->documentNumber;
+    }
+
+    public function getDeletedAt(): string
+    {
+        return $this->deletedAt;
+    }
+
     public function getMailStruct(): MailRecipientStruct
     {
         // No recipient is resolved here. This event is deliberately not OrderAware (see class

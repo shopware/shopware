@@ -92,6 +92,10 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "429": {
+            "$ref": "#/components/responses/429",
+            "description": "Too many consent decisions were logged for this client IP. The number of seconds to wait before retrying is contained in the error."
           }
         },
         "security": [

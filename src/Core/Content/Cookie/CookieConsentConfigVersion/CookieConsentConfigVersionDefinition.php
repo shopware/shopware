@@ -21,7 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 /**
  * Snapshot of the cookie banner configuration for a given configuration hash.
  *
- * Referenced by `cookie_consent_log.config_hash`, it preserves what the banner
+ * Referenced by `cookie_consent_log.server_config_hash`, it preserves what the banner
  * looked like (groups, cookies, descriptions) when a consent was recorded.
  * New rows are only created when the banner configuration changes. The sales
  * channel and language columns are intentionally not enforced by foreign keys

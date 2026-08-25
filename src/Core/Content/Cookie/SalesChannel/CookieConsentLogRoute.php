@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -98,7 +99,9 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         // is a no-op once the configuration is known, and the cleanup task deletes snapshots
         // no log entry references any more, so both statements have to commit together: the
         // duplicate insert holds a lock on the snapshot row until then, making the cleanup wait.
-        $this->connection->transactional(function () use ($payload, $cookieGroups, $decisions, $serverConfigHash, $renderedConfigHash, $now, $salesChannelId, $languageId): void {
+        // Retried on deadlock, because the consent beacon is fire-and-forget: a rolled back
+        // transaction would drop the evidence with nobody left to send it again.
+        RetryableTransaction::retryable($this->connection, function () use ($payload, $cookieGroups, $decisions, $serverConfigHash, $renderedConfigHash, $now, $salesChannelId, $languageId): void {
             $this->connection->executeStatement(
                 'INSERT IGNORE INTO `cookie_consent_config_version`
                     (`id`, `config_hash`, `sales_channel_id`, `language_id`, `cookie_groups`, `created_at`)

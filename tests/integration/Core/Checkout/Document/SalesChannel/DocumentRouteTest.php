@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +47,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
+    use DocumentV2Trait;
     use IntegrationTestBehaviour;
 
     /*
@@ -75,6 +77,7 @@ class DocumentRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
@@ -399,6 +402,7 @@ class DocumentRouteTest extends TestCase
             $customerId,
             ['salesChannelId' => $this->ids->get('sales-channel')]
         );
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
         $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
             new DocumentGenerationRequest(
@@ -432,6 +436,7 @@ class DocumentRouteTest extends TestCase
             $customerId,
             ['salesChannelId' => $this->ids->get('sales-channel')]
         );
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
 
         $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
             new DocumentGenerationRequest(

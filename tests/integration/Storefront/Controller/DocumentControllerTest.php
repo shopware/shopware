@@ -342,6 +342,7 @@ class DocumentControllerTest extends TestCase
 
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
+        $this->configureV2InvoiceDocument();
 
         $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
             new DocumentGenerationRequest(
@@ -449,6 +450,27 @@ class DocumentControllerTest extends TestCase
         $cart = static::getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
 
         return static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
+    }
+
+    private function configureV2InvoiceDocument(): void
+    {
+        $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
+        $documentBaseConfig = $documentBaseConfigRepository->search(
+            (new Criteria())
+                ->addFilter(new EqualsFilter('typeName', DocumentType::INVOICE->value))
+                ->addFilter(new EqualsFilter('global', true)),
+            $this->context,
+        )->getEntities()->first();
+
+        static::assertNotNull($documentBaseConfig);
+
+        $config = $documentBaseConfig->getConfig() ?? [];
+        $config['companyCountryId'] = $this->getValidCountryId();
+
+        $documentBaseConfigRepository->update([[
+            'id' => $documentBaseConfig->getId(),
+            'config' => $config,
+        ]], $this->context);
     }
 
     private function createCustomer(string $paymentMethodId): string

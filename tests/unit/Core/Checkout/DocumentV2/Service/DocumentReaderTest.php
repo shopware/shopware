@@ -58,11 +58,12 @@ class DocumentReaderTest extends TestCase
         static::assertSame('pdf-content', $renderedDocument->getContent());
     }
 
-    public function testReadReturnsFirstFileWhenFileTypeIsNull(): void
+    public function testReadReturnsPdfWhenFormatIsNull(): void
     {
         $pdfMedia = $this->createMedia('pdf');
+        $htmlMedia = $this->createMedia('html');
 
-        $document = $this->createDocument([$pdfMedia]);
+        $document = $this->createDocument([$htmlMedia, $pdfMedia]);
 
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('loadFile')->willReturn('content');
@@ -77,6 +78,22 @@ class DocumentReaderTest extends TestCase
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', null);
 
         static::assertSame('pdf', $renderedDocument->getFileExtension());
+    }
+
+    public function testReadThrowsWhenPdfIsUnavailableAndFormatIsNull(): void
+    {
+        $document = $this->createDocument([$this->createMedia('html')]);
+
+        $reader = new DocumentReader(
+            $this->createDocumentRepository($document),
+            static::createStub(MediaService::class),
+            new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'default'));
+
+        $reader->read($document->getId(), Context::createDefaultContext());
     }
 
     public function testReadThrowsWhenNoMatchingFormatExists(): void

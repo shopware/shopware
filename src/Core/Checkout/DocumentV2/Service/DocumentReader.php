@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Service;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Content\Media\MediaService;
@@ -54,10 +55,7 @@ final readonly class DocumentReader
             throw DocumentV2Exception::documentNotFound($documentId);
         }
 
-        $resolvedFormat = $format ?? $this->resolveDefaultFormat($document);
-        if ($resolvedFormat === null) {
-            throw DocumentV2Exception::documentFormatUnavailable($documentId, $format ?? 'default');
-        }
+        $resolvedFormat = $format ?? DocumentFormat::PDF->value;
 
         $resolvedFile = $this->documentFileResolver->resolve($document, $resolvedFormat);
         if ($resolvedFile === null) {
@@ -86,24 +84,5 @@ final readonly class DocumentReader
         $renderedDocument->setContent($content);
 
         return $renderedDocument;
-    }
-
-    /**
-     * Without an explicit format the first stored file wins, falling back to the media written by
-     * document generation v1.
-     */
-    private function resolveDefaultFormat(DocumentEntity $document): ?string
-    {
-        $documentFiles = $document->getDocumentFiles();
-        if ($documentFiles !== null && $documentFiles->count() > 0) {
-            return $documentFiles->first()?->getDocumentFormat();
-        }
-
-        $legacyExtension = $document->getDocumentMediaFile()?->getFileExtension();
-        if ($legacyExtension !== null && $legacyExtension !== '') {
-            return $legacyExtension;
-        }
-
-        return $document->getDocumentA11yMediaFile() !== null ? 'html' : null;
     }
 }

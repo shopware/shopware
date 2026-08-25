@@ -208,6 +208,16 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         ], $result);
     }
 
+    #[TestDox('encodes ProductListingLoaderConfig with disabled aggregations into array containing aggregations key')]
+    public function testEncodeConfigWithDisabledAggregationsIncludesAggregationsKey(): void
+    {
+        $config = new ProductListingLoaderConfig(aggregations: false);
+
+        $result = $this->serializer->encode($config);
+
+        static::assertSame(['aggregations' => false], $result);
+    }
+
     /**
      * @param array<string, mixed> $original
      */
@@ -229,6 +239,7 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         yield 'empty config' => [[]];
         yield 'property only' => [['property' => 'categoryProperty']];
         yield 'associations only' => [['associations' => ['options', 'cover']]];
+        yield 'aggregations disabled' => [['aggregations' => false]];
         yield 'full config' => [
             ['property' => 'myProperty', 'associations' => ['manufacturer', 'media']],
         ];

@@ -155,7 +155,12 @@ class ProductListingElementLoader
             return [];
         }
 
-        return array_values(array_filter(array_map(trim(...), explode(',', $whitelist))));
+        $entries = array_map(
+            static fn (string $entry): string => u($entry)->trim()->lower()->toString(),
+            explode(',', $whitelist)
+        );
+
+        return array_values(array_filter($entries, Uuid::isValid(...)));
     }
 
     /**

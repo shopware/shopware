@@ -228,4 +228,112 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
 
         expect(value).toBe('0 20px 0 20px');
     });
+
+    it('creates the repository for the configured adminUI entity', () => {
+        const repository = { entityName: 'property_group' };
+        const create = jest.fn(() => repository);
+
+        expect(
+            methods.getEntityRepository.call(
+                {
+                    getEntityName: methods.getEntityName,
+                    repositoryFactory: { create },
+                },
+                {
+                    adminUI: {
+                        component: 'entity-multi-id-select',
+                        entity: 'property_group',
+                    },
+                },
+            ),
+        ).toBe(repository);
+        expect(create).toHaveBeenCalledWith('property_group');
+    });
+
+    it('returns no repository without an adminUI entity', () => {
+        const create = jest.fn();
+
+        expect(
+            methods.getEntityRepository.call(
+                {
+                    getEntityName: methods.getEntityName,
+                    repositoryFactory: { create },
+                },
+                {
+                    adminUI: {
+                        component: 'entity-multi-id-select',
+                    },
+                },
+            ),
+        ).toBeNull();
+        expect(create).not.toHaveBeenCalled();
+    });
+
+    it('splits, trims and filters comma separated id list values', () => {
+        const value = methods.getIdListValue.call(
+            {
+                values: {
+                    propertyIds: ' id-1 , ,id-2,',
+                },
+                getPropertyValue: methods.getPropertyValue,
+                getControlType: methods.getControlType,
+            },
+            'propertyIds',
+            {
+                type: 'string',
+                default: null,
+                adminUI: {
+                    component: 'entity-multi-id-select',
+                    entity: 'property_group',
+                },
+            },
+        );
+
+        expect(value).toEqual([
+            'id-1',
+            'id-2',
+        ]);
+    });
+
+    it('returns an empty id list for empty and non-string values', () => {
+        const property = {
+            type: 'string',
+            default: null,
+            adminUI: {
+                component: 'entity-multi-id-select',
+                entity: 'property_group',
+            },
+        };
+        const contextFor = (value: unknown) => ({
+            values: {
+                propertyIds: value,
+            },
+            getPropertyValue: methods.getPropertyValue,
+            getControlType: methods.getControlType,
+        });
+
+        expect(methods.getIdListValue.call(contextFor(''), 'propertyIds', property)).toEqual([]);
+        expect(methods.getIdListValue.call(contextFor(42), 'propertyIds', property)).toEqual([]);
+    });
+
+    it('joins string ids and drops non-string entries when updating an id list', () => {
+        const onUpdateField = jest.fn();
+
+        methods.onUpdateIdList.call({ onUpdateField }, 'propertyIds', [
+            'id-1',
+            42,
+            null,
+            'id-2',
+        ]);
+
+        expect(onUpdateField).toHaveBeenCalledWith('propertyIds', 'id-1,id-2');
+    });
+
+    it('persists an empty id list when the update payload is not an array', () => {
+        const onUpdateField = jest.fn();
+
+        methods.onUpdateIdList.call({ onUpdateField }, 'propertyIds', 'not-an-array');
+
+        expect(onUpdateField).toHaveBeenCalledWith('propertyIds', '');
+    });
 });

@@ -211,6 +211,28 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toBe('entity');
     });
 
+    it('maps entity multi id select properties to entity multi controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'entity-multi-id-select',
+                    entity: 'property_group',
+                },
+            }),
+        ).toBe('entity-multi');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'sw-entity-multi-id-select',
+                    entity: 'property_group',
+                },
+            }),
+        ).toBe('entity-multi');
+    });
+
     it('maps media field properties to media controls', () => {
         expect(
             getPropertyControlType({

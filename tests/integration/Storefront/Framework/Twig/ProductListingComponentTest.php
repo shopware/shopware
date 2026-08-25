@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
@@ -88,6 +89,8 @@ class ProductListingComponentTest extends TestCase
         $html = $this->render(['listing' => $this->listing(42)]);
 
         static::assertStringContainsString('sw-product-listing__actions', $html);
+        static::assertStringContainsString('data-component="Sw:Product:Sorting"', $html);
+        static::assertStringContainsString('Price ascending', $html);
         static::assertStringContainsString('data-component="Sw:Product:LayoutSwitch"', $html);
         static::assertStringContainsString('42', $html);
     }
@@ -144,6 +147,11 @@ class ProductListingComponentTest extends TestCase
             Context::createDefaultContext()
         );
 
-        return ProductListingResult::fromSearchResult($result, new ProductSortingCollection());
+        $sorting = new ProductSortingEntity();
+        $sorting->setId(Uuid::randomHex());
+        $sorting->setKey('price-asc');
+        $sorting->setTranslated(['label' => 'Price ascending']);
+
+        return ProductListingResult::fromSearchResult($result, new ProductSortingCollection([$sorting]));
     }
 }

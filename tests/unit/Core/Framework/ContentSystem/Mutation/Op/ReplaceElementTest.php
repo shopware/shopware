@@ -246,6 +246,24 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['ghost' => 'orphaned-value', 'count' => 'not-an-int'], $this->rawDrops($replace->droppedProperties()));
     }
 
+    #[TestDox('reports a non-scalar stored value under a new-type primitive key via droppedProperties')]
+    public function testReplaceReportsDroppedNonScalarUnderAPrimitiveKey(): void
+    {
+        // A list variant under a declared string property is reachable input, not a hypothetical: the draft
+        // mutation route decodes through DraftLayoutDecoder and runs MutationPipeline, which never persists, so
+        // no DAL write and no PreWriteValidationEvent occur and StoredTreeConstraints — reached only from
+        // StoredElementListFieldSerializer::buildConstraints() on an actual write — never runs on this tree.
+        // carriesOverPropertiesProvider pins the carry-over half of the same input; this pins the report half,
+        // which that provider's two-column shape cannot express.
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', ['a', 'b'])->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('headline'));
+        static::assertSame(['headline' => ['a', 'b']], $this->rawDrops($replace->droppedProperties()));
+    }
+
     #[TestDox('resets droppedProperties on re-apply so a second run does not accumulate the first run drops')]
     public function testReplaceResetsDroppedPropertiesOnReapply(): void
     {
@@ -408,6 +426,7 @@ class ReplaceElementTest extends TestCase
         yield 'float dropped from an integer property' => [['count' => 1.5], []];
         yield 'key absent from new type dropped' => [['ghost' => 'x'], []];
         yield 'scalar under a reference key dropped' => [['product' => 'oops'], []];
+        yield 'list dropped from a string property' => [['headline' => ['a', 'b']], []];
     }
 
     /**

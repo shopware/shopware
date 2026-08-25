@@ -23,9 +23,18 @@
                         "example": "shopware/product-heading"
                     },
                     "properties": {
-                        "type": "object",
                         "description": "Authored property values keyed by property name, as declared by the element type. Every value is a JSON scalar, `null`, a list, or a nested map at every depth — a hydrated object can never sit here, because storage wraps each value in a variant type that admits nothing else. FQCN-typed (hydrated) properties are therefore not present; they are described by `dataRequirements` and `acceptsContext` and materialized only at render time. Defaults to an empty map when omitted on input; always present on output, where an empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
-                        "additionalProperties": true,
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty property map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        ],
                         "example": { "tag": "h1" }
                     },
                     "dataRequirements": {
@@ -111,9 +120,18 @@
                         "example": "entity"
                     },
                     "config": {
-                        "type": "object",
                         "description": "Loader-specific configuration. The expected keys depend on `source`; the introspection endpoint reports each source's `configKeys` (per-key name, kind, type, and requiredness) and, per producible type, a `configTemplate` of inferable values. The keys a caller must still supply are the required `configKeys` names minus the keys already covered by `configTemplate`. An empty config is serialized as `[]` (consistent with Shopware's JSON-map fields).",
-                        "additionalProperties": true,
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty config map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        ],
                         "example": { "entity": "product", "property": "product_id" }
                     }
                 }

@@ -5,10 +5,6 @@
         max-width: $content-width;
         position: relative;
         margin: auto;
-
-        @media screen and (max-width: 1360px) {
-            padding: 15px;
-        }
     }
 
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
@@ -40,7 +36,7 @@
         grid-column-gap: var(--scale-size-8);
         align-items: center;
         align-content: center;
-        margin-bottom: var(--scale-size-40);
+        margin-bottom: var(--scale-size-32);
 
         @media screen and (max-width: 700px) {
             grid-template-columns: auto max-content;

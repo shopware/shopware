@@ -17,6 +17,7 @@ enum ViolationCode: string
     case DuplicateElementId = 'duplicate_element_id';
     case InvalidConfig = 'invalid_config';
     case MismatchedReferenceType = 'mismatched_reference_type';
+    case MismatchedPropertyType = 'mismatched_property_type';
     case UnresolvedRequired = 'unresolved_required';
     case AmbiguousRequired = 'ambiguous_required';
     case BrokenRequiredChain = 'broken_required_chain';
@@ -32,6 +33,7 @@ enum ViolationCode: string
             self::DuplicateElementId,
             self::InvalidConfig,
             self::MismatchedReferenceType,
+            self::MismatchedPropertyType,
             self::UnknownStyleOption,
             self::OrphanedProvider => ViolationScope::Intrinsic,
             self::UnresolvedRequired,
@@ -49,6 +51,7 @@ enum ViolationCode: string
             self::DuplicateElementId,
             self::InvalidConfig,
             self::MismatchedReferenceType,
+            self::MismatchedPropertyType,
             self::UnknownStyleOption,
             self::UnresolvedRequired,
             self::AmbiguousRequired,

@@ -48,6 +48,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -176,6 +177,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemStyleOptionRegistry::class),
             service(StyleOptionConstraintDeriver::class),
         ]);
+
+    // The descriptor's one element-type-aware rule: a stored property value agrees with its declared type
+    $services->set(PropertyTypeConformanceValidator::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+        ])
+        ->tag('validator.constraint_validator');
 
     // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
     $services->set(PrimitiveDefaultProvider::class);

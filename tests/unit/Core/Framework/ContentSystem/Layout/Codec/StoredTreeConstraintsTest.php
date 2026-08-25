@@ -6,14 +6,23 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -88,6 +97,36 @@ class StoredTreeConstraintsTest extends TestCase
         static::assertCount(0, $violations);
     }
 
+    #[TestDox('attaches the property-type rule to every element, reporting a root and a nested child at their own paths')]
+    public function testAttachesThePropertyTypeRuleToEveryElement(): void
+    {
+        // Both elements carry a value the registered type declares as a string. The rule is registry-aware and
+        // lives in its own validator, so nothing but the descriptor attaching it to each element's constraint
+        // list can produce these two violations — a root-only attachment leaves the child path unreported.
+        $violations = $this->validate([
+            [
+                'id' => 'root-1',
+                'component' => 'core:text',
+                'properties' => ['headline' => 42],
+                'slots' => [
+                    'main' => [
+                        ['id' => 'child-1', 'component' => 'core:text', 'properties' => ['headline' => ['a', 'b']]],
+                    ],
+                ],
+            ],
+        ]);
+
+        $paths = array_values(array_map(
+            static fn (ConstraintViolationInterface $violation): string => $violation->getPropertyPath(),
+            iterator_to_array($violations)
+        ));
+
+        static::assertEqualsCanonicalizing(
+            ['[0][properties][headline]', '[0][slots][main][0].[properties][headline]'],
+            $paths
+        );
+    }
+
     #[TestDox('reaches a nested slot child and reports its violation at a path identifying that child')]
     public function testReportsAViolationOnANestedSlotChild(): void
     {
@@ -118,7 +157,7 @@ class StoredTreeConstraintsTest extends TestCase
     #[TestDox('reports a violation for a forest whose root keys are not a sequential list')]
     public function testRejectsANonSequentialForest(): void
     {
-        $validator = Validation::createValidatorBuilder()->getValidator();
+        $validator = $this->validator();
 
         $forest = [
             0 => ['id' => 'root-1', 'component' => 'core:text', 'properties' => []],
@@ -279,7 +318,7 @@ class StoredTreeConstraintsTest extends TestCase
         );
 
         $constraints = new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver());
-        $validator = Validation::createValidatorBuilder()->getValidator();
+        $validator = $this->validator();
         $forest = [$this->element(['style' => ['display' => ['xs' => false]]])];
 
         $beforeChange = $validator->validate($forest, $constraints->build());
@@ -404,9 +443,45 @@ class StoredTreeConstraintsTest extends TestCase
      */
     private function validate(array $forest): ConstraintViolationListInterface
     {
-        $validator = Validation::createValidatorBuilder()->getValidator();
+        return $this->validator()->validate($forest, $this->constraints()->build());
+    }
 
-        return $validator->validate($forest, $this->constraints()->build());
+    /**
+     * The descriptor attaches a constraint whose validator carries the element-type registry, so the default
+     * factory (which builds every validator with `new`) cannot supply it.
+     */
+    private function validator(): ValidatorInterface
+    {
+        return Validation::createValidatorBuilder()
+            ->setConstraintValidatorFactory(new ConstraintValidatorFactory([
+                PropertyTypeConformanceValidator::class => new PropertyTypeConformanceValidator($this->typeRegistry()),
+            ]))
+            ->getValidator();
+    }
+
+    /**
+     * Knows one type, `core:text`, declaring one string property. Every other payload in this file names a
+     * component the registry does not know or a key that type does not declare, so the property-type rule is
+     * inert for them and each test still pins the part of the descriptor it was written for.
+     */
+    private function typeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = ['core:text' => new ContentSystemElementTypeSpecification(
+            'core:text',
+            'Text',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            ['headline' => new PropertySpecification('headline', new PropertyType('string', false, null, null), false, '', '', null)],
+            [],
+        )];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
     }
 
     private function constraints(): StoredTreeConstraints

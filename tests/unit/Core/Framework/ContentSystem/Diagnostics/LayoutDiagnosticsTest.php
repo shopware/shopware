@@ -499,6 +499,47 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('el-1', $violation->elementId);
     }
 
+    #[TestDox('reports a stored value disagreeing with its declared primitive type as an intrinsic error naming the key and both types')]
+    public function testMismatchedPropertyTypeIsIntrinsicError(): void
+    {
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', 'not-an-int')->build()];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
+            ->analyze($tree, null)->report;
+
+        $violation = $this->onlyIntrinsicError($report->intrinsicErrors());
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::MismatchedPropertyType, $violation->code);
+        static::assertSame('el-1', $violation->elementId);
+        static::assertSame('count', $violation->key);
+        static::assertSame('Property "count" is declared as "integer" but carries a value of type "string".', $violation->message);
+    }
+
+    #[TestDox('reports no property-type violation for a stored value matching its declared primitive type')]
+    public function testConformingPropertyValueProducesNoViolation(): void
+    {
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', 5)->build()];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
+            ->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
+    #[TestDox('reports no property-type violation for a stored null under a declared primitive, leaving that to the required-input rule')]
+    public function testStoredNullUnderAPrimitiveProducesNoPropertyTypeViolation(): void
+    {
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', null)->build()];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
+            ->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
     #[TestDox('reports no style violation for an option the registry knows')]
     public function testRegisteredStyleOptionProducesNoViolation(): void
     {

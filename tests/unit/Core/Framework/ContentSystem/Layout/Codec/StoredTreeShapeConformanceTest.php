@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -15,9 +16,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * The write-path descriptor and the read-path codec are two independent expressions of one stored-forest
@@ -115,7 +119,7 @@ class StoredTreeShapeConformanceTest extends TestCase
     #[TestDox('the descriptor alone rejects a null forest')]
     public function testDescriptorRejectsANullForest(): void
     {
-        $validator = Validation::createValidatorBuilder()->getValidator();
+        $validator = $this->validator();
 
         $violations = $validator->validate(null, $this->constraints()->build());
 
@@ -565,7 +569,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      */
     private function descriptorViolations(array $forest): array
     {
-        $validator = Validation::createValidatorBuilder()->getValidator();
+        $validator = $this->validator();
 
         $messages = [];
         foreach ($validator->validate($forest, $this->constraints()->build()) as $violation) {
@@ -602,6 +606,24 @@ class StoredTreeShapeConformanceTest extends TestCase
         $configProvider->method('decode')->willReturn(new StubLoaderConfig());
 
         return new StoredTreeCodec(new StoredElementCodec($configProvider));
+    }
+
+    /**
+     * The descriptor attaches a constraint whose validator carries the element-type registry, so the default
+     * factory (which builds every validator with `new`) cannot supply it. The registry here knows no type at
+     * all, which keeps that rule inert: this table is about the wire shape both sides own, and what a declared
+     * property type admits is neither the codec's business nor this table's.
+     */
+    private function validator(): ValidatorInterface
+    {
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willReturn(false);
+
+        return Validation::createValidatorBuilder()
+            ->setConstraintValidatorFactory(new ConstraintValidatorFactory([
+                PropertyTypeConformanceValidator::class => new PropertyTypeConformanceValidator($typeRegistry),
+            ]))
+            ->getValidator();
     }
 
     private function constraints(): StoredTreeConstraints

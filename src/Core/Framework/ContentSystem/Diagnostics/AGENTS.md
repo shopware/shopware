@@ -4,11 +4,11 @@
 
 ## Source Code References
 
-- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext): LayoutAnalysis`. Flattens the element tree, reads the style option registry's strict `all()` once for the whole analysis, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, mismatched reference type on stored wiring, unknown style option, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
+- `LayoutDiagnostics` - Entry point. `analyze(array $tree, ?array $rootContext): LayoutAnalysis`. Flattens the element tree, reads the style option registry's strict `all()` once for the whole analysis, runs the duplicate-id check once as a cross-element batch pass over the flattened set, then the per-element intrinsic checks (unregistered component, invalid config, mismatched reference type on stored wiring, mismatched property type on a stored primitive value, unknown style option, orphaned provider) on every element unconditionally, then binding checks only when `$rootContext !== null`.
 - `LayoutAnalysis` - Output of `analyze()`. `public DiagnosticsReport $report` and `public array $resolutions` (keyed by element id, values are `list<PropertyResolution>`). `@internal final readonly`.
 - `DiagnosticsReport` - Holds `list<Violation> $violations`. `isWellFormed(): bool` (no intrinsic-scope Error violations — persistence gate). `isResolvable(): bool` (no binding-scope Error violations — serving gate). Also `intrinsicErrors()`, `bindingErrors()`. `@internal final readonly`.
 - `Violation` - `@internal final readonly`. Constructor: `ViolationCode $code, string $elementId, ?string $key, string $message, list<ResolutionCandidate> $candidates = []`. `scope()` and `severity()` delegate to the code.
-- `ViolationCode` - `enum: string`, 11 cases. Single source of truth for scope and severity. See README for the full mapping table.
+- `ViolationCode` - `enum: string`, 12 cases. Single source of truth for scope and severity. See README for the full mapping table.
 - `ViolationScope` - `enum: string`. Cases: `Intrinsic`, `Binding`. `@internal`.
 - `ViolationSeverity` - `enum: string`. Cases: `Error`, `Warning`. `@internal`.
 - `RootContextMapper` - `map(array<DataRequirement> $requirements): list<ProvidedContext>` maps a bound source's page data requirements to the root-ambient context for `analyze()` (each context broadcast `Single` from the virtual root). Also exposes `resolveType(DataRequirement): string`, used by the diagnostics core to detect `InvalidConfig`.

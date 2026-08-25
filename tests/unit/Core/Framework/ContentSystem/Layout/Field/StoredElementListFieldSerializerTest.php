@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
@@ -47,6 +48,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -456,7 +458,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     #[TestDox('rejects a null root element, which the retired per-field graph admitted')]
     public function testBuildConstraintsRejectANullRootElement(): void
     {
-        $validator = Validation::createValidatorBuilder()->getValidator();
+        $validator = $this->validator(attributeMapping: false);
 
         $violations = $validator->validate([null], $this->serializer()->buildConstraints($this->createField()));
 
@@ -541,7 +543,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         });
 
         return new StoredElementListFieldSerializer(
-            Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
+            $this->validator(),
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
             new ViolationConstraintMapper(),
@@ -563,9 +565,34 @@ class StoredElementListFieldSerializerTest extends TestCase
         return $decoded;
     }
 
+    /**
+     * Symfony's default `ConstraintValidatorFactory` builds every validator in a constraint list with
+     * `new $className()`, before any of them runs, so `PropertyTypeConformanceValidator`'s injected registry
+     * has to be supplied here or the whole pass dies with an `ArgumentCountError`. The registry answers no to
+     * every component: this file asserts the serializer's own contract, and a live one would let an unrelated
+     * type declaration decide these outcomes.
+     */
+    private function validator(bool $attributeMapping = true): ValidatorInterface
+    {
+        $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $typeRegistry->method('has')->willReturn(false);
+
+        $builder = Validation::createValidatorBuilder();
+
+        if ($attributeMapping) {
+            $builder->enableAttributeMapping();
+        }
+
+        return $builder
+            ->setConstraintValidatorFactory(new ConstraintValidatorFactory([
+                PropertyTypeConformanceValidator::class => new PropertyTypeConformanceValidator($typeRegistry),
+            ]))
+            ->getValidator();
+    }
+
     private function serializer(): StoredElementListFieldSerializer
     {
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $validator = $this->validator();
 
         return new StoredElementListFieldSerializer(
             $validator,

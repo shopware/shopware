@@ -5,12 +5,14 @@ namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformance;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -193,6 +195,10 @@ class LayoutDiagnostics
             }
         }
 
+        foreach ($this->mismatchedPropertyTypeViolations($element) as $violation) {
+            $violations[] = $violation;
+        }
+
         foreach ($this->unknownStyleOptionViolations($element, $styleOptions) as $violation) {
             $violations[] = $violation;
         }
@@ -202,6 +208,107 @@ class LayoutDiagnostics
         }
 
         return $violations;
+    }
+
+    /**
+     * A stored property value that disagrees with the primitive type its component declares for that key,
+     * reported per key so a client can name and correct the one that broke. It is the diagnosis counterpart of
+     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary: only a key declared with
+     * one of {@see PropertyType::PRIMITIVE_TYPES}, or a union whose members are all primitive, is judged, and a
+     * stored null is admissible under every one of them (whether a key may be null is the required-input rule's
+     * business). Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
+     * refuses the tree inside `encode()`, before the gate that reaches this class.
+     *
+     * @return list<Violation>
+     */
+    private function mismatchedPropertyTypeViolations(StoredElement $element): array
+    {
+        if (!$this->registry->has($element->component)) {
+            return [];
+        }
+
+        $declared = $this->registry->get($element->component)->properties();
+        $violations = [];
+
+        foreach ($element->properties() as $key => $value) {
+            $specification = $declared[$key] ?? null;
+
+            if ($specification === null || $value->isNull()) {
+                continue;
+            }
+
+            $types = $this->enforceablePrimitiveTypes($specification->type());
+
+            if ($types === null) {
+                continue;
+            }
+
+            $raw = $value->jsonSerialize();
+
+            if ($this->matchesAnyPrimitiveType($raw, $types)) {
+                continue;
+            }
+
+            $violations[] = new Violation(
+                ViolationCode::MismatchedPropertyType,
+                $element->id,
+                (string) $key,
+                \sprintf('Property "%s" is declared as "%s" but carries a value of type "%s".', $key, implode('|', $types), get_debug_type($raw)),
+            );
+        }
+
+        return $violations;
+    }
+
+    /**
+     * The primitive types a stored value must satisfy at least one of, or `null` when the declaration constrains
+     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
+     * either. A union's declared type is an array, for which {@see PropertyType::isPrimitive()} always answers
+     * false, so the members are tested against {@see PropertyType::PRIMITIVE_TYPES} directly.
+     *
+     * @return list<string>|null
+     */
+    private function enforceablePrimitiveTypes(PropertyType $type): ?array
+    {
+        $declared = $type->type();
+
+        if (\is_string($declared)) {
+            return \in_array($declared, PropertyType::PRIMITIVE_TYPES, true) ? [$declared] : null;
+        }
+
+        if ($declared === []) {
+            return null;
+        }
+
+        foreach ($declared as $member) {
+            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
+                return null;
+            }
+        }
+
+        return $declared;
+    }
+
+    /**
+     * @param list<string> $types
+     */
+    private function matchesAnyPrimitiveType(mixed $value, array $types): bool
+    {
+        foreach ($types as $type) {
+            $matches = match ($type) {
+                'string' => \is_string($value),
+                'integer' => \is_int($value),
+                'number' => \is_int($value) || \is_float($value),
+                'boolean' => \is_bool($value),
+                default => false,
+            };
+
+            if ($matches) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -139,9 +139,8 @@ final readonly class DocumentPersister
                 'referencedDocumentId' => $referencedDocumentId,
                 'static' => true,
                 'deepLinkCode' => Random::getAlphanumericString(32),
-                'config' => [
-                    'documentNumber' => $documentNumber,
-                ],
+                // Omit an empty document number so the generated document_number column stays NULL
+                'config' => $documentNumber === '' ? [] : ['documentNumber' => $documentNumber],
             ],
             [
                 [
@@ -242,8 +241,8 @@ final readonly class DocumentPersister
         Context $context,
     ): void {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('config.documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
+            ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
+            ->addFilter(new EqualsFilter('typeName', $generationRequest->documentType))
             ->setLimit(1);
 
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;

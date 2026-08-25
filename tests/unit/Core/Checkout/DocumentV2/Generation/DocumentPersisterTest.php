@@ -339,7 +339,7 @@ class DocumentPersisterTest extends TestCase
         );
     }
 
-    public function testPersistUniquenessCheckFiltersByConfigDocumentNumber(): void
+    public function testPersistUniquenessCheckFiltersByDocumentNumberAndTypeName(): void
     {
         $documentTypeId = Uuid::randomHex();
 
@@ -348,8 +348,12 @@ class DocumentPersisterTest extends TestCase
                 $filters = $criteria->getFilters();
 
                 static::assertInstanceOf(EqualsFilter::class, $filters[0]);
-                static::assertSame('config.documentNumber', $filters[0]->getField());
+                static::assertSame('documentNumber', $filters[0]->getField());
                 static::assertSame('12345', $filters[0]->getValue());
+
+                static::assertInstanceOf(EqualsFilter::class, $filters[1]);
+                static::assertSame('typeName', $filters[1]->getField());
+                static::assertSame(self::DOCUMENT_TYPE, $filters[1]->getValue());
 
                 return [];
             },

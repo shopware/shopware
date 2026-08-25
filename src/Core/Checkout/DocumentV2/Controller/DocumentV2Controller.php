@@ -148,6 +148,7 @@ final class DocumentV2Controller extends AbstractController
         $this->documentTypeRegistry->validateFormats($documentType, [$format]);
 
         $mediaId = $payload->getString('mediaId');
+        $documentNumber = $payload->getString('documentNumber');
 
         if ($mediaId === '') {
             $mediaId = $context->scope(
@@ -176,7 +177,7 @@ final class DocumentV2Controller extends AbstractController
             $documentType,
             $this->requirePayloadString($payload, 'orderId'),
             $this->requirePayloadString($payload, 'orderVersionId'),
-            $payload->getString('documentNumber'),
+            $documentNumber,
             $format,
             $mediaId,
             $payload->getString('referencedDocumentId') ?: null,

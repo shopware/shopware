@@ -31,7 +31,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -47,18 +46,17 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
-    use DocumentV2Trait;
-    use IntegrationTestBehaviour;
-
     /*
      * import of two traits that both define login() with different parameters.
      * The conflict is resolved by using insteadof and internal calls inside OrderActionTrait can still use OrderActionTrait::login()
      * With the alias loginBrowser() the SalesChannelApiTestBehaviour::login() can be called.
      */
-    use OrderActionTrait, SalesChannelApiTestBehaviour {
+    use DocumentV2Trait, OrderActionTrait, SalesChannelApiTestBehaviour {
+        OrderActionTrait::createCustomer insteadof DocumentV2Trait;
         OrderActionTrait::login insteadof SalesChannelApiTestBehaviour;
         SalesChannelApiTestBehaviour::login as loginBrowser;
     }
+
     private const INVALID_MIME_TYPE = 'invalid/type';
 
     private const ACCEPT_WILDCARD = '*/*';

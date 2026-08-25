@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -462,7 +463,7 @@ class DocumentControllerTest extends TestCase
             $this->context,
         )->getEntities()->first();
 
-        static::assertNotNull($documentBaseConfig);
+        static::assertInstanceOf(DocumentBaseConfigEntity::class, $documentBaseConfig);
 
         $config = $documentBaseConfig->getConfig() ?? [];
         $config['companyCountryId'] = $this->getValidCountryId();

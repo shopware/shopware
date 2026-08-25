@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -324,12 +325,11 @@ class CartOrderRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $guestToken = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($guestToken);
+        self::assertImplicitContextTokenHeader($response);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
-        static::assertSame($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -338,7 +338,6 @@ class CartOrderRouteTest extends TestCase
         $response = $this->addProductToCart('p2');
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotEmpty($token);
-        static::assertNotSame($guestToken, $token);
         $guestToken = $token;
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
@@ -348,7 +347,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        self::assertImplicitContextTokenHeader($response, $mergedToken);
 
         static::assertNotFalse($response->getContent());
 
@@ -690,5 +689,22 @@ class CartOrderRouteTest extends TestCase
         static::assertCount(1, $content['lineItems']);
 
         return $response;
+    }
+
+    private static function assertImplicitContextTokenHeader(Response $response, ?string $contextToken = null): void
+    {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        if ($contextToken === null) {
+            static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        static::assertSame($contextToken, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 }

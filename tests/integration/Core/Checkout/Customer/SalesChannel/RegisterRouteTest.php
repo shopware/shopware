@@ -22,6 +22,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -409,7 +410,14 @@ class RegisterRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        } else {
+            static::assertSame(
+                $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
+                $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
+            );
+        }
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);

@@ -110,7 +110,7 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 
 ### Store API context token response header is restricted on cacheable reads
 
-Store API responses no longer echo the request `sw-context-token` header on cacheable reads. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
+Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
 
 ### Sales channel language list validation compares against the incoming default language
 

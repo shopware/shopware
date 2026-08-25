@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ResponseHeaderListener;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -39,6 +40,17 @@ class ResponseHeaderListenerTest extends TestCase
         $response = $this->handleResponse($request);
 
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0', 'CACHE_REWORK'])]
+    public function testCopiesContextTokenHeaderWithoutCacheRework(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'context-token');
+
+        $response = $this->handleResponse($request);
+
+        static::assertSame('context-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testKeepsExplicitContextTokenHeaderFromResponse(): void

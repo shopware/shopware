@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -172,7 +173,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
-        static::assertFalse($this->getBrowser()->getResponse()->headers->has('sw-context-token'));
+        self::assertImplicitContextTokenHeader($this->getBrowser()->getResponse(), $uuid);
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }
@@ -354,7 +355,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $contextTokenHeaderName = $this->getContextTokenHeaderName();
         $contextToken = $browser->getServerParameter($contextTokenHeaderName);
         static::assertIsString($contextToken);
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        self::assertImplicitContextTokenHeader($response, $contextToken);
 
         static::assertIsString($salesChannel['id']);
         // assert customer is updated in database
@@ -482,9 +483,11 @@ class SalesChannelProxyControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
+        $contextToken = $browser->getServerParameter($this->getContextTokenHeaderName());
+        static::assertIsString($contextToken);
 
         // assert response format
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        self::assertImplicitContextTokenHeader($response, $contextToken);
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
@@ -508,7 +511,9 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert response format
         $response = $this->getBrowser()->getResponse();
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $browser->getServerParameter($this->getContextTokenHeaderName());
+        static::assertIsString($contextToken);
+        self::assertImplicitContextTokenHeader($response, $contextToken);
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
@@ -593,9 +598,11 @@ class SalesChannelProxyControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
+        $contextToken = $browser->getServerParameter($this->getContextTokenHeaderName());
+        static::assertIsString($contextToken);
 
         // assert response format
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        self::assertImplicitContextTokenHeader($response, $contextToken);
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
@@ -824,7 +831,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         // assert response format
         $response = $this->getBrowser()->getResponse();
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        self::assertImplicitContextTokenHeader($response, $salesChannelContext->getToken());
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
@@ -1164,7 +1171,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-context-token'));
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-language-id'));
         static::assertSame($uuid, $this->getBrowser()->getRequest()->headers->get('sw-version-id'));
-        static::assertFalse($this->getBrowser()->getResponse()->headers->has('sw-context-token'));
+        self::assertImplicitContextTokenHeader($this->getBrowser()->getResponse(), $uuid);
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-language-id'));
         static::assertSame($uuid, $this->getBrowser()->getResponse()->headers->get('sw-version-id'));
     }
@@ -1524,6 +1531,17 @@ class SalesChannelProxyControllerTest extends TestCase
     private function getContextTokenHeaderName(): string
     {
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    private static function assertImplicitContextTokenHeader(Response $response, string $contextToken): void
+    {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        static::assertSame($contextToken, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     private function createDefaultSalesChannelContext(): SalesChannelContext

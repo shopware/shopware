@@ -80,15 +80,25 @@
         <service id="Shopware\Core\Content\Media\File\FileService">
         </service>
 
+        <service id="Shopware\Core\Content\Media\File\TrustedUrlResolver">
+            <argument>null</argument>
+            <argument>%shopware.media.enable_url_validation%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
             <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileService" />
+            <argument type="service" id="Shopware\Core\Content\Media\File\TrustedUrlResolver" />
+            <argument type="service" id="http_client" />
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.media.enable_url_validation%</argument>
             <argument>%shopware.media.url_upload_max_size%</argument>
         </service>
 
         <service class="Shopware\Core\Content\Media\File\FileUrlValidator" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface">
+            <argument type="service" id="Shopware\Core\Content\Media\File\TrustedUrlResolver" />
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileContentValidationStrategy">
@@ -316,6 +326,7 @@
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="media_thumbnail_size.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\TrustedUrlResolver"/>
             <argument>%shopware.media.enable_url_validation%</argument>
         </service>
 
@@ -362,6 +373,12 @@
 
         <service id="Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator">
             <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteValidator">
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Upload\PresignedMediaUploadService">

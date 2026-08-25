@@ -106,6 +106,43 @@ class MediaUploadControllerTest extends TestCase
         $this->assertMediaApiResponse();
     }
 
+    public function testUpdatingFileExtensionOfExistingFileToDisallowedValueIsRejected(): void
+    {
+        // Give the media a real file with a valid extension first.
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=png', $this->mediaId),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/png',
+                'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
+            ],
+            (string) file_get_contents(self::TEST_IMAGE)
+        );
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+
+        // Attempt to overwrite the stored extension with a forbidden one via the Admin API.
+        $this->getBrowser()->jsonRequest(
+            'PATCH',
+            \sprintf('/api/media/%s', $this->mediaId),
+            ['fileExtension' => 'php'],
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        $content = (string) $response->getContent();
+        $responseData = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $content);
+        static::assertSame('MEDIA_ILLEGAL_FILE_EXTENSION', $responseData['errors'][0]['code'], $content);
+
+        // The forbidden extension must not have been persisted.
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertSame('png', $media->getFileExtension());
+    }
+
     public function testUploadFromBinaryUsesFileName(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');

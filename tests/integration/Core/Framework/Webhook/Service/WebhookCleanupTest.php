@@ -194,7 +194,7 @@ class WebhookCleanupTest extends TestCase
             'delivery_status' => $status,
             'event_name' => $name,
             'webhook_name' => $name,
-            'url' => 'http://localhost',
+            'url' => 'http://127.0.0.1',
             'request_content' => '{}',
             'response_content' => '{}',
             'response_status_code' => 200,

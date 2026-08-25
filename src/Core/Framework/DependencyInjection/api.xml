@@ -316,6 +316,7 @@
             <argument type="service" id="user_access_key.repository"/>
             <argument type="service" id="Shopware\Core\System\User\UserDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\SsoService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -323,6 +324,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\IntegrationController" public="true">
             <argument type="service" id="integration.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

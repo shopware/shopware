@@ -958,6 +958,15 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 # Administration
 
+## Removed `integrationService.updateAdmin()`
+
+`Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
 <details>
 
 ### Block removals

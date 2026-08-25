@@ -6,9 +6,11 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -36,6 +38,8 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
+use Shopware\Core\Framework\Webhook\Validation\WebhookUrlWriteValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
@@ -74,6 +78,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'connect_timeout' => 10,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
+                    ->call('after', [
+                        'allow_redirects',
+                        service('shopware.webhook.guzzle.security_middleware'),
+                        'app_system_http_security',
+                    ])
                     ->call('push', [
                         service('shopware.app_system.guzzle.middleware'),
                     ]),
@@ -85,6 +94,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.webhook.guzzle'),
             service(SymfonyClockInterface::class),
         ]);
+
+    $services->set('shopware.webhook.trusted_url_resolver', TrustedUrlResolver::class)
+        ->args([
+            null,
+            true,
+            param('shopware.app_system.allowed_private_ip_addresses'),
+        ]);
+
+    $services->set('shopware.webhook.guzzle.security_middleware', AppSystemHttpMiddleware::class)
+        ->args([
+            service('shopware.webhook.trusted_url_resolver'),
+            param('shopware.app_system.allow_unencrypted_traffic'),
+            true,
+            param('shopware.app_system.allowed_private_ip_addresses'),
+        ]);
+
+    $services->set(WebhookTargetValidator::class)
+        ->args([
+            param('shopware.app_system.allow_unencrypted_traffic'),
+            param('shopware.app_system.allowed_private_ip_addresses'),
+            service('shopware.webhook.trusted_url_resolver'),
+        ]);
+
+    $services->set(WebhookUrlWriteValidator::class)
+        ->args([
+            service(WebhookTargetValidator::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(WebhookOutboxStore::class)
         ->args([

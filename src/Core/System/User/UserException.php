@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class UserException extends HttpException
 {
     final public const SALES_CHANNEL_NOT_FOUND = 'USER__SALES_CHANNEL_NOT_FOUND';
+    final public const INVALID_APP_URL = 'USER__INVALID_APP_URL';
 
     public static function salesChannelNotFound(): HttpException
     {
@@ -17,6 +18,16 @@ class UserException extends HttpException
             Response::HTTP_PRECONDITION_FAILED,
             self::SALES_CHANNEL_NOT_FOUND,
             'No sales channel found.',
+        );
+    }
+
+    public static function invalidAppUrl(string $appUrl): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_APP_URL,
+            'The APP_URL "{{ appUrl }}" is not a valid http(s) URL.',
+            ['appUrl' => $appUrl]
         );
     }
 }

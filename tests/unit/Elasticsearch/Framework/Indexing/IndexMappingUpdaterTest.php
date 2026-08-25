@@ -339,4 +339,63 @@ class IndexMappingUpdaterTest extends TestCase
 
         $updater->update(Context::createDefaultContext());
     }
+
+    public function testUpdateWithAnalyzerNotConfiguredError(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('getIndexName')->willReturn('index');
+        $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
+        $definition
+            ->method('getEntityDefinition')
+            ->willReturn(new ProductDefinition());
+
+        $registry = new ElasticsearchRegistry([$definition]);
+
+        $client = static::createStub(Client::class);
+        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace
+            ->expects($this->once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'index',
+                'body' => [
+                    'foo' => '1',
+                ],
+            ])->willThrowException(new BadRequestHttpException('mapper_parsing_exception: analyzer [sw_whitespace_technical_term_search_analyzer] has not been configured in mappings'));
+
+        $client
+            ->method('indices')
+            ->willReturn($indicesNamespace);
+
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
+        $indexMappingProvider
+            ->method('build')
+            ->willReturn(['foo' => '1']);
+
+        $elasticsearchHelper->expects($this->once())->method('logAndThrowException')->with(
+            static::callback(static function (ElasticsearchProductException $exception) {
+                return $exception->getMessage() === 'One or more fields already exist in the index with different types. Please reset the index and rebuild it.';
+            }),
+        );
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->once())
+            ->method('set')
+            ->with(
+                SystemUpdateListener::CONFIG_KEY,
+                ['product'],
+            );
+
+        $updater = new IndexMappingUpdater(
+            $registry,
+            $elasticsearchHelper,
+            $client,
+            $indexMappingProvider,
+            $storage,
+        );
+
+        $updater->update(Context::createDefaultContext());
+    }
 }

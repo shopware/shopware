@@ -18,9 +18,18 @@
                         "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Product:Card)."
                     },
                     "properties": {
-                        "type": "object",
                         "description": "Element properties keyed by property name, always present. The map draws no distinction between a statically authored value, a value a data loader produced and a value delivered by context. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
-                        "additionalProperties": true
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty properties map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        ]
                     },
                     "slots": {
                         "type": "object",

@@ -130,21 +130,33 @@ class DocumentEntity extends Entity
         $this->deepLinkCode = $deepLinkCode;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
         $this->documentType = $documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentTypeId(): string
     {
         return $this->documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;

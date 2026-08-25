@@ -89,6 +89,7 @@
             max-width: none;
         }
 
+        // sw-select-rule-create sets inheritAttrs: false, so this class lands on the inner select, not the wrapper
         &-select-rule {
             width: 100%;
         }

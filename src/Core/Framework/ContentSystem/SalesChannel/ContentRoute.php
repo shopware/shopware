@@ -31,9 +31,9 @@ class ContentRoute extends AbstractContentRoute
 {
     /**
      * Field selection is not part of the content-route contract. The parameter list is repeated in
-     * {@see ContentPreviewController}, which admits the same response class through the same encoding listener
-     * and therefore needs the same refusal; a shared holder would have to be a service, and neither surface
-     * takes one for this.
+     * {@see ContentPreviewController}, which makes the same refusal on its own admission surface: every
+     * surface admitting a content request refuses the parameter, whatever response class it builds. A shared
+     * holder would have to be a service, and neither surface takes one for this.
      */
     private const FIELD_SELECTION_PARAMETERS = ['includes', 'excludes'];
 

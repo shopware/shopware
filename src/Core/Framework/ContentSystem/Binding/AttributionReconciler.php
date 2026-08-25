@@ -23,14 +23,8 @@ use Shopware\Core\Framework\Log\Package;
  * `encode` diverges from `jsonSerialize`, would silently drop an attribution that is in fact still honest.
  *
  * Nothing here converts this exception into "not honest" — it is intercepted only to attach the element id
- * before re-throwing. A wiring the comparison cannot even encode — an element whose requirement source
- * has no registered config serializer, which raises
- * {@see ContentSystemException::configSerializerNotRegistered()} — is a wiring the write cannot judge, not
- * an unattributed element, so it escapes and refuses the write rather than being recorded as "not honest".
- * {@see StoredElementListFieldSerializer::normalize()}
- * remaps it, like every other {@see ContentSystemException} raised under the write boundary, to a
- * `WriteConstraintViolationException` carrying that error code, so the caller is told what was wrong with the
- * payload.
+ * before re-throwing. What {@see StoredElementListFieldSerializer::normalize()} does with a wiring the
+ * comparison cannot even encode is documented in `docs/write-boundary.md`.
  *
  * @internal
  *

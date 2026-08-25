@@ -8,11 +8,11 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 
 ## Key Classes
 
-- `StoredElement` - The storage-side node: `id`, `component`, `properties` (each value a `StoredValue`), `slots` (`array<string, list<StoredElement>>`), `dataRequirements`, `contextDefinitions`, `style`, `attributedSpecifications`. `final readonly` — every edit returns a new instance through a `with*()` method, so an instance can be held or reused without defensive copying.
-- `StoredValue` - One property value of a stored element, wrapped by variant: `null`, `string`, `int`, `float`, `bool`, `list` or `map`. Built through a typed named constructor or `fromDecoded()`; that wrapping is what makes "a hydrated entity in the stored tree" a type error rather than a runtime tree walk.
+- `StoredElement` - The storage-side node, rebuilt rather than mutated: every edit returns a new instance through a `with*()` method.
+- `StoredValue` - Wraps each property value by variant, so a hydrated entity can never sit in the stored tree by type rather than by convention.
 - `RenderedTreeEditor` - Applies one per-element transformation across a whole rendered forest.
 
-`RenderedElement`, the render-side counterpart, lives in [Rendering/](../../Rendering/README.md) with the classes that mint it. What each of the two models carries, and which one a name is about, is set out in [docs/stored-and-rendered.md](../../docs/stored-and-rendered.md).
+`RenderedElement`, the render-side counterpart, lives in [Rendering/](../../Rendering/README.md) with the classes that mint it. What each of the two models carries, and which one a name is about, is set out in [../../docs/stored-and-rendered.md](../../docs/stored-and-rendered.md).
 
 ## Editing a Rendered Forest
 

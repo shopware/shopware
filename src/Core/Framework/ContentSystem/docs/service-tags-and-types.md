@@ -33,12 +33,10 @@ Key types extension developers encounter when working with the ContentSystem:
 |---------------------------|----------------------------------------------------------------------------------------|
 | `ContentDataLoaderResult` | Loader return value with cache info                                                    |
 | `LoaderTypeCapability`    | One type a loader can produce: `producedType`, `configTemplate`, `genericParameters`; returned by `producibleTypes()` (construct directly when overriding it) |
-| `SpecificationData`       | Return type of `resolveSpecificationData()` (bundles data requirements + placeholders) |
-| `PlaceholderValues`       | Immutable placeholder map, created via `PlaceholderValues::from(array $values)`        |
-| `RenderingSpecification`  | Data requirements, placeholders, request, target element, cache tags                   |
-| `ResolvedContentLayout`   | Resolver output: layout ID plus the `RenderingSpecification`                           |
-| `LayoutReference`         | Immutable layout identity: `id`, `name`, `version`                                     |
-| `RenderableLayout`        | Loaded layout handed to the pipeline: a `LayoutReference` plus its element list        |
+| `SpecificationData`       | Return type of `resolveSpecificationData()`                                            |
+| `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
+
+The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are described in [README.md](../README.md#key-classes).
 
 ### Enums
 

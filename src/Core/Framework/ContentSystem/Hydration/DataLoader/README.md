@@ -42,7 +42,7 @@ The six unlinked loaders above — `service_menu`, `cross_selling`, `product_rev
 2. Annotate with `@extends AbstractContentDataLoader<YourStruct>` — the default `producibleTypes()`/`resolveProducedType()` derive the produced type from it; a missing or unresolvable annotation fails the build (see Schema/)
 3. Create config class extending `AbstractContentDataLoaderConfig` with matching serializer
 4. Override `configSpecification()` when the config serializer accepts keys — declares the loader's config contract for the derived completion residue, and is the only place a key's default may live
-5. Read every input off the `LoaderInputs` argument — `load()` never touches `$requirement->config` or the element, and a key it did not declare is unreadable
+5. Read every input off the `LoaderInputs` argument (see [AGENTS.md](AGENTS.md) Constraints for what `load()` may and may not touch)
 6. Tag with `content_system.data_loader` in the owning domain's DI — service locator uses `getRequirementType()` as key
 7. Return `ContentDataLoaderResult` with appropriate cache info — never throw exceptions
 

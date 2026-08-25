@@ -193,12 +193,6 @@ final readonly class WiringPlanner
     }
 
     /**
-     * Expands redistribute flags on consumers into broadcast providers.
-     *
-     * Consumers with `redistribute: true` automatically provide their received context
-     * to descendants. This step generates the ContextProvider objects that enable
-     * this behavior during rendering.
-     *
      * Pure derivation: {@see validateWiring()} has already rejected every consumer this could not
      * express, so nothing here throws.
      *

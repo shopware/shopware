@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
@@ -11,7 +12,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * The registry lookup is `has()`-guarded and silent on a miss: an unregistered component is
- * {@see \Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics}' to report, and an unguarded
+ * {@see LayoutDiagnostics}' to report, and an unguarded
  * `get()` would throw `elementTypeNotFound` — a structured 404, but the wrong status and error code for the
  * write-constraint pass, which should reject with a 400. A tree naming an unregistered component is still
  * refused, by the resolvability gate.

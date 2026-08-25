@@ -26,6 +26,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class SortingListingProcessor extends AbstractListingProcessor
 {
     /**
+     * Transports the collected sortings from prepare() to process(). Not an extension point:
+     * use ProductListingCollectSortingEvent to add or remove sortings, and
+     * ProductListingResult::getAvailableSortings() to read them.
+     *
+     * @internal
+     */
+    final public const SORTINGS_EXTENSION = 'sortings';
+
+    /**
      * @param EntityRepository<ProductSortingCollection> $sortingRepository
      *
      * @internal
@@ -50,7 +59,7 @@ class SortingListingProcessor extends AbstractListingProcessor
         }
 
         /** @var ProductSortingCollection $sortings */
-        $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
+        $sortings = $criteria->getExtension(self::SORTINGS_EXTENSION) ?? new ProductSortingCollection();
         $sortings->merge($this->getAvailableSortings($request, $context->getContext()));
 
         $this->dispatcher->dispatch(new ProductListingCollectSortingEvent($request, $sortings, $context));
@@ -68,13 +77,13 @@ class SortingListingProcessor extends AbstractListingProcessor
             );
         }
 
-        $criteria->addExtension('sortings', $sortings);
+        $criteria->addExtension(self::SORTINGS_EXTENSION, $sortings);
     }
 
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
         /** @var ProductSortingCollection $sortings */
-        $sortings = $result->getCriteria()->getExtension('sortings');
+        $sortings = $result->getCriteria()->getExtension(self::SORTINGS_EXTENSION);
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
         if ($currentSorting !== null) {

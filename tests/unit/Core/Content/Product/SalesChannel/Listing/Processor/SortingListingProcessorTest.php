@@ -168,7 +168,7 @@ class SortingListingProcessorTest extends TestCase
         );
 
         $result = new ProductListingResult($requested, 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
-        $result->getCriteria()->addExtension('sortings', $sortings);
+        $result->getCriteria()->addExtension(SortingListingProcessor::SORTINGS_EXTENSION, $sortings);
 
         $processor->process(
             new Request(['order' => $requested]),
@@ -238,7 +238,7 @@ class SortingListingProcessorTest extends TestCase
             new FieldSorting('id', FieldSorting::ASCENDING),
         ], $criteria->getSorting());
 
-        $sortings = $criteria->getExtension('sortings');
+        $sortings = $criteria->getExtension(SortingListingProcessor::SORTINGS_EXTENSION);
         static::assertInstanceOf(ProductSortingCollection::class, $sortings);
         static::assertNotNull($sortings->getByKey('my-custom-runtime-sort'));
     }

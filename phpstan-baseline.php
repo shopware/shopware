@@ -140,12 +140,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Content/Media/TypeDetector/TypeDetector.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Newsletter/SalesChannel/NewsletterUnsubscribeRoute.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Content\\Product\\SalesChannel\\FindVariant\\FoundCombination::getOptions() return type has no value type specified in iterable type array.',
     'identifier' => 'missingType.iterableValue',
     'count' => 1,

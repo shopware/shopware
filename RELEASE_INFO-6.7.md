@@ -1,3 +1,135 @@
+# 6.7.15.0 (upcoming)
+
+## Core
+
+### Customer imports validate customer number patterns
+
+Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
+
+Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
+
+## Administration
+
+### Admin UI shell rework (sidebar, top bar, smart bar)
+
+The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.
+
+#### Removed Twig blocks
+
+The following blocks have been removed and can no longer be extended:
+
+- `src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig`
+  - `sw_admin_menu_toggle_sidebar`
+  - `sw_admin_menu_toggle_sidebar_icon`
+  - `sw_admin_menu_toggle_sidebar_text`
+  - `sw_admin_menu_user_actions`
+  - `sw_admin_menu_user_actions_label`
+  - `sw_admin_menu_user_actions_list`
+- `src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig`
+  - `sw_admin_menu_item_arrow_indicato` (sic)
+  - `sw_admin_menu_item_arrow_indicator`
+  - `sw_admin_menu_item_external_arrow_indicato` (sic)
+  - `sw_admin_menu_item_external_icon`
+  - `sw_admin_menu_item_external_text`
+- `src/app/component/base/sw-version/sw-version.html.twig`
+  - `sw_version_name`
+  - `sw_version_name_text`
+  - `sw_version_status`
+  - `sw_version_status_badge`
+- `src/app/component/structure/sw-search-bar/sw-search-bar.html.twig`
+  - `sw_search_bar_version_display`
+- `src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig`
+  - `sw_sales_channel_menu_context_button_collapsed`
+
+#### Repurposed block: `sw_admin_menu_user_actions_items`
+
+The user menu in the sidebar footer became an `mt-action-menu` dropdown. The block `sw_admin_menu_user_actions_items` still exists, but its content now renders inside `mt-action-menu` instead of a `<ul>` navigation list. Overrides that add `<li><router-link>` entries produce broken markup inside the dropdown and need to render `mt-action-menu-group` / `mt-action-menu-item` elements instead:
+
+```twig
+{% block sw_admin_menu_user_actions_items %}
+    {% parent %}
+
+    <mt-action-menu-group>
+        <mt-action-menu-item
+            icon="regular-cog"
+            @click="onMyAction"
+        >
+            My entry
+        </mt-action-menu-item>
+    </mt-action-menu-group>
+{% endblock %}
+```
+
+#### Restructured blocks in `sw-page.html.twig`
+
+- A new `sw_page_top_bar` block wraps the top bar. `sw_page_top_bar_actions` is no longer nested inside `sw_page_search_bar` — overrides that copied the previous markup render the top bar actions twice.
+- The root element of `sw_page_smart_bar` changed from a `<template>` to a `<div class="sw-page__smart-bar">`.
+
+#### Smart bar back button styling removed
+
+The `.smart-bar__back-btn` CSS ruleset was removed from `sw-page.scss`. `#smart-bar-back` slot overrides that render a bare `<router-link class="smart-bar__back-btn">` with icons lose their styling. Migrate to the pattern the default back button uses:
+
+```twig
+<template #smart-bar-back>
+    <router-link
+        v-slot="{ href, navigate }"
+        :to="myBackRoute"
+        custom
+    >
+        <mt-button
+            is="a"
+            class="smart-bar__back-btn"
+            variant="secondary"
+            size="default"
+            square
+            :href="href"
+            :aria-label="$t('global.sw-page.backButton')"
+            @click="navigate"
+        >
+            <mt-icon
+                name="solid-long-arrow-left"
+                size="12px"
+            />
+        </mt-button>
+    </router-link>
+</template>
+```
+
+#### Removed snippets and static asset
+
+- `global.sidebar.buttonCollapse` has been removed.
+- `sw-extension.sw-extension-app-module-error-page.error.phrase` and `.error.info` have been removed; the app module error page uses `mt-empty-state` with the new `.error.description` snippet.
+- The static asset `static/img/error-pages/app-error.svg` has been removed. External URLs pointing to it return a 404.
+
+#### Extension SDK: `ui.sidebar.close()` closes asynchronously
+
+Closing a sidebar via the Extension SDK now plays a close animation (~400 ms) before the sidebar deactivates, instead of removing it immediately. With `prefers-reduced-motion` the sidebar still closes without delay. Do not rely on the sidebar being gone synchronously after calling `close()`.
+
+#### `sw-page` and `sw-meteor-page` are CSS containers
+
+Both page components declare `container-type: inline-size`. This creates a new containing block and stacking context: plugin content inside a page that uses `position: fixed` is now positioned relative to the page container instead of the viewport, and `z-index` values no longer compete with elements outside the page.
+
+#### Color props without effect
+
+- `sw-page`: `headerBorderColor` (and the derived `pageColor`) no longer affect the header — the smart bar no longer renders a module-colored border.
+- `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
+
+#### Optional module icon colors
+
+The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
+
+The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
+
+## Storefront
+
+### Semantic footer markup
+
+With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.
+
+- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
+- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column will become `<li>` instead of `<div role="listitem">`.
+
 # 6.7.14.0 (upcoming)
 
 ## Features
@@ -10,8 +142,17 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 
 Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
 
+### Order state history records where a state change came from
+
+`state_machine_history` entries now carry a `sourceType` field holding the type of the API context source that triggered the transition (`admin-api`, `sales-channel` or `system`). A custom `ContextSource` contributes whatever its public `$type` property holds. The order detail page and the status history modal use it to show state changes that a customer made in the storefront as "Customer" instead of "System", so a cancellation by the customer can be told apart from one made by a plugin or an integration.
+
+State changes that an administrator performs in a sales channel context, for example while creating an order in the Administration, are now attributed to that administrator instead of to the system.
+
 ## API
 
+### Added experimental Store API snippet endpoint
+
+Added new experimental Store API route `GET /store-api/snippet` (not part of the backwards compatibility promise yet, planned to be stable with v6.8.0), which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.
 ### Number range admin action endpoints now require ACL privileges
 
 Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
@@ -120,6 +261,10 @@ Removing the language that the same write assigns as the new default is now reje
 
 ## Core
 
+### Document V1/V2 file compatibility
+
+Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
+
 ### An active shipping method must keep at least one usable price
 
 Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.
@@ -159,6 +304,10 @@ A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced th
 `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
 
 They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
+
+### Failed payment mail flow
+
+Shopware now ships a default Flow Builder flow, flow template, and mail template for `state_enter.order_transaction.state.failed`.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -373,6 +522,19 @@ This affects every write path, not just Settings > Shop > SEO:
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
+### Newsletter route methods keep the `StoreApiResponse` return type
+
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
+`StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
+This withdraws the return type change announced with 6.7.9.0.
+
+A decorator that puts its logic in these methods answers with the response containing the `status`
+field, and keeps working on 6.8, where the deprecated `subscribe()`, `confirm()` and `unsubscribe()`
+are removed. Those are still required in 6.7 and have to answer with `NoContentResponse`.
+### Admin search falls back to the database for entities without an Elasticsearch admin indexer
+
+With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` silently returned no results for entities that have no admin search indexer, because those entities were dropped from the request. They are now searched over the DAL instead, so an entity registered in the Administration search (`searchTypeService.upsertType()` or a module `defaultSearchConfiguration`) is findable without shipping an indexer. Registering an `AbstractAdminIndexer` for the entity is still the faster option.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
@@ -418,6 +580,13 @@ A few things to know before you start:
 * **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
 
 Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
+
+### SFC migration codemod now emits native setup components
+
+The `codemod:sfc-migration` developer tool has been rewritten to output the native setup SFC format (`<script setup>` with `swDefinePublic`) instead of the previous `createExtendableSetup()` form, which the build toolchain no longer accepts. The default remains a read-only preview; `--write` creates validated Vue drafts only. Replacing an eligible legacy entry point requires the separate explicit `--replace-originals` option, and Twig templates are retained.
+
+What changed for users of the tool: every generated file must pass the build transform and Vue's compiler before it is written; components that convert only partially receive a `.vue` draft with `TODO(sfc-migration)` comments while their original `index.js` + `.html.twig` stay in place and keep working; components using `mixins` or `Component.extend()` are skipped and reported instead of receiving an Options API `<script>` fallback, which the build now rejects. See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md`.
+
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
@@ -540,6 +709,14 @@ const { data: media } = useDataset('sw-media-quickinfo__item', {
 The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
+
+### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
+
+A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.
+
+Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. The deprecated `isValid()`/`getViolations()` are removed in 6.8; until then the default `validate()` delegates to them, so a captcha extending `AbstractCaptcha` keeps working.
+
+One case does change: a captcha extending a shipped captcha (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overriding only `isValid()`/`getViolations()` is no longer consulted, because those implement `validate()` themselves. Migrate it to `validate()` — an unmigrated check stops being applied without an error.
 
 ### Theme CLI commands clean up unused theme directories
 

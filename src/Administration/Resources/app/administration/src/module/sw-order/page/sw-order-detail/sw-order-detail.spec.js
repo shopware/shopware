@@ -126,6 +126,40 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
+    afterEach(() => {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should select the displayed order for app action buttons', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            wrapper.vm.orderId,
+        ]);
+    });
+
+    it('should deselect the order for app action buttons when leaving the detail page while editing', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({ hasOrderDeepEdit: true });
+
+        const next = jest.fn();
+        wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm, {}, {}, next);
+
+        // The leave page warning takes over, so the navigation is not continued yet
+        expect(next).not.toHaveBeenCalled();
+        expect(wrapper.vm.isDisplayingLeavePageWarning).toBe(true);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            wrapper.vm.orderId,
+        ]);
+
+        wrapper.unmount();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());

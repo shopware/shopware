@@ -29,6 +29,7 @@
                 <template #button>
                     <mt-button
                         variant="primary"
+                        size="default"
                         @click="activateStore"
                     >
                         {{ $t('sw-extension-store.landing-page.retryButton') }}
@@ -45,29 +46,25 @@
                 :description="$t('sw-extension-store.landing-page.activationSuccessDescription')"
             />
 
-            <div
+            <mt-empty-state
                 v-else
                 class="sw-extension-store-landing-page__wrapper-content"
+                :centered="true"
+                icon="regular-shopware"
+                :headline="$t('sw-extension-store.landing-page.activationHeadline')"
+                :description="$t('sw-extension-store.landing-page.activationDescription')"
             >
-                <mt-empty-state
-                    :centered="true"
-                    icon="regular-shopware"
-                    :headline="$t('sw-extension-store.landing-page.activationDescriptionTitleFirst')
-                        + ' '
-                        + $t('sw-extension-store.landing-page.activationDescriptionTitleSecond')"
-                    :description="$t('sw-extension-store.landing-page.activationDescriptionTitleDescription')"
-                >
-                    <template #button>
-                        <mt-button
-                            class="sw-extension-store-landing-page__activate_button"
-                            variant="primary"
-                            @click="activateStore"
-                        >
-                            {{ $t('sw-extension-store.landing-page.activate') }}
-                        </mt-button>
-                    </template>
-                </mt-empty-state>
-            </div>
+                <template #button>
+                    <mt-button
+                        class="sw-extension-store-landing-page__activate_button"
+                        variant="primary"
+                        size="default"
+                        @click="activateStore"
+                    >
+                        {{ $t('sw-extension-store.landing-page.activate') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
         </div>
     </div>
 </component>

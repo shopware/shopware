@@ -83,7 +83,7 @@
 
     .sw-cms-list__list-grid-content {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
         grid-gap: 30px;
         align-content: start;
 

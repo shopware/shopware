@@ -111,7 +111,6 @@ Both page components declare `container-type: inline-size`. This creates a new c
 
 #### Color props without effect
 
-- `sw-page`: `headerBorderColor` (and the derived `pageColor`) no longer affect the header — the smart bar no longer renders a module-colored border.
 - `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
 
 #### Optional module icon colors

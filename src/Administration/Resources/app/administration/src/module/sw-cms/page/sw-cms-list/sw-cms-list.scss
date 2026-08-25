@@ -25,31 +25,14 @@
         }
     }
 
-    .sw-cms-list__sidebar {
-        width: 180px;
-        padding-top: 64px;
-        position: absolute;
-        left: -180px;
-
-        // 960px content width plus the 180px sidebar hanging out on each side
-        @container sw-page (max-width: 1320px) {
-            display: none;
-        }
-    }
-
     .sw-cms-list__type-nav-horizontal {
-        display: none;
         margin-bottom: 28px;
-
-        @container sw-page (max-width: 1320px) {
-            display: block;
-        }
     }
 
     .sw-cms-list__actions {
         display: grid;
         grid-template-columns: auto 380px max-content;
-        grid-column-gap: 20px;
+        grid-column-gap: var(--scale-size-8);
         align-items: center;
         align-content: center;
         margin-bottom: 28px;

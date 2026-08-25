@@ -42,46 +42,6 @@
 
             {% block sw_cms_list_content %}
             <div class="sw-cms-list__content">
-                {% block sw_cms_list_sidebar %}
-                <div class="sw-cms-list__sidebar">
-                    {% block sw_cms_list_sidebar_tabs %}
-                    <template v-if="feature.isActive('v6.8.0.0')">
-                        {% block sw_cms_list_sidebar_mt_tabs %}
-                        <mt-tabs
-                            vertical
-                            position-identifier="sw-cms-list-sidebar"
-                            class="sw-cms-list__type-nav"
-                            :default-item="activePageTypeTab"
-                            :items="cmsListPageTypeTabs"
-                            :use-routes-for-extensions="false"
-                            :small="true"
-                        />
-                        {% endblock %}
-                    </template>
-
-                    <template v-else>
-                        <sw-tabs
-                            :key="activePageTypeTab"
-                            is-vertical
-                            small
-                            position-identifier="sw-cms-list-sidebar"
-                            class="sw-cms-list__type-nav"
-                        >
-                            <sw-tabs-item
-                                v-for="pageType in sortPageTypes"
-                                :key="pageType.name"
-                                :disabled="pageType.disabled || undefined"
-                                :active="(pageType.value || 'all-pages') === activePageTypeTab"
-                                @click="onSortPageType(pageType.value)"
-                            >
-                                {{ pageType.name }}
-                            </sw-tabs-item>
-                        </sw-tabs>
-                    </template>
-                    {% endblock %}
-                </div>
-                {% endblock %}
-
                 {% block sw_cms_list_listing %}
                 <div class="sw-cms-list__listing">
 
@@ -109,7 +69,7 @@
                         <mt-button
                             class="sw-cms-list__actions-mode"
                             variant="secondary"
-                            size="default"
+                            size="small"
                             square
                             @click="onListModeChange"
                         >
@@ -144,7 +104,6 @@
 
                         <template v-else>
                             <sw-tabs
-                                :key="activePageTypeTab"
                                 small
                                 position-identifier="sw-cms-list-sidebar"
                             >

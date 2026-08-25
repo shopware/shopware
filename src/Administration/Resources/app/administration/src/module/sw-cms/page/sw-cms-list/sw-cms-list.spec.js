@@ -294,7 +294,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         expect(tabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
         expect(tabs.props('defaultItem')).toBe('all-pages');
-        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('vertical')).toBe(false);
         expect(tabs.props('items')).toEqual([
             expect.objectContaining({
                 label: 'sw-cms.sorting.labelSortByAllPages',
@@ -315,7 +315,19 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
-    it('should sync the active page type into both deprecated tab bars', async () => {
+    it('should render the page type tabs horizontally above the list', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.findAllComponents({ name: 'mt-tabs' });
+        expect(tabs).toHaveLength(1);
+
+        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
+        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-list__sidebar').exists()).toBe(false);
+    });
+
+    it('should mark the active page type in the deprecated tab bar', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -324,33 +336,14 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await flushPromises();
 
         const tabBars = wrapper.findAllComponents({ name: 'sw-tabs' });
-        expect(tabBars).toHaveLength(2);
+        expect(tabBars).toHaveLength(1);
 
-        tabBars.forEach((tabBar) => {
-            const activeStates = tabBar.findAll('sw-tabs-item-stub').map((item) => item.attributes('active'));
-            expect(activeStates).toEqual([
-                'false',
-                'true',
-                'false',
-            ]);
-        });
-    });
-
-    it('should render a second horizontal page type tab bar for narrow pages', async () => {
-        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
-        await flushPromises();
-
-        const tabs = wrapper.findAllComponents({ name: 'mt-tabs' });
-        expect(tabs).toHaveLength(2);
-
-        const horizontalTabs = tabs[1];
-        expect(horizontalTabs.props('vertical')).toBe(false);
-        expect(horizontalTabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
-        expect(horizontalTabs.props('defaultItem')).toBe('all-pages');
-        expect(horizontalTabs.props('items')).toEqual(tabs[0].props('items'));
-
-        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
-        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+        const activeStates = tabBars[0].findAll('sw-tabs-item-stub').map((item) => item.attributes('active'));
+        expect(activeStates).toEqual([
+            'false',
+            'true',
+            'false',
+        ]);
     });
 
     it('should filter by page type when a meteor tab item is clicked', async () => {

@@ -13,6 +13,7 @@ import {
     getUserTimezone,
     getShopId,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
+import { isService } from '@shopware-ag/meteor-admin-sdk/es/_private/context';
 import { getId } from '@shopware-ag/meteor-admin-sdk/es/window';
 
 describe('src/app/init/context.init.ts', () => {
@@ -122,6 +123,19 @@ describe('src/app/init/context.init.ts', () => {
                 }),
             );
         });
+    });
+
+    it('should identify a Shopware Service through the private SDK API', async () => {
+        Shopware.Store.get('extensions').addExtension({
+            name: 'jestservice',
+            baseUrl: window.location.origin,
+            permissions: {},
+            version: '1.0.0',
+            type: 'app',
+            sourceType: 'service',
+        });
+
+        await expect(isService()).resolves.toBe(true);
     });
 
     it('should return user information', async () => {

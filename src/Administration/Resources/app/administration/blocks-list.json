@@ -6401,6 +6401,8 @@
  "sw_settings_document_detail_content_form_field_renderer_multi_select",
  "sw_settings_document_detail_custom_field_sets",
  "sw_settings_document_detail_displayed_content_card",
+ "sw_settings_document_detail_filename_card",
+ "sw_settings_document_detail_filename_field_infixes",
  "sw_settings_document_detail_header",
  "sw_settings_document_index",
  "sw_settings_document_list_columns_actions",

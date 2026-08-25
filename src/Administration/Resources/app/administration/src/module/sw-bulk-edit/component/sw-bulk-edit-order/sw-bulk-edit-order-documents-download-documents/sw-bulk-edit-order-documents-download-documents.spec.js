@@ -11,7 +11,7 @@ const documentTypesFixtures = [
     },
 ];
 
-async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-download-documents', { sync: true }), {
         global: {
             stubs: {
@@ -25,13 +25,12 @@ async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
                         };
                     },
                 },
-                documentV2ApiService: {
-                    getAvailableTypes: jest.fn().mockResolvedValue({
-                        documentTypes: {
-                            invoice: { formats: ['pdf'] },
-                        },
+                documentV2Service: {
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({
+                        invoice: { formats: ['pdf'] },
                     }),
-                    ...documentV2ApiServiceOverrides,
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
             },
         },
@@ -88,19 +87,35 @@ describe('sw-bulk-edit-order-documents-download-documents', () => {
         spy.mockRestore();
     });
 
+    it('should label checkboxes with the translated document type name', async () => {
+        const fixtures = Object.assign([...documentTypesFixtures], { total: documentTypesFixtures.length });
+        jest.spyOn(wrapper.vm.documentTypeRepository, 'search').mockResolvedValueOnce(fixtures);
+
+        await wrapper.vm.createdComponent();
+        await flushPromises();
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+
+        expect(labels).toEqual(documentTypesFixtures.map((type) => type.translated.name));
+    });
+
     it('fetches document types from the available types endpoint', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
         wrapper = await createWrapper();
 
         await wrapper.vm.createdComponent();
+        await flushPromises();
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
-                id: 'invoice-id',
+                id: 'invoice',
                 technicalName: 'invoice',
-                translated: { name: 'Invoice' },
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
                 selected: false,
             },
         ]);
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+        expect(labels).toEqual(['sw-order.components.createDocumentModal.documentTypes.invoice']);
     });
 });

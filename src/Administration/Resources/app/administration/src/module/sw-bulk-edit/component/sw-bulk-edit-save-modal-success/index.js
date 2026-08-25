@@ -18,12 +18,14 @@ const documentTypeOrder = [
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderDocumentApiService',
-        'documentV2ApiService',
-        'feature',
-    ],
+    inject: {
+        repositoryFactory: {},
+        orderDocumentApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
+        feature: {},
+    },
 
     emits: [
         'title-set',
@@ -377,12 +379,30 @@ export default {
         },
 
         getDocumentGenerationResultFileContent() {
+            const seenRows = new Set();
+            const lines = [];
+
+            this.documentGenerationFailedItems.forEach((failedItem) => {
+                const rowKey = `${failedItem.orderId}::${failedItem.documentType}`;
+
+                if (seenRows.has(rowKey)) {
+                    return;
+                }
+                seenRows.add(rowKey);
+
+                const orderNumber = this.orderNumbers[failedItem.orderId] ?? failedItem.orderId;
+                const documentTypeLabel = this.getDocumentTypeLabel(failedItem.documentType);
+                const reason = failedItem.detail ?? failedItem.errorCode;
+
+                lines.push(
+                    reason ? `${orderNumber} - ${documentTypeLabel}: ${reason}` : `${orderNumber} - ${documentTypeLabel}`,
+                );
+            });
+
             return [
                 this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'),
                 '',
-                ...this.failedDocumentRows.map((row) => {
-                    return `${row.orderNumber} - ${row.documentTypesLabel}`;
-                }),
+                ...lines,
             ].join('\n');
         },
 

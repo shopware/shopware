@@ -218,7 +218,40 @@ class StoreApiGeneratorTest extends TestCase
             null
         );
 
+        static::assertArrayNotHasKey('Simple', $schema['components']['schemas'] ?? []);
         static::assertArrayNotHasKey('SimpleJsonApi', $schema['components']['schemas'] ?? []);
+    }
+
+    public function testTransitivelyReferencedPhpGeneratedStoreApiSchemaIsEmitted(): void
+    {
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures/BundleWithPhpGeneratedSchemaReference'],
+            ],
+            new BundleSchemaPathCollection([]),
+        );
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                DefinitionWithAssociations::class,
+                SimpleDefinition::class,
+                SEOUrlDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $schema = $generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        static::assertArrayHasKey('TestEntityWithAssociations', $schema['components']['schemas']);
+        static::assertArrayHasKey('Simple', $schema['components']['schemas']);
+        static::assertArrayNotHasKey('SEOUrl', $schema['components']['schemas']);
     }
 
     public function testJsonOwnedSchemaDoesNotContainJsonApiComponent(): void

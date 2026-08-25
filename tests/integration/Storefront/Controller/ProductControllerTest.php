@@ -26,6 +26,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
@@ -327,6 +328,71 @@ class ProductControllerTest extends TestCase
         $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-page-loaded', $traces);
+    }
+
+    public function testProductJsonLdContainsMerchantListingData(): void
+    {
+        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
+
+        $salesChannel = static::getContainer()->get('sales_channel.repository')
+            ->search(new Criteria([$this->getSalesChannelId()]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        $parentCategoryId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        static::getContainer()->get('category.repository')->create([
+            [
+                'id' => $parentCategoryId,
+                'name' => 'Women',
+                'parentId' => $salesChannel->getNavigationCategoryId(),
+            ],
+            [
+                'id' => $categoryId,
+                'name' => 'Dresses',
+                'parentId' => $parentCategoryId,
+            ],
+        ], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'ean' => '00123456',
+            'categories' => [['id' => $categoryId]],
+            'mainCategories' => [[
+                'id' => Uuid::randomHex(),
+                'categoryId' => $categoryId,
+                'salesChannelId' => $this->getSalesChannelId(),
+            ]],
+            'price' => [[
+                'currencyId' => Defaults::CURRENCY,
+                'gross' => 10,
+                'net' => 9,
+                'listPrice' => ['gross' => 15, 'net' => 13.5, 'linked' => false],
+                'linked' => false,
+            ]],
+        ]);
+
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler((string) $response->getContent());
+        $productJsonLd = null;
+
+        foreach ($crawler->filter('script[type="application/ld+json"]') as $script) {
+            $data = \json_decode($script->textContent, true, 512, \JSON_THROW_ON_ERROR);
+            if (($data['@type'] ?? null) === 'Product') {
+                $productJsonLd = $data;
+                break;
+            }
+        }
+
+        static::assertIsArray($productJsonLd);
+        static::assertSame('00123456', $productJsonLd['gtin8']);
+        static::assertSame(['Women > Dresses'], $productJsonLd['category']);
+        static::assertSame(15.0, $productJsonLd['offers']['priceSpecification']['price']);
+        static::assertSame('https://schema.org/StrikethroughPrice', $productJsonLd['offers']['priceSpecification']['priceType']);
+        static::assertSame('EUR', $productJsonLd['offers']['priceSpecification']['priceCurrency']);
     }
 
     public function testProductPageDepthMicrodataUsesDepthItemProp(): void

@@ -11,6 +11,7 @@ const { ACTION } = Shopware.Constants.FLOW;
 Shopware.Application.addServiceProvider('documentV2Service', () => {
     return {
         getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+        getDocumentTypeSnippet: (technicalName) => `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
     };
 });
 
@@ -472,7 +473,8 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         const description = service.getActionDescriptions(data, sequence, translator);
 
         expect(description).toBe(
-            'translated <span class="sw-flow-sequence-action__file-formats">' +
+            'sw-order.components.createDocumentModal.documentTypes.mail ' +
+                '<span class="sw-flow-sequence-action__file-formats">' +
                 '(sw-order.components.createDocumentModal.fileFormats.pdf, ' +
                 'sw-order.components.createDocumentModal.fileFormats.zugferd_xml)</span>',
         );

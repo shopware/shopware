@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -153,6 +154,43 @@ class DocumentPersisterTest extends TestCase
         );
     }
 
+    public function testPersistUsesFileNameProviderResolvedName(): void
+    {
+        $fileNameProvider = static::createMock(FileNameProvider::class);
+        $fileNameProvider->expects($this->once())
+            ->method('provide')
+            ->with('filename', 'pdf', null, static::anything())
+            ->willReturn('filename_(1)');
+
+        $mediaService = static::createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('saveFile')
+            ->with(
+                static::anything(),
+                static::anything(),
+                static::anything(),
+                'filename_(1)',
+                static::anything(),
+                static::anything(),
+            )
+            ->willReturn(Uuid::randomHex());
+
+        [$persister] = $this->createPersister(
+            Uuid::randomHex(),
+            mediaService: $mediaService,
+            fileNameProvider: $fileNameProvider,
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+    }
+
     public function testPersistUploaded(): void
     {
         $documentTypeId = Uuid::randomHex();
@@ -203,6 +241,7 @@ class DocumentPersisterTest extends TestCase
             $documentFileRepository,
             $documentTypeRepository,
             static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
             $eventDispatcher,
         );
 
@@ -344,6 +383,7 @@ class DocumentPersisterTest extends TestCase
             $documentFileRepository,
             $documentTypeRepository,
             $mediaService,
+            static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
         );
 
@@ -371,6 +411,8 @@ class DocumentPersisterTest extends TestCase
         ?callable $documentSearch = null,
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
+        ?MediaService $mediaService = null,
+        ?FileNameProvider $fileNameProvider = null,
         ?EventDispatcherInterface $eventDispatcher = null,
     ): array {
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
@@ -409,8 +451,15 @@ class DocumentPersisterTest extends TestCase
             },
         ], new DocumentTypeDefinition());
 
-        $mediaService = static::createStub(MediaService::class);
-        $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
+        if ($mediaService === null) {
+            $mediaService = static::createStub(MediaService::class);
+            $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
+        }
+
+        if ($fileNameProvider === null) {
+            $fileNameProvider = static::createStub(FileNameProvider::class);
+            $fileNameProvider->method('provide')->willReturnArgument(0);
+        }
 
         return [
             new DocumentPersister(
@@ -418,6 +467,7 @@ class DocumentPersisterTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $fileNameProvider,
                 $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
             ),
             $documentRepository,

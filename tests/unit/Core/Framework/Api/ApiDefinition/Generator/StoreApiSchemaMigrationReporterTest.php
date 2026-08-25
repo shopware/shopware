@@ -6,7 +6,6 @@ use OpenApi\Annotations\Schema;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
@@ -23,7 +22,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_extensionFixtures\ExtensionDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -63,15 +61,65 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                     ],
                 ],
             ]),
-            allowlistPath: $this->createAllowlistPath(['AclRole']),
         )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->phpGeneratedOnly);
         static::assertContains('AclRole', $report->phpGeneratedOnly);
-        static::assertContains('AclRole', $report->phpGeneratedOnlyAllowed);
-        static::assertContains('GroupByTest', $report->phpGeneratedOnlyWithoutAllowlist);
         static::assertContains('CalculatedPrice', $report->jsonWithoutPhpGenerated);
         static::assertSame([], $report->jsonOverridesPhpGenerated);
+    }
+
+    public function testReportTracksTransitivelyReferencedPhpGeneratedSchemas(): void
+    {
+        $definitionSchemaBuilder = static::createStub(OpenApiDefinitionSchemaBuilder::class);
+        $definitionSchemaBuilder->method('getSchemaName')->willReturnCallback(static function (EntityDefinition $definition): string {
+            return match ($definition->getEntityName()) {
+                'parent' => 'Parent',
+                'child' => 'Child',
+                'unused' => 'Unused',
+                default => throw new \LogicException('Unexpected definition.'),
+            };
+        });
+        $definitionSchemaBuilder->method('getSchemaByDefinition')->willReturnCallback(static function (EntityDefinition $definition): array {
+            return match ($definition->getEntityName()) {
+                'parent' => [
+                    'Parent' => new Schema([
+                        'schema' => 'Parent',
+                        'ref' => '#/components/schemas/Child',
+                    ]),
+                ],
+                'child' => [
+                    'Child' => new Schema([
+                        'schema' => 'Child',
+                        'type' => 'object',
+                    ]),
+                ],
+                'unused' => [
+                    'Unused' => new Schema([
+                        'schema' => 'Unused',
+                        'type' => 'object',
+                    ]),
+                ],
+                default => throw new \LogicException('Unexpected definition.'),
+            };
+        });
+        $definitionSchemaBuilder->method('getExtensionSchemaByDefinition')->willReturn([]);
+
+        $report = $this->createReporter(
+            definitionSchemaBuilder: $definitionSchemaBuilder,
+            schemaPath: $this->createSchemaPath([
+                'paths' => $this->createPathReferencingSchemas('Parent'),
+                'components' => ['schemas' => []],
+            ]),
+        )->report([
+            'parent' => $this->createDefinition('parent'),
+            'child' => $this->createDefinition('child'),
+            'unused' => $this->createDefinition('unused'),
+        ], AllStoreApiSchemaMigrationScopeProvider::SCOPE);
+
+        static::assertContains('Parent', $report->phpGeneratedOnly);
+        static::assertContains('Child', $report->phpGeneratedOnly);
+        static::assertNotContains('Unused', $report->phpGeneratedOnly);
     }
 
     public function testJsonSchemaWithPhpDefinitionIsTreatedAsJsonOnly(): void
@@ -85,7 +133,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                     ],
                 ],
             ]),
-            allowlistPath: $this->createAllowlistPath(),
         )->report($this->createDefinitions());
 
         static::assertContains('GroupByTest', $report->jsonWithoutPhpGenerated);
@@ -101,7 +148,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                 'paths' => $this->createPathReferencingSchemas('Simple'),
                 'components' => ['schemas' => []],
             ]),
-            allowlistPath: $this->createAllowlistPath(),
         )->report(
             $this->createDefinitions([SalesChannelSimpleDefinition::class]),
             AllStoreApiSchemaMigrationScopeProvider::SCOPE,
@@ -122,14 +168,13 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
             schemaPath: $this->createSchemaPath([
-                'paths' => $this->createPathReferencingSchemas('DifferentSchema'),
+                'paths' => $this->createPathReferencingSchemas('GroupByTest'),
                 'components' => [
                     'schemas' => [
                         'GroupByTest' => ['type' => 'object'],
                     ],
                 ],
             ]),
-            allowlistPath: $this->createAllowlistPath(),
         )->report([
             'group_by_test' => $this->createDefinition('group_by_test'),
         ], AllStoreApiSchemaMigrationScopeProvider::SCOPE);
@@ -146,7 +191,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                 'paths' => $this->createPathReferencingSchemas('GroupByTest', 'AclRole', 'Extension'),
                 'components' => ['schemas' => []],
             ]),
-            allowlistPath: $this->createAllowlistPath(['AclRole']),
         );
         $definitions = $this->createDefinitions([ExtensionDefinition::class]);
 
@@ -188,7 +232,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
         $report = $this->createReporter(
             definitionSchemaBuilder: $definitionSchemaBuilder,
             schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
-            allowlistPath: $this->createAllowlistPath(),
         )->report([
             'example_translation' => $this->createDefinition('example_translation'),
             'version_example' => $this->createDefinition('version_example'),
@@ -201,7 +244,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $report = $this->createReporter(
             schemaPath: $this->createSchemaPath(['paths' => []]),
-            allowlistPath: $this->createAllowlistPath(),
         )->report([]);
 
         static::assertSame([], $report->jsonWithoutPhpGenerated);
@@ -211,96 +253,22 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
     {
         $report = $this->createReporter(
             schemaPath: $this->createSchemaPath(['components' => ['schemas' => 'invalid']]),
-            allowlistPath: $this->createAllowlistPath(),
         )->report([]);
 
         static::assertSame([], $report->jsonWithoutPhpGenerated);
     }
 
-    public function testReportUsesEmptyAllowlistWhenAllowlistFileDoesNotExist(): void
-    {
-        $report = $this->createReporter(
-            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
-            allowlistPath: $this->temporaryDirectory . '/missing-allowlist.json',
-        )->report([]);
-
-        static::assertSame([], $report->phpGeneratedOnlyAllowed);
-    }
-
-    #[DataProvider('invalidAllowlistProvider')]
-    public function testReportFailsForInvalidAllowlist(string $contents, string $expectedMessage): void
-    {
-        $allowlistPath = $this->temporaryDirectory . '/allowlist.json';
-        $this->filesystem->dumpFile($allowlistPath, $contents);
-
-        try {
-            $this->createReporter(
-                schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
-                allowlistPath: $allowlistPath,
-            )->report([]);
-
-            static::fail('Expected invalid allowlist exception.');
-        } catch (ApiException $exception) {
-            static::assertStringContainsString($expectedMessage, $exception->getMessage());
-        }
-    }
-
-    public function testReportFailsWhenAllowlistCannotBeRead(): void
-    {
-        $allowlistPath = $this->temporaryDirectory . '/allowlist.json';
-        $filesystem = static::createStub(Filesystem::class);
-        $filesystem->method('exists')->willReturn(true);
-        $filesystem->method('readFile')->willThrowException(new IOException('Could not read file.', 0, null, $allowlistPath));
-
-        $this->expectExceptionObject(ApiException::schemaDefinitionNotReadable($allowlistPath));
-
-        $this->createReporter(
-            filesystem: $filesystem,
-            schemaPath: $this->createSchemaPath(['components' => ['schemas' => []]]),
-            allowlistPath: $allowlistPath,
-        )->report([]);
-    }
-
-    /**
-     * @return iterable<string, array{string, string}>
-     */
-    public static function invalidAllowlistProvider(): iterable
-    {
-        yield 'invalid json' => [
-            '{',
-            'JSON could not be decoded.',
-        ];
-
-        yield 'root value is not an object' => [
-            '"invalid"',
-            'The root value must be an object.',
-        ];
-
-        yield 'missing list' => [
-            '{}',
-            'The "phpGeneratedStoreApiSchemas" list is missing.',
-        ];
-
-        yield 'non-string schema name' => [
-            '{"phpGeneratedStoreApiSchemas":[1]}',
-            'The "phpGeneratedStoreApiSchemas" list must contain only schema names.',
-        ];
-    }
-
     private function createReporter(
         ?BundleSchemaPathCollection $bundleSchemaPathCollection = null,
         ?OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder = null,
-        ?Filesystem $filesystem = null,
         ?string $schemaPath = null,
-        ?string $allowlistPath = null,
     ): StoreApiSchemaMigrationReporter {
         return new StoreApiSchemaMigrationReporter(
             $definitionSchemaBuilder ?? new OpenApiDefinitionSchemaBuilder(),
             [
-                new CoreStoreApiSchemaMigrationScopeProvider($schemaPath, $allowlistPath),
-                new AllStoreApiSchemaMigrationScopeProvider($bundleSchemaPathCollection ?? new BundleSchemaPathCollection([]), $schemaPath, $allowlistPath),
+                new CoreStoreApiSchemaMigrationScopeProvider($schemaPath),
+                new AllStoreApiSchemaMigrationScopeProvider($bundleSchemaPathCollection ?? new BundleSchemaPathCollection([]), $schemaPath),
             ],
-            $filesystem ?? new Filesystem(),
         );
     }
 
@@ -359,19 +327,6 @@ class StoreApiSchemaMigrationReporterTest extends TestCase
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param list<string> $phpGeneratedStoreApiSchemas
-     */
-    private function createAllowlistPath(array $phpGeneratedStoreApiSchemas = []): string
-    {
-        $allowlistPath = $this->temporaryDirectory . '/allowlist-' . bin2hex(random_bytes(4)) . '.json';
-        $this->filesystem->dumpFile($allowlistPath, json_encode([
-            'phpGeneratedStoreApiSchemas' => $phpGeneratedStoreApiSchemas,
-        ], \JSON_THROW_ON_ERROR));
-
-        return $allowlistPath;
     }
 
     /**

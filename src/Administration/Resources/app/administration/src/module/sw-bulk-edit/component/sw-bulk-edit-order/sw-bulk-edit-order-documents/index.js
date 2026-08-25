@@ -14,7 +14,7 @@ export default {
     inject: {
         repositoryFactory: {},
         feature: {},
-        documentV2ApiService: {},
+        documentV2Service: {},
     },
 
     mixins: [
@@ -64,19 +64,16 @@ export default {
     methods: {
         async createdComponent() {
             try {
-                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2ApiService) {
-                    const [
-                        availableTypesResponse,
-                        documentTypeCollection,
-                    ] = await Promise.all([
-                        this.documentV2ApiService.getAvailableTypes(),
-                        this.documentTypeRepository.search(this.documentTypeCriteria),
-                    ]);
-                    const supportedDocumentTypes = availableTypesResponse.documentTypes ?? {};
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
+                    const supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
 
-                    this.documentTypes = documentTypeCollection.filter(
-                        (documentType) => documentType.technicalName in supportedDocumentTypes,
-                    );
+                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => {
+                        return {
+                            id: technicalName,
+                            technicalName,
+                            name: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                        };
+                    });
                 } else {
                     this.documentTypes = await this.documentTypeRepository.search(this.documentTypeCriteria);
                 }

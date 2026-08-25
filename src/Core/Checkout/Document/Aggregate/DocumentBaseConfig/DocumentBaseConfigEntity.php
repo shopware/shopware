@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentBaseConfigEntity extends Entity
 {
@@ -22,11 +25,18 @@ class DocumentBaseConfigEntity extends Entity
 
     protected ?string $filenameSuffix = null;
 
+    /**
+     * @var array<string, string>|null
+     */
+    protected ?array $filenameInfixes = null;
+
     protected string $documentNumber;
 
     protected bool $global = false;
 
     protected ?string $documentTypeId = null;
+
+    protected ?string $typeName = null;
 
     protected ?string $logoId = null;
 
@@ -116,6 +126,16 @@ class DocumentBaseConfigEntity extends Entity
         $this->documentTypeId = $documentTypeId;
     }
 
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
+    }
+
     public function getDocumentNumber(): string
     {
         return $this->documentNumber;
@@ -200,6 +220,22 @@ class DocumentBaseConfigEntity extends Entity
     public function setFilenameSuffix(?string $filenameSuffix): void
     {
         $this->filenameSuffix = $filenameSuffix;
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getFilenameInfixes(): ?array
+    {
+        return $this->filenameInfixes;
+    }
+
+    /**
+     * @param array<string, string>|null $filenameInfixes
+     */
+    public function setFilenameInfixes(?array $filenameInfixes): void
+    {
+        $this->filenameInfixes = $filenameInfixes;
     }
 
     /**

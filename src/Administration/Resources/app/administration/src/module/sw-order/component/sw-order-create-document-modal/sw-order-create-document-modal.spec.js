@@ -8,7 +8,12 @@ import component from './index';
 
 const orderFixture = {
     id: '1234',
-    documents: [],
+    documents: [
+        {
+            type: 'invoice',
+            number: '1000',
+        },
+    ],
     lineItems: [],
     orderNumber: '10000',
     salesChannelId: 'sales-channel-id',
@@ -94,14 +99,8 @@ async function createWrapper(props = {}) {
         },
         global: {
             provide: {
-                documentV2ApiService: {
-                    getAvailableTypes: () => {
-                        return {
-                            documentTypes: supportedDocumentTypes,
-                        };
-                    },
-                },
                 documentV2Service: {
+                    getAvailableDocumentTypes: () => Promise.resolve(supportedDocumentTypes),
                     createEmptyDocumentConfig: () => {
                         return {
                             documentComment: '',
@@ -114,7 +113,11 @@ async function createWrapper(props = {}) {
                     getDocumentNumberRangeType: (documentType) => documentType,
                     sortFileFormats: (formats) => formats,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
-                    getDocumentNumbersByTypes: () => [],
+                    getDocumentTypeSnippet: (technicalName) => `${technicalName}--type-snippet`,
+                    getDocumentNumbersByTypes: (documents, types) =>
+                        documents
+                            .filter((document) => types.some((type) => document.type === type))
+                            .map((document) => document.number),
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                 },
                 numberRangeService: {
@@ -306,6 +309,59 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         ).toBeDefined();
     });
 
+    it('shows an error on the invoice selector when the selected invoice has no credit item', async () => {
+        const wrapper = await createWrapper({
+            order: {
+                ...orderFixture,
+                documents: [
+                    {
+                        type: 'invoice',
+                        number: '1000',
+                    },
+                ],
+                lineItems: [],
+            },
+            supportedDocumentTypes: {
+                credit_note: {
+                    formats: ['pdf'],
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--credit-note').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.referencedDocumentNumberErrorMessage).toEqual({
+            detail: 'global.notification.notificationSaveErrorMessageRequiredField',
+        });
+
+        await wrapper
+            .find('.sw-order-create-document-modal__referenced-document-number .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find(
+                '.sw-order-create-document-modal__referenced-document-number .mt-select-result-list .mt-select-option--1000',
+            )
+            .trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.referencedDocumentNumber).toBe('1000');
+        expect(wrapper.vm.referencedDocumentNumberErrorMessage).toEqual({
+            detail: 'sw-order.documentModal.errorInvoiceMissingCreditItem',
+        });
+        expect(wrapper.find('.sw-order-create-document-modal__referenced-document-number').text()).toContain(
+            'sw-order.documentModal.errorInvoiceMissingCreditItem',
+        );
+    });
+
     it('emits the document configuration when creating a V2 document', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -479,5 +535,58 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
+    });
+
+    it('should clear the selected referenced document when switching between document types', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--storno').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__referenced-document-number .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find(
+                '.sw-order-create-document-modal__referenced-document-number .mt-select-result-list .mt-select-option--1000',
+            )
+            .trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper
+                .find('.sw-order-create-document-modal__referenced-document-number .mt-select-selection-list__input')
+                .attributes('value'),
+        ).toBe('1000');
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--storno').trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper
+                .find('.sw-order-create-document-modal__referenced-document-number .mt-select-selection-list__input')
+                .attributes('value'),
+        ).toBeUndefined();
     });
 });

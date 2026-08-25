@@ -321,6 +321,43 @@ describe('sw-bulk-edit-save-modal-success', () => {
         jest.useRealTimers();
     });
 
+    it('should include the failure reason per order and document type in the result file content', async () => {
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(2, 2, 0, [
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+                errorCode: 'DOCUMENT__GENERATION_ERROR',
+                detail: 'Cannot generate invoice document because no invoice document exists.',
+            },
+            {
+                orderId: 'orderId',
+                documentType: 'delivery_note',
+                errorCode: 'DOCUMENT__GENERATION_ERROR',
+            },
+            {
+                orderId: 'orderId2',
+                documentType: 'credit_note',
+            },
+        ]);
+
+        await wrapper.setData({
+            orderNumbers: {
+                orderId: '10089',
+                orderId2: '10090',
+            },
+        });
+
+        expect(wrapper.vm.getDocumentGenerationResultFileContent()).toBe(
+            [
+                'sw-bulk-edit.modal.success.failedDocuments.downloadHeadline',
+                '',
+                '10089 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice: Cannot generate invoice document because no invoice document exists.',
+                '10089 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote: DOCUMENT__GENERATION_ERROR',
+                '10090 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote',
+            ].join('\n'),
+        );
+    });
+
     it('should add download result button when failed document rows exist', async () => {
         Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(1, 1, 0, [
             {

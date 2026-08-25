@@ -644,27 +644,32 @@ export default class FlowBuilderService {
             translator,
         } = context;
 
-        if (config.fileFormats) {
-            const documentTypeName =
-                data.documentTypes.find((item) => item.technicalName === config.documentType)?.translated?.name ?? '';
+        if (config.fileFormats?.length) {
+            const documentTypeName = config.documentType
+                ? translator.$t(Shopware.Service('documentV2Service').getDocumentTypeSnippet(config.documentType))
+                : '';
 
             const fileFormatLabels = config.fileFormats.map((format) =>
                 translator.$t(Shopware.Service('documentV2Service').getFileFormatSnippet(format)),
             );
 
             if (!fileFormatLabels.length) {
-                return documentTypeName;
+                return Shopware.Helper.SanitizerHelper.sanitize(documentTypeName);
             }
 
             const formatsLabel = this.convertTagString(fileFormatLabels);
 
-            return `${documentTypeName} <span class="sw-flow-sequence-action__file-formats">(${formatsLabel})</span>`;
+            return Shopware.Helper.SanitizerHelper.sanitize(
+                `${documentTypeName} <span class="sw-flow-sequence-action__file-formats">(${formatsLabel})</span>`,
+            );
         }
 
         const documentTypesConfig = config.documentType ? [config] : config.documentTypes;
 
         const documentType = documentTypesConfig?.map((type) => {
-            return data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
+            const name = data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
+
+            return Shopware.Helper.SanitizerHelper.sanitize(name);
         });
 
         if (!documentType) {

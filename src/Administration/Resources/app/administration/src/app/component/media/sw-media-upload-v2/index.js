@@ -583,15 +583,13 @@ export default {
             }
 
             if (action === 'media-upload-fail') {
-                this.createNotificationError({
-                    title: this.$t('global.default.error'),
-                    message: this.getUploadFailureMessage(payload),
-                });
-
                 this.onRemoveMediaItem();
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.
+         */
         getUploadFailureMessage(task) {
             const detail = task?.error?.response?.data?.errors?.[0]?.detail;
 

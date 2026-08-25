@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
@@ -27,7 +26,9 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
+use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentTypeNameSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
 use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
@@ -62,6 +63,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NumberRangeValueGeneratorInterface::class),
         ]);
 
+    $services->set(DocumentFileResolver::class);
+
     $services->set(DocumentConfigLoader::class)
         ->args([
             service('document_base_config.repository'),
@@ -72,6 +75,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(DocumentBaseConfigSyncSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(DocumentTypeNameSyncSubscriber::class)
         ->args([
             service(Connection::class),
         ])
@@ -205,23 +214,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_file.repository'),
             service('document_type.repository'),
             service(MediaService::class),
+            service(FileNameProvider::class),
             service('event_dispatcher'),
-        ]);
-
-    $services->set(DocumentFileResolver::class)
-        ->args([
-            service('document.repository'),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)
         ->args([
             service(ReferenceInvoiceLoader::class),
             service(Connection::class),
-        ]);
-
-    $services->set(DocumentFileResolver::class)
-        ->args([
-            service('document.repository'),
         ]);
 
     $services->set(DocumentGenerator::class)
@@ -250,6 +250,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentRendererRegistry::class),
             service(DocumentTypeRegistry::class),
             service(DocumentArchiveGenerator::class),
+            service('document.repository'),
             service(DocumentPersister::class),
             service(MediaService::class),
             service(FileNameProvider::class),

@@ -28,6 +28,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -566,6 +567,9 @@ class DocumentGeneratorTest extends TestCase
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
 
+        $fileNameProvider = static::createStub(FileNameProvider::class);
+        $fileNameProvider->method('provide')->willReturnArgument(0);
+
         $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, $referenceRows));
 
@@ -578,6 +582,7 @@ class DocumentGeneratorTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $fileNameProvider,
                 static::createStub(EventDispatcherInterface::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),

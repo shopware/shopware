@@ -23,7 +23,6 @@ export default {
         'repositoryFactory',
         'validationApiService',
         'documentV2Service',
-        'documentV2ApiService',
     ],
 
     emits: [
@@ -77,19 +76,17 @@ export default {
             return this.repositoryFactory.create('document_type');
         },
 
-        documentTypeCriteria() {
-            const criteria = new Criteria(1, 100);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
-
-            return criteria;
-        },
-
         isDocumentGenerationReworkActive() {
             return Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK');
         },
 
         documentTypeOptions() {
-            return this.documentTypes.filter((documentType) => documentType.technicalName in this.supportedDocumentTypes);
+            return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
+                return {
+                    value: technicalName,
+                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                };
+            });
         },
 
         fileFormatOptions() {
@@ -284,7 +281,6 @@ export default {
                 'mailTemplates',
                 'triggerEvent',
                 'triggerActions',
-                'documentTypes',
             ],
         ),
     },
@@ -306,12 +302,6 @@ export default {
             this.mailRecipient = this.recipientOptions[0].value;
 
             if (this.isDocumentGenerationReworkActive) {
-                if (!this.documentTypes.length) {
-                    this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').documentTypes = data;
-                    });
-                }
-
                 this.loadSupportedDocumentTypes();
             }
 
@@ -364,8 +354,7 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2ApiService.getAvailableTypes();
-                this.supportedDocumentTypes = response.documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,

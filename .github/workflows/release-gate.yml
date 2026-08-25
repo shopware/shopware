@@ -32,6 +32,7 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       profile: release
+      currents: false
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit

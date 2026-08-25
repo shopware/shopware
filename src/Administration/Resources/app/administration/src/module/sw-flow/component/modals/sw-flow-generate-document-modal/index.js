@@ -15,7 +15,6 @@ export default {
     inject: [
         'repositoryFactory',
         'documentV2Service',
-        'documentV2ApiService',
     ],
 
     emits: [
@@ -63,7 +62,12 @@ export default {
         },
 
         documentTypeOptions() {
-            return this.documentTypes.filter((documentType) => documentType.technicalName in this.supportedDocumentTypes);
+            return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
+                return {
+                    value: technicalName,
+                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                };
+            });
         },
 
         fileFormatOptions() {
@@ -100,13 +104,13 @@ export default {
 
     methods: {
         async createdComponent() {
-            if (!this.documentTypes.length) {
-                this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                    Shopware.Store.get('swFlow').documentTypes = data;
-                });
-            }
-
             if (!this.isDocumentGenerationReworkActive) {
+                if (!this.documentTypes.length) {
+                    this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
+                        Shopware.Store.get('swFlow').documentTypes = data;
+                    });
+                }
+
                 this.initializeLegacyState();
 
                 return;
@@ -114,20 +118,18 @@ export default {
 
             await this.loadSupportedDocumentTypes();
 
-            this.documentTypeSelected =
-                this.sequence?.config?.documentType ?? this.sequence?.config?.documentTypes?.[0]?.documentType ?? null;
+            // v1 config supports multiple document types; v2 is single-select, so picking one for the
+            // user would silently drop the rest on save. Leave it empty and require an explicit choice.
+            this.documentTypeSelected = this.sequence?.config?.documentType ?? null;
 
             this.fileFormatsSelected = this.sequence?.config?.fileFormats || [];
         },
 
         initializeLegacyState() {
-            if (this.sequence?.config?.documentType) {
-                this.documentTypesSelected = [this.sequence.config];
-            } else {
-                this.documentTypesSelected = this.sequence?.config?.documentTypes || [];
-            }
-
-            this.documentTypesSelected = this.documentTypesSelected.map((type) => {
+            // Every stored config was migrated to the 'documentTypes' array shape (see
+            // Migration1636362839FlowBuilderGenerateMultipleDoc); a flat 'documentType' key only
+            // occurs on a v2 config so we dont try to translate here
+            this.documentTypesSelected = (this.sequence?.config?.documentTypes || []).map((type) => {
                 return type.documentType;
             });
         },
@@ -136,8 +138,7 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2ApiService.getAvailableTypes();
-                this.supportedDocumentTypes = response.documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,

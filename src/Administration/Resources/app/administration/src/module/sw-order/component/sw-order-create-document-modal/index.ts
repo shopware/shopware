@@ -1,6 +1,6 @@
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { AvailableDocumentTypesResponse } from '../../service/documentV2.api.service';
+import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
 import type { DocumentConfig } from '../../service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
@@ -17,7 +17,6 @@ export default Component.wrapComponentConfig({
     template,
 
     inject: [
-        'documentV2ApiService',
         'documentV2Service',
         'numberRangeService',
         'repositoryFactory',
@@ -111,19 +110,29 @@ export default Component.wrapComponentConfig({
         },
 
         referencedDocumentNumberErrorMessage(): { detail: string } | null {
-            if ((!this.isCreditNoteDocument && !this.isStornoDocument) || this.referencedDocumentNumber) {
+            if (!this.isCreditNoteDocument && !this.isStornoDocument) {
                 return null;
             }
 
-            return {
-                detail: this.$t('global.notification.notificationSaveErrorMessageRequiredField'),
-            };
+            if (!this.referencedDocumentNumber) {
+                return {
+                    detail: this.$t('global.notification.notificationSaveErrorMessageRequiredField'),
+                };
+            }
+
+            if (this.isCreditNoteDocument && this.creditItems.length === 0) {
+                return {
+                    detail: this.$t('sw-order.documentModal.errorInvoiceMissingCreditItem'),
+                };
+            }
+
+            return null;
         },
 
         documentTypeOptions(): { label: string; value: string }[] {
             return this.documentTypes.map((documentType) => {
                 return {
-                    label: documentType.translated?.name ?? '',
+                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(documentType.technicalName)),
                     value: documentType.id,
                 };
             });
@@ -243,7 +252,7 @@ export default Component.wrapComponentConfig({
             }
 
             try {
-                this.supportedDocumentTypes = (await this.documentV2ApiService.getAvailableTypes()).documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.components.createDocumentModal.error.loadSupportedDocumentFileFormats'),
@@ -276,6 +285,7 @@ export default Component.wrapComponentConfig({
             if (!documentType) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
+                this.referencedDocumentNumber = null;
 
                 return;
             }
@@ -283,6 +293,8 @@ export default Component.wrapComponentConfig({
             this.documentTypeLoading = true;
 
             this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+
+            this.referencedDocumentNumber = null;
 
             try {
                 const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);

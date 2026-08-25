@@ -194,7 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('kernel'),
             service(Connection::class),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service(TranslationConfig::class),
             service(TranslationLoader::class),
             service(HtmlSanitizer::class),

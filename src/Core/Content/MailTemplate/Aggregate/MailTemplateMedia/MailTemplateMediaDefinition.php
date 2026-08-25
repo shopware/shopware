@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {

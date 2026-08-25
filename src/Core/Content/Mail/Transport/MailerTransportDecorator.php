@@ -92,7 +92,7 @@ class MailerTransportDecorator implements \Stringable, TransportInterface
     {
         $documentAttachments = array_filter(
             $attachments,
-            static fn (array $attachment) => \in_array($attachment['documentId'] ?? null, $extension->getDocumentIds(), true),
+            static fn (array $attachment) => \in_array($attachment['documentId'] ?? null, $extension->getDocumentIds(), true)
         );
 
         $documentIds = array_values(array_unique(array_column($documentAttachments, 'documentId')));

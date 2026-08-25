@@ -1,5 +1,14 @@
 import type { ComputedRef, Ref } from 'vue';
-import { computed, getCurrentInstance as vueGetCurrentInstance, isReactive, isReadonly, isRef, reactive, watch } from 'vue';
+import {
+    computed,
+    getCurrentInstance as vueGetCurrentInstance,
+    getCurrentScope,
+    isReactive,
+    isReadonly,
+    isRef,
+    reactive,
+    watch,
+} from 'vue';
 import { syncRef } from '@vueuse/core';
 import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from '../options-composition-shim';
@@ -452,8 +461,15 @@ export function createExtendableSetup<
         });
     };
 
-    // Watch for changes in the overrides array and reapply overrides when changed
-    watch(registeredOverrides, applyOverrides, { deep: true, immediate: true });
+    // Overrides registered after mount are applied from inside this watcher, where no effect scope
+    // is active — watchers and computeds they create would outlive the component. Re-enter the
+    // owning scope so Vue disposes them on unmount.
+    const ownerScope = getCurrentScope();
+
+    watch(registeredOverrides, ownerScope ? () => ownerScope.run(applyOverrides) : applyOverrides, {
+        deep: true,
+        immediate: true,
+    });
 
     const state = createDataScope<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>(
         reactiveSetupState,

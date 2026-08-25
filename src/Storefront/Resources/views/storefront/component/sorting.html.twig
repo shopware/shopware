@@ -10,7 +10,9 @@
         <select class="sorting form-select" aria-label="{{ 'general.sortingLabel'|trans|striptags }}">
             {% for sorting in sortings %}
                 {% set key = sorting.key %}
-                <option value="{{ key }}"{% if key == current %} selected{% endif %}>{{ sorting.translated.label|sw_sanitize }}</option>
+                {# The score sorting is locked, so its label cannot be translated in the administration. Use the snippet instead. #}
+                {% set label = key == 'score' ? 'filter.sortByScore'|trans : sorting.translated.label %}
+                <option value="{{ key }}"{% if key == current %} selected{% endif %}>{{ label|sw_sanitize }}</option>
             {% endfor %}
         </select>
     </div>

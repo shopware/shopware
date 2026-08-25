@@ -53,7 +53,7 @@ const repositoryFactoryMock = {
     },
 };
 
-async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
+async function createWrapper() {
     return mount(await wrapTestComponent('sw-bulk-edit-order-documents-delete-documents', { sync: true }), {
         global: {
             stubs: {
@@ -61,13 +61,12 @@ async function createWrapper({ documentV2ApiServiceOverrides = {} } = {}) {
             },
             provide: {
                 repositoryFactory: repositoryFactoryMock,
-                documentV2ApiService: {
-                    getAvailableTypes: jest.fn().mockResolvedValue({
-                        documentTypes: {
-                            invoice: { formats: ['pdf'] },
-                        },
+                documentV2Service: {
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({
+                        invoice: { formats: ['pdf'] },
                     }),
-                    ...documentV2ApiServiceOverrides,
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
             },
         },
@@ -85,6 +84,15 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
         await flushPromises();
 
         expect(wrapper.findAll('.mt-field__checkbox')).toHaveLength(documentTypesFixtures.length);
+    });
+
+    it('should label checkboxes with the translated document type name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+
+        expect(labels).toEqual(documentTypesFixtures.map((type) => type.translated.name));
     });
 
     it('should be able to select document types', async () => {
@@ -123,11 +131,14 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
 
         expect([...wrapper.vm.documentTypes]).toEqual([
             {
-                id: 'invoice-id',
+                id: 'invoice',
                 technicalName: 'invoice',
-                translated: { name: 'Invoice' },
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
                 selected: false,
             },
         ]);
+
+        const labels = wrapper.findAll('.mt-field__label label').map((label) => label.text());
+        expect(labels).toEqual(['sw-order.components.createDocumentModal.documentTypes.invoice']);
     });
 });

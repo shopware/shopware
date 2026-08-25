@@ -15,10 +15,11 @@ export default {
         documentV2Service: {
             default: null,
         },
-        documentV2ApiService: {
-            default: null,
-        },
     },
+
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+    ],
 
     data() {
         return {
@@ -60,14 +61,19 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK') || !this.documentV2ApiService) {
+        async createdComponent() {
+            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK') || !this.documentV2Service) {
                 return;
             }
 
-            this.documentV2ApiService.getAvailableTypes().then((response) => {
-                this.supportedDocumentTypes = response.documentTypes ?? {};
-            });
+            try {
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
+            } catch (error) {
+                this.supportedDocumentTypes = {};
+                this.createNotificationError({
+                    message: error.message,
+                });
+            }
         },
     },
 };

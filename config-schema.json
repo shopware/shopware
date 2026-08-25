@@ -63,6 +63,9 @@
                 "sitemap": {
                     "$ref": "#/definitions/sitemap"
                 },
+                "translation": {
+                    "$ref": "#/definitions/translation"
+                },
                 "deployment": {
                     "$ref": "#/definitions/deployment"
                 },
@@ -1539,6 +1542,27 @@
                 }
             },
             "title": "sitemap"
+        },
+        "translation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "use_local_filesystem": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "scheduled_task": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                }
+            },
+            "title": "translation"
         },
         "shopware_store": {
             "type": "object",

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Adapter\Twig\Runtime;
 
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Error\RuntimeError;
 use Twig\Markup;
@@ -17,7 +18,7 @@ final class CachedEscaperRuntime
 {
     /**
      * Cache for escaped strings to avoid repeated escaping of the same content.
-     * Reset between requests via {@see CachedEscaperRuntimeResetter} for long runner compatibility.
+     * Reset between requests via {@see TwigEnvironment::reset()} for long runner compatibility.
      *
      * @var array<string, string>
      */
@@ -65,7 +66,7 @@ final class CachedEscaperRuntime
 
     /**
      * Resets the escape filter cache.
-     * This method is called by {@see CachedEscaperRuntimeResetter} between requests
+     * This method is called by {@see TwigEnvironment::reset()} between requests
      * in long runner environments (RoadRunner, FrankenPHP, Swoole) to prevent
      * memory leaks from unbounded cache growth.
      */

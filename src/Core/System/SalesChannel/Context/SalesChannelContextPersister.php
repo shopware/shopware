@@ -4,9 +4,11 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,6 +35,10 @@ class SalesChannelContextPersister
     }
 
     /**
+     * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextPersisterTest
+     *
      * @param array<string, mixed> $newParameters
      */
     public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void
@@ -46,17 +52,43 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
-        $this->connection->executeStatement(
-            'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
-                VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
-            [
-                'token' => $token,
-                'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
-                'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
-                'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
+        $data = [
+            'token' => $token,
+            'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
+            'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
+            'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
+            'updatedAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
+
+        // Update in place for the usual single-key conflict to avoid REPLACE's delete and insert lock pattern.
+        $query = new RetryableQuery(
+            $this->connection,
+            $this->connection->prepare(<<<'SQL'
+                INSERT INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
+                VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)
+                ON DUPLICATE KEY UPDATE
+                    `token` = :token,
+                    `payload` = :payload,
+                    `sales_channel_id` = :salesChannelId,
+                    `customer_id` = :customerId,
+                    `updated_at` = :updatedAt
+                SQL)
         );
+
+        try {
+            $query->execute($data);
+        } catch (UniqueConstraintViolationException) {
+            // When both unique keys conflict, retain REPLACE's behavior of removing both conflicting rows.
+            $query = new RetryableQuery(
+                $this->connection,
+                $this->connection->prepare(
+                    'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
+                    VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)'
+                )
+            );
+
+            $query->execute($data);
+        }
     }
 
     public function delete(string $token, string $salesChannelId, ?string $customerId = null): void
@@ -197,9 +229,10 @@ class SalesChannelContextPersister
     private function getCustomerContext(array $data, string $salesChannelId, string $customerId): ?array
     {
         foreach ($data as $row) {
-            if (!empty($row['customer_id'])
-                && Uuid::fromBytesToHex($row['sales_channel_id']) === $salesChannelId
-                && Uuid::fromBytesToHex($row['customer_id']) === $customerId
+            $customerIdFromRow = $row['customer_id'] ?? null;
+            if (\is_string($customerIdFromRow) && $customerIdFromRow !== ''
+&& Uuid::fromBytesToHex($row['sales_channel_id']) === $salesChannelId
+&& Uuid::fromBytesToHex($customerIdFromRow) === $customerId
             ) {
                 return $row;
             }

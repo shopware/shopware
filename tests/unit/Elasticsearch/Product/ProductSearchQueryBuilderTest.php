@@ -49,7 +49,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('framework')]
 #[CoversClass(AbstractProductSearchQueryBuilder::class)]
 #[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase

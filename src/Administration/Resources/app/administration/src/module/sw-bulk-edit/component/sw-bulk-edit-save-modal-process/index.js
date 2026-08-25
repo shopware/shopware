@@ -16,7 +16,9 @@ export default {
         repositoryFactory: {},
         syncService: {},
         feature: {},
-        documentV2ApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
     },
 
     mixins: [
@@ -259,9 +261,25 @@ export default {
         async createDocumentV2(documentType, payload) {
             const requestedTotal = payload.length;
             const failedItems = [];
+            let skipped = 0;
             let completed = 0;
 
+            const forceDocumentCreation = payload[0]?.config?.forceDocumentCreation ?? true;
+            const orderIdsWithExistingDocument = forceDocumentCreation
+                ? new Set()
+                : await this.getOrderIdsWithExistingDocument(
+                      documentType,
+                      payload.map((item) => item.orderId),
+                  );
+
             for (const item of payload) {
+                if (orderIdsWithExistingDocument.has(item.orderId)) {
+                    skipped += 1;
+                    completed += 1;
+                    this.document[documentType].isReached = Math.round((completed / requestedTotal) * 100);
+                    continue;
+                }
+
                 let response = null;
                 let latestError = null;
 
@@ -273,6 +291,7 @@ export default {
                         undefined,
                         item.config?.documentDate,
                         item.config?.documentComment,
+                        item.config?.custom?.deliveryDate,
                     );
                 } catch (error) {
                     latestError = error.response?.data?.errors?.pop();
@@ -294,9 +313,19 @@ export default {
             return {
                 requested: requestedTotal,
                 failed: failedItems.length,
-                skipped: 0,
+                skipped,
                 failedItems,
             };
+        },
+
+        async getOrderIdsWithExistingDocument(documentType, orderIds) {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('orderId', orderIds));
+            criteria.addFilter(Criteria.equals('documentType.technicalName', documentType));
+
+            const documents = await this.documentRepository.search(criteria);
+
+            return new Set(documents.map((document) => document.orderId));
         },
 
         getDocumentGenerationResult(response, documentType, requested) {

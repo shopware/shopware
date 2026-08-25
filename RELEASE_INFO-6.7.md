@@ -1,3 +1,23 @@
+# 6.7.15.0 (upcoming)
+
+## Core
+
+### Customer imports validate customer number patterns
+
+Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
+
+Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
+
+## Storefront
+
+### Semantic footer markup
+
+With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.
+
+- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
+- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column will become `<li>` instead of `<div role="listitem">`.
+
 # 6.7.14.0 (upcoming)
 
 ## Features
@@ -6,7 +26,36 @@
 
 Rule Builder and Flow Builder are now reachable from a dedicated top-level "Automation" menu entry. The existing "Settings > Automation" entries are unchanged.
 
+### New app script hook `cookie-group-collect`
+
+Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
+
+### Order state history records where a state change came from
+
+`state_machine_history` entries now carry a `sourceType` field holding the type of the API context source that triggered the transition (`admin-api`, `sales-channel` or `system`). A custom `ContextSource` contributes whatever its public `$type` property holds. The order detail page and the status history modal use it to show state changes that a customer made in the storefront as "Customer" instead of "System", so a cancellation by the customer can be told apart from one made by a plugin or an integration.
+
+State changes that an administrator performs in a sales channel context, for example while creating an order in the Administration, are now attributed to that administrator instead of to the system.
+
 ## API
+
+### Added experimental Store API snippet endpoint
+
+Added new experimental Store API route `GET /store-api/snippet` (not part of the backwards compatibility promise yet, planned to be stable with v6.8.0), which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.
+### Number range admin action endpoints now require ACL privileges
+
+Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
+
+* `GET /api/_action/number-range/reserve/{type}/{salesChannelId}` requires `number_range:read`. Without `preview=1` this endpoint permanently advances the number range state, so it was possible for any authenticated backend account to consume invoice, order, delivery-note and credit-note numbers and create gaps in the sequence.
+* `GET /api/_action/number-range/{numberRangeId}/preview-pattern` and the deprecated `GET /api/_action/number-range/preview-pattern/{type}` require `number_range:read`.
+
+Administration users are not affected: `number_range:read` is already part of the "Products viewer" and "Number ranges viewer" permissions, it is now also part of the "Orders editor" and "Customers creator" permissions — these are the roles whose users reserve document, order and customer numbers — and a migration grants it to existing roles that already hold one of those permissions. Integrations and API clients with manually assigned privilege lists must add `number_range:read` to their ACL role.
+
+### Added new shop setting endpoint
+
+Added new Store API route `GET /store-api/shop-settings`, which exposes the UI- and validation-relevant, non-sensitive subset of the system configuration (grouped into `general`, `loginRegistration`, `cart`, `listing` and `newsletter`) resolved for the current sales channel, so headless frontends (e.g. Composable Frontends) can render the shop consistently with the administration settings.
+### Cache information includes registered indexers
+
+`GET /api/_action/cache_info` now returns an `indexers` map containing the registered normal-refresh indexers and their optional child updaters. Administration clients can use this metadata when offering cache-index refresh controls; post-update-only indexers are excluded.
 
 ### Order recalculation and conversion endpoints now require ACL privileges
 
@@ -80,7 +129,68 @@ The `sw-expect-packages` header is no longer evaluated on API endpoints that do 
 
 Send the header with an authenticated Admin API request, where the behaviour is unchanged: a violated constraint still returns `417` with `FRAMEWORK__API_EXPECTATION_FAILED` and the installed version. Clients that set the header as a default on their HTTP client must remove it from unauthenticated calls — most importantly from the token request, which otherwise fails before the token is issued. Requests that do not send the header are unaffected.
 
+### Store API schema documents cart totals as a separate `CartPrice` component
+
+The Store API OpenAPI schema previously documented item prices and cart totals as one `CalculatedPrice` component, which marked the cart-level fields `netPrice`, `positionPrice`, `rawTotal`, and `taxStatus` as required on item prices such as `product.calculatedPrice` and `lineItem.price`. The schema now contains a dedicated `CartPrice` component used for `cart.price` and `order.price`, while `CalculatedPrice` only documents the fields item prices actually contain. The `taxStatus` enum also includes the previously missing `gross` value. API responses are unchanged; only clients generated from the schema are affected and now match the actual payloads.
+
+### Store API no longer offers shipping methods without a usable price
+
+`onlyAvailable=1` no longer returns active shipping methods whose prices cannot resolve a cost: an empty matrix, or rows that all lack currency values. One usable row is enough. Requests without the flag are unchanged.
+### Sales channel language list validation compares against the incoming default language
+
+Assigning a new `languageId` to a sales channel and removing the previous default language from its `languages` list in the same write is now accepted. It previously failed with `SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID`, and the two steps had to be sent as separate requests.
+
+Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
+
 ## Core
+
+### Document V1/V2 file compatibility
+
+Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
+
+### An active shipping method must keep at least one usable price
+
+Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.
+
+Replace a matrix in a single request, so the method is never priceless in between:
+
+```json
+[
+  { "key": "delete-prices", "entity": "shipping_method_price", "action": "delete", "payload": [{ "id": "…" }] },
+  { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [{ "currencyId": "…", "net": 0, "gross": 0, "linked": false }] }] }
+]
+```
+
+### E-invoice line positions state the correct price base quantity
+
+ZUGFeRD invoices previously wrote the product's purchase unit (`product.purchaseUnit`, the package content used for base price display) as the item price base quantity (BT-149). Recipients validating against EN16931 saw `PEPPOL-EN16931-R120` violations for every line whose product has a purchase unit other than 1, and Peppol access points may have rejected such invoices. Line positions now always state a base quantity of 1, matching the per-unit item net price. Additionally, the item net price (BT-146) is now written with 4 decimals instead of 2, so the line amount calculation stays within the rule's rounding tolerance for higher quantities.
+### New shop settings route classes
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\AbstractShopSettingsRoute` as a decoratable extension point.
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute`.
+- Added `Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRouteResponse` and the structs `ShopSettings`, `ShopGeneralSettings`, `ShopLoginRegistrationSettings`, `ShopCartSettings`, `ShopListingSettings`, `ShopNewsletterSettings` in the same namespace.
+### Plugins can customize version cleanup
+
+Plugins can subscribe to the new `CleanupVersionEvent` to protect version records from scheduled cleanup. The event provides the cleanup cutoff through `getCleanupTime()`, allowing plugins to apply retention rules consistently with the scheduled cleanup task.
+### Force thumbnail regeneration and deletion via `--force`
+
+The `media:generate-thumbnails` command now accepts a `--force` (`-f`) option that regenerates thumbnails for all configured sizes even when a thumbnail already exists — for example after changing the thumbnail quality or sizes of a media folder. The option works with both synchronous and `--async` execution. Previously, existing thumbnails were always skipped.
+
+Note that regenerated thumbnails are written to the same physical path, so their URLs do not change: browsers and CDNs may keep serving the previously cached files until their cache expires or is invalidated manually.
+
+The `media:delete-local-thumbnails` command also accepts a new `--force` (`-f`) option that deletes all thumbnail records and files even when remote thumbnails are disabled — previously the command refused to run in that case. The command now removes the whole physical thumbnail directory, which also cleans up orphaned files without a database record (e.g. left behind after their media was uploaded again), and prints the number of deleted files. Note that the storefront is missing thumbnails until they are regenerated; prefer `media:generate-thumbnails --force` to replace them without such a gap.
+
+A new `--orphans` (`-o`) option deletes only those orphaned files. Referenced thumbnails and their records are kept, so this cleanup is safe in every setup and works regardless of the remote thumbnail configuration. The two options cannot be combined.
+
+`ThumbnailService::updateThumbnails()` accepts a matching optional `$force` argument; classes overriding this method must add the parameter with Shopware 6.8 (see `UPGRADE-6.8.md`).
+### New `Criteria::resetFields()` and `Criteria::resetExcludedFields()`
+
+`Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::resetFields()` drops an allowlist added via `addFields()`, `Criteria::resetExcludedFields()` drops a denylist added via `excludeFields()`. Both selections are mutually exclusive, so the new methods also allow switching a criteria from one to the other.
+
+They affect the database read, unlike `includes` and `excludes`, which only shape the API response.
+
+### Failed payment mail flow
+
+Shopware now ships a default Flow Builder flow, flow template, and mail template for `state_enter.order_transaction.state.failed`.
 
 ### GARAN commercial guarantee label and EU legal guarantee notice
 
@@ -90,6 +200,11 @@ Send the header with an authenticated Admin API request, where the behaviour is 
 - Separately, new Store API route `GET /store-api/legal-guarantee-notice` renders the EU-harmonised statutory legal guarantee notice, translated into all 24 official EU languages, toggleable via the new `core.cart.showLegalGuaranteeNotice` system config, and exposed via `sw_legal_guarantee_notice` / `sw_legal_guarantee_notice_link` Twig filters.
 - Both labels/notices are wired into the storefront (checkout confirmation, buy-widget, cart line items) and into the Administration product detail page (new guarantee form).
 - The `order_confirmation_mail` template is updated to include both the GARAN label (as a data URI) and the legal guarantee notice link. **This update only applies to shops whose order confirmation mail template is still the unmodified system default** — i.e. new installations, and existing shops that never edited that template. Merchants who have customized their order confirmation mail template must add `{{ nestedItem.productId|sw_garan_label_nested_uri(context) }}` and `{{ context.languageId|sw_legal_guarantee_notice_link }}` to their template manually if they want these notices.
+
+### Category and SEO URL indexing cause fewer database deadlocks
+
+Concurrent category writes through the Sync API frequently hit InnoDB deadlocks in the SEO URL and child-count updaters (`1213 Deadlock found when trying to get lock`). Three changes reduce the lock footprint while keeping the default `REPEATABLE READ` isolation: the `seo_url` table is written with `INSERT ... ON DUPLICATE KEY UPDATE` instead of `REPLACE INTO`, so a colliding row is updated in place — keeping its `id` and `created_at` — instead of being deleted and re-inserted with the wide next-key locks that `REPLACE` takes on both unique indexes; rows whose `is_deleted` flag already holds the target value are no longer rewritten; and child counts are computed with a non-locking read followed by a primary-key-only update instead of a self-joined update. No configuration or database changes are required.
+
 ### Deprecated XML configuration
 
 Loading Symfony configuration from XML files is deprecated for Shopware bundles, plugins, and the project-level `config/` directory of an installation, and will stop working with Shopware 6.8, because Symfony 8 removes XML configuration support entirely. This covers service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes.xml`, `routes_<env>.xml`, `routes_overwrite.xml`, and any XML file below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Symfony already logs a runtime deprecation for every loaded XML file since Symfony 7.4; Shopware now additionally reports which file — and for bundles and plugins, which bundle — is affected. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
@@ -283,6 +398,34 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
 
+### Cross-selling by dynamic product group excludes the whole variant family
+
+A cross-selling that uses a dynamic product group no longer returns the product it is displayed on. For variants, the complete variant family is excluded — the currently viewed variant, its parent, and all sibling variants — because variant grouping and main variant resolution would otherwise resolve a sibling back to the viewed product. Previously only the product the cross-selling is assigned to was excluded, which had no effect on variants that inherit their cross-sellings from the parent.
+
+Cross-sellings with a manual product assignment are unchanged. Extensions that need the old result can adjust the criteria in `ProductCrossSellingStreamCriteriaEvent`.
+### Changing an SEO URL template regenerates the existing SEO URLs
+
+Writing the `template` field of a `seo_url_template` row now regenerates the SEO URLs of the affected route automatically, instead of leaving them on the old template until the SEO indexer is run manually. The new `SeoUrlTemplateChangeSubscriber` queues `SeoUrlTemplateIndexingMessage` on the `async` transport, and the handler walks the route's entities in batches of 250, chaining one message per batch.
+
+This affects every write path, not just Settings > Shop > SEO:
+
+- Both storefront routes (registered in the `SeoUrlRouteRegistry`) and headless store-api routes (tagged `shopware.entity.seo_url.route`) are covered.
+- Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
+- Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
+
+### Newsletter route methods keep the `StoreApiResponse` return type
+
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
+`StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
+This withdraws the return type change announced with 6.7.9.0.
+
+A decorator that puts its logic in these methods answers with the response containing the `status`
+field, and keeps working on 6.8, where the deprecated `subscribe()`, `confirm()` and `unsubscribe()`
+are removed. Those are still required in 6.7 and have to answer with `NoContentResponse`.
+### Admin search falls back to the database for entities without an Elasticsearch admin indexer
+
+With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` silently returned no results for entities that have no admin search indexer, because those entities were dropped from the request. They are now searched over the DAL instead, so an entity registered in the Administration search (`searchTypeService.upsertType()` or a module `defaultSearchConfiguration`) is findable without shipping an indexer. Registering an `AbstractAdminIndexer` for the entity is still the faster option.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
@@ -328,6 +471,13 @@ A few things to know before you start:
 * **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
 
 Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
+
+### SFC migration codemod now emits native setup components
+
+The `codemod:sfc-migration` developer tool has been rewritten to output the native setup SFC format (`<script setup>` with `swDefinePublic`) instead of the previous `createExtendableSetup()` form, which the build toolchain no longer accepts. The default remains a read-only preview; `--write` creates validated Vue drafts only. Replacing an eligible legacy entry point requires the separate explicit `--replace-originals` option, and Twig templates are retained.
+
+What changed for users of the tool: every generated file must pass the build transform and Vue's compiler before it is written; components that convert only partially receive a `.vue` draft with `TODO(sfc-migration)` comments while their original `index.js` + `.html.twig` stay in place and keep working; components using `mixins` or `Component.extend()` are skipped and reported instead of receiving an Options API `<script>` fallback, which the build now rejects. See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md`.
+
 ### System config forms show validation errors for the selected sales channel scope
 
 Extension and app configuration forms, and any settings page built on `sw-system-config`, now display server-side validation errors on the field that caused them, for the sales channel selected in the scope switcher. Previously these errors were returned by `POST /api/_action/system-config/batch` but did not reach the field: for sales-channel-specific scopes they were stored under a key that did not match the lookup, the lookup only ever used the initially passed scope, and most field types were never passed the error at all. If your `config.xml` uses `required`, `minLength`, `maxLength`, `min`, `max` or `dataType`, merchants now see why a save was rejected on the scope they have selected. No API changes; the error resolver and error store remain `@private`. (shopware/shopware#18741)
@@ -451,6 +601,14 @@ The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
+### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
+
+A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.
+
+Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. The deprecated `isValid()`/`getViolations()` are removed in 6.8; until then the default `validate()` delegates to them, so a captcha extending `AbstractCaptcha` keeps working.
+
+One case does change: a captcha extending a shipped captcha (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overriding only `isValid()`/`getViolations()` is no longer consulted, because those implement `validate()` themselves. Migrate it to `validate()` — an unmigrated check stops being applied without an error.
+
 ### Theme CLI commands clean up unused theme directories
 
 Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.
@@ -503,6 +661,12 @@ Every storefront extension build inherits the core storefront webpack context an
 
 Extension builds now set `output.uniqueName` to their technical name, which gives each of them its own global, for example `webpackChunkswag_my_theme`. The core storefront bundle intentionally keeps the default `webpackChunk` global, so its emitted runtime stays unchanged. If you relied on the shared `window.webpackChunk` array, for example to inject chunks into another bundle, use the extension specific global instead. Rebuild your storefront assets to pick up the change.
 
+### The "Top results" sorting label is translatable
+
+`score` is a locked product sorting, so its label could not be edited in Settings > Products > Sorting and only ever existed for `en-GB` and `de-DE`. Every other language fell back to one of those two.
+
+`@Storefront/storefront/component/sorting.html.twig` now renders the `filter.sortByScore` snippet for the `score` sorting instead of its database label, so it can be translated for any language through snippet management or a theme snippet file. All other sortings keep rendering the label configured in the administration.
+
 ## App System
 
 ### App installation recovers ambiguously failed registrations
@@ -542,21 +706,14 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
-### Cookies can be bound to active payment methods
-
-Cookies declared in an app's `manifest.xml` were always shown in the storefront cookie consent manager, even on sales channels where the app's payment methods are not offered. A cookie (both standalone and inside a group's `<entries>`) can now reference payment methods of the app via the repeatable `<active-payment-method>` element:
-
-```xml
-<cookie>
-    <snippet-name>myApp.cookie.wallet</snippet-name>
-    <cookie>my-app-wallet</cookie>
-    <active-payment-method>wallet</active-payment-method>
-</cookie>
-```
-
-The cookie is only added to the consent manager if at least one of the referenced payment methods is active in the current sales channel. The wildcard `*` matches any payment method of the app, so SDK-level cookies don't need to enumerate every identifier. Cookies without the element keep the previous always-on behavior. This gives apps the equivalent of what plugins can already do with `CookieGroupCollectEvent`.
 
 ## Hosting & Configuration
+
+### Local translation files and optional automatic updates
+
+The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.
+
+The daily translation update task can be disabled with `shopware.translation.scheduled_task.enabled: false`. Use this for immutable deployments that update translation files only during builds. Both options retain their previous behavior by default.
 
 ### Optional `Clear-Site-Data` header on customer logout
 
@@ -3423,10 +3580,13 @@ The Administration now supports axios 1.x alongside the existing axios 0.30.2 to
 **Current behavior (6.7.x):**
 - Default: axios 0.30.2 (backward compatible)
 - Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+- Repository requests use axios 1.x internally. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+- Existing `httpClient.interceptors` and `httpClient.defaults` customizations are mirrored to both internal clients, so extensions do not need version-specific setup.
+- The Shopware HTTP client remains structurally compatible with the previous `AxiosInstance` type and `axios-mock-adapter`, while new code can use Shopware's `HttpClient` contract.
 
 **Future behavior (6.8.0+):**
-- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
-- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+- Direct HTTP request default: axios 1.x (when `V6_8_0_0` feature flag is active)
+- Direct HTTP request opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
 
 **Key differences between versions:**
 - **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)

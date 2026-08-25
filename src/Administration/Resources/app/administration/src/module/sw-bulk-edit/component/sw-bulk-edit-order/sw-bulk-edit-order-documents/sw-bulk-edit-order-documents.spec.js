@@ -26,12 +26,12 @@ async function createWrapper() {
                         };
                     },
                 },
-                documentV2ApiService: {
-                    getAvailableTypes: jest.fn().mockResolvedValue({
-                        documentTypes: {
-                            invoice: { formats: ['pdf'] },
-                        },
+                documentV2Service: {
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({
+                        invoice: { formats: ['pdf'] },
                     }),
+                    getDocumentTypeSnippet: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
             },
         },
@@ -99,9 +99,9 @@ describe('sw-bulk-edit-order-documents', () => {
 
         expect(wrapper.vm.documentTypes).toEqual([
             {
-                id: 'invoice-id',
+                id: 'invoice',
                 technicalName: 'invoice',
-                name: 'Invoice',
+                name: 'sw-order.components.createDocumentModal.documentTypes.invoice',
             },
         ]);
     });

@@ -60,8 +60,6 @@ class CategoryRoute extends AbstractCategoryRoute
     )]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        $this->cacheTagCollector->addTag(self::buildName($navigationId));
-
         if ($navigationId === self::HOME) {
             $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
             $request->attributes->set('navigationId', $navigationId);
@@ -70,6 +68,8 @@ class CategoryRoute extends AbstractCategoryRoute
             $routeParams['navigationId'] = $navigationId;
             $request->attributes->set('_route_params', $routeParams);
         }
+
+        $this->cacheTagCollector->addTag(self::buildName($navigationId));
 
         $category = $this->loadCategory($navigationId, $context);
 

@@ -114,16 +114,58 @@ const defaultProps = {
 const buttonDeleteClassEntityListing = '.sw-entity-listing__context-menu-edit-delete';
 const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-delete';
 
+const actionMenuStubs = {
+    'mt-action-menu': {
+        template: '<div><slot /></div>',
+    },
+    'mt-action-menu-group': {
+        template: '<div><slot /></div>',
+    },
+    'mt-action-menu-item': {
+        props: {
+            disabled: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+        },
+        emits: ['select'],
+        template: `
+            <button
+                type="button"
+                :class="$attrs.class"
+                :disabled="disabled"
+                @click="$emit('select', $event)"
+            >
+                <slot />
+            </button>
+        `,
+    },
+    'mt-dropdown-menu-root': {
+        template: '<div><slot /></div>',
+    },
+    'mt-dropdown-menu-trigger': {
+        template: '<div><slot name="button" /><slot /></div>',
+    },
+    'mt-dropdown-menu-portal': {
+        template: '<div><slot /></div>',
+    },
+    'mt-dropdown-menu-sub': {
+        template: '<div><slot /></div>',
+    },
+};
+
 let documentSearchMock;
 let documentDeleteMock;
 let createDocumentMock;
 let createDocumentV2Mock;
 let uploadDocumentV2Mock;
 let getDocumentV2Mock;
+let getDocumentLegacyMock;
 let getDocumentArchiveV2Mock;
 let getDocumentPreviewV2Mock;
 
-async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
+async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details', additionalStubs = {}) {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
     documentDeleteMock = jest.fn().mockResolvedValue([]);
     createDocumentMock = jest.fn().mockResolvedValue({
@@ -145,6 +187,12 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
     getDocumentV2Mock = jest.fn().mockResolvedValue({
         file: 'https://shopware.test/dummny.html',
         fileName: 'dummy.html',
+    });
+    getDocumentLegacyMock = jest.fn().mockResolvedValue({
+        data: 'https://shopware.test/dummny.pdf',
+        headers: {
+            'content-disposition': 'attachment; filename=dummy.pdf',
+        },
     });
     getDocumentArchiveV2Mock = jest.fn().mockResolvedValue({
         file: 'https://shopware.test/documents.zip',
@@ -180,17 +228,12 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     { sync: true },
                 ),
                 'sw-loader': await wrapTestComponent('sw-loader'),
+                ...additionalStubs,
             },
             provide: {
                 documentService: {
                     setListener: () => ({}),
-                    getDocument: () =>
-                        Promise.resolve({
-                            headers: {
-                                'content-disposition': 'attachment; filename=dummny.pdf',
-                            },
-                            data: 'https://shopware.test/dummny.pdf',
-                        }),
+                    getDocument: (...args) => getDocumentLegacyMock(...args),
                     createDocument: (...args) => createDocumentMock(...args),
                 },
                 documentV2ApiService: {
@@ -204,6 +247,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 documentV2Service: {
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
+                    sortFileFormats: (formats) => [...formats],
                 },
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: '1000' }),
@@ -457,6 +501,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
     it('should download a V2 archive when using the download all action with the feature flag active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        global.activeAclRoles = ['document.viewer'];
         URL.createObjectURL = jest.fn().mockReturnValue('blob:download');
         const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
@@ -479,7 +524,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        await wrapper.find('.sw-order-document-card__context-button-download-all-formats').trigger('click');
+        await wrapper.find('.sw-order-document-card__actions-button').trigger('click');
+        await flushPromises();
+
+        // The download-formats action is a nested sub-menu teleported into document.body, opened by
+        // clicking its parent trigger - it cannot be reached via wrapper.find().
+        document.body.querySelector('.sw-order-document-card__context-button-download-pdf')?.click();
+        await flushPromises();
+
+        document.body.querySelector('.sw-order-document-card__context-button-download-all-formats')?.click();
+        await flushPromises();
 
         expect(getDocumentArchiveV2Mock).toHaveBeenCalledWith(['document1']);
         dispatchEventSpy.mockRestore();
@@ -512,6 +566,102 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(document.body.querySelector('.mt-action-menu')).not.toBeNull();
         expect(wrapper.find('.sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(false);
+    });
+
+    it('should open an existing document through the V2 endpoint when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        global.activeAclRoles = ['document.viewer'];
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-open-format').trigger('click');
+        await flushPromises();
+
+        expect(getDocumentV2Mock).toHaveBeenCalledWith(documentFixture.id, 'pdf');
+        expect(getDocumentLegacyMock).not.toHaveBeenCalled();
+        dispatchEventSpy.mockRestore();
+    });
+
+    it('should open an existing document through the legacy endpoint when the feature flag is inactive', async () => {
+        global.activeAclRoles = ['document.viewer'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:legacy-document');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-open-pdf').trigger('click');
+        await flushPromises();
+
+        expect(getDocumentLegacyMock).toHaveBeenCalledWith(
+            documentFixture.id,
+            documentFixture.deepLinkCode,
+            expect.any(Object),
+            true,
+            'pdf',
+        );
+        expect(getDocumentV2Mock).not.toHaveBeenCalled();
+        dispatchEventSpy.mockRestore();
+    });
+
+    it('should download an existing document through the V2 endpoint when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        global.activeAclRoles = ['document.viewer'];
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-download-format').trigger('click');
+        await flushPromises();
+
+        expect(getDocumentV2Mock).toHaveBeenCalledWith(documentFixture.id, 'pdf');
+        expect(getDocumentLegacyMock).not.toHaveBeenCalled();
+        dispatchEventSpy.mockRestore();
+    });
+
+    it('should download an existing document through the legacy endpoint when the feature flag is inactive', async () => {
+        global.activeAclRoles = ['document.viewer'];
+        URL.createObjectURL = jest.fn().mockReturnValue('blob:legacy-document');
+        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            documents: getCollection('document', [
+                documentFixture,
+            ]),
+        });
+
+        await wrapper.find('.sw-order-document-card__context-button-download-pdf').trigger('click');
+        await flushPromises();
+
+        expect(getDocumentLegacyMock).toHaveBeenCalledWith(
+            documentFixture.id,
+            documentFixture.deepLinkCode,
+            expect.any(Object),
+            true,
+            'pdf',
+        );
+        expect(getDocumentV2Mock).not.toHaveBeenCalled();
+        dispatchEventSpy.mockRestore();
     });
 
     it('should use the V2 create endpoint when the feature flag is active', async () => {

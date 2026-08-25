@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentEntity extends Entity
 {
@@ -22,6 +25,8 @@ class DocumentEntity extends Entity
     protected string $orderVersionId;
 
     protected string $documentTypeId;
+
+    protected ?string $typeName = null;
 
     protected ?string $documentMediaFileId = null;
 
@@ -143,6 +148,16 @@ class DocumentEntity extends Entity
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getReferencedDocumentId(): ?string

@@ -203,13 +203,7 @@
         "labelDocumentTypeSingle": "Dokumenttyp",
         "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
         "labelFileFormats": "Dateiformate",
-        "placeholderFileFormats": "Dateiformate auswählen ...",
-        "fileFormats": {
-          "pdf": "PDF",
-          "html": "HTML",
-          "zugferdXml": "ZUGFeRD XML",
-          "zugferdEmbeddedPdf": "ZUGFeRD Embedded PDF"
-        }
+        "placeholderFileFormats": "Dateiformate auswählen ..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Download-Recht setzen",

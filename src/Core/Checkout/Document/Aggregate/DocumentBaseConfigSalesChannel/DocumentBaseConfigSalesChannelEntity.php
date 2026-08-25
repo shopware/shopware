@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentBaseConfigSalesChannelEntity extends Entity
 {
@@ -19,6 +22,8 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     protected ?string $salesChannelId = null;
 
     protected string $documentTypeId;
+
+    protected ?string $typeName = null;
 
     protected ?DocumentTypeEntity $documentType = null;
 
@@ -54,6 +59,16 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getDocumentType(): ?DocumentTypeEntity

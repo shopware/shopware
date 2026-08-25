@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -58,7 +59,8 @@ import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import CacheService from '../../src/app/service/cache.service';
 
-const defaultFeatureFlags = [...global.activeFeatureFlags];
+const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
+global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -108,7 +110,34 @@ config.global.config.compilerOptions = {
     whitespace: 'preserve',
 };
 
+/**
+ * Fails a test that sets feature flags via `it.activeFeatureFlags()` while mounting a component with
+ * its own `provide.feature`.
+ *
+ * A local mock shadows the globally provided feature service, so the flag the helper activated never
+ * reaches the component and the test passes for the wrong reason. Only the presence of the override
+ * matters — the component does not have to call `isActive` for the test to be misleading.
+ */
+function assertFeatureServiceNotShadowed(wrapper) {
+    if (!global.activeFeatureFlagsForCurrentTest) {
+        return;
+    }
+
+    const providedFeature = wrapper.vm?.$?.appContext?.provides?.feature;
+
+    if (providedFeature && providedFeature !== Shopware.Service('feature')) {
+        throw new Error(
+            'This test activates feature flags with it.activeFeatureFlags(), but the component was ' +
+                'mounted with its own `provide.feature`. The local mock shadows the global feature ' +
+                'service, so the flag never reaches the component. Remove the local mock and let the ' +
+                'helper drive the flag.',
+        );
+    }
+}
+
 config.plugins.VueWrapper.install((wrapper) => {
+    assertFeatureServiceNotShadowed(wrapper);
+
     // add `findByText` to the global config
     wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);
     // add `findByAriaLabel` to the global config
@@ -302,10 +331,22 @@ const i18n = createI18n({
     },
 });
 
+// Mirrors the $dataScope global property of vue.adapter.ts, so native setup SFCs with
+// <sw-block> templates can render in tests.
+const BlockDataScopePlugin = {
+    install(app) {
+        Object.defineProperty(app.config.globalProperties, '$dataScope', {
+            get: getBlockDataScope,
+            enumerable: true,
+        });
+    },
+};
+
 // Add global plugins
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    BlockDataScopePlugin,
     i18n,
 ];
 
@@ -651,7 +692,7 @@ beforeEach(() => {
     warnArgs = null;
     warnTrace = null;
     unhandledRejectionError = null;
-    global.activeFeatureFlags = [...defaultFeatureFlags];
+    global.activeFeatureFlags = global.activeFeatureFlagsForCurrentTest ?? [...global[defaultActiveFeatureFlagsSymbol]];
 
     if (typeof Shopware?.Service !== 'function' || typeof Shopware?.Application?.getContainer !== 'function') {
         return;

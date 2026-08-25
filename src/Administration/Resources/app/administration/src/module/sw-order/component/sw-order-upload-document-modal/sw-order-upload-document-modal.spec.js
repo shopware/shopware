@@ -90,14 +90,8 @@ async function createWrapper(props = {}) {
         },
         global: {
             provide: {
-                documentV2ApiService: {
-                    getAvailableTypes: () => {
-                        return {
-                            documentTypes: supportedDocumentTypes,
-                        };
-                    },
-                },
                 documentV2Service: {
+                    getAvailableDocumentTypes: () => Promise.resolve(supportedDocumentTypes),
                     createEmptyDocumentConfig: () => {
                         return {
                             documentComment: '',
@@ -110,6 +104,7 @@ async function createWrapper(props = {}) {
                     getDocumentNumberRangeType: (documentType) => documentType,
                     sortFileFormats: (formats) => formats,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
+                    getDocumentTypeSnippet: (technicalName) => `${technicalName}--type-snippet`,
                     getDocumentNumbersByTypes: () => [],
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                 },
@@ -326,5 +321,77 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
 
         expect(wrapper.emitted()['document-upload']).toBeTruthy();
         expect(wrapper.emitted()['document-upload'][0][1]).toBe('send');
+    });
+
+    it('should clear the uploaded file when changing the document type', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-upload-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper.setData({
+            selectedDocumentFile: {
+                name: 'document.pdf',
+                type: 'application/pdf',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-upload-document-modal__file-input').attributes('source')).toBeDefined();
+
+        await wrapper
+            .find('.sw-order-upload-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--storno').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-upload-document-modal__file-input').attributes('source')).toBeUndefined();
+    });
+
+    it('should clear the file format selection when changing the document type', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-upload-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--invoice').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-upload-document-modal__file-format .mt-select-selection-list__input').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-upload-document-modal__file-format .mt-select-option--pdf').trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper
+                .find('.sw-order-upload-document-modal__file-format .mt-select-selection-list__input')
+                .attributes('value'),
+        ).toBe('pdf--snippet');
+
+        await wrapper
+            .find('.sw-order-upload-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-order-upload-document-modal__document-type .mt-select-option--storno').trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper
+                .find('.sw-order-upload-document-modal__file-format .mt-select-selection-list__input')
+                .attributes('value'),
+        ).toBeUndefined();
     });
 });

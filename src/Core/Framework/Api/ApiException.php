@@ -42,7 +42,6 @@ class ApiException extends HttpException
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
     public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
     public const API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT = 'FRAMEWORK__UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT';
-    public const API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST = 'FRAMEWORK__API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST';
     public const API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE = 'FRAMEWORK__API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE';
     public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
     public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
@@ -384,17 +383,6 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
             \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
-        );
-    }
-
-    public static function invalidStoreApiSchemaMigrationAllowlist(string $filename, string $message, ?\Throwable $exception = null): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::API_INVALID_STORE_API_SCHEMA_MIGRATION_ALLOWLIST,
-            'Invalid Store API schema migration allowlist "{{ filename }}": {{ message }}',
-            ['filename' => $filename, 'message' => $message],
-            $exception,
         );
     }
 

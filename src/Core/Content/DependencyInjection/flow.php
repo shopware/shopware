@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
@@ -359,6 +360,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service('event_dispatcher'),
             service(MailAttachmentsBuilder::class),
+            service(DocumentFileResolver::class),
         ])
         ->tag('flow.storer');
 

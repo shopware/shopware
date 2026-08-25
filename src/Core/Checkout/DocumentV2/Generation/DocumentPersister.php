@@ -22,7 +22,8 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Persists a generated document and one document_file per requested format.
+ * Persists a generated document and one document_file per requested format, plus the accessible
+ * html version whenever it was rendered as a dependency of a requested format.
  *
  * One document row represents the shared document number and order snapshot, while each
  * requested output format is stored as a separate document_file linked to the same document.
@@ -70,7 +71,7 @@ final readonly class DocumentPersister
 
         $persistedFiles = $this->writeMediaFiles(
             $state,
-            $requestedFormats,
+            $this->withAccessibleHtml($requestedFormats, $state),
             $context,
         );
 
@@ -80,8 +81,8 @@ final readonly class DocumentPersister
             'orderVersionId' => $input->order->getVersionId(),
             'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context), // remove with v6.9.0
             'typeName' => $generationRequest->documentType,
-            'documentMediaFileId' => $persistedFiles[DocumentFormat::PDF->value] ?? (array_values($persistedFiles)[0] ?? null),
-            'documentA11yMediaFileId' => $persistedFiles[DocumentFormat::HTML->value] ?? null,
+            'documentMediaFileId' => $this->resolvePrimaryMediaId($persistedFiles), // remove with v6.9.0
+            'documentA11yMediaFileId' => $persistedFiles[DocumentFormat::HTML->value] ?? null, // remove with v6.9.0
             'referencedDocumentId' => $resolvedReference?->id,
             'deepLinkCode' => Random::getAlphanumericString(32),
             'config' => [
@@ -114,6 +115,41 @@ final readonly class DocumentPersister
         }
 
         return $document;
+    }
+
+    /**
+     * v1 surfaces attach and download the primary file by default, so it must never be the html.
+     *
+     * @param array<string, string> $persistedFiles map<format, mediaId>
+     *
+     * @deprecated tag:v6.9.0 - Will be removed once `document.document_media_file_id` is removed
+     */
+    private function resolvePrimaryMediaId(array $persistedFiles): ?string
+    {
+        if (isset($persistedFiles[DocumentFormat::PDF->value])) {
+            return $persistedFiles[DocumentFormat::PDF->value];
+        }
+
+        unset($persistedFiles[DocumentFormat::HTML->value]);
+
+        return array_values($persistedFiles)[0] ?? null;
+    }
+
+    /**
+     * html is the document's accessible version, so it is persisted even when it was
+     * only rendered as a dependency of a requested format.
+     *
+     * @param list<string> $requestedFormats
+     *
+     * @return list<string>
+     */
+    private function withAccessibleHtml(array $requestedFormats, RenderState $state): array
+    {
+        if (\in_array(DocumentFormat::HTML->value, $requestedFormats, true) || !$state->has(DocumentFormat::HTML->value)) {
+            return $requestedFormats;
+        }
+
+        return [...$requestedFormats, DocumentFormat::HTML->value];
     }
 
     /**

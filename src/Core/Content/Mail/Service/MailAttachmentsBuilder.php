@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -134,7 +135,7 @@ class MailAttachmentsBuilder
         return array_column($unique, 'doc_id');
     }
 
-    private function getLatestDocumentIdByTechnicalName(string $orderId, string $documentTypeTechnicalName, Context $context): ?string
+    public function getLatestDocumentIdByTechnicalName(string $orderId, string $documentTypeTechnicalName, Context $context): ?string
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('orderId', $orderId))
@@ -256,6 +257,15 @@ class MailAttachmentsBuilder
         $attachments = [];
 
         foreach ($requestedFormatsByDocumentId as $documentId => $requestedFormats) {
+            // html is surfaced as an a11y link in the mail body instead of being attached
+            $attachableFormats = $requestedFormats === null
+                ? null
+                : array_values(array_diff($requestedFormats, [DocumentFormat::HTML->value]));
+
+            if ($attachableFormats === []) {
+                continue;
+            }
+
             $document = $documents->get($documentId);
 
             if (!$document instanceof DocumentEntity) {
@@ -277,7 +287,11 @@ class MailAttachmentsBuilder
             foreach ($documentFiles as $documentFile) {
                 $availableFormats[] = $documentFile->getDocumentFormat();
 
-                if ($requestedFormats !== null && !\in_array($documentFile->getDocumentFormat(), $requestedFormats, true)) {
+                if ($documentFile->getDocumentFormat() === DocumentFormat::HTML->value) {
+                    continue;
+                }
+
+                if ($attachableFormats !== null && !\in_array($documentFile->getDocumentFormat(), $attachableFormats, true)) {
                     continue;
                 }
 

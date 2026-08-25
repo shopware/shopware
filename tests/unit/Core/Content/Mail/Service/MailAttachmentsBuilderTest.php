@@ -324,9 +324,11 @@ class MailAttachmentsBuilderTest extends TestCase
         $pdfFile->setDocumentFormat('pdf');
         $pdfFile->setMedia($pdfMedia);
 
+        $htmlFile = $this->createHtmlDocumentFile($documentId);
+
         $document = new DocumentEntity();
         $document->setId($documentId);
-        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile]));
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile, $htmlFile]));
 
         $criteria = (new Criteria([$documentId]))->addAssociation('documentFiles.media');
         $criteria->setTitle('send-mail::load-document-files');
@@ -438,6 +440,64 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame('application/pdf', $attachments[0]['mimeType']);
     }
 
+    public function testBuildTemplateDocumentAttachmentsLogsOriginalSelectionAndGeneratedHtml(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false);
+        $eventConfig = [
+            'documentType' => 'invoice',
+            'fileFormats' => ['pdf', 'html'],
+        ];
+
+        $htmlFile = $this->createHtmlDocumentFile($documentId);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDocumentFiles(new DocumentFileCollection([$htmlFile]));
+
+        $criteria = (new Criteria([$documentId]))->addAssociation('documentFiles.media');
+        $criteria->setTitle('send-mail::load-document-files');
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(IdSearchResult::fromIds([$documentId], new Criteria(), $context));
+        $documentRepository
+            ->expects($this->once())
+            ->method('search')
+            ->with($criteria, $context)
+            ->willReturn(new EntitySearchResult('document', 1, new DocumentCollection([$document]), null, $criteria, $context));
+        $this->documentRepository = $documentRepository;
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->never())->method('loadFile');
+        $this->mediaService = $mediaService;
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(
+                static::anything(),
+                static::callback(static function (array $logContext) use ($documentId) {
+                    static::assertSame($documentId, $logContext['documentId']);
+                    static::assertSame(['pdf', 'html'], $logContext['requestedFormats']);
+                    static::assertSame(['html'], $logContext['availableFormats']);
+
+                    return true;
+                })
+            );
+        $this->logger = $logger;
+
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
+
+        static::assertSame([], $attachments);
+    }
+
     public function testBuildTemplateDocumentAttachmentsLogsWhenRequestedFormatIsUnavailable(): void
     {
         $context = Context::createDefaultContext();
@@ -463,9 +523,11 @@ class MailAttachmentsBuilderTest extends TestCase
         $xmlFile->setDocumentFormat('zugferd_xml');
         $xmlFile->setMedia($xmlMedia);
 
+        $htmlFile = $this->createHtmlDocumentFile($documentId);
+
         $document = new DocumentEntity();
         $document->setId($documentId);
-        $document->setDocumentFiles(new DocumentFileCollection([$xmlFile]));
+        $document->setDocumentFiles(new DocumentFileCollection([$xmlFile, $htmlFile]));
 
         $criteria = (new Criteria([$documentId]))->addAssociation('documentFiles.media');
         $criteria->setTitle('send-mail::load-document-files');
@@ -495,7 +557,7 @@ class MailAttachmentsBuilderTest extends TestCase
                 static::callback(static function (array $logContext) use ($documentId) {
                     static::assertSame($documentId, $logContext['documentId']);
                     static::assertSame(['pdf'], $logContext['requestedFormats']);
-                    static::assertSame(['zugferd_xml'], $logContext['availableFormats']);
+                    static::assertSame(['zugferd_xml', 'html'], $logContext['availableFormats']);
 
                     return true;
                 })
@@ -507,7 +569,7 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame([], $attachments);
     }
 
-    public function testBuildTemplateDocumentAttachmentsWithoutRequestedFileFormatsAttachesEveryFormat(): void
+    public function testBuildTemplateDocumentAttachmentsWithoutRequestedFileFormatsAttachesEveryFormatExceptHtml(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = new MailTemplateEntity();
@@ -542,9 +604,11 @@ class MailAttachmentsBuilderTest extends TestCase
         $xmlFile->setDocumentFormat('zugferd_xml');
         $xmlFile->setMedia($xmlMedia);
 
+        $htmlFile = $this->createHtmlDocumentFile($documentId);
+
         $document = new DocumentEntity();
         $document->setId($documentId);
-        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile, $xmlFile]));
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile, $xmlFile, $htmlFile]));
 
         $criteria = (new Criteria([$documentId]))->addAssociation('documentFiles.media');
         $criteria->setTitle('send-mail::load-document-files');
@@ -577,6 +641,139 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame('pdf-content', $attachments[0]['content']);
         static::assertSame($xmlFile->getId(), $attachments[1]['id']);
         static::assertSame('xml-content', $attachments[1]['content']);
+    }
+
+    public function testBuildTemplateDocumentAttachmentsWithHtmlOnlySelectionAttachesNothingWithoutWarning(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false);
+        $eventConfig = [
+            'documentType' => 'invoice',
+            'fileFormats' => ['html'],
+        ];
+
+        $pdfMedia = new MediaEntity();
+        $pdfMedia->setId(Uuid::randomHex());
+        $pdfMedia->setFileName('invoice');
+        $pdfMedia->setFileExtension('pdf');
+        $pdfMedia->setMimeType('application/pdf');
+
+        $pdfFile = new DocumentFileEntity();
+        $pdfFile->setId(Uuid::randomHex());
+        $pdfFile->setDocumentId($documentId);
+        $pdfFile->setMediaId($pdfMedia->getId());
+        $pdfFile->setDocumentFormat('pdf');
+        $pdfFile->setMedia($pdfMedia);
+
+        $htmlFile = $this->createHtmlDocumentFile($documentId);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile, $htmlFile]));
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(IdSearchResult::fromIds([$documentId], new Criteria(), $context));
+        $documentRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult('document', 1, new DocumentCollection([$document]), null, new Criteria(), $context));
+        $this->documentRepository = $documentRepository;
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->never())->method('loadFile');
+        $this->mediaService = $mediaService;
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+        $this->logger = $logger;
+
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
+
+        static::assertSame([], $attachments);
+    }
+
+    public function testBuildTemplateDocumentAttachmentsWithHtmlAndPdfSelectionAttachesOnlyPdf(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false);
+        $eventConfig = [
+            'documentType' => 'invoice',
+            'fileFormats' => ['pdf', 'html'],
+        ];
+
+        $pdfMedia = new MediaEntity();
+        $pdfMedia->setId(Uuid::randomHex());
+        $pdfMedia->setFileName('invoice');
+        $pdfMedia->setFileExtension('pdf');
+        $pdfMedia->setMimeType('application/pdf');
+
+        $pdfFile = new DocumentFileEntity();
+        $pdfFile->setId(Uuid::randomHex());
+        $pdfFile->setDocumentId($documentId);
+        $pdfFile->setMediaId($pdfMedia->getId());
+        $pdfFile->setDocumentFormat('pdf');
+        $pdfFile->setMedia($pdfMedia);
+
+        $htmlFile = $this->createHtmlDocumentFile($documentId);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile, $htmlFile]));
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturn(IdSearchResult::fromIds([$documentId], new Criteria(), $context));
+        $documentRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult('document', 1, new DocumentCollection([$document]), null, new Criteria(), $context));
+        $this->documentRepository = $documentRepository;
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService
+            ->expects($this->once())
+            ->method('loadFile')
+            ->with($pdfMedia->getId(), $context)
+            ->willReturn('pdf-content');
+        $this->mediaService = $mediaService;
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+        $this->logger = $logger;
+
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, $eventConfig, $orderId);
+
+        static::assertCount(1, $attachments);
+        static::assertArrayHasKey('id', $attachments[0]);
+        static::assertSame($pdfFile->getId(), $attachments[0]['id']);
+        static::assertSame('pdf-content', $attachments[0]['content']);
+    }
+
+    private function createHtmlDocumentFile(string $documentId): DocumentFileEntity
+    {
+        $htmlMedia = new MediaEntity();
+        $htmlMedia->setId(Uuid::randomHex());
+        $htmlMedia->setFileName('invoice');
+        $htmlMedia->setFileExtension('html');
+        $htmlMedia->setMimeType('text/html');
+
+        $htmlFile = new DocumentFileEntity();
+        $htmlFile->setId(Uuid::randomHex());
+        $htmlFile->setDocumentId($documentId);
+        $htmlFile->setMediaId($htmlMedia->getId());
+        $htmlFile->setDocumentFormat('html');
+        $htmlFile->setMedia($htmlMedia);
+
+        return $htmlFile;
     }
 
     private function createBuilder(): MailAttachmentsBuilder

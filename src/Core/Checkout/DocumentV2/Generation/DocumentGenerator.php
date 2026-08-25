@@ -49,8 +49,10 @@ final readonly class DocumentGenerator
      *
      * The request must contain at least one format.
      *
-     * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
-     * both formats are rendered, but only the PDF result is persisted as a document_file.
+     * For example, if the caller requests only `zugferd_embedded_pdf`, its dependencies
+     * `pdf` and `zugferd_xml` are rendered as well but not persisted as document_files.
+     * The one exception is `html`: whenever it is rendered along the way, it is persisted
+     * as the document's accessible version.
      *
      * @throws DocumentV2Exception
      */

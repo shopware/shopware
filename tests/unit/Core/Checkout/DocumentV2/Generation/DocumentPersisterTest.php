@@ -117,8 +117,81 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($resolvedReference->id, $documentRepository->creates[0][0]['referencedDocumentId']);
 
         static::assertCount(1, $documentFileRepository->creates);
-        static::assertSame(self::FORMAT, $documentFileRepository->creates[0][0]['documentFormat']);
+        static::assertSame([self::FORMAT], array_column($documentFileRepository->creates[0], 'documentFormat'));
         static::assertSame($fileId, $documentFileRepository->creates[0][0]['mediaId']);
+        static::assertNull($documentRepository->creates[0][0]['documentA11yMediaFileId']);
+    }
+
+    public function testPersistAddsDependencyRenderedHtmlAsAccessibleVersion(): void
+    {
+        $pdfMediaId = Uuid::randomHex();
+        $htmlMediaId = Uuid::randomHex();
+
+        $this->renderState->add(new RenderResult(
+            DocumentFormat::HTML->value,
+            '<html lang="en">content</html>',
+            'filename',
+            'html',
+            'text/html',
+        ));
+
+        $mediaService = static::createMock(MediaService::class);
+        $mediaService->method('saveFile')
+            ->willReturnCallback(static fn (string $content, string $extension) => $extension === 'html' ? $htmlMediaId : $pdfMediaId);
+
+        [$persister, $documentRepository, $documentFileRepository] = $this->createPersister(
+            Uuid::randomHex(),
+            mediaService: $mediaService,
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+
+        static::assertSame($pdfMediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
+        static::assertSame($htmlMediaId, $documentRepository->creates[0][0]['documentA11yMediaFileId']);
+
+        $formats = array_column($documentFileRepository->creates[0], 'documentFormat');
+        static::assertSame([self::FORMAT, DocumentFormat::HTML->value], $formats);
+    }
+
+    public function testPersistNeverUsesHtmlAsPrimaryMediaFile(): void
+    {
+        $htmlMediaId = Uuid::randomHex();
+
+        $renderState = new RenderState();
+        $renderState->add(new RenderResult(
+            DocumentFormat::HTML->value,
+            '<html lang="en">content</html>',
+            'filename',
+            'html',
+            'text/html',
+        ));
+
+        [$persister, $documentRepository, $documentFileRepository] = $this->createPersister(
+            Uuid::randomHex(),
+            mediaServiceReturn: $htmlMediaId,
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $renderState,
+            [DocumentFormat::HTML->value],
+            null,
+            $this->context,
+        );
+
+        static::assertNull($documentRepository->creates[0][0]['documentMediaFileId']);
+        static::assertSame($htmlMediaId, $documentRepository->creates[0][0]['documentA11yMediaFileId']);
+
+        $formats = array_column($documentFileRepository->creates[0], 'documentFormat');
+        static::assertSame([DocumentFormat::HTML->value], $formats);
     }
 
     public function testPersistUsesFileNameProviderResolvedName(): void

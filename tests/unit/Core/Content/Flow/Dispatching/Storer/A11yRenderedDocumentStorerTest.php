@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer;
@@ -48,7 +51,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $this->repository = StaticEntityRepository::of(DocumentCollection::class, [[]]);
         $this->dispatcher = static::createStub(EventDispatcherInterface::class);
         $this->mailAttachmentsBuilder = static::createStub(MailAttachmentsBuilder::class);
-        $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder);
+        $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder, new DocumentFileResolver());
     }
 
     public function testStoreWithAware(): void
@@ -97,11 +100,13 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $a11yDocument->setFileExtension('html');
 
         $documentWithA11yMediaFile = new DocumentEntity();
+        $documentWithA11yMediaFile->setConfig([]);
         $documentWithA11yMediaFile->setId($documentId);
         $documentWithA11yMediaFile->setDeepLinkCode('code1');
         $documentWithA11yMediaFile->setDocumentA11yMediaFile($a11yDocument);
 
         $documentWithNoA11yMediaFile = new DocumentEntity();
+        $documentWithNoA11yMediaFile->setConfig([]);
         $documentWithNoA11yMediaFile->setId($documentId2);
         $documentWithNoA11yMediaFile->setDeepLinkCode('code2');
 
@@ -127,7 +132,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ->with($orderId, [$documentTypeId])
             ->willReturn([$documentId, $documentId2]);
 
-        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder);
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
         $storable->setData(OrderAware::ORDER_ID, $orderId);
@@ -188,7 +193,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ->with($orderId, [$documentTypeId])
             ->willReturn([]);
 
-        $storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $mailAttachmentsBuilder);
+        $storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
         $storable->setData(OrderAware::ORDER_ID, $orderId);
@@ -219,11 +224,11 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::isInstanceOf(MailFlowDataCriteriaEvent::class),
+                static::callback(static fn (MailFlowDataCriteriaEvent $event): bool => $event->criteria->getAssociation('documentFiles')->hasAssociation('media')),
                 'mail-flow.data.document.criteria.event'
             );
 
-        $storer = new A11yRenderedDocumentStorer($this->repository, $dispatcher, $mailAttachmentsBuilder);
+        $storer = new A11yRenderedDocumentStorer($this->repository, $dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
         $storable->setData(OrderAware::ORDER_ID, $orderId);
@@ -231,6 +236,262 @@ class A11yRenderedDocumentStorerTest extends TestCase
 
         $storer->restore($storable);
         $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
+    }
+
+    public function testLazyLoadV2ConfigUnionsExplicitlyPassedDocumentIds(): void
+    {
+        $explicitId = Uuid::randomHex();
+        $resolvedId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $documents = new DocumentCollection();
+        foreach ([$explicitId => 'code-explicit', $resolvedId => 'code-resolved'] as $id => $deepLinkCode) {
+            $a11yMedia = new MediaEntity();
+            $a11yMedia->setId(Uuid::randomHex());
+            $a11yMedia->setFileExtension('html');
+
+            $document = new DocumentEntity();
+            $document->setConfig([]);
+            $document->setId($id);
+            $document->setDeepLinkCode($deepLinkCode);
+            $document->setDocumentA11yMediaFile($a11yMedia);
+
+            $documents->add($document);
+        }
+
+        $repository = new StaticEntityRepository([
+            new EntitySearchResult(
+                DocumentDefinition::ENTITY_NAME,
+                2,
+                $documents,
+                null,
+                new Criteria(),
+                $context,
+            ),
+        ]);
+
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
+            ->expects($this->once())
+            ->method('getLatestDocumentIdByTechnicalName')
+            ->with($orderId, 'invoice', $context)
+            ->willReturn($resolvedId);
+
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
+
+        $storable = new StorableFlow('name', $context, [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => [$explicitId]]);
+        $storable->setData(OrderAware::ORDER_ID, $orderId);
+        $storable->setConfig(['documentType' => 'invoice', 'fileFormats' => ['pdf']]);
+
+        $storer->restore($storable);
+
+        $res = $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
+
+        static::assertIsArray($res);
+        static::assertSame([$explicitId, $resolvedId], array_column($res, 'documentId'));
+    }
+
+    public function testLazyLoadV2ConfigMapsHtmlDocumentFile(): void
+    {
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $htmlMedia = new MediaEntity();
+        $htmlMedia->setId(Uuid::randomHex());
+        $htmlMedia->setFileExtension('html');
+
+        $htmlFile = new DocumentFileEntity();
+        $htmlFile->setId(Uuid::randomHex());
+        $htmlFile->setDocumentId($documentId);
+        $htmlFile->setMediaId($htmlMedia->getId());
+        $htmlFile->setDocumentFormat('html');
+        $htmlFile->setMedia($htmlMedia);
+
+        $document = new DocumentEntity();
+        $document->setConfig([]);
+        $document->setId($documentId);
+        $document->setDeepLinkCode('code1');
+        $document->setDocumentFiles(new DocumentFileCollection([$htmlFile]));
+
+        $repository = new StaticEntityRepository([
+            new EntitySearchResult(
+                DocumentDefinition::ENTITY_NAME,
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                $context,
+            ),
+        ]);
+
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
+            ->expects($this->once())
+            ->method('getLatestDocumentIdByTechnicalName')
+            ->with($orderId, 'invoice', $context)
+            ->willReturn($documentId);
+        $mailAttachmentsBuilder
+            ->expects($this->never())
+            ->method('getLatestDocumentsOfTypes');
+
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
+
+        $storable = new StorableFlow('name', $context, [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
+        $storable->setData(OrderAware::ORDER_ID, $orderId);
+        $storable->setConfig(['documentType' => 'invoice', 'fileFormats' => ['pdf', 'html']]);
+
+        $storer->restore($storable);
+
+        static::assertSame(
+            [
+                [
+                    'documentId' => $documentId,
+                    'deepLinkCode' => 'code1',
+                    'fileExtension' => 'html',
+                ],
+            ],
+            $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS)
+        );
+    }
+
+    public function testLazyLoadV2ConfigWithBothA11ySlotAndHtmlDocumentFileYieldsOneEntry(): void
+    {
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $a11yMedia = new MediaEntity();
+        $a11yMedia->setId(Uuid::randomHex());
+        $a11yMedia->setFileExtension('html');
+
+        $htmlMedia = new MediaEntity();
+        $htmlMedia->setId(Uuid::randomHex());
+
+        $htmlFile = new DocumentFileEntity();
+        $htmlFile->setId(Uuid::randomHex());
+        $htmlFile->setDocumentId($documentId);
+        $htmlFile->setMediaId($htmlMedia->getId());
+        $htmlFile->setDocumentFormat('html');
+        $htmlFile->setMedia($htmlMedia);
+
+        $document = new DocumentEntity();
+        $document->setConfig([]);
+        $document->setId($documentId);
+        $document->setDeepLinkCode('code1');
+        $document->setDocumentA11yMediaFile($a11yMedia);
+        $document->setDocumentFiles(new DocumentFileCollection([$htmlFile]));
+
+        $repository = new StaticEntityRepository([
+            new EntitySearchResult(
+                DocumentDefinition::ENTITY_NAME,
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                $context,
+            ),
+        ]);
+
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
+            ->expects($this->once())
+            ->method('getLatestDocumentIdByTechnicalName')
+            ->with($orderId, 'invoice', $context)
+            ->willReturn($documentId);
+
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
+
+        $storable = new StorableFlow('name', $context, [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
+        $storable->setData(OrderAware::ORDER_ID, $orderId);
+        $storable->setConfig(['documentType' => 'invoice', 'fileFormats' => ['html']]);
+
+        $storer->restore($storable);
+
+        $res = $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
+
+        static::assertCount(1, $res);
+        static::assertSame($documentId, $res[0]['documentId']);
+        static::assertSame('html', $res[0]['fileExtension']);
+    }
+
+    public function testLazyLoadV2ConfigDocumentWithoutHtmlFileYieldsNoEntry(): void
+    {
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $pdfMedia = new MediaEntity();
+        $pdfMedia->setId(Uuid::randomHex());
+        $pdfMedia->setFileExtension('pdf');
+
+        $pdfFile = new DocumentFileEntity();
+        $pdfFile->setId(Uuid::randomHex());
+        $pdfFile->setDocumentId($documentId);
+        $pdfFile->setMediaId($pdfMedia->getId());
+        $pdfFile->setDocumentFormat('pdf');
+        $pdfFile->setMedia($pdfMedia);
+
+        $document = new DocumentEntity();
+        $document->setConfig([]);
+        $document->setId($documentId);
+        $document->setDeepLinkCode('code1');
+        $document->setDocumentFiles(new DocumentFileCollection([$pdfFile]));
+
+        $repository = new StaticEntityRepository([
+            new EntitySearchResult(
+                DocumentDefinition::ENTITY_NAME,
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                $context,
+            ),
+        ]);
+
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
+            ->expects($this->once())
+            ->method('getLatestDocumentIdByTechnicalName')
+            ->willReturn($documentId);
+
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
+
+        $storable = new StorableFlow('name', $context, [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
+        $storable->setData(OrderAware::ORDER_ID, $orderId);
+        $storable->setConfig(['documentType' => 'invoice', 'fileFormats' => ['pdf']]);
+
+        $storer->restore($storable);
+
+        static::assertSame([], $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS));
+    }
+
+    public function testLazyLoadV2ConfigNoDocumentFound(): void
+    {
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
+            ->expects($this->once())
+            ->method('getLatestDocumentIdByTechnicalName')
+            ->willReturn(null);
+
+        $storer = new A11yRenderedDocumentStorer(
+            StaticEntityRepository::of(DocumentCollection::class, []),
+            $this->dispatcher,
+            $mailAttachmentsBuilder,
+            new DocumentFileResolver()
+        );
+
+        $storable = new StorableFlow('name', $context, [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
+        $storable->setData(OrderAware::ORDER_ID, $orderId);
+        $storable->setConfig(['documentType' => 'invoice', 'fileFormats' => ['pdf']]);
+
+        $storer->restore($storable);
+
+        static::assertSame([], $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS));
     }
 
     public function testLazyLoadFallbackToStoredIds(): void
@@ -242,6 +503,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $a11yDocument->setFileExtension('html');
 
         $document = new DocumentEntity();
+        $document->setConfig([]);
         $document->setId($documentId);
         $document->setDeepLinkCode('code1');
         $document->setDocumentA11yMediaFile($a11yDocument);
@@ -262,7 +524,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ->expects($this->never())
             ->method('getLatestDocumentsOfTypes');
 
-        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder);
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder, new DocumentFileResolver());
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => [$documentId]]);
         $storable->setConfig([]);

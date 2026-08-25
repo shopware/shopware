@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap;
 
+use Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,7 +29,7 @@ class SitemapException extends HttpException
 
     public static function sitemapAlreadyLocked(SalesChannelContext $context): self
     {
-        return new self(
+        return new SitemapAlreadyLockedException(
             Response::HTTP_BAD_REQUEST,
             self::SITEMAP_ALREADY_LOCKED,
             'Cannot acquire lock for sales channel {{salesChannelId}} and language {{languageId}}',

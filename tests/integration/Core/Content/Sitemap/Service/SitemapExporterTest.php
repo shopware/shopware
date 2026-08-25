@@ -8,11 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Content\Sitemap\Exception\SitemapAlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandleInterface;
-use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
@@ -76,7 +76,7 @@ class SitemapExporterTest extends TestCase
 
         $exporter = $this->createSitemapExporter($cache);
 
-        $this->expectException(SitemapException::class);
+        $this->expectException(SitemapAlreadyLockedException::class);
         $exporter->generate($this->context);
     }
 

@@ -2,7 +2,7 @@ import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './store';
 
-const { Mixin, Context, Application } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -67,15 +67,6 @@ export default {
 
         restrictedRuleIds() {
             return Shopware.Store.get('swShippingDetail').restrictedRuleIds;
-        },
-
-        calculatePriceApiService() {
-            return Application.getContainer('factory').apiService.getByName('calculate-price');
-        },
-
-        // Only a "fixed" tax type has a known rate; "auto" and "highest" depend on the cart.
-        fixedTaxId() {
-            return this.shippingMethod.taxType === 'fixed' ? this.shippingMethod.taxId : null;
         },
 
         ...mapPropertyErrors('shippingMethod', [
@@ -254,13 +245,11 @@ export default {
             this.loadEntityData();
         },
 
-        async onSave() {
+        onSave() {
             this.filterIncompletePrices();
 
             this.isSaveSuccessful = false;
             this.isProcessLoading = true;
-
-            await this.recalculateLinkedPrices();
 
             return this.shippingMethodRepository
                 .save(this.shippingMethod, Context.api)
@@ -299,56 +288,6 @@ export default {
                 title: this.$t('global.default.error'),
                 message: `${this.$t('sw-settings-shipping.detail.messageSaveError', { name: this.shippingMethod.name }, 0)} ${errorDetails}`,
             });
-        },
-
-        /**
-         * `sw-price-field` calculates a linked price debounced and asynchronously, so saving right
-         * after an edit would persist a stale counterpart. Recalculate every linked price from its
-         * gross value first — this covers price tiers and currency columns that are not rendered.
-         */
-        async recalculateLinkedPrices() {
-            if (!this.fixedTaxId) {
-                return;
-            }
-
-            const prices = {};
-
-            this.shippingMethod.prices?.forEach((shippingPrice) => {
-                const linked = (shippingPrice.currencyPrice ?? []).filter((price) => price.linked && price.gross);
-
-                if (linked.length) {
-                    prices[shippingPrice.id] = linked.map((price) => ({
-                        currencyId: price.currencyId,
-                        price: price.gross,
-                        output: 'gross',
-                    }));
-                }
-            });
-
-            if (!Object.keys(prices).length) {
-                return;
-            }
-
-            try {
-                // `calculatePrices` already unwraps the response body, unlike `calculatePrice`.
-                const calculated = await this.calculatePriceApiService.calculatePrices(this.fixedTaxId, prices);
-
-                this.shippingMethod.prices.forEach((shippingPrice) => {
-                    shippingPrice.currencyPrice?.forEach((price) => {
-                        const result = calculated?.[shippingPrice.id]?.[price.currencyId];
-
-                        if (!price.linked || !result) {
-                            return;
-                        }
-
-                        const tax = result.calculatedTaxes.reduce((sum, item) => sum + item.tax, 0);
-                        price.net = parseFloat((price.gross - tax).toPrecision(14));
-                    });
-                });
-            } catch (exception) {
-                // Keep the entered prices saveable when the tax calculation is unavailable.
-                warn(this._name, exception.message);
-            }
         },
 
         filterIncompletePrices() {

@@ -24,7 +24,7 @@ Module.register('sw-settings-delivery-time', {
     description: 'sw-settings-delivery-time.general.description',
     color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'delivery_time',
 
     routes: {

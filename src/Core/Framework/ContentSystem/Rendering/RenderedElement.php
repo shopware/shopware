@@ -32,6 +32,11 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
  * anything else is rejected as a producer defect. That closes the concealment hole the output encoders
  * describe: a non-`Struct` object holding a `Struct` somewhere in its object graph would carry that `Struct`
  * past {@see StructEncoder::encode()}, the framework's protection gate, and publish every field of it.
+ *
+ * Because this is not a `Struct`, `StoreApiSeoResolver` cannot walk it through `getVars()` and instead
+ * hardcodes `properties` and `slots` in a branch of its own. Those two fields and their value domains are
+ * what that branch reads: renaming either, or admitting a value shape it does not descend, needs the branch
+ * changed with it. The other three fields carry no `Struct` and are not read there.
  */
 #[Package('framework')]
 final readonly class RenderedElement

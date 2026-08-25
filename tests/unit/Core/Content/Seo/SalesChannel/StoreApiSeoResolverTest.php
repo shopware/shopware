@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
@@ -20,6 +21,10 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -239,6 +244,134 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertNotEmpty($product->getSeoUrls());
     }
 
+    /**
+     * @param callable(SalesChannelProductEntity): list<RenderedElement> $forest
+     */
+    #[DataProvider('renderedElementPlacementProvider')]
+    public function testAddSeoInformationForRenderedElement(callable $forest): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            static::createStub(SalesChannelContext::class),
+        );
+
+        $product = $this->createProductEntity();
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $this->createContentRouteResponse($forest($product)),
+        );
+
+        $this->createStoreApiSeoResolver()->addSeoInformation($event);
+
+        static::assertSame(['random'], $this->collectedForeignKeys($product));
+    }
+
+    /**
+     * @return iterable<string, array{callable(SalesChannelProductEntity): list<RenderedElement>}>
+     */
+    public static function renderedElementPlacementProvider(): iterable
+    {
+        yield 'directly under a property key' => [
+            static fn (SalesChannelProductEntity $product): array => [
+                new RenderedElement('element-1', 'product-box', ['product' => $product]),
+            ],
+        ];
+
+        yield 'inside a list-valued property' => [
+            static fn (SalesChannelProductEntity $product): array => [
+                new RenderedElement('element-1', 'product-listing', ['products' => [$product]]),
+            ],
+        ];
+
+        yield 'two slot levels deep' => [
+            static fn (SalesChannelProductEntity $product): array => [
+                new RenderedElement('root', 'section', [], [
+                    'content' => [
+                        new RenderedElement('middle', 'grid', [], [
+                            'inner' => [
+                                new RenderedElement('leaf', 'product-box', ['product' => $product]),
+                            ],
+                        ]),
+                    ],
+                ]),
+            ],
+        ];
+    }
+
+    public function testAddSeoInformationIgnoresNonStructRenderedPropertyValues(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            static::createStub(SalesChannelContext::class),
+        );
+
+        $product = $this->createProductEntity();
+
+        $element = new RenderedElement('element-1', 'product-box', [
+            'headline' => 'A headline',
+            'counts' => [1, 2, 3],
+            'publishedAt' => new \DateTimeImmutable('2026-08-25 12:00:00'),
+            'product' => $product,
+        ]);
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $this->createContentRouteResponse([$element]),
+        );
+
+        $this->createStoreApiSeoResolver()->addSeoInformation($event);
+
+        static::assertSame(['random'], $this->collectedForeignKeys($product));
+    }
+
+    /**
+     * A rendered element sitting directly in another struct's vars, not inside an array. The page's `elements`
+     * array never produces that placement, so the direct-variable filter has no other coverage.
+     */
+    public function testAddSeoInformationForARenderedElementHeldDirectlyInStructVars(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            static::createStub(SalesChannelContext::class),
+        );
+
+        $product = $this->createProductEntity();
+
+        $searchResult = new EntitySearchResult(
+            'product',
+            0,
+            new ProductCollection([]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+        $searchResult->addExtension('contentElement', new MockRenderedElementHolderStruct(
+            new RenderedElement('element-1', 'product-box', ['product' => $product]),
+        ));
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new ProductListResponse($searchResult),
+        );
+
+        $this->createStoreApiSeoResolver()->addSeoInformation($event);
+
+        static::assertSame(['random'], $this->collectedForeignKeys($product));
+    }
+
     #[DoesNotPerformAssertions]
     public function testResponseIsNotStoreApiResponse(): void
     {
@@ -310,6 +443,30 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver->addSeoInformation($event);
 
         static::assertNull($productEntity->getSeoUrls());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectedForeignKeys(SalesChannelProductEntity $product): array
+    {
+        $seoUrls = $product->getSeoUrls();
+
+        static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+
+        return array_values($seoUrls->map(static fn (SeoUrlEntity $seoUrl): string => $seoUrl->getForeignKey()));
+    }
+
+    /**
+     * @param list<RenderedElement> $forest
+     */
+    private function createContentRouteResponse(array $forest): ContentRouteResponse
+    {
+        return new ContentRouteResponse(new RenderResult(
+            $forest,
+            LayoutReference::create('layout-id', 'Layout', null),
+            null,
+        ));
     }
 
     private function createProductEntity(string $identifier = 'random'): SalesChannelProductEntity

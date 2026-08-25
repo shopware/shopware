@@ -931,8 +931,8 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
-    #[TestDox('leaves a seo-aware entity on a rendered element property un-enriched when the seo-url header is set')]
-    public function testSeoUrlEnrichmentNeverReachesAnEntityOnARenderedProperty(): void
+    #[TestDox('enriches a seo-aware entity on a rendered element property when the seo-url header is set')]
+    public function testSeoUrlEnrichmentReachesAnEntityOnARenderedProperty(): void
     {
         $this->createSeoAwareCategoryLayout();
 
@@ -952,11 +952,13 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame($this->ids->get('category'), $category['id'] ?? null);
         static::assertArrayHasKey('seoUrls', $category);
 
-        // `StoreApiSeoResolver` walks `getVars()` and descends only a Struct, a Collection or an array of
-        // Structs. `RenderedElement` is none of those, so the walk stops above this entity and the association
-        // it would have filled stays at the null the hydration left. A non-null value here means the traversal
-        // reached the rendered element.
-        static::assertNull($category['seoUrls']);
+        // `RenderedElement` is not a `Struct`, so `getVars()` cannot walk it; `StoreApiSeoResolver` reaches
+        // this entity only through its own by-shape descent over `properties` and `slots`. A null here means
+        // that descent no longer runs and the association stays at the null the hydration left.
+        static::assertIsArray($category['seoUrls']);
+        static::assertCount(1, $category['seoUrls']);
+        static::assertSame($this->ids->get('seo-url'), $category['seoUrls'][0]['id'] ?? null);
+        static::assertSame($this->ids->get('category'), $category['seoUrls'][0]['foreignKey'] ?? null);
     }
 
     #[TestDox('fails a partial render on a wiring defect in a sibling subtree the prune discards')]

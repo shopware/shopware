@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo\SalesChannel;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface as SeoUrlRouteConfigRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -112,8 +113,14 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         $this->findStruct($data, $struct);
     }
 
-    private function findStruct(SeoResolverData $data, Struct $struct): void
+    private function findStruct(SeoResolverData $data, Struct|RenderedElement $struct): void
     {
+        if ($struct instanceof RenderedElement) {
+            $this->findRenderedElement($data, $struct);
+
+            return;
+        }
+
         if ($struct instanceof Entity) {
             $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);
 
@@ -128,12 +135,44 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                 $this->findStruct($data, $item);
             } elseif ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
-                    if ($collectionItem instanceof Struct) {
+                    if ($collectionItem instanceof Struct || $collectionItem instanceof RenderedElement) {
                         $this->findStruct($data, $collectionItem);
                     }
                 }
-            } elseif ($item instanceof Struct) {
+            } elseif ($item instanceof Struct || $item instanceof RenderedElement) {
                 $this->findStruct($data, $item);
+            }
+        }
+    }
+
+    /**
+     * {@see RenderedElement} is not a {@see Struct}, so `getVars()` cannot walk it and the walk would stop at a
+     * content response's elements array. This branch hardcodes the element's `properties`/`slots` shape; the
+     * class docblock on the other side states the same coupling, so a shape change on either side finds this.
+     */
+    private function findRenderedElement(SeoResolverData $data, RenderedElement $element): void
+    {
+        foreach ($element->properties as $value) {
+            if ($value instanceof Struct) {
+                $this->findStruct($data, $value);
+
+                continue;
+            }
+
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            foreach ($value as $item) {
+                if ($item instanceof Struct) {
+                    $this->findStruct($data, $item);
+                }
+            }
+        }
+
+        foreach ($element->slots as $children) {
+            foreach ($children as $child) {
+                $this->findRenderedElement($data, $child);
             }
         }
     }

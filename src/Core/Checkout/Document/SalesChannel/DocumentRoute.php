@@ -120,10 +120,8 @@ final class DocumentRoute extends AbstractDocumentRoute
             );
         }
 
-        // A legacy document reaches here only once v6.9.0.0 is active; such callers may only ever
-        // supply $fileType, so it's used as a fallback. A genuine v2 document must use $format alone -
-        // falling back to $fileType here would wrongly force a format that document might not have,
-        // instead of DocumentReader's own "first file found" behavior for an unspecified format.
+        // V2 documents use the explicit format argument. The legacy fileType argument remains the
+        // fallback for legacy documents only. Without an explicit V2 format, DocumentReader defaults to PDF.
         $resolvedFormat = $isDocumentV2 ? $format : ($format ?? $fileType);
 
         $document = $this->documentReader->read($documentId, $context->getContext(), $deepLinkCode, $resolvedFormat);

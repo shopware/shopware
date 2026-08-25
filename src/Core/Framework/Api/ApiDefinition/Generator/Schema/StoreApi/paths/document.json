@@ -30,6 +30,22 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Selects the persisted document v2 representation. Defaults to PDF.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "enum": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -142,6 +158,22 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Selects the persisted document v2 representation. Defaults to PDF.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "enum": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "responses": {

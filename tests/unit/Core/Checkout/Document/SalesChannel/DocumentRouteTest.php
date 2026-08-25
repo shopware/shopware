@@ -23,9 +23,9 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollect
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -47,7 +47,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('after-sales')]
 #[CoversClass(DocumentRoute::class)]
-#[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
 class DocumentRouteTest extends TestCase
 {
     private const DUMMY_DOCUMENT_ID = 'documentId';
@@ -66,6 +65,7 @@ class DocumentRouteTest extends TestCase
         ZugferdRenderer::FILE_EXTENSION => ZugferdRenderer::FILE_CONTENT_TYPE,
     ];
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithDocumentNotFound(): void
     {
         $generator = static::createStub(DocumentGenerator::class);
@@ -87,6 +87,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithOrderNotFound(): void
     {
         $generator = static::createStub(DocumentGenerator::class);
@@ -95,9 +96,9 @@ class DocumentRouteTest extends TestCase
         $document->setId(Uuid::randomHex());
         $document->setOrderId('test');
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -116,6 +117,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithoutOrderCustomer(): void
     {
         $generator = static::createStub(DocumentGenerator::class);
@@ -123,9 +125,9 @@ class DocumentRouteTest extends TestCase
         $order = new OrderEntity();
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -144,6 +146,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testThrowExceptionForNotGuestOrderForGuest(): void
     {
         $this->createCustomer(Uuid::randomHex(), true);
@@ -159,9 +162,9 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -184,6 +187,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testThrowExceptionWrongCredentialsForGuestAuthentication(): void
     {
         $billingAddress = new OrderAddressEntity();
@@ -206,9 +210,9 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -235,6 +239,7 @@ class DocumentRouteTest extends TestCase
         $route->download($document->getId(), $request, $context);
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testThrowExceptionGuestNotAuthenticated(): void
     {
         $customerId = Uuid::randomHex();
@@ -252,9 +257,9 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -278,6 +283,7 @@ class DocumentRouteTest extends TestCase
         $route->download($document->getId(), $request, $context);
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testThrowExceptionForGuestWithoutDeepLinkCode(): void
     {
         $billingAddress = new OrderAddressEntity();
@@ -298,9 +304,9 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -326,6 +332,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testGuestCanDownload(): void
     {
         $billingAddress = new OrderAddressEntity();
@@ -347,9 +354,9 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -386,6 +393,7 @@ class DocumentRouteTest extends TestCase
         }
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testThrowExceptionForNotMatchingCustomer(): void
     {
         $customer = $this->createCustomer(Uuid::randomHex(), false);
@@ -394,9 +402,9 @@ class DocumentRouteTest extends TestCase
 
         $generator = static::createStub(DocumentGenerator::class);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -419,6 +427,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testMatchingCustomerCanDownload(): void
     {
         $customerID = Uuid::randomHex();
@@ -428,9 +437,9 @@ class DocumentRouteTest extends TestCase
 
         $generator = static::createStub(DocumentGenerator::class);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
@@ -464,6 +473,7 @@ class DocumentRouteTest extends TestCase
         }
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadShouldThrowExceptionWhenDocumentIsNotFound(): void
     {
         $customerID = Uuid::randomHex();
@@ -471,9 +481,9 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $generatorMock = static::createStub(DocumentGenerator::class);
         $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
@@ -518,6 +528,7 @@ class DocumentRouteTest extends TestCase
     }
 
     #[DataProvider('provideAcceptHeaderThatFallbacksToDefaultFileType')]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadShouldFallbackToDefaultFileType(
         ?string $acceptHeader
     ): void {
@@ -526,9 +537,9 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $generator = $this->createMock(DocumentGenerator::class);
         $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
@@ -579,6 +590,7 @@ class DocumentRouteTest extends TestCase
     }
 
     #[DataProvider('provideAcceptHeaderValues')]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithAcceptHeaderMimeTypes(
         string $acceptHeader,
         string $expectedFileExtension
@@ -588,9 +600,9 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $generator = $this->createMock(DocumentGenerator::class);
         $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
@@ -649,6 +661,7 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithUnsupportedMimeTypeShouldNotCallReadDocumentAndThrowException(): void
     {
         $customerID = Uuid::randomHex();
@@ -656,9 +669,9 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $generator = $this->createMock(DocumentGenerator::class);
         $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
@@ -698,6 +711,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithInvalidFileTypeParameterShouldNotCallReadDocumentAndThrowException(): void
     {
         Feature::skipTestIfInActive('v6.8.0.0', $this);
@@ -707,9 +721,9 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $generator = $this->createMock(DocumentGenerator::class);
         $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
@@ -752,6 +766,7 @@ class DocumentRouteTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
     public function testDownloadWithInvalidFileTypeParameterCallsReadDocumentAndReturnsJustCodeInResponse(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -761,9 +776,9 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $documentRepository = new StaticEntityRepository([
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             new DocumentCollection([$document]),
-        ]);
+        ], new DocumentDefinition());
 
         $generator = $this->createMock(DocumentGenerator::class);
         $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
@@ -866,7 +881,7 @@ class DocumentRouteTest extends TestCase
         static::assertSame('content', $response->getContent());
     }
 
-    public function testDownloadReturnsFirstFileForADocumentV2DocumentWhenNoFormatIsRequested(): void
+    public function testDownloadDefaultsToPdfForADocumentV2DocumentWhenNoFormatIsRequested(): void
     {
         $customerId = Uuid::randomHex();
         $customer = $this->createCustomer($customerId, false);
@@ -879,9 +894,7 @@ class DocumentRouteTest extends TestCase
         $media->setFileExtension('html');
         $media->setMimeType('text/html');
 
-        // The document has no "pdf" format at all - the storefront controller defaults the
-        // legacy fileType param to "pdf", but that must never leak into the v2 lookup, or this
-        // would wrongly throw instead of falling back to the first available file.
+        // The document has no "pdf" format at all.
         $documentFile = new DocumentFileEntity();
         $documentFile->setId(Uuid::randomHex());
         $documentFile->setDocumentFormat(DocumentFormat::HTML->value);
@@ -910,19 +923,16 @@ class DocumentRouteTest extends TestCase
         $context->method('getCustomer')->willReturn($customer);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
-        // $fileType simulates the storefront controller's own "pdf" default (applied when
-        // nothing was requested at all), while $format stays null - it must not inherit that
-        // default, or this would wrongly throw instead of falling back to the first file found.
-        $response = $route->download(
+        $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'default'));
+
+        $route->download(
             $document->getId(),
             new Request(),
             $context,
             '',
-            PdfRenderer::FILE_EXTENSION,
+            DocumentFormat::HTML->value,
             null,
         );
-
-        static::assertSame('content', $response->getContent());
     }
 
     public function testDownloadThrowsForAnUnsupportedFormatForADocumentV2Document(): void

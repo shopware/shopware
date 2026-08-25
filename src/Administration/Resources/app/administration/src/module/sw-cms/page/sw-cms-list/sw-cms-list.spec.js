@@ -53,7 +53,7 @@ async function createWrapper(
                     },
                     'sw-tabs': {
                         name: 'sw-tabs',
-                        template: '<div class="sw-tabs"><slot name="content"></slot></div>',
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content"></slot></div>',
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
@@ -82,6 +82,13 @@ async function createWrapper(
                     },
                     'sw-select-field': true,
                     'sw-pagination': {
+                        name: 'sw-pagination',
+                        props: [
+                            'page',
+                            'limit',
+                            'total',
+                            'steps',
+                        ],
                         template: '<div></div>',
                     },
                     'sw-cms-list-item': await wrapTestComponent('sw-cms-list-item'),
@@ -294,7 +301,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         expect(tabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
         expect(tabs.props('defaultItem')).toBe('all-pages');
-        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('vertical')).toBe(false);
         expect(tabs.props('items')).toEqual([
             expect.objectContaining({
                 label: 'sw-cms.sorting.labelSortByAllPages',
@@ -313,6 +320,51 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             }),
         ]);
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should size the card view pagination steps and skeletons like the card view limit', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const { cardView } = wrapper.vm.limitDefaults;
+
+        expect(wrapper.getComponent({ name: 'sw-pagination' }).props('steps')).toEqual([cardView]);
+
+        wrapper.vm.isLoading = true;
+        await flushPromises();
+
+        expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(cardView);
+    });
+
+    it('should render the page type tabs horizontally above the list', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.findAllComponents({ name: 'mt-tabs' });
+        expect(tabs).toHaveLength(1);
+
+        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
+        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-list__sidebar').exists()).toBe(false);
+    });
+
+    it('should mark the active page type in the deprecated tab bar', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        wrapper.vm.onSortPageType('page');
+        await flushPromises();
+
+        const tabBars = wrapper.findAllComponents({ name: 'sw-tabs' });
+        expect(tabBars).toHaveLength(1);
+
+        const activeStates = tabBars[0].findAll('sw-tabs-item-stub').map((item) => item.attributes('active'));
+        expect(activeStates).toEqual([
+            'false',
+            'true',
+            'false',
+        ]);
     });
 
     it('should filter by page type when a meteor tab item is clicked', async () => {

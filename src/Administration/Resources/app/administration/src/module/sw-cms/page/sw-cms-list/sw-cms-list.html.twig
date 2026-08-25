@@ -42,43 +42,11 @@
 
             {% block sw_cms_list_content %}
             <div class="sw-cms-list__content">
+                {# @deprecated tag:v6.9.0 - Kept as extension anchors, the page type tabs moved above the listing. #}
                 {% block sw_cms_list_sidebar %}
-                <div class="sw-cms-list__sidebar">
                     {% block sw_cms_list_sidebar_tabs %}
-                    <template v-if="feature.isActive('v6.8.0.0')">
-                        {% block sw_cms_list_sidebar_mt_tabs %}
-                        <mt-tabs
-                            vertical
-                            position-identifier="sw-cms-list-sidebar"
-                            class="sw-cms-list__type-nav"
-                            :default-item="activePageTypeTab"
-                            :items="cmsListPageTypeTabs"
-                            :use-routes-for-extensions="false"
-                            :small="true"
-                        />
-                        {% endblock %}
-                    </template>
-
-                    <template v-else>
-                        <sw-tabs
-                            is-vertical
-                            small
-                            position-identifier="sw-cms-list-sidebar"
-                            class="sw-cms-list__type-nav"
-                        >
-                            <sw-tabs-item
-                                v-for="pageType in sortPageTypes"
-                                :key="pageType.name"
-                                :disabled="pageType.disabled || undefined"
-                                :active="pageType.active"
-                                @click="onSortPageType(pageType.value)"
-                            >
-                                {{ pageType.name }}
-                            </sw-tabs-item>
-                        </sw-tabs>
-                    </template>
+                        {% block sw_cms_list_sidebar_mt_tabs %}{% endblock %}
                     {% endblock %}
-                </div>
                 {% endblock %}
 
                 {% block sw_cms_list_listing %}
@@ -105,12 +73,12 @@
                         {% endblock %}
 
                         {% block sw_cms_list_listing_actions_mode %}
-                        <div
+                        <mt-button
                             class="sw-cms-list__actions-mode"
-                            role="button"
-                            tabindex="0"
+                            variant="secondary"
+                            size="small"
+                            square
                             @click="onListModeChange"
-                            @keydown.enter="onListModeChange"
                         >
                             <mt-icon
                                 v-if="listMode === 'grid'"
@@ -122,8 +90,41 @@
                                 name="regular-view-grid"
                                 size="16"
                             />
-                        </div>
+                        </mt-button>
                         {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_cms_list_listing_page_type_tabs %}
+                    <div class="sw-cms-list__type-nav-horizontal">
+                        <template v-if="feature.isActive('v6.8.0.0')">
+                            {% block sw_cms_list_listing_page_type_mt_tabs %}
+                            <mt-tabs
+                                position-identifier="sw-cms-list-sidebar"
+                                :default-item="activePageTypeTab"
+                                :items="cmsListPageTypeTabs"
+                                :use-routes-for-extensions="false"
+                                :small="true"
+                            />
+                            {% endblock %}
+                        </template>
+
+                        <template v-else>
+                            <sw-tabs
+                                small
+                                position-identifier="sw-cms-list-sidebar"
+                            >
+                                <sw-tabs-item
+                                    v-for="pageType in sortPageTypes"
+                                    :key="pageType.name"
+                                    :disabled="pageType.disabled || undefined"
+                                    :active="(pageType.value || 'all-pages') === activePageTypeTab"
+                                    @click="onSortPageType(pageType.value)"
+                                >
+                                    {{ pageType.name }}
+                                </sw-tabs-item>
+                            </sw-tabs>
+                        </template>
                     </div>
                     {% endblock %}
 
@@ -243,7 +244,7 @@
 
                                 <template v-else>
                                     <sw-skeleton
-                                        v-for="index in 9"
+                                        v-for="index in limitDefaults.cardView"
                                         :key="`cms-list-skeleton-${index}`"
                                         variant="gallery"
                                     />
@@ -258,7 +259,7 @@
                                 :page="page"
                                 :limit="limit"
                                 :total="total"
-                                :steps="[9]"
+                                :steps="[limitDefaults.cardView]"
                                 @page-change="onPageChange"
                             />
                             {% endblock %}

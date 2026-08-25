@@ -1,18 +1,15 @@
 import path from 'path';
 import fs from 'fs';
 import { globSync } from 'glob';
-import { extractBlocks } from './extract-blocks';
+import { extractBlocks, isBlockTemplateSourceFile } from './extract-blocks';
 
 const BLOCKS_LIST_FILE = path.join(__dirname, '../../blocks-list.json');
 
 function main() {
     const sourcePath = path.join(__dirname, '../../src');
-    // A native setup SFC declares its blocks as `<sw-block name="...">` in the `.vue` template, so a
-    // twig-only scan drops every block of a converted component from the tracked public API.
-    const listOfTemplateFiles = globSync([
-        `${sourcePath}/**/*.html.twig`,
-        `${sourcePath}/**/*.vue`,
-    ]);
+    // The file filter lives in `extract-blocks` so this generator and the `src/meta/meta.spec.js`
+    // guard cannot drift about which files carry public blocks.
+    const listOfTemplateFiles = globSync(`${sourcePath}/**/*.*`).filter(isBlockTemplateSourceFile);
 
     const blocks = extractBlocks(listOfTemplateFiles);
     updateBlocksList(blocks);

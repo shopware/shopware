@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import cliProgress from 'cli-progress';
 import colors from 'picocolors';
+import { extractPositionIdentifiers, isPositionIdentifierSourceFile } from './extract-position-identifiers';
 
 /**
  * Recursively get all files from a directory
@@ -29,10 +30,9 @@ function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
     return arrayOfFiles;
 }
 
-// Get all HTML Twig template files from the specified directory
-const templateFiles = getAllFiles(path.join(__dirname, '../../src')).filter(file => {
-    return file.match(/^.*\.html\.twig$/);
-});
+// Get all template files from the specified directory. The file filter and the extraction live in
+// `extract-position-identifiers` so this generator and the `src/meta/meta.spec.js` guard cannot drift.
+const templateFiles = getAllFiles(path.join(__dirname, '../../src')).filter(isPositionIdentifierSourceFile);
 
 console.log(colors.blue('Gathering position identifiers...\n'));
 
@@ -40,21 +40,12 @@ console.log(colors.blue('Gathering position identifiers...\n'));
 const pb = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 pb.start(templateFiles.length, 0);
 
-let result: string[] = [];
-templateFiles.forEach((file) => {
+const result = templateFiles.flatMap((file) => {
     // Increment the progress bar for each file processed
     pb.increment();
 
-    const fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
-    if (!fileContent.includes('position-identifier="')) {
-        return;
-    }
-
-    // Find all position identifiers in the file and add them to the result
-    [...fileContent.matchAll(/position-identifier="(.+)"/gm)].map((match) => match[1]).forEach((match) => {
-        result.push(match);
-    });
-})
+    return extractPositionIdentifiers([file]);
+});
 
 // Stop the progress bar
 pb.stop();

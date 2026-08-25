@@ -13,94 +13,65 @@ function extractFrom(files: Record<string, string>): string[] {
 }
 
 describe('extract-blocks', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
-    it('collects twig blocks', () => {
-        expect(
-            extractFrom({
-                'a.html.twig': `
-                    {% block sw_outer %}
-                        {% block sw_inner %}{% endblock %}
-                    {% endblock %}
-                `,
-            }),
-        ).toEqual([
-            'sw_outer',
-            'sw_inner',
-        ]);
-    });
-
-    it('collects sw-block declarations from a vue template', () => {
-        expect(
-            extractFrom({
-                'a.vue': `
-                    <template>
-                        <sw-block name="sw_outer" :data="$dataScope">
-                            <sw-block name="sw_inner" :data="$dataScope">Content</sw-block>
-                        </sw-block>
-                    </template>
-                `,
-            }),
-        ).toEqual([
-            'sw_outer',
-            'sw_inner',
-        ]);
-    });
-
-    it('collects the block an override extends', () => {
-        expect(
-            extractFrom({
-                'a.override.vue': `
-                    <template>
-                        <sw-block extends="sw_outer">Replacement</sw-block>
-                    </template>
-                `,
-            }),
-        ).toEqual(['sw_outer']);
-    });
-
-    it('reads a block name spread over multiple lines', () => {
-        expect(
-            extractFrom({
-                'a.vue': `
-                    <template>
-                        <sw-block
-                            name="sw_outer"
-                            :data="$dataScope"
-                        >
-                            Content
-                        </sw-block>
-                    </template>
-                `,
-            }),
-        ).toEqual(['sw_outer']);
-    });
-
-    it('collects both dialects from one scan', () => {
-        expect(
-            extractFrom({
+    it.each([
+        [
+            'nested twig blocks',
+            { 'a.html.twig': '{% block sw_outer %}{% block sw_inner %}{% endblock %}{% endblock %}' },
+            [
+                'sw_outer',
+                'sw_inner',
+            ],
+        ],
+        [
+            'nested sw-block declarations in a vue template',
+            {
+                'a.vue': `<template>
+                    <sw-block name="sw_outer" :data="$dataScope">
+                        <sw-block name="sw_inner" :data="$dataScope">Content</sw-block>
+                    </sw-block>
+                </template>`,
+            },
+            [
+                'sw_outer',
+                'sw_inner',
+            ],
+        ],
+        [
+            'the block an override extends',
+            { 'a.override.vue': '<template><sw-block extends="sw_outer">Replacement</sw-block></template>' },
+            ['sw_outer'],
+        ],
+        [
+            'a block name spread over multiple lines',
+            {
+                'a.vue': `<template>
+                    <sw-block
+                        name="sw_outer"
+                        :data="$dataScope"
+                    >Content</sw-block>
+                </template>`,
+            },
+            ['sw_outer'],
+        ],
+        [
+            'both dialects from one scan',
+            {
                 'a.html.twig': '{% block sw_legacy %}{% endblock %}',
                 'b.vue': '<template><sw-block name="sw_native">Content</sw-block></template>',
-            }),
-        ).toEqual([
-            'sw_legacy',
-            'sw_native',
-        ]);
+            },
+            [
+                'sw_legacy',
+                'sw_native',
+            ],
+        ],
+    ])('collects %s', (_case, files, expected) => {
+        expect(extractFrom(files)).toEqual(expected);
     });
 
     it.each([
         [
             'sw-block-field, whose bound name is not a block name',
-            `
-                <sw-block-field
-                    v-model:value="value"
-                    :name="formFieldName"
-                >
-                    Content
-                </sw-block-field>
-            `,
+            '<sw-block-field v-model:value="value"\n :name="formFieldName"\n>Content</sw-block-field>',
         ],
         [
             'sw-block-parent',

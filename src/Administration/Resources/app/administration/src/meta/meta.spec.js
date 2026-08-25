@@ -8,7 +8,12 @@ import { globSync } from 'glob';
 import { missingTests, positionIdentifiers, dataSetIds } from './baseline';
 import packageJson from '../../package.json';
 import blocksList from '../../blocks-list.json';
-import { extractBlocks } from '../../scripts/generate-block-list/extract-blocks';
+import { extractBlocks, isBlockTemplateSourceFile } from '../../scripts/generate-block-list/extract-blocks';
+import {
+    extractPositionIdentifiers,
+    isPositionIdentifierSourceFile,
+} from '../../scripts/generate-position-identifier-list/extract-position-identifiers';
+import { extractDataSetIds, isDataSetSourceFile } from '../../scripts/generate-data-set-list/extract-data-set-ids';
 
 // eslint-disable-next-line no-undef
 const allFiles = globSync(path.join(adminPath, 'src/**/*.*'));
@@ -48,16 +53,20 @@ const isTestAbleFile = (file) => {
 
     return true;
 };
+/**
+ * `testAbleFiles` stays `.js`/`.ts` only: it also feeds the "should have a spec file" guard, whose
+ * regex returns `null` for a `.vue` path.
+ */
 const testAbleFiles = allFiles.filter(isTestAbleFile);
-const templateFiles = allFiles.filter((file) => {
-    return file.endsWith('.html.twig');
-});
-// A native setup SFC declares its blocks as `<sw-block name="...">` in the `.vue` template. Scanning
-// twig only reports every block of a converted component as removed public API, so the block guard
-// gets its own list. Position identifiers stay twig-only until they are handled the same way.
-const blockTemplateFiles = allFiles.filter((file) => {
-    return file.endsWith('.html.twig') || file.endsWith('.vue');
-});
+// A native setup SFC declares its blocks as `<sw-block name="...">` and its position identifiers in
+// the `.vue` template, and the codemod moves `.publishData(` into `<script setup>`. Scanning the
+// legacy dialect only reports every extension point of a converted component as removed public API,
+// so each public API guard gets its own list. Every filter is the one the matching generator in
+// `scripts/generate-*` uses, so the two cannot disagree - including the exclusion of fixture
+// components under `_mocks_`/`__fixtures__` and inside split `*.spec/` directories.
+const positionIdentifierFiles = allFiles.filter(isPositionIdentifierSourceFile);
+const dataSetFiles = allFiles.filter(isDataSetSourceFile);
+const blockTemplateFiles = allFiles.filter(isBlockTemplateSourceFile);
 
 // eslint-disable-next-line no-undef
 const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
@@ -167,24 +176,7 @@ describe('Administration meta tests', () => {
 
     describe('check extension sdk public api', () => {
         it('should not break position identifiers', () => {
-            const result = [];
-            templateFiles.forEach((file) => {
-                const fileContent = fs.readFileSync(file, {
-                    encoding: 'utf-8',
-                });
-                if (!fileContent.includes('position-identifier="')) {
-                    return;
-                }
-
-                // Find all position identifiers in the file and add them to the result
-                [...fileContent.matchAll(/position-identifier="(.+)"/gm)]
-                    .map((match) => match[1])
-                    .forEach((match) => {
-                        if (match !== '' && match !== 'null') {
-                            result.push(match);
-                        }
-                    });
-            });
+            const result = extractPositionIdentifiers(positionIdentifierFiles);
 
             const missingPositionIdentifiers = positionIdentifiers.filter((pi) => !result.includes(pi));
             expect(
@@ -200,24 +192,7 @@ describe('Administration meta tests', () => {
         });
 
         it('should not break data sets', () => {
-            const result = [];
-            testAbleFiles.forEach((file) => {
-                const fileContent = fs.readFileSync(file, {
-                    encoding: 'utf-8',
-                });
-                if (!fileContent.includes('.publishData(')) {
-                    return;
-                }
-
-                // Find all data set ids in the file and add them to the result
-                [
-                    ...fileContent.matchAll(/\.publishData\(\{[^}]*?\bid\s*:\s*['"]([^'"]+)['"]/gm),
-                ]
-                    .map((match) => match[1])
-                    .forEach((match) => {
-                        result.push(match);
-                    });
-            });
+            const result = extractDataSetIds(dataSetFiles);
 
             const missingDataSetIds = dataSetIds.filter((pi) => !result.includes(pi));
             expect(

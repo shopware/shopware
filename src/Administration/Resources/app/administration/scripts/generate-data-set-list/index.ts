@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import cliProgress from 'cli-progress';
 import colors from 'picocolors';
+import { extractDataSetIds, isDataSetSourceFile } from './extract-data-set-ids';
 
 /**
  * Recursively get all files from a directory
@@ -29,10 +30,9 @@ function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
     return arrayOfFiles;
 }
 
-// Get all HTML Twig template files from the specified directory
-const srcFiles = getAllFiles(path.join(__dirname, '../../src')).filter(file => {
-    return file.match(/^.*(?<!\.spec|vue2)(?<!\/acl\/index)(?<!\.d)\.(js|ts)$/);
-});
+// Get all source files from the specified directory. The file filter and the extraction live in
+// `extract-data-set-ids` so this generator and the `src/meta/meta.spec.js` guard cannot drift.
+const srcFiles = getAllFiles(path.join(__dirname, '../../src')).filter(isDataSetSourceFile);
 
 console.log(colors.blue('Gathering data sets...\n'));
 
@@ -40,22 +40,12 @@ console.log(colors.blue('Gathering data sets...\n'));
 const pb = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 pb.start(srcFiles.length, 0);
 
-let result: string[] = [];
-srcFiles.forEach((file) => {
+const result = srcFiles.flatMap((file) => {
     // Increment the progress bar for each file processed
     pb.increment();
 
-    const fileContent = fs.readFileSync(file, { encoding: 'utf-8' });
-    if (!fileContent.includes('.publishData(')) {
-        return;
-    }
-
-    // Find all position identifiers in the file and add them to the result
-    // May the regex god be with us: https://regex101.com/r/BM083Q/1
-    [...fileContent.matchAll(/\.publishData\(\{[^}]*?\bid\s*:\s*['"]([^'"]+)['"]/gm)].map((match) => match[1]).forEach((match) => {
-        result.push(match);
-    });
-})
+    return extractDataSetIds([file]);
+});
 
 // Stop the progress bar
 pb.stop();

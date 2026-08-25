@@ -5,6 +5,65 @@ import { normalizeElementStyleForWrite } from './style-settings.util';
 const { cloneDeep } = Shopware.Utils.object;
 
 /**
+ * Returns the `acceptsContext` an element type declares in its definition, or null when the type is unknown.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export type AcceptsContextResolver = (component: string) => Record<string, unknown> | null;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Writes each element's declared context consumers into a layout tree.
+ * Idempotent and per-key additive: a context key already carried by an authored consumer or a data
+ * requirement on the node is left untouched, so explicit edits always win.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function applyDeclaredContextConsumers(
+    nodes: ContentElementNode[],
+    resolveAcceptsContext: AcceptsContextResolver,
+): void {
+    const apply = (node: ContentElementNode): void => {
+        const declared = resolveAcceptsContext(node.component);
+
+        if (declared && Object.keys(declared).length > 0) {
+            const accepts = isRecord(node.acceptsContext) ? node.acceptsContext : {};
+            const dataRequirements = isRecord(node.dataRequirements) ? node.dataRequirements : {};
+            const additions: Record<string, unknown> = {};
+
+            for (const [
+                contextKey,
+                consumer,
+            ] of Object.entries(declared)) {
+                if (!(contextKey in accepts) && !(contextKey in dataRequirements)) {
+                    additions[contextKey] = cloneDeep(consumer);
+                }
+            }
+
+            if (Object.keys(additions).length > 0) {
+                node.acceptsContext = { ...accepts, ...additions };
+            }
+        }
+
+        const slots = node.slots ?? {};
+        for (const slotName of Object.keys(slots)) {
+            for (const child of slots[slotName]) {
+                apply(child);
+            }
+        }
+    };
+
+    for (const node of nodes) {
+        apply(node);
+    }
+}
+
+/**
  * @private
  * @sw-package discovery
  */
@@ -17,10 +76,7 @@ export interface ElementLocation {
  * @private
  * @sw-package discovery
  */
-export function findElementLocation(
-    layout: ContentElementNode[],
-    elementId: string,
-): ElementLocation | null {
+export function findElementLocation(layout: ContentElementNode[], elementId: string): ElementLocation | null {
     const rootIndex = layout.findIndex((element) => element.id === elementId);
 
     if (rootIndex !== -1) {
@@ -130,7 +186,10 @@ export function updateElementStyleInLayout(
         ...cloneDeep(style),
     };
 
-    for (const [key, value] of Object.entries(style)) {
+    for (const [
+        key,
+        value,
+    ] of Object.entries(style)) {
         if (value === null || value === undefined) {
             delete element.style[key];
         }
@@ -155,9 +214,7 @@ function copyWritableContentElementFields(
 
     if (source.style !== undefined) {
         const style = cloneDeep(source.style);
-        const normalizedStyle = styleOptions
-            ? normalizeElementStyleForWrite(style, styleOptions)
-            : style;
+        const normalizedStyle = styleOptions ? normalizeElementStyleForWrite(style, styleOptions) : style;
 
         if (normalizedStyle !== undefined) {
             target.style = normalizedStyle;
@@ -179,16 +236,16 @@ function copyWritableContentElementFields(
     if (source.slots) {
         target.slots = {};
 
-        for (const [slotName, slotElements] of Object.entries(source.slots)) {
+        for (const [
+            slotName,
+            slotElements,
+        ] of Object.entries(source.slots)) {
             target.slots[slotName] = mapSlotElements(slotElements);
         }
     }
 }
 
-function findElementLocationInElement(
-    parent: ContentElementNode,
-    elementId: string,
-): ElementLocation | null {
+function findElementLocationInElement(parent: ContentElementNode, elementId: string): ElementLocation | null {
     const slots = parent.slots ?? {};
 
     for (const slotElements of Object.values(slots)) {

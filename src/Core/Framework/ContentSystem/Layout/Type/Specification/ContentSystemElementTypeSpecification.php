@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-import-type PropertySchema from PropertySpecification
  * @phpstan-import-type SlotSchema from SlotSpecification
  *
- * @phpstan-type ElementTypeSchema = array{name: string, label: string, description: string, source: string, icon: string|null, category: string|null, copilot: CopilotSchema, properties: array<string, PropertySchema>, slots: list<SlotSchema>}
+ * @phpstan-type ElementTypeSchema = array{name: string, label: string, description: string, source: string, icon: string|null, category: string|null, copilot: CopilotSchema, properties: array<string, PropertySchema>, slots: list<SlotSchema>, acceptsContext: array<string, array<string, mixed>>}
  */
 #[Package('framework')]
 final readonly class ContentSystemElementTypeSpecification
@@ -30,6 +30,7 @@ final readonly class ContentSystemElementTypeSpecification
     /**
      * @param array<string, PropertySpecification> $properties
      * @param list<SlotSpecification> $slots
+     * @param array<string, array<string, mixed>> $acceptsContext consumer definitions keyed by context key
      */
     public function __construct(
         private string $name,
@@ -41,6 +42,7 @@ final readonly class ContentSystemElementTypeSpecification
         private array $properties,
         private array $slots,
         private string $source = '',
+        private array $acceptsContext = [],
     ) {
     }
 
@@ -71,6 +73,14 @@ final readonly class ContentSystemElementTypeSpecification
     }
 
     /**
+     * @return array<string, array<string, mixed>>
+     */
+    public function acceptsContext(): array
+    {
+        return $this->acceptsContext;
+    }
+
+    /**
      * @return ElementTypeSchema
      */
     public function toSchema(): array
@@ -91,6 +101,7 @@ final readonly class ContentSystemElementTypeSpecification
                 static fn (SlotSpecification $slot) => $slot->toSchema(),
                 $this->slots
             ),
+            'acceptsContext' => $this->acceptsContext,
         ];
     }
 }

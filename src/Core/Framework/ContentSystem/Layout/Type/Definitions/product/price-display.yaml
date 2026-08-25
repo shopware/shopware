@@ -8,25 +8,17 @@ meta:
     hints:
       - "Place inside a product detail page layout; the product is resolved from the page automatically."
 
+acceptsContext:
+  product:
+    type: single
+    required: true
+
 properties:
   product:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
-    description: "Hydrated product whose price is shown. Resolved by the product_detail loader from the id in productId."
-    # The hydrated entity lands under this `product` key (the component's prop). The product_detail loader
-    # reads the id from the separate `productId` property below — the generic entity loader can't, because
-    # its id source doubles as a storage key that may not share a name with a declared property.
-    resolvedBy:
-      product_detail: {}
-
-  productId:
-    type: string
-    title: "Product ID"
-    description: "Product id of the current page. Resolved per request from the layout's product root, so it needs no editorial input."
-    default: "{{productId}}"
-    adminUI:
-      helpText: "Filled automatically from the page you are on — leave this as it is."
+    description: "Hydrated product whose price is shown. Provided by the product detail page as the `product` context this element accepts."
 
   showTaxInfo:
     type: boolean

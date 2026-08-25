@@ -1,6 +1,7 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentElementNode } from '../types/content-element.types';
 import {
+    applyDeclaredContextConsumers,
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
@@ -315,6 +316,97 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
                     id: 'media-1',
                 },
             },
+        });
+    });
+
+    describe('applyDeclaredContextConsumers', () => {
+        // The price element declares it consumes the `product` context; the grid and text declare nothing.
+        const declaredByType: Record<string, Record<string, unknown>> = {
+            'Sw:Product:PriceDisplay': { product: { type: 'single', required: true } },
+        };
+
+        const resolveAcceptsContext = (component: string): Record<string, unknown> | null =>
+            declaredByType[component] ?? null;
+
+        it('writes the declared consumer onto an element that declares one', () => {
+            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
+
+            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+
+            expect(price.acceptsContext).toEqual({
+                product: { type: 'single', required: true },
+            });
+        });
+
+        it('writes declared consumers onto nested elements, not their containers', () => {
+            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
+            const grid: ContentElementNode = { id: 'g1', component: 'Sw:Grid', slots: { default: [price] } };
+
+            applyDeclaredContextConsumers([grid], resolveAcceptsContext);
+
+            // The grid declares no context, so it stays clean — only elements that ask for it get it.
+            expect(grid.acceptsContext).toBeUndefined();
+            expect(price.acceptsContext).toEqual({
+                product: { type: 'single', required: true },
+            });
+        });
+
+        it('leaves an element untouched when its type declares no context', () => {
+            const grid: ContentElementNode = { id: 'g1', component: 'Sw:Grid' };
+
+            applyDeclaredContextConsumers([grid], resolveAcceptsContext);
+
+            expect(grid.acceptsContext).toBeUndefined();
+        });
+
+        it('respects an authored consumer for the same key and does not override it', () => {
+            const authored = { product: { type: 'single', required: true, propertyAlias: 'item' } };
+            const price: ContentElementNode = {
+                id: 'p1',
+                component: 'Sw:Product:PriceDisplay',
+                acceptsContext: cloneDeep(authored),
+            };
+
+            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+
+            expect(price.acceptsContext).toEqual(authored);
+        });
+
+        it('respects an authored data requirement for the same key and does not add a consumer', () => {
+            const price: ContentElementNode = {
+                id: 'p1',
+                component: 'Sw:Product:PriceDisplay',
+                dataRequirements: { product: { source: 'entity', config: { entityName: 'product', id: 'abc' } } },
+            };
+
+            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+
+            expect(price.acceptsContext).toBeUndefined();
+        });
+
+        it('adds a declared key while preserving an unrelated authored consumer', () => {
+            const price: ContentElementNode = {
+                id: 'p1',
+                component: 'Sw:Product:PriceDisplay',
+                acceptsContext: { salesChannel: { type: 'single', required: false } },
+            };
+
+            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+
+            expect(price.acceptsContext).toEqual({
+                salesChannel: { type: 'single', required: false },
+                product: { type: 'single', required: true },
+            });
+        });
+
+        it('is idempotent across repeated runs', () => {
+            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
+
+            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+            const first = cloneDeep(price.acceptsContext);
+            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+
+            expect(price.acceptsContext).toEqual(first);
         });
     });
 });

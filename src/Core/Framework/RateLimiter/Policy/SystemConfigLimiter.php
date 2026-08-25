@@ -27,10 +27,11 @@ class SystemConfigLimiter extends TimeBackoffLimiter
         StorageInterface $storage,
         ?LockInterface $lock = null,
         ?ClockInterface $clock = null,
+        ?string $salesChannelId = null,
     ) {
         $convertedLimits = [];
         foreach ($limits as $limit) {
-            $sysLimit = $systemConfigService->getInt($limit['domain'] ?? '');
+            $sysLimit = $systemConfigService->getInt($limit['domain'] ?? '', $salesChannelId);
             $convertedLimit = [
                 'interval' => $limit['interval'],
                 'limit' => $sysLimit !== 0 ? $sysLimit : \PHP_INT_MAX,

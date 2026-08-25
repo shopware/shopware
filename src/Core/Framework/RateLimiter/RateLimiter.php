@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -58,9 +59,14 @@ class RateLimiter
         $factory?->create($key)->reset();
     }
 
-    public function ensureAccepted(string $route, string $key): void
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for the system_config policy. Callers passing it should also include it in the limiter key, as persisted buckets keep the limits they were created with.')]
+    public function ensureAccepted(string $route, string $key/* , ?string $salesChannelId = null */): void
     {
-        $limiter = $this->getFactory($route)->create($key)->consume();
+        /** @deprecated tag:v6.8.0 - Remove next line as $salesChannelId will become a part of method signature */
+        /** @var string|null $salesChannelId */
+        $salesChannelId = \func_get_args()[2] ?? null;
+
+        $limiter = $this->getFactory($route)->create($key, $salesChannelId)->consume();
 
         if (!$limiter->isAccepted()) {
             throw RateLimiterException::limitExceeded($limiter->getRetryAfter()->getTimestamp());

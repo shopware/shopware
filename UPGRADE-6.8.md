@@ -1159,6 +1159,17 @@ The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PA
 
 If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
 
+## Rate limiter: `salesChannelId` parameter becomes part of the declared signatures
+
+`Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()` and `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()` accept an optional sales channel id since 6.7, passable only positionally until now. With 6.8.0.0 the parameter becomes part of the declared method signatures. If you extend one of these classes and override the method, add the parameter to your override to keep a compatible signature:
+
+```php
+// Before
+public function ensureAccepted(string $route, string $key): void
+
+// After
+public function ensureAccepted(string $route, string $key, ?string $salesChannelId = null): void
+```
 ## Removed `ProductExportResult::getTotal()`
 
 `\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.

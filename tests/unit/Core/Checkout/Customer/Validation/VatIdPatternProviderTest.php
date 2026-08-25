@@ -17,11 +17,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(VatIdPatternProvider::class)]
 class VatIdPatternProviderTest extends TestCase
 {
+    private const BE_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0be0';
+
+    private const NL_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0140';
+
     public function testReturnsThePatternsKeyedByTheirCountry(): void
     {
         $provider = $this->createProvider([
-            ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
-            ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\d{10}'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
         static::assertSame(
@@ -33,8 +37,8 @@ class VatIdPatternProviderTest extends TestCase
     public function testDropsPatternsThatDoNotCompile(): void
     {
         $provider = $this->createProvider([
-            ['iso' => 'BE', 'vat_id_pattern' => 'BE[0-9'],
-            ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE[0-9'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
@@ -43,8 +47,8 @@ class VatIdPatternProviderTest extends TestCase
     public function testDropsPatternsThatBreakOutOfTheDelimiters(): void
     {
         $provider = $this->createProvider([
-            ['iso' => 'BE', 'vat_id_pattern' => 'BE/i'],
-            ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE/i'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
@@ -53,8 +57,8 @@ class VatIdPatternProviderTest extends TestCase
     public function testGetStateByEuVatIdReturnsTheMemberStateItBelongsTo(): void
     {
         $provider = $this->createProvider([
-            ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
-            ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\d{10}'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
         static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
@@ -63,8 +67,8 @@ class VatIdPatternProviderTest extends TestCase
     public function testGetStateByEuVatIdReturnsNullForANonEuVatId(): void
     {
         $provider = $this->createProvider([
-            ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
-            ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\d{10}'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
         static::assertNull($provider->getStateByEuVatId('CHE123456789'));
@@ -77,12 +81,52 @@ class VatIdPatternProviderTest extends TestCase
         static::assertNull($provider->getStateByEuVatId('NL123456789B01'));
     }
 
+    public function testTheCountryOfAVatIdListIsTheStateOfItsFirstEntry(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\d{10}'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        // The storefront exposes one input, so a second entry can only come from the API and must not
+        // silently win over the first
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL123456789B01', 'BE0123456789']));
+    }
+
+    public function testTheCountryOfAVatIdListSkipsEmptyEntries(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['', 'NL123456789B01']));
+    }
+
+    public function testAVatIdOfNoMemberStateHasNoCountry(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        static::assertNull($provider->getCountryIdForVatIds(['CHE123456789']));
+    }
+
+    public function testAnEmptyVatIdListHasNoCountry(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        static::assertNull($provider->getCountryIdForVatIds([]));
+        static::assertNull($provider->getCountryIdForVatIds(null));
+    }
+
     public function testTheEuPatternsAreReadOnce(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willReturn([['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
+            ->willReturn([['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
 
         $provider = new VatIdPatternProvider($connection);
 
@@ -96,7 +140,7 @@ class VatIdPatternProviderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(2))
             ->method('fetchAllAssociative')
-            ->willReturn([['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
+            ->willReturn([['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
 
         $provider = new VatIdPatternProvider($connection);
 
@@ -106,15 +150,92 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
+    public function testTheCountrySettingsAreReadOncePerCountry(): void
+    {
+        $countryId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        // The route builds the validation definition and the validator checks the VAT IDs against the
+        // same country moments later, so the settings must not be fetched twice per request
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
+
+        $provider = new VatIdPatternProvider($connection);
+
+        static::assertSame($provider->getCountrySettings($countryId), $provider->getCountrySettings($countryId));
+    }
+
+    public function testAnUnknownCountryIsNotLookedUpAgain(): void
+    {
+        $countryId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAssociative')->willReturn(false);
+
+        $provider = new VatIdPatternProvider($connection);
+
+        static::assertNull($provider->getCountrySettings($countryId));
+        static::assertNull($provider->getCountrySettings($countryId));
+    }
+
+    public function testResetMakesTheCountrySettingsBeReadAgain(): void
+    {
+        $countryId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))
+            ->method('fetchAssociative')
+            ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
+
+        $provider = new VatIdPatternProvider($connection);
+
+        $provider->getCountrySettings($countryId);
+        $provider->reset();
+
+        static::assertSame(
+            ['isEu' => true, 'checkPattern' => true, 'pattern' => 'NL\\d{9}B\\d{2}'],
+            $provider->getCountrySettings($countryId),
+        );
+    }
+
+    public function testTheCountrySettingsAreCachedPerCountry(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(2))
+            ->method('fetchAssociative')
+            ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
+
+        $provider = new VatIdPatternProvider($connection);
+
+        $provider->getCountrySettings(Uuid::randomHex());
+        $provider->getCountrySettings(Uuid::randomHex());
+    }
+
     public function testCountrySettingsReportThePatternAndTheSwitch(): void
     {
         $provider = $this->createProviderForCountry([
+            'is_eu' => 1,
             'check_vat_id_pattern' => 1,
             'vat_id_pattern' => 'BE\d{10}',
         ]);
 
         static::assertSame(
-            ['checkPattern' => true, 'pattern' => 'BE\d{10}'],
+            ['isEu' => true, 'checkPattern' => true, 'pattern' => 'BE\d{10}'],
+            $provider->getCountrySettings(Uuid::randomHex()),
+        );
+    }
+
+    public function testCountrySettingsReportACountryOutsideTheEu(): void
+    {
+        $provider = $this->createProviderForCountry([
+            'is_eu' => 0,
+            'check_vat_id_pattern' => 1,
+            'vat_id_pattern' => 'CHE\d{9}',
+        ]);
+
+        static::assertSame(
+            ['isEu' => false, 'checkPattern' => true, 'pattern' => 'CHE\d{9}'],
             $provider->getCountrySettings(Uuid::randomHex()),
         );
     }
@@ -122,12 +243,13 @@ class VatIdPatternProviderTest extends TestCase
     public function testCountrySettingsReportADisabledSwitch(): void
     {
         $provider = $this->createProviderForCountry([
+            'is_eu' => 1,
             'check_vat_id_pattern' => 0,
             'vat_id_pattern' => 'BE\d{10}',
         ]);
 
         static::assertSame(
-            ['checkPattern' => false, 'pattern' => 'BE\d{10}'],
+            ['isEu' => true, 'checkPattern' => false, 'pattern' => 'BE\d{10}'],
             $provider->getCountrySettings(Uuid::randomHex()),
         );
     }
@@ -135,12 +257,13 @@ class VatIdPatternProviderTest extends TestCase
     public function testCountrySettingsReportAnEmptyPatternAsNone(): void
     {
         $provider = $this->createProviderForCountry([
+            'is_eu' => 1,
             'check_vat_id_pattern' => 1,
             'vat_id_pattern' => '',
         ]);
 
         static::assertSame(
-            ['checkPattern' => true, 'pattern' => null],
+            ['isEu' => true, 'checkPattern' => true, 'pattern' => null],
             $provider->getCountrySettings(Uuid::randomHex()),
         );
     }
@@ -148,12 +271,13 @@ class VatIdPatternProviderTest extends TestCase
     public function testCountrySettingsReportAMissingPatternAsNone(): void
     {
         $provider = $this->createProviderForCountry([
+            'is_eu' => 1,
             'check_vat_id_pattern' => 1,
             'vat_id_pattern' => null,
         ]);
 
         static::assertSame(
-            ['checkPattern' => true, 'pattern' => null],
+            ['isEu' => true, 'checkPattern' => true, 'pattern' => null],
             $provider->getCountrySettings(Uuid::randomHex()),
         );
     }
@@ -207,7 +331,7 @@ class VatIdPatternProviderTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, vat_id_pattern: string}> $rows
+     * @param list<array{iso: string, id: string, vat_id_pattern: string}> $rows
      */
     private function createProvider(array $rows): VatIdPatternProvider
     {
@@ -218,7 +342,7 @@ class VatIdPatternProviderTest extends TestCase
     }
 
     /**
-     * @param array{check_vat_id_pattern: int, vat_id_pattern: string|null}|false $country
+     * @param array{is_eu: int, check_vat_id_pattern: int, vat_id_pattern: string|null}|false $country
      */
     private function createProviderForCountry(array|false $country): VatIdPatternProvider
     {

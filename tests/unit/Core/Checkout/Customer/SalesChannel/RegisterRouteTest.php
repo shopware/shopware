@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -689,9 +690,7 @@ class RegisterRouteTest extends TestCase
 
                 static::assertInstanceOf(NotBlank::class, $properties['vatIds'][0]);
                 static::assertInstanceOf(Type::class, $properties['vatIds'][1]);
-                static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraint = $properties['vatIds'][2]);
-
-                static::assertFalse($vatIdConstraint->getMatchesAnyEuVat());
+                static::assertInstanceOf(CustomerVatIdentification::class, $properties['vatIds'][2]);
 
                 return true;
             }));
@@ -722,6 +721,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -834,6 +834,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -941,6 +942,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(DoubleOptInService::class),
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1348,6 +1350,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
+            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
     }
 

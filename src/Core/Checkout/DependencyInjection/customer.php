@@ -352,6 +352,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerProfileValidationFactory::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(VatIdPatternProvider::class),
         ]);
 
     $services->set(ChangePasswordRoute::class)
@@ -423,6 +424,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DoubleOptInService::class),
             service(CustomerNewsletterSalesChannelsUpdater::class),
             service(ClockInterface::class),
+            service(VatIdPatternProvider::class),
         ]);
 
     $services->set(RegisterConfirmRoute::class)

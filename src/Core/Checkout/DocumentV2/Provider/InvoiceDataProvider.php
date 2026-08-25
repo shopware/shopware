@@ -210,8 +210,6 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             return true;
         }
 
-        $vatIdPattern = $country->getVatIdPattern();
-
         $vatIds = $order->getOrderCustomer()?->getVatIds();
 
         if (!\is_array($vatIds)) {
@@ -222,11 +220,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $vatIds,
             [
                 new NotBlank(),
-                // The exemption follows the member state that issued the VAT ID, not the delivery country
-                new CustomerVatIdentification(
-                    countryId: $country->getId(),
-                    matchesAnyEuVat: $vatIdPattern !== null && $vatIdPattern !== '',
-                ),
+                new CustomerVatIdentification(countryId: $country->getId()),
             ],
         )->count() === 0;
     }

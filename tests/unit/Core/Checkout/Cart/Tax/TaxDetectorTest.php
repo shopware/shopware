@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -416,7 +417,7 @@ class TaxDetectorTest extends TestCase
     {
         $rows = [];
         foreach ($euPatterns as $iso => $pattern) {
-            $rows[] = ['iso' => $iso, 'vat_id_pattern' => $pattern];
+            $rows[] = ['iso' => $iso, 'id' => Uuid::randomHex(), 'vat_id_pattern' => $pattern];
         }
 
         $connection = static::createStub(Connection::class);

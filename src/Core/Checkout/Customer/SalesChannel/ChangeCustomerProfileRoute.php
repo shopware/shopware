@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -56,6 +57,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly VatIdPatternProvider $vatIdPatternProvider,
     ) {
     }
 
@@ -115,6 +117,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         }
 
         $customerData['vatIds'] = $vatIds;
+        $customerData['vatIdCountryId'] = $this->vatIdPatternProvider->getCountryIdForVatIds(\is_array($vatIds) ? $vatIds : null);
 
         if ($birthday = $this->getBirthday($data)) {
             $customerData['birthday'] = $birthday;

@@ -29,21 +29,16 @@ class CustomerVatIdentification extends Constraint
     protected bool $shouldCheck = false;
 
     /**
-     * Also accept a VAT ID that matches the pattern of any other EU member state
-     */
-    protected bool $matchesAnyEuVat = false;
-
-    /**
-     * @param array{countryId?: string, shouldCheck?: bool, matchesAnyEuVat?: bool}|null $options
+     * @param array{countryId?: string, shouldCheck?: bool}|null $options
      *
-     * The `$shouldCheck`, `$matchesAnyEuVat` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
+     * The `$shouldCheck` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *
      * @internal
      */
     #[HasNamedArguments]
     #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options', description: 'Use the named arguments instead.')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'countryId', newType: 'string', description: 'The parameter loses its null default, becomes required and a promoted property.')]
-    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.', bool $matchesAnyEuVat = false)
+    public function __construct(?array $options = null, ?string $countryId = null, bool $shouldCheck = false, string $message = 'The format of vatId {{ vatId }} is not correct.')
     {
         if ($options !== null || $countryId === null) {
             Feature::triggerDeprecationOrThrow(
@@ -62,7 +57,6 @@ class CustomerVatIdentification extends Constraint
             $this->countryId = $countryId;
             $this->shouldCheck = $shouldCheck;
             $this->message = $message;
-            $this->matchesAnyEuVat = $matchesAnyEuVat;
         } else {
             if ($countryId === null) {
                 if (!\is_string($options['countryId'] ?? null)) {
@@ -71,10 +65,6 @@ class CustomerVatIdentification extends Constraint
 
                 if (isset($options['shouldCheck']) && !\is_bool($options['shouldCheck'])) {
                     throw CustomerException::invalidOption('shouldCheck', 'bool', self::class);
-                }
-
-                if (isset($options['matchesAnyEuVat']) && !\is_bool($options['matchesAnyEuVat'])) {
-                    throw CustomerException::invalidOption('matchesAnyEuVat', 'bool', self::class);
                 }
             }
 
@@ -90,11 +80,6 @@ class CustomerVatIdentification extends Constraint
     public function getShouldCheck(): bool
     {
         return $this->shouldCheck;
-    }
-
-    public function getMatchesAnyEuVat(): bool
-    {
-        return $this->matchesAnyEuVat;
     }
 
     public function getMessage(): string

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -614,6 +615,13 @@ class LayoutDiagnostics
         return $value !== null && !$value->isNull();
     }
 
+    /**
+     * True only for a single-primitive declared type: a union answers false here even though the serving
+     * side treats every non-reference declaration as authored ({@see RenderedElementFactory}). The one
+     * consequence is keying — a union-typed configured input property takes the reference-property
+     * fallback at the call site instead of being keyed on itself. Consolidating this predicate onto
+     * {@see PropertyType} beside the conformance rules is planned post-merge work.
+     */
     private function isDeclaredPrimitiveProperty(string $component, string $key): bool
     {
         if (!$this->registry->has($component)) {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -60,6 +61,12 @@ final readonly class StoredElement implements \JsonSerializable
         return $this->properties[$key] ?? null;
     }
 
+    /**
+     * The id value domain — not the reserved root literal, not a string PHP casts to an integer — is
+     * enforced at {@see StoredElementCodec::decode()} only; this method re-checks nothing. Every current
+     * caller mints a random hex id, which satisfies the domain by construction. A caller carrying
+     * authored input must route it through the decode gate instead of this method.
+     */
     public function withId(string $id): self
     {
         return $this->copy(id: $id);

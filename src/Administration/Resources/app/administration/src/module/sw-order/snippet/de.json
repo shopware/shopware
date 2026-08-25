@@ -331,6 +331,7 @@
       "labelShowHistoryModal": "Statusverlauf anzeigen",
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
+      "labelCustomer": "Kunde",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
       "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
@@ -441,6 +442,7 @@
       "labelDocumentStornoNumber": "Stornonummer",
       "labelInvoiceNumber": "Rechnung",
       "selectInvoiceNumber": "Rechnung wählen",
+      "errorInvoiceMissingCreditItem": "Die ausgewählte Rechnung enthält keine Gutschriftsposition.",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
       "labelCreateDownload": "Erstellen und herunterladen",
@@ -471,6 +473,7 @@
       "modalTitle": "Statusverlauf",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Kunde",
       "column": {
         "createdAt": "Datum",
         "entity": "Geändert",

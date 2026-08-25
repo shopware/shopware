@@ -340,8 +340,12 @@ class DocumentV2ControllerTest extends TestCase
         static::assertNotNull($document);
 
         $this->getBrowser()->request(
-            'GET',
-            \sprintf('/api/_action/order/document-v2/%s/download-archive', $document->getId()),
+            'POST',
+            '/api/_action/order/document-v2/download-archive',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['documentIds' => [$document->getId()]], \JSON_THROW_ON_ERROR),
         );
 
         $response = $this->getBrowser()->getResponse();

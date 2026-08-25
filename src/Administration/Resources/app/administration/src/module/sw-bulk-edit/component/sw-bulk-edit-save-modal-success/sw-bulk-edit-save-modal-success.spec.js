@@ -45,6 +45,11 @@ async function createWrapper(
                             return Promise.resolve();
                         },
                     },
+                    documentV2ApiService: {
+                        getDocumentArchive: () => {
+                            return Promise.resolve();
+                        },
+                    },
                 },
             },
         },
@@ -59,6 +64,8 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         const bulkEditStore = Shopware.Store.get('swBulkEdit');
 
         bulkEditStore.resetDocumentGenerationResult();
@@ -128,7 +135,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 return Promise.resolve([
                     {
                         id: '1',
-                        documentTypeId: '1',
+                        documentType: {
+                            technicalName: 'invoice',
+                        },
                         orderId: '1',
                         createdAt: '2020-01-01',
                         deepLinkCode: '123',
@@ -137,7 +146,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
                     },
                     {
                         id: '2',
-                        documentTypeId: '1',
+                        documentType: {
+                            technicalName: 'invoice',
+                        },
                         orderId: '1',
                         createdAt: '2020-01-01',
                         deepLinkCode: '123',
@@ -146,7 +157,9 @@ describe('sw-bulk-edit-save-modal-success', () => {
                     },
                     {
                         id: '3',
-                        documentTypeId: '2',
+                        documentType: {
+                            technicalName: 'credit_note',
+                        },
                         orderId: '1',
                         createdAt: '2020-01-01',
                         deepLinkCode: '123',
@@ -308,6 +321,43 @@ describe('sw-bulk-edit-save-modal-success', () => {
         jest.useRealTimers();
     });
 
+    it('should include the failure reason per order and document type in the result file content', async () => {
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(2, 2, 0, [
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+                errorCode: 'DOCUMENT__GENERATION_ERROR',
+                detail: 'Cannot generate invoice document because no invoice document exists.',
+            },
+            {
+                orderId: 'orderId',
+                documentType: 'delivery_note',
+                errorCode: 'DOCUMENT__GENERATION_ERROR',
+            },
+            {
+                orderId: 'orderId2',
+                documentType: 'credit_note',
+            },
+        ]);
+
+        await wrapper.setData({
+            orderNumbers: {
+                orderId: '10089',
+                orderId2: '10090',
+            },
+        });
+
+        expect(wrapper.vm.getDocumentGenerationResultFileContent()).toBe(
+            [
+                'sw-bulk-edit.modal.success.failedDocuments.downloadHeadline',
+                '',
+                '10089 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice: Cannot generate invoice document because no invoice document exists.',
+                '10089 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote: DOCUMENT__GENERATION_ERROR',
+                '10090 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote',
+            ].join('\n'),
+        );
+    });
+
     it('should add download result button when failed document rows exist', async () => {
         Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(1, 1, 0, [
             {
@@ -404,6 +454,62 @@ describe('sw-bulk-edit-save-modal-success', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
         expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
         wrapper.vm.orderDocumentApiService.download.mockRestore();
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should download the document archive via the v2 endpoint when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        window.URL.createObjectURL = jest.fn();
+
+        wrapper.vm.documentV2ApiService.getDocumentArchive = jest.fn(() =>
+            Promise.resolve({
+                file: 'archive content',
+                fileName: 'documents.zip',
+            }),
+        );
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: [
+                    'documentId1',
+                    'documentId2',
+                ],
+            },
+        });
+
+        await wrapper.vm.downloadDocument('invoice');
+
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalledWith([
+            'documentId1',
+            'documentId2',
+        ]);
+        expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
+
+        wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
+        wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
+
+    it('should call createNotificationError when the v2 archive download fails', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.documentV2ApiService.getDocumentArchive = jest
+            .fn()
+            .mockImplementation(() => Promise.reject(new Error('error occured')));
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: ['documentId1'],
+            },
+        });
+
+        await wrapper.vm.downloadDocument('invoice');
+
+        expect(wrapper.vm.documentV2ApiService.getDocumentArchive).toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
+        wrapper.vm.documentV2ApiService.getDocumentArchive.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
     });
 

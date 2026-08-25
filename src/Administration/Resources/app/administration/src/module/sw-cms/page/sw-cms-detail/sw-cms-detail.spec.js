@@ -4,6 +4,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -184,7 +185,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     },
                 },
                 mocks: {
-                    $route: { params: { id: '1a' } },
+                    $route: reactive({ params: { id: '1a' } }),
                     $device: {
                         getSystemKey: () => 'Strg',
                     },
@@ -279,6 +280,36 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         jest.clearAllMocks();
 
         global.activeAclRoles = [];
+    });
+
+    afterEach(() => {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should select the displayed layout for app action buttons', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            '1a',
+        ]);
+
+        wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm);
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
+    it('should select the new layout for app action buttons when navigating to another layout', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.$route.params.id = '2b';
+        await flushPromises();
+
+        expect(wrapper.vm.pageId).toBe('2b');
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            '2b',
+        ]);
     });
 
     it('should disable all fields when ACL rights are missing', async () => {

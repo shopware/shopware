@@ -48,14 +48,14 @@
 
     .sw-cms-list__actions {
         display: grid;
-        grid-template-columns: auto 380px 36px;
+        grid-template-columns: auto 380px max-content;
         grid-column-gap: 20px;
         align-items: center;
         align-content: center;
         margin-bottom: 28px;
 
         @media screen and (max-width: 700px) {
-            grid-template-columns: auto 36px;
+            grid-template-columns: auto max-content;
         }
 
         h3 {
@@ -65,25 +65,11 @@
         }
     }
 
-    .sw-cms-list__actions-mode {
-        height: 36px;
-        line-height: 33px;
-        text-align: center;
-        color: var(--color-text-primary-default);
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: 4px;
-        background: var(--color-elevation-surface-raised);
-        cursor: pointer;
-
-        &:hover {
-            color: var(--color-text-brand-default);
-            border-color: var(--color-border-brand-default);
-        }
-    }
-
     .sw-cms-list__list-grid-content {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
+        // min() keeps at least two columns on very narrow pages (15px = half the gap)
+        grid-template-columns: repeat(auto-fill, minmax(min(260px, calc(50% - 15px)), 1fr));
         grid-gap: 30px;
         align-content: start;
 

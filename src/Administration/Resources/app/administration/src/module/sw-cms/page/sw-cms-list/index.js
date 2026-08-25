@@ -33,10 +33,10 @@ export default {
             cardViewIdentifier: 'grid.cms.sw-cms-list-grid',
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            limit: 9,
+            limit: 12,
             limitDefaults: {
                 gridView: 10,
-                cardView: 9,
+                cardView: 12,
             },
             associationLimit: 25,
             term: '',

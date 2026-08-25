@@ -106,12 +106,12 @@
                         {% endblock %}
 
                         {% block sw_cms_list_listing_actions_mode %}
-                        <div
+                        <mt-button
                             class="sw-cms-list__actions-mode"
-                            role="button"
-                            tabindex="0"
+                            variant="secondary"
+                            size="default"
+                            square
                             @click="onListModeChange"
-                            @keydown.enter="onListModeChange"
                         >
                             <mt-icon
                                 v-if="listMode === 'grid'"
@@ -123,7 +123,7 @@
                                 name="regular-view-grid"
                                 size="16"
                             />
-                        </div>
+                        </mt-button>
                         {% endblock %}
                     </div>
                     {% endblock %}

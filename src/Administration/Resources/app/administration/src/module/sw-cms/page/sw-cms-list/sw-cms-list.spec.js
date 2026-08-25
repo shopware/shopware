@@ -1378,7 +1378,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
     it.each([
         [
-            9,
+            12,
             'grid',
         ],
         [

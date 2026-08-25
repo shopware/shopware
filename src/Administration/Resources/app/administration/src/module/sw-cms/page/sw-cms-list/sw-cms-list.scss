@@ -31,8 +31,18 @@
         position: absolute;
         left: -180px;
 
-        @media screen and (max-width: 1400px) {
+        // 960px content width plus the 180px sidebar hanging out on each side
+        @container sw-page (max-width: 1320px) {
             display: none;
+        }
+    }
+
+    .sw-cms-list__type-nav-horizontal {
+        display: none;
+        margin-bottom: 28px;
+
+        @container sw-page (max-width: 1320px) {
+            display: block;
         }
     }
 

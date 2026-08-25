@@ -315,6 +315,23 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
     });
 
+    it('should render a second horizontal page type tab bar for narrow pages', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.findAllComponents({ name: 'mt-tabs' });
+        expect(tabs).toHaveLength(2);
+
+        const horizontalTabs = tabs[1];
+        expect(horizontalTabs.props('vertical')).toBe(false);
+        expect(horizontalTabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
+        expect(horizontalTabs.props('defaultItem')).toBe('all-pages');
+        expect(horizontalTabs.props('items')).toEqual(tabs[0].props('items'));
+
+        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
+        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+    });
+
     it('should filter by page type when a meteor tab item is clicked', async () => {
         const wrapper = await createWrapper(undefined, {}, { featureActive: true });
         await flushPromises();

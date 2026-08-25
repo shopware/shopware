@@ -127,6 +127,39 @@
                     </div>
                     {% endblock %}
 
+                    {% block sw_cms_list_listing_page_type_tabs %}
+                    <div class="sw-cms-list__type-nav-horizontal">
+                        <template v-if="feature.isActive('v6.8.0.0')">
+                            {% block sw_cms_list_listing_page_type_mt_tabs %}
+                            <mt-tabs
+                                position-identifier="sw-cms-list-sidebar"
+                                :default-item="activePageTypeTab"
+                                :items="cmsListPageTypeTabs"
+                                :use-routes-for-extensions="false"
+                                :small="true"
+                            />
+                            {% endblock %}
+                        </template>
+
+                        <template v-else>
+                            <sw-tabs
+                                small
+                                position-identifier="sw-cms-list-sidebar"
+                            >
+                                <sw-tabs-item
+                                    v-for="pageType in sortPageTypes"
+                                    :key="pageType.name"
+                                    :disabled="pageType.disabled || undefined"
+                                    :active="pageType.active"
+                                    @click="onSortPageType(pageType.value)"
+                                >
+                                    {{ pageType.name }}
+                                </sw-tabs-item>
+                            </sw-tabs>
+                        </template>
+                    </div>
+                    {% endblock %}
+
                     {% block sw_cms_list_listing_list_empty_state %}
                     <mt-empty-state
                         v-if="isValidTerm(term) && !isLoading && !total"

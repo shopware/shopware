@@ -27,7 +27,7 @@ class SitemapException extends HttpException
         );
     }
 
-    public static function sitemapAlreadyLocked(SalesChannelContext $context): SitemapAlreadyLockedException
+    public static function sitemapAlreadyLocked(SalesChannelContext $context): self
     {
         return new SitemapAlreadyLockedException(
             Response::HTTP_BAD_REQUEST,

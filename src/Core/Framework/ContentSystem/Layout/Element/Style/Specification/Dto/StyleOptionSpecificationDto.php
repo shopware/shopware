@@ -23,7 +23,7 @@ final readonly class StyleOptionSpecificationDto
      * Every facet except type is carried raw (the raw YAML/DB value, typed mixed) so the validator can
      * reject a wrong-typed declaration at runtime rather than have it silently coerced before validation
      * sees it. The facets are narrowed to their clean shapes by buildEnum()/buildRange()/buildMaxLength()/
-     * buildDefault()/buildAdminUI(), which run only after validation has passed.
+     * buildDefault()/buildAdminUI()/buildKind(), which run only after validation has passed.
      */
     public function __construct(
         #[Assert\NotBlank]
@@ -35,6 +35,8 @@ final readonly class StyleOptionSpecificationDto
         public mixed $default,
         public mixed $breakpointAware,
         public mixed $adminUI,
+        #[Assert\Choice(choices: [StyleOptionSpecification::KIND_BOX_SPACING, null])]
+        public mixed $kind = null,
     ) {
     }
 
@@ -52,6 +54,7 @@ final readonly class StyleOptionSpecificationDto
             $this->buildBreakpointAware(),
             $this->buildAdminUI(),
             $source,
+            $this->buildKind(),
         );
     }
 
@@ -110,6 +113,12 @@ final readonly class StyleOptionSpecificationDto
     {
         // An empty adminUI map collapses to null so toSchema() emits null, matching the OpenAPI contract.
         return \is_array($this->adminUI) && $this->adminUI !== [] ? $this->adminUI : null;
+    }
+
+    private function buildKind(): ?string
+    {
+        // Assert\Choice has already rejected any value other than a declared kind or null.
+        return \is_string($this->kind) ? $this->kind : null;
     }
 
     private function buildBreakpointAware(): bool

@@ -146,4 +146,34 @@ class StyleOptionSpecificationSerializerTest extends TestCase
 
         static::assertArrayNotHasKey('breakpointAware', $normalized);
     }
+
+    #[TestDox('denormalize maps a declared kind from the source array')]
+    public function testDenormalizeMapsKind(): void
+    {
+        $dto = $this->serializer->denormalize(['type' => 'string', 'kind' => 'box-spacing']);
+
+        static::assertSame('box-spacing', $dto->kind);
+    }
+
+    #[TestDox('denormalize yields a null kind when the key is absent')]
+    public function testDenormalizeKindAbsentYieldsNull(): void
+    {
+        static::assertNull($this->serializer->denormalize(['type' => 'string'])->kind);
+    }
+
+    #[TestDox('round-trips a declared kind through denormalize then normalize')]
+    public function testRoundTripPreservesKind(): void
+    {
+        $raw = ['type' => 'string', 'maxLength' => 64, 'kind' => 'box-spacing'];
+
+        static::assertSame($raw, $this->serializer->normalize($this->serializer->denormalize($raw)));
+    }
+
+    #[TestDox('normalize omits the kind key when it is null')]
+    public function testNormalizeOmitsKindWhenNull(): void
+    {
+        $normalized = $this->serializer->normalize($this->serializer->denormalize(['type' => 'string']));
+
+        static::assertArrayNotHasKey('kind', $normalized);
+    }
 }

@@ -6,8 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Declared contract of one universal style option: its name (the Store-API wire key, e.g.
- * `col-span`), an adminUI passthrough block, and the value vocabulary/bounds on the
- * StyleOptionValueType. toSchema() serializes it for introspection.
+ * `col-span`), an optional kind discriminator, an adminUI passthrough block, and the value
+ * vocabulary/bounds on the StyleOptionValueType. toSchema() serializes it for introspection.
  *
  * @phpstan-type StyleOptionSchema = array{
  *     type: string,
@@ -23,6 +23,12 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class StyleOptionSpecification
 {
     /**
+     * The one declared kind: a box-spacing option, whose value is canonicalised into explicit
+     * four-part CSS by ElementStyleNormalizer.
+     */
+    public const KIND_BOX_SPACING = 'box-spacing';
+
+    /**
      * @param array<string, mixed>|null $adminUI
      */
     public function __construct(
@@ -31,6 +37,7 @@ final readonly class StyleOptionSpecification
         private bool $breakpointAware,
         private ?array $adminUI,
         private string $source = '',
+        private ?string $kind = null,
     ) {
     }
 
@@ -60,6 +67,11 @@ final readonly class StyleOptionSpecification
     public function adminUI(): ?array
     {
         return $this->adminUI;
+    }
+
+    public function kind(): ?string
+    {
+        return $this->kind;
     }
 
     /**

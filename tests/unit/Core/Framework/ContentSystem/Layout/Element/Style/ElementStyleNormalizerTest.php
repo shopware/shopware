@@ -83,8 +83,8 @@ class ElementStyleNormalizerTest extends TestCase
         ], $normalized->toArray());
     }
 
-    #[TestDox('applies shorthand normalization to an option whose adminUI component is box-spacing')]
-    public function testAdminUiBoxSpacingComponentSelectsShorthandNormalization(): void
+    #[TestDox('applies shorthand normalization to an option that declares kind box-spacing')]
+    public function testBoxSpacingKindSelectsShorthandNormalization(): void
     {
         $normalized = $this->normalizer($this->boxSpacingOption('padding'))
             ->normalize(new ElementStyle(['padding' => '20']));
@@ -101,10 +101,28 @@ class ElementStyleNormalizerTest extends TestCase
         ], $normalized->toArray());
     }
 
-    #[TestDox('leaves the value verbatim for an option rendered by any other adminUI component')]
-    public function testNonBoxSpacingAdminUiComponentLeavesTheValueVerbatim(): void
+    #[TestDox('leaves the value verbatim for an option that declares no kind')]
+    public function testOptionWithoutKindLeavesTheValueVerbatim(): void
     {
         $normalized = $this->normalizer($this->textOption('padding'))
+            ->normalize(new ElementStyle(['padding' => '20']));
+
+        static::assertSame([
+            'padding' => [
+                'xs' => '20',
+                'sm' => '20',
+                'md' => '20',
+                'lg' => '20',
+                'xl' => '20',
+                'xxl' => '20',
+            ],
+        ], $normalized->toArray());
+    }
+
+    #[TestDox('leaves the value verbatim for an option whose adminUI component is box-spacing but declares no kind')]
+    public function testBoxSpacingAdminUiComponentWithoutKindIsNotTreatedAsBoxSpacing(): void
+    {
+        $normalized = $this->normalizer($this->boxSpacingAdminUiWithoutKindOption('padding'))
             ->normalize(new ElementStyle(['padding' => '20']));
 
         static::assertSame([
@@ -403,7 +421,27 @@ class ElementStyleNormalizerTest extends TestCase
         return new ElementStyleNormalizer($registry, new BoxSpacingNormalizer());
     }
 
+    /**
+     * Declares the kind and deliberately carries a non-box-spacing adminUI control, so every case built on
+     * this fixture varies on the declaration alone: with the box-spacing hint here too, the same assertions
+     * would pass under the removed adminUI discriminator and pin nothing.
+     */
     private function boxSpacingOption(string $name): StyleOptionSpecification
+    {
+        return new StyleOptionSpecification(
+            $name,
+            new StyleOptionValueType(StyleOptionValueType::TYPE_STRING, null, null, 64, null),
+            true,
+            ['component' => 'text', 'label' => 'Padding'],
+            kind: StyleOptionSpecification::KIND_BOX_SPACING,
+        );
+    }
+
+    /**
+     * Carries the box-spacing adminUI control but declares no kind: the discriminator is the declaration,
+     * not the Administration presentation hint.
+     */
+    private function boxSpacingAdminUiWithoutKindOption(string $name): StyleOptionSpecification
     {
         return new StyleOptionSpecification(
             $name,

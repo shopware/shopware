@@ -31,14 +31,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ElementStyleNormalizer
 {
-    /**
-     * The Administration renders a box-spacing option with this control, and the control's name is what
-     * identifies the option here. That is an Administration presentation hint deciding what reaches
-     * storage; the intended replacement is an explicit declaration on the option specification, kept out
-     * of this change so that a parity failure cannot be ambiguous between the port and a changed rule.
-     */
-    private const BOX_SPACING_COMPONENT = 'box-spacing';
-
     public function __construct(
         private readonly AbstractContentSystemStyleOptionRegistry $registry,
         private readonly BoxSpacingNormalizer $boxSpacingNormalizer,
@@ -114,13 +106,7 @@ final class ElementStyleNormalizer
 
     private function isBoxSpacingOption(?StyleOptionSpecification $option): bool
     {
-        $adminUI = $option?->adminUI();
-
-        if ($adminUI === null) {
-            return false;
-        }
-
-        return ($adminUI['component'] ?? null) === self::BOX_SPACING_COMPONENT;
+        return $option?->kind() === StyleOptionSpecification::KIND_BOX_SPACING;
     }
 
     /**

@@ -98,7 +98,22 @@ export interface ContentSystemElementTypeSpecification {
     };
     properties: Record<string, ContentSystemElementTypeProperty>;
     slots: ContentSystemElementTypeSlot[];
+    acceptsContext?: Record<string, ContentSystemElementTypeContextConsumer>;
     bindingSpecifications?: Record<string, ContentSystemElementTypeBindingSpecification>;
+}
+
+/**
+ * A context consumer an element type declares in its definition: the distribution wiring copied into a layout
+ * node when the element is placed.
+ *
+ * @private
+ */
+export interface ContentSystemElementTypeContextConsumer {
+    type: 'single' | 'collection';
+    required: boolean;
+    redistribute?: boolean;
+    consumerAlias?: string;
+    propertyAlias?: string;
 }
 
 /**

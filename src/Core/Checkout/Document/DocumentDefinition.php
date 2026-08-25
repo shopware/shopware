@@ -66,10 +66,10 @@ class DocumentDefinition extends EntityDefinition
             (new StringField('type_name', 'typeName'))->addFlags(new ApiAware())->setDescription('Technical name of the document type.'),
             (new FkField('referenced_document_id', 'referencedDocumentId', self::class))->addFlags(new ApiAware()),
 
-            (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware()),
             (new FkField('document_media_file_id', 'documentMediaFileId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('document_a11y_media_file_id', 'documentA11yMediaFileId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new ApiAware()),
 
             (new JsonField('config', 'config', [], []))->addFlags(new ApiAware(), new Required()),
             (new BoolField('sent', 'sent'))->addFlags(new ApiAware()),

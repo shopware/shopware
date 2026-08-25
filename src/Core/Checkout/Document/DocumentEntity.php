@@ -9,20 +9,19 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('after-sales')]
 class DocumentEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected string $orderId;
+    protected ?string $orderId = null;
 
-    protected string $orderVersionId;
+    protected ?string $orderVersionId = null;
 
     protected string $documentTypeId;
 
@@ -74,21 +73,35 @@ class DocumentEntity extends Entity
         $this->order = $order;
     }
 
+    #[ReturnTypeWidening(version: 'v6.9.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderVersionId(): string
     {
+        /** @deprecated tag:v6.9.0 - remove this fallback condition */
+        if ($this->orderVersionId === null) {
+            return '';
+        }
+
         return $this->orderVersionId;
     }
 
+    #[ParameterTypeWidening(version: 'v6.9.0', parameterName: 'orderVersionId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
     }
 
+    #[ReturnTypeWidening(version: 'v6.9.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderId(): string
     {
+        /** @deprecated tag:v6.9.0 - remove this fallback condition */
+        if ($this->orderId === null) {
+            return '';
+        }
+
         return $this->orderId;
     }
 
+    #[ParameterTypeWidening(version: 'v6.9.0', parameterName: 'orderId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;

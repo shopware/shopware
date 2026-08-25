@@ -42,6 +42,29 @@ class ExtensionDispatcherTest extends TestCase
         ], $dispatcher->getEvents());
     }
 
+    public function testDetectsListenersForEveryLifecycleEvent(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventNames = [];
+        $dispatcher->expects($this->exactly(3))
+            ->method('hasListeners')
+            ->with(static::callback(static function (string $eventName) use (&$eventNames): bool {
+                $eventNames[] = $eventName;
+
+                return true;
+            }))
+            ->willReturnOnConsecutiveCalls(false, false, true);
+
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
+        static::assertTrue($extensionDispatcher->hasListeners('test.extension'));
+        static::assertSame([
+            'test.extension.pre',
+            'test.extension.post',
+            'test.extension.error',
+        ], $eventNames);
+    }
+
     public function testHandlesExceptionGracefully(): void
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);

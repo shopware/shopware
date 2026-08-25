@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,6 +28,7 @@ final readonly class DocumentReader
         private EntityRepository $documentRepository,
         private MediaService $mediaService,
         private DocumentRendererRegistry $documentRendererRegistry,
+        private DocumentFileResolver $documentFileResolver,
     ) {
     }
 
@@ -38,7 +39,12 @@ final readonly class DocumentReader
         ?string $format = null
     ): RenderedDocument {
         $criteria = (new Criteria([$documentId]))
-            ->addAssociation('documentFiles.media');
+            ->addAssociations([
+                'documentFiles.media',
+                'documentMediaFile',
+                'documentA11yMediaFile',
+                'documentType',
+            ]);
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
@@ -49,28 +55,33 @@ final readonly class DocumentReader
             throw DocumentV2Exception::documentNotFound($documentId);
         }
 
-        $documentFile = $this->findDocumentFileByFormat($document, $format);
-        $media = $documentFile?->getMedia();
-        if ($documentFile === null || $media === null) {
+        $resolvedFormat = $format ?? $this->resolveDefaultFormat($document);
+        if ($resolvedFormat === null) {
             throw DocumentV2Exception::documentFormatUnavailable($documentId, $format ?? 'default');
         }
 
-        $resolvedFormat = $documentFile->getDocumentFormat();
+        $resolvedFile = $this->documentFileResolver->resolve($document, $resolvedFormat);
+        if ($resolvedFile === null) {
+            throw DocumentV2Exception::documentFormatUnavailable($documentId, $format ?? 'default');
+        }
 
-        $fileExtension = $media->getFileExtension() ?? $this->documentRendererRegistry->getFileExtension($resolvedFormat);
-        if ($fileExtension === null) {
-            throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $resolvedFormat);
+        $fileExtension = $resolvedFile->fileExtension;
+        if ($fileExtension === '') {
+            $fileExtension = $this->documentRendererRegistry->getFileExtension($resolvedFile->format);
+            if ($fileExtension === null) {
+                throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $resolvedFile->format);
+            }
         }
 
         $content = $context->scope(
             Context::SYSTEM_SCOPE,
-            fn (Context $scoped): string => $this->mediaService->loadFile($media->getId(), $scoped),
+            fn (Context $scoped): string => $this->mediaService->loadFile($resolvedFile->media->getId(), $scoped),
         );
 
         $renderedDocument = new RenderedDocument(
-            name: ($media->getFileName() ?? $documentId) . '.' . $fileExtension,
+            name: $resolvedFile->fileName . '.' . $fileExtension,
             fileExtension: $fileExtension,
-            contentType: $media->getMimeType() ?? 'application/octet-stream',
+            contentType: $resolvedFile->mimeType,
         );
 
         $renderedDocument->setContent($content);
@@ -78,23 +89,22 @@ final readonly class DocumentReader
         return $renderedDocument;
     }
 
-    private function findDocumentFileByFormat(DocumentEntity $document, ?string $format): ?DocumentFileEntity
+    /**
+     * Without an explicit format the first stored file wins, falling back to the media written by
+     * document generation v1.
+     */
+    private function resolveDefaultFormat(DocumentEntity $document): ?string
     {
         $documentFiles = $document->getDocumentFiles();
-        if ($documentFiles === null || $documentFiles->count() === 0) {
-            return null;
+        if ($documentFiles !== null && $documentFiles->count() > 0) {
+            return $documentFiles->first()?->getDocumentFormat();
         }
 
-        if ($format === null) {
-            return $documentFiles->first();
+        $legacyExtension = $document->getDocumentMediaFile()?->getFileExtension();
+        if ($legacyExtension !== null && $legacyExtension !== '') {
+            return $legacyExtension;
         }
 
-        foreach ($documentFiles as $documentFile) {
-            if ($documentFile->getDocumentFormat() === $format) {
-                return $documentFile;
-            }
-        }
-
-        return null;
+        return $document->getDocumentA11yMediaFile() !== null ? 'html' : null;
     }
 }

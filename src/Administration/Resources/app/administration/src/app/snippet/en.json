@@ -161,8 +161,11 @@
     "sw-admin-menu": {
       "linkLogout": "Logout",
       "linkMinimizeMenu": "Collapse menu",
+      "linkExpandMenu": "Expand menu",
+      "linkCloseMenu": "Close menu",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "textVersion": "Version:",
       "administrator": "Administrator",
       "navigation": {
         "label": "Main navigation",
@@ -636,6 +639,8 @@
       "messageNoResults": "No results found for \"{term}\"."
     },
     "sw-search-bar": {
+      "ariaLabelCloseSearch": "Close search",
+      "ariaLabelOpenSearch": "Open search",
       "messageNoResults": "No results found for \"{term}\".",
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
@@ -1109,6 +1114,7 @@
       "custom-field-set": "Custom field set",
       "store_settings": "Product sorting",
       "flow": "Flow | Flows",
+      "flow_template": "Flow template | Flow templates",
       "module": "Module",
       "frequently_used": "Frequently used",
       "recently_searched": "Recently searched",
@@ -1727,8 +1733,7 @@
   "sidebar": {
     "ariaLabelButtonClose": "Close sidebar",
     "ariaLabelButtonOpen": "Open sidebar",
-    "ariaLabelButtonCollapse": "Collapse sidebar",
-    "buttonCollapse": "collapse"
+    "ariaLabelButtonCollapse": "Collapse sidebar"
   },
   "help-center": {
     "sidebar": {
@@ -1797,5 +1802,26 @@
     "acceptButton": "Accept",
     "declineButton": "Decline",
     "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
+  },
+  "sw-ui-shell-update-2026-modal": {
+    "title": "A new look for your Administration",
+    "nextButton": "Next",
+    "finishButton": "Got it",
+    "seenSaveError": "Your preference could not be saved. This dialog may appear again.",
+    "pages": {
+      "adminNavigation": {
+        "headline": "A clearer, more streamlined navigation",
+        "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility."
+      },
+      "darkMode": {
+        "headline": "Dark appearance",
+        "badge": "Experimental",
+        "description": "The Administration now offers a dark appearance for the user interface, for better accessibility and to match your personal preferences.",
+        "profileSettingsLink": "profile settings",
+        "themeSelectLabel": "Appearance",
+        "themeSelectHint": "You can change this setting at any time in your {profileSettingsLink}.",
+        "themeSaveError": "The appearance could not be saved."
+      }
+    }
   }
 }

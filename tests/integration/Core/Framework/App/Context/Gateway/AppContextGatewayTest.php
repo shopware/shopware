@@ -26,7 +26,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 class AppContextGatewayTest extends TestCase
 {
     use AppSystemTestBehaviour;

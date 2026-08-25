@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -46,6 +47,7 @@ class DocumentReaderTest extends TestCase
             $this->createDocumentRepository($document),
             $mediaService,
             new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', 'pdf');
@@ -69,6 +71,7 @@ class DocumentReaderTest extends TestCase
             $this->createDocumentRepository($document),
             $mediaService,
             new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', null);
@@ -84,6 +87,7 @@ class DocumentReaderTest extends TestCase
             $this->createDocumentRepository($document),
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'xml'));
@@ -99,6 +103,7 @@ class DocumentReaderTest extends TestCase
             $this->createDocumentRepository($document),
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'pdf'));
@@ -115,6 +120,7 @@ class DocumentReaderTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
+        $document->setConfig([]);
         $document->setDocumentFiles(new DocumentFileCollection([
             $this->createDocumentFile(DocumentFormat::PDF->value, $plainPdfMedia),
             $this->createDocumentFile(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $zugferdMedia),
@@ -123,7 +129,7 @@ class DocumentReaderTest extends TestCase
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('loadFile')->willReturn('content');
 
-        $reader = new DocumentReader($this->createDocumentRepository($document, calls: 2), $mediaService, new DocumentRendererRegistry([]));
+        $reader = new DocumentReader($this->createDocumentRepository($document, calls: 2), $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver());
 
         $plainResult = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
         $zugferdResult = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::ZUGFERD_EMBEDDED_PDF->value);
@@ -141,6 +147,7 @@ class DocumentReaderTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
+        $document->setConfig([]);
         $document->setDocumentFiles(new DocumentFileCollection([
             $this->createDocumentFile(DocumentFormat::PDF->value, $media),
         ]));
@@ -154,6 +161,7 @@ class DocumentReaderTest extends TestCase
             new DocumentRendererRegistry([
                 new StaticDocumentRenderer(DocumentFormat::PDF, fileExtension: 'pdf'),
             ]),
+            new DocumentFileResolver(),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
@@ -171,21 +179,25 @@ class DocumentReaderTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
+        $document->setConfig([]);
+        // A format outside DocumentFormat, so the resolver cannot derive the extension from the
+        // enum either and the renderer registry stays the only possible source.
         $document->setDocumentFiles(new DocumentFileCollection([
-            $this->createDocumentFile(DocumentFormat::PDF->value, $media),
+            $this->createDocumentFile('custom_format', $media),
         ]));
 
         $reader = new DocumentReader(
             $this->createDocumentRepository($document),
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
         );
 
         $this->expectExceptionObject(
-            DocumentV2Exception::documentFileExtensionUnavailable($document->getId(), DocumentFormat::PDF->value)
+            DocumentV2Exception::documentFileExtensionUnavailable($document->getId(), 'custom_format')
         );
 
-        $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
+        $reader->read($document->getId(), Context::createDefaultContext(), '', 'custom_format');
     }
 
     public function testReadThrowsWhenDocumentNotFound(): void
@@ -194,7 +206,7 @@ class DocumentReaderTest extends TestCase
             new DocumentCollection([]),
         ], new DocumentDefinition());
 
-        $reader = new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]));
+        $reader = new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]), new DocumentFileResolver());
 
         $this->expectExceptionObject(DocumentV2Exception::documentNotFound('unknown-id'));
 
@@ -213,6 +225,7 @@ class DocumentReaderTest extends TestCase
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
+        $document->setConfig([]);
         $document->setDocumentFiles(new DocumentFileCollection($documentFiles));
 
         return $document;

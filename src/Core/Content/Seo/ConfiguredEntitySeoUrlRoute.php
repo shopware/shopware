@@ -19,7 +19,7 @@ use function Symfony\Component\String\u;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 class ConfiguredEntitySeoUrlRoute extends ConfiguredSeoUrlRoute
 {
     public function __construct(

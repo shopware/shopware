@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -843,7 +844,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([])),
+            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
             $documentRepository,
             new GuestAuthenticator(),
             new \ArrayIterator([]),
@@ -899,7 +900,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([])),
+            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
             $documentRepository,
             new GuestAuthenticator(),
             new \ArrayIterator([]),
@@ -952,7 +953,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([])),
+            new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]), new DocumentFileResolver()),
             $documentRepository,
             new GuestAuthenticator(),
             new \ArrayIterator([]),
@@ -1004,7 +1005,7 @@ class DocumentRouteTest extends TestCase
 
             $route = new DocumentRoute(
                 $generator,
-                new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([])),
+                new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
                 $documentRepository,
                 new GuestAuthenticator(),
                 new \ArrayIterator([]),
@@ -1053,6 +1054,7 @@ class DocumentRouteTest extends TestCase
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setOrder($order);
+        $document->setConfig([]);
 
         return $document;
     }
@@ -1063,6 +1065,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
+            new DocumentFileResolver(),
         );
     }
 }

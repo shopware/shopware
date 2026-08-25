@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(StructEncoder::class)]
 class StructEncoderTest extends TestCase
 {

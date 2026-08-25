@@ -27,7 +27,9 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
+use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentTypeNameSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Template\ZugferdTwigExtension;
 use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
@@ -62,6 +64,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NumberRangeValueGeneratorInterface::class),
         ]);
 
+    $services->set(DocumentFileResolver::class);
+
     $services->set(DocumentConfigLoader::class)
         ->args([
             service('document_base_config.repository'),
@@ -72,6 +76,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(DocumentBaseConfigSyncSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(DocumentTypeNameSyncSubscriber::class)
         ->args([
             service(Connection::class),
         ])
@@ -213,6 +223,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service(MediaService::class),
             service(DocumentRendererRegistry::class),
+            service(DocumentFileResolver::class),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)

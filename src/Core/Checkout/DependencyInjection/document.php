@@ -40,6 +40,7 @@ use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentReader;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -184,6 +185,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service(Connection::class),
             service(ClockInterface::class),
+            service(DocumentFileResolver::class),
         ]);
 
     $services->set(DocumentMerger::class)

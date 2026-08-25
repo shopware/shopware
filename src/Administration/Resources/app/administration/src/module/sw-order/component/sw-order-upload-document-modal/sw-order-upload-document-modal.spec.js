@@ -90,14 +90,8 @@ async function createWrapper(props = {}) {
         },
         global: {
             provide: {
-                documentV2ApiService: {
-                    getAvailableTypes: () => {
-                        return {
-                            documentTypes: supportedDocumentTypes,
-                        };
-                    },
-                },
                 documentV2Service: {
+                    getAvailableDocumentTypes: () => Promise.resolve(supportedDocumentTypes),
                     createEmptyDocumentConfig: () => {
                         return {
                             documentComment: '',

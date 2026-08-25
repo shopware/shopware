@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_7\Migration1748326970UpdateMailTemplatesForAccess
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 #[CoversClass(Migration1748326970UpdateMailTemplatesForAccessibility::class)]
 class Migration1748326970UpdateMailTemplatesForAccessibilityTest extends TestCase
 {

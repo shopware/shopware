@@ -36,291 +36,180 @@ class CaptchaRouteListenerTest extends TestCase
         ], CaptchaRouteListener::getSubscribedEvents());
     }
 
-    public function testThrowsExceptionWhenValidationFails(): void
+    public function testValidCaptchaLeavesControllerUnchanged(): void
     {
-        $event = new ControllerEvent(
-            static::createStub(HttpKernelInterface::class),
-            static function (): void {},
-            new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
-            HttpKernelInterface::MAIN_REQUEST
-        );
+        $event = $this->createControllerEvent(new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]));
 
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn([]);
+        $captcha = $this->createCaptcha(new ConstraintViolationList());
 
-        $container = static::createStub(ContainerInterface::class);
+        $originalController = $event->getController();
+        $this->createListener($captcha)->validateCaptcha($event);
 
-        $captchas = $this->getCaptchas(true, false);
-
-        $this->expectExceptionObject(CaptchaException::invalid($captchas[0]));
-
-        (new CaptchaRouteListener(
-            $captchas,
-            $systemConfigService,
-            $container
-        ))->validateCaptcha($event);
+        static::assertSame($originalController, $event->getController());
     }
 
-    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndNonXmlRequest(): void
+    public function testUnsupportedCaptchaIsSkipped(): void
     {
-        $event = new ControllerEvent(
-            static::createStub(HttpKernelInterface::class),
-            static function (): void {},
-            new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
-            HttpKernelInterface::MAIN_REQUEST
-        );
+        $event = $this->createControllerEvent(new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]));
 
         $captcha = $this->createMock(AbstractCaptcha::class);
         $captcha->expects($this->once())
             ->method('supports')
-            ->willReturn(true);
-        $captcha->expects($this->once())
-            ->method('isValid')
             ->willReturn(false);
-        $captcha->expects($this->once())
-            ->method('shouldBreak')
-            ->willReturn(true);
-        $captcha->expects($this->once())
-            ->method('getViolations')
-            ->willReturn(new ConstraintViolationList());
+        $captcha->expects($this->never())->method('validate');
 
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn([]);
+        $originalController = $event->getController();
+        $this->createListener($captcha)->validateCaptcha($event);
 
-        $container = static::createStub(ContainerInterface::class);
+        static::assertSame($originalController, $event->getController());
+    }
+
+    public function testBreakingCaptchaThrowsOnNonXmlRequest(): void
+    {
+        $event = $this->createControllerEvent(new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]));
+
+        $captcha = $this->createCaptcha(self::createViolations(CaptchaException::INVALID_CAPTCHA_ERROR), shouldBreak: true);
 
         $this->expectExceptionObject(CaptchaException::invalid($captcha));
 
-        (new CaptchaRouteListener(
-            [$captcha],
-            $systemConfigService,
-            $container
-        ))->validateCaptcha($event);
+        $this->createListener($captcha)->validateCaptcha($event);
     }
 
-    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithNoViolations(): void
+    public function testBreakingCaptchaRendersViolationsOnXmlRequest(): void
     {
-        $request = new Request(
+        $event = $this->createControllerEvent(new Request(
             attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
             server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
-        );
-
-        $event = new ControllerEvent(
-            static::createStub(HttpKernelInterface::class),
-            static function (): void {},
-            $request,
-            HttpKernelInterface::MAIN_REQUEST
-        );
-
-        $captcha = $this->createMock(AbstractCaptcha::class);
-        $captcha->expects($this->once())
-            ->method('supports')
-            ->willReturn(true);
-        $captcha->expects($this->once())
-            ->method('isValid')
-            ->willReturn(false);
-        $captcha->expects($this->once())
-            ->method('shouldBreak')
-            ->willReturn(true);
-
-        $violations = new ConstraintViolationList();
-        $captcha->expects($this->once())
-            ->method('getViolations')
-            ->willReturn($violations);
-
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn([]);
-
-        $container = static::createStub(ContainerInterface::class);
-
-        $listener = new CaptchaRouteListener(
-            [$captcha],
-            $systemConfigService,
-            $container
-        );
-
-        $originalController = $event->getController();
-        $listener->validateCaptcha($event);
-
-        // Verify that a violation was added to the list with correct properties
-        // @see CaptchaRouteListener::validateCaptcha()
-        static::assertCount(1, $violations);
-        $violation = $violations->get(0);
-        static::assertInstanceOf(ConstraintViolation::class, $violation);
-
-        // Verify all properties set in the ConstraintViolation constructor
-        $expectedException = CaptchaException::invalid($captcha);
-        static::assertSame($expectedException->getMessage(), $violation->getMessage());
-        static::assertSame('Invalid captcha', $violation->getMessageTemplate());
-        static::assertSame($expectedException->getParameters(), $violation->getParameters());
-        static::assertSame('', $violation->getRoot());
-        static::assertSame('', $violation->getPropertyPath());
-        static::assertSame('', $violation->getInvalidValue());
-        static::assertNull($violation->getPlural());
-        static::assertSame($expectedException->getErrorCode(), $violation->getCode());
-
-        // Verify that the controller was changed to ErrorController
-        // @see CaptchaRouteListener::validateCaptcha()
-        static::assertNotSame($originalController, $event->getController());
-    }
-
-    public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithExistingViolations(): void
-    {
-        $request = new Request(
-            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
-            server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
-        );
-
-        $event = new ControllerEvent(
-            static::createStub(HttpKernelInterface::class),
-            static function (): void {},
-            $request,
-            HttpKernelInterface::MAIN_REQUEST
-        );
-
-        $captcha = $this->createMock(AbstractCaptcha::class);
-        $captcha->expects($this->once())
-            ->method('supports')
-            ->willReturn(true);
-        $captcha->expects($this->once())
-            ->method('isValid')
-            ->willReturn(false);
-        $captcha->expects($this->once())
-            ->method('shouldBreak')
-            ->willReturn(true);
-
-        $violations = new ConstraintViolationList();
-        $violations->add(new ConstraintViolation(
-            'Existing violation',
-            'Existing violation',
-            [],
-            '',
-            '',
-            ''
         ));
 
-        $captcha->expects($this->once())
-            ->method('getViolations')
-            ->willReturn($violations);
-
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn([]);
-
-        $container = static::createStub(ContainerInterface::class);
-
-        $listener = new CaptchaRouteListener(
-            [$captcha],
-            $systemConfigService,
-            $container
-        );
-
-        // Since violations count > 0, we expect an exception to be thrown
-        // @see CaptchaRouteListener::validateCaptcha()
-        $this->expectExceptionObject(CaptchaException::invalid($captcha));
-
-        $listener->validateCaptcha($event);
-    }
-
-    public function testCaptchaSupportedButInvalidWithShouldBreakFalseSetsErrorController(): void
-    {
-        $request = new Request(
-            query: ['_route' => 'frontend.home.page'],
-            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true, '_route' => 'frontend.home.page']
-        );
-
-        $event = new ControllerEvent(
-            static::createStub(HttpKernelInterface::class),
-            static function (): void {},
-            $request,
-            HttpKernelInterface::MAIN_REQUEST
-        );
-
-        $captcha = $this->createMock(AbstractCaptcha::class);
-        $captcha->expects($this->once())
-            ->method('supports')
-            ->willReturn(true);
-        $captcha->expects($this->once())
-            ->method('isValid')
-            ->willReturn(false);
-        $captcha->expects($this->once())
-            ->method('shouldBreak')
-            ->willReturn(false);
-
-        $violations = new ConstraintViolationList();
-        $captcha->expects($this->once())
-            ->method('getViolations')
-            ->willReturn($violations);
-
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn([]);
-
-        $container = static::createStub(ContainerInterface::class);
-
-        $listener = new CaptchaRouteListener(
-            [$captcha],
-            $systemConfigService,
-            $container
-        );
+        $violations = self::createViolations(CaptchaException::INVALID_CAPTCHA_ERROR);
+        $captcha = $this->createCaptcha($violations, shouldBreak: true);
 
         $originalController = $event->getController();
-        $listener->validateCaptcha($event);
+        $this->createListener($captcha)->validateCaptcha($event);
 
-        // Verify that the controller was changed
-        // @see CaptchaRouteListener::validateCaptcha()
+        static::assertCount(1, $violations);
         static::assertNotSame($originalController, $event->getController());
+        static::assertIsCallable($event->getController());
+    }
 
-        // Verify that the new controller is callable
-        $newController = $event->getController();
-        static::assertIsCallable($newController);
+    public function testNonBreakingCaptchaRendersViolationsOnNonXmlRequest(): void
+    {
+        $event = $this->createControllerEvent(new Request(
+            query: ['_route' => 'frontend.account.register.page'],
+            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true, '_route' => 'frontend.account.register.page']
+        ));
+
+        // A non-breaking captcha must render its violations rather than throw (#17472).
+        $violations = self::createViolations(CaptchaException::RECAPTCHA_COOKIE_REQUIRED_VIOLATION);
+        $captcha = $this->createCaptcha($violations, shouldBreak: false);
+
+        $originalController = $event->getController();
+        $this->createListener($captcha)->validateCaptcha($event);
+
+        static::assertCount(1, $violations);
+        static::assertNotSame($originalController, $event->getController());
+        static::assertIsCallable($event->getController());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the deprecated isValid() method
+     */
+    public function testCaptchaImplementingOnlyTheDeprecatedIsValidIsDispatchedThroughTheListener(): void
+    {
+        // End-to-end guard: a captcha written before validate() existed must still reject.
+        $captcha = new class extends AbstractCaptcha {
+            public function isValid(Request $request, array $captchaConfig): bool
+            {
+                return false;
+            }
+
+            public function getName(): string
+            {
+                return 'legacyCaptcha';
+            }
+
+            public function shouldBreak(): bool
+            {
+                return false;
+            }
+        };
+
+        $event = $this->createControllerEvent(new Request(
+            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
+            server: ['REQUEST_METHOD' => 'POST']
+        ));
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn(['legacyCaptcha' => ['isActive' => true]]);
+
+        $originalController = $event->getController();
+        (new CaptchaRouteListener([$captcha], $systemConfigService, static::createStub(ContainerInterface::class)))
+            ->validateCaptcha($event);
+
+        static::assertNotSame($originalController, $event->getController());
     }
 
     public function testValidateCaptchaDoesNothingWhenCaptchaAnnotationIsFalse(): void
     {
-        $request = new Request();
-        $event = new ControllerEvent(
-            static::createStub(HttpKernelInterface::class),
-            static function (): void {},
-            $request,
-            HttpKernelInterface::MAIN_REQUEST
-        );
+        $event = $this->createControllerEvent(new Request());
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('get');
 
-        $container = static::createStub(ContainerInterface::class);
-
         $listener = new CaptchaRouteListener(
             [],
             $systemConfigService,
-            $container
+            static::createStub(ContainerInterface::class)
         );
 
         $originalController = $event->getController();
         $listener->validateCaptcha($event);
 
-        // Controller should remain unchanged
         static::assertSame($originalController, $event->getController());
     }
 
-    /**
-     * @return array<int, AbstractCaptcha|MockObject>
-     */
-    private function getCaptchas(bool $supports, bool $isValid): array
+    private function createControllerEvent(Request $request): ControllerEvent
+    {
+        return new ControllerEvent(
+            static::createStub(HttpKernelInterface::class),
+            static function (): void {},
+            $request,
+            HttpKernelInterface::MAIN_REQUEST
+        );
+    }
+
+    private function createCaptcha(ConstraintViolationList $violations, bool $shouldBreak = false): AbstractCaptcha&MockObject
     {
         $captcha = $this->createMock(AbstractCaptcha::class);
-
         $captcha->expects($this->once())
             ->method('supports')
-            ->willReturn($supports);
-
-        $captcha->expects($supports ? $this->once() : $this->never())
-            ->method('isValid')
-            ->willReturn($isValid);
-
-        $captcha->expects($supports ? $this->once() : $this->never())
-            ->method('shouldBreak')
             ->willReturn(true);
+        $captcha->expects($this->once())
+            ->method('validate')
+            ->willReturn($violations);
+        $captcha->method('shouldBreak')
+            ->willReturn($shouldBreak);
 
-        return [$captcha];
+        return $captcha;
+    }
+
+    private function createListener(AbstractCaptcha $captcha): CaptchaRouteListener
+    {
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn([]);
+
+        return new CaptchaRouteListener(
+            [$captcha],
+            $systemConfigService,
+            static::createStub(ContainerInterface::class)
+        );
+    }
+
+    private static function createViolations(string $code): ConstraintViolationList
+    {
+        return new ConstraintViolationList([
+            new ConstraintViolation('', '', [], '', '', '', null, $code),
+        ]);
     }
 }

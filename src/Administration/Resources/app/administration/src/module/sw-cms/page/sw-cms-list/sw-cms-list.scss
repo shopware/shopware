@@ -27,6 +27,11 @@
 
     .sw-cms-list__type-nav-horizontal {
         margin-bottom: 28px;
+
+        // the tabs only filter the list, so the always rendered content area stays empty
+        .sw-tabs__custom-content {
+            padding: 0;
+        }
     }
 
     .sw-cms-list__actions {

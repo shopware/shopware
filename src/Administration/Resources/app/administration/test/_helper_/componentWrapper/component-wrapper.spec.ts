@@ -21,6 +21,13 @@ async function loadWrapTestComponent(
 }
 
 /**
+ * Importable paths whose module evaluation is replaced per test. They have to resolve, so that only
+ * the factory - not the resolution - is what fails.
+ */
+const THROWING_MODULE = 'src/app/component/base/sw-button/index';
+const STALE_IMPORTER_MODULE = 'src/app/component/base/sw-icon/index';
+
+/**
  * Runs a wrap that is expected to fail and returns the error it threw.
  */
 async function captureError(wrap: Promise<unknown>): Promise<Error> {
@@ -35,6 +42,8 @@ async function captureError(wrap: Promise<unknown>): Promise<Error> {
 describe('wrapTestComponent', () => {
     afterEach(() => {
         jest.dontMock('./component-imports');
+        jest.dontMock(THROWING_MODULE);
+        jest.dontMock(STALE_IMPORTER_MODULE);
         jest.resetModules();
     });
 
@@ -60,6 +69,43 @@ describe('wrapTestComponent', () => {
         expect(error.message).toContain('sw-unmapped-component');
         expect(error.message).toContain('test/_helper_/componentWrapper/component-imports.js');
         expect(error.message).toContain('npm run generate-component-import-resolver-map');
+    });
+
+    it('leaves an error thrown while the component module evaluates untouched', async () => {
+        const wrapTestComponent = await loadWrapTestComponent({
+            'sw-throwing-component': { p: THROWING_MODULE, r: true },
+        });
+        jest.doMock(THROWING_MODULE, () => {
+            throw new Error('Cannot read properties of undefined (reading "criteria")');
+        });
+
+        const error = await captureError(wrapTestComponent('sw-throwing-component'));
+
+        expect(error.message).toContain('Cannot read properties of undefined (reading "criteria")');
+        expect(error.message).not.toContain('test/_helper_/componentWrapper/component-imports.js');
+        expect(error.message).not.toContain('npm run generate-component-import-resolver-map');
+        // Rethrown as-is, so it is not merely a relabel that happens to quote the original text.
+        expect(error.cause).toBeUndefined();
+    });
+
+    it('leaves a stale import inside the component untouched', async () => {
+        const wrapTestComponent = await loadWrapTestComponent({
+            'sw-stale-importer-component': { p: STALE_IMPORTER_MODULE, r: true },
+        });
+        // The component itself resolves; one of its own imports does not. That raises the same
+        // `moduleNameMapper` error as a stale map entry, but names a different module.
+        jest.doMock(STALE_IMPORTER_MODULE, () => {
+            jest.requireActual('src/app/component/base/sw-moved-dependency/index');
+
+            return {};
+        });
+
+        const error = await captureError(wrapTestComponent('sw-stale-importer-component'));
+
+        expect(error.message).toContain('Could not locate module');
+        expect(error.message).toContain('src/app/component/base/sw-moved-dependency/index');
+        expect(error.message).not.toContain('npm run generate-component-import-resolver-map');
+        expect(error.cause).toBeUndefined();
     });
 
     it('reports the extended component as part of the chain that requested it', async () => {

@@ -15,6 +15,32 @@ const REGENERATE_HINT =
     'src/. Run `npm run generate-component-import-resolver-map` (or use `composer run admin:unit`, ' +
     'which regenerates it) after moving or renaming a component.';
 
+// eslint-disable-next-line no-control-regex
+const ANSI_SGR_PATTERN = /\x1b\[[0-9;]*m/g;
+
+/**
+ * Whether `error` is Jest failing to resolve exactly `specifier`.
+ *
+ * Neither shape can be recognised by an error code: a specifier no `moduleNameMapper` entry matches
+ * arrives as `ModuleNotFoundError` (code `MODULE_NOT_FOUND`), but every generated `src/…` path does
+ * match `^src(.*)$`, so a missing file there arrives as a bare `Error` with no `code` and an empty
+ * `name`. Hence the match on the specifier itself, which also keeps everything the module body
+ * throws - a compile error, a stale import *inside* the component - out of the relabel.
+ */
+function isUnresolvedSpecifierError(error, specifier) {
+    if (error?.code === 'MODULE_NOT_FOUND' && error.moduleName === specifier) {
+        return true;
+    }
+
+    if (typeof error?.message !== 'string') {
+        return false;
+    }
+
+    // chalk colours the message unless Jest runs with `--ci`, and an escape sits right before the
+    // specifier.
+    return error.message.replace(ANSI_SGR_PATTERN, '').includes(`Could not locate module ${specifier} mapped as:`);
+}
+
 async function importComponent(componentName, requestedBy = null) {
     const requestedFor = requestedBy === null ? componentName : `${requestedBy} -> ${componentName}`;
 
@@ -44,11 +70,15 @@ async function importComponent(componentName, requestedBy = null) {
      */
     let component;
 
-    // A stale entry fails inside Jest's module resolution, which reports it as a `moduleNameMapper`
-    // problem - the mapper is correct, the generated path is not. Name the real culprit instead.
     try {
         component = await import(componentConfig.p);
     } catch (error) {
+        // A stale entry fails inside Jest's module resolution, which reports it as a `moduleNameMapper`
+        // problem - the mapper is correct, the generated path is not. Name the real culprit instead.
+        if (!isUnresolvedSpecifierError(error, componentConfig.p)) {
+            throw error;
+        }
+
         throw new Error(
             `Component ${requestedFor} resolved to "${componentConfig.p}" through ${IMPORT_MAP_FILE}, ` +
                 `which could not be imported. ${REGENERATE_HINT}`,

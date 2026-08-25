@@ -53,6 +53,10 @@
             .sw-card__content {
                 padding: 0;
             }
+
+            .sw-card-section {
+                padding: 0;
+            }
         }
     }
 
@@ -98,6 +102,7 @@
 
     .sw-theme-manager-detail__sales-channels-select {
         margin-top: 20px;
+        margin-bottom: 0;
     }
 
     .sw-theme-manager-detail__content-section-field {

@@ -17,7 +17,7 @@ graph LR
         C -- "loaded data" --> D
     end
 
-    E["Rendering<br/>build the response"]
+    E["Response Encoding<br/>build the response"]
     RES(["Full · Decomposed<br/>Skeleton · Data"])
 
     A -- "layout tree" --> B

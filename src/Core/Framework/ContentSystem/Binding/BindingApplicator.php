@@ -39,8 +39,8 @@ final class BindingApplicator
     /**
      * Wires a `resolves` entry only into a key the element carries no data requirement for yet, and attributes only
      * those keys — carried or already-bound wiring, and its attribution, is left untouched. The merge is the same
-     * existing-wins idiom {@see LayoutDefaultSeeder} uses for property
-     * seeding (`$properties + $defaults`): the element's own map is the left-hand operand, so its keys win.
+     * existing-wins idiom {@see LayoutDefaultSeeder} uses for property seeding: the element's own value always wins
+     * over a wired/seeded one.
      */
     public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId): StoredElement
     {

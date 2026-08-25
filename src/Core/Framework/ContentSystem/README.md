@@ -64,9 +64,9 @@ Domain-specific content system classes live in their owning domain module — no
 
 **Domain-owned:** Entity definitions, specification sources, data loaders, config serializers. These are co-located with the domain entity they serve (e.g., product data loader lives in the product module).
 
-**Framework-owned (stays here):** Pipeline, hydration engine, field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
+**Framework-owned (stays here):** Pipeline, render step (`Rendering/`) and data loaders (`Hydration/`), field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
 
-**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which XML file defines them.
+**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which DI file defines them.
 
 ## Naming
 

@@ -21,8 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * ConfigKeySpecification::REFERENCED_TYPES set and only on a reference kind, coherent defaults (never on a
  * required key), coherent merges (a `list<string>` reference key merging into a declared `list<string>` literal
  * key, with at most one merger key claiming any given target), and no reserved key name. It also fails the build
- * when two loaders declare the same source, and when a loader's source has no `content_system.config_serializer`
- * declaring it.
+ * when the tagged class is PHP-abstract despite a concrete service definition, when two loaders declare the same
+ * source, and when a loader's source has no `content_system.config_serializer` declaring it.
  *
  * @internal
  */

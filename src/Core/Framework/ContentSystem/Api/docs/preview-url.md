@@ -42,7 +42,7 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | An `includes` or `excludes` parameter in any of the attribute, query or request bag | 400 | `fieldSelectionNotSupported` — field selection is refused here as it is on the store-api content routes |
 | `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |
-| Layout has an intrinsic error the structural decode does not catch: an unregistered `component`, an element config a bound source rejects (`invalid_config`), or a `style` key no style option declares (`unknown_style_option`) | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
+| Layout has any intrinsic-scope error `LayoutDiagnostics` reports | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
 | Target entity not found / unresolvable data requirement | 500 | data-loader / hydration exception (e.g. `ContentSystemException::dataLoaderNotRegistered`) |
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |

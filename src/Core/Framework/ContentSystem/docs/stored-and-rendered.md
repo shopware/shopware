@@ -8,11 +8,11 @@ There is no unprefixed element subject: a name saying only "element" leaves the 
 
 **`Rendered*`** is the render-time and Store-API-response side. It carries `id`, `component`, a flat `properties` map, `slots` and `style`, and its property values are raw PHP values, hydrated entities included. No data requirements, no wiring, no attribution: those authoring concerns finish their work before anything renders.
 
-The two lists are exclusive in both directions. Adding wiring to a `Rendered*` subject or a hydrated object to a `Stored*` one is not an extension of the model, it is a name that has stopped being true.
+Exclusivity holds only for the discriminating members: `dataRequirements`, `contextDefinitions` and `attributedSpecifications` on `Stored*`, and raw, unwrapped property values on `Rendered*`. `id`, `component`, `slots` and `style` are shared by both. Wiring on a `Rendered*` subject, or a hydrated value inside a `Stored*` property, is not an extension of the model, it is a name that has stopped being true.
 
 ## Where each subject belongs
 
-So a contributor does not have to re-decide. These paths, and the examples on [Role suffixes](role-suffixes.md), are the names the storage/render split establishes; the code has yet to acquire some of them.
+So a contributor does not have to re-decide.
 
 - `Layout/Element/StoredElement` — one authored element.
 - `Layout/Element/StoredValue` — one wrapped property value.

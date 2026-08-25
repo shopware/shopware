@@ -36,9 +36,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class LayoutDiagnostics
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly AvailableContextResolver $availableContextResolver,
         private readonly ElementResolver $elementResolver,

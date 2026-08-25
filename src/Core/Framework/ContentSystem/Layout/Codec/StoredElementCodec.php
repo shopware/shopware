@@ -50,8 +50,8 @@ use Shopware\Core\Framework\Log\Package;
  * `consumerAlias` and `propertyAlias`, and {@see decodeDataRequirements()} already gives `key`: a null
  * container carries no information a caller could act on differently from an absent one.
  *
- * This class is lenient in one place, narrow and independently justified rather than a general tolerance for
- * malformed input. {@see decodeStyle()} is structurally strict — a malformed option name, value or breakpoint
+ * This class is lenient in two places, each narrow and independently justified rather than a general tolerance
+ * for malformed input. {@see decodeStyle()} is structurally strict — a malformed option name, value or breakpoint
  * throws like any other malformed container — but stays registry-blind: an option name the registry no longer
  * knows is a well-formed string and still reads verbatim, so removing a style option provider does not make an
  * already-stored layout unreadable; the registry-aware check belongs to the write boundary, not here. A

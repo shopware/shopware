@@ -21,7 +21,7 @@ The `redistribute` flag on an `acceptsContext` entry, which lets a container pas
 
 Both produce identical results. The container automatically passes data to all children.
 
-The broadcast provider that `redistribute: true` stands for is generated at runtime from `ContextConsumer::$redistribute` by the redistribute derivation in `Rendering/WiringPlanner::plan()`, before the render step; it is never persisted with the layout. The rules below are enforced one step earlier, by the wiring validation in that same `plan()` call, which judges the whole authored forest — including a subtree a partial render is about to discard.
+The broadcast provider that `redistribute: true` stands for is generated at runtime from `ContextConsumer::$redistribute` by the redistribute derivation in `Rendering/WiringPlanner::plan()`, before the render step; it is never persisted with the layout. The dotted-key rule and the `providesContext`-coexistence rule below are enforced one step earlier, by the wiring validation in that same `plan()` call, which judges the whole authored forest — including a subtree a partial render is about to discard. The `consumerAlias` requires `redistribute: true` rule is enforced separately, at decode (`Layout/Codec/StoredElementCodec`) and by the write-time constraints (`Layout/Codec/StoredTreeConstraints`).
 
 ## Consumer Alias with Redistribution
 

@@ -12,9 +12,9 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 /**
  * The registry lookup is `has()`-guarded and silent on a miss: an unregistered component is
  * {@see \Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics}' to report, and an unguarded
- * `get()` would throw `elementTypeNotFound` — not a client-defect code — out of the constraint pass and turn a
- * structured 400 into an unstructured 500. A tree naming an unregistered component is still refused, by the
- * resolvability gate.
+ * `get()` would throw `elementTypeNotFound` — a structured 404, but the wrong status and error code for the
+ * write-constraint pass, which should reject with a 400. A tree naming an unregistered component is still
+ * refused, by the resolvability gate.
  *
  * @internal only for use by the content-system stored-tree write path
  */

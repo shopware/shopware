@@ -16,7 +16,7 @@ Turns one stored element forest into the rendered forest it serves as: resolves 
 
 1. **Data resolution**: `ElementDataResolver` runs ONE element's `DataRequirement`s and returns what they resolved to, keyed by requirement key. Each loader returns `ContentDataLoaderResult` with cache info. The walk over the whole forest lives in `ElementLowering` itself — each element before the elements under it, slot by slot. See ../Hydration/DataLoader/.
 2. **Context delivery resolution**: `ContextDeliveryResolver` walks the whole forest top-down and returns a `ContextDeliveryIndex` recording what every element received. It takes the collected loader values as an argument rather than resolving them itself.
-3. **Tree minting**: `RenderedTreeFactory` folds `RenderedElementFactory` over the stored forest bottom-up and returns `list<RenderedElement>`.
+3. **Tree minting**: `RenderedTreeFactory` folds `RenderedElementFactory` over the stored forest bottom-up and returns a `LoweringResult`: the rendered forest plus the provenance recorded for every property key in it.
 
 Data resolution MUST complete over the WHOLE forest before any distribution starts, because a provider may hand a loaded value on to a child. No layer writes into an element: each returns its values, and the rendered tree is minted from them.
 

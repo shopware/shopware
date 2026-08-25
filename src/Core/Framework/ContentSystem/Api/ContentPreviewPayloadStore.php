@@ -94,8 +94,10 @@ class ContentPreviewPayloadStore
     /**
      * The three steps are the three ways a stored value can fail to be an envelope: it names fields the DTO does
      * not declare (or omits ones it does), it carries a value of the wrong PHP type for the constructor, or it
-     * builds a DTO that violates the DTO's own constraints. Only the middle step names types here, and those are
-     * the constructor's own parameter types, so a divergence is a `TypeError`, never a silent acceptance.
+     * builds a DTO that violates the DTO's own constraints. The middle step routes every field through a
+     * type-checked helper ({@see self::arrayField()}, {@see self::stringField()}, {@see self::nullableStringField()},
+     * {@see self::stringKeyedField()}), each of which throws `previewPayloadInvalid` before the constructor runs, so
+     * a wrongly-typed stored value is rejected there and never reaches the constructor as a `TypeError`.
      *
      * @param array<array-key, mixed> $payload
      */

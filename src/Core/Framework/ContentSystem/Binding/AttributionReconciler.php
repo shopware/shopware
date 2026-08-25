@@ -22,7 +22,8 @@ use Shopware\Core\Framework\Log\Package;
  * `decode($x)->jsonSerialize()`. A serializer that normalizes or coerces values on decode, or whose
  * `encode` diverges from `jsonSerialize`, would silently drop an attribution that is in fact still honest.
  *
- * Nothing is caught here. A wiring the comparison cannot even encode — an element whose requirement source
+ * Nothing here converts this exception into "not honest" — it is intercepted only to attach the element id
+ * before re-throwing. A wiring the comparison cannot even encode — an element whose requirement source
  * has no registered config serializer, which raises
  * {@see ContentSystemException::configSerializerNotRegistered()} — is a wiring the write cannot judge, not
  * an unattributed element, so it escapes and refuses the write rather than being recorded as "not honest".

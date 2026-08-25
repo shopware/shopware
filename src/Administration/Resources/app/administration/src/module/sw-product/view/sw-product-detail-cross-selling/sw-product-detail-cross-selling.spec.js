@@ -182,4 +182,10 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         expect(emptyState.text()).toContain('sw-product.crossselling.notInheritedEmptyStateDescription');
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
+
+    it('should keep the deprecated assetFilter for template overrides', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toBe(Shopware.Filter.getByName('asset'));
+    });
 });

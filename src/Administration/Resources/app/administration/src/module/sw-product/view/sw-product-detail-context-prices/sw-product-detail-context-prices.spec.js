@@ -410,4 +410,10 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         expect(wrapper.vm.product.prices).toHaveLength(2);
         expect(wrapper.vm.product.prices[0].quantityEnd).toBe(newValue);
     });
+
+    it('should keep the deprecated assetFilter for template overrides', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toBe(Shopware.Filter.getByName('asset'));
+    });
 });

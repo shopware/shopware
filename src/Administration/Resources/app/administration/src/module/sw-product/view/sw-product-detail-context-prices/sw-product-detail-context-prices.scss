@@ -91,11 +91,6 @@
 
         &-select-rule {
             width: 100%;
-
-            .sw-field,
-            .mt-field {
-                margin-bottom: 0;
-            }
         }
 
         .mt-empty-state__button {
@@ -103,6 +98,15 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
+        }
+
+        .sw-select-rule-create {
+            width: 100%;
+
+            .sw-field,
+            .mt-field {
+                margin-bottom: 0;
+            }
         }
     }
 

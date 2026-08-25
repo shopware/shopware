@@ -131,10 +131,6 @@ export default {
             return 'extension-apps';
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-
         extensionManagementDisabled() {
             return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },

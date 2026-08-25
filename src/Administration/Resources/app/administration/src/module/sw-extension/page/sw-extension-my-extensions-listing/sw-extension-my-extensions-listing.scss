@@ -4,25 +4,10 @@
     .sw-extension-my-extensions-listing__listing-grid {
         margin-bottom: 32px;
 
-        .sw-meteor-card {
-            margin: 0 auto 8px;
-        }
-
-        .sw-extension-my-extensions-listing__empty-state .sw-meteor-card__content-wrapper {
-            text-align: center;
+        .sw-extension-my-extensions-listing__empty-state {
+            max-width: 960px;
+            margin: 0 auto;
             padding: 56px 32px;
-
-            h3 {
-                margin-bottom: 8px;
-            }
-
-            .mt-button {
-                margin-block-start: 1em;
-            }
-
-            img {
-                margin: 0 auto 24px;
-            }
         }
 
         .sw-extension-my-extensions-listing__app-url-warning {
@@ -38,10 +23,6 @@
             max-width: 960px;
             margin-bottom: 32px;
         }
-    }
-
-    &-empty-state {
-        text-align: center;
     }
 
     &__container {

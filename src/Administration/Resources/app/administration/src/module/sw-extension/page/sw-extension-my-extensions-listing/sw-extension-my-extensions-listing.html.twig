@@ -47,36 +47,27 @@
 
         {% block sw_extension_my_extensions_list_empty_state %}
 
-        <sw-meteor-card
+        <mt-empty-state
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
+            :centered="true"
+            :icon="$route.meta.$module.icon"
+            :headline="isThemeRoute
+                ? $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState')
+                : $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState')"
+            :description="isThemeRoute
+                ? $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState')
+                : $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState')"
         >
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
-                alt=""
-            >
-
-            <h3 v-if="isThemeRoute">
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}
-            </h3>
-            <h3 v-else>
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}
-            </h3>
-
-            <p v-if="isThemeRoute">
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}
-            </p>
-            <p v-else>
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
-            </p>
-
-            <mt-button
-                variant="secondary"
-                @click="isThemeRoute ? openThemesStore() : openStore()"
-            >
-                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
-            </mt-button>
-        </sw-meteor-card>
+            <template #button>
+                <mt-button
+                    variant="secondary"
+                    @click="isThemeRoute ? openThemesStore() : openStore()"
+                >
+                    {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
+                </mt-button>
+            </template>
+        </mt-empty-state>
 
         {% endblock %}
 
@@ -93,22 +84,16 @@
                     position-identifier="sw-extension-my-extensions-listing__before-content"
                 />
 
-                <sw-meteor-card
+                <mt-empty-state
                     v-if="!extensionListPaginated.length && filterByActiveState"
                     class="sw-extension-my-extensions-listing__empty-state"
-                >
-                    <img
-                        :src="assetFilter('administration/administration/static/img/empty-states/extensions-empty-state.svg')"
-                        alt=""
-                    >
-
-                    <h3 v-if="isThemeRoute">
-                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}
-                    </h3>
-                    <h3 v-else>
-                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}
-                    </h3>
-                </sw-meteor-card>
+                    :centered="true"
+                    :icon="$route.meta.$module.icon"
+                    :headline="isThemeRoute
+                        ? $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins')
+                        : $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins')"
+                    description=""
+                />
 
                 <template v-else>
                     <template

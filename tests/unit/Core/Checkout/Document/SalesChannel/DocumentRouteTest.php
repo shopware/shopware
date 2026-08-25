@@ -871,8 +871,11 @@ class DocumentRouteTest extends TestCase
 
         $response = $route->download(
             $document->getId(),
-            new Request(['format' => DocumentFormat::ZUGFERD_EMBEDDED_PDF->value]),
+            new Request(),
             $context,
+            '',
+            null,
+            DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
         );
 
         static::assertSame('content', $response->getContent());
@@ -1028,6 +1031,54 @@ class DocumentRouteTest extends TestCase
                 $context,
                 '',
                 'pdf',
+            );
+
+            static::assertSame('legacy content', $response->getContent());
+        });
+    }
+
+    public function testDownloadIgnoresFormatQueryParameterForALegacyDocumentWhenV690IsActive(): void
+    {
+        Feature::fake(['v6.9.0.0'], function (): void {
+            $customerId = Uuid::randomHex();
+            $customer = $this->createCustomer($customerId, false);
+            $order = $this->createOrder($customerId);
+            $document = $this->createDocument($order);
+
+            $media = new MediaEntity();
+            $media->setId(Uuid::randomHex());
+            $media->setFileName('invoice');
+            $media->setFileExtension('pdf');
+            $media->setMimeType('application/pdf');
+
+            $document->setDocumentMediaFile($media);
+
+            $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+                new DocumentCollection([$document]), // DocumentRoute::loadDocument()
+                new DocumentCollection([$document]), // DocumentReader::read()
+            ], new DocumentDefinition());
+
+            $mediaService = static::createStub(MediaService::class);
+            $mediaService->method('loadFile')->willReturn('legacy content');
+
+            $route = new DocumentRoute(
+                static::createMock(DocumentGenerator::class),
+                new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
+                $documentRepository,
+                new GuestAuthenticator(),
+                new \ArrayIterator([]),
+            );
+
+            $context = static::createStub(SalesChannelContext::class);
+            $context->method('getCustomer')->willReturn($customer);
+            $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+            $response = $route->download(
+                $document->getId(),
+                new Request(['format' => DocumentFormat::HTML->value]),
+                $context,
+                '',
+                DocumentFormat::PDF->value,
             );
 
             static::assertSame('legacy content', $response->getContent());

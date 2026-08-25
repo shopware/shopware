@@ -73,10 +73,6 @@ final class DocumentRoute extends AbstractDocumentRoute
         ?string $fileType = null,
         ?string $format = null,
     ): Response {
-        if ($format === null && $request->query->has('format')) {
-            $format = $request->query->getString('format');
-        }
-
         $documentEntity = $this->loadDocument($documentId, $context->getContext());
 
         $this->checkAuth($documentEntity, $request, $context);
@@ -90,6 +86,10 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $documentFiles = $documentEntity->getDocumentFiles();
         $isDocumentV2 = $documentFiles !== null && $documentFiles->count() > 0;
+
+        if ($isDocumentV2 && $format === null && $request->query->has('format')) {
+            $format = $request->query->getString('format');
+        }
 
         if (!$isDocumentV2 && !Feature::isActive('v6.9.0.0')) {
             $fileTypes = $this->resolveRequest($request, $fileType);

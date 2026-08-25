@@ -21,11 +21,19 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -326,6 +334,47 @@ class DocumentControllerTest extends TestCase
             static::assertStringContainsString('The requested file type is not supported', (string) $response->getContent());
             static::assertStringContainsString(self::INVALID_FILE_TYPE, (string) $response->getContent());
         }
+    }
+
+    public function testDownloadV2DocumentWithFormatName(): void
+    {
+        Feature::skipTestIfInActive('v6.9.0.0', $this);
+
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+
+        $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::INVOICE,
+                [DocumentFormat::ZUGFERD_EMBEDDED_PDF],
+                documentNumber: '1000',
+            ),
+            $this->context,
+        );
+
+        /** @var EntityRepository<DocumentFileCollection> $documentFileRepository */
+        $documentFileRepository = static::getContainer()->get('document_file.repository');
+        $documentFile = $documentFileRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('documentId', $document->getId())),
+            $this->context,
+        )->getEntities()->first();
+
+        static::assertInstanceOf(DocumentFileEntity::class, $documentFile);
+        static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $documentFile->getDocumentFormat());
+
+        $expectedContent = static::getContainer()->get(MediaService::class)->loadFile($documentFile->getMediaId(), $this->context);
+
+        $browser = $this->login(self::CUSTOMER_EMAIL_ADDRESS);
+        $browser->request(
+            'GET',
+            '/account/order/document/' . $document->getId() . '/' . $document->getDeepLinkCode() . '/' . DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame($expectedContent, $response->getContent());
     }
 
     private function login(string $email): KernelBrowser

@@ -325,7 +325,7 @@ export default Component.wrapComponentConfig({
             this.$emit('page-leave');
         },
 
-        successfulUploadFromUrl(res: { targetId: string }): void {
+        successfulUploadFromUrl(res: { targetId: EntityKey<'media'> }): void {
             this.mediaRepository
                 .get(res.targetId)
                 .then((response) => {

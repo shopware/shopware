@@ -177,10 +177,9 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context } as ContextState['api'];
 
-        const result = repository.create(
-            mergedContext,
-            entityId as EntityKey<typeof entityName>,
-        ) as Entity<keyof EntitySchema.Entities>;
+        const result = repository.create(mergedContext, entityId as EntityKey<typeof entityName>) as Entity<
+            keyof EntitySchema.Entities
+        >;
         filterContext(result, context);
         return result;
     });

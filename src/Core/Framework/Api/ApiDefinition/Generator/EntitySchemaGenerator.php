@@ -168,7 +168,14 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof ReferenceVersionField:
             case $field instanceof ParentFkField:
             case $field instanceof FkField:
-                return ['type' => 'uuid', 'flags' => $flags, 'entity' => $field->getReferenceEntity()];
+                $property = ['type' => 'uuid', 'flags' => $flags];
+
+                $referenceEntity = $field->getReferenceEntity();
+                if ($referenceEntity !== null) {
+                    $property['entity'] = $referenceEntity;
+                }
+
+                return $property;
 
             case $field instanceof IdField:
                 return ['type' => 'uuid', 'flags' => $flags];

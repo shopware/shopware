@@ -25,7 +25,7 @@ interface UserSettingsRepositoryFactory {
 }
 
 interface CurrentUser {
-    id?: string | null;
+    id?: EntityKey<'user'> | null;
 }
 
 /**
@@ -61,7 +61,10 @@ export default Shopware.Mixin.register(
              * @param {string|null} userId Id of the target user; `null` will use the current user
              * @return {Promise<*>}
              */
-            getUserSettingsEntity(identifier: string, userId: EntityKey<'user'> | null = null): Promise<UserSettingsEntity | null> {
+            getUserSettingsEntity(
+                identifier: string,
+                userId: EntityKey<'user'> | null = null,
+            ): Promise<UserSettingsEntity | null> {
                 if (!this.acl.can('user_config:read')) {
                     return Promise.reject();
                 }

@@ -637,7 +637,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.page.sections!.remove(sectionId);
         },
 
-        onNavigatorSectionDelete(sectionId: string) {
+        onNavigatorSectionDelete(sectionId: EntityKey<'cms_section'>) {
             this.onSectionDelete(sectionId);
             this.$emit('page-save');
         },

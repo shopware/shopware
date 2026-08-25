@@ -24,15 +24,15 @@ final class ContentSystemSchemaReferencesResolveTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * The Admin API node schemas of the storage/render split plus the sub-schemas the stored node hangs off
+     * The Admin API node schema of the storage/render split plus the sub-schemas the stored node hangs off
      * itself. Every one of them must be reached by the sweep, otherwise the resolution assertions run over a
-     * ref set that never touched them.
+     * ref set that never touched them. There is no rendered node here: the Admin API serves the storage model
+     * only, and the rendered counterpart lives in the Store API document.
      */
     private const ADMIN_API_ELEMENT_SCHEMAS = [
         'ContentElementContextConsumer',
         'ContentElementContextProvider',
         'ContentElementDataRequirement',
-        'RenderedContentElement',
         'StoredContentElement',
     ];
 

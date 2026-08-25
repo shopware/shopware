@@ -9,10 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
 /**
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it was not used anymore
+ *
+ * @codeCoverageIgnore
  */
+#[Package('inventory')]
 class ProductListingRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
     public function __construct(

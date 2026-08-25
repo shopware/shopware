@@ -18,7 +18,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(ChangeShippingLocationCommandHandler::class)]
 class ChangeShippingLocationCommandHandlerTest extends TestCase
 {

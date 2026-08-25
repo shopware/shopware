@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollectio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -64,7 +65,7 @@ final readonly class DocumentPersister
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
 
-        // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
+        // replaced by a unique index on document(document_number, type_name) once document_type_id is dropped.
         $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber, $context);
 
         $persistedFiles = $this->writeMediaFiles(
@@ -73,19 +74,22 @@ final readonly class DocumentPersister
             $context,
         );
 
-        $this->documentRepository->create([
-            [
-                'id' => $documentId,
-                'orderId' => $generationRequest->orderId,
-                'orderVersionId' => $input->order->getVersionId(),
-                'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
-                'referencedDocumentId' => $resolvedReference?->id,
-                'deepLinkCode' => Random::getAlphanumericString(32),
-                'config' => [
-                    'documentNumber' => $input->documentNumber,
-                ],
+        $documentData = [
+            'id' => $documentId,
+            'orderId' => $generationRequest->orderId,
+            'orderVersionId' => $input->order->getVersionId(),
+            'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context), // remove with v6.9.0
+            'typeName' => $generationRequest->documentType,
+            'documentMediaFileId' => $persistedFiles[DocumentFormat::PDF->value] ?? (array_values($persistedFiles)[0] ?? null),
+            'documentA11yMediaFileId' => $persistedFiles[DocumentFormat::HTML->value] ?? null,
+            'referencedDocumentId' => $resolvedReference?->id,
+            'deepLinkCode' => Random::getAlphanumericString(32),
+            'config' => [
+                'documentNumber' => $input->documentNumber,
             ],
-        ], $context);
+        ];
+
+        $this->documentRepository->create([$documentData], $context);
 
         $documentFiles = [];
 
@@ -151,6 +155,8 @@ final readonly class DocumentPersister
 
     /**
      * @throws DocumentV2Exception
+     *
+     * @deprecated tag:v6.9.0 - Will be removed once unique index on document(document_number, type_name) is enforced
      */
     private function assertDocumentNumberIsUnique(
         DocumentGenerationRequest $generationRequest,
@@ -159,7 +165,7 @@ final readonly class DocumentPersister
     ): void {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
+            ->addFilter(new EqualsFilter('typeName', $generationRequest->documentType))
             ->setLimit(1);
 
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;
@@ -171,10 +177,11 @@ final readonly class DocumentPersister
 
     /**
      * @throws DocumentV2Exception
+     *
+     * @deprecated tag:v6.9.0 - Will be removed once `document.document_type_id` is removed
      */
     private function getDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
     {
-        // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
         $documentType = $generationRequest->documentType;
 
         $criteria = (new Criteria())

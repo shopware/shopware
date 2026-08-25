@@ -42,8 +42,8 @@ Shopware.Module.register('sw-cms', {
     title: 'sw-cms.general.mainMenuItemGeneral',
     description: 'The module for creating content.',
     color: 'var(--color-pink-500)',
-    icon: 'regular-content',
-    favicon: 'icon-module-content.png',
+    icon: 'regular-image-text',
+    favicon: 'icon-module-content.svg',
     entity: 'cms_page',
 
     routes: {
@@ -80,7 +80,7 @@ Shopware.Module.register('sw-cms', {
             id: 'sw-content',
             label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
             color: 'var(--color-pink-500)',
-            icon: 'regular-content',
+            icon: 'regular-image-text',
             position: 50,
         },
         {
@@ -88,7 +88,7 @@ Shopware.Module.register('sw-cms', {
             label: 'sw-cms.general.mainMenuItemGeneral',
             color: 'var(--color-pink-500)',
             path: 'sw.cms.index',
-            icon: 'regular-content',
+            icon: 'regular-image-text',
             position: 10,
             parent: 'sw-content',
             privilege: 'cms.viewer',

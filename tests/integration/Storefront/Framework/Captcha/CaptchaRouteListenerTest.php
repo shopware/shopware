@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -144,5 +145,104 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertIsString($content);
         // Check that we're on the register page by looking for the register form
         static::assertStringContainsString('action="/account/register"', $content);
+    }
+
+    public function testRecaptchaFailureRendersFlashMessageInsteadOfErrorPage(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => ['secretKey' => 'secret123'],
+            ],
+        ]);
+
+        // Non-AJAX registration without a reCAPTCHA token, e.g. the script never ran (#17472).
+        $data = [
+            'email' => 'recaptcha-test@shopware.com',
+            'errorRoute' => 'frontend.account.register.page',
+        ];
+
+        $browser = $this->createCustomSalesChannelBrowser();
+        $crawler = $browser->request(
+            'POST',
+            '/account/register',
+            $this->tokenize('frontend.account.register.save', $data)
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
+
+        $flash = $crawler->filter('.flashbags .alert-danger');
+        static::assertCount(1, $flash);
+        static::assertStringContainsString(
+            'The reCAPTCHA verification could not be completed. Please try again.',
+            $flash->text()
+        );
+        static::assertSame('true', $flash->attr('data-alert-aria'));
+        static::assertSame('assertive', $flash->attr('aria-live'));
+
+        static::assertCount(1, $crawler->filter('form[action="/account/register"]'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('recaptcha-test@shopware.com', $content);
+    }
+
+    public function testRecaptchaFailureOnGuestConversionShowsFlashMessage(): void
+    {
+        // Register a guest (no createCustomerAccount) before any captcha is active.
+        $browser = $this->createCustomSalesChannelBrowser();
+        $browser->request(
+            'POST',
+            '/account/register',
+            $this->tokenize('frontend.account.register.save', [
+                'errorRoute' => 'frontend.account.register.page',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Guest',
+                'lastName' => 'Convert',
+                'email' => 'guest-convert@shopware.com',
+                'billingAddress' => [
+                    'countryId' => $this->getValidCountryId(),
+                    'street' => 'Musterstrasse 13',
+                    'zipcode' => '48599',
+                    'city' => 'Epe',
+                ],
+            ])
+        );
+
+        $registerResponse = $browser->getResponse();
+        static::assertLessThan(400, $registerResponse->getStatusCode(), $registerResponse->getContent() ?: '');
+
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.basicInformation.activeCaptchasV2', [
+            GoogleReCaptchaV3::CAPTCHA_NAME => [
+                'name' => GoogleReCaptchaV3::CAPTCHA_NAME,
+                'isActive' => true,
+                'config' => ['secretKey' => 'secret123'],
+            ],
+        ]);
+
+        // This form renders only field-bound violations, so the failure must reach a flash.
+        $crawler = $browser->request('POST', '/account/convert', $this->tokenize('frontend.account.convert.save', []));
+
+        $response = $browser->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent() ?: '');
+
+        $flash = $crawler->filter('.flashbags .alert-danger');
+        static::assertCount(1, $flash);
+        static::assertStringContainsString(
+            'The reCAPTCHA verification could not be completed. Please try again.',
+            $flash->text()
+        );
+        static::assertSame('true', $flash->attr('data-alert-aria'));
+        static::assertSame('assertive', $flash->attr('aria-live'));
+
+        static::assertCount(1, $crawler->filter('form[action="/account/convert"]'));
     }
 }

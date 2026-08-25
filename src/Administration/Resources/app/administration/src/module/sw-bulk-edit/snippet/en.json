@@ -340,7 +340,9 @@
           "label": "Generate: Invoice",
           "helpText": "This action increases the value of the corresponding number range.",
           "labelDatePicker": "Date",
-          "labelTextarea": "Comment"
+          "labelTextarea": "Comment",
+          "labelFileFormats": "File formats",
+          "placeholderFileFormats": "Select file formats..."
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",

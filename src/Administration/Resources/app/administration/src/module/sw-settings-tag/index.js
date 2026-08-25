@@ -22,7 +22,7 @@ Module.register('sw-settings-tag', {
     description: 'Tag section in the settings module',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'tag',
 
     routes: {

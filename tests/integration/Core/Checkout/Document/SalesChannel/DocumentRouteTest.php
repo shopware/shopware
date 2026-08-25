@@ -18,7 +18,11 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -384,6 +388,68 @@ class DocumentRouteTest extends TestCase
             'acceptHeader' => self::ACCEPT_WILDCARD,
             'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
         ];
+    }
+
+    public function testDownloadV2DocumentWithRequestedFormat(): void
+    {
+        Feature::skipTestIfInActive('v6.9.0.0', $this);
+
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+
+        $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
+            new DocumentGenerationRequest(
+                $this->ids->get('order'),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF, DocumentFormat::HTML],
+                documentNumber: '1000',
+            ),
+            Context::createDefaultContext(),
+        );
+
+        $this->browser->request(
+            'GET',
+            '/store-api/document/download/' . $document->getId(),
+            ['format' => DocumentFormat::HTML->value],
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertStringStartsWith(DocumentFormat::HTML->mimeType(), (string) $response->headers->get('content-type'));
+        static::assertStringContainsString('<html', (string) $response->getContent());
+    }
+
+    public function testDownloadV2DocumentDefaultsToPdf(): void
+    {
+        Feature::skipTestIfInActive('v6.9.0.0', $this);
+
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+
+        $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
+            new DocumentGenerationRequest(
+                $this->ids->get('order'),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF, DocumentFormat::HTML],
+                documentNumber: '1000',
+            ),
+            Context::createDefaultContext(),
+        );
+
+        $this->browser->request('GET', '/store-api/document/download/' . $document->getId());
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertStringStartsWith(DocumentFormat::PDF->mimeType(), (string) $response->headers->get('content-type'));
+        static::assertStringStartsWith('%PDF', (string) $response->getContent());
     }
 
     public function testDownloadShouldThrowExceptionWhenRequestedFileTypeHasNoGeneratedDocument(): void

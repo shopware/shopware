@@ -219,11 +219,10 @@ describe('FlyoutMenu tests', () => {
         expect(plugin._flyoutEls[0].style.top).toBe('');
     });
 
-    test('_setAriaCurrentPage should be called on load event', () => {
+    test('_setAriaCurrentPage should be called during initialization', () => {
         jest.spyOn(plugin, '_setAriaCurrentPage');
 
         plugin.init();
-        window.dispatchEvent(new Event('load'));
 
         expect(plugin._setAriaCurrentPage).toHaveBeenCalled();
     });

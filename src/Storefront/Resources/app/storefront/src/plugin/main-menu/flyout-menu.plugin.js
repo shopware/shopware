@@ -65,6 +65,7 @@ export default class FlyoutMenuPlugin extends Plugin {
         this._flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
         this._hasOpenedFlyouts = false;
         this._registerEvents();
+        this._setAriaCurrentPage();
     }
 
     /**
@@ -123,9 +124,6 @@ export default class FlyoutMenuPlugin extends Plugin {
             });
         }
 
-        window.addEventListener('load', () => {
-            this._setAriaCurrentPage();
-        });
     }
 
     /**
@@ -287,4 +285,3 @@ export default class FlyoutMenuPlugin extends Plugin {
         }
     }
 }
-

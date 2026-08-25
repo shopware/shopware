@@ -1,17 +1,17 @@
 import path from 'path';
 import fs from 'fs';
 import { globSync } from 'glob';
-import { extractBlocks, isBlockTemplateSourceFile } from './extract-blocks';
+import { extractBlocks } from './extract-blocks';
+import { isTemplateSourceFile } from '../public-api-source-files';
 
 const BLOCKS_LIST_FILE = path.join(__dirname, '../../blocks-list.json');
 
 function main() {
     const sourcePath = path.join(__dirname, '../../src');
-    // The file filter lives in `extract-blocks` so this generator and the `src/meta/meta.spec.js`
-    // guard cannot drift about which files carry public blocks.
-    const listOfTemplateFiles = globSync(`${sourcePath}/**/*.*`).filter(isBlockTemplateSourceFile);
+    const blocks = globSync(`${sourcePath}/**/*.*`)
+        .filter(isTemplateSourceFile)
+        .flatMap((filePath) => extractBlocks(fs.readFileSync(filePath, 'utf8')));
 
-    const blocks = extractBlocks(listOfTemplateFiles);
     updateBlocksList(blocks);
 }
 

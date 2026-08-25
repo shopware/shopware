@@ -1,22 +1,10 @@
-import fs from 'fs';
 import { extractBlocks } from './extract-blocks';
-
-jest.mock('fs');
-
-/**
- * Feeds `extractBlocks` file contents by path and returns the block names it found.
- */
-function extractFrom(files: Record<string, string>): string[] {
-    jest.spyOn(fs, 'readFileSync').mockImplementation((filePath) => files[filePath as string]);
-
-    return extractBlocks(Object.keys(files));
-}
 
 describe('extract-blocks', () => {
     it.each([
         [
             'nested twig blocks',
-            { 'a.html.twig': '{% block sw_outer %}{% block sw_inner %}{% endblock %}{% endblock %}' },
+            '{% block sw_outer %}{% block sw_inner %}{% endblock %}{% endblock %}',
             [
                 'sw_outer',
                 'sw_inner',
@@ -24,13 +12,11 @@ describe('extract-blocks', () => {
         ],
         [
             'nested sw-block declarations in a vue template',
-            {
-                'a.vue': `<template>
-                    <sw-block name="sw_outer" :data="$dataScope">
-                        <sw-block name="sw_inner" :data="$dataScope">Content</sw-block>
-                    </sw-block>
-                </template>`,
-            },
+            `<template>
+                <sw-block name="sw_outer" :data="$dataScope">
+                    <sw-block name="sw_inner" :data="$dataScope">Content</sw-block>
+                </sw-block>
+            </template>`,
             [
                 'sw_outer',
                 'sw_inner',
@@ -38,34 +24,29 @@ describe('extract-blocks', () => {
         ],
         [
             'the block an override extends',
-            { 'a.override.vue': '<template><sw-block extends="sw_outer">Replacement</sw-block></template>' },
+            '<template><sw-block extends="sw_outer">Replacement</sw-block></template>',
             ['sw_outer'],
         ],
         [
             'a block name spread over multiple lines',
-            {
-                'a.vue': `<template>
-                    <sw-block
-                        name="sw_outer"
-                        :data="$dataScope"
-                    >Content</sw-block>
-                </template>`,
-            },
+            `<template>
+                <sw-block
+                    name="sw_outer"
+                    :data="$dataScope"
+                >Content</sw-block>
+            </template>`,
             ['sw_outer'],
         ],
         [
-            'both dialects from one scan',
-            {
-                'a.html.twig': '{% block sw_legacy %}{% endblock %}',
-                'b.vue': '<template><sw-block name="sw_native">Content</sw-block></template>',
-            },
+            'both dialects, twig first',
+            '{% block sw_legacy %}{% endblock %}<sw-block name="sw_native">Content</sw-block>',
             [
                 'sw_legacy',
                 'sw_native',
             ],
         ],
-    ])('collects %s', (_case, files, expected) => {
-        expect(extractFrom(files)).toEqual(expected);
+    ])('collects %s', (_case, code, expected) => {
+        expect(extractBlocks(code)).toEqual(expected);
     });
 
     it.each([
@@ -90,6 +71,6 @@ describe('extract-blocks', () => {
             '</sw-block>',
         ],
     ])('ignores %s', (_case, template) => {
-        expect(extractFrom({ 'a.vue': `<template>${template}</template>` })).toEqual([]);
+        expect(extractBlocks(`<template>${template}</template>`)).toEqual([]);
     });
 });

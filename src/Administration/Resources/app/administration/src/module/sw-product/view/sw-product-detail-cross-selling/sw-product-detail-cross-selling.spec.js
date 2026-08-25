@@ -14,9 +14,19 @@ async function createWrapper() {
                 crossSelling: null,
             },
             global: {
+                mocks: {
+                    $route: {
+                        params: {},
+                        meta: { $module: { icon: 'regular-products' } },
+                    },
+                    $router: {
+                        resolve: jest.fn((route) => ({
+                            href: `#/sw/product/detail/${route.params.id}/cross-selling`,
+                        })),
+                    },
+                },
                 stubs: {
                     'sw-product-cross-selling-form': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-inheritance-switch': true,
 
@@ -116,5 +126,60 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
+    });
+
+    it('should render the empty state without a parent link for a main product', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: null,
+            crossSellings: [],
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.text()).toContain('sw-product.crossselling.emptyStateDescription');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
+    });
+
+    it('should link to the parent cross sellings while the variant inherits', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            crossSellings: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
+        expect(emptyState.text()).toContain('sw-product.crossselling.inheritedEmptyStateDescription');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(true);
+    });
+
+    it('should describe the removed inheritance without a parent link', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            crossSellings: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.isInherited = false;
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-cross-selling__empty-state');
+        expect(emptyState.text()).toContain('sw-product.crossselling.notInheritedEmptyStateDescription');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
 });

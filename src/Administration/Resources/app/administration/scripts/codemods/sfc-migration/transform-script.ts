@@ -418,6 +418,14 @@ function transformScript(
         rewriteThis(ctx, node, false);
     }
 
+    // Template refs are collected by the rewrite pass, so their tag collisions are only visible
+    // here. A ref cannot be renamed around one either: the `ref` attribute in the template names it.
+    for (const refName of ctx.templateRefs) {
+        if (ctx.templateComponentTags.has(refName)) {
+            report(ctx, 'skip', `template ref '${refName}' shadows a component tag the template renders`);
+        }
+    }
+
     if (ctx.reports.some((entry) => entry.kind === 'skip')) {
         return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
     }

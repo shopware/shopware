@@ -141,16 +141,6 @@ function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath,
 
     const refName = memberName(node);
 
-    // A ref is nearly always named after the component it points at, which is exactly the shape the
-    // tag resolution refuses elsewhere: `ref="swSelectResultList"` on a `<sw-select-result-list>`
-    // becomes a `setup-ref` binding of the tag's camelized name, and the template then renders the
-    // ref's value — `null` until mount — instead of the component. Unlike a generated binding the
-    // name cannot be renamed around, because the `ref` attribute in the template names it too.
-    if (refName && ctx.templateComponentTags.has(refName)) {
-        report(ctx, 'skip', `template ref '${refName}' shadows a component tag the template renders`, node);
-        return false;
-    }
-
     if (refName && IDENTIFIER.test(refName) && !ctx.bindings.has(refName) && !isShadowed(pass, path, refName)) {
         ctx.templateRefs.add(refName);
         overwrite(ctx, node, `${refName}.value`);

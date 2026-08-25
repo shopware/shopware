@@ -24,23 +24,8 @@ import { isConvertedBlock, parseTemplate } from './template-ast';
 /** An eslint directive is positional — moving it would silence a line it was never written for. */
 const ESLINT_DIRECTIVE = /^\s*eslint-/;
 
-type Edit = { start: number; end: number; text: string };
-
 function isBlank(node: TemplateChildNode): boolean {
     return node.type === NodeTypes.TEXT && node.content.trim() === '';
-}
-
-/** The comment plus the line it owns, so removing it leaves no blank line behind. */
-function removalRange(source: string, comment: CommentNode): Edit {
-    const lineStart = source.lastIndexOf('\n', comment.loc.start.offset - 1) + 1;
-    const ownsLine = source.slice(lineStart, comment.loc.start.offset).trim() === '';
-    const end = comment.loc.end.offset;
-
-    return {
-        start: ownsLine ? lineStart : comment.loc.start.offset,
-        end: ownsLine && source[end] === '\n' ? end + 1 : end,
-        text: '',
-    };
 }
 
 function moveRootCommentsIntoBlock(template: string): string {
@@ -71,15 +56,10 @@ function moveRootCommentsIntoBlock(template: string): string {
 
     const insertAt = block.children[0].loc.start.offset;
     const moved = comments.map((comment) => template.slice(comment.loc.start.offset, comment.loc.end.offset)).join('\n');
-    const edits: Edit[] = [
-        { start: insertAt, end: insertAt, text: `${moved}\n` },
-        ...comments.map((comment) => removalRange(template, comment)),
-    ];
 
-    // Applied back to front, so an earlier edit never invalidates a later one's offsets.
-    return edits
-        .sort((a, b) => b.start - a.start)
-        .reduce((source, edit) => source.slice(0, edit.start) + edit.text + source.slice(edit.end), template);
+    // Everything outside the block is a comment or whitespace, so keeping only the block's own
+    // source removes the comments from the root and leaves nothing else behind.
+    return `${template.slice(block.loc.start.offset, insertAt)}${moved}\n${template.slice(insertAt, block.loc.end.offset)}`;
 }
 
 export { moveRootCommentsIntoBlock };

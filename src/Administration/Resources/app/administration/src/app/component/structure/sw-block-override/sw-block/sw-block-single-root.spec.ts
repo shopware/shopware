@@ -3,8 +3,8 @@
  * @group disabledCompat
  */
 import { mount, type VueWrapper } from '@vue/test-utils';
-import blockOverrideStore from '../../../../store/block-override.store';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
+import '../../../../store/block-override.store';
 
 /**
  * A component the SFC migration produced: its whole template is one `<sw-block>`. Everything here
@@ -64,11 +64,10 @@ function convertedRoot(wrapper: VueWrapper): Node {
     return (wrapper.findComponent({ name: 'converted-component' }).vm as { $el: Node }).$el;
 }
 
-describe('sw-block single root', () => {
-    beforeAll(() => {
-        Shopware.Store.register('blockOverride', blockOverrideStore);
-    });
+// The fragment case below drops the caller's attributes on purpose, which Vue warns about.
+global.allowedErrors.push({ method: 'warn', msg: 'Extraneous non-props attributes' });
 
+describe('sw-block single root', () => {
     it('passes attributes the caller sets on to the block content', async () => {
         const wrapper = await mountConverted({
             callerAttributes: 'id="outer" data-caller="yes"',
@@ -121,26 +120,10 @@ describe('sw-block single root', () => {
     });
 
     it('stays single rooted through nested blocks', async () => {
-        const swBlock = await wrapTestComponent('sw-block', { sync: true });
-        const wrapper = mount(
-            {
-                template: '<converted-component id="outer" />',
-                components: {
-                    'converted-component': {
-                        name: 'converted-component',
-                        components: { 'sw-block': swBlock },
-                        template: `
-                            <sw-block name="outer-block">
-                                <sw-block name="inner-block">
-                                    <div class="inner">content</div>
-                                </sw-block>
-                            </sw-block>
-                        `,
-                    },
-                },
-            },
-            { global: { plugins: [createDataScopeFixture()] } },
-        );
+        const wrapper = await mountConverted({
+            blockContent: '<sw-block name="inner-block"><div class="inner">content</div></sw-block>',
+            callerAttributes: 'id="outer"',
+        });
 
         expect(wrapper.get('.inner').attributes('id')).toBe('outer');
         expect(convertedRoot(wrapper)).toBe(wrapper.get('.inner').element);
@@ -224,20 +207,6 @@ describe('sw-block single root', () => {
     });
 
     describe('with genuinely multi-root block content', () => {
-        const droppedAttributes = {
-            method: 'warn',
-            msg: 'Extraneous non-props attributes',
-        };
-        const allowedErrors = global.allowedErrors as { method: string; msg: string }[];
-
-        beforeEach(() => {
-            allowedErrors.push(droppedAttributes);
-        });
-
-        afterEach(() => {
-            allowedErrors.splice(allowedErrors.indexOf(droppedAttributes), 1);
-        });
-
         it('leaves the fragment alone, because the component was multi rooted before the conversion too', async () => {
             const wrapper = await mountConverted({
                 blockContent: '<div class="first"></div><div class="second"></div>',

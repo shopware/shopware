@@ -170,7 +170,7 @@ describe('scripts/codemods/sfc-migration', () => {
             '{% block a_b %}{{ parent() }}{% endblock %}',
             '{% block a_b %}{%- parent -%}{% endblock %}',
         ])('refuses %s, which only base output cannot express', (twig) => {
-            expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER], warnings: [] });
+            expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER] });
         });
 
         // A `-->` in the body would close the generated comment early and spill the rest into

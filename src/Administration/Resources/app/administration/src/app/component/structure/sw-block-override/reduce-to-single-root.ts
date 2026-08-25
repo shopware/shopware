@@ -15,29 +15,13 @@ import { Comment, isVNode, type Slot, type VNode } from 'vue';
  * several roots is returned untouched — it was a fragment before the conversion too.
  */
 function reduceToSingleRoot<T extends ReturnType<Slot> | VNode | null | undefined>(nodes: T): T | VNode {
-    if (!Array.isArray(nodes)) {
+    if (!Array.isArray(nodes) || !nodes.every(isVNode)) {
         return nodes;
     }
 
-    let single: VNode | undefined;
+    const roots = nodes.filter((node) => !isAuthorComment(node));
 
-    for (const node of nodes) {
-        if (!isVNode(node)) {
-            return nodes;
-        }
-
-        if (isAuthorComment(node)) {
-            continue;
-        }
-
-        if (single) {
-            return nodes;
-        }
-
-        single = node;
-    }
-
-    return single ?? nodes;
+    return roots.length === 1 ? roots[0] : nodes;
 }
 
 /**

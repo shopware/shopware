@@ -25,7 +25,7 @@ type TemplateResult = {
     template: string | null;
     blockers: string[];
     /** Reasons the template still converts but the draft needs a look; they downgrade it to partial. */
-    warnings: string[];
+    warnings?: string[];
 };
 
 const ESLINT_BLOCK_DISABLE =
@@ -52,7 +52,7 @@ function transformTemplate(twig: string): TemplateResult {
     // renders nothing and the block name would be claimed from its real owner. `.match()` rather
     // than `.test()`, because the regex is global and `.test()` carries `lastIndex` between calls.
     if (twig.match(TWIG_PARENT)) {
-        return { template: null, blockers: [TWIG_PARENT_BLOCKER], warnings: [] };
+        return { template: null, blockers: [TWIG_PARENT_BLOCKER] };
     }
 
     const template = twig
@@ -64,25 +64,21 @@ function transformTemplate(twig: string): TemplateResult {
     const leftoverTwig = template.match(/\{[%#][^\n]*/);
 
     if (leftoverTwig) {
-        return {
-            template: null,
-            blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`],
-            warnings: [],
-        };
+        return { template: null, blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`] };
     }
 
     // Runs before the gate below, so a slot the conversion re-parented is repaired rather than refused.
     const hoisted = hoistBlockSlots(template);
 
     if (hoisted.blockers.length > 0) {
-        return { template: null, blockers: hoisted.blockers, warnings: [] };
+        return { template: null, blockers: hoisted.blockers };
     }
 
     // Checked before the guard insertion below, so the blocker describes the authored shape.
     const slotBlockers = assertBlockSlots(hoisted.template);
 
     if (slotBlockers.length > 0) {
-        return { template: null, blockers: slotBlockers, warnings: [] };
+        return { template: null, blockers: slotBlockers };
     }
 
     // A twig comment rendered nothing; the HTML comment it becomes is a root node in a development
@@ -91,15 +87,17 @@ function transformTemplate(twig: string): TemplateResult {
     const normalized = normalizeCrossBlockConditionals(rooted);
 
     if (normalized.template === null) {
-        return { ...normalized, warnings: [] };
+        return normalized;
     }
 
     // Last, so the guards the normalization inserts count towards the root tally like any other node.
     const warnings = assertSingleRoot(rooted, normalized.template);
 
     return {
-        template:
-            warnings.length > 0 ? `${warnings.map(templateTodo).join('\n')}\n${normalized.template}` : normalized.template,
+        template: [
+            ...warnings.map(templateTodo),
+            normalized.template,
+        ].join('\n'),
         blockers: normalized.blockers,
         warnings,
     };

@@ -13,7 +13,7 @@ describe('move-root-comments', () => {
 
     it('moves a trailing comment into the only block', () => {
         expect(moveRootCommentsIntoBlock('<sw-block name="a">\n    <div>c</div>\n</sw-block>\n<!-- note -->')).toBe(
-            '<sw-block name="a">\n    <!-- note -->\n<div>c</div>\n</sw-block>\n',
+            '<sw-block name="a">\n    <!-- note -->\n<div>c</div>\n</sw-block>',
         );
     });
 

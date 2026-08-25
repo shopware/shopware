@@ -511,6 +511,21 @@ declare global {
      * @private This is a private method and should not be used outside of the test suite
      */
     const wrapTestComponent: (componentName: string, config?: { sync?: boolean }) => Promise<VueComponent>;
+
+    /**
+     * Console output a spec expects, so `prepare_environment` silences it instead of failing.
+     * A `msg` string matches a substring of the first argument, a RegExp is tested against it, and
+     * `msgCheck` receives the first two arguments for anything those two cannot express.
+     *
+     * @private This is a private property and should not be used outside of the test suite
+     */
+    // `var`, not `const`: only a `var` declaration becomes a property of `globalThis`, and every
+    // spec reaches it as `global.allowedErrors`.
+    var allowedErrors: {
+        method: 'error' | 'warn';
+        msg?: string | RegExp;
+        msgCheck?: (...args: unknown[]) => boolean;
+    }[];
 }
 
 /**

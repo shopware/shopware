@@ -17,14 +17,14 @@
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
-import type { RootNode, TemplateChildNode } from '@vue/compiler-dom';
+import type { TemplateChildNode } from '@vue/compiler-dom';
 import { isConvertedBlock, parseTemplate } from './template-ast';
 
 const MULTI_ROOT =
     'the twig blocks make the component multi-root, so callers lose the attributes they pass and `$el` is no longer an element';
 
 /** Whitespace and comments render no root: the production compiler drops comments outright. */
-function isSignificant(node: RootNode | TemplateChildNode): boolean {
+function isSignificant(node: TemplateChildNode): boolean {
     if (node.type === NodeTypes.COMMENT) {
         return false;
     }
@@ -44,17 +44,7 @@ function hasContinuationDirective(node: TemplateChildNode): boolean {
  * continuations belong to the branch they continue rather than counting for themselves.
  */
 function rootCount(children: TemplateChildNode[]): number {
-    let count = 0;
-
-    for (const child of children.filter(isSignificant)) {
-        if (count > 0 && hasContinuationDirective(child)) {
-            continue;
-        }
-
-        count += 1;
-    }
-
-    return count;
+    return children.filter(isSignificant).filter((child) => !hasContinuationDirective(child)).length;
 }
 
 /** The same list as the twig rendered it, with every converted block transparent again. */

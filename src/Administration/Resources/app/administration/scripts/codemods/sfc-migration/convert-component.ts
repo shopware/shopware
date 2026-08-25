@@ -71,7 +71,7 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     }
 
     const reasons = [
-        ...template.warnings,
+        ...(template.warnings ?? []),
         ...script.reasons,
     ];
 

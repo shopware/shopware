@@ -6,7 +6,7 @@
         "schemas": {
             "ContentDecomposedPage": {
                 "type": "object",
-                "description": "Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.",
+                "description": "Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings. A client that caches this response as the skeleton and later fetches only a data response for the same layout compares the layout `id` and `version` of the two responses, and refetches this skeleton on a mismatch.",
                 "properties": {
                     "id": {
                         "type": "string",

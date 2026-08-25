@@ -6,7 +6,7 @@
         "schemas": {
             "ContentDataPage": {
                 "type": "object",
-                "description": "Layout metadata with deduplicated property data and element-to-data mappings. This format serves no structure at all: it is the data half of the decomposed pair, composed onto a separately fetched skeleton by element id.",
+                "description": "Layout metadata with deduplicated property data and element-to-data mappings. This format serves no structure at all: it is the data half of the decomposed pair, composed onto a separately fetched skeleton by element id. A client composing this response onto a separately cached skeleton compares the layout `id` and `version` of the two responses, and refetches the skeleton on a mismatch.",
                 "properties": {
                     "id": {
                         "type": "string",

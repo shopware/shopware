@@ -61,6 +61,7 @@
 
                     <template v-else>
                         <sw-tabs
+                            :key="activePageTypeTab"
                             is-vertical
                             small
                             position-identifier="sw-cms-list-sidebar"
@@ -70,7 +71,7 @@
                                 v-for="pageType in sortPageTypes"
                                 :key="pageType.name"
                                 :disabled="pageType.disabled || undefined"
-                                :active="pageType.active"
+                                :active="(pageType.value || 'all-pages') === activePageTypeTab"
                                 @click="onSortPageType(pageType.value)"
                             >
                                 {{ pageType.name }}
@@ -143,6 +144,7 @@
 
                         <template v-else>
                             <sw-tabs
+                                :key="activePageTypeTab"
                                 small
                                 position-identifier="sw-cms-list-sidebar"
                             >
@@ -150,7 +152,7 @@
                                     v-for="pageType in sortPageTypes"
                                     :key="pageType.name"
                                     :disabled="pageType.disabled || undefined"
-                                    :active="pageType.active"
+                                    :active="(pageType.value || 'all-pages') === activePageTypeTab"
                                     @click="onSortPageType(pageType.value)"
                                 >
                                     {{ pageType.name }}

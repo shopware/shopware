@@ -53,7 +53,7 @@ async function createWrapper(
                     },
                     'sw-tabs': {
                         name: 'sw-tabs',
-                        template: '<div class="sw-tabs"><slot name="content"></slot></div>',
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content"></slot></div>',
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
@@ -313,6 +313,27 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             }),
         ]);
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should sync the active page type into both deprecated tab bars', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        wrapper.vm.onSortPageType('page');
+        await flushPromises();
+
+        const tabBars = wrapper.findAllComponents({ name: 'sw-tabs' });
+        expect(tabBars).toHaveLength(2);
+
+        tabBars.forEach((tabBar) => {
+            const activeStates = tabBar.findAll('sw-tabs-item-stub').map((item) => item.attributes('active'));
+            expect(activeStates).toEqual([
+                'false',
+                'true',
+                'false',
+            ]);
+        });
     });
 
     it('should render a second horizontal page type tab bar for narrow pages', async () => {

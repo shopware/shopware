@@ -8,6 +8,11 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### `ProductListingResult::setPage()` and `setLimit()` deprecated
+
+`ProductListingResult::setPage()` and `ProductListingResult::setLimit()` are deprecated and will be removed in v6.8.0.0. A result reports the page and limit of the criteria that was executed, so page the criteria in `AbstractListingProcessor::prepare()` instead.
+`PagingListingProcessor::process()` no longer writes the request page and limit back onto the result. Where the criteria was changed after `prepare()` — for example by a listener on `ProductListingCriteriaEvent` — the result now reports the page and limit that were searched instead of the ones taken from the request.
+
 ## Storefront
 
 ### Semantic footer markup

@@ -248,6 +248,8 @@ class PagingListingProcessorTest extends TestCase
             ])
         );
 
+        $processor->prepare($request, $criteria, $context);
+
         $result = new ProductListingResult('product', 20, new ProductCollection(), new AggregationResultCollection(), $criteria, Context::createDefaultContext());
 
         $processor->process($request, $result, $context);
@@ -265,6 +267,8 @@ class PagingListingProcessorTest extends TestCase
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
         );
+
+        $processor->prepare($request, $criteria, $context);
 
         // total=50, limit=24 -> lastPage=3; p=99 must throw
         $result = new ProductListingResult(
@@ -344,6 +348,8 @@ class PagingListingProcessorTest extends TestCase
             new StaticSystemConfigService(['core.listing.productsPerPage' => $limit])
         );
 
+        $processor->prepare($request, $criteria, $context);
+
         $result = new ProductListingResult(
             'product',
             $total,
@@ -383,6 +389,8 @@ class PagingListingProcessorTest extends TestCase
             new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
         );
 
+        $processor->prepare($request, $criteria, $context);
+
         $result = new ProductListingResult(
             'product',
             0,
@@ -401,19 +409,20 @@ class PagingListingProcessorTest extends TestCase
 
     public function testProcessDoesNotThrowOnOnlyAggregationsRequestWithPageGreaterThanOne(): void
     {
-        // BehaviorListingProcessor::prepare() runs last (priority -1000) and overwrites
-        // the criteria limit to 0 when only-aggregations=1 is requested. By the time
-        // PagingListingProcessor::process() reads the criteria, limit is already 0.
-        // process() must not throw a 404 for these requests even when ?p=N (N > 1) is
-        // still present in the URL (Storefront filter-panel AJAX forwards the current page).
-        $criteria = (new Criteria())->setLimit(0);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+        $criteria = new Criteria();
         $request = new Request(['p' => 3, 'only-aggregations' => 1]);
         $context = static::createStub(SalesChannelContext::class);
 
         $processor = new PagingListingProcessor(
             new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
         );
+
+        $processor->prepare($request, $criteria, $context);
+
+        // BehaviorListingProcessor::prepare() runs last (priority -1000) and sets the criteria limit to 0 when
+        // only-aggregations=1 is requested, so no products are fetched.
+        $criteria->setLimit(0);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         $result = new ProductListingResult(
             'product',
@@ -424,9 +433,11 @@ class PagingListingProcessorTest extends TestCase
             Context::createDefaultContext()
         );
 
+        // Must not throw a 404 for these requests even when ?p=N (N > 1) is still present.
         $processor->process($request, $result, $context);
 
-        static::assertSame(3, $result->getPage());
+        // The search fetched no products, so the result reports the single page it holds.
+        static::assertSame(1, $result->getPage());
         static::assertSame(0, $result->getLimit());
     }
 }

@@ -1,7 +1,6 @@
 .sw-filter-panel {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     align-items: start;
     gap: 0.5rem;
     background-color: var(--bs-body-bg);
@@ -23,23 +22,12 @@
 .sw-filter-panel.is--collapse {
     flex-direction: column;
     align-items: stretch;
-    justify-content: start;
 }
 
 .is--collapse .sw-filter-panel__filter {
     flex-direction: column;
     align-items: stretch;
-}
-
-.sw-filter-panel__actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: end;
-    gap: 0.5rem;
-}
-
-.sw-filter-panel__counter {
-    line-height: 40px;
+    flex-grow: 1;
 }
 
 .sw-filter-panel > .sw-active-filters {

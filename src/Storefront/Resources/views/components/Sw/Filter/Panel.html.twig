@@ -3,31 +3,19 @@
 {# @internal #}
 
 {% props
-    listing = null,
-    totalCount = null,
-    currentSorting = null,
     filterAggregations = null,
-    availableSortings = null,
     filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
-    showLayoutSwitch = true,
     showPriceFilter = true,
     showRatingFilter = true,
     showManufacturerFilter = true,
     showShippingFreeFilter = true,
     showPropertyFilter = true,
-    showSorting = true,
     visibleFilterCount = 3,
     slots = [],
     displayType = 'inline',
     navigationId = null,
     propertyWhitelist = null,
-    defaultSorting = null,
 %}
-
-{% set totalCount = totalCount ?? listing.total ?? 0 %}
-{% set currentSorting = currentSorting ?? listing.sorting %}
-{% set availableSortings = availableSortings ?? listing.availableSortings %}
-{% set filterAggregations = filterAggregations ?? listing.aggregations %}
 
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,
@@ -199,22 +187,6 @@
         data-bs-target="#filter-offcanvas">
         {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
     </twig:Sw:Button>
-
-    {% block actions %}
-        <div class="sw-filter-panel__actions">
-            <span class="sw-filter-panel__counter text-light-emphasis text-nowrap d-none d-lg-inline-block">
-                {{ 'listing.resultCount'|trans({ '%count%': totalCount })|sw_sanitize }}
-            </span>
-
-            {% if showSorting and availableSortings and availableSortings.elements and availableSortings.elements|length > 0 %}
-                <twig:Sw:Filter:Sorting :currentSorting="currentSorting" :sortings="availableSortings.elements" />
-            {% endif %}
-
-            {% if showLayoutSwitch %}
-                <twig:Sw:Filter:LayoutSwitch />
-            {% endif %}
-        </div>
-    {% endblock %}
 
     {% block activeFilters %}
         <twig:Sw:Filter:ActiveFilters />

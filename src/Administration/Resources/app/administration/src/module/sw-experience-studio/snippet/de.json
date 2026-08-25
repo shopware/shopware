@@ -21,7 +21,11 @@
       },
       "sw-filter-panel": {
         "panels": {
-          "filter": "Filter",
+          "filter": "Filter"
+        }
+      },
+      "sw-product-listing": {
+        "panels": {
           "sorting": "Sortierung"
         }
       }

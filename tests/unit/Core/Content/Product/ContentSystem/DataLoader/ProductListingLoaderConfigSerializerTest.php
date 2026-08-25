@@ -99,6 +99,29 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         $this->serializer->decode($data);
     }
 
+    #[TestDox('decodes the aggregations flag and defaults it to true')]
+    public function testDecodeAggregationsFlag(): void
+    {
+        $default = $this->serializer->decode([]);
+        $disabled = $this->serializer->decode(['aggregations' => false]);
+
+        static::assertInstanceOf(ProductListingLoaderConfig::class, $default);
+        static::assertInstanceOf(ProductListingLoaderConfig::class, $disabled);
+
+        static::assertTrue($default->aggregations);
+        static::assertFalse($disabled->aggregations);
+    }
+
+    #[TestDox('throws exception when the aggregations flag is not a bool')]
+    public function testDecodeWithNonBoolAggregationsThrowsException(): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('aggregations', 'bool', 'string')
+        );
+
+        $this->serializer->decode(['aggregations' => 'no']);
+    }
+
     #[TestDox('throws exception when associations is not an array')]
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {

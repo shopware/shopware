@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
@@ -10,21 +9,29 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * Serves the aggregations of a product listing to an element that renders filters but no products, such as a
+ * filter panel placed beside a listing.
+ *
+ * The narrower produced type is the point: `only-aggregations` leaves the route's result without products,
+ * total count or sorting, so handing back the whole {@see \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult}
+ * would offer a consumer fields that silently read as empty or zero.
+ *
  * @internal
  *
  * @final
  *
- * @extends AbstractContentDataLoader<ProductListingResult>
+ * @extends AbstractContentDataLoader<AggregationResultCollection>
  */
 #[Package('framework')]
-class ProductListingDataLoader extends AbstractContentDataLoader
+class ProductListingAggregationsDataLoader extends AbstractContentDataLoader
 {
-    public const SOURCE = 'product_listing';
+    public const SOURCE = 'product_listing_aggregations';
 
     public function __construct(private readonly ProductListingElementLoader $listingLoader)
     {
@@ -39,8 +46,6 @@ class ProductListingDataLoader extends AbstractContentDataLoader
     {
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: null),
-            new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
-            new ConfigKeySpecification('aggregations', ConfigKeyKind::Literal, 'boolean', required: false, hasDefault: true, default: true),
         ]);
     }
 
@@ -52,7 +57,7 @@ class ProductListingDataLoader extends AbstractContentDataLoader
     ): ContentDataLoaderResult {
         $config = $requirement->config;
 
-        if (!$config instanceof ProductListingLoaderConfig) {
+        if (!$config instanceof ProductListingAggregationsLoaderConfig) {
             return ContentDataLoaderResult::notFound();
         }
 
@@ -61,9 +66,7 @@ class ProductListingDataLoader extends AbstractContentDataLoader
             $context,
             $request,
             $config->property,
-            $config->associations,
-            // An element that renders no filters would otherwise pay for every aggregation on the page.
-            $config->aggregations ? [] : ['no-aggregations' => true]
+            parameters: ['only-aggregations' => true]
         );
 
         if ($result === null) {
@@ -71,6 +74,6 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         }
 
         // ProductListingRoute internally adds cache tags via CacheTagCollector
-        return ContentDataLoaderResult::cachedExternally($result);
+        return ContentDataLoaderResult::cachedExternally($result->getAggregations());
     }
 }

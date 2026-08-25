@@ -47,9 +47,8 @@ class ProductListingComponentTest extends TestCase
     }
 
     /**
-     * The listing renders products only. Filters are a separate Sw:Filter:Panel element a layout places
-     * where it wants them, so the listing can sit in one grid column with the panel in another without
-     * rendering a second panel of its own.
+     * Filters are a separate Sw:Filter:Panel element, so the listing can sit in one grid column with the panel
+     * in another without rendering a second panel of its own.
      */
     public function testRendersNoFilterUiOfItsOwn(): void
     {
@@ -80,6 +79,31 @@ class ProductListingComponentTest extends TestCase
         ], $slots);
     }
 
+    /**
+     * The sorting select and the layout switch belong to the listing, as they did in the CMS listing element,
+     * so the result count sits with them rather than in the filter panel.
+     */
+    public function testRendersTheSortingActionsAndResultCount(): void
+    {
+        $html = $this->render(['listing' => $this->listing(42)]);
+
+        static::assertStringContainsString('sw-product-listing__actions', $html);
+        static::assertStringContainsString('data-component="Sw:Product:LayoutSwitch"', $html);
+        static::assertStringContainsString('42', $html);
+    }
+
+    public function testHidesTheSortingActionsWhenTurnedOff(): void
+    {
+        $html = $this->render([
+            'listing' => $this->listing(42),
+            'showSorting' => false,
+            'showLayoutSwitch' => false,
+        ]);
+
+        static::assertStringNotContainsString('data-component="Sw:Product:Sorting"', $html);
+        static::assertStringNotContainsString('data-component="Sw:Product:LayoutSwitch"', $html);
+    }
+
     private function requestStack(): RequestStack
     {
         $requestStack = static::getContainer()->get('request_stack');
@@ -101,7 +125,7 @@ class ProductListingComponentTest extends TestCase
             ->render(['props' => $props]);
     }
 
-    private function listing(): ProductListingResult
+    private function listing(int $total = 0): ProductListingResult
     {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId(Uuid::randomHex());
@@ -113,7 +137,7 @@ class ProductListingComponentTest extends TestCase
 
         $result = new EntitySearchResult(
             ProductDefinition::ENTITY_NAME,
-            0,
+            $total,
             new ProductCollection(),
             $aggregations,
             new Criteria(),

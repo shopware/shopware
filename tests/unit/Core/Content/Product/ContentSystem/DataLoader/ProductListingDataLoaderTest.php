@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingElementLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfig;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
@@ -38,7 +39,7 @@ class ProductListingDataLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->listingRoute = static::createStub(AbstractProductListingRoute::class);
-        $this->loader = new ProductListingDataLoader($this->listingRoute, $this->emptySortingRepository());
+        $this->loader = new ProductListingDataLoader(new ProductListingElementLoader($this->listingRoute, $this->emptySortingRepository()));
     }
 
     #[TestDox('returns product_listing as requirement type identifier')]
@@ -71,7 +72,7 @@ class ProductListingDataLoaderTest extends TestCase
             ->with($navigationId, $request, $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
 
-        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
+        $loader = new ProductListingDataLoader(new ProductListingElementLoader($listingRoute, $this->emptySortingRepository()));
         $result = $loader->load($element, $requirement, $context, $request);
 
         static::assertSame($listingResult, $result->data);
@@ -254,7 +255,7 @@ class ProductListingDataLoaderTest extends TestCase
         $listingRoute = $this->createMock(AbstractProductListingRoute::class);
         $listingRoute->expects($this->never())->method('load');
 
-        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
+        $loader = new ProductListingDataLoader(new ProductListingElementLoader($listingRoute, $this->emptySortingRepository()));
         $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertNull($result->data);
@@ -276,7 +277,7 @@ class ProductListingDataLoaderTest extends TestCase
         $listingRoute = $this->createMock(AbstractProductListingRoute::class);
         $listingRoute->expects($this->never())->method('load');
 
-        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
+        $loader = new ProductListingDataLoader(new ProductListingElementLoader($listingRoute, $this->emptySortingRepository()));
         $result = $loader->load(
             $element,
             new DataRequirement('listing', 'product_listing', $config),
@@ -290,9 +291,8 @@ class ProductListingDataLoaderTest extends TestCase
     }
 
     /**
-     * navigationId defaults to the "{{categoryId}}" placeholder, which is seeded into every stored tree and
-     * stays literal on a layout not rooted on a category. Reaching the route with it would hit
-     * Uuid::fromHexToBytes() in the DAL and abort the whole render instead of degrading to no listing.
+     * The "{{categoryId}}" default is seeded into every stored tree and stays literal on a layout not rooted on
+     * a category. Reaching the route with it would abort the whole render instead of degrading to no listing.
      */
     #[TestDox('returns notFound result when navigationId is not a uuid, such as an unresolved placeholder')]
     public function testLoadReturnsNotFoundWhenNavigationIdIsNotAUuid(): void
@@ -306,7 +306,7 @@ class ProductListingDataLoaderTest extends TestCase
         $listingRoute = $this->createMock(AbstractProductListingRoute::class);
         $listingRoute->expects($this->never())->method('load');
 
-        $loader = new ProductListingDataLoader($listingRoute, $this->emptySortingRepository());
+        $loader = new ProductListingDataLoader(new ProductListingElementLoader($listingRoute, $this->emptySortingRepository()));
         $result = $loader->load(
             $element,
             new DataRequirement('listing', 'product_listing', $config),
@@ -460,6 +460,42 @@ class ProductListingDataLoaderTest extends TestCase
     }
 
     /**
+     * A grid renders no aggregations, so computing them would be work thrown away. The panel beside it asks for
+     * the other half, which is what keeps a page with both from running two full listing pipelines.
+     */
+    #[TestDox('asks the route to skip aggregations when the element renders none')]
+    public function testLoadSkipsAggregationsWhenNotNeeded(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->build();
+
+        $capturedRequest = $this->captureRequest(
+            new ProductSortingCollection(),
+            $element,
+            new Request(),
+            new ProductListingLoaderConfig(aggregations: false)
+        );
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertTrue($capturedRequest->request->get('no-aggregations'));
+        static::assertFalse($capturedRequest->request->has('only-aggregations'));
+    }
+
+    #[TestDox('narrows nothing when the element needs the whole result')]
+    public function testLoadNarrowsNothingByDefault(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->build();
+
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame([], $capturedRequest->request->all());
+    }
+
+    /**
      * @return StaticEntityRepository<ProductSortingCollection>
      */
     private function emptySortingRepository(): StaticEntityRepository
@@ -467,8 +503,12 @@ class ProductListingDataLoaderTest extends TestCase
         return StaticEntityRepository::of(ProductSortingCollection::class);
     }
 
-    private function captureRequest(ProductSortingCollection $sortings, ContentElement $element, Request $request): ?Request
-    {
+    private function captureRequest(
+        ProductSortingCollection $sortings,
+        ContentElement $element,
+        Request $request,
+        ?ProductListingLoaderConfig $config = null
+    ): ?Request {
         $response = static::createStub(ProductListingRouteResponse::class);
         $response->method('getResult')->willReturn(static::createStub(ProductListingResult::class));
 
@@ -482,10 +522,10 @@ class ProductListingDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $loader = new ProductListingDataLoader($listingRoute, new StaticEntityRepository([$sortings]));
+        $loader = new ProductListingDataLoader(new ProductListingElementLoader($listingRoute, new StaticEntityRepository([$sortings])));
         $loader->load(
             $element,
-            new DataRequirement('listing', 'product_listing', new ProductListingLoaderConfig()),
+            new DataRequirement('listing', 'product_listing', $config ?? new ProductListingLoaderConfig()),
             Generator::generateSalesChannelContext(),
             $request
         );

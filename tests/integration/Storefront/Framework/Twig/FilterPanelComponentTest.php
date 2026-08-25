@@ -5,10 +5,6 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
-use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -16,12 +12,9 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,10 +29,10 @@ class FilterPanelComponentTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * The canonicity test only validates bindings that exist, so dropping `resolvedBy` would pass it
-     * while leaving the element unwired.
+     * The canonicity test only validates bindings that exist, so dropping `resolvedBy` would pass it while
+     * leaving the element unwired.
      */
-    public function testElementTypeBindsTheProductListingLoader(): void
+    public function testElementTypeBindsTheAggregationsLoader(): void
     {
         $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
@@ -48,9 +41,9 @@ class FilterPanelComponentTest extends TestCase
         static::assertInstanceOf(BindingSpecification::class, $specification);
         static::assertSame('Sw:Filter:Panel', $specification->type());
 
-        $binding = $specification->resolves()['listing'] ?? null;
+        $binding = $specification->resolves()['filterAggregations'] ?? null;
         static::assertInstanceOf(LoaderBinding::class, $binding);
-        static::assertSame('product_listing', $binding->loader);
+        static::assertSame('product_listing_aggregations', $binding->loader);
 
         // The loader reads `navigationId` by default. Naming that key in the binding would be read as
         // a resolvedBy storage key and rejected for colliding with the declared property of the same
@@ -59,8 +52,7 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * One layout serves every category page, so a stored id would be right on one and wrong on all
-     * the others. The placeholder looks like a mistake and invites "fixing".
+     * One layout serves every category page, so a stored id would be right on one and wrong on all the others.
      */
     public function testNavigationIdFollowsThePageInsteadOfBeingConfigured(): void
     {
@@ -82,10 +74,10 @@ class FilterPanelComponentTest extends TestCase
      */
     public function testDisplayTypeReachesTheFilterItems(): void
     {
-        $listing = $this->listing(42, $this->manufacturerAggregation('Shopware AG'));
+        $aggregations = $this->manufacturerAggregation('Shopware AG');
 
-        $inline = $this->render(['listing' => $listing, 'displayType' => 'inline']);
-        $stacked = $this->render(['listing' => $listing, 'displayType' => 'stacked']);
+        $inline = $this->render(['filterAggregations' => $aggregations, 'displayType' => 'inline']);
+        $stacked = $this->render(['filterAggregations' => $aggregations, 'displayType' => 'stacked']);
 
         static::assertStringContainsString('is--dropdown', $inline);
         static::assertStringContainsString('data-bs-toggle="dropdown"', $inline);
@@ -96,38 +88,21 @@ class FilterPanelComponentTest extends TestCase
         static::assertStringContainsString('data-bs-target="#filter-item-', $stacked);
     }
 
-    public function testDerivesFiltersAndResultCountFromTheListing(): void
+    public function testRendersFiltersFromTheAggregations(): void
     {
-        $html = $this->render(['listing' => $this->listing(42, $this->manufacturerAggregation('Shopware AG'))]);
+        $html = $this->render(['filterAggregations' => $this->manufacturerAggregation('Shopware AG')]);
 
         static::assertStringContainsString('data-component="Sw:Filter:Panel"', $html);
         static::assertStringContainsString('Shopware AG', $html);
-        static::assertStringContainsString('42', $html);
     }
 
     /**
-     * No component supplies the individual parts any more since the listing stopped rendering the panel.
-     * They stay as an override seam for a theme that renders the panel directly from its own data, so
-     * the precedence over `listing` is worth pinning.
-     */
-    public function testExplicitPropsWinOverTheListing(): void
-    {
-        $html = $this->render([
-            'listing' => $this->listing(42, $this->manufacturerAggregation('Shopware AG')),
-            'filterAggregations' => $this->manufacturerAggregation('Overridden Manufacturer'),
-        ]);
-
-        static::assertStringContainsString('Overridden Manufacturer', $html);
-        static::assertStringNotContainsString('Shopware AG', $html);
-    }
-
-    /**
-     * The panel owns the active-filter summary, so a panel placed in a sidebar column takes its chips
-     * along instead of leaving them stranded next to the product grid.
+     * The panel owns the summary, so a panel in a sidebar column takes its chips along instead of leaving them
+     * stranded next to the product grid.
      */
     public function testRendersTheActiveFiltersSummary(): void
     {
-        $html = $this->render(['listing' => $this->listing(42, $this->manufacturerAggregation('Shopware AG'))]);
+        $html = $this->render(['filterAggregations' => $this->manufacturerAggregation('Shopware AG')]);
 
         static::assertStringContainsString('data-component="Sw:Filter:ActiveFilters"', $html);
     }
@@ -139,7 +114,7 @@ class FilterPanelComponentTest extends TestCase
      */
     public function testRendersTheSummaryInsideItsSingleRootElement(): void
     {
-        $html = $this->render(['listing' => $this->listing(42, $this->manufacturerAggregation('Shopware AG'))]);
+        $html = $this->render(['filterAggregations' => $this->manufacturerAggregation('Shopware AG')]);
 
         $document = new \DOMDocument();
         libxml_use_internal_errors(true);
@@ -165,8 +140,7 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * A loader that finds no listing yields no data at all. Degrading to a filterless panel instead
-     * of failing the render matches Sw:Media:Image and Sw:Product:Listing.
+     * Degrading to a filterless panel instead of failing the render matches Sw:Media:Image.
      */
     public function testRendersWithoutFiltersWhenTheListingIsMissing(): void
     {
@@ -177,12 +151,12 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * The free shipping filter is a panel item like every other filter, as it is in the CMS element, so it
-     * takes the same wrapper and the same collapse behaviour instead of sitting loose among them.
+     * The free shipping filter is a panel item like the others, so it takes the same wrapper and collapse
+     * behaviour instead of sitting loose among them.
      */
     public function testRendersTheFreeShippingFilterAsAFilterItem(): void
     {
-        $html = $this->render(['listing' => $this->listing(42, $this->shippingFreeAggregation())]);
+        $html = $this->render(['filterAggregations' => $this->shippingFreeAggregation()]);
 
         static::assertStringContainsString('data-component="Sw:Filter:Type:BooleanFilter"', $html);
         static::assertSame(1, substr_count($html, 'data-component="Sw:Filter:Item"'));
@@ -214,22 +188,6 @@ class FilterPanelComponentTest extends TestCase
         return $twig
             ->createTemplate('{{ component(\'Sw:Filter:Panel\', props) }}')
             ->render(['props' => $props]);
-    }
-
-    private function listing(int $total, ?AggregationResultCollection $aggregations = null): ProductListingResult
-    {
-        $result = new EntitySearchResult(
-            ProductDefinition::ENTITY_NAME,
-            $total,
-            new ProductCollection(),
-            $aggregations,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
-
-        // getAvailableSortings() reads an uninitialized typed property unless the collection is passed,
-        // and the production listing route always fills it via the sorting processor.
-        return ProductListingResult::fromSearchResult($result, new ProductSortingCollection());
     }
 
     private function manufacturerAggregation(string $name): AggregationResultCollection

@@ -3,13 +3,13 @@
 {# @internal #}
 
 {% set attributeDefaults = {
-    class: 'sw-layout-switch btn-group',
-    'data-component': 'Sw:Filter:LayoutSwitch',
+    class: 'sw-product-layout-switch btn-group',
+    'data-component': 'Sw:Product:LayoutSwitch',
 } %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
     <twig:Sw:Button
-        class="sw-layout-switch__horizontal"
+        class="sw-product-layout-switch__horizontal"
         title="{{ 'listing.layoutSwitchList'|trans|sw_sanitize }}"
         data-layout="horizontal"
         variant="light"
@@ -18,7 +18,7 @@
     </twig:Sw:Button>
 
     <twig:Sw:Button
-        class="sw-layout-switch__default"
+        class="sw-product-layout-switch__default"
         title="{{ 'listing.layoutSwitchGrid'|trans|sw_sanitize }}"
         data-layout="default"
         variant="light"

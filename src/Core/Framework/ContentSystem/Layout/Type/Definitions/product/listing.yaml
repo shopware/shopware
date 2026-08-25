@@ -25,6 +25,7 @@ properties:
     description: "Hydrated listing result containing products, sorting, and aggregations."
     resolvedBy:
       product_listing:
+        aggregations: false
         associations:
           - cover
           - cover.media
@@ -46,6 +47,38 @@ properties:
     default: 1
     adminUI:
       component: "number"
+
+  showSorting:
+    type: boolean
+    title: "Show Sorting"
+    description: "Whether the sorting select is offered."
+    default: true
+    adminUI:
+      panel: "sorting"
+
+  defaultSorting:
+    type: string
+    title: "Default Sorting"
+    description: "Sorting preselected when the request carries no explicit order. A visitor's own choice always wins."
+    required: false
+    adminUI:
+      component: "entity-single-select"
+      entity: "product_sorting"
+      panel: "sorting"
+      props:
+        labelProperty: "label"
+        showClearableButton: true
+      visibleWhen:
+        field: "showSorting"
+        equals: true
+
+  showLayoutSwitch:
+    type: boolean
+    title: "Show Layout Switch"
+    description: "Whether to show listing layout toggle actions."
+    default: true
+    adminUI:
+      panel: "sorting"
 
 slots:
   - name: product-grid

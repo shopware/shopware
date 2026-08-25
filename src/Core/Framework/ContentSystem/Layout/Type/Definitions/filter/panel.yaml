@@ -11,13 +11,13 @@ meta:
       - "Use additional filter slots to extend built-in filters."
 
 properties:
-  listing:
-    type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
+  filterAggregations:
+    type: Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection
     required: true
-    title: "Listing"
-    description: "Hydrated listing result the filters, sortings and result count are derived from."
+    title: "Filter Aggregations"
+    description: "Hydrated listing aggregations the filters are built from."
     resolvedBy:
-      product_listing: {}
+      product_listing_aggregations: {}
 
   navigationId:
     type: string
@@ -39,12 +39,6 @@ properties:
       component: "select"
       panel: "filter"
       helpText: "Use stacked when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
-
-  showLayoutSwitch:
-    type: boolean
-    title: "Show Layout Switch"
-    description: "Whether to show listing layout toggle actions."
-    default: true
 
   visibleFilterCount:
     type: integer
@@ -107,30 +101,6 @@ properties:
       helpText: "Restrict the property filters to the groups that matter on this page, for example only colour and size."
       visibleWhen:
         field: "showPropertyFilter"
-        equals: true
-
-  showSorting:
-    type: boolean
-    title: "Show Sorting"
-    description: "Whether the sorting select is offered."
-    default: true
-    adminUI:
-      panel: "sorting"
-
-  defaultSorting:
-    type: string
-    title: "Default Sorting"
-    description: "Sorting preselected when the request carries no explicit order. A visitor's own choice always wins."
-    required: false
-    adminUI:
-      component: "entity-single-select"
-      entity: "product_sorting"
-      panel: "sorting"
-      props:
-        labelProperty: "label"
-        showClearableButton: true
-      visibleWhen:
-        field: "showSorting"
         equals: true
 
 slots:

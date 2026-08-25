@@ -206,8 +206,27 @@ export default {
             ];
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.advancedPrices.advancedPricesNotExisting');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.advancedPrices.advancedPricesInherited');
+            }
+
+            return this.$t('sw-product.advancedPrices.advancedPricesNotInherited');
+        },
+
+        showParentPricesLink() {
+            return this.isChild && this.isInherited;
+        },
+
+        parentPricesHref() {
+            return this.$router.resolve({
+                name: 'sw.product.detail.prices',
+                params: { id: this.product.parentId },
+            }).href;
         },
     },
 

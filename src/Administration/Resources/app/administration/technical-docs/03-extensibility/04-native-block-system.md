@@ -260,7 +260,7 @@ The registry maps a block name to an ordered array of Vue `Slot` functions. Ever
 
 ### `sw-block` render logic
 
-```147:171:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
+```148:172:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
         const template = computed(() => {
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
@@ -296,12 +296,30 @@ The key steps when rendering a **named block** (`name` prop):
 2. Call each slot function with the `data` prop (making scope available)
 3. **Pop the last element** — that is what actually gets rendered
 4. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
+5. **Reduce the winning slot's nodes to a single root** where it has one, so the block renders that node rather than a fragment around it
 
 This is why the last registered override wins when no `<sw-block-parent />` is used.
 
+#### Why the reduction in step 5 matters
+
+Calling a slot yields an array, and Vue turns any array — even one of length 1 — into a fragment. A
+component rendering a fragment has no root element, so Vue has nowhere to put the attributes a
+caller passes it, and `$el` is the fragment's text anchor rather than an element. Every directive
+and caller that measures or appends to `$el` then breaks, `v-popover` and `v-tooltip` among them.
+
+`reduceToSingleRoot()` therefore returns the one node when the block content really is
+single-rooted, leaving a component built out of blocks as single-rooted as it was without them.
+Content that genuinely has several roots is returned untouched — it was a fragment either way.
+
+Comments are two-sided here: an author's `<!-- … -->` does not count as a root, because the
+production compiler drops it and dev and prod have to agree on the root shape, but the placeholder
+comment a falsy `v-if` renders does count. Dropping that one would make the component single-rooted
+while the condition is falsy and multi-rooted once it flips, and Vue answers a changed root type
+with an unmount plus remount.
+
 ### `sw-block-parent` render logic
 
-```15:37:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
+```16:42:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
 export default Shopware.Component.wrapComponentConfig({
     setup() {
         const parents = inject(parentsInjectionKey, null);
@@ -321,13 +339,17 @@ export default Shopware.Component.wrapComponentConfig({
             parent,
         };
     },
+    // The parent content is returned directly instead of through a wrapping functional component:
+    // a fresh arrow function as the VNode type on every render reads to Vue as a different
+    // component and makes it unmount plus remount the content, and a functional component would
+    // additionally swallow every fallthrough attribute except class, style and listeners.
     render() {
-        return h(() => this.parent);
+        return reduceToSingleRoot(this.parent);
     },
 });
 ```
 
-`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key) and **pops** its last element **once** during `setup()`, claiming the previous block in the chain. It remembers that slot index and reads it through a `computed`, so when `sw-block` re-renders and replaces `providedParents.value`, the parent re-reads the current VNode at its reserved slot instead of popping again. It renders that as its output.
+`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key) and **pops** its last element **once** during `setup()`, claiming the previous block in the chain. It remembers that slot index and reads it through a `computed`, so when `sw-block` re-renders and replaces `providedParents.value`, the parent re-reads the current VNode at its reserved slot instead of popping again. It renders that as its output, through the same single-root reduction `sw-block` uses.
 
 ### Data flow diagram
 
@@ -446,6 +468,22 @@ From the ADR (`2024-09-26-native-block-system.md`):
     </sw-block>
 </template>
 ```
+
+**Two unconditional top-level `<sw-block>`s make the component multi-root** — a `{% block %}` emitted no node of its own, but a `<sw-block>` is a component vnode. Two of them side by side leave the component without a root element, so callers lose every attribute they pass that is not a declared prop, and `$el` becomes a text anchor. Keep one top-level block and put the rest inside it:
+
+```html
+<!-- ❌ Two roots: the caller's class never lands, and $el is not an element -->
+<sw-block name="sw_thing_new"><mt-thing v-if="useMeteor" /></sw-block>
+<sw-block name="sw_thing_old"><sw-thing-deprecated v-else /></sw-block>
+
+<!-- ✅ One root -->
+<sw-block name="sw_thing">
+    <mt-thing v-if="useMeteor" />
+    <sw-thing-deprecated v-else />
+</sw-block>
+```
+
+**A binding named after a component tag replaces that component** — a `<script setup>` template resolves a tag by camelizing it and preferring a setup binding of that name over the registered component. A `routerLink` prop next to a `<router-link>` in the same template therefore renders the prop's value instead of the link. Rename one side; `vue/no-dupe-keys` does not cover this case, and nothing fails at build time.
 
 > **Note:** `<sw-block extends>` inside `v-if` is explicitly **supported**. The `addBlock`/`removeBlock` lifecycle hooks handle registration and deregistration correctly as the component mounts and unmounts. See [Lifecycle Reactivity](#lifecycle-reactivity) above.
 

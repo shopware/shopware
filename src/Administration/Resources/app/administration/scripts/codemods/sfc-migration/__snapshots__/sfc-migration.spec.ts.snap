@@ -1,5 +1,29 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-already-multi-root 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_already_multi_root_first">
+        <p class="sw-already-multi-root__first">{{ label }}</p>
+        <p class="sw-already-multi-root__second">{{ label }}</p>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const label = ref('Multi root');
+
+swDefinePublic({
+    label,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-demo 1`] = `
 {
   "outcome": "full",
@@ -91,9 +115,12 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-cross-velse 1`] = `
 {
-  "outcome": "full",
-  "reasons": [],
+  "outcome": "partial",
+  "reasons": [
+    "the twig blocks make the component multi-root, so callers lose the attributes they pass and \`$el\` is no longer an element",
+  ],
   "sfc": "<template>
+    <!-- TODO(sfc-migration) VERIFY: the twig blocks make the component multi-root, so callers lose the attributes they pass and \`$el\` is no longer an element. Give the twig a single top-level block to restore it. -->
     <sw-block name="sw_cross_velse_on">
         <div v-if="active">On</div>
     </sw-block>
@@ -1686,6 +1713,16 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "outcome": "skipped",
   "reasons": [
     "this.$super",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-tag-collision 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "binding 'routerLink' shadows a component tag the template renders",
   ],
   "sfc": null,
 }

@@ -9,16 +9,21 @@
  * owned by the Shopware setup transform and must never be authored here.
  *
  * Turning transparent twig blocks into real elements breaks `v-if` chains that span a block
- * boundary, so the twig-free markup goes through `normalize-cross-block-conditionals.ts` last.
+ * boundary, so the twig-free markup goes through `normalize-cross-block-conditionals.ts` first, and
+ * `assert-single-root.ts` reads the finished markup last — the guards that normalization inserts
+ * are roots of their own, so the root tally is only correct once they exist.
  */
 
 import { assertBlockSlots } from './assert-block-slots';
+import { assertSingleRoot } from './assert-single-root';
 import { hoistBlockSlots } from './hoist-block-slots';
 import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
 type TemplateResult = {
     template: string | null;
     blockers: string[];
+    /** Reasons the template still converts but the draft needs a look; they downgrade it to partial. */
+    warnings: string[];
 };
 
 const ESLINT_BLOCK_DISABLE =
@@ -45,7 +50,7 @@ function transformTemplate(twig: string): TemplateResult {
     // renders nothing and the block name would be claimed from its real owner. `.match()` rather
     // than `.test()`, because the regex is global and `.test()` carries `lastIndex` between calls.
     if (twig.match(TWIG_PARENT)) {
-        return { template: null, blockers: [TWIG_PARENT_BLOCKER] };
+        return { template: null, blockers: [TWIG_PARENT_BLOCKER], warnings: [] };
     }
 
     const template = twig
@@ -60,6 +65,7 @@ function transformTemplate(twig: string): TemplateResult {
         return {
             template: null,
             blockers: [`unsupported twig syntax: ${leftoverTwig[0].trim()}`],
+            warnings: [],
         };
     }
 
@@ -67,17 +73,36 @@ function transformTemplate(twig: string): TemplateResult {
     const hoisted = hoistBlockSlots(template);
 
     if (hoisted.blockers.length > 0) {
-        return { template: null, blockers: hoisted.blockers };
+        return { template: null, blockers: hoisted.blockers, warnings: [] };
     }
 
     // Checked before the guard insertion below, so the blocker describes the authored shape.
     const slotBlockers = assertBlockSlots(hoisted.template);
 
     if (slotBlockers.length > 0) {
-        return { template: null, blockers: slotBlockers };
+        return { template: null, blockers: slotBlockers, warnings: [] };
     }
 
-    return normalizeCrossBlockConditionals(hoisted.template);
+    const normalized = normalizeCrossBlockConditionals(hoisted.template);
+
+    if (normalized.template === null) {
+        return { ...normalized, warnings: [] };
+    }
+
+    // Last, so the guards the normalization inserts count towards the root tally like any other node.
+    const warnings = assertSingleRoot(hoisted.template, normalized.template);
+
+    return {
+        template:
+            warnings.length > 0 ? `${warnings.map(templateTodo).join('\n')}\n${normalized.template}` : normalized.template,
+        blockers: normalized.blockers,
+        warnings,
+    };
+}
+
+/** A template-level note, in the same shape the script transform uses for its own TODOs. */
+function templateTodo(warning: string): string {
+    return `<!-- TODO(sfc-migration) VERIFY: ${warning}. Give the twig a single top-level block to restore it. -->`;
 }
 
 export { transformTemplate, TWIG_PARENT_BLOCKER, type TemplateResult };

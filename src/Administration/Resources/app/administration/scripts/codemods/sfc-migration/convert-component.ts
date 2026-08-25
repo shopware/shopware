@@ -8,7 +8,7 @@
  * through exactly this function, so what the tests pin is what the CLI writes.
  */
 
-import { collectTemplateIdentifiers } from './template-ast';
+import { collectTemplateComponentTags, collectTemplateIdentifiers } from './template-ast';
 import { transformScript } from './transform-script';
 import { transformTemplate } from './transform-template';
 import { formatSfc, validateSfc } from './validate';
@@ -43,6 +43,7 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     const script = transformScript(input.jsSource, input.componentName, {
         templateImportRange: input.templateImportRange,
         templateIdentifiers: collectTemplateIdentifiers(template.template),
+        templateComponentTags: collectTemplateComponentTags(template.template),
     });
 
     if (script.script === null) {
@@ -69,9 +70,14 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
         return { outcome: 'skipped', reasons: [`validation: ${validationError}`], sfc: null };
     }
 
+    const reasons = [
+        ...template.warnings,
+        ...script.reasons,
+    ];
+
     return {
-        outcome: script.reasons.length > 0 ? 'partial' : 'full',
-        reasons: script.reasons,
+        outcome: reasons.length > 0 ? 'partial' : 'full',
+        reasons,
         sfc: formatted,
     };
 }

@@ -290,6 +290,7 @@ function transformScript(
     transformOptions: {
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
+        templateComponentTags: ReadonlySet<string>;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -300,6 +301,7 @@ function transformScript(
         bindings: new Map(),
         renamedBindings: new Map(),
         templateIdentifiers: transformOptions.templateIdentifiers,
+        templateComponentTags: transformOptions.templateComponentTags,
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
@@ -360,6 +362,18 @@ function transformScript(
         // silently render as `undefined`.
         if (collected.propNames.has(bindingName)) {
             report(ctx, 'skip', `'${bindingName}' is declared as both a prop and a component member`);
+        }
+    }
+
+    // A template resolves a component tag against setup bindings first, so a binding named after a
+    // tag the template renders replaces that component with the binding's value. Props are included
+    // because they become setup bindings too, and are where this shows up in practice.
+    for (const bindingName of [
+        ...setupBindingNames,
+        ...collected.propNames,
+    ]) {
+        if (ctx.templateComponentTags.has(bindingName)) {
+            report(ctx, 'skip', `binding '${bindingName}' shadows a component tag the template renders`);
         }
     }
 

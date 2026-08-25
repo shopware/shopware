@@ -9,7 +9,7 @@
  * reads, and on what happens to markup Vue cannot parse.
  */
 
-import { NodeTypes, parse } from '@vue/compiler-dom';
+import { ElementTypes, NodeTypes, isCoreComponent, parse, parserOptions } from '@vue/compiler-dom';
 import type { ElementNode, ExpressionNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
 
 /**
@@ -97,4 +97,62 @@ function collectTemplateIdentifiers(template: string): Set<string> {
     return names;
 }
 
-export { parseTemplate, isConvertedBlock, elementChildren, collectTemplateIdentifiers };
+// Tags the block conversion itself emits: they resolve against the globally registered components,
+// never against a setup binding this codemod could produce.
+const GENERATED_TAGS = new Set([
+    'sw-block',
+    'sw-block-parent',
+]);
+
+const camelize = (tag: string): string => tag.replace(/-(\w)/g, (_, character: string) => character.toUpperCase());
+
+/**
+ * A tag `resolveComponentType()` settles before it ever reaches the setup bindings: `<component>`
+ * resolves through its `is`, and the built-ins are matched by name. Vue's own predicates are used
+ * rather than a copied list, so the set cannot drift from the compiler in this repo.
+ */
+function resolvesBeforeSetupBindings(tag: string): boolean {
+    return tag === 'component' || Boolean(isCoreComponent(tag)) || Boolean(parserOptions.isBuiltInComponent?.(tag));
+}
+
+function collectComponentTags(node: RootNode | TemplateChildNode, names: Set<string>): void {
+    if (node.type === NodeTypes.ELEMENT) {
+        // Vue only resolves a tag against setup bindings when it is not a plain HTML element, which
+        // the parser has already decided for us.
+        if (
+            node.tagType === ElementTypes.COMPONENT &&
+            !GENERATED_TAGS.has(node.tag) &&
+            !resolvesBeforeSetupBindings(node.tag)
+        ) {
+            names.add(camelize(node.tag));
+        }
+    }
+
+    if (node.type === NodeTypes.ROOT || node.type === NodeTypes.ELEMENT) {
+        for (const child of node.children) {
+            collectComponentTags(child, names);
+        }
+    }
+}
+
+/**
+ * The camelized name of every component tag the converted template renders.
+ *
+ * A `<script setup>` template resolves a tag through `resolveSetupReference()`, which camelizes it
+ * and prefers a setup binding of that name over the registered component. So a binding named after
+ * a tag makes the tag render the binding's value — `<router-link>` next to a `routerLink` prop
+ * renders nothing at all. A generated binding is renamed around the collision; a name the component
+ * itself chose cannot be, so that case is refused.
+ */
+function collectTemplateComponentTags(template: string): Set<string> {
+    const names = new Set<string>();
+    const root = parseTemplate(template);
+
+    if (root !== null) {
+        collectComponentTags(root, names);
+    }
+
+    return names;
+}
+
+export { parseTemplate, isConvertedBlock, elementChildren, collectTemplateIdentifiers, collectTemplateComponentTags };

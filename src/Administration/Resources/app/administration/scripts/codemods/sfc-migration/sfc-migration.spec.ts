@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { MULTI_ROOT } from './assert-single-root';
 import { convertComponent } from './convert-component';
 import { OPTION_HANDLERS } from './option-handlers';
 import { convertFixture, fixtureNames, templateImportRange } from './spec-helpers';
@@ -114,13 +115,30 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual(["name 'sw-totally-different' does not match the directory name"]);
         });
 
+        // Two top-level blocks around the two halves of one chain: the chain is reconnected, but the
+        // component now renders two blocks where it rendered one branch, hence the partial.
         it('reconnects a v-if/v-else chain that the block conversion split into siblings', async () => {
             const result = await convertFixture('sw-cross-velse');
 
-            expect(result.outcome).toBe('full');
+            expect(result.outcome).toBe('partial');
+            expect(result.reasons).toEqual([MULTI_ROOT]);
             expect(result.sfc).toContain(
                 '<template v-if="active"><!-- Keeps the conditional chain connected across sw-block. --></template>',
             );
+        });
+
+        it('leaves a template that was multi-root before the conversion alone', async () => {
+            const result = await convertFixture('sw-already-multi-root');
+
+            expect(result.outcome).toBe('full');
+            expect(result.reasons).toEqual([]);
+        });
+
+        it('refuses a binding named after a component tag the template renders', async () => {
+            const result = await convertFixture('sw-tag-collision');
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toEqual(["binding 'routerLink' shadows a component tag the template renders"]);
         });
 
         // Every authoring form has to be refused: the leftover-twig check only looks for `{%`/`{#`,
@@ -130,7 +148,7 @@ describe('scripts/codemods/sfc-migration', () => {
             '{% block a_b %}{{ parent() }}{% endblock %}',
             '{% block a_b %}{%- parent -%}{% endblock %}',
         ])('refuses %s, which only base output cannot express', (twig) => {
-            expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER] });
+            expect(transformTemplate(twig)).toEqual({ template: null, blockers: [TWIG_PARENT_BLOCKER], warnings: [] });
         });
 
         // A `-->` in the body would close the generated comment early and spill the rest into

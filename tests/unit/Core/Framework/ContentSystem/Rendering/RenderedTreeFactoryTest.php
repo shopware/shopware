@@ -178,7 +178,7 @@ class RenderedTreeFactoryTest extends TestCase
         // Both depths are present, each under its own element id, so a fold that recorded only the roots or
         // only the leaves fails here.
         static::assertSame(['child-1', 'root-1'], $this->sortedKeys($result->provenance));
-        static::assertSame(ValueOrigin::DeclaredPrimitive, $result->provenance['child-1']['headline']->origin);
+        static::assertSame(ValueOrigin::DeclaredAuthored, $result->provenance['child-1']['headline']->origin);
         static::assertSame(ValueOrigin::LoaderResolved, $result->provenance['root-1']['product']->origin);
     }
 

@@ -193,7 +193,7 @@ final readonly class ResolvedValueIndexFactory
         return [
             ...$this->declaredOrder(
                 $element->component,
-                $this->keysWithOrigin($element, $elementProvenance, ValueOrigin::DeclaredPrimitive)
+                $this->keysWithOrigin($element, $elementProvenance, ValueOrigin::DeclaredAuthored)
             ),
             ...$this->byteOrder($this->keysWithOrigin($element, $elementProvenance, ValueOrigin::LoaderResolved)),
             ...$this->byteOrder($this->keysWithOrigin($element, $elementProvenance, ValueOrigin::DeliveredContext)),
@@ -227,7 +227,7 @@ final readonly class ResolvedValueIndexFactory
      * Type-spec order, not byte order: the declared property map is ordered as the type declares it, and that
      * is the order a client reading the type spec expects its primitives in.
      *
-     * A key whose provenance says `DeclaredPrimitive` while the type declares nothing under that name has no
+     * A key whose provenance says `DeclaredAuthored` while the type declares nothing under that name has no
      * declared position to take — an unregistered component declares nothing at all, the virtual root being
      * exactly that case — so it follows the declared ones in byte order rather than failing the render.
      *

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
+use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -24,13 +24,13 @@ use Shopware\Core\Framework\Log\Package;
  * keys; only those in the union of four members appear on the rendered element, and everything else is
  * dropped:
  *
- * - declared primitive properties — the primitive-typed keys the element's type declares, carrying the
- *   stored value under that key
+ * - declared authored properties — every key the element's type declares except a resolvable reference,
+ *   carrying the stored value under that key. A primitive, a bare `object` and any union are all authored
  * - requirement keys — the keys of the element's data requirements, carrying the resolved loader value
  * - delivered context keys — the keys context was actually delivered under, carrying the delivered value
  * - distribution-referenced keys — stored keys a parent's distribution config dereferences by name (today
  *   only {@see KeyedDistributionConfig::$keyProperty}),
- *   carrying the stored value under that key, unless that key is a declared reference property
+ *   carrying the stored value under that key, unless that key is a resolvable reference property
  *
  * "Delivered" means delivered: a consumer key the element declares but which no ancestor fulfilled is not
  * a member, so it does not appear at all rather than appearing as null. An explicit null on a rendered
@@ -56,6 +56,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class RenderedElementFactory
 {
+    /**
+     * The declared type that names an object without naming which one. It constrains nothing, so nothing can
+     * resolve it and everything under it is authored — the same reading {@see ElementResolver::resolve()} takes.
+     */
+    private const UNCONSTRAINED_OBJECT_TYPE = 'object';
+
     public function __construct(
         private AbstractContentSystemElementTypeRegistry $typeRegistry,
     ) {
@@ -63,7 +69,7 @@ final readonly class RenderedElementFactory
 
     /**
      * Members are written lowest tier first, so a higher tier overwrites what a lower one wrote. Highest
-     * wins: delivered context, then loader-resolved, then declared primitive, then distribution-referenced.
+     * wins: delivered context, then loader-resolved, then declared authored, then distribution-referenced.
      * The first three reproduce the order the current pipeline writes in. The last two cannot differ in
      * practice — both copy the same stored value — so their relative order is fixed purely for
      * determinism, and carries no behavioural meaning.
@@ -101,10 +107,10 @@ final readonly class RenderedElementFactory
             }
         }
 
-        foreach ($this->declaredPrimitiveKeys($declaredProperties) as $key) {
+        foreach ($this->declaredAuthoredKeys($declaredProperties) as $key) {
             if ($this->carriesAValue($storedProperties, $key)) {
                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
-                $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredPrimitive);
+                $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
             }
         }
 
@@ -160,72 +166,58 @@ final readonly class RenderedElementFactory
     }
 
     /**
-     * The shared invariant of both stored-value tiers: a stored value under a declared reference property
-     * never reaches the rendered element, whichever tier would otherwise have carried it. A reference
-     * property's stored value is an id the pipeline resolves, and serving the raw id in the place a hydrated
-     * entity belongs would hand the Twig filter chain a string where it expects the object. The two tiers
-     * express the one rule differently only because their defaults about declaredness are opposite: this
-     * tier admits by default and so excludes declared references, while the declared tier admits nothing by
-     * default and so selects declared primitives.
+     * The shared invariant of both stored-value tiers: a stored value under a resolvable reference property
+     * never reaches the rendered element, whichever tier would otherwise have carried it. Such a property's
+     * stored value is an id the pipeline resolves, and serving the raw id in the place a hydrated entity
+     * belongs would hand the Twig filter chain a string where it expects the object. The two tiers express
+     * the one rule differently only because their defaults about declaredness are opposite: this tier admits
+     * by default and so excludes resolvable references, while the declared tier admits nothing by default and
+     * so selects everything else.
      *
-     * An undeclared key is not a declared reference and passes. That is the ordinary case for this tier: a
+     * An undeclared key is not a resolvable reference and passes. That is the ordinary case for this tier: a
      * keyed distribution's `keyProperty` names a stored key that is usually declared by nothing at all.
      *
      * @param array<string, PropertySpecification> $declaredProperties
      */
     private function isDeclaredReference(array $declaredProperties, string $key): bool
     {
-        return isset($declaredProperties[$key]) && !$this->constrainsToPrimitives($declaredProperties[$key]->type());
+        return isset($declaredProperties[$key]) && $this->isResolvableReference($declaredProperties[$key]->type());
     }
 
     /**
-     * True when the declaration admits primitive values only. {@see PropertyType::isPrimitive()} answers false
-     * for every union, because a union's declared type is an array; an all-primitive union is still a
-     * primitive-only declaration, and reading it as a reference excluded its stored value from both tiers.
-     * The member-wise derivation is the one {@see PropertyTypeConformanceValidator::enforceableTypes()} holds,
-     * including the empty union, which constrains nothing and is therefore not primitive-only.
+     * The one thing a declaration can be that nothing authors: a single class string naming the type a loader
+     * or a context delivery fills. Everything else — a primitive, a bare `object`, and any union, whether its
+     * members are all primitive or mixed — is authored, and its stored value is what serving means.
      *
-     * This is the second copy of that derivation, kept deliberately: the planned consolidation moves it onto
-     * {@see PropertyType} itself, and both call sites here switch to that method when it lands.
+     * This mirrors {@see ElementResolver::resolve()}'s own split, which files exactly these declarations under
+     * `PropertyKind::Primitive`. The two must agree: a property diagnostics calls satisfied by a stored value
+     * is a property serving has to render from that same value.
      */
-    private function constrainsToPrimitives(PropertyType $type): bool
+    private function isResolvableReference(PropertyType $type): bool
     {
-        if ($type->isPrimitive()) {
-            return true;
-        }
-
         $declared = $type->type();
 
-        if (!\is_array($declared) || $declared === []) {
-            return false;
-        }
-
-        foreach ($declared as $member) {
-            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
-                return false;
-            }
-        }
-
-        return true;
+        return \is_string($declared) && $declared !== self::UNCONSTRAINED_OBJECT_TYPE && !$type->isPrimitive();
     }
 
     /**
-     * The declared tier's half of the invariant above: it carries the declared primitives and leaves every
-     * declared reference to whichever loader resolves it. The served set is wider than the set
-     * {@see PrimitiveDefaultProvider} seeds: that provider keys off `isPrimitive()` alone, so a union-typed
-     * property seeds no default, while this tier serves it. Serving a stored value the seeder never wrote is
-     * the intended direction — an authored value under an all-primitive-union key belongs on the wire.
+     * The declared tier's half of the invariant above: it carries every authored key the type declares and
+     * leaves each resolvable reference to whichever member fills it — a loader through the requirement tier,
+     * or an ancestor through the delivered-context tier. The served set is wider than the set
+     * {@see PrimitiveDefaultProvider} seeds: that provider keys off `isPrimitive()` alone, so a union-typed or
+     * `object`-typed property seeds no default while this tier still serves an authored value under it.
+     * Serving a value the seeder never wrote is the intended direction.
      *
      * @param array<string, PropertySpecification> $declaredProperties
      *
      * @return list<string>
      */
-    private function declaredPrimitiveKeys(array $declaredProperties): array
+    private function declaredAuthoredKeys(array $declaredProperties): array
     {
         $keys = [];
 
         foreach ($declaredProperties as $key => $property) {
-            if ($this->constrainsToPrimitives($property->type())) {
+            if (!$this->isResolvableReference($property->type())) {
                 $keys[] = $key;
             }
         }

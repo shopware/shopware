@@ -342,7 +342,7 @@ class RenderedElementTest extends TestCase
             ContentSystemException::unsupportedPropertyValueType('mode', ValueOrigin::class)
         );
 
-        new RenderedElement('element-1', 'core:text', ['mode' => ValueOrigin::DeclaredPrimitive]);
+        new RenderedElement('element-1', 'core:text', ['mode' => ValueOrigin::DeclaredAuthored]);
     }
 
     #[TestDox('rejects a property value that is an object outside the permitted domain')]

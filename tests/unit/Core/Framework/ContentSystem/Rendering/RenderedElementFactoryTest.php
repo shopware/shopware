@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
@@ -140,61 +141,63 @@ class RenderedElementFactoryTest extends TestCase
     }
 
     /**
-     * A union's declared type is an array, so `PropertyType::isPrimitive()` answers false for it. Reading that
-     * as "not primitive" excluded an all-primitive-union key from both tiers and its stored value never
-     * reached the wire.
+     * Only a single class string names something a loader or a context delivery can fill. Every other
+     * declaration is authored, so its stored value is what serving means — the same split
+     * `ElementResolver::resolve()` makes when it files a declaration under `PropertyKind::Primitive`.
+     *
+     * @param string|list<string> $declaredType
      */
-    #[TestDox('a key declared as an all-primitive union carries its stored value')]
-    public function testAllPrimitiveUnionPropertyContributesItsStoredValue(): void
+    #[DataProvider('authoredDeclarationProvider')]
+    #[TestDox('a key declared as $_dataName carries its stored value')]
+    public function testAuthoredDeclarationContributesItsStoredValue(string|array $declaredType, mixed $value): void
     {
-        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
-            ->withProperty('columns', 3)
+        $stored = StoredElementBuilder::create('Sw:Declarations', 'element-1')
+            ->withProperty('subject', $value)
             ->build();
 
-        $rendered = $this->mint($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], [], [], $declaredType);
 
-        static::assertSame(['columns' => 3], $rendered->properties);
+        static::assertSame(['subject' => $value], $rendered->properties);
     }
 
     /**
-     * The other tier. `isDeclaredReference()` gates the distribution-referenced member, and reading an
-     * all-primitive union as a reference excluded the key there too — a second exclusion the declared tier's
-     * own test cannot reach.
+     * @return iterable<string, array{string|list<string>, mixed}>
      */
-    #[TestDox('a distribution referenced key declared as an all-primitive union carries its stored value')]
-    public function testAllPrimitiveUnionDistributionReferencedKeyContributesItsStoredValue(): void
+    public static function authoredDeclarationProvider(): iterable
     {
-        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
-            ->withProperty('columns', 3)
-            ->build();
+        yield 'a single primitive' => ['integer', 3];
 
-        $rendered = $this->mint($stored, [], [], ['columns'], []);
+        yield 'an all-primitive union' => [['integer', 'string'], 3];
 
-        static::assertSame(['columns' => 3], $rendered->properties);
+        // The shipped grid keys: `columns`/`rows` are integer|object, `padding`/`margin` are string|object.
+        yield 'a mixed union carrying object' => [['integer', 'object'], 3];
+
+        yield 'a mixed union carrying an FQCN' => [['string', StubStruct::class], 'left'];
+
+        yield 'a bare object' => ['object', ['nested' => 'value']];
     }
 
-    #[TestDox('leaves out a union key carrying a non-primitive member')]
-    public function testUnionWithANonPrimitiveMemberStaysExcluded(): void
-    {
-        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
-            ->withProperty('anything', 'stub-id')
+    /**
+     * The same table on the other tier. `isDeclaredReference()` gates the distribution-referenced member, so
+     * every declaration the declared tier serves this one must serve too — an agreement neither tier's own
+     * test can establish alone. The exclusion half of the split is covered per tier by the two reference
+     * tests above and below.
+     *
+     * @param string|list<string> $declaredType
+     */
+    #[DataProvider('authoredDeclarationProvider')]
+    #[TestDox('a distribution referenced key declared as $_dataName carries its stored value')]
+    public function testAuthoredDeclarationContributesItsStoredValueWhenDistributionReferenced(
+        string|array $declaredType,
+        mixed $value,
+    ): void {
+        $stored = StoredElementBuilder::create('Sw:Declarations', 'element-1')
+            ->withProperty('subject', $value)
             ->build();
 
-        $rendered = $this->mint($stored, [], [], [], []);
+        $rendered = $this->mint($stored, [], [], ['subject'], [], $declaredType);
 
-        static::assertSame([], $rendered->properties);
-    }
-
-    #[TestDox('leaves out a declared single-reference property on a type that also declares a union')]
-    public function testDeclaredReferenceStaysExcludedBesideAUnion(): void
-    {
-        $stored = StoredElementBuilder::create('Sw:Grid', 'element-1')
-            ->withProperty('product', 'product-id')
-            ->build();
-
-        $rendered = $this->mint($stored, [], [], [], []);
-
-        static::assertSame([], $rendered->properties);
+        static::assertSame(['subject' => $value], $rendered->properties);
     }
 
     /**
@@ -295,7 +298,7 @@ class RenderedElementFactoryTest extends TestCase
         static::assertSame(
             [
                 'data_key' => ValueOrigin::DistributionReferenced,
-                'headline' => ValueOrigin::DeclaredPrimitive,
+                'headline' => ValueOrigin::DeclaredAuthored,
                 'product' => ValueOrigin::LoaderResolved,
                 'delivered' => ValueOrigin::DeliveredContext,
             ],
@@ -514,6 +517,7 @@ class RenderedElementFactoryTest extends TestCase
      * @param array<string, mixed> $delivered
      * @param list<string> $distributionKeys
      * @param array<string, list<RenderedElement>> $slots
+     * @param string|list<string>|null $subjectType the declared type of `Sw:Declarations`' `subject` property
      */
     private function mint(
         StoredElement $stored,
@@ -521,8 +525,9 @@ class RenderedElementFactoryTest extends TestCase
         array $delivered,
         array $distributionKeys,
         array $slots,
+        string|array|null $subjectType = null,
     ): RenderedElement {
-        return $this->mintResult($stored, $loaderValues, $delivered, $distributionKeys, $slots)->element;
+        return $this->mintResult($stored, $loaderValues, $delivered, $distributionKeys, $slots, $subjectType)->element;
     }
 
     /**
@@ -530,6 +535,7 @@ class RenderedElementFactoryTest extends TestCase
      * @param array<string, mixed> $delivered
      * @param list<string> $distributionKeys
      * @param array<string, list<RenderedElement>> $slots
+     * @param string|list<string>|null $subjectType
      */
     private function mintResult(
         StoredElement $stored,
@@ -537,6 +543,7 @@ class RenderedElementFactoryTest extends TestCase
         array $delivered,
         array $distributionKeys,
         array $slots,
+        string|array|null $subjectType = null,
     ): ElementMintResult {
         $fingerprinter = new ValueFingerprinter();
 
@@ -550,10 +557,13 @@ class RenderedElementFactoryTest extends TestCase
             $loaderValues
         );
 
-        return $this->factory()->create($stored, $resolved, $delivered, $distributionKeys, $slots);
+        return $this->factory($subjectType)->create($stored, $resolved, $delivered, $distributionKeys, $slots);
     }
 
-    private function factory(): RenderedElementFactory
+    /**
+     * @param string|list<string>|null $subjectType
+     */
+    private function factory(string|array|null $subjectType = null): RenderedElementFactory
     {
         $specs = [
             'Sw:Text' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Text')
@@ -567,10 +577,10 @@ class RenderedElementFactoryTest extends TestCase
             'Sw:Tile' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Tile')
                 ->primitive('label', 'string')
                 ->build(),
-            'Sw:Grid' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Grid')
-                ->union('columns', ['integer', 'string'])
-                ->union('anything', ['string', StubStruct::class])
-                ->reference('product', StubStruct::class)
+            // One property whose declared type each test supplies, so a test varies the declaration itself
+            // rather than picking from a fixed menu of them.
+            'Sw:Declarations' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Declarations')
+                ->declared('subject', $subjectType ?? 'string')
                 ->build(),
         ];
 

@@ -114,9 +114,9 @@ class ResolvedValueIndexFactoryTest extends TestCase
             ->build();
 
         $index = $this->factory()->create([$element], ['element-1' => [
-            'mike' => new ValueProvenance(ValueOrigin::DeclaredPrimitive),
-            'zulu' => new ValueProvenance(ValueOrigin::DeclaredPrimitive),
-            'alpha' => new ValueProvenance(ValueOrigin::DeclaredPrimitive),
+            'mike' => new ValueProvenance(ValueOrigin::DeclaredAuthored),
+            'zulu' => new ValueProvenance(ValueOrigin::DeclaredAuthored),
+            'alpha' => new ValueProvenance(ValueOrigin::DeclaredAuthored),
             'yankee' => $this->loaderProvenance('y', inputsHash: 'inputs-yankee'),
             'bravo' => $this->loaderProvenance('b', inputsHash: 'inputs-bravo'),
             'charlie' => new ValueProvenance(ValueOrigin::DeliveredContext),
@@ -619,7 +619,7 @@ class ResolvedValueIndexFactoryTest extends TestCase
         $element = RenderedElementBuilder::create('Sw:Text', 'element-1')->withProperty('zulu', 'z')->build();
 
         $index = $this->factory()->create([$element], ['element-1' => [
-            'zulu' => new ValueProvenance(ValueOrigin::DeclaredPrimitive),
+            'zulu' => new ValueProvenance(ValueOrigin::DeclaredAuthored),
             'ghost' => $this->loaderProvenance('gone'),
         ]]);
 
@@ -687,7 +687,7 @@ class ResolvedValueIndexFactoryTest extends TestCase
                 'element-1' => ['product' => $this->loaderProvenance('original')],
                 'element-2' => [
                     'product' => $this->loaderProvenance('original'),
-                    'zulu' => new ValueProvenance(ValueOrigin::DeclaredPrimitive),
+                    'zulu' => new ValueProvenance(ValueOrigin::DeclaredAuthored),
                 ],
             ]
         );
@@ -872,7 +872,7 @@ class ResolvedValueIndexFactoryTest extends TestCase
 
         foreach ($elementIds as $elementId) {
             foreach ($keys as $key) {
-                $provenance[$elementId][$key] = new ValueProvenance(ValueOrigin::DeclaredPrimitive);
+                $provenance[$elementId][$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
             }
         }
 

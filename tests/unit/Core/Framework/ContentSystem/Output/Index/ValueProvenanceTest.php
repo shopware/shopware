@@ -68,7 +68,7 @@ class ValueProvenanceTest extends TestCase
      */
     public static function nonLoaderOriginProvider(): \Generator
     {
-        yield 'a declared primitive' => [ValueOrigin::DeclaredPrimitive];
+        yield 'a declared primitive' => [ValueOrigin::DeclaredAuthored];
         yield 'a delivered context key' => [ValueOrigin::DeliveredContext];
         yield 'a distribution referenced key' => [ValueOrigin::DistributionReferenced];
         yield 'a listener-injected key' => [ValueOrigin::Injected];

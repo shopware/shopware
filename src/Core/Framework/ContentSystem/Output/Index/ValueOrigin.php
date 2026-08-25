@@ -23,9 +23,10 @@ use Shopware\Core\Framework\Log\Package;
 enum ValueOrigin
 {
     /**
-     * A primitive-typed key the element's type declares, carrying the stored value under that key.
+     * A key the element's type declares as something authored rather than resolved — a primitive, a bare
+     * `object`, or any union — carrying the stored value under that key.
      */
-    case DeclaredPrimitive;
+    case DeclaredAuthored;
 
     /**
      * A data-requirement key, carrying the value its loader resolved — including a present null, which is a

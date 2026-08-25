@@ -38,14 +38,15 @@ class ContentSystemElementTypeSpecificationBuilder
     }
 
     /**
-     * A union-typed property: the declared type is a list of member type names, which is what makes
-     * {@see PropertyType::isPrimitive()} answer false even when every member is primitive.
+     * A property whose declared type is passed through verbatim, in either shape the YAML admits: a single
+     * type name (a primitive, `object`, or an FQCN) or a list of them for a union. For a test that varies the
+     * declaration itself rather than picking one of the named kinds above.
      *
-     * @param list<string> $types
+     * @param string|list<string> $type
      */
-    public function union(string $key, array $types, bool $required = false): self
+    public function declared(string $key, string|array $type, bool $required = false): self
     {
-        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($types, false, null, null), $required, '', '', null);
+        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($type, false, null, null), $required, '', '', null);
 
         return $this;
     }

@@ -157,6 +157,7 @@ final class DocumentV2Controller extends AbstractController
         $documentId = Uuid::randomHex();
         $deepLinkCode = Random::getAlphanumericString(32);
         $mediaId = $payload->getString('mediaId');
+        $documentNumber = $payload->getString('documentNumber');
 
         if ($mediaId === '') {
             $mediaId = $context->scope(
@@ -181,20 +182,23 @@ final class DocumentV2Controller extends AbstractController
             );
         }
 
-        $this->documentRepository->create([
-            [
-                'id' => $documentId,
-                'orderId' => $this->requirePayloadString($payload, 'orderId'),
-                'orderVersionId' => $this->requirePayloadString($payload, 'orderVersionId'),
-                'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
-                'documentMediaFileId' => $mediaId,
-                'static' => true,
-                'deepLinkCode' => $deepLinkCode,
-                'config' => [
-                    'documentNumber' => $payload->getString('documentNumber'),
-                ],
-            ],
-        ], $context);
+        $document = [
+            'id' => $documentId,
+            'orderId' => $this->requirePayloadString($payload, 'orderId'),
+            'orderVersionId' => $this->requirePayloadString($payload, 'orderVersionId'),
+            'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
+            'documentMediaFileId' => $mediaId,
+            'static' => true,
+            'deepLinkCode' => $deepLinkCode,
+            'config' => ['documentNumber' => $documentNumber],
+        ];
+
+        if ($documentNumber === '') {
+            // Omit an empty document number so the generated document_number column stays NULL
+            $document['config'] = [];
+        }
+
+        $this->documentRepository->create([$document], $context);
 
         $this->documentFileRepository->create([
             [

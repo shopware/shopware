@@ -141,6 +141,28 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual(["binding 'routerLink' shadows a component tag the template renders"]);
         });
 
+        // A ref is nearly always named after the component it points at, and the `ref` attribute in
+        // the template names it too, so it cannot be renamed around the collision either.
+        it('refuses a template ref named after a component tag the template renders', async () => {
+            const result = await convertFixture('sw-ref-tag-collision');
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toEqual([
+                "template ref 'swSelectResultList' shadows a component tag the template renders",
+            ]);
+        });
+
+        // A twig comment renders nothing; left at the template root the HTML comment it becomes is a
+        // second root node in a development build, which costs the component its element root.
+        it('moves a comment the twig kept above the block into it', async () => {
+            const result = await convertFixture('sw-root-comment');
+
+            expect(result.outcome).toBe('full');
+            expect(result.sfc).toContain(
+                '<sw-block name="sw_root_comment">\n        <!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->',
+            );
+        });
+
         // Every authoring form has to be refused: the leftover-twig check only looks for `{%`/`{#`,
         // so a surviving `{{ parent() }}` would compile as a live interpolation and fail at runtime.
         it.each([

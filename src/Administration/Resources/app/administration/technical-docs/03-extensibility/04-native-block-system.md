@@ -483,7 +483,17 @@ From the ADR (`2024-09-26-native-block-system.md`):
 </sw-block>
 ```
 
-**A binding named after a component tag replaces that component** — a `<script setup>` template resolves a tag by camelizing it and preferring a setup binding of that name over the registered component. A `routerLink` prop next to a `<router-link>` in the same template therefore renders the prop's value instead of the link. Rename one side; `vue/no-dupe-keys` does not cover this case, and nothing fails at build time.
+**A binding named after a component tag replaces that component** — a `<script setup>` template resolves a tag by trying it as written, camelized and capitalized, and prefers a setup binding of any of those names over the registered component. A `routerLink` prop next to a `<router-link>` in the same template therefore renders the prop's value instead of the link. Template refs are the common case, because a ref is usually named after what it points at:
+
+```html
+<!-- ❌ `swSelectResultList` is a setup binding, so the tag renders its value — `null` until mount -->
+<sw-select-result-list ref="swSelectResultList" />
+
+<!-- ✅ The ref no longer shares a name with the tag -->
+<sw-select-result-list ref="resultList" />
+```
+
+Rename one side; `vue/no-dupe-keys` does not cover this case, and nothing fails at build time.
 
 > **Note:** `<sw-block extends>` inside `v-if` is explicitly **supported**. The `addBlock`/`removeBlock` lifecycle hooks handle registration and deregistration correctly as the component mounts and unmounts. See [Lifecycle Reactivity](#lifecycle-reactivity) above.
 

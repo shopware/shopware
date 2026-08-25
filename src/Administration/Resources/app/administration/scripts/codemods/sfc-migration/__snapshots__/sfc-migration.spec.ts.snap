@@ -29,8 +29,8 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
-    <!-- Legacy twig comment, becomes an HTML comment -->
     <sw-block name="sw_block_demo">
+        <!-- Legacy twig comment, becomes an HTML comment -->
         <div class="sw-block-demo">
             <sw-block name="sw_block_demo_inner">
                 <p>{{ message }}</p>
@@ -1452,6 +1452,40 @@ const title = ref('Partial');
 swDefinePublic({
     title,
     onSave,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-ref-tag-collision 1`] = `
+{
+  "outcome": "skipped",
+  "reasons": [
+    "template ref 'swSelectResultList' shadows a component tag the template renders",
+  ],
+  "sfc": null,
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-root-comment 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_root_comment">
+        <!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->
+        <div class="sw-root-comment">{{ label }}</div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const label = ref('Root comment');
+
+swDefinePublic({
+    label,
 });
 </script>
 ",

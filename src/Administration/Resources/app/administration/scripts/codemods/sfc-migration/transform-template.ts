@@ -9,14 +9,16 @@
  * owned by the Shopware setup transform and must never be authored here.
  *
  * Turning transparent twig blocks into real elements breaks `v-if` chains that span a block
- * boundary, so the twig-free markup goes through `normalize-cross-block-conditionals.ts` first, and
- * `assert-single-root.ts` reads the finished markup last — the guards that normalization inserts
- * are roots of their own, so the root tally is only correct once they exist.
+ * boundary, so the twig-free markup goes through `move-root-comments.ts` and then
+ * `normalize-cross-block-conditionals.ts`, and `assert-single-root.ts` reads the finished markup
+ * last — the guards that normalization inserts are roots of their own, so the root tally is only
+ * correct once they exist.
  */
 
 import { assertBlockSlots } from './assert-block-slots';
 import { assertSingleRoot } from './assert-single-root';
 import { hoistBlockSlots } from './hoist-block-slots';
+import { moveRootCommentsIntoBlock } from './move-root-comments';
 import { normalizeCrossBlockConditionals } from './normalize-cross-block-conditionals';
 
 type TemplateResult = {
@@ -83,14 +85,17 @@ function transformTemplate(twig: string): TemplateResult {
         return { template: null, blockers: slotBlockers, warnings: [] };
     }
 
-    const normalized = normalizeCrossBlockConditionals(hoisted.template);
+    // A twig comment rendered nothing; the HTML comment it becomes is a root node in a development
+    // build, which costs the component its element root.
+    const rooted = moveRootCommentsIntoBlock(hoisted.template);
+    const normalized = normalizeCrossBlockConditionals(rooted);
 
     if (normalized.template === null) {
         return { ...normalized, warnings: [] };
     }
 
     // Last, so the guards the normalization inserts count towards the root tally like any other node.
-    const warnings = assertSingleRoot(hoisted.template, normalized.template);
+    const warnings = assertSingleRoot(rooted, normalized.template);
 
     return {
         template:

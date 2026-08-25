@@ -7,6 +7,15 @@
     width: 100%;
     height: 100%;
 
+    // keeps the modal from resizing while the activation states swap
+    .sw-extension-store-landing-page__wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 260px;
+    }
+
     .sw-extension-store-landing-page__wrapper-loading {
         display: flex;
         justify-content: center;

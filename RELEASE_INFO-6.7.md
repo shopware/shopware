@@ -120,6 +120,16 @@ The main menu and the search bar no longer color their icons by the `color` of t
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
 
+### Shared administration component styling
+
+Three shared components changed their appearance or behaviour. Extensions using them do not need to adapt, but the visual result differs:
+
+- `sw-overlay` uses the `--color-elevation-backdrop-default` token instead of a hard coded `rgba(255, 255, 255, 40%)`. The scrim is now dark and follows the light and dark theme.
+- `sw-meteor-card` renders a `1px` border in `--color-border-secondary-default` instead of a drop shadow, matching `mt-card`.
+- `sw-sorting-select` renders in the `small` size and no longer offers a clear button, because a sorting can not be empty. This also affects the CMS layout modal, the theme manager list and any extension embedding the component.
+
+`sw-language-switch` truncates long language names with an ellipsis instead of wrapping onto a second line.
+
 ## Storefront
 
 ### Semantic footer markup

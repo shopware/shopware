@@ -70,6 +70,8 @@ const orderMock = {
     lineItems: [],
 };
 
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {

@@ -120,6 +120,9 @@ class ThemeChangeCommand extends Command
 
         if ($input->getOption('sync')) {
             $this->context->addState(ThemeService::STATE_NO_QUEUE);
+        } elseif (!$input->getOption('no-compile')) {
+            // Defer the switch until compilation finished (no-op when async compilation is off).
+            $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
         }
 
         foreach ($selectedSalesChannel as $salesChannel) {

@@ -1,7 +1,8 @@
 name: Report PHPUnit failures
 
-# Files (or updates) a tracking issue from the junit.xml artifacts of a failed scheduled
-# test run, grouped by owning domain. Called by nightly.yml and nightly-major.yml;
+# Files (or updates) one flat tracking issue per owning domain from the junit.xml
+# artifacts of a failed scheduled test run — deliberately no parent issue, flat
+# per-domain issues only. Called by nightly.yml and nightly-major.yml;
 # the PHPUnit jobs of the run (redis, integration.yml, integration-major.yml, php.yml)
 # upload the `junit-phpunit-*` artifacts this consumes, the Jest jobs upload
 # `jest-*-results` junit artifacts (routed by @sw-package instead of #[Package]).
@@ -95,31 +96,6 @@ jobs:
               return created.data;
             };
 
-            const parent = await upsert(payload.parent, []);
-
-            const subIssues = await github.paginate('GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
-              owner,
-              repo,
-              issue_number: parent.number,
-              per_page: 100,
-            });
-            const linkedIds = new Set(subIssues.map((issue) => issue.id));
-
-            for (const domain of payload.domains) {
-              const issue = await upsert(domain, domain.label ? [domain.label] : []);
-
-              if (linkedIds.has(issue.id)) {
-                continue;
-              }
-              try {
-                await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
-                  owner,
-                  repo,
-                  issue_number: parent.number,
-                  sub_issue_id: issue.id,
-                  replace_parent: true,
-                });
-              } catch (error) {
-                core.warning(`Could not link #${issue.number} as sub-issue of #${parent.number}: ${error.message}`);
-              }
+            for (const issue of payload.issues) {
+              await upsert(issue, issue.label ? [issue.label] : []);
             }

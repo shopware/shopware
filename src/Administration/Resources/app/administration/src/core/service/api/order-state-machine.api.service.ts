@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
@@ -9,7 +9,7 @@ import type { LoginService } from '../login.service';
  * @extends ApiService
  */
 class OrderStateMachineApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'order') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'order') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'orderStateMachineService';
     }

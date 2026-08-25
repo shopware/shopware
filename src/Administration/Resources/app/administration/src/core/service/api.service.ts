@@ -3,7 +3,7 @@
  */
 
 import parseJsonApi from 'src/core/service/jsonapi-parser.service';
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import type { LoginService } from './login.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -15,14 +15,14 @@ export type BasicHeaders = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type ApiResponse<T> = T extends null | undefined ? AxiosResponse<T> : T;
+export type ApiResponse<T> = T extends null | undefined ? HttpResponse<T> : T;
 
 /**
  * ApiService class which provides the common methods for our REST API
  * @class
  */
 class ApiService {
-    client: AxiosInstance = {} as AxiosInstance;
+    client: HttpClient = {} as HttpClient;
 
     loginService: LoginService;
 
@@ -33,7 +33,7 @@ class ApiService {
     name = '';
 
     constructor(
-        httpClient: AxiosInstance,
+        httpClient: HttpClient,
         loginService: LoginService,
         apiEndpoint: string,
         contentType = 'application/vnd.api+json',
@@ -86,7 +86,7 @@ class ApiService {
      * Basic response handling.
      * Converts the JSON api data when the specific content type is set.
      */
-    static handleResponse<T = unknown>(response: AxiosResponse<T>): ApiResponse<T> {
+    static handleResponse<T = unknown>(response: HttpResponse<T>): ApiResponse<T> {
         if (response.data === null || response.data === undefined) {
             return response as ApiResponse<T>;
         }
@@ -140,7 +140,7 @@ class ApiService {
     /**
      * Getter for the http client
      */
-    get httpClient(): AxiosInstance {
+    get httpClient(): HttpClient {
         return this.client;
     }
 

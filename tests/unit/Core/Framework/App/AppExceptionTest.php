@@ -214,6 +214,15 @@ class AppExceptionTest extends TestCase
         static::assertSame('Forbidden. Not a valid integration source.', $e->getMessage());
     }
 
+    public function testCapabilityNotGranted(): void
+    {
+        $e = AppException::capabilityNotGranted('myApp', 'context_gateway');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_CAPABILITY_NOT_GRANTED', $e->getErrorCode());
+        static::assertSame('App "myApp" has not been granted the "context_gateway" permission.', $e->getMessage());
+    }
+
     public function testShopIdChangeSuggested(): void
     {
         $e = AppException::shopIdChangeSuggested(ShopId::v2('123456789'), $comparisonResult = new FingerprintComparisonResult([], [], 75));

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayload;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -56,7 +57,8 @@ class AppCheckoutGatewayTest extends TestCase
             $appRepository,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(ExceptionLogger::class),
-            static::createStub(ActiveAppsLoader::class)
+            static::createStub(ActiveAppsLoader::class),
+            static::createStub(AppCapability::class)
         );
 
         $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::generateSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
@@ -137,6 +139,11 @@ class AppCheckoutGatewayTest extends TestCase
         $loader = static::createStub(ActiveAppsLoader::class);
         $loader->method('getActiveApps')->willReturn([$app]);
 
+        $capabilityAccess = static::createStub(AppCapability::class);
+        $capabilityAccess->method('whenGranted')->willReturnCallback(
+            static fn (string $appId, string $action, callable $callback): mixed => $callback()
+        );
+
         $gateway = new AppCheckoutGateway(
             $payloadService,
             $executor,
@@ -144,10 +151,55 @@ class AppCheckoutGatewayTest extends TestCase
             $appRepo,
             $eventDispatcher,
             static::createStub(ExceptionLogger::class),
-            $loader
+            $loader,
+            $capabilityAccess
         );
 
         $gateway->process($payload);
+    }
+
+    public function testProcessSkipsAppWithoutGrantedPermission(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setUniqueIdentifier(Uuid::randomHex());
+        $app->setCheckoutGatewayUrl('https://example.com');
+
+        $result = new EntitySearchResult(
+            'app',
+            1,
+            new AppCollection([$app]),
+            null,
+            new Criteria(),
+            $context->getContext()
+        );
+
+        $appRepo = static::createStub(EntityRepository::class);
+        $appRepo->method('search')->willReturn($result);
+
+        $payloadService = $this->createMock(AppCheckoutGatewayPayloadService::class);
+        $payloadService->expects($this->never())->method('request');
+
+        $loader = static::createStub(ActiveAppsLoader::class);
+        $loader->method('getActiveApps')->willReturn([$app]);
+
+        $capabilityAccess = static::createStub(AppCapability::class);
+        $capabilityAccess->method('whenGranted')->willReturn(null);
+
+        $gateway = new AppCheckoutGateway(
+            $payloadService,
+            new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger())),
+            static::createStub(CheckoutGatewayCommandRegistry::class),
+            $appRepo,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ExceptionLogger::class),
+            $loader,
+            $capabilityAccess
+        );
+
+        $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), $context, new PaymentMethodCollection(), new ShippingMethodCollection()));
     }
 
     private function getRegistry(): CheckoutGatewayCommandRegistry

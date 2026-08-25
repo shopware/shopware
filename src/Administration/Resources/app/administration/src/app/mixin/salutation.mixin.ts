@@ -3,21 +3,12 @@
  */
 
 import { defineComponent } from 'vue';
-
-type SalutationFilterEntityType = {
-    salutation: {
-        id: EntityKey<'salutation'>;
-        salutationKey: string;
-        displayName: string;
-    };
-    title: string;
-    firstName: string;
-    lastName: string;
-    [key: string]: unknown;
-};
+import type { SalutationFilterEntityType } from '../composables/use-salutation';
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-salutation`; change both together.
  */
 export default Shopware.Mixin.register(
     'salutation',

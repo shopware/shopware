@@ -27,6 +27,7 @@ export interface ContextState {
                     css: string | string[];
                     js: string | string[];
                     permissions?: privileges;
+                    sourceType?: string;
                     integrationId?: EntityKey<'integration'>;
                     active?: boolean;
                 };

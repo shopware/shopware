@@ -1,0 +1,9 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
+        <br/>
+        die Zahlung für Ihre Bestellung bei {{ salesChannel.translated.name }} (Nummer: {{ order.orderNumber }}) ist fehlgeschlagen.<br/>
+        <br/>
+        Bitte überprüfen Sie Ihre Zahlungsdaten oder wählen Sie in Ihrem Kundenkonto eine andere Zahlungsart.
+    </p>
+</div>

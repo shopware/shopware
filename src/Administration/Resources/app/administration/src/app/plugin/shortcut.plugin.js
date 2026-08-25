@@ -93,10 +93,6 @@ export default {
         }
 
         function handleKeyDown(event) {
-            if (event.constructor !== KeyboardEvent && window.Cypress === undefined) {
-                return;
-            }
-
             if (areShortcutsDisabled()) {
                 resetComponentShortcutState();
 

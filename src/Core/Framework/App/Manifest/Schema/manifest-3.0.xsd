@@ -498,15 +498,6 @@
             <xs:element type="xs:string" name="cookie"/>
             <xs:element type="xs:string" name="value" minOccurs="0"/>
             <xs:element type="xs:int" name="expiration" minOccurs="0"/>
-            <xs:element type="xs:string" name="active-payment-method" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation xml:lang="en">
-                        Identifier of a payment method of this app, or "*" for any payment method of this app.
-                        When given, the cookie is only shown if at least one referenced payment method is
-                        active in the current sales channel.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="cookie-group">

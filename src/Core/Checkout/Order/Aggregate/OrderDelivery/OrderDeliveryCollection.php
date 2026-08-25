@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<OrderDeliveryEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class OrderDeliveryCollection extends EntityCollection

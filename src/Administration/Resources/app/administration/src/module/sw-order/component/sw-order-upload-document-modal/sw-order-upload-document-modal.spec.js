@@ -90,14 +90,8 @@ async function createWrapper(props = {}) {
         },
         global: {
             provide: {
-                documentV2ApiService: {
-                    getAvailableTypes: () => {
-                        return {
-                            documentTypes: supportedDocumentTypes,
-                        };
-                    },
-                },
                 documentV2Service: {
+                    getAvailableDocumentTypes: () => Promise.resolve(supportedDocumentTypes),
                     createEmptyDocumentConfig: () => {
                         return {
                             documentComment: '',
@@ -110,6 +104,7 @@ async function createWrapper(props = {}) {
                     getDocumentNumberRangeType: (documentType) => documentType,
                     sortFileFormats: (formats) => formats,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
+                    getDocumentTypeSnippet: (technicalName) => `${technicalName}--type-snippet`,
                     getDocumentNumbersByTypes: () => [],
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                 },

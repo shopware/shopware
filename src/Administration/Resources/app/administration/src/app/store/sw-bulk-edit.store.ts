@@ -8,6 +8,7 @@ interface OrderDocument {
         documentDate: string;
         documentComment: string | null;
         forceDocumentCreation: boolean;
+        fileFormats: string[];
         custom?: {
             deliveryDate: string;
             deliveryNoteDate: string;
@@ -73,6 +74,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
+                        fileFormats: [],
                     },
                 },
                 storno: {
@@ -81,6 +83,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
+                        fileFormats: [],
                     },
                 },
                 delivery_note: {
@@ -93,6 +96,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
+                        fileFormats: [],
                     },
                 },
                 credit_note: {
@@ -101,6 +105,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                         documentDate: today,
                         documentComment: null,
                         forceDocumentCreation: false,
+                        fileFormats: [],
                     },
                 },
                 download: {

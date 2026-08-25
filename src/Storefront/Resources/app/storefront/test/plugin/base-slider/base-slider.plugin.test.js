@@ -5,6 +5,38 @@ describe('BaseSliderPlugin tests', () => {
     let baseSliderPlugin = undefined;
     let spyInit = jest.fn();
 
+    const mockCurrentTime = (video, initial = 0) => {
+        let currentTime = initial;
+        Object.defineProperty(video, 'currentTime', {
+            get: () => currentTime,
+            set: (value) => { currentTime = value; },
+            configurable: true,
+        });
+    };
+
+    const definePaused = (video, paused) => {
+        Object.defineProperty(video, 'paused', {
+            get: () => paused,
+            configurable: true,
+        });
+    };
+
+    const createSliderWithSlides = () => {
+        document.body.innerHTML = `
+            <div class="base-slider image-slider js-slider-initialized">
+                <div class="image-slider-item" id="slide-0"><img src="test.jpg"></div>
+                <div class="image-slider-item" id="slide-1"><video></video></div>
+            </div>
+        `;
+
+        const element = document.querySelector('.base-slider');
+
+        return {
+            sliderInstance: new BaseSliderPlugin(element),
+            slideItems: document.querySelectorAll('.image-slider-item'),
+        };
+    };
+
     beforeEach(() => {
         document.body.innerHTML = `
             <div class="base-slider image-slider js-slider-initialized">
@@ -108,6 +140,113 @@ describe('BaseSliderPlugin tests', () => {
         sliderInstance.rebuild('xl');
 
         expect(startIndexAtReInit).toBe(0);
+    });
+
+    test('getActiveSlideElement returns undefined when the slider info has no slideItems', () => {
+        const { sliderInstance } = createSliderWithSlides();
+
+        sliderInstance._slider = {
+            getInfo: () => ({ displayIndex: 1 }),
+        };
+
+        expect(sliderInstance.getActiveSlideElement()).toBeUndefined();
+    });
+
+    test('_captureActiveVideoState returns null when the slider is not initialised', () => {
+        const { sliderInstance } = createSliderWithSlides();
+        sliderInstance._slider = false;
+
+        expect(sliderInstance._captureActiveVideoState()).toBeNull();
+    });
+
+    test('_captureActiveVideoState returns null when the active slide has no video', () => {
+        const { sliderInstance, slideItems } = createSliderWithSlides();
+
+        sliderInstance._slider = {
+            getInfo: () => ({ slideItems, displayIndex: 0 }),
+        };
+
+        expect(sliderInstance._captureActiveVideoState()).toBeNull();
+    });
+
+    test('_captureActiveVideoState captures the playback position of the active slide video', () => {
+        const { sliderInstance, slideItems } = createSliderWithSlides();
+        const video = slideItems[1].querySelector('video');
+        mockCurrentTime(video, 12.5);
+        definePaused(video, false);
+
+        sliderInstance._slider = {
+            getInfo: () => ({ slideItems, displayIndex: 1 }),
+        };
+
+        expect(sliderInstance._captureActiveVideoState()).toEqual({
+            currentTime: 12.5,
+            wasPlaying: true,
+        });
+    });
+
+    test('_restoreActiveVideoState does nothing when there is no captured state', () => {
+        const { sliderInstance, slideItems } = createSliderWithSlides();
+        const video = slideItems[1].querySelector('video');
+        video.play = jest.fn();
+
+        sliderInstance._slider = {
+            getInfo: () => ({ slideItems, displayIndex: 1 }),
+        };
+
+        expect(() => sliderInstance._restoreActiveVideoState(null)).not.toThrow();
+        expect(video.play).not.toHaveBeenCalled();
+    });
+
+    test('_restoreActiveVideoState resumes playback on the new active slide video', () => {
+        const { sliderInstance, slideItems } = createSliderWithSlides();
+        const video = slideItems[1].querySelector('video');
+        mockCurrentTime(video);
+        video.play = jest.fn(() => Promise.resolve());
+
+        sliderInstance._slider = {
+            getInfo: () => ({ slideItems, displayIndex: 1 }),
+        };
+
+        sliderInstance._restoreActiveVideoState({ currentTime: 8, wasPlaying: true });
+
+        expect(video.currentTime).toBe(8);
+        expect(video.play).toHaveBeenCalled();
+    });
+
+    test('_restoreActiveVideoState restores the position without resuming playback when it was paused', () => {
+        const { sliderInstance, slideItems } = createSliderWithSlides();
+        const video = slideItems[1].querySelector('video');
+        mockCurrentTime(video);
+        video.play = jest.fn(() => Promise.resolve());
+
+        sliderInstance._slider = {
+            getInfo: () => ({ slideItems, displayIndex: 1 }),
+        };
+
+        sliderInstance._restoreActiveVideoState({ currentTime: 3, wasPlaying: false });
+
+        expect(video.currentTime).toBe(3);
+        expect(video.play).not.toHaveBeenCalled();
+    });
+
+    test('rebuild preserves the video playback state across the destroy/init cycle', () => {
+        const { sliderInstance, slideItems } = createSliderWithSlides();
+        const video = slideItems[1].querySelector('video');
+        mockCurrentTime(video, 4.2);
+        definePaused(video, false);
+        video.play = jest.fn(() => Promise.resolve());
+
+        jest.spyOn(sliderInstance, '_initSlider').mockImplementation(() => {});
+
+        sliderInstance._slider = {
+            getInfo: () => ({ index: 1, displayIndex: 1, slideCount: 2, slideItems }),
+        };
+
+        sliderInstance.rebuild('xl');
+
+        expect(video.currentTime).toBe(4.2);
+        expect(video.play).toHaveBeenCalled();
     });
 
     test('should apply accessibility tweaks', () => {

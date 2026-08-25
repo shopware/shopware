@@ -181,7 +181,7 @@ class AppDocumentTypeGenerationTest extends TestCase
 
         static::assertIsString($sentinelId);
         static::assertSame($sentinelId, $document->getDocumentTypeId());
-        static::assertSame(self::WARRANTY_DOCUMENT_TYPE, $document->getConfig()['documentType'] ?? null);
+        static::assertSame(self::WARRANTY_DOCUMENT_TYPE, $document->getTypeName());
 
         $files = $this->loadDocumentFiles($document->getId());
         static::assertCount(2, $files);

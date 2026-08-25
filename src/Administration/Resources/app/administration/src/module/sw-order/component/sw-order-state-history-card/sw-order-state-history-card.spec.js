@@ -55,14 +55,16 @@ async function createWrapper() {
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     let wrapper;
 
-    it('should have an disabled payment state', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-order-state-history-card.
+    it.deprecated('v6.8.0.0')('should have an disabled payment state', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
         const paymentState = wrapper.find('.sw-order-state-history-card__payment-state');
         expect(paymentState.attributes().disabled).toBe('true');
     });
 
-    it('should not have an disabled payment state', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-order-state-history-card.
+    it.deprecated('v6.8.0.0')('should not have an disabled payment state', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const paymentState = wrapper.find('.sw-order-state-history-card__payment-state');
@@ -70,7 +72,8 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         expect(paymentState.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled delivery state', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-order-state-history-card.
+    it.deprecated('v6.8.0.0')('should have an disabled delivery state', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
         const deliveryState = wrapper.find('.sw-order-state-history-card__delivery-state');
@@ -78,7 +81,8 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         expect(deliveryState.attributes().disabled).toBe('true');
     });
 
-    it('should not have an disabled delivery state', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-order-state-history-card.
+    it.deprecated('v6.8.0.0')('should not have an disabled delivery state', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper(['order.editor']);
         const deliveryState = wrapper.find('.sw-order-state-history-card__delivery-state');

@@ -14,7 +14,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
  * signals `number_range_state` lock contention, the leading indicator for switching to the Redis storage.
  *
  * Decorates the configured storage so one instrumentation point covers the MySQL, Redis and any custom backend.
- * `preview`/`list`/`set` are administrative paths and pass through unmeasured.
+ * `preview`/`list`/`set`/`increaseToAtLeast` are administrative paths and pass through unmeasured.
  *
  * The `storage` label is instance-constant (`shopware.number_range.increment_storage`), resolved once via DI.
  *
@@ -77,6 +77,11 @@ class IncrementStorageMetricsDecorator extends AbstractIncrementStorage
     public function set(string $configurationId, int $value): void
     {
         $this->decorated->set($configurationId, $value);
+    }
+
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $this->decorated->increaseToAtLeast($configurationId, $value);
     }
 
     public function getDecorated(): AbstractIncrementStorage

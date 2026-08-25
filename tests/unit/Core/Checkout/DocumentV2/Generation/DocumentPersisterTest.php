@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
@@ -122,6 +123,43 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($fileId, $documentFileRepository->creates[0][0]['mediaId']);
     }
 
+    public function testPersistUsesFileNameProviderResolvedName(): void
+    {
+        $fileNameProvider = static::createMock(FileNameProvider::class);
+        $fileNameProvider->expects($this->once())
+            ->method('provide')
+            ->with('filename', 'pdf', null, static::anything())
+            ->willReturn('filename_(1)');
+
+        $mediaService = static::createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('saveFile')
+            ->with(
+                static::anything(),
+                static::anything(),
+                static::anything(),
+                'filename_(1)',
+                static::anything(),
+                static::anything(),
+            )
+            ->willReturn(Uuid::randomHex());
+
+        [$persister] = $this->createPersister(
+            Uuid::randomHex(),
+            mediaService: $mediaService,
+            fileNameProvider: $fileNameProvider,
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+    }
+
     #[DataProvider('persistExceptionProvider')]
     public function testPersistThrowsException(
         ?callable $documentSearch,
@@ -206,6 +244,8 @@ class DocumentPersisterTest extends TestCase
         ?callable $documentSearch = null,
         array $existingDocumentIds = [],
         ?string $mediaServiceReturn = null,
+        ?MediaService $mediaService = null,
+        ?FileNameProvider $fileNameProvider = null,
     ): array {
         $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
             $existingDocumentIds,
@@ -240,8 +280,15 @@ class DocumentPersisterTest extends TestCase
             },
         ], new DocumentTypeDefinition());
 
-        $mediaService = static::createStub(MediaService::class);
-        $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
+        if ($mediaService === null) {
+            $mediaService = static::createStub(MediaService::class);
+            $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
+        }
+
+        if ($fileNameProvider === null) {
+            $fileNameProvider = static::createStub(FileNameProvider::class);
+            $fileNameProvider->method('provide')->willReturnArgument(0);
+        }
 
         $storage = static::createStub(AppFeatureStorage::class);
         $storage->method('forActiveApps')->willReturn([]);
@@ -254,6 +301,7 @@ class DocumentPersisterTest extends TestCase
                 $documentTypeRepository,
                 $mediaService,
                 $documentTypeRegistry,
+                $fileNameProvider,
             ),
             $documentRepository,
             $documentFileRepository,

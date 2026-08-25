@@ -364,6 +364,7 @@ export default {
         'acl',
         'feature',
         'customFieldDataProviderService',
+        'documentV2Service',
     ],
 
     mixins: [
@@ -402,6 +403,7 @@ export default {
             typeIsLoading: false,
             salesChannels: null,
             customFieldSets: null,
+            availableDocumentTypes: null,
             showCompanySettingsMovedBanner: localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY) !== 'true',
             isShowDisplayNoteDelivery: false,
             isShowDivergentDeliveryAddress: false,
@@ -427,7 +429,13 @@ export default {
 
     computed: {
         generalFormFields() {
-            return DOCUMENT_SETTINGS_GENERAL(this.$t);
+            const fields = DOCUMENT_SETTINGS_GENERAL(this.$t);
+
+            if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return fields.filter((field) => field.name !== 'fileTypes');
+            }
+
+            return fields;
         },
 
         generalDisplayFields() {
@@ -436,6 +444,19 @@ export default {
 
         companyFormFields() {
             return DOCUMENT_SETTINGS_COMPANY(this.$t);
+        },
+
+        formatLabels() {
+            return Object.fromEntries(
+                this.supportedFormats.map((format) => [
+                    format,
+                    this.$t(this.documentV2Service.getFileFormatSnippet(format)),
+                ]),
+            );
+        },
+
+        supportedFormats() {
+            return this.availableDocumentTypes?.[this.documentConfig.documentType?.technicalName]?.formats ?? [];
         },
 
         documentBaseConfigRepository() {
@@ -545,10 +566,16 @@ export default {
             this.isLoading = true;
 
             try {
-                const [salesChannels] = await Promise.all([
+                const promises = [
                     this.salesChannelRepository.search(new Criteria(1, 500)),
                     this.loadCustomFieldSets(),
-                ]);
+                ];
+
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                    promises.push(this.loadAvailableDocumentTypes());
+                }
+
+                const [salesChannels] = await Promise.all(promises);
 
                 this.salesChannels = salesChannels;
 
@@ -558,6 +585,7 @@ export default {
                     this.documentConfig = this.documentBaseConfigRepository.create();
                     this.documentConfig.global = false;
                     this.documentConfig.config = { ...DOCUMENT_CONFIG_DEFAULTS };
+                    this.documentConfig.filenameInfixes = {};
                 }
             } catch (error) {
                 this.createNotificationError({
@@ -592,6 +620,8 @@ export default {
                 ...this.documentConfig.config,
             };
 
+            this.documentConfig.filenameInfixes ??= {};
+
             await this.onChangeType(this.documentConfig.documentType);
 
             this.documentConfigSalesChannels = (this.documentConfig.salesChannels || []).map(
@@ -603,6 +633,10 @@ export default {
 
         async loadCustomFieldSets() {
             this.customFieldSets = await this.customFieldDataProviderService.getCustomFieldSets('document_base_config');
+        },
+
+        async loadAvailableDocumentTypes() {
+            this.availableDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
         },
 
         async onChangeType(documentType) {

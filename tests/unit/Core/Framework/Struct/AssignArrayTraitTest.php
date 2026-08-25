@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +16,7 @@ use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\AssignTestStruct;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(AssignArrayTrait::class)]
+#[CoversTrait(AssignArrayTrait::class)]
 class AssignArrayTraitTest extends TestCase
 {
     public function testSerializedAssign(): void

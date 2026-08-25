@@ -9,7 +9,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: {
+        repositoryFactory: {},
+        feature: {},
+        documentV2Service: {},
+    },
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -46,20 +50,32 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.getDocumentTypes()
-                .then((documentTypes) => {
-                    documentTypes.forEach((documentType) => {
-                        documentType.selected = false;
+        async createdComponent() {
+            try {
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
+                    const supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
+
+                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => {
+                        return {
+                            id: technicalName,
+                            technicalName,
+                            name: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                        };
                     });
-                    this.documentTypes = documentTypes;
-                })
-                .catch((error) => {
-                    this.documentTypes = [];
-                    this.createNotificationError({
-                        message: error.message,
-                    });
+                    this.documentTypes.total = this.documentTypes.length;
+                } else {
+                    this.documentTypes = await this.getDocumentTypes();
+                }
+
+                this.documentTypes.forEach((documentType) => {
+                    documentType.selected = false;
                 });
+            } catch (error) {
+                this.documentTypes = [];
+                this.createNotificationError({
+                    message: error.message,
+                });
+            }
         },
 
         getDocumentTypes() {

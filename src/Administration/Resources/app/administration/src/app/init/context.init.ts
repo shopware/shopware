@@ -68,6 +68,14 @@ export default function initializeContext(): void {
         };
     });
 
+    Shopware.ExtensionAPI.handle('contextIsService', (_, { _event_ }) => {
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+            ext.baseUrl.startsWith(_event_.origin),
+        );
+
+        return extension?.sourceType === 'service';
+    });
+
     Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
         const extension = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {

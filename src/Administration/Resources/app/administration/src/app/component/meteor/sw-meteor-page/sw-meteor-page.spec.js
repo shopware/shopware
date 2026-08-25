@@ -34,11 +34,6 @@ const pageTabsSlotWithTitle = `
 async function createWrapper(slotsData = {}, { routeName = undefined } = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
-            provide: {
-                feature: {
-                    isActive: (flag) => (global.activeFeatureFlags ?? []).includes(flag),
-                },
-            },
             stubs: {
                 'sw-search-bar': true,
                 'sw-notification-center': true,
@@ -125,10 +120,6 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
                 );
             },
         });
-    });
-
-    beforeEach(() => {
-        global.activeFeatureFlags = [];
     });
 
     it('should be in full width', async () => {
@@ -219,7 +210,8 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(title.text()).toBe('sw.example.title');
     });
 
-    it('should render the deprecated tabs when slot is filled and the major feature flag is inactive', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs when slot is filled', async () => {
         const wrapper = await createWrapper({
             'page-tabs': pageTabsSlot,
         });
@@ -239,9 +231,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(wrapper.find('.mt-tabs').exists()).toBe(false);
     });
 
-    it('should render meteor tabs when slot is filled and the major feature flag is active', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs when slot is filled', async () => {
         const wrapper = await createWrapper(
             {
                 'page-tabs': pageTabsSlot,
@@ -288,31 +278,39 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
     });
 
-    it('should prefer the visible tab text over the title attribute for meteor tab labels', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should prefer the visible tab text over the title attribute for meteor tab labels',
+        async () => {
+            const wrapper = await createWrapper({
+                'page-tabs': pageTabsSlotWithTitle,
+            });
 
-        const wrapper = await createWrapper({
-            'page-tabs': pageTabsSlotWithTitle,
-        });
+            await flushPromises();
 
-        await flushPromises();
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            expect(tabs.props('items').map(({ label, name }) => ({ label, name }))).toEqual([
+                {
+                    label: 'Visible tab text',
+                    name: 'tab.one',
+                },
+            ]);
+        },
+    );
 
-        expect(tabs.props('items').map(({ label, name }) => ({ label, name }))).toEqual([
-            {
-                label: 'Visible tab text',
-                name: 'tab.one',
-            },
-        ]);
-    });
-
-    it('should not render the tabs when slot is empty', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should not render the tabs when slot is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const tabsContent = wrapper.find('.sw-tabs__content');
-        expect(tabsContent.exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not render the tabs when slot is empty', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
     it('should render the content', async () => {

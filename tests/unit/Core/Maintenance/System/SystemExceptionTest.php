@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System;
 
-use PHPUnit\Event\Telemetry\System;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
@@ -15,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(System::class)]
+#[CoversNothing]
 class SystemExceptionTest extends TestCase
 {
     public function testConsoleApplicationNotFound(): void

@@ -10,6 +10,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends EntityCollection<PaymentMethodEntity>
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Page\Checkout\ConfirmPageTest
  */
 #[Package('checkout')]
 class PaymentMethodCollection extends EntityCollection

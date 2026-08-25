@@ -6,12 +6,13 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollectio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -47,6 +48,7 @@ final readonly class DocumentPersister
         private EntityRepository $documentTypeRepository,
         private MediaService $mediaService,
         private DocumentTypeRegistry $documentTypeRegistry,
+        private FileNameProvider $fileNameProvider,
     ) {
     }
 
@@ -67,8 +69,8 @@ final readonly class DocumentPersister
 
         $documentTypeId = $this->resolveDocumentTypeId($generationRequest, $context);
 
-        // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
-        $this->assertDocumentNumberIsUnique($generationRequest, $documentTypeId, $input->documentNumber, $context);
+        // replaced by a unique index on document(document_number, type_name) once document_type_id is dropped.
+        $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber, $context);
 
         $persistedFiles = $this->writeMediaFiles(
             $state,
@@ -76,20 +78,22 @@ final readonly class DocumentPersister
             $context,
         );
 
-        $this->documentRepository->create([
-            [
-                'id' => $documentId,
-                'orderId' => $generationRequest->orderId,
-                'orderVersionId' => $input->order->getVersionId(),
-                'documentTypeId' => $documentTypeId,
-                'referencedDocumentId' => $resolvedReference?->id,
-                'deepLinkCode' => Random::getAlphanumericString(32),
-                'config' => [
-                    'documentNumber' => $input->documentNumber,
-                    'documentType' => $generationRequest->documentType,
-                ],
+        $documentData = [
+            'id' => $documentId,
+            'orderId' => $generationRequest->orderId,
+            'orderVersionId' => $input->order->getVersionId(),
+            'documentTypeId' => $documentTypeId, // remove with v6.9.0
+            'typeName' => $generationRequest->documentType,
+            'documentMediaFileId' => $persistedFiles[DocumentFormat::PDF->value] ?? (array_values($persistedFiles)[0] ?? null),
+            'documentA11yMediaFileId' => $persistedFiles[DocumentFormat::HTML->value] ?? null,
+            'referencedDocumentId' => $resolvedReference?->id,
+            'deepLinkCode' => Random::getAlphanumericString(32),
+            'config' => [
+                'documentNumber' => $input->documentNumber,
             ],
-        ], $context);
+        ];
+
+        $this->documentRepository->create([$documentData], $context);
 
         $documentFiles = [];
 
@@ -130,14 +134,23 @@ final readonly class DocumentPersister
 
             $persisted[$format] = $context->scope(
                 Context::SYSTEM_SCOPE,
-                fn (Context $scoped): string => $this->mediaService->saveFile(
-                    $result->content,
-                    $result->fileExtension,
-                    $result->mimeType,
-                    $result->fileName,
-                    $scoped,
-                    self::MEDIA_FOLDER,
-                ),
+                function (Context $scoped) use ($result): string {
+                    $fileName = $this->fileNameProvider->provide(
+                        $result->fileName,
+                        $result->fileExtension,
+                        null,
+                        $scoped,
+                    );
+
+                    return $this->mediaService->saveFile(
+                        $result->content,
+                        $result->fileExtension,
+                        $result->mimeType,
+                        $fileName,
+                        $scoped,
+                        self::MEDIA_FOLDER,
+                    );
+                },
             );
         }
 
@@ -146,23 +159,17 @@ final readonly class DocumentPersister
 
     /**
      * @throws DocumentV2Exception
+     *
+     * @deprecated tag:v6.9.0 - Will be removed once unique index on document(document_number, type_name) is enforced
      */
     private function assertDocumentNumberIsUnique(
         DocumentGenerationRequest $generationRequest,
-        string $documentTypeId,
         string $documentNumber,
         Context $context,
     ): void {
-        // Core types own a dedicated document_type row, so the FK alone disambiguates them. App
-        // types all share the `app_provided` sentinel row, so the real identifier stored in the
-        // config snapshot is used to keep uniqueness scoped per app document type instead.
-        $typeFilter = DocumentType::tryFrom($generationRequest->documentType) !== null
-            ? new EqualsFilter('documentTypeId', $documentTypeId)
-            : new EqualsFilter('config.documentType', $generationRequest->documentType);
-
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter($typeFilter)
+            ->addFilter(new EqualsFilter('typeName', $generationRequest->documentType))
             ->setLimit(1);
 
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;
@@ -174,6 +181,8 @@ final readonly class DocumentPersister
 
     /**
      * @throws DocumentV2Exception
+     *
+     * @deprecated tag:v6.9.0 - Will be removed once `document.document_type_id` is removed
      */
     private function resolveDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
     {

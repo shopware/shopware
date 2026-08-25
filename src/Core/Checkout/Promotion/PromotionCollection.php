@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PromotionEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class PromotionCollection extends EntityCollection

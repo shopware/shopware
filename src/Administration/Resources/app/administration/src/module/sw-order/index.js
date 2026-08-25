@@ -259,6 +259,6 @@ function orderCreateChildren() {
     };
 }
 
-Application.addServiceProvider('documentV2Service', () => {
-    return new DocumentV2Service();
+Application.addServiceProvider('documentV2Service', (container) => {
+    return new DocumentV2Service(container.documentV2ApiService);
 });

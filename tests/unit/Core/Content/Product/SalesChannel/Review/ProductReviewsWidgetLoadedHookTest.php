@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 #[CoversClass(ProductReviewsWidgetLoadedHook::class)]
 class ProductReviewsWidgetLoadedHookTest extends TestCase
 {

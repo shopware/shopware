@@ -91,6 +91,32 @@ class PluginInstallCommandTest extends TestCase
         static::assertSame(['BasePlugin', 'DependentPlugin', 'IndependentPlugin'], $installedPlugins);
     }
 
+    public function testInstallSortsStorePluginBeforePluginRequiringItsStoreAlias(): void
+    {
+        $dependentPlugin = $this->createPluginEntity('StoreDependentPlugin', 'a-vendor/store-dependent-plugin');
+        $storePlugin = $this->createPluginEntity('StoreDependencyPlugin', 'store.shopware.com/store-dependency-plugin');
+        $this->plugins->fill([$dependentPlugin, $storePlugin]);
+
+        $installedPlugins = [];
+        $installContext = static::createStub(InstallContext::class);
+
+        $this->pluginLifecycleService
+            ->expects($this->exactly(2))
+            ->method('installPlugin')
+            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use (&$installedPlugins, $installContext): InstallContext {
+                $installedPlugins[] = $plugin->getName();
+                $plugin->setInstalledAt(new \DateTimeImmutable());
+
+                return $installContext;
+            });
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
+            'plugins' => ['StoreDependentPlugin', 'StoreDependencyPlugin'],
+        ], ['interactive' => false]));
+
+        static::assertSame(['StoreDependencyPlugin', 'StoreDependentPlugin'], $installedPlugins);
+    }
+
     public function testInstallFailsWhenPluginComposerJsonIsMissingDuringRequirementSorting(): void
     {
         $missingPlugin = $this->createPluginEntity('MissingComposerPlugin', 'swag/missing-composer-plugin');

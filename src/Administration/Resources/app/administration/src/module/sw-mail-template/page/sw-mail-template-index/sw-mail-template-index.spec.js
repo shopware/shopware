@@ -13,9 +13,6 @@ const createWrapper = async ({ routeName = 'sw.mail.template.index.templates', r
             global: {
                 provide: {
                     searchRankingService: {},
-                    feature: {
-                        isActive: (feature) => global.activeFeatureFlags.includes(feature),
-                    },
                 },
                 mocks: {
                     $route: {
@@ -121,8 +118,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     /**
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
-    describe('without v6.8.0.0 feature flag', () => {
-        it('should render both lists directly', async () => {
+    describe('legacy direct-list layout', () => {
+        // @deprecated tag:v6.8.0 - The test will be removed with the direct-list mail-template layout.
+        it.deprecated('v6.8.0.0')('should render both lists directly', async () => {
             const wrapper = await createWrapper();
 
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(true);
@@ -135,16 +133,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     /**
      * @deprecated tag:v6.8.0 - This test will be removed.
      */
-    describe('with v6.8.0.0 feature flag', () => {
-        beforeEach(() => {
-            global.activeFeatureFlags = ['v6.8.0.0'];
-        });
-
-        afterEach(() => {
-            global.activeFeatureFlags = [];
-        });
-
-        it('should render meteor tabs with router-view instead of lists', async () => {
+    describe('tabbed layout', () => {
+        it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs with router-view instead of lists', async () => {
             const wrapper = await createWrapper({
                 routeName: 'sw.mail.template.index.header_footer',
             });
@@ -170,7 +160,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);
         });
 
-        it('should navigate when a meteor tab item is clicked', async () => {
+        it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor tab item is clicked', async () => {
             const routerPush = jest.fn();
             const wrapper = await createWrapper({ routerPush });
             const tabs = wrapper.getComponent({ name: 'mt-tabs' });

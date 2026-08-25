@@ -84,7 +84,8 @@
                                         <a class="btn header-wishlist-btn header-actions-btn"
                                            href="{{ path('frontend.wishlist.page') }}"
                                            title="{{ 'header.wishlist'|trans|striptags }}"
-                                           aria-label="{{ 'header.wishlist'|trans|striptags }}">
+                                           aria-labelledby="wishlist-basket-live-area"
+                                        >
                                             {% sw_include '@Storefront/storefront/layout/header/actions/wishlist-widget.html.twig' %}
                                         </a>
                                     </div>

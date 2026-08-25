@@ -1,4 +1,3 @@
-@import "~scss/mixins";
 @import "~scss/variables";
 
 .sw-meteor-card {
@@ -42,7 +41,7 @@
 
     &.sw-meteor-card--hero {
         background: none;
-        box-shadow: none;
+        border: none;
 
         .sw-meteor-card__content {
             background: none;

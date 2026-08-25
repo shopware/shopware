@@ -4,10 +4,19 @@
     .sw-extension-my-extensions-listing__listing-grid {
         margin-bottom: 32px;
 
+        .sw-meteor-card {
+            margin: 0 auto 8px;
+        }
+
         .sw-extension-my-extensions-listing__empty-state {
-            max-width: 960px;
             margin: 0 auto;
             padding: 56px 32px;
+        }
+
+        .sw-extension-my-extensions-listing__empty-state--headline-only {
+            .mt-empty-state__description {
+                display: none;
+            }
         }
 
         .sw-extension-my-extensions-listing__app-url-warning {

@@ -82,6 +82,13 @@ async function createWrapper(
                     },
                     'sw-select-field': true,
                     'sw-pagination': {
+                        name: 'sw-pagination',
+                        props: [
+                            'page',
+                            'limit',
+                            'total',
+                            'steps',
+                        ],
                         template: '<div></div>',
                     },
                     'sw-cms-list-item': await wrapTestComponent('sw-cms-list-item'),
@@ -313,6 +320,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             }),
         ]);
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should size the card view pagination steps and skeletons like the card view limit', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const { cardView } = wrapper.vm.limitDefaults;
+
+        expect(wrapper.getComponent({ name: 'sw-pagination' }).props('steps')).toEqual([cardView]);
+
+        wrapper.vm.isLoading = true;
+        await flushPromises();
+
+        expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(cardView);
     });
 
     it('should render the page type tabs horizontally above the list', async () => {

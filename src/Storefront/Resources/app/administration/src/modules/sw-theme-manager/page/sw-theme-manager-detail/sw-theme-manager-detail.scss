@@ -53,6 +53,11 @@
             .sw-card__content {
                 padding: 0;
             }
+
+            // the mt-card content already pads the area, so drop the section padding
+            .sw-card-section {
+                padding: 0;
+            }
         }
     }
 

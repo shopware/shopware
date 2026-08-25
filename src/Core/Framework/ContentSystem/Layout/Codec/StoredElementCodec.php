@@ -152,10 +152,16 @@ final class StoredElementCodec
             throw ContentSystemException::invalidFieldValueType('component', 'string', get_debug_type($component));
         }
 
+        try {
+            $dataRequirements = $this->decodeDataRequirements($data['dataRequirements'] ?? []);
+        } catch (ContentSystemException $exception) {
+            throw $this->withElementId($exception, $id);
+        }
+
         return new StoredElement(
             $id,
             $component,
-            $this->decodeDataRequirements($data['dataRequirements'] ?? []),
+            $dataRequirements,
             $this->decodeProperties($data['properties'] ?? []),
             $this->decodeSlots($data['slots'] ?? [], $depth),
             new ContextDefinitions(
@@ -165,6 +171,26 @@ final class StoredElementCodec
             $this->decodeStyle($data['style'] ?? []),
             $this->decodeAttributedSpecifications($data['attributedSpecifications'] ?? []),
         );
+    }
+
+    /**
+     * Re-throws a CONFIG_SERIALIZER_NOT_REGISTERED fault carrying the element whose stored dataRequirements
+     * named the unregistered source, so the caller can see which element to fix. The caught exception's own
+     * "source" parameter is read back rather than re-derived. Every other ContentSystemException is returned
+     * unchanged.
+     */
+    private function withElementId(ContentSystemException $exception, string $elementId): ContentSystemException
+    {
+        if ($exception->getErrorCode() !== ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED) {
+            return $exception;
+        }
+
+        $source = $exception->getParameter('source');
+        if (!\is_string($source)) {
+            return $exception;
+        }
+
+        return ContentSystemException::configSerializerNotRegistered($source, $elementId);
     }
 
     /**

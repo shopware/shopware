@@ -107,12 +107,39 @@ class AttributionReconciler
                 continue;
             }
 
-            if ($this->isHonestForElement($specificationId, $key, $requirement)) {
+            try {
+                $honest = $this->isHonestForElement($specificationId, $key, $requirement);
+            } catch (ContentSystemException $exception) {
+                throw $this->withElementId($exception, $element->id);
+            }
+
+            if ($honest) {
                 $filtered[$key] = $specificationId;
             }
         }
 
         return $filtered;
+    }
+
+    /**
+     * Re-throws a CONFIG_SERIALIZER_NOT_REGISTERED fault carrying the element whose wiring named the
+     * unregistered source, so the caller can see which element to fix. The caught exception's own "source"
+     * parameter is read back rather than re-derived, since the fault can originate from either the element's
+     * own requirement source ({@see isHonestForElement}) or the specification's binding source
+     * ({@see specWiring}). Every other ContentSystemException is returned unchanged.
+     */
+    private function withElementId(ContentSystemException $exception, string $elementId): ContentSystemException
+    {
+        if ($exception->getErrorCode() !== ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED) {
+            return $exception;
+        }
+
+        $source = $exception->getParameter('source');
+        if (!\is_string($source)) {
+            return $exception;
+        }
+
+        return ContentSystemException::configSerializerNotRegistered($source, $elementId);
     }
 
     private function isHonestForElement(string $specificationId, string $key, DataRequirement $requirement): bool

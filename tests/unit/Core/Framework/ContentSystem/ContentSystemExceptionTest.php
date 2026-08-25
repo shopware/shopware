@@ -85,6 +85,23 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
+    #[TestDox('configSerializerNotRegistered keeps today\'s message verbatim without an element id, and names the element when one is given')]
+    public function testConfigSerializerNotRegisteredMessageForm(): void
+    {
+        $withoutId = ContentSystemException::configSerializerNotRegistered('yaml');
+        static::assertSame('Config serializer for source "yaml" is not registered', $withoutId->getMessage());
+        static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $withoutId->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $withoutId->getStatusCode());
+
+        $withId = ContentSystemException::configSerializerNotRegistered('yaml', 'elem-1');
+        static::assertSame(
+            'Config serializer for source "yaml" is not registered. Element ID: "elem-1"',
+            $withId->getMessage()
+        );
+        static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $withId->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $withId->getStatusCode());
+    }
+
     /**
      * @return iterable<string, array{ContentSystemException, bool}>
      */

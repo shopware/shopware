@@ -145,9 +145,11 @@ class AttributionReconcilerTest extends TestCase
 
         // CONFIG_SERIALIZER_NOT_REGISTERED is a CLIENT_DEFECT_CODE, and used to be swallowed here: the write
         // stored the element with its attribution silently dropped, indistinguishable from an element nothing
-        // ever claimed. The wiring cannot be encoded, so it cannot be judged, so the write is refused.
-        $expected = ContentSystemException::configSerializerNotRegistered('removed_plugin_source');
+        // ever claimed. The wiring cannot be encoded, so it cannot be judged, so the write is refused. The
+        // re-thrown fault names the element ("elem-1") so a caller can remove the stale wiring deliberately.
+        $expected = ContentSystemException::configSerializerNotRegistered('removed_plugin_source', 'elem-1');
         static::assertTrue(ContentSystemException::isClientDefect($expected));
+        static::assertStringContainsString('elem-1', $expected->getMessage());
 
         $this->expectExceptionObject($expected);
 

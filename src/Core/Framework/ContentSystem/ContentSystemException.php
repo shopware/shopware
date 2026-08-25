@@ -128,13 +128,22 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function configSerializerNotRegistered(string $source): self
+    // $elementId names the element whose data requirement or specification wiring named the unregistered
+    // source, so a client can remove the stale wiring deliberately rather than guessing which element to fix.
+    // Optional because the two DataLoaderConfigSerializerProvider throw sites hold no element id at all; a
+    // caller that does hold one (AttributionReconciler, StoredElementCodec) re-throws with it added.
+    public static function configSerializerNotRegistered(string $source, ?string $elementId = null): self
     {
+        $message = 'Config serializer for source "{{ source }}" is not registered';
+        if ($elementId !== null) {
+            $message .= '. Element ID: "{{ elementId }}"';
+        }
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CONFIG_SERIALIZER_NOT_REGISTERED,
-            'Config serializer for source "{{ source }}" is not registered',
-            ['source' => $source]
+            $message,
+            ['source' => $source, 'elementId' => $elementId]
         );
     }
 

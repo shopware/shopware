@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Sl
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -460,6 +462,48 @@ class StoredElementCodecTest extends TestCase
             ]),
             ContentSystemException::invalidFieldValueType('slots[main]', 'list of elements', 'array'),
         ];
+    }
+
+    #[TestDox('decode names the element whose data requirement points at an unregistered config serializer source')]
+    public function testDecodeThrowsWithElementIdWhenSourceUnregistered(): void
+    {
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
+        $codec = new StoredElementCodec($provider);
+
+        $wire = self::baseWire([
+            'id' => 'el-unregistered',
+            'dataRequirements' => [
+                'products' => ['source' => 'removed_plugin_source', 'config' => []],
+            ],
+        ]);
+
+        $expected = ContentSystemException::configSerializerNotRegistered('removed_plugin_source', 'el-unregistered');
+
+        $this->expectExceptionObject($expected);
+
+        $codec->decode($wire);
+    }
+
+    #[TestDox('decode propagates an unrelated ContentSystemException from a data requirement unchanged')]
+    public function testDecodePropagatesUnrelatedContentSystemExceptionFromDataRequirements(): void
+    {
+        $internalFault = ContentSystemException::invalidFieldType(AbstractContentDataLoaderConfig::class, 'string');
+
+        $failingSerializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $failingSerializer->method('decode')->willThrowException($internalFault);
+
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['broken_source' => static fn () => $failingSerializer]));
+        $codec = new StoredElementCodec($provider);
+
+        $wire = self::baseWire([
+            'dataRequirements' => [
+                'products' => ['source' => 'broken_source', 'config' => []],
+            ],
+        ]);
+
+        $this->expectExceptionObject($internalFault);
+
+        $codec->decode($wire);
     }
 
     #[TestDox('decode drops a structurally invalid style option entry rather than throwing')]

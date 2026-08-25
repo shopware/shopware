@@ -91,6 +91,11 @@
 
         &-select-rule {
             width: 100%;
+
+            .sw-field,
+            .mt-field {
+                margin-bottom: 0;
+            }
         }
 
         .mt-empty-state__button {

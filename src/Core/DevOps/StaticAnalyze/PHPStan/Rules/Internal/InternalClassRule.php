@@ -107,6 +107,7 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\SpecificationData',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\ContentSystemElementTypeSpecification',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\PropertySpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\PropertyType',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\SlotSpecification',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\CopilotSpecification',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Specification\\StyleOptionSpecification',

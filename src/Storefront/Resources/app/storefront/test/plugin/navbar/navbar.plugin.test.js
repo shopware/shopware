@@ -147,14 +147,10 @@ describe('NavbarPlugin', () => {
         expect(mockDropdown.hide).toHaveBeenCalled();
     });
 
-    test('_setAriaCurrentPage should be called on load event', () => {
-        const mockEvent = new Event('load');
-        jest.spyOn(navbarPlugin, '_setAriaCurrentPage'); // Spy on the method
+    test('_setAriaCurrentPage should be called during initialization', () => {
+        jest.spyOn(navbarPlugin, '_setAriaCurrentPage');
 
-        window.addEventListener('load', () => {
-            navbarPlugin._setAriaCurrentPage();
-        });
-        window.dispatchEvent(mockEvent);
+        navbarPlugin.init();
 
         expect(navbarPlugin._setAriaCurrentPage).toHaveBeenCalled();
     });

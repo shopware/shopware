@@ -22,6 +22,7 @@ export default class NavbarPlugin extends Plugin {
         this._topLevelLinks = this.el.querySelectorAll(`${this.options.topLevelLinksSelector}`);
         this._registerEvents();
         this._isMouseOver = false;
+        this._setAriaCurrentPage();
     }
 
     _registerEvents() {
@@ -33,9 +34,6 @@ export default class NavbarPlugin extends Plugin {
             el.addEventListener(openEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(closeEvent, this._toggleNavbar.bind(this, el));
             el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
-        });
-        window.addEventListener('load', () => {
-            this._setAriaCurrentPage();
         });
     }
 

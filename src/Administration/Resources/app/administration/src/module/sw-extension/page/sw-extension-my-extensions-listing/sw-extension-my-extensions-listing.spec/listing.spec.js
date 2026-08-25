@@ -21,6 +21,41 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(runtimeManagement.exists()).toBe(true);
     });
 
+    it('should show the empty state with a store button when no extensions are installed', async () => {
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
+        const wrapper = await createWrapper();
+
+        const emptyState = wrapper.find('.sw-extension-my-extensions-listing__empty-state');
+        expect(emptyState.classes()).toContain('mt-empty-state');
+
+        wrapper.vm.$router.push = jest.fn();
+        await emptyState.find('.mt-button').trigger('click');
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.extension.store.listing',
+        });
+    });
+
+    it('should show the empty state without a store button when the active filter matches no extensions', async () => {
+        Shopware.Store.get('shopwareExtensions').setMyExtensions([
+            {
+                name: 'Test',
+                installedAt: 'foo',
+                active: false,
+                updatedAt: null,
+            },
+        ]);
+        const wrapper = await createWrapper();
+
+        const switchField = wrapper.find('.mt-switch input[type="checkbox"]');
+        await switchField.trigger('click');
+
+        const emptyState = wrapper.find('.sw-extension-my-extensions-listing__empty-state');
+        expect(emptyState.classes()).toContain('mt-empty-state');
+        expect(emptyState.find('.mt-button').exists()).toBe(false);
+        expect(emptyState.attributes('role')).toBe('status');
+    });
+
     it('openStore should call router', async () => {
         const wrapper = await createWrapper();
 

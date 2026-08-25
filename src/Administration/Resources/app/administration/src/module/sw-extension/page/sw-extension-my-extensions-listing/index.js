@@ -33,6 +33,10 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.9.0 - Kept for overrides, the empty states no longer render an image. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
         isAppUrlReachable() {
             return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
         },
@@ -150,10 +154,6 @@ export default {
             }
 
             return 'extension-apps';
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
 
         extensionManagementDisabled() {

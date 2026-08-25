@@ -14,12 +14,14 @@ export const routes = [
         path: '/sw/extension/my-extensions/listing/app',
         query: {},
         component: {},
+        meta: { $module: { icon: 'regular-plug' } },
     },
     {
         name: 'sw.extension.my-extensions.listing.theme',
         path: '/sw/extension/my-extensions/listing/theme',
         query: {},
         component: {},
+        meta: { $module: { icon: 'regular-plug' } },
     },
 ];
 
@@ -102,7 +104,6 @@ export async function createWrapper({ aclCan = () => true, cardStub, query = {} 
                         template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
                         props: ['extension'],
                     },
-                    'sw-meteor-card': true,
                     'sw-extension-bulk-actions-bar': await wrapTestComponent('sw-extension-bulk-actions-bar', {
                         sync: true,
                     }),

@@ -27,12 +27,12 @@ export default {
     },
 
     computed: {
-        extensionName() {
-            return 'SwagExtensionStore';
-        },
-
+        /** @deprecated tag:v6.9.0 - Kept for overrides, the empty states no longer render an image. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+        extensionName() {
+            return 'SwagExtensionStore';
         },
     },
 

@@ -34,27 +34,6 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
-
-        h2 {
-            font-size: var(--font-size-m);
-        }
-
-        p {
-            padding-bottom: 24px;
-        }
-    }
-
-    .sw-extension-store-landing-page__wrapper-label {
-        color: var(--color-text-positive-default);
-        background-color: var(--color-background-positive-default);
-        border-radius: $border-radius-default;
-        font-size: var(--font-size-xs);
-        padding: 3px 5px;
-        margin-bottom: 12px;
-    }
-
-    img {
-        margin-bottom: 24px;
     }
 
     .sw-extension-store-landing-page__wrapper-loading {
@@ -65,26 +44,6 @@
     }
 
     .sw-extension-store-landing-page__wrapper-activated {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-
-        .sw-label {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 72px;
-            height: 72px;
-            margin-bottom: 24px;
-        }
-
-        h2 {
-            margin-bottom: 12px;
-        }
-
-        .mt-button {
-            margin-top: 24px;
-        }
+        align-self: center;
     }
 }

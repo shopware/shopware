@@ -30,10 +30,6 @@ export default {
         extensionName() {
             return 'SwagExtensionStore';
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     methods: {

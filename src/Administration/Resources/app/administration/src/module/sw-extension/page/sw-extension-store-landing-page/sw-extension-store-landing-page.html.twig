@@ -18,28 +18,15 @@
                 </p>
             </div>
 
-            <div
-                v-else-if="activationStatus !== null"
+            <mt-empty-state
+                v-else-if="activationStatus === 'error'"
                 class="sw-extension-store-landing-page__wrapper-activated"
+                :centered="true"
+                icon="regular-times-circle"
+                :headline="error && error.title || $t('sw-extension-store.landing-page.activationErrorTitle')"
+                :description="error && error.detail || $t('sw-extension-store.landing-page.activationErrorDescription')"
             >
-                <template v-if="activationStatus === 'error'">
-                    <sw-label
-                        appearance="pill"
-                        variant="danger"
-                    >
-                        <mt-icon
-                            name="regular-times-circle"
-                            size="30px"
-                        />
-                    </sw-label>
-
-                    <h2>
-                        {{ error && error.title || $t('sw-extension-store.landing-page.activationErrorTitle') }}
-                    </h2>
-                    <p>
-                        {{ error && error.detail || $t('sw-extension-store.landing-page.activationErrorDescription') }}
-                    </p>
-
+                <template #button>
                     <mt-button
                         variant="primary"
                         @click="activateStore"
@@ -47,60 +34,39 @@
                         {{ $t('sw-extension-store.landing-page.retryButton') }}
                     </mt-button>
                 </template>
+            </mt-empty-state>
 
-                <template v-else-if="activationStatus === 'success'">
-                    <sw-label
-                        appearance="pill"
-                        variant="success"
-                    >
-                        <mt-icon
-                            name="regular-check-circle"
-                            size="30px"
-                        />
-                    </sw-label>
-
-                    <h2>
-                        {{ $t('sw-extension-store.landing-page.activationSuccessTitle') }}
-                    </h2>
-                    <p>
-                        {{ $t('sw-extension-store.landing-page.activationSuccessDescription') }}
-                    </p>
-                </template>
-            </div>
+            <mt-empty-state
+                v-else-if="activationStatus === 'success'"
+                class="sw-extension-store-landing-page__wrapper-activated"
+                :centered="true"
+                icon="regular-check-circle"
+                :headline="$t('sw-extension-store.landing-page.activationSuccessTitle')"
+                :description="$t('sw-extension-store.landing-page.activationSuccessDescription')"
+            />
 
             <div
                 v-else
                 class="sw-extension-store-landing-page__wrapper-content"
             >
-                <img
-                    :src="assetFilter('/administration/administration/static/img/extension-store/store_illustration.svg')"
-                    alt=""
+                <mt-empty-state
+                    :centered="true"
+                    icon="regular-shopware"
+                    :headline="$t('sw-extension-store.landing-page.activationDescriptionTitleFirst')
+                        + ' '
+                        + $t('sw-extension-store.landing-page.activationDescriptionTitleSecond')"
+                    :description="$t('sw-extension-store.landing-page.activationDescriptionTitleDescription')"
                 >
-
-                <span
-                    v-if="!insideModal"
-                    class="sw-extension-store-landing-page__wrapper-label"
-                >
-                    {{ $t('sw-extension-store.landing-page.label') }}
-                </span>
-
-                <h2>
-                    {{ $t('sw-extension-store.landing-page.activationDescriptionTitleFirst') }}
-                    <br>
-                    {{ $t('sw-extension-store.landing-page.activationDescriptionTitleSecond') }}
-                </h2>
-
-                <p>
-                    {{ $t('sw-extension-store.landing-page.activationDescriptionTitleDescription') }}
-                </p>
-
-                <mt-button
-                    class="sw-extension-store-landing-page__activate_button"
-                    variant="primary"
-                    @click="activateStore"
-                >
-                    {{ $t('sw-extension-store.landing-page.activate') }}
-                </mt-button>
+                    <template #button>
+                        <mt-button
+                            class="sw-extension-store-landing-page__activate_button"
+                            variant="primary"
+                            @click="activateStore"
+                        >
+                            {{ $t('sw-extension-store.landing-page.activate') }}
+                        </mt-button>
+                    </template>
+                </mt-empty-state>
             </div>
         </div>
     </div>

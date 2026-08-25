@@ -47,6 +47,7 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED,
             ContentSystemException::UNKNOWN_LOADER_ENTITY,
             ContentSystemException::INVALID_FIELD_VALUE_TYPE,
+            ContentSystemException::INVALID_FIELD_VALUE_RANGE,
             ContentSystemException::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
             ContentSystemException::PROPERTY_ALIAS_WITH_DOT_NOTATION,
             ContentSystemException::PROVIDER_DELIVERY_COLLISION,

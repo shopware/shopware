@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribut
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -19,6 +20,9 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('framework')]
 final readonly class SlicedDistributionConfig implements DistributionConfig
 {
+    /**
+     * @param positive-int $sliceSize
+     */
     private function __construct(
         public int $sliceSize,
         public ?string $consumerAlias = null
@@ -27,6 +31,10 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
 
     public static function withSliceSize(int $sliceSize, ?string $consumerAlias = null): self
     {
+        if ($sliceSize < 1) {
+            throw ContentSystemException::invalidFieldValueRange('sliceSize', 1, $sliceSize);
+        }
+
         return new self($sliceSize, $consumerAlias);
     }
 
@@ -43,6 +51,10 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
 
         if (!\is_int($sliceSize)) {
             throw ContentSystemException::invalidFieldValueType('sliceSize', 'int', get_debug_type($sliceSize));
+        }
+
+        if ($sliceSize < 1) {
+            throw ContentSystemException::invalidFieldValueRange('sliceSize', 1, $sliceSize);
         }
 
         $consumerAlias = $data['consumerAlias'] ?? null;
@@ -76,13 +88,8 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
             return array_fill(0, \count($consumers), []);
         }
 
-        $sliceSize = $this->sliceSize;
-        if ($sliceSize < 1) {
-            $sliceSize = 1;
-        }
-
         $items = array_values($data);
-        $slices = array_chunk($items, $sliceSize);
+        $slices = array_chunk($items, $this->sliceSize);
 
         $result = [];
         foreach ($consumers as $index => $consumer) {
@@ -107,7 +114,7 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
     public static function buildConstraints(): array
     {
         return [
-            'sliceSize' => [new NotBlank(), new Type('int')],
+            'sliceSize' => [new NotBlank(), new Type('int'), new GreaterThanOrEqual(1)],
             'consumerAlias' => [new Type('string')],
         ];
     }

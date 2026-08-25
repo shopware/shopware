@@ -145,7 +145,8 @@
                     },
                     "sliceSize": {
                         "type": "integer",
-                        "description": "Present only when `distribution` is `sliced`: the number of items handed to each consumer. Validated as an integer only — no lower bound is enforced, so a value below 1 is accepted and stored, and is clamped to 1 when the context is distributed rather than rejected. Defaults to 10 when the key is absent.",
+                        "minimum": 1,
+                        "description": "Present only when `distribution` is `sliced`: the number of items handed to each consumer. A value below 1 is rejected on write; the lower bound is enforced, never clamped. Defaults to 10 when the key is absent.",
                         "example": 10
                     }
                 }

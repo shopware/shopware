@@ -42,7 +42,7 @@ Fields:
 **Strategy-specific fields:**
 
 - `keyProperty` (keyed only, optional) - Element property name used for key matching. Defaults to `"data_key"`. Each child's property at this name is matched against the data keys.
-- `sliceSize` (sliced only, optional) - Number of items per chunk. Defaults to `10`.
+- `sliceSize` (sliced only, optional) - Number of items per chunk. Defaults to `10`. Must be at least 1; a lower value is rejected on write.
 
 Note: The context key in `providesContext` typically matches a property name loaded by `dataRequirements`.
 

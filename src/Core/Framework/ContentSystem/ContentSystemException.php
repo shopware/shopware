@@ -26,6 +26,7 @@ class ContentSystemException extends HttpException
     public const CONFIG_SERIALIZER_NOT_REGISTERED = 'CONTENT_SYSTEM__CONFIG_SERIALIZER_NOT_REGISTERED';
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
+    public const INVALID_FIELD_VALUE_RANGE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_RANGE';
     public const ELEMENT_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_NOT_FOUND';
     public const DUPLICATE_ELEMENT_ID = 'CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID';
     public const CONTEXT_DELIVERY_MISSING = 'CONTENT_SYSTEM__CONTEXT_DELIVERY_MISSING';
@@ -104,6 +105,7 @@ class ContentSystemException extends HttpException
         self::CONFIG_SERIALIZER_NOT_REGISTERED,
         self::UNKNOWN_LOADER_ENTITY,
         self::INVALID_FIELD_VALUE_TYPE,
+        self::INVALID_FIELD_VALUE_RANGE,
         self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
         self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
         self::PROVIDER_DELIVERY_COLLISION,
@@ -153,6 +155,16 @@ class ContentSystemException extends HttpException
             self::INVALID_FIELD_VALUE_TYPE,
             'Field {{ fieldName }} expected {{ expectedType }}, got {{ actualType }}',
             ['fieldName' => $fieldName, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    public static function invalidFieldValueRange(string $fieldName, int $minimum, int $actual): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_RANGE,
+            'Field {{ fieldName }} expected a minimum of {{ minimum }}, got {{ actual }}',
+            ['fieldName' => $fieldName, 'minimum' => $minimum, 'actual' => $actual]
         );
     }
 

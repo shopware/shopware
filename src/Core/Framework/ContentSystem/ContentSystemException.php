@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -175,6 +176,11 @@ class ContentSystemException extends HttpException
      * - the stored-column read catches nothing, so this status IS the response. A rejected id there means
      *   corrupt stored data — an internal fault, on the same argument {@see duplicateElementId()} makes,
      *   though that one is deliberately outside the catalogue while this one is in it.
+     *
+     * A fifth audience would make this status wrong: an HTTP route decoding REQUEST data through
+     * {@see StoredElementCodec::decode()} directly, with neither draft wrapper. The client would have caused
+     * the rejection and would see a server error. No such caller exists; adding one means giving it a wrapper,
+     * not changing this status.
      */
     public static function invalidElementId(string $id, string $reason): self
     {

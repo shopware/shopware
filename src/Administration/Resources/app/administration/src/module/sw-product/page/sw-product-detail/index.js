@@ -939,6 +939,7 @@ export default {
                         }
 
                         parent.purchasePrices = this.getDefaultPurchasePrices();
+                        parent._origin.purchasePrices = cloneDeep(parent.purchasePrices);
                     }
 
                     if (parent.propertyIds?.length > 0) {

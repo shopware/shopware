@@ -1109,6 +1109,39 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
+    it('should synchronize the default purchase price with the parent product origin', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            (id) => {
+                if (id === 'parent-id') {
+                    return Promise.resolve({
+                        id: 'parent-id',
+                        purchasePrices: undefined,
+                    });
+                }
+
+                return Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                    purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                });
+            },
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.parentProduct.purchasePrices).toEqual([
+            { currencyId: undefined, gross: 0, net: 0, linked: true },
+        ]);
+        expect(wrapper.vm.parentProduct._origin.purchasePrices).toEqual(wrapper.vm.parentProduct.purchasePrices);
+    });
+
     it('should not overwrite purchase price for variant products with parentId when null', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),

@@ -419,7 +419,7 @@ class DocumentRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertStringStartsWith(DocumentFormat::HTML->mimeType(), (string) $response->headers->get('content-type'));
+        static::assertStringStartsWith('text/html', (string) $response->headers->get('content-type'));
         static::assertStringContainsString('<html', (string) $response->getContent());
     }
 
@@ -448,7 +448,7 @@ class DocumentRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertStringStartsWith(DocumentFormat::PDF->mimeType(), (string) $response->headers->get('content-type'));
+        static::assertStringStartsWith('application/pdf', (string) $response->headers->get('content-type'));
         static::assertStringStartsWith('%PDF', (string) $response->getContent());
     }
 

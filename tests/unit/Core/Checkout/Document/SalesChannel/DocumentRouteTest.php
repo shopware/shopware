@@ -1062,7 +1062,7 @@ class DocumentRouteTest extends TestCase
             $mediaService->method('loadFile')->willReturn('legacy content');
 
             $route = new DocumentRoute(
-                static::createMock(DocumentGenerator::class),
+                static::createStub(DocumentGenerator::class),
                 new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
                 $documentRepository,
                 new GuestAuthenticator(),
@@ -1098,7 +1098,7 @@ class DocumentRouteTest extends TestCase
             ], new DocumentDefinition());
 
             $route = new DocumentRoute(
-                static::createMock(DocumentGenerator::class),
+                static::createStub(DocumentGenerator::class),
                 $this->createDocumentReaderStub(),
                 $documentRepository,
                 new GuestAuthenticator(),

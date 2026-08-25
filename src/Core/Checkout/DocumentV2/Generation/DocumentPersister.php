@@ -260,7 +260,6 @@ final readonly class DocumentPersister
      */
     private function getDocumentTypeId(string $documentType, Context $context): string
     {
-        // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))
             ->setLimit(1);

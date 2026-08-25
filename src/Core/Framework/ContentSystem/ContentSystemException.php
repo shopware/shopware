@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\HttpException;
@@ -158,11 +160,26 @@ class ContentSystemException extends HttpException
      * with on every wrapping render, and a string PHP casts to an integer array key, which puts an integer key
      * into {@see ResolvedValueIndexFactory}'s string-keyed assignments map — encoding as a JSON list once those
      * keys happen to run 0..n-1, and as a map with integer-looking members otherwise.
+     *
+     * A 500 while still in CLIENT_DEFECT_CODES, the same split {@see invalidFieldValueType()} and
+     * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only
+     * the last of them:
+     *
+     * - the DAL write wraps every {@see ContentSystemException} into a `WriteConstraintViolationException`
+     *   ({@see StoredElementListFieldSerializer::normalize()}), and that is a 400 whatever the code says —
+     *   catalogue membership decides nothing here;
+     * - the strict draft decode ({@see DraftLayoutDecoder::decode()}) re-raises a catalogued code as
+     *   `invalidLayoutStructure`, a 400, and lets an uncatalogued one propagate;
+     * - the lintable decode the diagnose route runs ({@see DraftLayoutDecoder::decodeLintable()}) collects a
+     *   catalogued code as an `invalid_config` violation and answers 200;
+     * - the stored-column read catches nothing, so this status IS the response. A rejected id there means
+     *   corrupt stored data — an internal fault, on the same argument {@see duplicateElementId()} makes,
+     *   though that one is deliberately outside the catalogue while this one is in it.
      */
     public static function invalidElementId(string $id, string $reason): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ELEMENT_ID,
             'Element id "{{ id }}" is not accepted: {{ reason }}.',
             ['id' => $id, 'reason' => $reason]

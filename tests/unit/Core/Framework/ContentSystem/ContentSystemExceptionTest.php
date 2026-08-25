@@ -117,6 +117,10 @@ class ContentSystemExceptionTest extends TestCase
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
         // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
         yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
+        // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
+        // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
+        // stored-column read keeps the fault status.
+        yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'), true];
     }
 
     /**
@@ -129,6 +133,16 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__DATA_LOADER_NOT_REGISTERED',
             'product',
+        ];
+
+        // 500 while still a client-defect code, the split invalidFieldValueType and invalidMapKey take: the
+        // DAL write wraps it into an unconditional 400 and the draft routes answer 400 or 200 by catalogue
+        // membership, so the one path where this status IS the response is the stored-column read.
+        yield 'invalid element id' => [
+            ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
+            '12',
         ];
 
         yield 'preview payload invalid' => [

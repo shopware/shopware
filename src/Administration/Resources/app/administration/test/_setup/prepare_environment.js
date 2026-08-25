@@ -55,7 +55,12 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
-import { sendTimeoutExpired, deprecatedTabComponent, deprecatedPopoverComponent } from '../_helper_/allowedErrors';
+import {
+    sendTimeoutExpired,
+    deprecatedTabComponent,
+    deprecatedPopoverComponent,
+    unresolvedComponentWarning,
+} from '../_helper_/allowedErrors';
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
@@ -537,23 +542,7 @@ global.allowedErrors = [
             return msg0?.includes('Component is missing template or render function');
         },
     },
-    // Vue 3 component resolution warnings for non-registered components in tests.
-    // sw-block and sw-block-parent are excluded: they are registered globally above, and silencing
-    // them is what let an unresolved <sw-block> add a DOM element the application does not have.
-    {
-        method: 'warn',
-        msgCheck: (msg0) => {
-            if (typeof msg0 !== 'string') {
-                return false;
-            }
-
-            if (/Failed to resolve component: sw-block(-parent)?(?![-\w])/.test(msg0)) {
-                return false;
-            }
-
-            return msg0?.includes('Failed to resolve component');
-        },
-    },
+    unresolvedComponentWarning,
     // Meteor Component Library dynamically imports SVG icons
     // These fail in Jest test environment since they're loaded via dynamic import
     // First the library logs a string message about the missing SVG file

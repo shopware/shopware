@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount, shallowMount } from '@vue/test-utils';
+import { unresolvedComponentWarning } from 'test/_helper_/allowedErrors';
 
 /**
  * A component whose template declares a block, registering nothing itself - the point of these
@@ -57,15 +58,12 @@ describe('sw-block global registration', () => {
     });
 
     it('does not silence a warning about an unresolved sw-block', () => {
-        type AllowedError = { method: string; msgCheck?: (msg: string) => boolean };
-        const allowedErrors = global.allowedErrors as AllowedError[];
         const isSilenced = (component: string) =>
-            allowedErrors.some(
-                (allowedError) =>
-                    allowedError.method === 'warn' &&
-                    allowedError.msgCheck?.(`[Vue warn]: Failed to resolve component: ${component}`) === true,
-            );
+            unresolvedComponentWarning.msgCheck(`[Vue warn]: Failed to resolve component: ${component}`);
 
+        // Vue logs the warning through console.warn, so an entry on any other channel would silence
+        // nothing and let the regression back in unnoticed.
+        expect(unresolvedComponentWarning.method).toBe('warn');
         expect(isSilenced('sw-block')).toBe(false);
         expect(isSilenced('sw-block-parent')).toBe(false);
         // Unrelated components stay silenced, so no existing spec changes behaviour.

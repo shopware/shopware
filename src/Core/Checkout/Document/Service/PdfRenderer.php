@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator} instead.
+ */
 #[Package('after-sales')]
 class PdfRenderer extends AbstractDocumentTypeRenderer
 {

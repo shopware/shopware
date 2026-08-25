@@ -34,6 +34,9 @@ use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Clock\Clock;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ */
 #[Package('after-sales')]
 class ZugferdDocument
 {

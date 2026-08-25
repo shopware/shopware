@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer} instead.
+ *
  * @public this class is used as type-hint for all event listeners, so the class string is "public consumable" API
  *
  * @title Rendering of the PDF document

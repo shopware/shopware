@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -25,6 +27,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Instead create own provider extending {@link AbstractDocumentDataProvider} with key {@link DocumentType::CANCELLATION_INVOICE} and extend order criteria via `enrichOrderCriteria()` or extend render data via `provideRenderingData()`.
+ */
 #[Package('after-sales')]
 class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
 {

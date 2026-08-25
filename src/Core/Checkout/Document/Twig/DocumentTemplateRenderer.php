@@ -17,6 +17,9 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer} instead.
+ */
 #[Package('after-sales')]
 class DocumentTemplateRenderer
 {

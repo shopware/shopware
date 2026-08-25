@@ -3,10 +3,15 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Instead create own provider extending {@link AbstractDocumentDataProvider} with key {@link DocumentType::INVOICE} and extend order criteria via `enrichOrderCriteria()` or extend render data via `provideRenderingData()`.
+ */
 #[Package('after-sales')]
 class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
 {

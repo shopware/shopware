@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator} instead.
+ *
  * @internal
  */
 #[Package('after-sales')]

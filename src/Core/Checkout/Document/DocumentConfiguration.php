@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\CountryEntity;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig} instead.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

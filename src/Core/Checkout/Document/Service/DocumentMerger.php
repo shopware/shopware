@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ */
 #[Package('after-sales')]
 final class DocumentMerger
 {

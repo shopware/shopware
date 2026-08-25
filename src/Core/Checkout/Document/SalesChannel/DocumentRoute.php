@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -33,6 +34,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Package('after-sales')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
+#[NamespaceChange(version: 'v6.9.0', newLocation: 'Shopware\\Core\\Checkout\\DocumentV2\\SalesChannel\\DocumentRoute')]
 final class DocumentRoute extends AbstractDocumentRoute
 {
     public const ACCEPT_WILDCARD = '*/*';

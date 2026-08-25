@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ */
 #[Package('after-sales')]
 class DocumentEvents
 {

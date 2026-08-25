@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer} instead.
+ */
 #[Package('after-sales')]
 abstract class AbstractDocumentRenderer
 {

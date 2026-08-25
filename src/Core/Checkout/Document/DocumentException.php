@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use {@link \Shopware\Core\Checkout\DocumentV2\DocumentV2Exception} instead.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

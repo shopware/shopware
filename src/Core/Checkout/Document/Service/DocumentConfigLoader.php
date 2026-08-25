@@ -18,6 +18,9 @@ use Shopware\Core\System\Country\CountryCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ */
 #[Package('after-sales')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {

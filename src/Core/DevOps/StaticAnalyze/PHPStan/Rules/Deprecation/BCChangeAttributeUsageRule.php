@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
@@ -215,6 +216,23 @@ class BCChangeAttributeUsageRule implements Rule
 
         if ($attribute->getName() === BecomesInternal::class && $this->isMarkedInternal($class->getDocComment())) {
             return [$this->error($line, \sprintf('BecomesInternal on "%s": the class is already @internal.', $symbol))];
+        }
+
+        if ($attribute->getName() === NamespaceChange::class) {
+            $newLocation = $this->argument($attribute, 'newLocation', 1);
+
+            if (\is_string($newLocation)) {
+                $parts = explode('\\', $newLocation);
+
+                if (end($parts) !== $symbol) {
+                    return [$this->error($line, \sprintf(
+                        'NamespaceChange on "%s": newLocation "%s" must be the fully qualified class name ending in "%s". A namespace move keeps the class name.',
+                        $symbol,
+                        $newLocation,
+                        $symbol
+                    ))];
+                }
+            }
         }
 
         return [];

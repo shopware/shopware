@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
@@ -296,4 +297,14 @@ class ParameterRemovalCases
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
         }
     }
+}
+
+#[NamespaceChange(version: 'v6.8.0', newLocation: 'Shopware\\Core\\Some\\Other\\Location')]
+class NamespaceChangeWithWrongLocation
+{
+}
+
+#[NamespaceChange(version: 'v6.8.0', newLocation: 'Shopware\\Core\\Some\\Other\\NamespaceChangeWithCorrectLocation')]
+class NamespaceChangeWithCorrectLocation
+{
 }

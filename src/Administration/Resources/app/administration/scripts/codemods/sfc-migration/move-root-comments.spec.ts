@@ -7,8 +7,10 @@ import { moveRootCommentsIntoBlock } from './move-root-comments';
 describe('move-root-comments', () => {
     it('moves a leading comment into the only block', () => {
         expect(
-            moveRootCommentsIntoBlock('<!-- @deprecated -->\n<sw-block name="a">\n    <div>content</div>\n</sw-block>'),
-        ).toBe('<sw-block name="a">\n    <!-- @deprecated -->\n<div>content</div>\n</sw-block>');
+            moveRootCommentsIntoBlock(
+                '<!-- @deprecated tag:v6.8.0 -->\n<sw-block name="a">\n    <div>content</div>\n</sw-block>',
+            ),
+        ).toBe('<sw-block name="a">\n    <!-- @deprecated tag:v6.8.0 -->\n<div>content</div>\n</sw-block>');
     });
 
     it('moves a trailing comment into the only block', () => {

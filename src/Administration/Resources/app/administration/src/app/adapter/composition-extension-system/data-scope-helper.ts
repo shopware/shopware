@@ -1,6 +1,6 @@
 import type { ComponentInternalInstance } from '@vue/runtime-core';
 import type { Reactive, Ref, ShallowUnwrapRef, ToRefs } from 'vue';
-import { proxyRefs, reactive, toRef, toRefs } from 'vue';
+import { customRef, proxyRefs, reactive, toRef } from 'vue';
 
 /**
  * @sw-package framework
@@ -186,6 +186,31 @@ export const mergeOverrideState = (targetState: OverrideLocalState, overrideStat
 };
 
 /**
+ * Creates one writable ref for a property of the reactive setup state, without reading the property.
+ *
+ * Vue's `toRefs(...)`/`toRef(source, key)` read `source[key]` to check for an existing ref, which evaluates
+ * every computed in the state during `setup()`, before any lifecycle hook has run. Reading `source[key]`
+ * lazily keeps computeds unevaluated until first access, and the indirection through the reactive state
+ * lets an override replace a key later while staying visible to the component's own bindings.
+ *
+ * @example
+ * const headlineRef = createPropertyRef(reactiveSetupState, 'headline');
+ */
+const createPropertyRef = (source: Record<string, unknown>, key: string): Ref<unknown> => {
+    return customRef((track, trigger) => ({
+        get: () => {
+            track();
+
+            return source[key];
+        },
+        set: (value: unknown) => {
+            source[key] = value;
+            trigger();
+        },
+    }));
+};
+
+/**
  * @private
  *
  * Converts reactive setup state into the return shape expected from `createExtendableSetup(...)`.
@@ -198,7 +223,14 @@ export const mergeOverrideState = (targetState: OverrideLocalState, overrideStat
 export const createDataScope = <TState extends object>(
     reactiveSetupState: Reactive<TState>,
 ): ExtendableSetupState<TState> => {
-    const state = toRefs(reactiveSetupState) as ExtendableSetupState<TState>;
+    const source = reactiveSetupState as Record<string, unknown>;
+    const state = {} as ExtendableSetupState<TState>;
+
+    // Enumerating the reactive proxy never reads a value, so the keys are collected the same way
+    // `toRefs(...)` collected them - lazily built refs just replace the eagerly read ones.
+    for (const key in reactiveSetupState) {
+        (state as Record<string, unknown>)[key] = createPropertyRef(source, key);
+    }
 
     Object.defineProperty(state, OVERRIDE_LOCAL_STATE_KEY, {
         value: createOverrideLocalStateRef(reactiveSetupState as ReactiveSetupStateWithOverrideLocalState<TState>),

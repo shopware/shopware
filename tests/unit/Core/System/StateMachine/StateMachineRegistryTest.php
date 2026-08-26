@@ -20,7 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -37,6 +42,7 @@ use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineLocker;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\StateMachineTransitionResult;
@@ -52,6 +58,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class StateMachineRegistryTest extends TestCase
 {
     private int $transactionalCalls = 0;
+
+    /**
+     * @var list<array{sql: string, parameters: array<string, mixed>, insideTransaction: bool}>
+     */
+    private array $lockingReads = [];
 
     public function testTransitionWritesHistoryAndUpdatesEntityInsideLock(): void
     {
@@ -256,6 +267,321 @@ class StateMachineRegistryTest extends TestCase
         static::assertSame([], $dispatcher->events);
     }
 
+    public function testTheRowIsLockedInsideTheTransactionThatWritesTheNewState(): void
+    {
+        $fromPlace = $this->createState('open');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $fixture->historyRepository->expects($this->once())->method('create');
+        $fixture->entityRepository->expects($this->once())->method('upsert');
+
+        $fixture->registry->transition($transition, $context);
+
+        // A lock taken outside the transaction that writes the state is released before the write and guards
+        // nothing, which is exactly the race this class has to prevent.
+        static::assertCount(1, $this->lockingReads);
+        static::assertTrue(
+            $this->lockingReads[0]['insideTransaction'],
+            'the entity row must be locked inside the transaction that writes the new state'
+        );
+        static::assertStringEndsWith('FOR UPDATE', $this->lockingReads[0]['sql']);
+        static::assertSame(1, $this->transactionalCalls);
+    }
+
+    public function testTransitionUsesTheStateTheRowHasWhenItIsLocked(): void
+    {
+        // What the caller read before it asked for the transition
+        $staleFromPlace = $this->createState('open');
+        // What another process committed in the meantime
+        $lockedFromPlace = $this->createState('unconfirmed');
+        $toPlace = $this->createState('paid');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $lockedFromPlace, $toPlace),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $staleFromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            lockedPlace: $lockedFromPlace,
+        );
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
+            ->with(static::callback(static function (array $payload) use ($lockedFromPlace, $toPlace): bool {
+                static::assertSame($lockedFromPlace->getId(), $payload[0]['fromStateId']);
+                static::assertSame($toPlace->getId(), $payload[0]['toStateId']);
+
+                return true;
+            }));
+
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($lockedFromPlace, $stateMachineStates->get('fromPlace'));
+        static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
+    }
+
+    public function testTransitionResolvesTheDestinationThatBelongsToTheLockedState(): void
+    {
+        $staleFromPlace = $this->createState('open');
+        $lockedFromPlace = $this->createState('authorized');
+        $destinationFromOpen = $this->createState('paid');
+        $destinationFromAuthorized = $this->createState('paid_partially');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $staleFromPlace, $destinationFromOpen),
+            $this->createStateTransition('paid', $lockedFromPlace, $destinationFromAuthorized),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $staleFromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            lockedPlace: $lockedFromPlace,
+        );
+
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $destinationFromAuthorized->getId()]], $context);
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($destinationFromAuthorized, $stateMachineStates->get('toPlace'));
+    }
+
+    public function testTransitionIsIllegalWhenTheLockedStateNoLongerAllowsIt(): void
+    {
+        $staleFromPlace = $this->createState('unconfirmed');
+        $lockedFromPlace = $this->createState('paid');
+        $toPlace = $this->createState('failed');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'fail', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('fail', $staleFromPlace, $toPlace),
+        ]);
+        $dispatcher = new CollectingEventDispatcher();
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $staleFromPlace,
+            $dispatcher,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            lockedPlace: $lockedFromPlace,
+        );
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $this->expectExceptionObject(new IllegalTransitionException($lockedFromPlace->getId(), 'fail', []));
+
+        try {
+            $fixture->registry->transition($transition, $context);
+        } finally {
+            static::assertSame([], $dispatcher->events);
+        }
+    }
+
+    public function testTransitionIsSkippedForAStateTheCallerRuledOut(): void
+    {
+        $staleFromPlace = $this->createState('unconfirmed');
+        $lockedFromPlace = $this->createState('authorized');
+        $toPlace = $this->createState('failed');
+        // 'authorized' may legally be failed, so only the caller's own list keeps the transition from happening
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'fail', 'stateId', null, ['paid', 'authorized']);
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('fail', $lockedFromPlace, $toPlace),
+        ]);
+        $dispatcher = new CollectingEventDispatcher();
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $staleFromPlace,
+            $dispatcher,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            lockedPlace: $lockedFromPlace,
+        );
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($lockedFromPlace, $stateMachineStates->get('fromPlace'));
+        static::assertSame($lockedFromPlace, $stateMachineStates->get('toPlace'));
+        static::assertSame([], $dispatcher->events);
+    }
+
+    public function testTransitionStillHappensForAStateOutsideTheCallersList(): void
+    {
+        $fromPlace = $this->createState('unconfirmed');
+        $toPlace = $this->createState('failed');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'fail', 'stateId', null, ['paid', 'authorized']);
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('fail', $fromPlace, $toPlace),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
+    }
+
+    public function testTransitionThrowsWhenTheEntityRowDoesNotExist(): void
+    {
+        $fromPlace = $this->createState('open');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            entityRowExists: false,
+        );
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        $this->expectExceptionObject(
+            StateMachineException::stateMachineInvalidEntityId('order_transaction', $transition->getEntityId())
+        );
+
+        $fixture->registry->transition($transition, $context);
+    }
+
+    public function testTransitionLocksTheRowOfAVersionAwareEntityByIdAndVersion(): void
+    {
+        $fromPlace = $this->createState('open');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $fixture->historyRepository->expects($this->once())->method('create');
+        $fixture->entityRepository->expects($this->once())->method('upsert');
+
+        $fixture->registry->transition($transition, $context);
+
+        static::assertCount(1, $this->lockingReads);
+        static::assertSame(
+            'SELECT `state_id` FROM `order_transaction` WHERE `id` = :id AND `version_id` = :versionId FOR UPDATE',
+            $this->lockingReads[0]['sql']
+        );
+        static::assertSame(
+            [
+                'id' => Uuid::fromHexToBytes($transition->getEntityId()),
+                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            $this->lockingReads[0]['parameters']
+        );
+    }
+
+    public function testTransitionLocksTheRowOfAnEntityThatIsNotVersionAwareByIdAlone(): void
+    {
+        $fromPlace = $this->createState('open');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            definition: new StateMachineRegistryTestUnversionedEntityDefinition(),
+        );
+
+        $fixture->historyRepository->expects($this->once())->method('create');
+        $fixture->entityRepository->expects($this->once())->method('upsert');
+
+        $fixture->registry->transition($transition, $context);
+
+        static::assertCount(1, $this->lockingReads);
+        static::assertSame(
+            'SELECT `state_id` FROM `order_transaction` WHERE `id` = :id FOR UPDATE',
+            $this->lockingReads[0]['sql']
+        );
+        static::assertSame(['id' => Uuid::fromHexToBytes($transition->getEntityId())], $this->lockingReads[0]['parameters']);
+    }
+
+    public function testTransitionRejectsAnInheritedStateField(): void
+    {
+        $fromPlace = $this->createState('open');
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            definition: new StateMachineRegistryTestInheritedStateEntityDefinition(),
+        );
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        // Locking this row would guard the state of the wrong row, so the transition must not be attempted
+        $this->expectExceptionObject(StateMachineException::stateMachineInvalidStateField('stateId'));
+
+        $fixture->registry->transition($transition, $context);
+    }
+
     public function testTransitionWithEmptyTransitionNameThrowsIllegalTransitionException(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), '', 'stateId');
@@ -389,14 +715,34 @@ class StateMachineRegistryTest extends TestCase
         );
     }
 
-    private function createConnection(): Connection&Stub
+    private function createConnection(?string $lockedStateId = null): Connection&Stub
     {
+        $insideTransaction = false;
+
         $connection = static::createStub(Connection::class);
         $connection->method('transactional')
-            ->willReturnCallback(function (\Closure $func): mixed {
+            ->willReturnCallback(function (\Closure $func) use (&$insideTransaction): mixed {
                 ++$this->transactionalCalls;
+                $insideTransaction = true;
 
-                return $func();
+                try {
+                    return $func();
+                } finally {
+                    $insideTransaction = false;
+                }
+            });
+
+        // Stands in for the locking read of the entity row, and records whether the transaction was already open
+        // when it ran. Returning false is how the database reports that the row does not exist.
+        $connection->method('fetchOne')
+            ->willReturnCallback(function (string $sql, array $parameters) use ($lockedStateId, &$insideTransaction): string|false {
+                $this->lockingReads[] = [
+                    'sql' => $sql,
+                    'parameters' => $parameters,
+                    'insideTransaction' => $insideTransaction,
+                ];
+
+                return $lockedStateId === null ? false : Uuid::fromHexToBytes($lockedStateId);
             });
 
         return $connection;
@@ -412,26 +758,37 @@ class StateMachineRegistryTest extends TestCase
         EventDispatcherInterface $dispatcher,
         EntityRepository&MockObject $entityRepository,
         EntityRepository&MockObject $historyRepository,
-        ?StateMachineStateEntity $forcedToPlace = null
+        ?StateMachineStateEntity $forcedToPlace = null,
+        ?StateMachineStateEntity $lockedPlace = null,
+        ?EntityDefinition $definition = null,
+        bool $entityRowExists = true
     ): StateMachineRegistryFixture {
+        // The state the row actually carries when the transition locks it, which is not necessarily the one the
+        // caller saw. Passing a different state here is how a concurrent state change is expressed in these tests.
+        $lockedPlace ??= $fromPlace;
         $context = Context::createDefaultContext();
         /** @var EntityRepository<StateMachineCollection>&Stub $stateMachineRepository */
         $stateMachineRepository = static::createStub(EntityRepository::class);
         /** @var EntityRepository<StateMachineStateCollection>&Stub $stateMachineStateRepository */
         $stateMachineStateRepository = static::createStub(EntityRepository::class);
         $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $definition = new StateMachineRegistryTestEntityDefinition();
+        $definition ??= new StateMachineRegistryTestEntityDefinition();
         $definition->compile($definitionRegistry);
         $locker = static::createStub(StateMachineLocker::class);
 
         $stateMachineRepository->method('search')
             ->willReturn($this->createSearchResult('state_machine', new StateMachineCollection([$stateMachine]), $context));
 
-        $stateMachineStateRepository->method('search')
-            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($fromPlace, $forcedToPlace): EntitySearchResult {
-                $state = $criteria->getIds() === [] && $forcedToPlace !== null ? $forcedToPlace : $fromPlace;
+        $knownStates = array_filter([$fromPlace, $lockedPlace, $forcedToPlace]);
 
-                return $this->createSearchResult('state_machine_state', new StateMachineStateCollection([$state]), $context);
+        $stateMachineStateRepository->method('search')
+            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($knownStates, $forcedToPlace): EntitySearchResult {
+                // The forced-transition lookup searches by technical name instead of by id
+                $states = $criteria->getIds() === []
+                    ? array_filter([$forcedToPlace])
+                    : array_filter($knownStates, static fn (StateMachineStateEntity $state) => \in_array($state->getId(), $criteria->getIds(), true));
+
+                return $this->createSearchResult('state_machine_state', new StateMachineStateCollection($states), $context);
             });
 
         $entityRepository->method('search')
@@ -458,7 +815,7 @@ class StateMachineRegistryTest extends TestCase
                 $dispatcher,
                 $definitionRegistry,
                 $locker,
-                $this->createConnection()
+                $this->createConnection($entityRowExists ? $lockedPlace->getId() : null)
             ),
             $entityRepository,
             $historyRepository
@@ -606,7 +963,39 @@ class StateMachineRegistryTestEntityDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new PrimaryKey(), new Required()),
             new StateMachineStateField('state_id', 'stateId', 'order_transaction.state'),
+        ]);
+    }
+}
+
+/**
+ * Stands in for the state machine entities extensions bring along, which are not version aware.
+ *
+ * @internal
+ */
+class StateMachineRegistryTestUnversionedEntityDefinition extends StateMachineRegistryTestEntityDefinition
+{
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new StateMachineStateField('state_id', 'stateId', 'order_transaction.state'),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestInheritedStateEntityDefinition extends StateMachineRegistryTestEntityDefinition
+{
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new StateMachineStateField('state_id', 'stateId', 'order_transaction.state'))->addFlags(new Inherited()),
         ]);
     }
 }

@@ -351,6 +351,22 @@ After:
 public function updateThumbnails(MediaEntity $media, Context $context, bool $strict, bool $force = false): int
 ```
 
+## `OrderTransactionStateHandler::fail()` received a new optional `$skipIfInStates` parameter
+
+`Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler::fail()` received a new optional parameter `array $skipIfInStates = []`. It lists technical state names the transaction must not be failed from, checked against the state that is current when the transition actually runs, so a caller can rule out a state a concurrent process reached without reintroducing a race. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function fail(string $transactionId, Context $context): void
+```
+
+After:
+
+```php
+public function fail(string $transactionId, Context $context, array $skipIfInStates = []): void
+```
+
 ## Landing page slot config must not be null
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.

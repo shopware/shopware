@@ -7,12 +7,19 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class Transition
 {
+    /**
+     * @param list<string> $skipIfInStates Technical names of states this transition must not be executed from, even
+     *                                     when the state machine allows it. They are checked against the state that
+     *                                     is current when the transition actually runs, which is the only point at
+     *                                     which a caller can rule out a state another process reached in the meantime.
+     */
     public function __construct(
         private readonly string $entityName,
         private readonly string $entityId,
         private readonly string $transitionName,
         private readonly string $stateFieldName,
         private readonly ?string $internalComment = null,
+        private readonly array $skipIfInStates = [],
     ) {
     }
 
@@ -39,5 +46,13 @@ class Transition
     public function getInternalComment(): ?string
     {
         return $this->internalComment;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getSkipIfInStates(): array
+    {
+        return $this->skipIfInStates;
     }
 }

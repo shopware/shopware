@@ -2,6 +2,14 @@
 
 ## Core
 
+### State transitions are serialized against concurrent state changes
+
+`StateMachineRegistry::transition()` now locks the entity row and computes the transition from the state that row carries at that moment, instead of from a state that was read before. A state change another process committed in between is therefore no longer overwritten: the transition is recalculated against the new state, and raises `IllegalTransitionException` if it is no longer allowed from there. Previously a payment confirmed by a payment service provider webhook could be silently reverted to `failed`.
+
+`Transition` accepts an optional `skipIfInStates` argument, a list of technical state names the transition must not be executed from even when the state machine allows it. It is evaluated against the locked state, so callers can rule out a state another process reached without reintroducing the race. `OrderTransactionStateHandler::fail()` accepts such a list as a third argument and passes it through. That argument is announced with `#[NewOptionalParameter]` and only becomes part of the signature in 6.8, so classes overriding `fail()` keep working until they add it.
+
+`PaymentRecurringProcessor::processRecurring()` uses this to guard `paid` and `authorized`. When the payment was confirmed while the payment handler was running, the transaction keeps its confirmed state and the method returns normally instead of rethrowing the handler error, because the payment did go through. Callers that relied on every handler error surfacing as an exception — for example to mark a subscription as failed — now correctly see a success for these renewals.
+
 ### Customer imports validate customer number patterns
 
 Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.

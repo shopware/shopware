@@ -16,11 +16,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
 #[Package('checkout')]
 class PaymentRecurringProcessor
 {
+    /**
+     * States that mean the payment service provider confirmed the payment. Reaching one of them while the handler
+     * was still running makes the handler error obsolete: the provider accepted the payment - captured it, or in
+     * the case of "authorized" committed to it - so the transaction must not be failed behind the provider's back,
+     * and the caller must not be told the renewal failed.
+     */
+    private const CONFIRMED_STATES = [
+        OrderTransactionStates::STATE_PAID,
+        OrderTransactionStates::STATE_AUTHORIZED,
+    ];
+
     /**
      * @internal
      *
@@ -54,10 +66,47 @@ class PaymentRecurringProcessor
             $paymentHandler->recurring($struct, $context);
         } catch (\Throwable $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
-            $this->stateHandler->fail($transaction->getId(), $context);
+
+            try {
+                $this->stateHandler->fail($transaction->getId(), $context, self::CONFIRMED_STATES);
+            } catch (IllegalTransitionException $illegalTransition) {
+                // The transaction left the states that can fail while the handler was running, so there is nothing
+                // to fail. Report the handler error, not the follow-up error about the state machine.
+                $this->logger->error(
+                    'The order transaction could not be failed after the payment error',
+                    ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $illegalTransition->getMessage()]
+                );
+
+                throw $e;
+            }
+
+            // Asked after the guarded transition on purpose: the guard is what rules out failing a confirmed
+            // transaction, and only once it has run is the state safe to interpret. Checking beforehand would leave
+            // the window this guards against wide open.
+            if ($this->isConfirmed($transaction->getId(), $context)) {
+                $this->logger->info(
+                    'The payment was confirmed while the recurring payment handler was running, the handler error is ignored',
+                    ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]
+                );
+
+                return;
+            }
 
             throw $e;
         }
+    }
+
+    private function isConfirmed(string $transactionId, Context $context): bool
+    {
+        $criteria = (new Criteria([$transactionId]))->addAssociation('stateMachineState');
+
+        $state = $this->orderTransactionRepository->search($criteria, $context)
+            ->getEntities()
+            ->get($transactionId)
+            ?->getStateMachineState()
+            ?->getTechnicalName();
+
+        return \in_array($state, self::CONFIRMED_STATES, true);
     }
 
     private function getCurrentOrderTransaction(string $orderId, Context $context): OrderTransactionEntity

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -45,14 +46,20 @@ class OrderTransactionStateHandler
      * @throws StateMachineException
      * @throws IllegalTransitionException
      */
-    public function fail(string $transactionId, Context $context): void
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'skipIfInStates', parameterType: 'array', defaultValue: [], description: 'Technical names of states the transaction must not be failed from, checked against the state that is current when the transition runs. Use this when a concurrent process may have confirmed the payment in the meantime.')]
+    public function fail(string $transactionId, Context $context/* , array $skipIfInStates = [] */): void
     {
+        /** @deprecated tag:v6.8.0 - Remove next line as $skipIfInStates will become part of the method signature */
+        /** @var list<string> $skipIfInStates */
+        $skipIfInStates = \func_get_args()[2] ?? [];
+
         $this->stateMachineRegistry->transition(
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,
                 $transactionId,
                 StateMachineTransitionActions::ACTION_FAIL,
-                'stateId'
+                'stateId',
+                skipIfInStates: $skipIfInStates,
             ),
             $context
         );

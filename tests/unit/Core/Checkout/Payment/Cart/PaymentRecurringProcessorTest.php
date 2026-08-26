@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -20,6 +22,8 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -82,7 +86,7 @@ class PaymentRecurringProcessorTest extends TestCase
             ->willReturn(null);
 
         $processor = new PaymentRecurringProcessor(
-            $this->getOrderTransactionRepository(true),
+            $this->getOrderTransactionRepository(true, OrderTransactionStates::STATE_FAILED),
             $stateLoader,
             static::createStub(OrderTransactionStateHandler::class),
             $registry,
@@ -135,7 +139,7 @@ class PaymentRecurringProcessorTest extends TestCase
             ->willReturn($handler);
 
         $processor = new PaymentRecurringProcessor(
-            $this->getOrderTransactionRepository(true),
+            $this->getOrderTransactionRepository(true, OrderTransactionStates::STATE_FAILED),
             $stateLoader,
             static::createStub(OrderTransactionStateHandler::class),
             $registry,
@@ -198,10 +202,10 @@ class PaymentRecurringProcessorTest extends TestCase
         $stateHandler
             ->expects($this->once())
             ->method('fail')
-            ->with($transaction->getId(), Context::createDefaultContext());
+            ->with($transaction->getId(), Context::createDefaultContext(), [OrderTransactionStates::STATE_PAID, OrderTransactionStates::STATE_AUTHORIZED]);
 
         $processor = new PaymentRecurringProcessor(
-            $this->getOrderTransactionRepository(true),
+            $this->getOrderTransactionRepository(true, OrderTransactionStates::STATE_FAILED),
             $stateLoader,
             $stateHandler,
             $registry,
@@ -215,18 +219,127 @@ class PaymentRecurringProcessorTest extends TestCase
     }
 
     /**
+     * The payment provider can confirm the payment while the handler is still running and the handler can still
+     * fail afterwards. The money was collected, so the caller must not be told the payment failed - otherwise a
+     * subscription renewal is marked as failed for a payment that actually went through.
+     */
+    #[DataProvider('confirmedStateProvider')]
+    public function testAPaymentConfirmedWhileTheHandlerRanIsNotReportedAsFailed(string $confirmedState): void
+    {
+        $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
+        $stateHandler
+            ->expects($this->once())
+            ->method('fail')
+            ->with('foo', Context::createDefaultContext(), [OrderTransactionStates::STATE_PAID, OrderTransactionStates::STATE_AUTHORIZED]);
+
+        $processor = new PaymentRecurringProcessor(
+            $this->getOrderTransactionRepository(true, $confirmedState),
+            $this->getInitialStateLoader(),
+            $stateHandler,
+            $this->getRegistryWithFailingHandler(),
+            new PaymentTransactionStructFactory(),
+            new NullLogger(),
+        );
+
+        $processor->processRecurring('foo', Context::createDefaultContext());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function confirmedStateProvider(): iterable
+    {
+        yield 'a captured payment is confirmed' => [OrderTransactionStates::STATE_PAID];
+        yield 'an authorized payment is confirmed, even though it may legally be failed' => [OrderTransactionStates::STATE_AUTHORIZED];
+    }
+
+    /**
+     * When the transaction ended up in a state that can neither be failed nor counts as confirmed, the payment
+     * error is the one worth reporting - not the follow-up error about the impossible state transition.
+     */
+    public function testTheHandlerErrorSurvivesAnImpossibleFailTransition(): void
+    {
+        $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
+        $stateHandler
+            ->expects($this->once())
+            ->method('fail')
+            ->willThrowException(new IllegalTransitionException('cancelled_state_id', 'fail', ['reopen']));
+
+        $processor = new PaymentRecurringProcessor(
+            $this->getOrderTransactionRepository(true),
+            $this->getInitialStateLoader(),
+            $stateHandler,
+            $this->getRegistryWithFailingHandler(),
+            new PaymentTransactionStructFactory(),
+            new NullLogger(),
+        );
+
+        $this->expectExceptionObject(PaymentException::recurringInterrupted('foo', 'error_foo'));
+
+        $processor->processRecurring('foo', Context::createDefaultContext());
+    }
+
+    private function getInitialStateLoader(): InitialStateIdLoader&MockObject
+    {
+        $stateLoader = $this->createMock(InitialStateIdLoader::class);
+        $stateLoader
+            ->expects($this->once())
+            ->method('get')
+            ->with(OrderTransactionStates::STATE_MACHINE)
+            ->willReturn('initial_state_id');
+
+        return $stateLoader;
+    }
+
+    private function getRegistryWithFailingHandler(): PaymentHandlerRegistry&MockObject
+    {
+        $handler = $this->createMock(AbstractPaymentHandler::class);
+        $handler
+            ->expects($this->once())
+            ->method('supports')
+            ->with(PaymentHandlerType::RECURRING, 'bar', Context::createDefaultContext())
+            ->willReturn(true);
+        $handler
+            ->expects($this->once())
+            ->method('recurring')
+            ->willThrowException(PaymentException::recurringInterrupted('foo', 'error_foo'));
+
+        $registry = $this->createMock(PaymentHandlerRegistry::class);
+        $registry
+            ->expects($this->once())
+            ->method('getPaymentMethodHandler')
+            ->with('bar')
+            ->willReturn($handler);
+
+        return $registry;
+    }
+
+    /**
      * @return StaticEntityRepository<OrderTransactionCollection>
      */
-    private function getOrderTransactionRepository(bool $returnEntity): StaticEntityRepository
+    private function getOrderTransactionRepository(bool $returnEntity, ?string $stateAfterFailing = null): StaticEntityRepository
     {
         $entity = new OrderTransactionEntity();
         $entity->setId('foo');
         $entity->setPaymentMethodId('bar');
 
-        $repository = new StaticEntityRepository([
-            new OrderTransactionCollection($returnEntity ? [$entity] : []),
-        ]);
+        $searches = [new OrderTransactionCollection($returnEntity ? [$entity] : [])];
 
-        return $repository;
+        if ($stateAfterFailing !== null) {
+            // Once the processor has tried to fail the transaction it reads it back to find out whether a
+            // concurrent confirmation kept it out of the failed state.
+            $state = new StateMachineStateEntity();
+            $state->setId('state-id');
+            $state->setTechnicalName($stateAfterFailing);
+
+            $reread = new OrderTransactionEntity();
+            $reread->setId('foo');
+            $reread->setPaymentMethodId('bar');
+            $reread->setStateMachineState($state);
+
+            $searches[] = new OrderTransactionCollection([$reread]);
+        }
+
+        return new StaticEntityRepository($searches);
     }
 }

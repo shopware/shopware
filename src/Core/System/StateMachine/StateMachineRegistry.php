@@ -8,14 +8,19 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -143,86 +148,170 @@ class StateMachineRegistry implements ResetInterface
         $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
 
         $stateMachine = $this->getStateMachine($stateField->getStateMachineName(), $context);
+        $definition = $this->definitionRegistry->getByEntityName($transition->getEntityName());
         $repository = $this->definitionRegistry->getRepository($transition->getEntityName());
 
-        $fromPlace = $this->getFromPlace(
-            $transition->getEntityName(),
-            $transition->getEntityId(),
-            $transition->getStateFieldName(),
-            $context,
-            $repository
-        );
-
         if ($transition->getTransitionName() === '') {
+            $fromPlace = $this->getFromPlace(
+                $transition->getEntityName(),
+                $transition->getEntityId(),
+                $transition->getStateFieldName(),
+                $context,
+                $repository
+            );
+
             $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
             $transitionNames = \array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
             throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
         }
 
-        try {
-            $toPlace = $this->getTransitionDestinationById(
-                $stateMachine->getTechnicalName(),
-                $fromPlace->getId(),
-                $transition->getTransitionName(),
-                $context
-            );
-        } catch (UnnecessaryTransitionException) {
-            // No transition needed, therefore don't create a history entry and return
+        // The whole transition runs inside one transaction that starts by locking the entity row. Everything
+        // below - the state we come from, the state we go to, the history entry and the state update - is derived
+        // from that locked read, so a concurrent transition can neither commit between our read and our write nor
+        // have its own result overwritten by ours. Without the lock the destination was computed from a state that
+        // another process could still change, which silently reverted state changes it had already committed.
+        return RetryableTransaction::transactional($this->connection, function () use ($transition, $context, $stateMachine, $stateField, $definition, $repository): StateMachineTransitionResult {
+            $fromPlace = $this->lockAndReadCurrentPlace($definition, $stateField, $transition, $context);
+
+            if (\in_array($fromPlace->getTechnicalName(), $transition->getSkipIfInStates(), true)) {
+                // The caller declared this state as one it must not transition away from. It was reached after the
+                // caller read the entity, so the caller cannot have checked it itself without reintroducing the race.
+                return $this->unchangedResult($stateMachine, $fromPlace);
+            }
+
+            try {
+                $toPlace = $this->getTransitionDestinationById(
+                    $stateMachine->getTechnicalName(),
+                    $fromPlace->getId(),
+                    $transition->getTransitionName(),
+                    $context
+                );
+            } catch (UnnecessaryTransitionException) {
+                // No transition needed, therefore don't create a history entry and return
+                return $this->unchangedResult($stateMachine, $fromPlace);
+            }
+
+            $source = $this->resolveOriginalSource($context->getSource());
+
+            $stateMachineHistoryEntity = [
+                'stateMachineId' => $toPlace->getStateMachineId(),
+                'entityName' => $transition->getEntityName(),
+                'fromStateId' => $fromPlace->getId(),
+                'toStateId' => $toPlace->getId(),
+                'transitionActionName' => $transition->getTransitionName(),
+                'userId' => $source instanceof AdminApiSource ? $source->getUserId() : null,
+                'integrationId' => $source instanceof AdminApiSource ? $source->getIntegrationId() : null,
+                'sourceType' => $this->resolveSourceType($source),
+                'referencedId' => $transition->getEntityId(),
+                'referencedVersionId' => $context->getVersionId(),
+                'internalComment' => $transition->getInternalComment(),
+            ];
+
+            $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
+
+            // Record the history entry and apply the new state atomically, so a failure of either write
+            // cannot leave the entity state and the state_machine_history out of sync. The history is written
+            // first on purpose: if it fails, the state update (and its entity-written events for indexers,
+            // cache invalidation and webhooks) is never performed.
+            $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
+            $repository->upsert($data, $context);
+
             $stateMachineStateCollection = new StateMachineStateCollection();
 
             $stateMachineStateCollection->set('fromPlace', $fromPlace);
-            $stateMachineStateCollection->set('toPlace', $fromPlace);
+            $stateMachineStateCollection->set('toPlace', $toPlace);
 
             return new StateMachineTransitionResult(
-                false,
+                true,
                 $stateMachineStateCollection,
                 $stateMachine,
                 $fromPlace,
-                $fromPlace,
+                $toPlace,
             );
-        }
-
-        $source = $this->resolveOriginalSource($context->getSource());
-
-        $stateMachineHistoryEntity = [
-            'stateMachineId' => $toPlace->getStateMachineId(),
-            'entityName' => $transition->getEntityName(),
-            'fromStateId' => $fromPlace->getId(),
-            'toStateId' => $toPlace->getId(),
-            'transitionActionName' => $transition->getTransitionName(),
-            'userId' => $source instanceof AdminApiSource ? $source->getUserId() : null,
-            'integrationId' => $source instanceof AdminApiSource ? $source->getIntegrationId() : null,
-            'sourceType' => $this->resolveSourceType($source),
-            'referencedId' => $transition->getEntityId(),
-            'referencedVersionId' => $context->getVersionId(),
-            'internalComment' => $transition->getInternalComment(),
-        ];
-
-        $data = [['id' => $transition->getEntityId(), $transition->getStateFieldName() => $toPlace->getId()]];
-
-        // Record the history entry and apply the new state atomically, so a failure of either write
-        // cannot leave the entity state and the state_machine_history out of sync. The history is written
-        // first on purpose: if it fails, the state update (and its entity-written events for indexers,
-        // cache invalidation and webhooks) is never performed. Nested DAL transactions are handled via
-        // DBAL savepoints.
-        RetryableTransaction::transactional($this->connection, function () use ($repository, $data, $stateMachineHistoryEntity, $context): void {
-            $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
-            $repository->upsert($data, $context);
         });
+    }
 
+    private function unchangedResult(StateMachineEntity $stateMachine, StateMachineStateEntity $fromPlace): StateMachineTransitionResult
+    {
         $stateMachineStateCollection = new StateMachineStateCollection();
 
         $stateMachineStateCollection->set('fromPlace', $fromPlace);
-        $stateMachineStateCollection->set('toPlace', $toPlace);
+        $stateMachineStateCollection->set('toPlace', $fromPlace);
 
         return new StateMachineTransitionResult(
-            true,
+            false,
             $stateMachineStateCollection,
             $stateMachine,
             $fromPlace,
-            $toPlace,
+            $fromPlace,
         );
+    }
+
+    /**
+     * Reads the current state directly from the entity row and keeps that row locked for the rest of the
+     * transaction. Reading through the DAL would return the same state but would not lock anything, which is the
+     * whole point of this read.
+     *
+     * @throws StateMachineException
+     */
+    private function lockAndReadCurrentPlace(
+        EntityDefinition $definition,
+        StateMachineStateField $stateField,
+        Transition $transition,
+        Context $context
+    ): StateMachineStateEntity {
+        if ($stateField->is(Inherited::class)) {
+            // An inherited state lives on the parent row, so locking this row would guard the wrong state.
+            // No such field exists today; fail loudly rather than serialize nothing.
+            throw StateMachineException::stateMachineInvalidStateField($transition->getStateFieldName());
+        }
+
+        $idField = $definition->getPrimaryKeys()
+            ->filter(static fn ($field) => $field instanceof StorageAware && !$field instanceof VersionField)
+            ->first();
+
+        if (!$idField instanceof StorageAware) {
+            throw StateMachineException::stateMachineInvalidEntityId($transition->getEntityName(), $transition->getEntityId());
+        }
+
+        $query = \sprintf(
+            'SELECT %s FROM %s WHERE %s = :id',
+            EntityDefinitionQueryHelper::escape($stateField->getStorageName()),
+            EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+            EntityDefinitionQueryHelper::escape($idField->getStorageName()),
+        );
+
+        $parameters = ['id' => Uuid::fromHexToBytes($transition->getEntityId())];
+
+        $versionField = $definition->getFields()->filterInstance(VersionField::class)->first();
+        if ($versionField instanceof VersionField) {
+            // Scoped to the context version, matching what a transition could reach before: the DAL read this
+            // through the entity's unique identifier, which for a versioned entity carries the version, so a row
+            // that only exists in the live version was never reachable from another version either.
+            $query .= \sprintf(' AND %s = :versionId', EntityDefinitionQueryHelper::escape($versionField->getStorageName()));
+            $parameters['versionId'] = Uuid::fromHexToBytes($context->getVersionId());
+        }
+
+        $fromPlaceId = $this->connection->fetchOne($query . ' FOR UPDATE', $parameters);
+
+        if ($fromPlaceId === false) {
+            throw StateMachineException::stateMachineInvalidEntityId($transition->getEntityName(), $transition->getEntityId());
+        }
+
+        if (!\is_string($fromPlaceId) || $fromPlaceId === '') {
+            throw StateMachineException::stateMachineInvalidStateField($transition->getStateFieldName());
+        }
+
+        $fromPlaceId = Uuid::fromBytesToHex($fromPlaceId);
+
+        $fromPlace = $this->stateMachineStateRepository->search(new Criteria([$fromPlaceId]), $context)->getEntities()->get($fromPlaceId);
+
+        if (!$fromPlace) {
+            throw StateMachineException::stateMachineInvalidStateField($transition->getStateFieldName());
+        }
+
+        return $fromPlace;
     }
 
     private function resolveOriginalSource(ContextSource $source): ContextSource

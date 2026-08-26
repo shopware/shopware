@@ -332,6 +332,7 @@ class StateMachineRegistry implements ResetInterface
         $stateMachineTransitions = $stateMachine->getTransitions();
         \assert($stateMachineTransitions !== null);
 
+        // @deprecated tag:v6.8.0 - remove the $destinations collection and return the first matching $toState directly again; the unique key on state_machine_transition guarantees a single destination per action and source state
         $destinations = [];
         foreach ($stateMachineTransitions as $transition) {
             // Not the transition that was requested step over
@@ -346,11 +347,7 @@ class StateMachineRegistry implements ResetInterface
 
             // Already transitioned, this exception is handled by StateMachineRegistry::transition
             if ($toState->getId() === $fromStateId) {
-                if ($destinations === []) {
-                    throw StateMachineException::unnecessaryTransition($transitionName);
-                }
-
-                continue;
+                throw StateMachineException::unnecessaryTransition($transitionName);
             }
 
             $fromState = $transition->getFromStateMachineState();
@@ -364,17 +361,14 @@ class StateMachineRegistry implements ResetInterface
             }
         }
 
+        // @deprecated tag:v6.8.0 - remove the ambiguity handling together with the $destinations collection
         if (\count($destinations) > 1) {
             $toStateNames = array_map(static fn (StateMachineStateEntity $state): string => $state->getTechnicalName(), $destinations);
-
-            if (Feature::isActive('v6.8.0.0')) {
-                throw StateMachineException::ambiguousStateTransition($stateMachineName, $transitionName, $fromStateId, $toStateNames);
-            }
 
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
                 \sprintf(
-                    'The action "%s" of state machine "%s" resolves to multiple destination states ("%s") from the same source state. This will throw an exception in v6.8.0.0, a state machine action must have exactly one destination state per source state.',
+                    'The action "%s" of state machine "%s" resolves to multiple destination states ("%s") from the same source state. A state machine action must have exactly one destination state per source state.',
                     $transitionName,
                     $stateMachineName,
                     implode('", "', $toStateNames)

@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class StateMachineException extends HttpException
 {
-    public const AMBIGUOUS_STATE_TRANSITION = 'SYSTEM__AMBIGUOUS_STATE_TRANSITION';
     public const ILLEGAL_STATE_TRANSITION = 'SYSTEM__ILLEGAL_STATE_TRANSITION';
     public const STATE_MACHINE_INVALID_ENTITY_ID = 'SYSTEM__STATE_MACHINE_INVALID_ENTITY_ID';
     public const STATE_MACHINE_INVALID_STATE_FIELD = 'SYSTEM__STATE_MACHINE_INVALID_STATE_FIELD';
@@ -32,24 +31,6 @@ class StateMachineException extends HttpException
     public static function illegalStateTransition(string $currentState, string $transition, array $possibleTransitions): IllegalTransitionException
     {
         return new IllegalTransitionException($currentState, $transition, $possibleTransitions);
-    }
-
-    /**
-     * @param list<string> $toStateNames
-     */
-    public static function ambiguousStateTransition(string $stateMachineName, string $transitionName, string $fromStateId, array $toStateNames): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::AMBIGUOUS_STATE_TRANSITION,
-            'The action "{{ transition }}" of state machine "{{ stateMachine }}" resolves to multiple destination states ("{{ toStates }}") from state "{{ fromStateId }}". A state machine action must have exactly one destination state per source state.',
-            [
-                'transition' => $transitionName,
-                'stateMachine' => $stateMachineName,
-                'fromStateId' => $fromStateId,
-                'toStates' => implode('", "', $toStateNames),
-            ]
-        );
     }
 
     public static function stateMachineInvalidEntityId(string $entityName, string $entityId): self

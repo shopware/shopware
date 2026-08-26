@@ -26,6 +26,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed together with StateMachineTransitionValidator.
  */
 #[Package('checkout')]
 #[CoversClass(StateMachineTransitionValidator::class)]

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -38,7 +39,6 @@ use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
-use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineLocker;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\StateMachineTransitionResult;
@@ -283,6 +283,7 @@ class StateMachineRegistryTest extends TestCase
         $fixture->registry->transition($transition, $context);
     }
 
+    // @deprecated tag:v6.8.0 - remove together with the ambiguity handling in StateMachineRegistry
     public function testTransitionThrowsWhenActionResolvesToMultipleDestinations(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'authorize', 'stateId');
@@ -304,16 +305,14 @@ class StateMachineRegistryTest extends TestCase
         $fixture->entityRepository->expects($this->never())
             ->method('upsert');
 
-        $this->expectExceptionObject(StateMachineException::ambiguousStateTransition(
-            'order_transaction.state',
-            'authorize',
-            $fromPlace->getId(),
-            ['authorized', 'custom_authorize']
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: The action "authorize" of state machine "order_transaction.state" resolves to multiple destination states ("authorized", "custom_authorize") from the same source state. A state machine action must have exactly one destination state per source state.'
         ));
 
         $fixture->registry->transition($transition, $context);
     }
 
+    // @deprecated tag:v6.8.0 - remove together with the ambiguity handling in StateMachineRegistry
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testTransitionResolvesFirstDestinationWhenActionIsAmbiguous(): void
     {

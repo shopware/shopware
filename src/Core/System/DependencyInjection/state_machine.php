@@ -45,6 +45,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
+    // @deprecated tag:v6.8.0 - remove the registration together with StateMachineTransitionValidator
     $services->set(StateMachineTransitionValidator::class)
         ->args([
             service(Connection::class),

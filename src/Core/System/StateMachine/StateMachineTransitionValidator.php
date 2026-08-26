@@ -17,6 +17,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed. The unique key on state_machine_transition enforces a single destination per action and source state.
  */
 #[Package('checkout')]
 class StateMachineTransitionValidator implements EventSubscriberInterface
@@ -27,6 +29,9 @@ class StateMachineTransitionValidator implements EventSubscriberInterface
     {
     }
 
+    /**
+     * @phpstan-ignore shopware.deprecatedClass (framework-invoked, must not trigger a deprecation)
+     */
     public static function getSubscribedEvents(): array
     {
         return [

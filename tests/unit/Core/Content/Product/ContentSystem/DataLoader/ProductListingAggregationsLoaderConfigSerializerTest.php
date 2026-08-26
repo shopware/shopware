@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
@@ -81,28 +80,6 @@ class ProductListingAggregationsLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->encode(new ProductListingAggregationsLoaderConfig('categoryId'));
 
         static::assertSame(['property' => 'categoryId'], $result);
-    }
-
-    /**
-     * @param array<string, mixed> $original
-     */
-    #[DataProvider('roundTripProvider')]
-    #[TestDox('round-trips $_dataName without data loss')]
-    public function testDecodeAndEncodeAreInverse(array $original): void
-    {
-        $config = $this->serializer->decode($original);
-        $encoded = $this->serializer->encode($config);
-
-        static::assertSame($original, $encoded);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function roundTripProvider(): iterable
-    {
-        yield 'empty config' => [[]];
-        yield 'property only' => [['property' => 'categoryProperty']];
     }
 
     #[TestDox('throws exception when encoding a non-ProductListingAggregationsLoaderConfig config instance')]

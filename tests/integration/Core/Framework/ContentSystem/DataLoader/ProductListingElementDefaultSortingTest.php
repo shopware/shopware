@@ -28,12 +28,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Covers which sorting a content-system product listing ends up with, because three sources compete for
- * it: the sales channel setting `core.listing.defaultSorting` from the administration, the element's own
- * `defaultSorting` property, and the visitor's `order` request parameter.
- *
- * The products are built so the answer is observable in the returned order — name ascending and price
- * ascending are exact reverses of each other — rather than only in the reported sorting key.
+ * Three sources compete for a listing's sorting: `core.listing.defaultSorting`, the element's own
+ * `defaultSorting`, and the visitor's `order` parameter. Name and price sort in opposite directions here,
+ * so the winner shows in the returned product order rather than only in the reported sorting key.
  *
  * @internal
  */
@@ -87,7 +84,6 @@ class ProductListingElementDefaultSortingTest extends TestCase
 
         $element = $this->listingElement(['defaultSorting' => $this->sortingId('name-asc')]);
 
-        // A visitor's choice arrives in the query string, which is the only source the loader trusts.
         $request = new Request();
         $request->query->set('order', 'price-desc');
 
@@ -97,6 +93,21 @@ class ProductListingElementDefaultSortingTest extends TestCase
         static::assertSame(['expensive', 'medium', 'cheap'], $this->productNames($result->getEntities()));
     }
 
+    /**
+     * The element schema types defaultSorting as a string, so a malformed value reaches the DAL, where the
+     * uuid conversion throws and takes the page render with it.
+     */
+    #[TestDox('a defaultSorting that is not a uuid falls back to the sales channel default instead of throwing')]
+    public function testAMalformedDefaultSortingDoesNotAbortTheListing(): void
+    {
+        $this->setSalesChannelDefaultSorting('price-asc');
+
+        $result = $this->load($this->listingElement(['defaultSorting' => 'name-asc']));
+
+        static::assertSame('price-asc', $result->getSorting());
+        static::assertSame(['cheap', 'medium', 'expensive'], $this->productNames($result->getEntities()));
+    }
+
     #[TestDox('an order left in the request bag by an earlier listing run is not a visitor choice')]
     public function testAnOrderInTheRequestBagDoesNotOverrideTheElementDefault(): void
     {
@@ -104,9 +115,8 @@ class ProductListingElementDefaultSortingTest extends TestCase
 
         $element = $this->listingElement(['defaultSorting' => $this->sortingId('name-asc')]);
 
-        // The Storefront renders the classic navigation page before the content layout, and that run leaves
-        // the channel default in the request bag. Treating it as a visitor choice would silently disable
-        // every element's own default sorting.
+        // The classic navigation page runs first and leaves the channel default in the bag. Treating that as
+        // a visitor choice would disable every element's own default sorting.
         $request = new Request();
         $request->request->set('order', 'price-asc');
 

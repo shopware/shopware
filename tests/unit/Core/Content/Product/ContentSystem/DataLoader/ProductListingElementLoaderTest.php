@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingElementLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler;
+use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
@@ -217,10 +219,90 @@ class ProductListingElementLoaderTest extends TestCase
             ->withProperty('defaultSorting', '')
             ->build();
 
-        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, new Request());
+        $capturedRequest = $this->captureRequest(null, $element, new Request());
 
         static::assertInstanceOf(Request::class, $capturedRequest);
         static::assertFalse($capturedRequest->request->has('order'));
+    }
+
+    #[TestDox('ignores a defaultSorting that is not a uuid instead of reaching the DAL with it')]
+    public function testLoadIgnoresADefaultSortingThatIsNotAUuid(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->withProperty('defaultSorting', 'name-asc')
+            ->build();
+
+        $capturedRequest = $this->captureRequest(null, $element, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->has('order'));
+    }
+
+    #[TestDox('does not inherit a filter flag an earlier listing run left in the request bag')]
+    public function testLoadDropsAStaleFilterFlagFromTheRequestBag(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->build();
+
+        $request = new Request([], [PriceListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM => false]);
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, $request);
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->has(PriceListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM));
+    }
+
+    #[TestDox('does not inherit a property whitelist or available sortings from the request bag')]
+    public function testLoadDropsAStaleWhitelistAndAvailableSortingsFromTheRequestBag(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->build();
+
+        $request = new Request([], [
+            PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM => [Uuid::randomHex()],
+            'availableSortings' => [Uuid::randomHex() => 5],
+        ]);
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, $request);
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->has(PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM));
+        static::assertFalse($capturedRequest->request->has('availableSortings'));
+    }
+
+    /**
+     * Without this the element falls back to another listing's sorting instead of the sales channel default.
+     */
+    #[TestDox('does not inherit the aggregation behaviour of an earlier listing run')]
+    public function testLoadDropsStaleAggregationFlagsFromTheRequestBag(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->build();
+
+        // Set by SearchController, CmsController and WishlistController for their own listings.
+        $request = new Request([], ['only-aggregations' => true, 'no-aggregations' => true]);
+        $capturedRequest = $this->captureRequest(null, $element, $request);
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->has('only-aggregations'));
+        static::assertFalse($capturedRequest->request->has('no-aggregations'));
+    }
+
+    #[TestDox('does not inherit a stale order when the element declares no defaultSorting')]
+    public function testLoadDropsAStaleOrderWhenTheElementDeclaresNoDefaultSorting(): void
+    {
+        $element = ContentElementBuilder::create('product-listing')
+            ->withProperty('navigationId', Uuid::randomHex())
+            ->build();
+
+        $request = new Request([], ['order' => 'topseller']);
+        $capturedRequest = $this->captureRequest(new ProductSortingCollection(), $element, $request);
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertFalse($capturedRequest->request->has('order'));
+        static::assertSame('topseller', $request->request->get('order'), 'the shared request stays as it was');
     }
 
     #[TestDox('switches off the filter handler of every toggle the element disables')]
@@ -444,7 +526,7 @@ class ProductListingElementLoaderTest extends TestCase
      * @param array<string, bool|list<string>> $parameters
      */
     private function captureRequest(
-        ProductSortingCollection $sortings,
+        ?ProductSortingCollection $sortings,
         ContentElement $element,
         Request $request,
         array $parameters = []
@@ -462,7 +544,12 @@ class ProductListingElementLoaderTest extends TestCase
                 return $response;
             });
 
-        $loader = new ProductListingElementLoader($listingRoute, new StaticEntityRepository([$sortings]));
+        $repository = $sortings === null
+            // No prepared search: the stub throws, so a lookup that should not happen fails the test.
+            ? StaticEntityRepository::of(ProductSortingCollection::class, [])
+            : new StaticEntityRepository([$sortings]);
+
+        $loader = new ProductListingElementLoader($listingRoute, $repository);
         $loader->load($element, Generator::generateSalesChannelContext(), $request, null, [], $parameters);
 
         return $capturedRequest;

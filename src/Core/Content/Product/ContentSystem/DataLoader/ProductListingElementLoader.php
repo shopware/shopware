@@ -36,11 +36,9 @@ class ProductListingElementLoader
     /**
      * Element property holding the toggle, mapped to the request parameter the matching filter handler reads.
      *
-     * The toggle decides whether this element offers the filter, not whether the page applies it. Switching
-     * one off removes the control and its aggregation from this element; a request that already carries the
-     * filter still narrows a listing element, which declares no toggles of its own. That keeps a shared or
-     * bookmarked link working, and it is why elements never coordinate their filters: each one reads the
-     * request and its own configuration, nothing else.
+     * A toggle decides whether this element offers the filter, not whether the page applies it: a request
+     * that already carries the filter still narrows a listing element, which declares no toggles at all.
+     * That keeps shared and bookmarked links working.
      */
     private const FILTER_TOGGLE_PARAMETERS = [
         'showManufacturerFilter' => ManufacturerListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
@@ -98,10 +96,9 @@ class ProductListingElementLoader
      * its handler off, and `defaultSorting` preselects an order.
      *
      * Every parameter describes this element alone, so all of them go on a duplicate. The hydrator threads one
-     * Request through every loader in document order, and an element's own configuration must not reach the
-     * next one: a panel must not narrow another element's listing, and a listing's `defaultSorting` must not
-     * become the order of a second listing that declares none — that one still falls back to the sales
-     * channel's default sorting.
+     * Request through every loader, and an element's own configuration must not reach the next one: a second
+     * listing that declares no `defaultSorting` falls back to the sales channel default, not to the first
+     * listing's order.
      *
      * @param array<string, bool|list<string>> $parameters
      */
@@ -129,6 +126,18 @@ class ProductListingElementLoader
         }
 
         $request = $request->duplicate();
+
+        // An earlier listing run leaves its own configuration in the shared bag. The query string is left
+        // alone: that is where a visitor's choice lives.
+        $request->request->remove('order');
+        $request->request->remove('availableSortings');
+        $request->request->remove('no-aggregations');
+        $request->request->remove('only-aggregations');
+        $request->request->remove(PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM);
+
+        foreach (self::FILTER_TOGGLE_PARAMETERS as $parameter) {
+            $request->request->remove($parameter);
+        }
 
         $order = $this->resolveDefaultSortingKey($element, $request, $context);
 
@@ -171,14 +180,14 @@ class ProductListingElementLoader
 
     /**
      * The sorting key of the element's `defaultSorting` (a product_sorting id), or null when the element declares
-     * none, the id resolves to nothing, or the request already carries an order. A visitor's own choice is never
-     * overwritten.
+     * none, the stored value is not a uuid, the id resolves to nothing, or the request already carries an order.
+     * A visitor's own choice is never overwritten.
      */
     private function resolveDefaultSortingKey(ContentElement $element, Request $request, SalesChannelContext $context): ?string
     {
         $defaultSorting = $element->getProperty('defaultSorting');
 
-        if (!\is_string($defaultSorting) || $defaultSorting === '') {
+        if (!\is_string($defaultSorting) || $defaultSorting === '' || !Uuid::isValid($defaultSorting)) {
             return null;
         }
 

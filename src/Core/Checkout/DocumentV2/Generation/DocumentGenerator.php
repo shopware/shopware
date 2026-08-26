@@ -154,9 +154,7 @@ final readonly class DocumentGenerator
 
         $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
 
-        // @deprecated tag:v6.9.0 - Compatibility bridge for document generation v1. Must stay ahead of the
-        // data providers so that entity changes made by v1 subscribers reach the render data as well.
-        // Remove together with LegacyDocumentEventBridge and the v1 domain.
+        // @deprecated tag:v6.9.0 - Compatibility bridge for document generation v1
         $this->legacyEventBridge->dispatchOrderEvents(
             $order,
             $generationRequest,

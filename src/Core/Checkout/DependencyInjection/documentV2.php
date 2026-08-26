@@ -225,7 +225,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ]);
 
-    // @deprecated tag:v6.9.0 - Remove together with document generation v1
     $services->set(LegacyDocumentEventBridge::class)
         ->args([
             service('event_dispatcher'),

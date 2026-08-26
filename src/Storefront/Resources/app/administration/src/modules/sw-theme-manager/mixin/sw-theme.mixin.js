@@ -8,7 +8,7 @@ Mixin.register('theme', {
     inject: [
         'repositoryFactory',
         'themeService',
-        'acl'
+        'acl',
     ],
 
     data() {
@@ -18,14 +18,14 @@ Mixin.register('theme', {
             showRenameModal: false,
             showDuplicateModal: false,
             newThemeName: '',
-            modalTheme: null
+            modalTheme: null,
         };
     },
 
     computed: {
         themeRepository() {
             return this.repositoryFactory.create('theme');
-        }
+        },
     },
 
     methods: {
@@ -55,20 +55,23 @@ Mixin.register('theme', {
             const messageDeleteError = this.$t('sw-theme-manager.components.themeListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
-            this.themeRepository.delete(theme.id, Shopware.Context.api).then(() => {
-                if (this.getList) {
-                    this.getList();
-                    return;
-                }
+            this.themeRepository
+                .delete(theme.id, Shopware.Context.api)
+                .then(() => {
+                    if (this.getList) {
+                        this.getList();
+                        return;
+                    }
 
-                this.$router.push({ name: 'sw.theme.manager.index' });
-            }).catch(() => {
-                this.isLoading = false;
-                this.createNotificationError({
-                    title: titleDeleteError,
-                    message: messageDeleteError
+                    this.$router.push({ name: 'sw.theme.manager.index' });
+                })
+                .catch(() => {
+                    this.isLoading = false;
+                    this.createNotificationError({
+                        title: titleDeleteError,
+                        message: messageDeleteError,
+                    });
                 });
-            });
         },
 
         onDuplicateTheme(theme) {
@@ -144,6 +147,6 @@ Mixin.register('theme', {
             }
 
             this.themeRepository.save(theme, Shopware.Context.api);
-        }
-    }
+        },
+    },
 });

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('store-api')]
 class ProductDetailRouteTest extends TestCase
 {
@@ -502,6 +505,7 @@ class ProductDetailRouteTest extends TestCase
             'productNumber' => 'translated-parent-product',
             'stock' => 10,
             'active' => true,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
@@ -547,6 +551,7 @@ class ProductDetailRouteTest extends TestCase
                 'productNumber' => 'translated-variant-product',
                 'stock' => 10,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'options' => [],
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],

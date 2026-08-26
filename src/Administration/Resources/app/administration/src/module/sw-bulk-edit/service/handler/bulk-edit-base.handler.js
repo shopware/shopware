@@ -166,6 +166,16 @@ class BulkEditBaseHandler {
      * change =[{ type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]];
      */
     async _handleAssociationChange(fieldDefinition, change, isOneToOne = false) {
+        // Variant visibility add/remove is computed per variant: an overriding variant
+        // keeps its own set, an inheriting variant falls back to the parent's set, and the
+        // removed channels are dropped / the added ones merged in. This cannot be expressed
+        // as a single uniform change, so it is handled separately.
+        if (change.inheritedVisibilities) {
+            await this._handleInheritedVisibilityChange(fieldDefinition, change);
+
+            return;
+        }
+
         const { mapping, entity, local, reference, localField, referenceField } = fieldDefinition;
 
         const isMappingField = !!mapping;
@@ -226,6 +236,121 @@ class BulkEditBaseHandler {
     }
 
     /**
+     * @private
+     *
+     * Build the add/remove payload for variant visibilities, computed per variant.
+     *
+     * Variants inherit the parent's visibilities all-or-nothing unless they own
+     * `product_visibility` rows. For each variant we take its effective set (its own rows
+     * when it overrides, otherwise the inherited parent set in `change.inheritedVisibilities`),
+     * drop `change.removedSalesChannelIds`, merge in `change.addedVisibilities`, and persist
+     * the result as the variant's own rows. Overriding variants keep their unrelated
+     * overrides; inheriting variants get the inherited set materialized with the add/remove
+     * applied (so an ADD no longer collapses the variant to just the added channel). When the
+     * resulting set is empty the variant keeps no own rows and inherits the parent again.
+     *
+     * @param {Object} fieldDefinition
+     * @param {Object} change
+     */
+    async _handleInheritedVisibilityChange(fieldDefinition, change) {
+        const { entity: referenceEntity, referenceField: referenceKey } = fieldDefinition;
+        const { mappingReferenceField } = change;
+        const removedSalesChannelIds = change.removedSalesChannelIds ?? [];
+        const addedVisibilities = change.addedVisibilities ?? [];
+        const inheritedVisibilities = change.inheritedVisibilities ?? [];
+
+        this.groupedPayload.delete[referenceEntity] = {};
+        this.groupedPayload.upsert[referenceEntity] = {};
+
+        // Nothing selected (e.g. the field stayed inherited) — leave every variant
+        // untouched instead of materializing the inherited set.
+        if (removedSalesChannelIds.length === 0 && addedVisibilities.length === 0) {
+            return;
+        }
+
+        const ownAssociations = await this._fetchOwnAssociations(fieldDefinition);
+
+        this.entityIds.forEach((entityId) => {
+            const ownRows = ownAssociations[entityId] ?? [];
+            const ownSalesChannelIds = ownRows.map((row) => row[mappingReferenceField]);
+
+            const effective =
+                ownRows.length > 0
+                    ? ownRows.map((row) => ({
+                          [mappingReferenceField]: row[mappingReferenceField],
+                          visibility: row.visibility,
+                      }))
+                    : inheritedVisibilities;
+
+            // Build the final set keyed by sales channel: start from the effective set
+            // minus the removed channels, then merge in the added channels (which win on
+            // their visibility value).
+            const finalByChannel = new Map();
+            effective.forEach((item) => {
+                if (!removedSalesChannelIds.includes(item[mappingReferenceField])) {
+                    finalByChannel.set(item[mappingReferenceField], item.visibility);
+                }
+            });
+            addedVisibilities.forEach((item) => {
+                finalByChannel.set(item[mappingReferenceField], item.visibility);
+            });
+
+            // Drop own rows that are no longer part of the final set.
+            ownRows.forEach((row) => {
+                if (!finalByChannel.has(row[mappingReferenceField])) {
+                    const key = `${row[mappingReferenceField]}.${entityId}`;
+                    this.groupedPayload.delete[referenceEntity][key] = [{ id: row.id }];
+                }
+            });
+
+            // Materialize the channels the variant does not already own.
+            finalByChannel.forEach((visibility, salesChannelId) => {
+                if (!ownSalesChannelIds.includes(salesChannelId)) {
+                    const key = `${salesChannelId}.${entityId}`;
+                    this.groupedPayload.upsert[referenceEntity][key] = [
+                        {
+                            [referenceKey]: entityId,
+                            [mappingReferenceField]: salesChannelId,
+                            visibility,
+                        },
+                    ];
+                }
+            });
+        });
+    }
+
+    /**
+     * @private
+     *
+     * Fetch every own OneToMany association row for the edited entities, grouped by the
+     * local entity id (e.g. all `product_visibility` rows per variant), regardless of
+     * the change value.
+     */
+    async _fetchOwnAssociations(fieldDefinition, page = 1, mappedAssociations = {}) {
+        const { entity, referenceField } = fieldDefinition;
+
+        const criteria = new Criteria(page, 500);
+        criteria.addFilter(Criteria.equalsAny(referenceField, this.entityIds));
+
+        const referenceRepository = this.repositoryFactory.create(entity);
+        const ownAssociations = await referenceRepository.search(criteria);
+
+        ownAssociations.forEach((association) => {
+            const entityId = association[referenceField];
+
+            (mappedAssociations[entityId] ??= []).push(association);
+        });
+
+        const mappedLength = Object.keys(mappedAssociations).reduce((acc, key) => acc + mappedAssociations[key].length, 0);
+
+        if (ownAssociations.total > mappedLength) {
+            return this._fetchOwnAssociations(fieldDefinition, page + 1, mappedAssociations);
+        }
+
+        return mappedAssociations;
+    }
+
+    /**
      * Handler for bulk edit a OneToMany association
      * @param change
      * @param existAssociations
@@ -238,6 +363,10 @@ class BulkEditBaseHandler {
         if (mappingReferenceField) {
             editableProperties.push(mappingReferenceField);
         }
+
+        // Subclasses may decorate each newly built record, e.g. to assign a per-entity position.
+        // Returns null when there is nothing to decorate.
+        const decorateRecord = this._getOneToManyRecordDecorator(change, existAssociations);
 
         changeItems.forEach((changeItem) => {
             const original = changeItem;
@@ -266,6 +395,10 @@ class BulkEditBaseHandler {
                     delete this.groupedPayload.delete[referenceEntity][key];
                 }
 
+                if (decorateRecord) {
+                    decorateRecord(record, entityId);
+                }
+
                 const actualChange = this._getOneToManyChange(record, localKey, mappingReferenceField, association);
 
                 if (actualChange === null || Object.keys(actualChange).length === 0) {
@@ -276,6 +409,16 @@ class BulkEditBaseHandler {
                 this.groupedPayload.upsert[referenceEntity][key].push(actualChange);
             });
         });
+    }
+
+    /**
+     * @private
+     *
+     * Hook for subclasses to decorate each newly built OneToMany record (e.g. assign a per-entity position).
+     * Returns a `(record, entityId) => void` callback, or null when no decoration is needed.
+     */
+    _getOneToManyRecordDecorator() {
+        return null;
     }
 
     /**

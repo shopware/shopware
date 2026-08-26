@@ -1,0 +1,72 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ShippingMethodPrice": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "shippingMethodId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "shippingMethodId": {
+                        "description": "Unique identity of shipping method.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "ruleId": {
+                        "description": "Unique identity of rule.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "calculation": {
+                        "description": "Shipping price calculated based on quantity, price, weight or volume of items.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "calculationRuleId": {
+                        "description": "Unique identity of rule calculation.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "quantityStart": {
+                        "description": "Starting range of quantity of an item.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "quantityEnd": {
+                        "description": "Ending range of quantity of an item.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "currencyPrice": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Price"
+                        }
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

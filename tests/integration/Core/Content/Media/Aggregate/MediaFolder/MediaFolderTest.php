@@ -9,12 +9,14 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderCo
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -135,11 +135,14 @@ export default {
                     key: DiscountTypes.PERCENTAGE,
                     name: this.$t('sw-promotion.detail.main.discounts.valueTypePercentage'),
                 },
-                {
+            ];
+
+            if (!this.shippingScope) {
+                availableTypes.push({
                     key: DiscountTypes.FIXED_UNIT,
                     name: this.$t('sw-promotion.detail.main.discounts.valueTypeFixedUnit'),
-                },
-            ];
+                });
+            }
 
             // do not allow a fixed-total price for cart. this would mean the whole
             // cart is sold for price X.
@@ -403,7 +406,7 @@ export default {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria(1, 25)).then((response) => {
+            this.currencyRepository.search(new Criteria(1, 500)).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find((currency) => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;
@@ -423,11 +426,13 @@ export default {
             });
 
             this.loadRestrictedRules();
+            this.normalizeDiscountTypeForScope(this.discount.scope);
         },
 
         onDiscountScopeChanged(value) {
             this.cartScope = value === DiscountScopes.CART;
             this.shippingScope = value === DiscountScopes.DELIVERY;
+            this.normalizeDiscountTypeForScope(value);
 
             if (value === DiscountScopes.DELIVERY) {
                 this.discount.considerAdvancedRules = false;
@@ -447,6 +452,14 @@ export default {
             if (this.isPickingModeVisible) {
                 this.discount.pickerKey = this.pickerKeys[0];
             }
+        },
+
+        normalizeDiscountTypeForScope(scope) {
+            if (scope !== DiscountScopes.DELIVERY || this.discount.type !== DiscountTypes.FIXED_UNIT) {
+                return;
+            }
+
+            this.discount.type = DiscountTypes.FIXED;
         },
 
         // This function verifies the currently set value

@@ -4,6 +4,7 @@
 
 describe('use-block-context', () => {
     let useBlockContext;
+
     beforeEach(async () => {
         useBlockContext = (await import('./use-block-context')).default;
     });

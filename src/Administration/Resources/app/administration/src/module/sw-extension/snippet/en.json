@@ -82,7 +82,6 @@
       "fileUpload": {
         "buttonFileUpload": "Upload extension",
         "messageUploadSuccess": "Extension uploaded.",
-        "titleWarningModal": "Warning",
         "descriptionWarningModal": "Extensions from outside the Shopware Store have not been reviewed by us and could potentially pose a risk to your store. We recommend using extensions from the Shopware Store whenever possible.",
         "textHideWarning": "Do not show again"
       }
@@ -127,10 +126,8 @@
     },
     "sw-extension-app-module-error-page": {
       "error": {
-        "heading": "Whoops! You’ve moved too fast and lost orientation.",
-        "phrase": "The page you were looking for is beyond our reach. Maybe the page has moved, no longer exists or you just like our 404-page. We’ll probably never know.",
-        "info": "Don’t worry! We’ve dispatched a rescue space-cat to guide you back to safety.",
-        "lblBackButton": "Back"
+        "heading": "Page not found",
+        "description": "The page you were looking for could not be found. It may have been moved or no longer exists."
       }
     }
   },
@@ -283,16 +280,13 @@
         "inactiveLabel": "(inactive)",
         "purchasedLabel": "Purchased:",
         "installedLabel": "Installed:",
-        "openExtensionLabel": "Open",
         "installExtensionLabel": "Install",
         "labelAcceptAndInstall": "Accept and install",
         "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",
         "contextMenu": {
           "getHelpLabel": "Get help",
           "seeDetailsLabel": "See details",
-          "config": "Configure",
           "privacyAndSafetyLabel": "Data privacy & safety",
-          "removeLabel": "Remove",
           "cancelAndRemoveLabel": "Cancel and remove",
           "uninstallLabel": "Uninstall",
           "updateLabel": "Update to {version}",
@@ -337,9 +331,7 @@
       },
       "sw-extension-permissions-details-modal": {
         "operationRead": "View",
-        "operationUpdate": "Edit",
-        "operationCreate": "Create",
-        "operationDelete": "Delete"
+        "operationCreate": "Create"
       },
       "sw-extension-my-extensions-listing": {
         "apps": {
@@ -364,8 +356,7 @@
         "description": "If you remove the extension, you can no longer use it.",
         "alertCancel": "Are you sure you want to cancel and remove the extension?",
         "alertRemove": "Are you sure you want to remove the extension?",
-        "labelCancel": "Cancel and remove",
-        "labelRemove": "Remove"
+        "labelCancel": "Cancel and remove"
       },
       "sw-extension-uninstall-modal": {
         "title": "\"{extensionName}\" uninstall",

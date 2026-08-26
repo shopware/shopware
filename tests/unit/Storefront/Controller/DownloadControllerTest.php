@@ -3,10 +3,11 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\DownloadController;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -19,16 +20,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(DownloadController::class)]
 class DownloadControllerTest extends TestCase
 {
-    private MockObject&DownloadRoute $downloadRouteMock;
+    private Stub&DownloadRoute $downloadRouteMock;
 
     private DownloadController $controller;
 
     protected function setUp(): void
     {
-        $this->downloadRouteMock = $this->createMock(DownloadRoute::class);
+        $this->downloadRouteMock = static::createStub(DownloadRoute::class);
 
         $this->controller = new DownloadController(
             $this->downloadRouteMock
@@ -49,14 +51,14 @@ class DownloadControllerTest extends TestCase
             )
             ->willReturn('bar');
         $containerBuilder->set('router', $router);
-        $containerBuilder->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
+        $containerBuilder->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $this->controller->setContainer($containerBuilder);
         $this->downloadRouteMock->method('load')->willReturn(new Response());
 
         $request = new Request();
         $request->query->set('deepLinkCode', 'foo');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $response = $this->controller->downloadFile($request, $salesChannelContext);
 
         static::assertInstanceOf(RedirectResponse::class, $response);

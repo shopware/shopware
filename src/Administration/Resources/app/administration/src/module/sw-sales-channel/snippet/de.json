@@ -8,7 +8,7 @@
         "general": {
             "titleMenuItems": "Verkaufskanäle",
             "tooltipOpenStorefront": "Öffne Storefront",
-            "titleMenuMoreItems": "Mehr",
+            "titleMenuMoreItems": "Alle anzeigen",
             "manageSalesChannels": "Verkaufskanäle verwalten",
             "addSalesChannel": "Verkaufskanal hinzufügen"
         },
@@ -17,6 +17,8 @@
             "subTitle": "Über Verkaufskanäle können Sie Ihren Kunden Produkte über Social Media, der Storefront, Marktplätze oder persönlich verkaufen.",
             "placeholderSearchBar": "Durchsuche alle Verkaufskanäle ...",
             "buttonAddSalesChannel": "Verkaufskanal anlegen",
+            "emptyStateHeadline": "Noch keine Verkaufskanäle",
+            "emptyStateDescription": "Lege einen ersten Verkaufskanal an, um über Storefronts, Marktplätze oder Social Media zu verkaufen.",
             "columnName": "Verkaufskanal",
             "columnType": "Typ",
             "columnStatus": "Status",
@@ -27,7 +29,6 @@
                 "online": "Online",
                 "offline": "Offline"
             },
-            "contextMenuEdit": "Bearbeiten",
             "productsLabel": "Produkte",
             "productsCount": "Produkte | Produkt | Produkte"
         },
@@ -36,8 +37,8 @@
             "buttonAddChannel": "Verkaufskanal anlegen",
             "titleDetailPrefix": "{name} - Details",
             "buttonShowDetails": "Details",
-            "buttonBack": "Zurück",
             "titleDescription": "Informationen",
+            "messageAgenticCommerce": "Um Agentic-Commerce-Vertriebskanäle zu erstellen, installiere bitte die Agentic Commerce Erweiterung aus dem Shopware Store.",
             "messageNoProductStreams": "Um Produktvergleiche oder Agentic-Commerce-Vertriebskanäle zu erstellen, musst Du zunächst eine dynamische Produktgruppe erstellen."
         },
         "detail": {
@@ -46,13 +47,13 @@
             "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
             "messageMeasurementUnitsSetError": "Die Systemkonfiguration für Produktmaße konnte nicht geladen werden.",
             "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
-            "buttonSave": "Speichern",
             "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
             "tabBase": "Allgemein",
             "tabTheme": "Theme",
             "tabAnalytics": "Analyse",
             "tabProductComparison": "Template",
             "tabProducts": "Produkte",
+            "tabAgenticFiles": "Agentic-Dateien",
             "titleProductComparisonTemplate": "Template",
             "titleProductComparisonPreview": "Vorschau",
             "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
@@ -64,6 +65,8 @@
             "labelInputShippingMethods": "Versandarten",
             "labelInputPaymentMethods": "Zahlungsarten",
             "labelInputCountries": "Länder",
+            "labelBusinessTimeZone": "Geschäftszeitzone",
+            "helpTextBusinessTimeZone": "Zeitzone, die verwendet wird, wenn ein Datum oder eine Uhrzeit in Dokumenten dieses Verkaufskanals ausgegeben wird. Wenn leer, wird keine Geschäftszeitzone angewendet.",
             "countryMultiSelectHelpText": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
             "helpTextTaxCalculation": {
                 "label": "Wenn ein Steuerservice-Anbieter (Tax Provider) aktiviert wird, werden diese Einstellungen möglicherweise überschrieben. Du kannst dies in den {link} überprüfen. ",
@@ -94,7 +97,6 @@
             "buttonDelete": "Verkaufskanal löschen",
             "deleteModalTitle": "Verkaufskanal löschen",
             "textConfirmDelete": "Möchtest Du diesen Verkaufskanal wirklich löschen?",
-            "buttonConfirmDelete": "Löschen",
             "textHeadline": "Neuer Verkaufskanal",
             "placeholderName": "Gib einen Namen für den Verkaufskanal ein ...",
             "placeholderInputCategories": "Kategorien hinzufügen ...",
@@ -103,13 +105,14 @@
             "labelInputCurrency": "Währung",
             "labelInputLanguage": "Sprache",
             "labelInputSnippet": "Textbaustein-Set",
+            "labelIsExternalStorefront": "Externes Storefront",
+            "helpTextIsExternalStorefront": "SEO-URLs werden nur für Domains generiert, die auf ein externes Storefront verweisen. Pro Sprache kann nur ein externes Storefront für einen einzelnen Verkaufskanal festgelegt werden.",
             "buttonDeleteDomain": "Domain löschen",
             "messageDeleteDomainError": "Die Domain \"{url}\" konnte nicht gelöscht werden, da sie mit bestehenden Produktexporten verknüpft ist.",
             "foreignKeyDelete": "Dieser Verkaufskanal kann nicht gelöscht werden, da er noch von {assignment} verwendet wird.",
             "buttonAddDomain": "Domain hinzufügen",
             "deleteDomainModalTitle": "Domain löschen",
             "textConfirmDeleteDomain": "Möchtest Du diese Domain wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
-            "buttonConfirmDeleteDomain": "Löschen",
             "customerGroup": "Kundengruppe",
             "favouriteLabel": "Verkaufskanal als Favorit markieren",
             "navigation": "Navigation",
@@ -205,8 +208,9 @@
                     "518400": "6 Tage",
                     "604800": "1 Woche"
                 },
-                "storefront": "Storefront-Verkaufskanal",
-                "storefrontDomain": "Storefront-Domain",
+                "storefront": "Verkaufskanal",
+                "storefrontDomain": "Domain",
+                "storefrontDomainHelpText": "Bei Headless-Verkaufskanälen sind hier nur Domains auswählbar, die als externes Storefront markiert sind. Markiere eine Domain in den Domain-Einstellungen des Verkaufskanals als externes Storefront.",
                 "storefrontDomainLanguage": {
                     "label": "Sprache",
                     "help": "Auf Basis der Storefront-Domain automatisch gewählt"
@@ -238,6 +242,11 @@
             },
             "agenticCommerce": {
                 "tabIntegration": "Integration",
+                "deprecationBanner": {
+                    "title": "Agentic Commerce wird zur Erweiterung",
+                    "message": "Die integrierte Agentic-Commerce-Funktion wird in Shopware 6.8 entfernt. Dein Verkaufskanal läuft vorerst weiter. Installiere die \"Agentic Commerce\" Erweiterung, damit es zu keiner Unterbrechung kommt.",
+                    "installPlugin": "Erweiterung installieren"
+                },
                 "openAiSettingsTitle": "OpenAI-Einstellungen",
                 "googleSettingsTitle": "Google-Einstellungen",
                 "buttonResetTemplate": "Auf Standard zurücksetzen",
@@ -269,6 +278,58 @@
                             },
                             "stepByStep": "<li>Erstelle ein Merchant-Center-Konto unter <a href=\"https://merchants.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">merchants.google.com</a> und verifiziere die URL deines Onlineshops</li><li>Öffne im Merchant Center <em>Einstellungen &rsaquo; Datenquellen</em> und klicke auf <em>Produktquelle hinzufügen</em></li><li>Wähle <em>Datei</em>, dann <em>Geplanten Abruf von einer URL hinzufügen</em>, und füge die Export-URL (unten) als Datei-URL ein</li><li>Stelle sicher, dass die Export-URL öffentlich erreichbar ist (ohne Authentifizierung)</li><li>Prüfe die <a href=\"https://support.google.com/merchants/answer/7052112\" target=\"_blank\" rel=\"noopener noreferrer\">Google-Produktdaten-Spezifikation</a> und passe die Attribute bei Bedarf an</li>"
                         }
+                    }
+                }
+            },
+            "agenticFiles": {
+                "cardTitle": "Agentic-Dateien",
+                "description": "Verwalte KI-lesbare Dateien, die für diesen Verkaufskanal öffentlich ausgeliefert werden, zum Beispiel llms.txt, agents.md und ai-catalog.json. Sie geben Assistenten einen kompakten Überblick über Deinen Shop und Hinweise zur Nutzung öffentlicher Inhalte.",
+                "columnFileName": "Datei",
+                "columnEnabled": "Status",
+                "columnDescription": "Beschreibung",
+                "emptyState": "Keine Agentic-Dateien gefunden",
+                "messageLoadError": "Agentic-Dateien konnten nicht geladen werden.",
+                "actionEnable": "Aktivieren",
+                "actionDisable": "Deaktivieren",
+                "enabledState": {
+                    "enabled": "Aktiviert",
+                    "disabled": "Deaktiviert",
+                    "custom": "Angepasst"
+                },
+                "detail": {
+                    "backToList": "Zurück zu Agentic-Dateien",
+                    "previewTitle": "Generierte Vorschau",
+                    "previewDescription": "Dieser Inhalt wird aktuell für diesen Verkaufskanal ausgeliefert, einschließlich gespeicherter Anpassungen.",
+                    "templatesTitle": "Inhaltsquellen",
+                    "templatesDescription": "Zeigt, welche Templates zum generierten Inhalt beitragen und ob ein Template angepasst wurde. Erfahrene Benutzer können einzelne Templates überschreiben, wenn eigene Hinweise nicht ausreichen.",
+                    "showContentSources": "Quellen anzeigen",
+                    "hideContentSources": "Quellen ausblenden",
+                    "customNotesTitle": "Eigene Hinweise",
+                    "customNotesDescription": "Füge eigene Hinweise am Ende dieser Datei hinzu, ohne die Standardinhalte von Shopware oder Erweiterungen zu ersetzen.",
+                    "customNotesPlaceholder": "Zusätzliche Hinweise für KI-Agents hinzufügen ...",
+                    "labelPublicPath": "Öffentlicher Pfad",
+                    "labelContentType": "Content-Type",
+                    "actionPreviewPublicPath": "Vorschau",
+                    "actionEnablePublicPathPreview": "Aktiviere diese Datei zuerst, um den öffentlichen Pfad als Vorschau zu öffnen.",
+                    "columnTemplate": "Template",
+                    "columnSourceRole": "Rolle",
+                    "actionEditOverride": "Überschreibung bearbeiten",
+                    "overrideModalTitle": "{source} bearbeiten",
+                    "overrideModalDescription": "Passe den Inhalt an, den dieses Template für diesen Verkaufskanal beiträgt. Die Änderung wird als Anpassung gespeichert und kann jederzeit auf den Standardinhalt des Templates zurückgesetzt werden.",
+                    "overrideModalFieldLabel": "Inhalt",
+                    "overrideModalReset": "Auf Standard zurücksetzen",
+                    "overrideModalApply": "Überschreibung anwenden",
+                    "roleBase": "Basis-Template",
+                    "roleExtension": "Erweiterung",
+                    "previewEmpty": "Keine Vorschau generiert.",
+                    "emptyState": "Agentic-Datei nicht gefunden",
+                    "messagePreviewError": "Die Vorschau konnte nicht generiert werden."
+                },
+                "descriptions": {
+                    "agentic": {
+                        "well-known-ai-catalog-json": "Ein maschinenlesbarer Katalog für Agentic Resource Discovery. Er hilft kompatiblen Clients, verfügbare KI-Ressourcen für diesen Verkaufskanal zu finden, zum Beispiel einen aktivierten Shopware-MCP-Server.",
+                        "llms-txt": "Ein Markdown-Index für KI-Assistenten und Retrieval-Tools. Die Datei fasst zusammen, was dieser Verkaufskanal anbietet, und verweist auf die wichtigsten öffentlichen Seiten, damit Agents den Shop verstehen können, ohne jede Seite zu crawlen. Sie ergänzt robots.txt und Sitemaps, garantiert aber nicht, dass jeder KI-Dienst sie nutzt.",
+                        "agents-md": "Kontext und Handlungsanweisungen für Agent-Clients. Nutze die Datei, um zu erklären, wie Agents mit diesem Verkaufskanal umgehen sollen, welche öffentlichen Ressourcen bevorzugt werden sollen und welche Aktionen eine ausdrückliche Bestätigung benötigen, zum Beispiel Checkout oder Kontoänderungen."
                     }
                 }
             },

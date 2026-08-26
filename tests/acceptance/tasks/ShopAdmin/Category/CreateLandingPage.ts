@@ -2,8 +2,10 @@ import { test as base, expect } from '@playwright/test';
 import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 
 export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, FixtureTypes>({
-    CreateLandingPage: async ({ ShopAdmin, AdminCategories, AdminLandingPageCreate, AdminLandingPageDetail, TestDataService }, use) => {
-
+    CreateLandingPage: async (
+        { ShopAdmin, AdminCategories, AdminLandingPageCreate, AdminLandingPageDetail, TestDataService },
+        use,
+    ) => {
         const task = (layoutName: string, landingPageData) => {
             return async function CreateLandingPage() {
                 await AdminCategories.landingPageHeadline.click();
@@ -16,7 +18,9 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.nameInput.fill(landingPageData.name);
                 await AdminLandingPageCreate.landingPageStatus.setChecked(landingPageData.status);
                 await AdminLandingPageCreate.salesChannelSelectionList.click();
-                await AdminLandingPageCreate.filtersResultPopoverItemList.filter({ hasText: landingPageData.salesChannel }).click();
+                await AdminLandingPageCreate.filtersResultPopoverItemList
+                    .filter({ hasText: landingPageData.salesChannel })
+                    .click();
                 await AdminLandingPageCreate.seoUrlInput.fill(landingPageData.seoUrl);
 
                 if (layoutName) {
@@ -26,12 +30,20 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     // Select existing layout
                     await AdminLandingPageCreate.assignLayoutButton.click();
                     // Search input need to delay press more than 300ms to mimic user typing in order to activate search action
-                    await AdminLandingPageCreate.searchLayoutInput.pressSequentially(layoutName.substring(0, 5), { delay: 500 });
+                    await AdminLandingPageCreate.searchLayoutInput.pressSequentially(layoutName.substring(0, 5), {
+                        delay: 500,
+                    });
 
                     const gridLocator = AdminLandingPageCreate.page.locator('.sw-data-grid__cell-content').first();
                     const gridVisible = await gridLocator.isVisible();
                     if (gridVisible) {
-                        await AdminLandingPageCreate.page.getByLabel('Select layout').locator('div').filter({ hasText: 'Sort by: Name Type Created' }).getByRole('button').nth(1).click();
+                        await AdminLandingPageCreate.page
+                            .getByLabel('Select layout')
+                            .locator('div')
+                            .filter({ hasText: 'Sort by: Name Type Created' })
+                            .getByRole('button')
+                            .nth(1)
+                            .click();
                     }
                     await AdminLandingPageCreate.page.getByTitle(layoutName).click();
 
@@ -44,13 +56,15 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.saveLandingPageButton.click();
                 await AdminLandingPageCreate.loadingSpinner.waitFor({ state: 'hidden' });
                 // Wait until landing page is saved via API
-                const response = await AdminLandingPageCreate.page.waitForResponse(`${ process.env['APP_URL'] }api/search/landing-page`);
+                const response = await AdminLandingPageCreate.page.waitForResponse(
+                    `${process.env['APP_URL']}api/search/landing-page`,
+                );
                 expect(response.ok()).toBeTruthy();
                 const url = AdminLandingPageDetail.page.url();
                 const landingPageId = url.split('/')[url.split('/').length - 2];
                 TestDataService.addCreatedRecord('landing_page', landingPageId);
-            }
-        }
+            };
+        };
 
         await use(task);
     },

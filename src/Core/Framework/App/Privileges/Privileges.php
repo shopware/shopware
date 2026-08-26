@@ -15,7 +15,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Permission\PrivilegesTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Privileges\PrivilegesTest
  */
 #[Package('framework')]
 class Privileges

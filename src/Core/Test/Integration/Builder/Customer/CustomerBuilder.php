@@ -69,6 +69,7 @@ class CustomerBuilder
     ) {
         $this->ids = $ids;
         $this->id = $ids->create($customerNumber);
+        $this->email = $this->id . '@example.com';
         $this->salutation = self::salutation($ids);
 
         $this->customerGroup($customerGroup);

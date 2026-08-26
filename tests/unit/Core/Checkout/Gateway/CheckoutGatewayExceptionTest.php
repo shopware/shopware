@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayException::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayException::class)]
 class CheckoutGatewayExceptionTest extends TestCase
 {
     public function testCanBeThrown(): void

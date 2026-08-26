@@ -9,6 +9,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         viewer: {
             privileges: [
                 'language:read',
+                'sales_channel:read',
+                'system:translation:read',
                 'custom_field_set:read',
                 'custom_field:read',
                 'custom_field_set_relation:read',
@@ -18,6 +20,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         editor: {
             privileges: [
                 'language:update',
+                'system:translation:create',
             ],
             dependencies: [
                 'language.viewer',
@@ -35,6 +38,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         deleter: {
             privileges: [
                 'language:delete',
+                'system:translation:delete',
             ],
             dependencies: [
                 'language.viewer',

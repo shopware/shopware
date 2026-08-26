@@ -1,18 +1,82 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "OrderLineItem": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "id",
+                    "orderId",
+                    "identifier",
+                    "quantity",
+                    "label",
+                    "children",
+                    "states"
+                ],
                 "properties": {
-                    "apiAlias": {
+                    "id": {
                         "type": "string",
-                        "enum": ["order_line_item"]
+                        "pattern": "^[0-9a-f]{32}$"
                     },
-                    "extensions": {
-                        "type": "object"
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderId": {
+                        "description": "Unique identity of order.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "orderVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productId": {
+                        "description": "Unique identity of product.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "promotionId": {
+                        "description": "Unique identity of product.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "parentId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "parentVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "coverId": {
+                        "description": "Unique identity of cover image.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "identifier": {
+                        "description": "It is a unique identity of an item in cart before its converted to an order.",
+                        "type": "string"
+                    },
+                    "referencedId": {
+                        "description": "Unique identity of type of entity.",
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "description": "Number of items of product.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "label": {
+                        "description": "It is a typical product name given to the line item.",
+                        "type": "string"
                     },
                     "payload": {
                         "type": "object",
@@ -30,11 +94,15 @@
                                 "format": "date-time",
                                 "readOnly": true
                             },
-                            "customFields": { "type": "object" },
+                            "customFields": {
+                                "type": "object"
+                            },
                             "features": {
                                 "type": "array"
                             },
-                            "isCloseout": { "type": "boolean" },
+                            "isCloseout": {
+                                "type": "boolean"
+                            },
                             "isNew": {
                                 "type": "boolean"
                             },
@@ -42,7 +110,9 @@
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
-                            "markAsTopseller": { "type": "boolean" },
+                            "markAsTopseller": {
+                                "type": "boolean"
+                            },
                             "optionIds": {
                                 "type": "array",
                                 "items": {
@@ -61,7 +131,9 @@
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{32}$"
                             },
-                            "productNumber": { "type": "string" },
+                            "productNumber": {
+                                "type": "string"
+                            },
                             "propertyIds": {
                                 "type": "array",
                                 "items": {
@@ -69,9 +141,6 @@
                                     "pattern": "^[0-9a-f]{32}$"
                                 },
                                 "readOnly": true
-                            },
-                            "purchasePrices": {
-                                "type": "string"
                             },
                             "releaseDate": {
                                 "type": "string",
@@ -106,12 +175,117 @@
                             }
                         }
                     },
+                    "good": {
+                        "description": "When set to true, it indicates the line item is physical else it is virtual.",
+                        "type": "boolean"
+                    },
+                    "removable": {
+                        "description": "Allows the line item to be removable from the cart when set to true.",
+                        "type": "boolean"
+                    },
+                    "stackable": {
+                        "description": "Allows to change the quantity of the line item when set to true.",
+                        "type": "boolean"
+                    },
+                    "position": {
+                        "description": "Position of line items placed in an order.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
                     "priceDefinition": {
+                        "type": "object",
                         "$ref": "#/components/schemas/CartPriceQuantity"
                     },
-                    "translated": { "type": "object" }
+                    "unitPrice": {
+                        "description": "Price of product per item (where, quantity=1).",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "totalPrice": {
+                        "description": "Cost of product based on quantity.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "description": {
+                        "description": "Description of line items in an order.",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type refers to the entity type of an item whether it is product or promotion for instance.",
+                        "type": "string",
+                        "enum": [
+                            "product",
+                            "credit",
+                            "custom",
+                            "promotion",
+                            "container",
+                            "discount",
+                            "quantity"
+                        ]
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "states": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "deprecated": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "cover": {
+                        "$ref": "#/components/schemas/Media",
+                        "description": "Line item image or thumbnail"
+                    },
+                    "product": {
+                        "$ref": "#/components/schemas/Product",
+                        "description": "Referenced product if this is a product line item"
+                    },
+                    "orderDeliveryPositions": {
+                        "description": "Delivery positions for this line item",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderDeliveryPosition"
+                        }
+                    },
+                    "downloads": {
+                        "description": "Digital downloads associated with this line item",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderLineItemDownload"
+                        }
+                    },
+                    "parent": {
+                        "$ref": "#/components/schemas/OrderLineItem"
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderLineItem"
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "order_line_item"
+                    },
+                    "extensions": {
+                        "type": "object"
+                    },
+                    "translated": {
+                        "type": "object"
+                    }
                 },
-                "required": ["apiAlias"]
+                "type": "object"
             }
         }
     }

@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FilesystemFactory::class)]
 class FilesystemFactoryTest extends TestCase
 {

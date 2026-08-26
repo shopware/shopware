@@ -136,6 +136,25 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         });
     });
 
+    it('should sync clearing an array field to an empty override', async () => {
+        const contentEntity = {
+            slotConfig: {
+                [defaultElementId]: {
+                    content: {
+                        value: ['image-id'],
+                    },
+                },
+            },
+        };
+        Shopware.Store.get('swCategoryDetail').category = contentEntity;
+
+        const wrapper = await createWrapper();
+
+        wrapper.vm.fieldChangeHandler('content', { value: [] });
+
+        expect(contentEntity.slotConfig[defaultElementId].content).toStrictEqual({ value: [] });
+    });
+
     it('should skip initial setup when oldConfig is undefined', async () => {
         const contentEntity = {
             slotConfig: {},

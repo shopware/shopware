@@ -1,9 +1,6 @@
 import template from './sw-condition-date-range.html.twig';
 import './sw-condition-date-range.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -100,24 +97,8 @@ export default {
             return this.useTime ? 'datetime' : 'date';
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.useTime',
-            'value.fromDate',
-            'value.toDate',
-            'value.timezone',
-        ]),
-
         timezoneOptions() {
             return Shopware.Service('timezoneService').getTimezoneOptions();
-        },
-
-        currentError() {
-            return (
-                this.conditionValueUseTimeError ||
-                this.conditionValueFromDateError ||
-                this.conditionValueToDateError ||
-                this.conditionValueTimezoneError
-            );
         },
     },
 

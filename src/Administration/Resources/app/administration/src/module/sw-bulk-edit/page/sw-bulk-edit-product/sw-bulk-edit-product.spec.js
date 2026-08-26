@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package inventory
  */
@@ -294,6 +296,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                                 };
                             }
 
+                            if (entity === 'product_price') {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                    get: () => Promise.resolve(null),
+                                    create: () => ({
+                                        id: `price-id-${Math.random().toString(36).slice(2)}`,
+                                        isNew: () => true,
+                                    }),
+                                };
+                            }
+
                             return {
                                 search: () => Promise.resolve([{ id: 'Id' }]),
                                 get: () => Promise.resolve({ id: 'Id' }),
@@ -308,24 +321,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             return Promise.resolve();
                         },
                     },
+                    documentV2Service: {},
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
-                    },
-                    userConfigService: {
-                        search: () => {
-                            return Promise.resolve({
-                                data: {
-                                    'measurement.preferenceUnits': {
-                                        length: 'mm',
-                                        weight: 'kg',
-                                    },
-                                },
-                            });
-                        },
-                        upsert: () => {
-                            return Promise.resolve();
-                        },
                     },
                     syncService: {},
                 },
@@ -425,6 +424,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     beforeEach(async () => {
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'mm',
+                    weight: 'kg',
+                },
+            },
+        });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',
@@ -444,6 +453,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should be handled change data', async () => {
@@ -1016,6 +1029,108 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0].ruleId).toBe('ruleId');
     });
 
+    it('should sync selectedPriceRules and product prices when rules are added or removed for the remove-pricing-rule action', async () => {
+        const { EntityCollection } = Shopware.Data;
+
+        const productEntity = {
+            id: 'productId',
+            price: [
+                {
+                    currencyId: 'currencyId1',
+                    gross: 10,
+                    linked: true,
+                    net: 8.4,
+                },
+            ],
+            prices: new EntityCollection('/product-price', 'product_price', Shopware.Context.api),
+        };
+
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(0);
+
+        wrapper.vm.onRuleChange([{ id: '1', name: 'Cart >= 0' }]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(1);
+        expect(wrapper.vm.product.prices[0].ruleId).toBe('1');
+        expect(wrapper.vm.product.prices[0].ruleName).toBe('Cart >= 0');
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('1');
+        expect(wrapper.vm.selectedPriceRules[0].name).toBe('Cart >= 0');
+
+        wrapper.vm.onRuleChange([{ id: '1', name: 'Cart >= 0' }]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(1);
+
+        wrapper.vm.onRuleChange([
+            { id: '1', name: 'Cart >= 0' },
+            { id: '2', name: 'Customer from USA' },
+        ]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(2);
+        expect([...wrapper.vm.product.prices].map((p) => p.ruleId).sort()).toEqual([
+            '1',
+            '2',
+        ]);
+        expect([...wrapper.vm.selectedPriceRules].map((r) => r.id).sort()).toEqual([
+            '1',
+            '2',
+        ]);
+
+        wrapper.vm.onRuleChange([{ id: '2', name: 'Customer from USA' }]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(1);
+        expect(wrapper.vm.product.prices[0].ruleId).toBe('2');
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('2');
+
+        wrapper.vm.onRuleChange([]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(0);
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(0);
+    });
+
+    it('should resolve selectedPriceRules label from the loaded rule association when the rule is outside the loaded rules', async () => {
+        const { EntityCollection } = Shopware.Data;
+
+        const productEntity = {
+            id: 'productId',
+            price: [
+                {
+                    currencyId: 'currencyId1',
+                    gross: 10,
+                    linked: true,
+                    net: 8.4,
+                },
+            ],
+            prices: new EntityCollection('/product-price', 'product_price', Shopware.Context.api),
+        };
+
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        // A server-loaded price whose rule is outside the loaded `rules` window (capped at 500).
+        // It carries no `ruleName`, only the loaded `rule` association.
+        wrapper.vm.product.prices.add({
+            id: 'price-999',
+            ruleId: '999',
+            rule: { id: '999', name: 'Rule beyond 500' },
+        });
+
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('999');
+        expect(wrapper.vm.selectedPriceRules[0].name).toBe('Rule beyond 500');
+    });
+
     it('should restrict fields on including digital products', async () => {
         const wrapper = await createWrapper();
 
@@ -1247,7 +1362,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should get preference units', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.userConfigService.search = jest.fn().mockResolvedValue({
+        Shopware.Service('userConfigService').search.mockResolvedValue({
             data: {
                 'measurement.preferenceUnits': {
                     length: 'cm',
@@ -1264,9 +1379,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should not get preference units', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.userConfigService.search = jest.fn().mockResolvedValue({
-            data: {},
-        });
+        Shopware.Service('userConfigService').search.mockResolvedValue({ data: {} });
 
         await wrapper.vm.loadPreferenceUnits();
 
@@ -1274,9 +1387,264 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.weightUnit).toBe('kg');
     });
 
+    it('should flag the selected sales channel as removed for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_3', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        });
+
+        // In Remove mode the selector holds the channel(s) to remove — here scn_1.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        // The change is handed to the dedicated handler path: type/value stay intact, the
+        // removed channels come straight from the selection and the parent set is attached
+        // as the fallback base for inheriting variants.
+        expect(change.type).toBe('remove');
+        expect(change.removedSalesChannelIds).toEqual(['scn_1']);
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+            { salesChannelId: 'scn_3', visibility: 20 },
+        ]);
+    });
+
+    it('should flag every selected sales channel as removed for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_3', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        });
+
+        // The user selected scn_1 and scn_3 to be removed.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_3', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        expect(change.removedSalesChannelIds).toEqual([
+            'scn_1',
+            'scn_3',
+        ]);
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+            { salesChannelId: 'scn_3', visibility: 20 },
+        ]);
+    });
+
+    it('should flag the removed sales channels via onProcessData', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'remove',
+            value: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+            isInherited: false,
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange).toBeDefined();
+        expect(visibilityChange.type).toBe('remove');
+        expect(visibilityChange.mappingReferenceField).toBe('salesChannelId');
+        expect(visibilityChange.removedSalesChannelIds).toEqual(['scn_1']);
+        expect(visibilityChange.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
+    it('should NOT flag a parent bulk edit visibility remove (non-variant path)', async () => {
+        // parentId 'null' marks a parent (non-variant) bulk edit, so isChild() is false.
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'null', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'remove',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        // Parent bulk edit path keeps the standard REMOVE semantics — the transform only
+        // applies to variant (child) edits, so no per-variant flags are attached.
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange.type).toBe('remove');
+        expect(visibilityChange.removedSalesChannelIds).toBeUndefined();
+        expect(visibilityChange.inheritedVisibilities).toBeUndefined();
+    });
+
+    it('should flag nothing to remove when the variant field stays inherited', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        });
+
+        // Field left inherited → value is null, nothing is selected for removal.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: null,
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        // No removed channels → the handler leaves every variant untouched.
+        expect(change.removedSalesChannelIds).toEqual([]);
+        expect(change.addedVisibilities).toEqual([]);
+        expect(change.inheritedVisibilities).toEqual([{ salesChannelId: 'scn_1', visibility: 30 }]);
+    });
+
+    it('should flag the selected sales channels as added for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        // In Add mode the selector holds the channel(s) to add — here scn_3.
+        const change = {
+            field: 'visibilities',
+            type: 'add',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_x', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        expect(change.type).toBe('add');
+        expect(change.removedSalesChannelIds).toEqual([]);
+        expect(change.addedVisibilities).toEqual([{ salesChannelId: 'scn_3', visibility: 20 }]);
+        // The inherited set is attached so the handler keeps scn_1/scn_2 when materializing.
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
+    it('should flag added sales channels via onProcessData', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'add',
+            value: [
+                { id: 'vis_x', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+            isInherited: false,
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange).toBeDefined();
+        expect(visibilityChange.type).toBe('add');
+        expect(visibilityChange.addedVisibilities).toEqual([{ salesChannelId: 'scn_3', visibility: 20 }]);
+        expect(visibilityChange.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
     it('should save preference units', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.userConfigService.upsert = jest.fn();
 
         await wrapper.setData({
             lengthUnit: 'cm',
@@ -1289,13 +1657,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await wrapper.vm.savePreferenceUnits();
 
-        expect(wrapper.vm.userConfigService.upsert).toHaveBeenCalledWith({
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
             'measurement.preferenceUnits': {
                 length: 'cm',
                 weight: 'g',
             },
         });
-
-        wrapper.vm.userConfigService.upsert.mockRestore();
     });
 });

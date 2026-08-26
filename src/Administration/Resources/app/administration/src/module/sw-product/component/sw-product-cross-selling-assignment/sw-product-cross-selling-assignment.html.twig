@@ -14,7 +14,7 @@
             show-clearable-button
             @update:value="onToggleProduct"
         >
-
+            {% block sw_product_cross_selling_assignment_select_result_item %}
             <template #result-item="{ item, index }">
                 <slot
                     name="result-item"
@@ -24,6 +24,8 @@
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                     >
+                        {% block sw_product_cross_selling_assignment_select_result_item_inner %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_product_cross_selling_assignment_select_result_item_inner` instead. #}
                         {% block sw_entity_single_select_base_results_list_result_label %}
                         <span class="sw-select-result__result-item-text">
                             <sw-product-variant-info :variations="item.variation">
@@ -31,10 +33,11 @@
                             </sw-product-variant-info>
                         </span>
                         {% endblock %}
+                        {% endblock %}
                     </sw-select-result>
                 </slot>
             </template>
-
+            {% endblock %}
         </sw-entity-single-select>
         {% endblock %}
 

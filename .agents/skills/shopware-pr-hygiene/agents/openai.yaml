@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware PR Hygiene"
+  short_description: "Prepare Shopware PR metadata and review follow-up commits."
+  default_prompt: "Prepare or update this Shopware pull request."

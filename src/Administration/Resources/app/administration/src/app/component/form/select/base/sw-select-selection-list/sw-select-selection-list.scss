@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-select-selection-list {
     display: flex;
     flex-wrap: wrap;
@@ -21,7 +19,7 @@
         padding: var(--scale-size-8) var(--scale-size-12);
         margin: 0 var(--scale-size-6) 0 0;
         color: var(--color-text-brand-default);
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         line-height: 14px;
         border-radius: var(--border-radius-xs);
         height: unset;

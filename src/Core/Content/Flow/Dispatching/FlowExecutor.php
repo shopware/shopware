@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
@@ -14,14 +15,19 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Content\Flow\Extension\FlowExecutorExtension;
 use Shopware\Core\Content\Flow\FlowException;
+use Shopware\Core\Content\Flow\Rule\CustomerRuleScope;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
+use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Event\SalesChannelContextAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -50,7 +56,8 @@ class FlowExecutor
         private readonly Connection $connection,
         private readonly ExtensionDispatcher $extensions,
         private readonly LoggerInterface $logger,
-        $actions
+        $actions,
+        private readonly FlowMetricsInstrumentor $flowMetrics,
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
     }
@@ -66,11 +73,7 @@ class FlowExecutor
             $name = $flowHolder['name'];
 
             try {
-                $this->extensions->publish(
-                    name: FlowExecutorExtension::NAME,
-                    extension: new FlowExecutorExtension($flow, $event),
-                    function: $this->_execute(...)
-                );
+                $this->runFlow($flow, $event);
             } catch (ExecuteSequenceException $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
@@ -96,11 +99,7 @@ class FlowExecutor
 
     public function execute(Flow $flow, StorableFlow $event): void
     {
-        $this->extensions->publish(
-            name: FlowExecutorExtension::NAME,
-            extension: new FlowExecutorExtension($flow, $event),
-            function: $this->_execute(...)
-        );
+        $this->runFlow($flow, $event);
     }
 
     public function executeSequence(?Sequence $sequence, StorableFlow $event): void
@@ -157,6 +156,20 @@ class FlowExecutor
         }
 
         $this->executeSequence($sequence->falseCase, $event);
+    }
+
+    private function runFlow(Flow $flow, StorableFlow $event): void
+    {
+        // Metric covers extension too: an extension may stop propagation and replace _execute entirely - and
+        // every flow execution still will be covered, and the duration will include extension pre/post overhead.
+        $this->flowMetrics->measureExecution(
+            $event,
+            fn () => $this->extensions->publish(
+                name: FlowExecutorExtension::NAME,
+                extension: new FlowExecutorExtension($flow, $event),
+                function: $this->_execute(...)
+            ),
+        );
     }
 
     private function _execute(Flow $flow, StorableFlow $event): void
@@ -225,22 +238,40 @@ class FlowExecutor
 
     private function sequenceRuleMatches(StorableFlow $event, string $ruleId): bool
     {
-        if (!$event->hasData(OrderAware::ORDER)) {
-            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+        $baseContextEvaluation = \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+
+        if (!$event->hasData(OrderAware::ORDER) && !$event->hasData(CustomerAware::CUSTOMER)) {
+            return $baseContextEvaluation;
         }
 
-        $order = $event->getData(OrderAware::ORDER);
+        $context = $event->getData(SalesChannelContextAware::SALES_CHANNEL_CONTEXT);
 
-        if (!$order instanceof OrderEntity) {
-            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+        if ($event->hasData(OrderAware::ORDER)) {
+            $entity = $event->getData(OrderAware::ORDER);
+
+            if (!$entity instanceof OrderEntity) {
+                return $baseContextEvaluation;
+            }
+        } elseif (!$context instanceof SalesChannelContext || $context->getCustomer() !== null) {
+            return $baseContextEvaluation;
+        } else {
+            $entity = $event->getData(CustomerAware::CUSTOMER);
+
+            if (!$entity instanceof CustomerEntity) {
+                return $baseContextEvaluation;
+            }
         }
 
         $rule = $this->ruleLoader->load($event->getContext())->filterForFlow()->get($ruleId);
 
         if (!$rule || !$rule->getPayload() instanceof Rule) {
-            return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
+            return $baseContextEvaluation;
         }
 
-        return $rule->getPayload()->match($this->scopeBuilder->build($order, $event->getContext()));
+        if ($entity instanceof OrderEntity) {
+            return $rule->getPayload()->match($this->scopeBuilder->build($entity, $event->getContext()));
+        }
+
+        return $rule->getPayload()->match(new CustomerRuleScope($entity, $context));
     }
 }

@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 const modalConfirmButtonConfig = [
     {
         key: 'cancel',
-        label: 'global.sw-modal.labelClose',
+        label: 'global.default.close',
         position: 'left',
         action: '',
         disabled: false,

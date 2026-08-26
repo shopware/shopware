@@ -3,18 +3,20 @@
     "general": {
       "mainMenuItemGeneral": "Profiles",
       "description": "Manage your profile here.",
-      "headlineProfile": "Your profile"
+      "headlineProfile": "Profile settings"
     },
     "index": {
-      "buttonSaveLabel": "Save",
       "titleInfoCard": "Profile information",
-      "titleImageCard": "Profile image",
       "titlePasswordCard": "Password",
       "labelFirstNameField": "First name",
       "labelLastNameField": "Last name",
       "labelUsernameField": "Username",
       "labelEmailField": "Email address",
       "labelTimezoneField": "Timezone",
+      "labelThemeField": "Appearance",
+      "labelModuleIconColorsField": "Module colors",
+      "optionModuleIconColorsNeutral": "Neutral",
+      "optionModuleIconColorsColored": "Colored",
       "labelOldPassword": "Old password",
       "placeholderOldPassword": "Enter old password...",
       "labelNewPassword": "New password",
@@ -26,7 +28,7 @@
       "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
       "notificationSaveSuccessMessage": "Profile information have been saved.",
       "notificationSaveErrorMessage": "Profile information could not be saved.",
-      "labelUploadAvatar": "Upload avatar",
+      "labelUploadAvatar": "Profile picture",
       "labelUseAsAvatar": "Use as avatar"
     },
     "tabGeneral": {
@@ -143,6 +145,14 @@
         },
         "cms_page": {
           "name": "Name"
+        },
+        "flow": {
+          "name": "Name",
+          "description": "Description"
+        },
+        "rule": {
+          "name": "Name",
+          "description": "Description"
         }
       }
     },

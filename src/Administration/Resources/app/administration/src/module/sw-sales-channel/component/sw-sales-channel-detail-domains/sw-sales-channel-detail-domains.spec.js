@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -27,7 +29,15 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
-                    'sw-entity-single-select': true,
+                    'sw-entity-single-select': {
+                        template: '<div><slot></slot></div>',
+                        props: [
+                            'value',
+                            'entity',
+                            'criteria',
+                            'labelProperty',
+                        ],
+                    },
                     'sw-radio-field': true,
                     'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                     'sw-container': {
@@ -47,6 +57,7 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     'mt-url-field': MtUrlField,
                     'sw-sales-channel-measurement': true,
+                    'mt-checkbox': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -252,7 +263,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         ]).toStrictEqual([...languages]);
     });
 
-    it('should only display available currencies', async () => {
+    it('should restrict selectable currencies to available currencies', async () => {
         const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null, [
             {
                 id: 'test1',
@@ -274,12 +285,88 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(
-            currencies.first().id,
+        const currencySelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select');
+        const parsedCriteria = currencySelect.props('criteria').parse();
+
+        expect(currencySelect.props('value')).toBe(currencies.first().id);
+        expect(currencySelect.props('entity')).toBe('currency');
+        expect(parsedCriteria.filter).toEqual([
+            expect.objectContaining({
+                type: 'equalsAny',
+                field: 'id',
+                value: currencies.first().id,
+            }),
+        ]);
+    });
+
+    it('should include the default currency in the selectable currencies', async () => {
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    currencyId: 'default-currency-id',
+                    languages: [],
+                    currencies: new EntityCollection('/currencies', 'currencies', Context.api, null, []),
+                    domains: getExampleDomains(),
+                },
+            },
+            getExampleDomains(),
         );
-        expect([
-            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
-        ]).toStrictEqual([...currencies]);
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        const currencySelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select');
+        const parsedCriteria = currencySelect.props('criteria').parse();
+
+        expect(parsedCriteria.filter).toEqual([
+            expect.objectContaining({
+                type: 'equalsAny',
+                field: 'id',
+                value: 'default-currency-id',
+            }),
+        ]);
+    });
+
+    it('should preselect requested language and currency when opening the create modal', async () => {
+        const languages = new EntityCollection('/languages', 'languages', Context.api, null, [
+            {
+                id: 'language-1',
+                name: 'English',
+            },
+            {
+                id: 'language-2',
+                name: 'German',
+            },
+        ]);
+
+        const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null, [
+            {
+                id: 'currency-1',
+                name: 'Euro',
+            },
+            {
+                id: 'currency-2',
+                name: 'US dollar',
+            },
+        ]);
+
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages,
+                currencies,
+                domains: new EntityCollection('/sales-channel-domain', 'sales_channel_domain', Context.api, null, []),
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal({
+            languageId: 'language-2',
+            currencyId: 'currency-2',
+        });
+
+        expect(wrapper.vm.currentDomain.languageId).toBe('language-2');
+        expect(wrapper.vm.currentDomain.language).toStrictEqual(languages.get('language-2'));
+        expect(wrapper.vm.currentDomain.currencyId).toBe('currency-2');
+        expect(wrapper.vm.currentDomain.currency).toStrictEqual(currencies.get('currency-2'));
     });
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
@@ -514,5 +601,24 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                 weight: 'kilogram',
             },
         });
+    });
+
+    it('should only show the external storefront checkbox for a headless sales channel', async () => {
+        // the checkbox is gated on this computed via v-if in the template
+        const headlessWrapper = await createWrapper({
+            salesChannel: {
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
+                domains: [],
+            },
+        });
+        expect(headlessWrapper.vm.salesChannelIsHeadless).toBe(true);
+
+        const storefrontWrapper = await createWrapper({
+            salesChannel: {
+                typeId: 'some-storefront-type-id',
+                domains: [],
+            },
+        });
+        expect(storefrontWrapper.vm.salesChannelIsHeadless).toBe(false);
     });
 });

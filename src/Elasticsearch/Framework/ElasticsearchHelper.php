@@ -7,12 +7,14 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Search;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
@@ -34,7 +36,8 @@ class ElasticsearchHelper
         private readonly Client $client,
         private readonly ElasticsearchRegistry $registry,
         private readonly CriteriaParser $parser,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -161,6 +164,11 @@ class ElasticsearchHelper
         $query = $esDefinition->buildTermQuery($context, $criteria);
 
         $search->addQuery($query);
+
+        $minScore = $this->resolveMinScore($context);
+        if ($minScore > 0.0) {
+            $search->setMinScore($minScore);
+        }
     }
 
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
@@ -251,5 +259,16 @@ class ElasticsearchHelper
         $entityName = $definition->getEntityName();
 
         return $this->registry->has($entityName);
+    }
+
+    private function resolveMinScore(Context $context): float
+    {
+        $salesChannelId = null;
+        $source = $context->getSource();
+        if ($source instanceof SalesChannelApiSource) {
+            $salesChannelId = $source->getSalesChannelId();
+        }
+
+        return $this->systemConfigService->getFloat('core.search.minScore', $salesChannelId);
     }
 }

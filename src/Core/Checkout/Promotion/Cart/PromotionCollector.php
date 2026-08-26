@@ -144,8 +144,15 @@ class PromotionCollector implements CartDataCollectorInterface
 
             $foundCodes = $discountLineItems->fmap(static fn (LineItem $item) => $item->getReferencedId());
 
+            // codes excluded because their redemption limit was reached
+            $redeemedCodes = [];
+
             foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
                 if (!$this->isEligible($tuple->getPromotion(), $context->getCustomerId(), $currentOrderId)) {
+                    if ($this->isRedemptionLimitReached($tuple->getPromotion(), $context->getCustomerId())) {
+                        $redeemedCodes[$tuple->getCode()] = true;
+                    }
+
                     continue;
                 }
 
@@ -179,7 +186,14 @@ class PromotionCollector implements CartDataCollectorInterface
             foreach (\array_diff($allCodes, \array_unique($foundCodes)) as $code) {
                 $cartExtension->removeCode((string) $code);
 
-                $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
+                $sanitizedCode = $this->htmlSanitizer->sanitize((string) $code, null, true);
+
+                // valid code, no longer redeemable: clear reason instead of "not found"
+                if (isset($redeemedCodes[(string) $code])) {
+                    $this->addPromotionAlreadyRedeemedError($sanitizedCode, $original);
+                } else {
+                    $this->addPromotionNotFoundError($sanitizedCode, $original);
+                }
             }
 
             // when being in a recalculation, having notifications about the removal of automatic promotion is desired
@@ -376,6 +390,19 @@ class PromotionCollector implements CartDataCollectorInterface
         }
 
         return true;
+    }
+
+    /**
+     * Whether an ineligible promotion was excluded because its global or per-customer redemption
+     * limit was reached. Only valid after {@see isEligible} returned false (promotion not in the current order).
+     */
+    private function isRedemptionLimitReached(PromotionEntity $promotion, ?string $customerId): bool
+    {
+        if (!$promotion->isOrderCountValid()) {
+            return true;
+        }
+
+        return $customerId !== null && !$promotion->isOrderCountPerCustomerCountValid($customerId);
     }
 
     private function isUsedInCurrentOrder(string $promotionId, string $orderId): bool

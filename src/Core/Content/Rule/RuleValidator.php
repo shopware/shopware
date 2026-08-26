@@ -63,14 +63,10 @@ class RuleValidator implements EventSubscriberInterface
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $writeException = $event->getExceptions();
-        $commands = $event->getCommands();
+        $commands = $event->getCommandsForEntity(RuleConditionDefinition::ENTITY_NAME);
         $updateQueue = [];
 
         foreach ($commands as $command) {
-            if ($command->getEntityName() !== RuleConditionDefinition::ENTITY_NAME) {
-                continue;
-            }
-
             if ($command instanceof DeleteCommand) {
                 continue;
             }
@@ -296,7 +292,7 @@ class RuleValidator implements EventSubscriberInterface
         $script = null;
         if (isset($payload['script_id'])) {
             $scriptId = Uuid::fromBytesToHex($payload['script_id']);
-            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->get($scriptId);
+            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->getEntities()->get($scriptId);
         } elseif ($condition && $condition->getAppScriptCondition()) {
             $script = $condition->getAppScriptCondition();
         }

@@ -12,7 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Loads app-provided MCP tools from the database and registers them
  * with the MCP server registry at build time.
@@ -28,8 +28,8 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
     public function __construct(
         Connection $connection,
         AppMcpCapabilityExecutor $executor,
+        LoggerInterface $logger,
         private readonly array $allowedTools = [],
-        ?LoggerInterface $logger = null,
     ) {
         parent::__construct($connection, $executor, $logger);
     }
@@ -91,7 +91,7 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
             $arguments = $request instanceof CallToolRequest ? $request->arguments : [];
 
             return $this->executor->execute($toolName, $appSecret, $url, $arguments, $appVersion);
-        }, true);
+        });
     }
 
     /**

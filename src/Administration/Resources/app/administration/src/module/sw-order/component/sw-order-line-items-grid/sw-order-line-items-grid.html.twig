@@ -30,7 +30,6 @@
                 {% block sw_order_line_items_grid_add_existing_product %}
                 <mt-button
                     class="sw-order-line-items-grid__actions-container-add-product-btn"
-                    ghost
                     size="small"
                     :disabled="!editable || undefined"
                     variant="secondary"
@@ -47,7 +46,6 @@
                 >
                     <template #button>
                         <mt-button
-                            ghost
                             size="small"
                             square
                             variant="secondary"
@@ -162,10 +160,10 @@
                 {% block sw_order_line_items_grid_column_payload_options %}
                 {% block sw_order_line_items_grid_column_payload_options_link %}
                 <router-link
-                    v-if="item.payload && item.payload.options"
+                    v-if="item.payload && item.payload.options && canOpenProduct(item)"
                     class="sw-order-line-items-grid__item-payload-options"
                     :title="$t('sw-order.detailBase.contextMenuShowProduct')"
-                    :to="{ name: 'sw.product.detail', params: { id: item.productId } }"
+                    :to="getProductRoute(item)"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
                         <div class="sw-order-line-items-grid__item-label">
@@ -192,7 +190,19 @@
 
             {% block sw_order_line_items_grid_grid_columns_label_content %}
             <template v-else>
-                <span class="sw-order-line-items-grid__item-label">
+                <sw-product-variant-info
+                    v-if="item.payload && item.payload.options"
+                    :variations="item.payload.options"
+                >
+                    <span class="sw-order-line-items-grid__item-label">
+                        {{ item.label }}
+                    </span>
+                </sw-product-variant-info>
+
+                <span
+                    v-else
+                    class="sw-order-line-items-grid__item-label"
+                >
                     {{ item.label }}
                 </span>
             </template>
@@ -314,8 +324,8 @@
         <template #actions="{ item, itemIndex }">
             {% block sw_order_line_items_grid_grid_actions_show %}
             <sw-context-menu-item
-                :disabled="!isProductItem(item) || undefined"
-                :router-link="{ name: 'sw.product.detail', params: { id: item.productId } }"
+                :disabled="!canOpenProduct(item) || undefined"
+                :router-link="getProductRoute(item)"
             >
 
                 {% block sw_order_line_items_grid_grid_actions_show_label %}

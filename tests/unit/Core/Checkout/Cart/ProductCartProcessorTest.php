@@ -39,7 +39,7 @@ use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('inventory')]
 #[CoversClass(ProductCartProcessor::class)]
 class ProductCartProcessorTest extends TestCase
 {
@@ -139,14 +139,14 @@ class ProductCartProcessorTest extends TestCase
 
         $processor = new ProductCartProcessor(
             $gateway,
-            $this->createMock(QuantityPriceCalculator::class),
-            $this->createMock(ProductFeatureBuilder::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
             $calculator,
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $data = new CartDataCollection();
         $data->set('product-A', $a);
@@ -207,15 +207,15 @@ class ProductCartProcessorTest extends TestCase
             ->with([$product]);
 
         $processor = new ProductCartProcessor(
-            $this->createMock(ProductGateway::class),
-            $this->createMock(QuantityPriceCalculator::class),
-            $this->createMock(ProductFeatureBuilder::class),
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
             $calculator,
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $data = new CartDataCollection();
         $data->set('product-A', $product);
@@ -255,15 +255,15 @@ class ProductCartProcessorTest extends TestCase
         ]);
 
         $processor = new ProductCartProcessor(
-            $this->createMock(ProductGateway::class),
-            $this->createMock(QuantityPriceCalculator::class),
-            $this->createMock(ProductFeatureBuilder::class),
-            $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $data = new CartDataCollection();
         $data->set('product-A', $product);
@@ -296,12 +296,12 @@ class ProductCartProcessorTest extends TestCase
         $calculator->expects($this->exactly(2))->method('calculate')->willReturn($calculatedPrice);
 
         $cartProcessor = new ProductCartProcessor(
-            $this->createMock(ProductGateway::class),
+            static::createStub(ProductGateway::class),
             $calculator,
-            $this->createMock(ProductFeatureBuilder::class),
-            $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class)
         );
 
         $originalCart = new Cart('test');
@@ -317,7 +317,7 @@ class ProductCartProcessorTest extends TestCase
         $originalCart->add($lineItem);
         $toCalculateCart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $cartProcessor->process(new CartDataCollection(), $originalCart, $toCalculateCart, $context, $behavior);
@@ -351,15 +351,15 @@ class ProductCartProcessorTest extends TestCase
         ]);
 
         $processor = new ProductCartProcessor(
-            $this->createMock(ProductGateway::class),
-            $this->createMock(QuantityPriceCalculator::class),
-            $this->createMock(ProductFeatureBuilder::class),
-            $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $data = new CartDataCollection();
         $data->set('product-A', $product);
@@ -402,15 +402,15 @@ class ProductCartProcessorTest extends TestCase
         ]);
 
         $processor = new ProductCartProcessor(
-            $this->createMock(ProductGateway::class),
-            $this->createMock(QuantityPriceCalculator::class),
-            $this->createMock(ProductFeatureBuilder::class),
-            $this->createMock(ProductPriceCalculator::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(Connection::class)
+            static::createStub(ProductGateway::class),
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            static::createStub(EntityCacheKeyGenerator::class),
+            static::createStub(Connection::class)
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $data = new CartDataCollection();
         $data->set('product-A', $product);

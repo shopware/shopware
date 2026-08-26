@@ -168,6 +168,7 @@ public function createDefaultSortingsWithTranslations(Connection $connection): v
 ### 8. Migration Tests
 
 For each migration you write you need to write a test, that verifies that the migration works as expected and adheres to the guidelines stated above.
+You do not need to add a test for an empty/no-op `updateDestructive()` implementation; cover meaningful behavior in `update()` or in destructive migrations that actually change state.
 Place your migration test inside the `tests/Migration/V6_*` folder.
 To make those tests fast to run and easier to understand you should not use any of the "legacy test behaviours" like `IntegrationTestBehaviour` or `KernelTestBehaviour`.
 You should also especially not rely on the kernel being booted and the service container being available.

@@ -28,6 +28,8 @@
             @modal-close="closeModal"
         />
         <sw-request-consent-modal />
+        {# @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal #}
+        <sw-ui-shell-update-2026-modal />
         <sw-settings-services-grant-permissions-modal />
         <sw-settings-usage-data-consent-modal-data-provider
             v-if="showUsageDataConsentModalDataProvider"

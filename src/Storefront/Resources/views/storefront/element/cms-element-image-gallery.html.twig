@@ -61,6 +61,9 @@
                 launchingArView: 'spatial.ar.launchingArView'|trans|striptags,
             }
         } %}
+
+        {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+        {% set isProduct = element.fieldConfig.elements.sliderItems.value == 'product.media' and element.fieldConfig.elements.sliderItems.source == 'mapped' %}
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
@@ -603,7 +606,7 @@
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
 
-                                                                            {% set attributes = attributes|merge({ loading: 'lazy' }) %}
+                                                                            {# No native loading="lazy" here: in the "left" layout the thumbnail strip is a vertical tiny-slider, whose init waits for every slide image to report `complete` before firing `onInit`. Browsers that defer lazy images (Firefox, Safari) never complete them, so `onInit` never runs and the `is-loading` class is never removed. #}
 
                                                                             {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                             {% if not feature('JSON_LD_DATA') and isProduct %}

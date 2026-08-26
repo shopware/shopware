@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Content\MeasurementSystem\TwigExtension;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Twig\Environment;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class MeasurementConvertUnitTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;

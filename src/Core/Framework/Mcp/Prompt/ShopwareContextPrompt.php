@@ -6,15 +6,19 @@ use Mcp\Capability\Attribute\McpPrompt;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * This prompt content is intentionally separate from the root AGENTS.md.
  * AGENTS.md provides developer-facing coding guidelines, while this prompt
  * provides runtime context for AI clients using the MCP tools to interact
  * with a Shopware shop (criteria format, entity names, tool best practices).
  */
-#[McpPrompt(name: 'shopware-context', title: 'Shopware Context', description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.')]
 #[Package('framework')]
+#[McpPrompt(
+    name: 'shopware-context',
+    title: 'Shopware Context',
+    description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.'
+)]
 class ShopwareContextPrompt
 {
     /**
@@ -28,7 +32,7 @@ class ShopwareContextPrompt
                 'content' => <<<'PROMPT'
 You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 
-## Core tools
+## Domain tools (deferred — enable the matching toolset first)
 - `shopware-entity-schema`: entity (string) — field and association definitions for any entity
 - `shopware-entity-search`: entity (string), criteria (string, optional JSON), limit, page, term
 - `shopware-entity-read`: entity (string), id (string UUID), criteria (string, optional)
@@ -39,11 +43,16 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `shopware-system-config-write`: key (string), value (string), salesChannelId (string, optional), dryRun (bool, default true)
 - `shopware-order-state`: orderNumber or orderId, orderAction / transactionAction / deliveryAction, dryRun (bool, default true)
 - `shopware-media-upload`: url (string), fileName (string, optional), mediaFolderId (string, optional), productId (string, optional)
-- `shopware-theme-config`: salesChannelId (string), action ("get" or "update"), config (string JSON, optional), dryRun (bool, default true)
+- `shopware-theme-config`: salesChannelId (string, UUID or sales channel name), action ("get" or "update"), config (string JSON, optional), dryRun (bool, default true)
 
 ## Optional plugin tools (when installed)
 - `swag-dev-tools-log-search`: query (string), level (string, optional) — full-text search of application log entries
 - `swag-dev-tools-log-stream`: limit (int, optional) — stream the most recent log lines
+
+## Tool discovery (start here)
+- On a fresh session only the discovery tools are advertised: `shopware-toolsets-list`, `shopware-toolset-enable`, `shopware-tool-search`. No domain tool is callable until you enable its toolset — the tools listed below become available only after enabling.
+- For any task, first call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
+- Enabling a toolset lasts the whole MCP session and accumulates: enabling another toolset keeps the previously enabled ones. The allowlist and ACL permissions remain the security boundary.
 
 ## Key concepts
 - Shopware uses a Data Abstraction Layer (DAL). Use `shopware-entity-schema` when you need field or association names for an unfamiliar entity.
@@ -113,7 +122,7 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 - Permission denied: the integration lacks the required ACL privilege (e.g. `product:read`, `order:update`)
 
 ## Best practices
-1. Call `shopware-entity-schema` to look up field names before building criteria — even for common entities like `order` or `product`
+1. If you don't already know an entity's field names, `shopware-entity-schema` will tell you — look it up before building criteria rather than guessing
 2. Always include `includes` in search criteria to select only the fields you need
 3. Always use dryRun=true before any write operation
 4. For counts, sums, and averages, always use `shopware-entity-aggregate` — never `shopware-entity-search`. The search tool returns records; the aggregate tool returns numbers.
@@ -140,7 +149,7 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 - "Change the shop name in X to Y" → `shopware-system-config-write`
 
 ### Field name and schema questions
-- "What field name should I use for X?" → `shopware-entity-schema` on that entity — always use entity-schema for field discovery, never try to answer from memory
+- "What field name should I use for X?" → if you don't already know it, `shopware-entity-schema` on that entity will tell you
 - "What fields does entity X have?" → `shopware-entity-schema`
 
 ### Available payment and shipping methods

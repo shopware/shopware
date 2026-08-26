@@ -48,7 +48,7 @@ class CustomerAgeRuleTest extends TestCase
             'age' => null,
         ]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
         $salesChannelContext->method('getCustomer')->willReturn($customer);
@@ -68,7 +68,7 @@ class CustomerAgeRuleTest extends TestCase
             'age' => $age,
         ]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customer = new CustomerEntity();
 

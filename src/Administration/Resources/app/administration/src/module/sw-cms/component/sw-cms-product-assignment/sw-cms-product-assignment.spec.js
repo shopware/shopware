@@ -92,4 +92,17 @@ describe('module/sw-cms/component/sw-cms-product-assignment', () => {
 
         expect(selectBase.props('disabled')).toBe(true);
     });
+
+    it('should search products with inheritance enabled', async () => {
+        const wrapper = await createWrapper();
+        const search = jest.fn().mockResolvedValue({
+            getIds: () => ['product-id'],
+        });
+        wrapper.vm.repositoryFactory.create = jest.fn(() => ({ search }));
+
+        const result = await wrapper.vm.searchItems();
+
+        expect(search).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ inheritance: true }));
+        expect(result.getIds()).toEqual(['product-id']);
+    });
 });

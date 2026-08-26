@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class FieldAccessorBuilderNotFoundException extends ShopwareHttpException
 {

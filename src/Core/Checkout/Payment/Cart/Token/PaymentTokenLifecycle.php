@@ -54,10 +54,10 @@ class PaymentTokenLifecycle
             ['token' => $tokenId]
         );
 
-        if (!$token) {
+        if ($token === false) {
             return false;
         }
 
-        return $token['consumed'] === 0;
+        return (int) $token === 0;
     }
 }

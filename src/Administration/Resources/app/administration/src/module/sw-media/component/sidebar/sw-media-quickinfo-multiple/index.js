@@ -58,6 +58,26 @@ export default {
             });
         },
 
+        mediaItems() {
+            return this.items.filter((item) => {
+                return item.getEntityName() === 'media';
+            });
+        },
+
+        extensionSdkButtons() {
+            if (this.mediaItems.length === 0) {
+                return [];
+            }
+
+            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+                if (button.entity !== 'media' || button.view !== 'list') {
+                    return false;
+                }
+
+                return !button.fileTypes?.length || this.mediaItems.every((item) => this.matchesFileTypes(button, item));
+            });
+        },
+
         isPrivate() {
             return this.items.some((item) => {
                 return item.private === true;
@@ -68,6 +88,26 @@ export default {
     methods: {
         onRemoveItemFromSelection(event) {
             this.$emit('media-item-selection-remove', event);
+        },
+
+        matchesFileTypes(action, item) {
+            return (
+                !action.fileTypes?.length ||
+                (!!item.fileExtension &&
+                    action.fileTypes.some((type) => type.toLowerCase() === item.fileExtension.toLowerCase()))
+            );
+        },
+
+        runAppAction(action) {
+            if (typeof action.callback !== 'function') {
+                return;
+            }
+
+            const items = this.mediaItems.map(({ id, url, fileName, mimeType, fileSize }) => {
+                return { id, url, fileName, mimeType, fileSize };
+            });
+
+            action.callback(items);
         },
 
         quickActionClassesDelete(disabled) {

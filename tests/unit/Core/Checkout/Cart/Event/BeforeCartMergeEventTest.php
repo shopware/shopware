@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(BeforeCartMergeEvent::class)]
 #[Package('checkout')]
+#[CoversClass(BeforeCartMergeEvent::class)]
 class BeforeCartMergeEventTest extends TestCase
 {
     public function testReturnsCorrectProperties(): void
@@ -23,7 +23,7 @@ class BeforeCartMergeEventTest extends TestCase
         $customerCart = new Cart('customerCart');
         $guestCart = new Cart('customerCart');
         $mergeableLineItems = new LineItemCollection();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $context = Context::createDefaultContext();
         $salesChannelContext->method('getContext')->willReturn($context);

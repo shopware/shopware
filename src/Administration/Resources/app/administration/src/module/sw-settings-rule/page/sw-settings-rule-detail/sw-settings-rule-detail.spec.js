@@ -1,5 +1,8 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 import { config, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
+import ShopwareError from 'src/core/data/ShopwareError';
 import { createRouter, createWebHistory } from 'vue-router';
 
 /**
@@ -70,6 +73,8 @@ const ruleConditionDataProviderServiceMock = {
     getModuleTypes: jest.fn(() => []),
     addScriptConditions: jest.fn(() => {}),
     getAwarenessKeysWithEqualsAnyConfig: jest.fn(() => []),
+    getDeprecationsInTree: jest.fn(() => []),
+    getFlowOnlyTypesInTree: jest.fn(() => []),
 };
 
 const ruleConditionsConfigApiServiceMock = {
@@ -104,6 +109,51 @@ const languageRepositoryMock = {
             ]),
         ),
     ),
+};
+
+const languageSwitchStub = {
+    props: [
+        'saveChangesFunction',
+        'abortChangeFunction',
+    ],
+    emits: ['on-change'],
+    data() {
+        return {
+            isOpen: false,
+            showUnsavedChangesModal: false,
+        };
+    },
+    methods: {
+        openSelect() {
+            this.isOpen = true;
+        },
+
+        selectLanguage() {
+            if (this.abortChangeFunction()) {
+                this.showUnsavedChangesModal = true;
+
+                return;
+            }
+
+            this.$emit('on-change', 'uuid1');
+        },
+
+        async saveLanguageChange() {
+            await this.saveChangesFunction();
+            this.$emit('on-change', 'uuid1');
+        },
+    },
+    template: `
+        <div>
+            <button class="sw-select__selection" @click="openSelect"></button>
+            <button v-if="isOpen" class="sw-select-result" @click="selectLanguage"></button>
+            <button
+                v-if="showUnsavedChangesModal"
+                id="sw-language-switch-save-changes-button"
+                @click="saveLanguageChange"
+            ></button>
+        </div>
+    `,
 };
 
 const appConditionRepositoryMock = {
@@ -207,7 +257,26 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'sw-language-switch': await wrapTestComponent('sw-language-switch'),
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    template: '<div class="mt-tabs"></div>',
+                },
+                'sw-language-switch': languageSwitchStub,
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -216,6 +285,9 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                 'sw-page': {
                     template: `
@@ -298,6 +370,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     afterEach(() => {
         jest.clearAllMocks();
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('provides shortcuts for save and cancel', async () => {
@@ -383,6 +456,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     'orderPromotions',
                     'cartPromotions',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
         await flushPromises();
@@ -436,10 +511,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 ruleMock.conditions.entity,
                 ruleMock.conditions.source,
             ],
-            ['language'],
         ];
 
-        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(4);
+        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(3);
         expect(wrapper.vm.repositoryFactory.create.mock.calls).toEqual(expectedRepositories);
     });
 
@@ -468,12 +542,90 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
     });
 
-    it('should render tab items', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the fallback sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render fallback tab items', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-assignments').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor route tabs', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-rule-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.settings.rule.detail.base');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings-rule.detail.tabGeneral',
+                name: 'sw.settings.rule.detail.base',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-rule.detail.tabAssignments',
+                name: 'sw.settings.rule.detail.assignments',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should pass validation errors to meteor tabs', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'rule.uuid1.name',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
+            {
+                label: 'sw-settings-rule.detail.tabGeneral',
+                name: 'sw.settings.rule.detail.base',
+                hasError: true,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-rule.detail.tabAssignments',
+                name: 'sw.settings.rule.detail.assignments',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+        ]);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const routerSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
+        const assignmentsTab = wrapper
+            .getComponent({ name: 'mt-tabs' })
+            .props('items')
+            .find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+
+        assignmentsTab.onClick();
+
+        expect(routerSpy).toHaveBeenCalledWith({
+            name: 'sw.settings.rule.detail.assignments',
+            params: { id: 'uuid1' },
+        });
     });
 
     it.each([
@@ -492,7 +644,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(ruleConditionDataProviderServiceMock.addScriptConditions).toHaveBeenCalledTimes(1);
         expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(1);
 
-        const criteria = new Criteria(2, 25);
+        const criteria = new Criteria(2);
+        criteria.addSorting(Criteria.sort('parentId'));
+        criteria.addSorting(Criteria.sort('position'));
+        criteria.addSorting(Criteria.sort('id'));
 
         if (entity === 'product') {
             criteria.addAssociation('options.group');
@@ -610,6 +765,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         { name: 'rule changed', abort: false },
         { name: 'rule not changed', abort: true },
     ])('should change language switch', async ({ abort }) => {
+        Shopware.Store.get('context').api.languageId = 'default-language-id';
         ruleRepositoryMock.hasChanges.mockReturnValueOnce(abort);
         const wrapper = await createWrapper();
         await flushPromises();
@@ -692,7 +848,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         });
     });
 
-    it('should reload rule when switching from assignments to base tab', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy rule-detail tabs.
+    it.deprecated('v6.8.0.0')('should reload rule when switching from assignments to base tab', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -703,6 +860,28 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
 
         await wrapper.find('.sw-settings-rule-detail__tab-item-general').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should reload rule when switching from assignments to base tab', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const assignmentsTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.assignments');
+
+        await assignmentsTab.onClick();
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
+
+        const generalTab = tabs.props('items').find((tab) => tab.name === 'sw.settings.rule.detail.base');
+
+        await generalTab.onClick();
         await flushPromises();
         expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
 
@@ -919,6 +1098,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     isRestricted: true,
                 }),
                 getTranslatedConditionViolationList: () => ['someSnippetPath'],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -939,6 +1120,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getAwarenessKeysWithEqualsAnyConfig: () => [],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -967,6 +1150,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -995,6 +1180,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -1018,6 +1205,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
         await flushPromises();
@@ -1157,5 +1346,102 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not flag date range conditions with empty bounds as invalid', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const errorStore = Shopware.Store.get('error');
+        errorStore.resetApiErrors();
+
+        const addApiErrorSpy = jest.spyOn(errorStore, 'addApiError');
+        ruleRepositoryMock.save.mockClear();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            conditionTree: [
+                {
+                    id: 'date-range-condition-empty',
+                    type: 'dateRange',
+                    value: { fromDate: null, toDate: null },
+                    children: [],
+                },
+                {
+                    id: 'date-range-condition-partial',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: null },
+                    children: [],
+                },
+            ],
+        });
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+
+        const dateRangeErrorCalls = addApiErrorSpy.mock.calls.filter(([call]) => call.error?.code === 'INVALID_DATE_RANGE');
+
+        expect(dateRangeErrorCalls).toHaveLength(0);
+
+        addApiErrorSpy.mockRestore();
+    });
+
+    it('attaches an API error to value.toDate of every reversed date range condition', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const errorStore = Shopware.Store.get('error');
+        errorStore.resetApiErrors();
+
+        const addApiErrorSpy = jest.spyOn(errorStore, 'addApiError');
+        ruleRepositoryMock.save.mockClear();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            conditionTree: [
+                {
+                    id: 'first-reversed',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
+                    children: [],
+                },
+                {
+                    id: 'second-reversed',
+                    type: 'dateRange',
+                    value: { fromDate: '2024-06-01', toDate: '2024-05-01' },
+                    children: [],
+                },
+                {
+                    id: 'valid',
+                    type: 'dateRange',
+                    value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
+                    children: [],
+                },
+            ],
+            conditions: [
+                { id: 'first-reversed' },
+                { id: 'second-reversed' },
+                { id: 'valid' },
+            ],
+        });
+
+        await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(0);
+
+        const dateRangeCalls = addApiErrorSpy.mock.calls.filter(([call]) => call.error?.code === 'INVALID_DATE_RANGE');
+
+        expect(dateRangeCalls).toHaveLength(2);
+        expect(dateRangeCalls.map(([call]) => call.expression)).toEqual([
+            'rule_condition.first-reversed.value.toDate',
+            'rule_condition.second-reversed.value.toDate',
+        ]);
+
+        addApiErrorSpy.mockRestore();
     });
 });

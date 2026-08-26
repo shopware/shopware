@@ -1,10 +1,14 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /* eslint-disable jest/no-conditional-expect */
 
 /**
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { computed, inject, ref } from 'vue';
 import ShopwareError from 'src/core/data/ShopwareError';
+import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import kebabCase from 'lodash-es/kebabCase';
 import uuid from 'test/_helper_/uuid';
@@ -14,13 +18,27 @@ import 'src/app/filter/unicode-uri';
 /** @type Wrapper */
 let wrapper;
 
-async function createWrapper(defaultValues = {}) {
+async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}) {
+    const systemConfigApiService = {
+        getConfig: jest.fn(() => Promise.resolve(config)),
+        getValues: jest.fn((domain, salesChannelId) => {
+            if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
+                return Promise.resolve(defaultValues[domain][salesChannelId]);
+            }
+
+            return Promise.resolve({});
+        }),
+        batchSave: jest.fn(() => Promise.resolve()),
+    };
+
     return mount(await wrapTestComponent('sw-system-config'), {
+        slots,
         props: {
             salesChannelSwitchable: true,
             domain: 'ConfigRenderer.config',
         },
         global: {
+            components,
             directives: {
                 tooltip: {},
                 popover: {},
@@ -67,6 +85,9 @@ async function createWrapper(defaultValues = {}) {
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-url-field': await wrapTestComponent('sw-url-field'),
@@ -103,16 +124,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-time-ago': true,
             },
             provide: {
-                systemConfigApiService: {
-                    getConfig: () => Promise.resolve(createConfig()),
-                    getValues: (domain, salesChannelId) => {
-                        if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
-                            return Promise.resolve(defaultValues[domain][salesChannelId]);
-                        }
-
-                        return Promise.resolve({});
-                    },
-                },
+                systemConfigApiService,
                 repositoryFactory: {
                     create: (entity) => ({
                         search: (criteria) => {
@@ -719,11 +731,29 @@ function createConfig() {
     ];
 }
 
+function createConfigWithCacheRelevantField(fieldName) {
+    const config = createConfig();
+
+    config.forEach((card) => {
+        card.elements.forEach((element) => {
+            if (element.name === fieldName) {
+                element.config.cacheRelevant = true;
+            }
+        });
+    });
+
+    return config;
+}
+
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
 describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
+    afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
     it('should show a select field for the sales channels', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -809,6 +839,59 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         const error = wrapper.vm.getFieldError('dummyKey');
 
         expect(error).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should show the error of the selected sales channel scope', async () => {
+        const fieldName = 'ConfigRenderer.config.textField';
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
+            'This value should not be blank.',
+        );
+
+        new ErrorResolverSystemConfig().handleWriteErrors([
+            {
+                code: 'scopedCode',
+                status: '400',
+                detail: 'This value should not be blank.',
+                meta: { parameters: {} },
+                source: { pointer: `/${uuid.get('headless')}/${fieldName}` },
+            },
+        ]);
+        await flushPromises();
+
+        expect(wrapper.vm.getFieldError(fieldName)).toEqual(expect.objectContaining({ code: 'scopedCode' }));
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).toContain(
+            'This value should not be blank.',
+        );
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`).html()).not.toContain(
+            'This value should not be blank.',
+        );
+    });
+
+    it('should add a class based on the card name when provided', async () => {
+        wrapper = await createWrapper({}, [
+            {
+                name: 'companyInformation',
+                title: {
+                    'en-GB': 'Company information',
+                },
+                elements: [],
+            },
+        ]);
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__card--company-information').exists()).toBe(true);
     });
 
     createConfig()[0].elements.forEach(({ name, type, config, _test }) => {
@@ -1115,6 +1198,102 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
     });
 
+    async function switchToHeadless() {
+        const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
+        await salesChannelSwitch.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+        await salesChannelSwitch.find('.sw-select-option--2').trigger('click');
+        await flushPromises();
+    }
+
+    it('should keep an sw-entity-single-select empty after clearing a field whose inheritance was removed', async () => {
+        const name = 'ConfigRenderer.config.entitySelectField';
+        const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [name]: uuid.get('pullover'),
+                },
+            },
+        });
+        await flushPromises();
+
+        await switchToHeadless();
+
+        // Inherited: child shows the parent value and can unlink
+        let field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-entity-single-select__selection-text').text()).toBe('Pullover');
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Unlink inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+
+        // Remove inheritance -> child takes over the parent value, becomes editable
+        await field.find('.sw-inheritance-switch .mt-icon').trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBe(uuid.get('pullover'));
+
+        // Clear the selection -> emits null
+        await field.find('.sw-select__select-indicator-clear').trigger('click');
+        await flushPromises();
+
+        // The cleared value must stick: still null, inheritance NOT restored,
+        // and the inherited value is no longer displayed.
+        field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(field.find('.sw-entity-single-select__selection-text').text()).not.toBe('Pullover');
+    });
+
+    it('should keep an sw-media-field empty after clearing a field whose inheritance was removed', async () => {
+        const name = 'ConfigRenderer.config.mediaField';
+        const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [name]: uuid.get('funny-image'),
+                },
+            },
+        });
+        await flushPromises();
+
+        await switchToHeadless();
+
+        // Inherited: child shows the parent media and can unlink
+        let field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(field.find('.sw-media-base-item__name').text()).toBe('funny-image.jpg');
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Unlink inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+
+        // Remove inheritance -> child takes over the parent value
+        await field.find('.sw-inheritance-switch .mt-icon').trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBe(uuid.get('funny-image'));
+
+        // Unlink the media -> emits null
+        await field.find('.sw-media-field__toggle-button').trigger('click');
+        await flushPromises();
+        await field.find('.sw-media-field__action-button.is--remove').trigger('click');
+        await flushPromises();
+
+        // The cleared value must stick: still null and inheritance NOT restored.
+        field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+    });
+
     it('should contain ai badge in second card', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -1221,6 +1400,82 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(bind.config.hideClearableButton).toBeUndefined();
     });
 
+    it('should not save unchanged config data', async () => {
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    'ConfigRenderer.config.textField': 'Original value',
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).not.toHaveBeenCalled();
+    });
+
+    it('should save only changed config data without silent parameter for non cache relevant fields', async () => {
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        'ConfigRenderer.config.textField': 'Original value',
+                        'ConfigRenderer.config.textareaField': 'Original textarea',
+                    },
+                },
+            },
+            createConfigWithCacheRelevantField('ConfigRenderer.config.textField'),
+        );
+        await flushPromises();
+
+        wrapper.vm.actualConfigData.null['ConfigRenderer.config.textareaField'] = 'Changed textarea';
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledWith(
+            {
+                null: {
+                    'ConfigRenderer.config.textareaField': 'Changed textarea',
+                },
+            },
+            {},
+        );
+    });
+
+    it('should save cache relevant config changes with explicit non-silent parameter', async () => {
+        wrapper = await createWrapper(
+            {
+                'ConfigRenderer.config': {
+                    null: {
+                        'ConfigRenderer.config.textField': 'Original value',
+                    },
+                },
+            },
+            createConfigWithCacheRelevantField('ConfigRenderer.config.textField'),
+        );
+        await flushPromises();
+
+        wrapper.vm.actualConfigData.null['ConfigRenderer.config.textField'] = 'Changed value';
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).toHaveBeenCalledWith(
+            {
+                null: {
+                    'ConfigRenderer.config.textField': 'Changed value',
+                },
+            },
+            { silent: false },
+        );
+
+        wrapper.vm.systemConfigApiService.batchSave.mockClear();
+
+        await wrapper.vm.saveAll();
+
+        expect(wrapper.vm.systemConfigApiService.batchSave).not.toHaveBeenCalled();
+    });
+
     it('should reinitialize on domain change', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -1232,5 +1487,137 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
 
         expect(createdSpy).toHaveBeenCalled();
+    });
+
+    it('should expose the current sales channel id as a card-element slot prop', async () => {
+        wrapper = await createWrapper({}, createConfig(), {
+            'card-element': `
+                <template #card-element="{ currentSalesChannelId }">
+                    <div class="test-scope-slot">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe(uuid.get('headless'));
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-slot').text()).toBe('global');
+    });
+
+    it('should expose the current sales channel id on the beforeElements, afterElements and card-element-last slots', async () => {
+        wrapper = await createWrapper({}, createConfig(), {
+            beforeElements: `
+                <template #beforeElements="{ currentSalesChannelId }">
+                    <div class="test-scope-before">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+            afterElements: `
+                <template #afterElements="{ currentSalesChannelId }">
+                    <div class="test-scope-after">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+            'card-element-last': `
+                <template #card-element-last="{ currentSalesChannelId }">
+                    <div class="test-scope-last">{{ currentSalesChannelId === null ? 'global' : currentSalesChannelId }}</div>
+                </template>`,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-before').text()).toBe('global');
+        expect(wrapper.find('.test-scope-after').text()).toBe('global');
+        expect(wrapper.find('.test-scope-last').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('storefront'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-before').text()).toBe(uuid.get('storefront'));
+        expect(wrapper.find('.test-scope-after').text()).toBe(uuid.get('storefront'));
+        expect(wrapper.find('.test-scope-last').text()).toBe(uuid.get('storefront'));
+    });
+
+    it('should provide the current sales channel id to embedded components', async () => {
+        const scopeProbe = {
+            template: '<div class="test-scope-probe">{{ label }}</div>',
+            inject: {
+                swSystemConfigCurrentSalesChannelId: { default: null },
+            },
+            computed: {
+                label() {
+                    const salesChannelId = this.swSystemConfigCurrentSalesChannelId;
+
+                    return salesChannelId === null ? 'global' : salesChannelId;
+                },
+            },
+        };
+
+        wrapper = await createWrapper({}, createConfig(), {
+            'card-element': scopeProbe,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe(uuid.get('headless'));
+
+        const probeUid = wrapper.findComponent(scopeProbe).vm.$.uid;
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-probe').text()).toBe('global');
+        expect(wrapper.findComponent(scopeProbe).vm.$.uid).toBe(probeUid);
+    });
+
+    it('should provide the current sales channel id to components rendered through config.xml', async () => {
+        const setupProbe = {
+            template: '<div class="test-scope-setup">{{ label }}</div>',
+            setup() {
+                const salesChannelId = inject('swSystemConfigCurrentSalesChannelId', ref(null));
+
+                return { label: computed(() => salesChannelId.value ?? 'global') };
+            },
+        };
+
+        wrapper = await createWrapper(
+            {},
+            [
+                {
+                    name: 'probeCard',
+                    title: { 'en-GB': 'Probe card' },
+                    elements: [
+                        {
+                            name: 'ConfigRenderer.config.probeField',
+                            config: {
+                                componentName: 'test-scope-setup-probe',
+                                label: { 'en-GB': 'probe field' },
+                            },
+                        },
+                    ],
+                },
+            ],
+            {},
+            { 'test-scope-setup-probe': setupProbe },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe('global');
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe(uuid.get('headless'));
+
+        wrapper.vm.onSalesChannelChanged(null);
+        await flushPromises();
+
+        expect(wrapper.find('.test-scope-setup').text()).toBe('global');
     });
 });

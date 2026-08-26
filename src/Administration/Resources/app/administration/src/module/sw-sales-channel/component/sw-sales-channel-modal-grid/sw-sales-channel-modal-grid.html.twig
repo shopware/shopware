@@ -74,16 +74,12 @@
             label="actions"
         >
             <mt-button
-                v-tooltip="{
-                    message: $t('sw-sales-channel.modal.messageNoProductStreams'),
-                    showOnDisabledElements: true,
-                    disabled: !addChannelAction.disabled(item.id)
-                }"
+                v-tooltip="getTooltip(item)"
                 class="sw-sales-channel-modal__add-channel-action"
                 size="small"
                 variant="primary"
                 :is-loading="addChannelAction.loading(item.id)"
-                :disabled="addChannelAction.disabled(item.id)"
+                :disabled="isDisabled(item)"
                 data-analytics-id="sw_sales_channel.modal_grid.sales_channel_add"
                 :data-analytics-sales-channel-type-id="item.id"
                 @click="onAddChannel(item.id)"

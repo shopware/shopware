@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminSearchController;
 use Shopware\Administration\Service\AdminSearcher;
@@ -32,39 +33,31 @@ class AdminSearchControllerTest extends TestCase
 {
     private AdminSearchController $controller;
 
-    private MockObject&AclCriteriaValidator $criteriaValidator;
+    private Stub&AclCriteriaValidator $criteriaValidator;
 
-    private MockObject&DefinitionInstanceRegistry $definitionInstanceRegistry;
+    private Stub&DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    private MockObject&DefinitionInstanceRegistry $definitionRegistry;
+    private Stub&DefinitionInstanceRegistry $definitionRegistry;
 
-    private MockObject&JsonEntityEncoder $entityEncoder;
+    private Stub&JsonEntityEncoder $entityEncoder;
 
-    private MockObject&RequestCriteriaBuilder $requestCriteriaBuilder;
+    private Stub&RequestCriteriaBuilder $requestCriteriaBuilder;
 
-    private MockObject&AdminSearcher $searcher;
+    private Stub&AdminSearcher $searcher;
 
     private MockObject&DecoderInterface $serializer;
 
     protected function setUp(): void
     {
-        $this->requestCriteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
-        $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->searcher = $this->createMock(AdminSearcher::class);
+        $this->requestCriteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $this->definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->searcher = static::createStub(AdminSearcher::class);
         $this->serializer = $this->createMock(DecoderInterface::class);
-        $this->criteriaValidator = $this->createMock(AclCriteriaValidator::class);
-        $this->definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->entityEncoder = $this->createMock(JsonEntityEncoder::class);
+        $this->criteriaValidator = static::createStub(AclCriteriaValidator::class);
+        $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->entityEncoder = static::createStub(JsonEntityEncoder::class);
 
-        $this->controller = new AdminSearchController(
-            $this->requestCriteriaBuilder,
-            $this->definitionInstanceRegistry,
-            $this->searcher,
-            $this->serializer,
-            $this->criteriaValidator,
-            $this->definitionRegistry,
-            $this->entityEncoder
-        );
+        $this->controller = $this->getController();
     }
 
     public function testSearchWithNoQueryReturnsEmptyData(): void
@@ -84,14 +77,17 @@ class AdminSearchControllerTest extends TestCase
                 [ProductDefinition::class => ['product'], LandingPageDefinition::class => ['page']]
             );
 
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')
+        $this->definitionInstanceRegistry->method('has')
             ->willReturnOnConsecutiveCalls(true, false);
 
         $validationError = [ProductDefinition::class . ':' . AclRoleDefinition::PRIVILEGE_READ];
-        $this->criteriaValidator->expects($this->once())->method('validate')
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())->method('validate')
             ->willReturn($validationError);
 
-        $response = $this->controller->search(new Request(['product' => true, 'page' => true]), Context::createDefaultContext());
+        $controller = $this->getController(criteriaValidator: $criteriaValidator);
+
+        $response = $controller->search(new Request(['product' => true, 'page' => true]), Context::createDefaultContext());
 
         static::assertNotFalse($response->getContent());
         $result = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -117,7 +113,7 @@ class AdminSearchControllerTest extends TestCase
                 [ProductEntity::class => ['product'], LandingPageDefinition::class => ['page']]
             );
 
-        $this->definitionInstanceRegistry->expects($this->any())->method('has')
+        $this->definitionInstanceRegistry->method('has')
             ->willReturnOnConsecutiveCalls(true, true);
 
         $productEntity = new ProductEntity();
@@ -125,7 +121,8 @@ class AdminSearchControllerTest extends TestCase
 
         $collection = new EntityCollection([$productEntity]);
 
-        $this->searcher->expects($this->once())->method('search')
+        $searcher = $this->createMock(AdminSearcher::class);
+        $searcher->expects($this->once())->method('search')
             ->willReturn([
                 ProductEntity::class => [
                     'data' => $collection,
@@ -137,7 +134,9 @@ class AdminSearchControllerTest extends TestCase
                 ],
             ]);
 
-        $response = $this->controller->search(new Request(['product' => true, 'page' => true]), Context::createDefaultContext());
+        $controller = $this->getController(searcher: $searcher);
+
+        $response = $controller->search(new Request(['product' => true, 'page' => true]), Context::createDefaultContext());
 
         static::assertNotFalse($response->getContent());
         $result = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -145,5 +144,20 @@ class AdminSearchControllerTest extends TestCase
         static::assertArrayHasKey('data', $result);
         static::assertArrayHasKey(ProductEntity::class, $result['data']);
         static::assertArrayHasKey(CategoryEntity::class, $result['data']);
+    }
+
+    private function getController(
+        ?AdminSearcher $searcher = null,
+        ?AclCriteriaValidator $criteriaValidator = null
+    ): AdminSearchController {
+        return new AdminSearchController(
+            $this->requestCriteriaBuilder,
+            $this->definitionInstanceRegistry,
+            $searcher ?? $this->searcher,
+            $this->serializer,
+            $criteriaValidator ?? $this->criteriaValidator,
+            $this->definitionRegistry,
+            $this->entityEncoder
+        );
     }
 }

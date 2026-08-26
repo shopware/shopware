@@ -3,8 +3,8 @@
 .sw-meteor-navigation {
     display: flex;
     align-items: center;
-    color: $color-gray-500;
-    font-size: $font-size-xs;
+    color: var(--color-text-secondary-default);
+    font-size: var(--font-size-xs);
 
     .sw-meteor-navigation__back-arrow {
         margin-right: 8px;
@@ -14,8 +14,8 @@
     .sw-meteor-navigation__link {
         display: flex;
         align-items: center;
-        color: $color-gray-500;
-        font-weight: $font-weight-medium;
+        color: var(--color-text-secondary-default);
+        font-weight: var(--font-weight-medium);
         text-decoration: none;
         padding: 6px 10px;
         border-radius: $border-radius-md;
@@ -25,13 +25,13 @@
         &:focus,
         &:focus-within,
         &:focus-visible {
-            background-color: $color-gray-100;
-            color: $color-darkgray-800;
+            background-color: var(--color-background-secondary-default);
+            color: var(--color-text-primary-default);
         }
 
         &:active {
-            background-color: $color-gray-200;
-            color: $color-darkgray-900;
+            background-color: var(--color-background-secondary-default);
+            color: var(--color-text-primary-default);
         }
     }
 }

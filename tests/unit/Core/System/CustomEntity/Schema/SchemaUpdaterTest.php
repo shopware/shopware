@@ -10,12 +10,14 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SchemaUpdater::class)]
 class SchemaUpdaterTest extends TestCase
 {

@@ -36,7 +36,7 @@
             :is-loading="isLoading"
             @click.prevent="onSave"
         >
-            {{ $t('sw-settings-document.detail.buttonSave') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -45,6 +45,17 @@
     {% block sw_settings_document_detail_content %}
     <template #content>
         <sw-card-view>
+            <mt-banner
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showCompanySettingsMovedBanner"
+                class="sw-settings-document-detail__company-settings-moved-banner"
+                variant="info"
+                closable
+                :title="$t('sw-settings-document.detail.companySettingsMovedBannerTitle')"
+                @close="hideCompanySettingsMovedBanner"
+            >
+                {{ $t('sw-settings-document.detail.companySettingsMovedBannerDescription') }}
+            </mt-banner>
+
             {% block sw_settings_document_detail_assignment_card %}
             <mt-card
                 class="sw-settings-document-detail__assignment_card"
@@ -145,7 +156,7 @@
             >
                 <sw-container
                     class="sw-settings-document-detail__settings_card-form"
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
+                    columns="repeat(2, minmax(250px, 1fr))"
                     gap="0px 30px"
                 >
                     {% block sw_settings_document_detail_content_field_name %}
@@ -159,30 +170,6 @@
                             validation="required"
                             :error="documentConfigNameError"
                             required
-                        />
-                    </div>
-                    {% endblock %}
-
-                    {% block sw_settings_document_detail_content_field_file_name_prefix %}
-                    <div class="sw-settings-document-detail__field_file_name_prefix">
-                        <mt-text-field
-                            v-model="documentConfig.filenamePrefix"
-                            name="sw-field--documentConfig-filenamePrefix"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
-                            :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
-                        />
-                    </div>
-                    {% endblock %}
-
-                    {% block sw_settings_document_detail_content_field_file_name_suffix %}
-                    <div class="sw-settings-document-detail__field_file_name_suffix">
-                        <mt-text-field
-                            v-model="documentConfig.filenameSuffix"
-                            name="sw-field--documentConfig-filenameSuffix"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
-                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
                         />
                     </div>
                     {% endblock %}
@@ -215,6 +202,7 @@
                                 v-else-if="formField"
                                 v-model:value="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor') || undefined"
+                                :error="formField.name === 'paymentDueDate' ? getPaymentDueDateError : undefined"
                                 class="sw-settings-document-detail__form-field-renderer"
                                 v-bind="formField"
                             />
@@ -224,65 +212,166 @@
                     {% endblock %}
                 </sw-container>
 
-                <div class="sw-settings-document-detail__settings_card-display">
-                    <h4 class="sw-settings-document-detail__settings_card-display-title">
-                        {{ $t('sw-settings-document.detail.displayTitle') }}
-                    </h4>
+            </mt-card>
+            {% endblock %}
 
-                    <div class="sw-settings-document-detail__settings_card-display-container">
-                        <template v-if="documentConfig.config">
-                            <template
-                                v-for="(formField, index) in generalDisplayFields"
-                                :key="`display-form-field-${index}`"
-                            >
-                                <sw-form-field-renderer
-                                    v-model:value="documentConfig.config[formField.name]"
-                                    :disabled="!acl.can('document.editor') || undefined"
-                                    v-bind="formField"
-                                />
-                            </template>
-                        </template>
-
-                        {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
-                        <mt-checkbox
-                            v-if="isShowDivergentDeliveryAddress"
-                            v-model:checked="documentConfig.config.displayDivergentDeliveryAddress"
-                            name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
-                            class="sw-settings-document-detail__field_divergent_delivery_address"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
+            {% block sw_settings_document_detail_filename_card %}
+            <mt-card
+                class="sw-settings-document-detail__filename_card"
+                position-identifier="sw-settings-document-detail-filename"
+                :title="$t('sw-settings-document.detail.filenameCard')"
+                :is-loading="isLoading"
+            >
+                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')">
+                    <p class="sw-settings-document-detail__filename_pattern">
+                        <mt-icon
+                            size="16"
+                            name="solid-info-circle"
                         />
-                        {% endblock %}
+                        <span>{{ $t('sw-settings-document.detail.filenamePattern') }}</span>
+                    </p>
+                </template>
 
-                        {% block sw_settings_document_detail_content_field_additional_note_delivery %}
-                        <mt-checkbox
-                            v-if="isShowDisplayNoteDelivery"
-                            v-model:checked="documentConfig.config.displayAdditionalNoteDelivery"
-                            name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
-                            class="sw-settings-document-detail__field_additional_note_delivery"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
-                            :help-text="$t('sw-settings-document.detail.helpTextDisplayAdditionalNoteDelivery')"
-                        />
-                        {% endblock %}
+                <sw-container
+                    class="sw-settings-document-detail__filename_card-form"
+                    columns="repeat(2, minmax(250px, 1fr))"
+                    gap="0px 30px"
+                >
+                    {% block sw_settings_document_detail_content_field_file_name_prefix %}
+                    <mt-text-field
+                        v-model="documentConfig.filenamePrefix"
+                        name="sw-field--documentConfig-filenamePrefix"
+                        class="sw-settings-document-detail__field_file_name_prefix"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelFileNamePrefix')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderFileNamePrefix')"
+                    />
+                    {% endblock %}
 
-                        {% block sw_settings_document_detail_content_field_customer_vat_id %}
-                        <mt-checkbox
-                            v-if="isShowDisplayNoteDelivery"
-                            v-model:checked="documentConfig.config.displayCustomerVatId"
-                            name="sw-field--documentConfig-config-displayCustomerVatId"
-                            class="sw-settings-document-detail__field_customer_vat_id"
-                            :disabled="!acl.can('document.editor') || undefined"
-                            :label="$t('sw-settings-document.detail.labelDisplayCustomerVatId')"
-                        />
-                        {% endblock %}
+                    {% block sw_settings_document_detail_content_field_file_name_suffix %}
+                    <mt-text-field
+                        v-model="documentConfig.filenameSuffix"
+                        name="sw-field--documentConfig-filenameSuffix"
+                        class="sw-settings-document-detail__field_file_name_suffix"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelFileNameSuffix')"
+                        :placeholder="$t('sw-settings-document.detail.placeholderFileNameSuffix')"
+                    />
+                    {% endblock %}
+                </sw-container>
+
+                {% block sw_settings_document_detail_filename_field_infixes %}
+                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && supportedFormats.length">
+                    <div class="sw-settings-document-detail__filename_infix_headline">
+                        <h3>{{ $t('sw-settings-document.detail.filenameInfixHeadline') }}</h3>
+                        <sw-help-text :text="$t('sw-settings-document.detail.filenameInfixHelpText')" />
                     </div>
+
+                    <sw-container
+                        class="sw-settings-document-detail__filename_infix_fields"
+                        columns="repeat(2, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        <mt-text-field
+                            v-for="format in supportedFormats"
+                            :key="`filename-infix-${format}`"
+                            v-model="documentConfig.filenameInfixes[format]"
+                            :name="`sw-field--documentConfig-filenameInfixes-${format}`"
+                            class="sw-settings-document-detail__field_file_name_infix"
+                            :disabled="!acl.can('document.editor') || undefined"
+                            :label="formatLabels[format]"
+                            :placeholder="$t('sw-settings-document.detail.placeholderFileNameInfix')"
+                        />
+                    </sw-container>
+                </template>
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_document_detail_displayed_content_card %}
+            <mt-card
+                class="sw-settings-document-detail__displayed_content_card"
+                position-identifier="sw-settings-document-detail-displayed-content"
+                :title="$t('sw-settings-document.detail.displayedContentCard')"
+                :subtitle="$t('sw-settings-document.detail.displayedContentCardSubtitle')"
+                :is-loading="isLoading"
+            >
+                <div class="sw-settings-document-detail__displayed_content_card-container">
+                    <template v-if="documentConfig.config">
+                        <template
+                            v-for="(formField, index) in generalDisplayFields"
+                            :key="`display-form-field-${index}`"
+                        >
+                            <sw-form-field-renderer
+                                v-model:value="documentConfig.config[formField.name]"
+                                :disabled="!acl.can('document.editor') || undefined"
+                                v-bind="formField"
+                            />
+                        </template>
+                    </template>
+
+                    {% block sw_settings_document_detail_content_field_display_divergent_delivery_address %}
+                    <mt-checkbox
+                        v-if="isShowDivergentDeliveryAddress"
+                        v-model:checked="documentConfig.config.displayDivergentDeliveryAddress"
+                        name="sw-field--documentConfig-config-displayDivergentDeliveryAddress"
+                        class="sw-settings-document-detail__field_divergent_delivery_address"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelDisplayDivergentDeliveryAddress')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_additional_note_delivery %}
+                    <mt-checkbox
+                        v-if="isShowDisplayNoteDelivery"
+                        v-model:checked="documentConfig.config.displayAdditionalNoteDelivery"
+                        name="sw-field--documentConfig-config-displayAdditionalNoteDelivery"
+                        class="sw-settings-document-detail__field_additional_note_delivery"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')"
+                        :help-text="$t('sw-settings-document.detail.helpTextDisplayAdditionalNoteDelivery')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_customer_vat_id %}
+                    <mt-checkbox
+                        v-if="isShowDisplayNoteDelivery"
+                        v-model:checked="documentConfig.config.displayCustomerVatId"
+                        name="sw-field--documentConfig-config-displayCustomerVatId"
+                        class="sw-settings-document-detail__field_customer_vat_id"
+                        :disabled="!acl.can('document.editor') || undefined"
+                        :label="$t('sw-settings-document.detail.labelDisplayCustomerVatId')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_display_company_address %}
+                    <mt-checkbox
+                        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                        v-model:checked="documentConfig.config.displayCompanyAddress"
+                        name="sw-field--documentConfig-config-displayCompanyAddress"
+                        class="sw-settings-document-detail__field-display-company-address"
+                        :label="$t('sw-settings-document.detail.labelDisplayCompanyAddress')"
+                        :disabled="!acl.can('document.editor') || undefined"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_document_detail_content_field_display_return_address %}
+                    <mt-checkbox
+                        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                        v-model:checked="documentConfig.config.displayReturnAddress"
+                        name="sw-field--documentConfig-config-displayReturnAddress"
+                        class="sw-settings-document-detail__field-display-return-address"
+                        :label="$t('sw-settings-document.detail.labelDisplayReturnAddress')"
+                        :disabled="!acl.can('document.editor') || undefined"
+                    />
+                    {% endblock %}
                 </div>
             </mt-card>
             {% endblock %}
 
             {% block sw_settings_document_detail_company_card %}
             <mt-card
+                v-if="!feature.isActive('DOCUMENT_GENERATION_REWORK')"
                 class="sw-settings-document-detail__company_card"
                 position-identifier="sw-settings-document-detail-company"
                 :title="$t('sw-settings-document.detail.companyCard')"

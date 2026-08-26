@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FeatureFlagCompilerPass::class)]
 class FeatureFlagsCompilerPassTest extends TestCase
 {

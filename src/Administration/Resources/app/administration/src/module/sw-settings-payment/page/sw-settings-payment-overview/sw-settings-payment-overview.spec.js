@@ -56,7 +56,7 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

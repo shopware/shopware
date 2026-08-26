@@ -14,6 +14,7 @@ export interface Extension {
     permissions: privileges;
     version?: string;
     type: 'app' | 'plugin';
+    sourceType?: string;
     integrationId?: string;
     active?: boolean;
 }
@@ -33,7 +34,7 @@ const extensions = Shopware.Store.register({
     }),
 
     actions: {
-        addExtension({ name, baseUrl, permissions, version, type, integrationId, active }: Extension) {
+        addExtension({ name, baseUrl, permissions, version, type, sourceType, integrationId, active }: Extension) {
             if (!this.extensionsState[name]) {
                 this.extensionsState[name] = {
                     name,
@@ -41,6 +42,7 @@ const extensions = Shopware.Store.register({
                     permissions,
                     version,
                     type,
+                    sourceType,
                     integrationId,
                     active,
                 };

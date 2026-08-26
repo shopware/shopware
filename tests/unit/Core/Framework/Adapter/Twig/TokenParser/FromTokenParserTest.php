@@ -30,7 +30,7 @@ class FromTokenParserTest extends TestCase
     {
         static::assertSame(
             'sw_from',
-            (new FromTokenParser($this->createMock(TemplateFinderInterface::class)))->getTag(),
+            (new FromTokenParser(static::createStub(TemplateFinderInterface::class)))->getTag(),
         );
     }
 

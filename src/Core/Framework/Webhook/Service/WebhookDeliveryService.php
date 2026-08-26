@@ -33,6 +33,7 @@ class WebhookDeliveryService
     public function __construct(
         private readonly WebhookClient $webhookClient,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
+        private readonly WebhookSigningSecretResolver $signingSecretResolver,
         private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly RetryDelayCalculator $retryDelayCalculator,
         private readonly MessageBusInterface $bus,
@@ -119,7 +120,7 @@ class WebhookDeliveryService
             $message->getShopwareVersion(),
             WebhookClient::CONNECT_TIMEOUT,
             WebhookClient::REQUEST_TIMEOUT,
-            $message->getSecret(),
+            $this->signingSecretResolver->resolve($message),
             $message->getLanguageId(),
             $message->getUserLocale(),
             $headers,

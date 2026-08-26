@@ -26,8 +26,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddPaymentMethodCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(AddPaymentMethodCommandHandler::class)]
 class AddPaymentMethodCommandHandlerTest extends TestCase
 {
     public function testSupportedCommands(): void
@@ -90,7 +90,7 @@ class AddPaymentMethodCommandHandlerTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $handler = new AddPaymentMethodCommandHandler($repo, $this->createMock(ExceptionLogger::class));
+        $handler = new AddPaymentMethodCommandHandler($repo, static::createStub(ExceptionLogger::class));
         $handler->handle($command, $response, $context);
 
         static::assertSame($paymentMethod, $response->getAvailablePaymentMethods()->first());

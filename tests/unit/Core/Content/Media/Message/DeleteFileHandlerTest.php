@@ -9,10 +9,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DeleteFileHandler::class)]
 class DeleteFileHandlerTest extends TestCase
 {

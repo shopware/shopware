@@ -85,7 +85,13 @@ export default {
                 return [{ text: this.text, highlighted: false }];
             }
 
-            const regExp = new RegExp(this.escapeRegExp(this.searchTerm).trim(), 'ig');
+            const pattern = this.escapeRegExp(this.searchTerm).trim();
+
+            if (!pattern) {
+                return [{ text: this.text, highlighted: false }];
+            }
+
+            const regExp = new RegExp(pattern, 'ig');
             const parts = [];
             let currentIndex = 0;
             let match = regExp.exec(this.text);

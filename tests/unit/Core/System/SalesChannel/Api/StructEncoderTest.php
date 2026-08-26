@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(StructEncoder::class)]
 class StructEncoderTest extends TestCase
 {
@@ -226,6 +226,44 @@ class StructEncoderTest extends TestCase
         static::assertEquals($expectedCustomFields, $encoded['translated']['customFields']);
     }
 
+    public function testResetReloadsBlockedCustomFields(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setName('test');
+        $product->setCustomFields(['visible' => 'test', 'blocked' => 'test']);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->exactly(2))
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'entity_name' => 'product',
+                    'name' => 'blocked',
+                ],
+            ]);
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
+
+        $expectedCustomFields = [
+            'visible' => 'test',
+        ];
+
+        $encoded = $structEncoder->encode($product, new ResponseFields());
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
+
+        $structEncoder->reset();
+
+        $encoded = $structEncoder->encode($product, new ResponseFields());
+
+        static::assertArrayHasKey('customFields', $encoded);
+        static::assertSame($expectedCustomFields, $encoded['customFields']);
+    }
+
     public function testResponseFieldsEncodeIncludesCorrectly(): void
     {
         $product = new ProductEntity();
@@ -301,20 +339,20 @@ class StructEncoderTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             $definitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $serializer = new Serializer([new StructNormalizer()], [new JsonEncoder()]);
 
-        $connection ??= $this->createMock(Connection::class);
+        $connection ??= static::createStub(Connection::class);
 
         return new StructEncoder($this->getChainRegistry($registry), $serializer, $connection);
     }
 
     private function getChainRegistry(StaticDefinitionInstanceRegistry $registry): DefinitionRegistryChain
     {
-        $mock = $this->createMock(ContainerInterface::class);
+        $mock = static::createStub(ContainerInterface::class);
 
         return new DefinitionRegistryChain($registry, new SalesChannelDefinitionInstanceRegistry('', $mock, [], []));
     }

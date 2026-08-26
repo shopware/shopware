@@ -245,7 +245,11 @@ class PromotionItemBuilder
         $payload['preventCombination'] = $promotion->isPreventCombination();
 
         // set whether the promotion has limited redemptions
-        $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal() || $promotion->getMaxRedemptionsPerCustomer();
+        $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal()
+            || $promotion->getMaxRedemptionsPerCustomer()
+            || $promotion->isUseIndividualCodes();
+        $payload['hasGlobalRedemptionLimit'] = $promotion->getMaxRedemptionsGlobal() !== null
+            && $promotion->getMaxRedemptionsGlobal() > 0;
 
         // If all combinations are prevented the exclusions dont matter
         // otherwise sets a list of excluded promotion ids

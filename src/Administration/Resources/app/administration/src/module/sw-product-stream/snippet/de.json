@@ -128,11 +128,12 @@
     },
     "detail": {
       "titleCard": "Informationen",
-      "buttonSave": "Speichern",
       "labelName": "Name",
       "placeholderName": "Gib einen Namen ein ...",
       "labelDescription": "Beschreibung",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
+      "labelDisplayAsGroup": "Passende Varianten gruppiert anzeigen",
+      "helpTextDisplayAsGroup": "Wenn aktiviert, werden passende Varianten gemäß der Produktdarstellung gruppiert. Zum Einzelanzeigen deaktivieren.",
       "textHeadline": "Neue Produktgruppe",
       "titleFilter": "Bedingungen",
       "titleResult": "Produkte",
@@ -144,12 +145,12 @@
         "action": "Mehr dazu in unserer Dokumentation"
       },
       "buttonOpenPreview": "Vorschau",
-      "productStatesFilterWarning": "Diese dynamische Produktgruppe verwendet noch den veralteten Produktzustandsfilter. Er wird mit v6.8 entfernt – bitte nutze stattdessen den Produkttyp-Filter."
+      "deprecatedFilterWarning": "Der Filter \"{label}\" ist veraltet und wird in {version} entfernt. Bitte nutze stattdessen \"{replacement}\".",
+      "deprecatedFilterWarningNoReplacement": "Der Filter \"{label}\" ist veraltet und wird in {version} entfernt."
     },
     "previewModal": {
       "title": "Vorschau",
-      "empty": "Es wurden keine Produkte gefunden.",
-      "close": "Schließen"
+      "empty": "Es wurden keine Produkte gefunden."
     }
   },
   "sw-privileges": {

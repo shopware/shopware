@@ -1,12 +1,11 @@
 /* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
 @import "~scss/mixins";
 
 $tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
 
 .sw-product-variant-modal {
     &__main-product-link {
-        color: var(--color-shopware-brand-500);
+        color: var(--color-text-brand-default);
         text-decoration: none;
         font-size: var(--font-size-xs);
         cursor: pointer;
@@ -53,7 +52,7 @@ $tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     }
 
     &__variants {
-        color: var(--color-gray-600);
+        color: var(--color-text-secondary-default);
         margin-left: var(--scale-size-6);
     }
 
@@ -72,11 +71,11 @@ $tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
 
     .mt-icon {
         &.is--inactive {
-            color: var(--color-crimson-500);
+            color: var(--color-icon-critical-default);
         }
 
         &.is--active {
-            color: var(--color-emerald-500);
+            color: var(--color-icon-positive-default);
         }
     }
 
@@ -85,7 +84,7 @@ $tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     }
 
     &__delete-modal-subline {
-        color: var(--color-gray-600);
+        color: var(--color-text-secondary-default);
         margin-top: var(--scale-size-8);
         font-size: var(--font-size-xs);
     }
@@ -95,11 +94,11 @@ $tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     }
 
     &__variant-options span {
-        color: var(--color-darkgray-200) !important;
+        color: var(--color-text-primary-default) !important;
     }
 
     &__variant-options:hover span {
-        color: var(--color-shopware-brand-500) !important;
+        color: var(--color-text-brand-default) !important;
     }
 
     &__media-inherited-icon {
@@ -111,8 +110,8 @@ $tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
     }
 
     .sw-configuration-option-list__toolbar {
-        background-color: var(--color-background-secondary-default);
-        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
         padding: var(--scale-size-26);
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport;
 
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -10,6 +11,9 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductExportEntity extends Entity
 {
@@ -20,6 +24,11 @@ class ProductExportEntity extends Entity
     final public const FILE_FORMAT_CSV = 'csv';
     final public const FILE_FORMAT_XML = 'xml';
     final public const FILE_FORMAT_JSONL = 'jsonl';
+
+    final public const ALLOWED_SALES_CHANNEL_TYPE_IDS = [
+        Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+        Defaults::SALES_CHANNEL_TYPE_API,
+    ];
 
     protected string $productStreamId;
 
@@ -61,6 +70,8 @@ class ProductExportEntity extends Entity
     protected bool $generateByCronjob;
 
     protected ?\DateTimeInterface $generatedAt = null;
+
+    protected ?\DateTimeInterface $nextGenerationAt = null;
 
     protected int $interval;
 
@@ -262,6 +273,16 @@ class ProductExportEntity extends Entity
     public function setGeneratedAt(?\DateTimeInterface $generatedAt): void
     {
         $this->generatedAt = $generatedAt;
+    }
+
+    public function getNextGenerationAt(): ?\DateTimeInterface
+    {
+        return $this->nextGenerationAt;
+    }
+
+    public function setNextGenerationAt(?\DateTimeInterface $nextGenerationAt): void
+    {
+        $this->nextGenerationAt = $nextGenerationAt;
     }
 
     public function getInterval(): int

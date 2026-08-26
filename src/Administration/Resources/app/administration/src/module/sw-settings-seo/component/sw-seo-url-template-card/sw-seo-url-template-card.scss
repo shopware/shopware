@@ -8,7 +8,7 @@
     }
 
     .sw-seo-url-template-card__preview {
-        color: var(--color-darkgray-200);
+        color: var(--color-text-primary-default);
         font-size: var(--font-size-xs);
     }
 
@@ -39,15 +39,15 @@
 
         &.icon--regular {
             &-checkmark {
-                color: var(--color-emerald-500);
+                color: var(--color-icon-positive-default);
             }
 
             &-exclamation-triangle {
-                color: var(--color-pumpkin-spice-500);
+                color: var(--color-icon-attention-default);
             }
 
             &-times {
-                color: var(--color-crimson-500);
+                color: var(--color-icon-critical-default);
             }
         }
     }

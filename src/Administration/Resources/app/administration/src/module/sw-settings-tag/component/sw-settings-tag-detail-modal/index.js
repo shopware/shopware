@@ -15,6 +15,7 @@ export default {
         'repositoryFactory',
         'syncService',
         'acl',
+        'feature',
     ],
 
     emits: [
@@ -96,6 +97,19 @@ export default {
 
         allowSave() {
             return this.tag.isNew() ? this.acl.can('tag.creator') : this.acl.can('tag.editor');
+        },
+
+        tagDetailModalTabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-tag.detail.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-settings-tag.detail.assignmentsTab'),
+                    name: 'assignments',
+                },
+            ];
         },
 
         tooltipSave() {

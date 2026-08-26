@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class ComposerNameMissingException extends RequirementException
 {

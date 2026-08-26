@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.2.0",
   "info": [],
   "paths": [],
   "components": {
@@ -10,7 +10,7 @@
         "properties": {
           "apiAlias": {
             "type": "string",
-            "enum": ["cookie_groups_hash"]
+            "const": "cookie_groups_hash"
           },
           "elements": {
             "type": "array",
@@ -26,7 +26,7 @@
           },
           "languageId": {
             "type": "string",
-            "format": "uuid",
+            "pattern": "^[0-9a-f]{32}$",
             "description": "The language ID for which the cookie configuration was generated. Used to store hashes per language.",
             "example": "2fbb5fe2e29a4d70aa5854ce7ce3e20b"
           }
@@ -118,4 +118,3 @@
     }
   }
 }
-

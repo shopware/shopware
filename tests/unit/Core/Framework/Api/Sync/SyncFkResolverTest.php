@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -21,6 +22,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncFkResolver::class)]
 class SyncFkResolverTest extends TestCase
 {
@@ -52,8 +54,8 @@ class SyncFkResolverTest extends TestCase
                     CategoryDefinition::class,
                     ProductCategoryDefinition::class,
                 ],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             ),
             [new DummyFkResolver()]
         );
@@ -85,8 +87,8 @@ class SyncFkResolverTest extends TestCase
         $resolver = new SyncFkResolver(
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class, TaxDefinition::class, CategoryDefinition::class, ProductCategoryDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             ),
             [new DummyFkResolver(), new DoNothingResolver()]
         );
@@ -198,8 +200,8 @@ class SyncFkResolverTest extends TestCase
         $resolver = new SyncFkResolver(
             new StaticDefinitionInstanceRegistry(
                 [ProductDefinition::class, TaxDefinition::class, CategoryDefinition::class, ProductCategoryDefinition::class],
-                $this->createMock(ValidatorInterface::class),
-                $this->createMock(EntityWriteGatewayInterface::class)
+                static::createStub(ValidatorInterface::class),
+                static::createStub(EntityWriteGatewayInterface::class)
             ),
             [new DummyFkResolver(), new DoNothingResolver()]
         );

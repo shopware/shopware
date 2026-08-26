@@ -16,14 +16,13 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(StaticFileConfigLoader::class)]
 class StaticFileConfigLoaderTest extends TestCase
 {
     public function testFileNotExisting(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Cannot find theme configuration. Did you run bin/console theme:dump');
+        $this->expectExceptionObject(new \RuntimeException('Cannot find theme configuration. Did you run bin/console theme:dump'));
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileConfigLoader($fs);

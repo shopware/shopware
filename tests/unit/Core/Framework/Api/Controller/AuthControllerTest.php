@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Controller\AuthController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 #[CoversClass(AuthController::class)]
 class AuthControllerTest extends TestCase
 {
@@ -109,13 +111,13 @@ class AuthControllerTest extends TestCase
 
     public function testRateLimitThrowsApiException(): void
     {
-        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter = static::createStub(RateLimiter::class);
         $rateLimiter->method('ensureAccepted')
             ->willThrowException(new RateLimitExceededException(time() + 60));
 
         $controller = new AuthController(
-            $this->createMock(AuthorizationServer::class),
-            $this->createMock(PsrHttpFactory::class),
+            static::createStub(AuthorizationServer::class),
+            static::createStub(PsrHttpFactory::class),
             $rateLimiter,
         );
 

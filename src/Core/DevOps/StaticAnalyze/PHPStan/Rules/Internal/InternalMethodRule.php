@@ -41,11 +41,6 @@ class InternalMethodRule implements Rule
             return [];
         }
 
-        // already marked as internal
-        if ($this->hasInternalComment($node)) {
-            return [];
-        }
-
         $class = $scope->getClassReflection();
         // complete class is marked as internal
         if ($class->isInternal()) {
@@ -58,6 +53,18 @@ class InternalMethodRule implements Rule
             }
 
             if ($this->isService($scope)) {
+                if ($this->hasInternalComment($node) && $this->hasDeprecatedComment($node)) {
+                    return [
+                        RuleErrorBuilder::message('A deprecation annotation must not be used on internal constructors of DI services. Put it on the affected constructor parameter instead.')
+                            ->identifier('shopware.internalMethod')
+                            ->build(),
+                    ];
+                }
+
+                if ($this->hasInternalComment($node)) {
+                    return [];
+                }
+
                 return [
                     RuleErrorBuilder::message('__construct of di container services has to be @internal')
                         ->identifier('shopware.internalMethod')
@@ -78,6 +85,11 @@ class InternalMethodRule implements Rule
         $text = $node->getDocComment()->getText();
 
         return \str_contains($text, '@internal');
+    }
+
+    private function hasDeprecatedComment(ClassMethod $node): bool
+    {
+        return \str_contains($node->getDocComment()?->getText() ?? '', '@deprecated');
     }
 
     private function isService(Scope $scope): bool

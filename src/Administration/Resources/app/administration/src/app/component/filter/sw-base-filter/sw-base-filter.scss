@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-base-filter {
     &__headline {
         display: flex;
@@ -10,7 +8,7 @@
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
-        margin-bottom: 16px;
+        margin-bottom: var(--scale-size-8);
     }
 
     .sw-base-filter__headline .sw-base-filter__reset {

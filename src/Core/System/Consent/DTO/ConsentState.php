@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentStatus;
+use Symfony\Component\Clock\Clock;
 
 #[Package('data-services')]
 class ConsentState
@@ -88,7 +89,7 @@ class ConsentState
     private function computeAcceptedUntil(): ?string
     {
         return match ($this->status) {
-            ConsentStatus::ACCEPTED => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ConsentStatus::ACCEPTED => Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ConsentStatus::REVOKED => $this->updatedAt,
             default => null,
         };

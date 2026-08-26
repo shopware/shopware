@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureFlagExtensionTest extends TestCase
 {

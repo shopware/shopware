@@ -1,0 +1,8 @@
+<rsm:ExchangedDocument>
+    <ram:ID>{{ documentNumber }}</ram:ID>
+    <ram:TypeCode>{{ typeCode.value }}</ram:TypeCode>
+
+    <ram:IssueDateTime>
+        <udt:DateTimeString format="102">{{ documentDate|zugferd_date_102 }}</udt:DateTimeString>
+    </ram:IssueDateTime>
+</rsm:ExchangedDocument>

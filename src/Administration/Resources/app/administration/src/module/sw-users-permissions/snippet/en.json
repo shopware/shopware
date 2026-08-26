@@ -44,11 +44,8 @@
                 "labelDescription": "Description",
                 "messageEmptyTitle": "No roles yet",
                 "messageEmptySubline": "Create roles to start managing user rights.",
-                "contextMenuEdit": "Edit",
-                "contextMenuDelete": "Delete",
                 "titleModalDelete": "Delete role",
                 "textModalDelete": "Do you really want to delete the role \"{name}\"?",
-                "labelButtonDelete": "Delete",
                 "notification": {
                     "deleteSuccess": {
                         "message": "Role \"{name}\" deleted."
@@ -111,7 +108,7 @@
                 "viewByTool": "By Tool",
                 "grantAllMissing": "Grant all missing",
                 "grant": "Grant",
-                "saveReminder": "Permissions pre-selected — click Save on the role to apply."
+                "saveReminder": "Permissions pre-selected. Click Save on the role to apply."
             }
         },
         "users": {
@@ -129,12 +126,8 @@
                 "labelRoles": "Roles",
                 "labelEmail": "Email address",
                 "status": "Status",
-                "contextMenuEdit": "Edit",
-                "contextMenuDelete": "Delete",
-                "contextMenuDuplicate": "Duplicate",
                 "titleModalDelete": "Delete user",
                 "textModalDelete": "Do you really want to delete the user \"{name}\"?",
-                "labelButtonDelete": "Delete",
                 "notification": {
                     "deleteSuccess": {
                         "message": "User \"{name}\" deleted."
@@ -148,8 +141,9 @@
                 }
             },
             "user-detail": {
-                "labelCard": "Basic information",
+                "labelCard": "Information",
                 "labelIntegrationsCard": "Integrations",
+                "labelRolesPermissionsCard": "Roles & permissions",
                 "labelFirstName": "First name",
                 "labelLastName": "Last name",
                 "labelEmail": "Email address",
@@ -158,9 +152,11 @@
                 "labelUsername": "User name",
                 "labelPassword": "Password",
                 "labelProfilePicture": "Profile picture",
-                "labelLanguage": "User interface language",
+                "labelUserInterface": "User interface",
+                "labelLanguage": "Language",
                 "labelLanguagePlaceholder": "Choose language...",
                 "labelChangePassword": "Change password",
+                "labelActive": "Active",
                 "labelAdministrator": "Administrator",
                 "labelTimezone": "Timezone",
                 "labelJobTitle": "Job title",
@@ -170,11 +166,9 @@
                 "placeholderNewPassword": "Enter new password...",
                 "placeholderNewPasswordConfirm": "Confirm new password...",
                 "labelButtonChangePassword": "Change",
-                "labelButtonSave": "Save",
                 "writeAccess": "Write",
                 "readAccess": "Read",
                 "contextMenuEdit": "Edit integration",
-                "contextMenuDelete": "Delete",
                 "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
                 "addAccessKey": "Create access key",
                 "noAccessKeysTitle": "No access keys available",
@@ -186,17 +180,13 @@
                     "titleConfirmPasswordModal": "Confirm password",
                     "labelConfirmPassword": "Password",
                     "placeholderConfirmPassword": "Enter your current password...",
-                    "labelButtonConfirm": "Confirm",
-                    "notificationPasswordErrorTitle": "Error",
                     "notificationPasswordErrorMessage": "Please submit your current password correctly."
                 },
                 "modal": {
                     "detailModalTitle": "Create integration",
-                    "detailModalTitleEdit": "Edit",
                     "confirmDelete": "Are you sure you want to delete this integration?",
                     "buttonApply": "Save integration",
                     "buttonApplyEdit": "Save changes",
-                    "buttonDelete": "Delete",
                     "buttonCreateNewApiKeys": "Create new API key",
                     "hintCreateNewApiKeys": "For generating new API access keys, updating all associated scripts and applications is recommended.",
                     "labelFieldLabel": "Name",
@@ -215,6 +205,9 @@
                     },
                     "saveSuccess": {
                         "message": "User \"{name}\" saved."
+                    },
+                    "themeSaveError": {
+                        "message": "The theme preference could not be saved."
                     },
                     "invalidEmailErrorMessage": "Please enter a valid email address.",
                     "duplicateEmailErrorMessage": "This email address has been registered already."

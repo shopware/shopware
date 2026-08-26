@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(AbstractCheckoutGatewayCommand::class)]
 #[Package('checkout')]
+#[CoversClass(AbstractCheckoutGatewayCommand::class)]
 class AbstractCheckoutGatewayCommandTest extends TestCase
 {
     public function testCreateFrom(): void

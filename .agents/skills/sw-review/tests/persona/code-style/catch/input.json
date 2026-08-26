@@ -1,0 +1,20 @@
+{
+  "persona": "code-style",
+  "tier": "cheap",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-style-catch",
+    "title": "feat(user): add email lookup",
+    "body": "Adds a helper to fetch a user by email.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/style-catch",
+    "additions": 12,
+    "deletions": 0,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": ["src/Core/System/User/Service/UserManager.php"]
+}

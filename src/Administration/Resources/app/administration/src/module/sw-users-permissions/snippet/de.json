@@ -44,11 +44,8 @@
                 "labelDescription": "Beschreibung",
                 "messageEmptyTitle": "Noch keine Rollen vorhanden",
                 "messageEmptySubline": "Erstelle Rollen, um Benutzerrechte zu organisieren.",
-                "contextMenuEdit": "Bearbeiten",
-                "contextMenuDelete": "Löschen",
                 "titleModalDelete": "Rolle löschen",
                 "textModalDelete": "Möchtest Du die Rolle \"{name}\" wirklich löschen?",
-                "labelButtonDelete": "Löschen",
                 "notification": {
                     "deleteSuccess": {
                         "message": "Rolle \"{name}\" gelöscht."
@@ -111,7 +108,7 @@
                 "viewByTool": "Nach Tool",
                 "grantAllMissing": "Alle fehlenden vergeben",
                 "grant": "Vergeben",
-                "saveReminder": "Berechtigungen vorausgewählt — Rolle speichern, um sie zu übernehmen."
+                "saveReminder": "Berechtigungen vorausgewählt. Rolle speichern, um sie zu übernehmen."
             }
         },
         "users": {
@@ -129,12 +126,8 @@
                 "labelRoles": "Rollen",
                 "labelEmail": "E-Mail-Adresse",
                 "status": "Status",
-                "contextMenuEdit": "Bearbeiten",
-                "contextMenuDelete": "Löschen",
-                "contextMenuDuplicate": "Duplizieren",
                 "titleModalDelete": "Benutzer löschen",
                 "textModalDelete": "Möchtest Du den Benutzer \"{name}\" wirklich löschen?",
-                "labelButtonDelete": "Löschen",
                 "notification": {
                     "deleteSuccess": {
                         "message": "Benutzer \"{name}\" gelöscht."
@@ -148,8 +141,9 @@
                 }
             },
             "user-detail": {
-                "labelCard": "Basisinformationen",
+                "labelCard": "Informationen",
                 "labelIntegrationsCard": "Integrationen",
+                "labelRolesPermissionsCard": "Rollen & Berechtigungen",
                 "labelFirstName": "Vorname",
                 "labelLastName": "Nachname",
                 "labelEmail": "E-Mail-Adresse",
@@ -158,9 +152,11 @@
                 "labelUsername": "Benutzername",
                 "labelPassword": "Passwort",
                 "labelProfilePicture": "Profilbild",
-                "labelLanguage": "Sprache der Benutzeroberfläche",
+                "labelUserInterface": "Benutzeroberfläche",
+                "labelLanguage": "Sprache",
                 "labelLanguagePlaceholder": "Sprache auswählen ...",
                 "labelChangePassword": "Passwort ändern",
+                "labelActive": "Aktiv",
                 "labelAdministrator": "Administrator",
                 "labelTimezone": "Zeitzone",
                 "labelJobTitle": "Job-Titel",
@@ -170,11 +166,9 @@
                 "placeholderNewPassword": "Neues Passwort eingeben ...",
                 "placeholderNewPasswordConfirm": "Neues Passwort bestätigen ...",
                 "labelButtonChangePassword": "Ändern",
-                "labelButtonSave": "Speichern",
                 "writeAccess": "Schreiben",
                 "readAccess": "Lesen",
                 "contextMenuEdit": "Integration bearbeiten",
-                "contextMenuDelete": "Löschen",
                 "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
                 "addAccessKey": "Zugangsschlüssel erstellen",
                 "noAccessKeysTitle": "Keine Zugangsschlüssel vorhanden",
@@ -186,17 +180,13 @@
                     "titleConfirmPasswordModal": "Passwort bestätigen",
                     "labelConfirmPassword": "Passwort",
                     "placeholderConfirmPassword": "Aktuelles Passwort eingeben ...",
-                    "labelButtonConfirm": "Bestätigen",
-                    "notificationPasswordErrorTitle": "Fehler",
                     "notificationPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein."
                 },
                 "modal": {
                     "detailModalTitle": "Integration anlegen",
-                    "detailModalTitleEdit": "Bearbeiten",
                     "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
                     "buttonApply": "Integration speichern",
                     "buttonApplyEdit": "Änderungen speichern",
-                    "buttonDelete": "Löschen",
                     "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
                     "hintCreateNewApiKeys": "Die Neugenerierung der API-Zugangsdaten erfordert die Aktualisierung aller zugehörigen Skripte oder Anwendungen.",
                     "labelFieldLabel": "Name",
@@ -215,6 +205,9 @@
                     },
                     "saveSuccess": {
                         "message": "Benutzer \"{name}\" gespeichert."
+                    },
+                    "themeSaveError": {
+                        "message": "Die Design-Einstellung konnte nicht gespeichert werden."
                     },
                     "invalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
                     "duplicateEmailErrorMessage": "Diese E-Mail-Adresse wird bereits verwendet."

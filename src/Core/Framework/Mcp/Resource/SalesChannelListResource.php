@@ -7,13 +7,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://sales-channels', name: 'shopware-sales-channels', description: 'All sales channels with their IDs, names, types, and domains.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://sales-channels',
+    name: 'shopware-sales-channels',
+    description: 'All sales channels with their IDs, names, types, and domains.'
+)]
 class SalesChannelListResource
 {
     /**
@@ -59,7 +64,7 @@ class SalesChannelListResource
         return [
             'uri' => 'shopware://sales-channels',
             'mimeType' => 'application/json',
-            'text' => json_encode($channels, \JSON_THROW_ON_ERROR),
+            'text' => Json::encode($channels),
         ];
     }
 }

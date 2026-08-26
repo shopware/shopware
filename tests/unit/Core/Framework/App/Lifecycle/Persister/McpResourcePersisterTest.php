@@ -21,9 +21,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpResourcePersister::class)]
 #[CoversClass(AbstractMcpCapabilityPersister::class)]
-#[Package('framework')]
 class McpResourcePersisterTest extends TestCase
 {
     /**
@@ -174,7 +174,7 @@ class McpResourcePersisterTest extends TestCase
 
     private function createMcpWithResources(McpResources $mcpResources): Mcp
     {
-        $mcp = $this->createMock(Mcp::class);
+        $mcp = static::createStub(Mcp::class);
         $mcp->method('getResources')->willReturn($mcpResources);
 
         return $mcp;

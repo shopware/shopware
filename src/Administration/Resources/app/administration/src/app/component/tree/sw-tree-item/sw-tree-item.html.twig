@@ -105,6 +105,7 @@
                 <template v-if="currentEditElement === item.data.id">
                     <sw-confirm-field
                         v-model="item.data.name"
+                        v-autofocus
                         class="sw-tree-detail__edit-tree-item"
                         :prevent-empty-submit="true"
                         :placeholder="$t(`${translationContext}.general.buttonCreate`)"
@@ -293,6 +294,7 @@
                         <template v-if="currentEditElement === item.data.id">
                             <sw-confirm-field
                                 v-model="item.data.name"
+                                v-autofocus
                                 class="sw-tree-detail__edit-tree-item"
                                 :prevent-empty-submit="true"
                                 :placeholder="$t(`${translationContext}.general.buttonCreate`)"

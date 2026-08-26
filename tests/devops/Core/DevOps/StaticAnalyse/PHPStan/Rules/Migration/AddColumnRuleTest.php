@@ -7,12 +7,14 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Migratio
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\AddColumnRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<AddColumnRule>
  */
+#[Package('framework')]
 class AddColumnRuleTest extends RuleTestCase
 {
     public function testRule(): void

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Events;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,7 +20,7 @@ class ProductListingResolvePreviewEventTest extends TestCase
     public function testReplace(): void
     {
         $event = new ProductListingResolvePreviewEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria(),
             ['p1' => 'p1'],
             true
@@ -32,7 +33,7 @@ class ProductListingResolvePreviewEventTest extends TestCase
     public function testReplaceException(): void
     {
         $event = new ProductListingResolvePreviewEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Criteria(),
             ['p1' => 'p1'],
             true
@@ -40,5 +41,20 @@ class ProductListingResolvePreviewEventTest extends TestCase
 
         static::expectException(\RuntimeException::class);
         $event->replace('p3', 'p2');
+    }
+
+    public function testExposesItsPayload(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getContext')->willReturn($context);
+        $criteria = new Criteria();
+
+        $event = new ProductListingResolvePreviewEvent($salesChannelContext, $criteria, ['p1' => 'p1'], true);
+
+        static::assertSame($criteria, $event->getCriteria());
+        static::assertSame($salesChannelContext, $event->getSalesChannelContext());
+        static::assertSame($context, $event->getContext());
+        static::assertTrue($event->hasOptionFilter());
     }
 }

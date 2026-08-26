@@ -38,14 +38,14 @@ export default {
         conditionsOptions() {
             return [
                 {
-                    name: this.$t('sw-settings-search.generalTab.labelSearchAndCondition'),
-                    value: true,
-                    description: this.$t('sw-settings-search.generalTab.textSearchAndConditionExplain'),
-                },
-                {
                     name: this.$t('sw-settings-search.generalTab.labelSearchOrCondition'),
                     value: false,
                     description: this.$t('sw-settings-search.generalTab.textSearchOrConditionExplain'),
+                },
+                {
+                    name: this.$t('sw-settings-search.generalTab.labelSearchAndCondition'),
+                    value: true,
+                    description: this.$t('sw-settings-search.generalTab.textSearchAndConditionExplain'),
                 },
             ];
         },

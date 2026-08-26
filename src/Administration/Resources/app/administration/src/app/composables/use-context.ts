@@ -27,6 +27,7 @@ export interface ContextState {
                     css: string | string[];
                     js: string | string[];
                     permissions?: privileges;
+                    sourceType?: string;
                     integrationId?: string;
                     active?: boolean;
                 };
@@ -36,6 +37,7 @@ export interface ContextState {
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;
+                minSearchTermLength: number;
             };
             version: null | string;
             versionRevision: null | string;

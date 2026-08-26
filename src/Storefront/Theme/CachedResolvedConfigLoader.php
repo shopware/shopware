@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it was not used anymore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     /**

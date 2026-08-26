@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -13,7 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *     name?: string,
  *     tags?: list<string>,
  *     attributes?: list<string>,
- *     options?: array<string, array{value?: mixed, values?: list<mixed>}>,
+ *     options?: array<string, bool|array{values: list<string>}>,
  *     custom_attributes?: list<array{tags: list<string>, attributes: list<string>}>,
  *     custom_tags?: list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>
  * }>
@@ -58,7 +57,7 @@ class HtmlSanitizer implements ResetInterface
         }
 
         /** Fix double encoding
-         * @see HtmlSanitizerTest::testSanitizeHtmlEntities()
+         * @see \Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest::testSanitizeHtmlEntities()
          */
         $text = htmlspecialchars_decode($text, \ENT_QUOTES | \ENT_HTML5);
 

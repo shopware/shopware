@@ -11,7 +11,7 @@
         <div
             ref="selectWrapper"
             class="sw-select__selection"
-            tabindex="0"
+            :tabindex="disabled ? '-1' : '0'"
             :aria-expanded="expanded ? 'true' : 'false'"
             @click="expand"
             @focus="expand"

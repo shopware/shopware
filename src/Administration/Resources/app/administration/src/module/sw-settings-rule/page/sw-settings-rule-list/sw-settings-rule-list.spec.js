@@ -47,12 +47,7 @@ async function createWrapper(privileges = []) {
                 filterFactory: {
                     create: (name, filters) => filters,
                 },
-                filterService: new FilterService({
-                    userConfigRepository: {
-                        search: () => Promise.resolve({ length: 0 }),
-                        create: () => ({}),
-                    },
-                }),
+                filterService: new FilterService(),
                 ruleConditionDataProviderService: {
                     getConditions: () => {
                         return [{ type: 'foo', label: 'bar' }];
@@ -102,6 +97,10 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         Shopware.Application.view.router = {
             currentRoute: {
                 value: {

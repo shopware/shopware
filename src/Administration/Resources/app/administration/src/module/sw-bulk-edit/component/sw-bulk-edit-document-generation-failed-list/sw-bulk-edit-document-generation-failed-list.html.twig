@@ -1,0 +1,39 @@
+{% block sw_bulk_edit_document_generation_failed_list %}
+<div class="sw-bulk-edit-document-generation-failed-list">
+    {% block sw_bulk_edit_document_generation_failed_list_grid %}
+    <sw-data-grid
+        :columns="columns"
+        :data-source="paginatedRows"
+        :show-selection="false"
+        :show-actions="false"
+        :plain-appearance="true"
+        item-identifier-property="id"
+    >
+        {% block sw_bulk_edit_document_generation_failed_list_grid_column_order_number %}
+        <template #column-orderNumber="{ item }">
+            {{ item.orderNumber }}
+        </template>
+        {% endblock %}
+
+        {% block sw_bulk_edit_document_generation_failed_list_grid_column_document_types %}
+        <template #column-documentTypesLabel="{ item }">
+            {{ item.documentTypesLabel }}
+        </template>
+        {% endblock %}
+
+        {% block sw_bulk_edit_document_generation_failed_list_grid_pagination %}
+        <template #pagination>
+            <sw-pagination
+                v-if="showPagination"
+                :page="page"
+                :limit="itemsPerPage"
+                :total="rows.length"
+                :steps="[itemsPerPage]"
+                @page-change="onPageChange"
+            />
+        </template>
+        {% endblock %}
+    </sw-data-grid>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -2,34 +2,32 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppStorage;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'app:list',
     description: 'Lists all apps',
 )]
-#[Package('framework')]
 class AppListCommand extends Command
 {
+    use OutputFormatTrait;
+
     /**
      * @internal
-     *
-     * @param EntityRepository<AppCollection> $appRepository
      */
-    public function __construct(private readonly EntityRepository $appRepository)
+    public function __construct(private readonly AppStorage $appStorage)
     {
         parent::__construct();
     }
@@ -39,8 +37,10 @@ class AppListCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of app entities')
-            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the app list to a given term');
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        /** @deprecated tag:v6.8.0 - Use `--format json` instead */
+        $this->addOption('json', null, InputOption::VALUE_NONE, '[DEPRECATED] Use `--format json` instead.');
+        $this->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the app list to a given term');
     }
 
     /**
@@ -48,25 +48,29 @@ class AppListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
 
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
-        $filter = $input->getOption('filter');
-        if ($filter) {
-            $criteria->addFilter(new MultiFilter(
-                MultiFilter::CONNECTION_OR,
-                [
-                    new ContainsFilter('name', $filter),
-                    new ContainsFilter('label', $filter),
-                ]
-            ));
+        if ($input->getOption('json')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--json" option of the "app:list" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
+            );
+            $input->setOption('format', self::FORMAT_JSON);
         }
 
-        $apps = $this->appRepository->search($criteria, $context)->getEntities();
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        if ($format === null) {
+            return self::INVALID;
+        }
 
-        if ($input->getOption('json')) {
+        $filter = $input->getOption('filter');
+        $apps = \is_string($filter) && $filter !== ''
+            ? $this->appStorage->findAllWithNameOrLabel($filter, $context)
+            : $this->appStorage->findAll($context);
+        $apps->sort(static fn (AppEntity $a, AppEntity $b): int => $a->getName() <=> $b->getName());
+
+        if ($format === self::FORMAT_JSON) {
             $output->write(json_encode($apps, \JSON_THROW_ON_ERROR));
 
             return self::SUCCESS;

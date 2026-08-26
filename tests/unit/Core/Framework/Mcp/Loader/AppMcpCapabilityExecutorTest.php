@@ -25,8 +25,8 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[CoversClass(AppMcpCapabilityExecutor::class)]
 #[Package('framework')]
+#[CoversClass(AppMcpCapabilityExecutor::class)]
 class AppMcpCapabilityExecutorTest extends TestCase
 {
     private MockHandler $mockHandler;
@@ -42,6 +42,10 @@ class AppMcpCapabilityExecutorTest extends TestCase
             'https://shop.example.com',
             $this->createShopIdProvider(),
             30,
+            static::createStub(LoggerInterface::class),
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
     }
 
@@ -110,6 +114,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $this->createShopIdProvider(),
             30,
             $logger,
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
 
         $executor->execute('my-tool', 'secret', 'https://example.com', []);
@@ -130,6 +137,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $this->createShopIdProvider(),
             30,
             $logger,
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
 
         $result = $executor->execute('my-tool', 'secret', 'https://example.com', []);
@@ -152,6 +162,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $this->createShopIdProvider(),
             30,
             $logger,
+            static::createStub(KernelInterface::class),
+            new RequestStack(),
+            static::createStub(RouterInterface::class),
         );
 
         $executor->execute('my-tool', 'secret', 'https://example.com', []);
@@ -184,18 +197,9 @@ class AppMcpCapabilityExecutorTest extends TestCase
         static::assertEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
     }
 
-    public function testInternalUrlWithMissingServicesReturnsError(): void
-    {
-        $result = $this->executor->execute('my-tool', null, '/api/script/my-tool', []);
-
-        $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('requires kernel', $data['error']);
-    }
-
     public function testInternalUrlWithNoActiveRequestReturnsError(): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(null);
 
         $executor = $this->makeExecutorWithSubrequest(
@@ -212,23 +216,29 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
     public function testInternalUrlDispatchesSubrequest(): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
         $router = $this->createMock(RouterInterface::class);
-        $router->method('match')->with('/api/script/my-tool')->willReturn(['_route' => 'api.script.run']);
+        $router->expects($this->once())->method('match')->willReturnCallback(
+            static function (string $pathinfo): array {
+                static::assertSame('/api/script/my-tool', $pathinfo);
+
+                return ['_route' => 'api.script.run'];
+            }
+        );
 
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->method('handle')->with(
-            static::callback(static function (Request $r): bool {
-                $body = json_decode($r->getContent(), true);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r, int $type = HttpKernelInterface::MAIN_REQUEST): SymfonyResponse {
+                static::assertSame('POST', $r->getMethod());
+                static::assertSame('application/json', $r->headers->get('Content-Type'));
+                static::assertSame(['arguments' => ['name' => 'World']], json_decode($r->getContent(), true));
+                static::assertSame(HttpKernelInterface::SUB_REQUEST, $type);
 
-                return $r->getMethod() === 'POST'
-                    && $r->headers->get('Content-Type') === 'application/json'
-                    && $body === ['arguments' => ['name' => 'World']];
-            }),
-            HttpKernelInterface::SUB_REQUEST,
-        )->willReturn(new SymfonyResponse('{"success":true,"data":{"message":"Hello"}}'));
+                return new SymfonyResponse('{"success":true,"data":{"message":"Hello"}}');
+            }
+        );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
 
@@ -241,20 +251,24 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $parent = new Request();
         $parent->headers->set('Authorization', 'Bearer my-token-123');
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('match')->willReturn(['_route' => 'api.script.run']);
 
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->method('handle')->with(
-            // Bearer validator reads Authorization from server params (PSR-7 conversion),
-            // not the HeaderBag — verify both are populated.
-            static::callback(static fn (Request $r): bool => $r->server->get('HTTP_AUTHORIZATION') === 'Bearer my-token-123'
-                && $r->headers->get('Authorization') === 'Bearer my-token-123'),
-            HttpKernelInterface::SUB_REQUEST,
-        )->willReturn(new SymfonyResponse('{"success":true}'));
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r, int $type = HttpKernelInterface::MAIN_REQUEST): SymfonyResponse {
+                // Bearer validator reads Authorization from server params (PSR-7 conversion),
+                // not the HeaderBag — verify both are populated.
+                static::assertSame('Bearer my-token-123', $r->server->get('HTTP_AUTHORIZATION'));
+                static::assertSame('Bearer my-token-123', $r->headers->get('Authorization'));
+                static::assertSame(HttpKernelInterface::SUB_REQUEST, $type);
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
         $executor->execute('my-tool', null, '/api/script/my-tool', []);
@@ -267,19 +281,23 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $parent->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAKEY123');
         $parent->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, true);
 
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('match')->willReturn(['_route' => 'api.script.run']);
 
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->method('handle')->with(
-            static::callback(static fn (Request $r): bool => $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED) === true
-                && $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID) === 'mcp-SWIAKEY123'
-                && $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) === 'SWIAKEY123'),
-            HttpKernelInterface::SUB_REQUEST,
-        )->willReturn(new SymfonyResponse('{"success":true}'));
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r, int $type = HttpKernelInterface::MAIN_REQUEST): SymfonyResponse {
+                static::assertTrue($r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED));
+                static::assertSame('mcp-SWIAKEY123', $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID));
+                static::assertSame('SWIAKEY123', $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID));
+                static::assertSame(HttpKernelInterface::SUB_REQUEST, $type);
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
         $executor->execute('my-tool', null, '/api/script/my-tool', []);
@@ -291,23 +309,22 @@ class AppMcpCapabilityExecutorTest extends TestCase
         // stomped Content-Type to application/json with a form-urlencoded body.
         // The request bag came out empty. JSON body + explicit JSON content-type
         // keeps the two in sync.
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('match')->willReturn(['_route' => 'api.script.run']);
 
         $kernel = $this->createMock(KernelInterface::class);
-        $kernel->method('handle')->with(
-            static::callback(static function (Request $r): bool {
-                $body = json_decode($r->getContent(), true);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r, int $type = HttpKernelInterface::MAIN_REQUEST): SymfonyResponse {
+                static::assertSame('application/json', $r->headers->get('Content-Type'));
+                static::assertSame(['arguments' => ['entity' => 'product', 'limit' => 5]], json_decode($r->getContent(), true));
+                static::assertSame(HttpKernelInterface::SUB_REQUEST, $type);
 
-                return $r->headers->get('Content-Type') === 'application/json'
-                    && \is_array($body)
-                    && $body === ['arguments' => ['entity' => 'product', 'limit' => 5]];
-            }),
-            HttpKernelInterface::SUB_REQUEST,
-        )->willReturn(new SymfonyResponse('{"success":true}'));
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
         $executor->execute('my-tool', null, '/api/script/my-tool', ['entity' => 'product', 'limit' => 5]);
@@ -315,10 +332,10 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
     public function testSubrequestExceptionReturnsError(): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('match')->willThrowException(new \RuntimeException('Route not found'));
 
         $executor = $this->makeExecutorWithSubrequest(
@@ -336,13 +353,13 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
     public function testSubrequestEmptyResponseReturnsErrorJson(): void
     {
-        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack = static::createStub(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('match')->willReturn(['_route' => 'api.script.run']);
 
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel->method('handle')->willReturn(new SymfonyResponse(''));
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
@@ -363,7 +380,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             'https://shop.example.com',
             $this->createShopIdProvider(),
             30,
-            null,
+            static::createStub(LoggerInterface::class),
             $kernel,
             $requestStack,
             $router,
@@ -372,7 +389,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
     private function createShopIdProvider(): ShopIdProvider
     {
-        $provider = $this->createMock(ShopIdProvider::class);
+        $provider = static::createStub(ShopIdProvider::class);
         $provider->method('getShopId')->willReturn(ShopId::v2('test-shop-id'));
 
         return $provider;

@@ -7,9 +7,9 @@ on:
 
 jobs:
   redis:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     name: Redis
     runs-on: ubuntu-24.04
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -36,42 +36,80 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: Run PHPUnit
         run: |
-          ./vendor/bin/phpunit --group=redis --testsuite migration,unit,integration,devops
+          ./vendor/bin/phpunit --log-junit junit.xml --testsuite redis
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-redis-${{ strategy.job-index }}
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
   admin:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/admin.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   integration:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/integration.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      nightly: true
-  visual-tests:
-    uses: ./.github/workflows/visual-tests.yml
+      profile: nightly
+  acceptance:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    uses: ./.github/workflows/acceptance.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      profile: nightly
+      currents: ${{ github.event_name == 'schedule' }}
+      # Major acceptance tests are run by the dedicated nightly-major workflow while the next
+      # major is prepared. Once they are green, drop this line to fold them back into nightly.
+      major: exclude
+  visual-tests:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    uses: ./.github/workflows/visual-tests-docker.yml
+    secrets: inherit
     with:
       currents: ${{ github.event_name == 'schedule' }}
   php:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/php.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   storefront:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/storefront.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+  zugferd-compliance:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    uses: ./.github/workflows/zugferd-compliance.yml
+    secrets: inherit
   downstream:
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      nightly: true
+      nightly: "true"
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
+    if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+
+  # turn red PHPUnit arms (redis, integration.yml, php.yml) into one domain-grouped tracking issue,
+  # aggregated from the junit-phpunit-* artifacts those jobs upload on scheduled failures
+  report-phpunit-failures:
+    if: always() && github.event_name == 'schedule' && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure')
+    needs:
+      - redis
+      - integration
+      - php
+    uses: ./.github/workflows/report-phpunit-failures.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      report-title: "[nightly] Nightly test failures"
 
   # we need this for our LTS, because gh only runs scheduled for the default branch
   nightly-other-branches:

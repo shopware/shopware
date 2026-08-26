@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
@@ -30,17 +30,19 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -393,6 +395,8 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->createMock(CustomFieldSetPersister::class),
+            new NativeClock()
         );
     }
 

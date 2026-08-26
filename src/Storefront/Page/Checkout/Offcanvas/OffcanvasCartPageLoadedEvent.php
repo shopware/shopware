@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('checkout')]
 class OffcanvasCartPageLoadedEvent extends PageLoadedEvent
 {
     public function __construct(

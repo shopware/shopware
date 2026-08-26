@@ -20,8 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class CacheController extends AbstractController
 {
     /**
@@ -48,6 +48,7 @@ class CacheController extends AbstractController
             'environment' => $this->getParameter('kernel.environment'),
             'httpCache' => $this->container->get('parameter_bag')->has('shopware.http.cache.enabled') && $this->getParameter('shopware.http.cache.enabled'),
             'cacheAdapter' => $this->getUsedCache($this->adapter),
+            'indexers' => $this->indexerRegistry->getIndexers(),
         ]);
     }
 
@@ -61,8 +62,8 @@ class CacheController extends AbstractController
     {
         $data = $dataBag->all();
 
-        $skip = !empty($data['skip']) && \is_array($data['skip']) ? array_values($data['skip']) : [];
-        $only = !empty($data['only']) && \is_array($data['only']) ? array_values($data['only']) : [];
+        $skip = isset($data['skip']) && \is_array($data['skip']) && $data['skip'] !== [] ? array_values($data['skip']) : [];
+        $only = isset($data['only']) && \is_array($data['only']) && $data['only'] !== [] ? array_values($data['only']) : [];
 
         $this->indexerRegistry->sendFullIndexingMessage($skip, $only);
 

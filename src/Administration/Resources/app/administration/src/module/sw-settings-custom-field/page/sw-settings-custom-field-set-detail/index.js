@@ -155,6 +155,10 @@ export default {
             this.customFieldSetRepository
                 .save(this.set)
                 .then(() => {
+                    Shopware.Service('cacheService').invalidateCaches({
+                        cacheKey: ['custom-field-sets'],
+                    });
+
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({

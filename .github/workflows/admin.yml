@@ -11,7 +11,23 @@ env:
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:
+  markdown-only-changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
   lint:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Setup Shopware
@@ -22,12 +38,12 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
             src/Administration/Resources/app/administration/node_modules/.stylelintcache
-          key: admin-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.mjs', 'src/Administration/Resources/app/administration/.stylelintrc') }}
+          key: admin-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.ts', 'src/Administration/Resources/app/administration/.stylelintrc') }}
 
       - name: Lint
         working-directory: src/Administration/Resources/app/administration
@@ -43,6 +59,9 @@ jobs:
         run: npm run format
 
   admin:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     name: "Jest Admin (unit)"
     env:
@@ -60,7 +79,7 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -76,7 +95,7 @@ jobs:
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -85,21 +104,24 @@ jobs:
           disable_search: true
 
   license-check:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     name: "License check"
     env:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
-      NODE_VERSION: 'lts/*'  
+      NODE_VERSION: 'lts/*'
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: install packages
-        working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
+        uses: shopware/github-actions/npm-ci-retry@main
+        with:
+          working-directory: src/Storefront/Resources/app/storefront
       - name: Check license
         working-directory: src/Administration/Resources/app/administration
         run: |
@@ -111,15 +133,16 @@ jobs:
   admin-check:
     if: always()
     needs:
-    - lint
-    - admin
-    - license-check
+      - markdown-only-changes
+      - lint
+      - admin
+      - license-check
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
-      with:
-        # allowed-failures: docs, linters
-        # allowed-skips: non-voting-flaky-job
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          # allowed-failures: docs, linters
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
+          jobs: ${{ toJSON(needs) }}

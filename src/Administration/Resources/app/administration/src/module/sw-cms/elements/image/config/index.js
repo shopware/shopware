@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
  * @private
@@ -39,7 +39,26 @@ export default {
                 return this.element.data.media;
             }
 
-            return this.element.config.media.value;
+            const elemConfig = this.element.config.media;
+
+            /**
+             * A default source holds an asset path instead of a media id. Returning it as a URL
+             * lets the media preview render it directly instead of querying the media API with it.
+             */
+            if (elemConfig.source === 'default' && elemConfig.value) {
+                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
+
+                return new URL(
+                    this.assetFilter(`administration/administration/static/img/cms/${fileName}`),
+                    window.location.origin,
+                );
+            }
+
+            return elemConfig.value;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
 
         displayModeOptions() {
@@ -162,11 +181,30 @@ export default {
         },
 
         onChangeMinHeight(value) {
-            this.element.config.minHeight.value = value === null ? '' : value;
+            this.element.config.minHeight.value = this.formatMinHeight(value);
             this.emitUpdate();
         },
 
-        onChangeDisplayMode() {
+        formatMinHeight(value) {
+            if (value === null || value === '') {
+                return '';
+            }
+
+            const trimmed = String(value).trim();
+
+            return this.isUnitlessNumber(trimmed) ? `${trimmed}px` : trimmed;
+        },
+
+        isUnitlessNumber(value) {
+            return /^\d+(\.\d+)?$/.test(value);
+        },
+
+        onChangeDisplayMode(value) {
+            // min-height is only meaningful in cover mode; clear it otherwise so no value is persisted/sent
+            if (value !== 'cover') {
+                this.element.config.minHeight.value = '';
+            }
+
             this.emitUpdate();
         },
 

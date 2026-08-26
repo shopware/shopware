@@ -16,7 +16,6 @@
                     {% block sw_order_customer_grid_add_new_customer %}
                     <mt-button
                         class="sw-order-customer-grid__add-customer"
-                        ghost
                         size="small"
                         variant="secondary"
                         data-analytics-id="sw-order-customer-grid.show-new-customer-modal"
@@ -94,7 +93,7 @@
                         rel="noopener"
                         :router-link="{ name: 'sw.customer.detail', params: { id: item.id } }"
                     >
-                        {{ $t('sw-order.initialModal.customerGrid.contextOpenButton') }}
+                        {{ $t('global.default.open') }}
                     </sw-context-menu-item>
                 </template>
                 {% endblock %}

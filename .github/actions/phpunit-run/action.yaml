@@ -1,0 +1,31 @@
+name: "PHPUnit run"
+description: "Run a PHPUnit suite (integration shard or unit/migration), optionally producing a cobertura coverage report. Requires ./.github/actions/phpunit-prepare to have run first; Codecov uploads live in ./.github/actions/phpunit-upload."
+author: "shopware AG"
+
+inputs:
+  test-path:
+    default: ""
+    description: "tests/integration path to run (mutually exclusive with test-testsuite)"
+  test-testsuite:
+    default: ""
+    description: "PHPUnit testsuite to run (mutually exclusive with test-path)"
+  coverage:
+    default: "false"
+    description: "Run with cobertura coverage (written to coverage.xml for ./.github/actions/phpunit-upload)"
+
+# Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
+# inherit it, so this action stays flag-agnostic. Environment setup (PHP, database, webserver, test install)
+# lives in ./.github/actions/phpunit-prepare and the Codecov uploads in ./.github/actions/phpunit-upload,
+# so the three phases get separate timings in the job UI.
+runs:
+  using: composite
+  steps:
+    - name: Run PHPUnit testsuite
+      if: ${{ inputs.test-testsuite != '' }}
+      shell: bash
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} --testsuite "${{ inputs.test-testsuite }}"
+
+    - name: Run PHPUnit path
+      if: ${{ inputs.test-path != '' }}
+      shell: bash
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} -- tests/integration/${{ inputs.test-path }}

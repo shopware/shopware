@@ -49,12 +49,17 @@ const mockCustomFields = new EntityCollection(
     null,
 );
 
-async function createWrapper() {
+const defaultProps = () => ({
+    condition: { value: { renderedField: '' } },
+});
+
+async function createWrapper(props = defaultProps()) {
     return mount(
         await wrapTestComponent('sw-condition-customer-custom-field', {
             sync: true,
         }),
         {
+            props,
             global: {
                 directives: {
                     popover: Shopware.Directive.getByName('popover'),
@@ -74,6 +79,7 @@ async function createWrapper() {
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-condition-value-between-date': true,
                     'sw-condition-type-select': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
@@ -105,6 +111,7 @@ async function createWrapper() {
                                     search: () => Promise.resolve(mockCustomFields),
                                 };
                             }
+
                             return {
                                 search: () => Promise.resolve(),
                                 get: () => Promise.resolve(),
@@ -113,26 +120,15 @@ async function createWrapper() {
                     },
                 },
             },
-            props: {
-                condition: {
-                    value: {
-                        renderedField: '',
-                    },
-                },
-            },
         },
     );
 }
 
 describe('components/rule/condition-type/sw-condition-customer-custom-field', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-    });
-
     it('should render custom field options', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -146,6 +142,9 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
     });
 
     it('should set data on field change with known id', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -171,6 +170,9 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
     });
 
     it('should not set data on field change with unknown id', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -181,6 +183,9 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
     });
 
     it('should set custom field value on input', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -191,6 +196,9 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
     });
 
     it('should set operator field value on input', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -207,6 +215,9 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
     });
 
     it('should set form field value on input', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
@@ -225,13 +236,48 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         expect(wrapper.vm.renderedFieldValue).toBe('test123');
     });
 
+    it.each([
+        { name: 'date field', type: 'date' },
+        { name: 'datetime field', type: 'datetime' },
+    ])('should render between-date when operator is between: $name', async ({ type }) => {
+        const wrapper = await createWrapper({
+            condition: {
+                value: {
+                    operator: 'between',
+                    renderedField: { id: '1', type, config: { type, label: 'foo' } },
+                    renderedFieldValue: null,
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
+        expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(false);
+    });
+
+    it('should not render between-date when operator is not between', async () => {
+        const wrapper = await createWrapper({
+            condition: {
+                value: {
+                    operator: '=',
+                    renderedField: { id: '1', type: 'text', config: { type: 'text', label: 'foo' } },
+                    renderedFieldValue: null,
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('sw-condition-value-between-date-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-form-field-renderer').exists()).toBe(true);
+    });
+
     it('should truncate custom field description', async () => {
         mockCustomFields.at(0).customFieldSet.config.label = 'Customer migration custom fields (attributes)';
 
-        const testWrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await flushPromises();
 
-        await testWrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
         const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;

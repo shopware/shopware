@@ -22,12 +22,20 @@ type LoadingProperties =
      */
     | 'advancedMode';
 
+type ProductDetailProduct = EntitySchema.product & {
+    isNew: () => boolean;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use `type` instead.
+     */
+    states?: string[];
+};
+
 const swProductDetail = Shopware.Store.register({
     id: 'swProductDetail',
 
     state() {
         return {
-            product: {} as EntitySchema.product & { isNew: () => boolean },
+            product: {} as ProductDetailProduct,
             parentProduct: {} as EntitySchema.product,
             currencies: [] as EntitySchema.currency[],
             apiContext: {} as ContextStore['api'],
@@ -184,7 +192,7 @@ const swProductDetail = Shopware.Store.register({
             }
 
             if (state.product.states) {
-                return state.product.states as string[];
+                return state.product.states;
             }
 
             return [];

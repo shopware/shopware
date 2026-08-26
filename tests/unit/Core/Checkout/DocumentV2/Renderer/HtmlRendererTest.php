@@ -4,28 +4,34 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Template\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Template\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Twig\Environment;
 
 /**
  * @internal
@@ -34,57 +40,59 @@ use Twig\Environment;
 #[CoversClass(HtmlRenderer::class)]
 class HtmlRendererTest extends TestCase
 {
+    private const HTML_TEMPLATE_PATH = '@Framework/documents/invoice.html.twig';
+
     public function testConfig(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
-        static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
     }
 
     public function testRenderToString(): void
     {
         $rendered = '<html>rendered</html>';
 
-        $renderData = $this->createRenderData(
-            filenamePrefix: 'invoice_',
-            custom: ['test' => 1],
-        );
+        $meta = $this->createMeta(filenamePrefix: 'invoice_');
+        $renderData = $this->createRenderData(custom: ['test' => 1]);
 
         $finder = $this->createMock(TemplateFinder::class);
         $finder->expects($this->once())
             ->method('find')
-            ->with(DocumentType::INVOICE->templatePath())
-            ->willReturn(DocumentType::INVOICE->templatePath());
+            ->with(self::HTML_TEMPLATE_PATH)
+            ->willReturn(self::HTML_TEMPLATE_PATH);
 
-        $env = $this->createMock(Environment::class);
+        $env = $this->createMock(TwigEnvironment::class);
         $env->expects($this->once())
-            ->method('render')
+            ->method('renderWithTimezoneOverride')
             ->with(
-                DocumentType::INVOICE->templatePath(),
-                static::callback(function (array $parameters): bool {
+                self::HTML_TEMPLATE_PATH,
+                static::callback(function (array $parameters) use ($meta): bool {
                     static::assertArrayHasKey('config', $parameters);
                     static::assertInstanceOf(TemplateContext::class, $parameters['config']);
-                    static::assertSame('html', $parameters['config']->fileType);
-                    static::assertSame(1000, $parameters['config']->itemsPerPage);
-                    static::assertSame(['test' => 1], $parameters['config']->custom);
+                    static::assertSame($meta->config->itemsPerPage, $parameters['config']->itemsPerPage);
+                    static::assertSame(['test' => 1], $parameters['config']->offsetGet('custom'));
 
                     static::assertArrayHasKey('counter', $parameters);
                     static::assertInstanceOf(PaginationCounter::class, $parameters['counter']);
 
                     return true;
-                })
+                }),
+                null,
             )
             ->willReturn($rendered);
 
         $input = new RenderInput(
             DocumentType::INVOICE->value,
-            $renderData->documentNumber,
+            $meta->documentNumber,
             $this->createOrder(),
-            [InvoiceDataProvider::KEY => $renderData],
+            [
+                DocumentMetaProvider::KEY => $meta,
+                InvoiceDataProvider::KEY => $renderData,
+            ],
         );
 
         $renderer = $this->createRenderer($finder, $env);
@@ -102,11 +110,59 @@ class HtmlRendererTest extends TestCase
         static::assertSame('invoice_12345', $result->fileName);
     }
 
+    public function testResolvesTemplateByDocumentType(): void
+    {
+        $expectedTemplate = '@Framework/documents/credit_note.html.twig';
+
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->once())
+            ->method('find')
+            ->with($expectedTemplate)
+            ->willReturn($expectedTemplate);
+
+        $env = static::createStub(TwigEnvironment::class);
+        $env->method('renderWithTimezoneOverride')->willReturn('<html>rendered</html>');
+
+        $renderer = $this->createRenderer($finder, $env);
+
+        $renderer->renderToString(
+            new RenderInput(
+                DocumentType::CREDIT_NOTE->value,
+                '12345',
+                $this->createOrder(),
+                [DocumentMetaProvider::KEY => $this->createMeta()],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testRejectsDocumentTypeThatIsNotATrustedIdentifier(): void
+    {
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->expects($this->never())->method('find');
+
+        $renderer = $this->createRenderer($finder, static::createStub(TwigEnvironment::class));
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('../invoice'));
+
+        $renderer->renderToString(
+            new RenderInput(
+                '../invoice',
+                '12345',
+                $this->createOrder(),
+                [InvoiceDataProvider::KEY => $this->createRenderData()],
+            ),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
+    }
+
     public function testShouldThrowIfRenderDataCantBeFound(): void
     {
         $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
+            static::createStub(TemplateFinder::class),
+            static::createStub(TwigEnvironment::class),
         );
 
         $input = new RenderInput(
@@ -116,8 +172,8 @@ class HtmlRendererTest extends TestCase
             [],
         );
 
-        static::expectExceptionObject(
-            DocumentV2Exception::unknownRenderData(InvoiceDataProvider::KEY, InvoiceRenderData::class),
+        $this->expectExceptionObject(
+            DocumentV2Exception::unknownRenderData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class),
         );
 
         $renderer->renderToString(
@@ -127,37 +183,14 @@ class HtmlRendererTest extends TestCase
         );
     }
 
-    public function testShouldThrowIfDocumentTypeDoesNotExist(): void
-    {
-        $renderer = $this->createRenderer(
-            $this->createMock(TemplateFinder::class),
-            $this->createMock(Environment::class),
-        );
-
-        $input = new RenderInput(
-            'unknown_document_type',
-            '12345',
-            $this->createOrder(),
-            [InvoiceDataProvider::KEY => $this->createRenderData()],
-        );
-
-        static::expectException(\ValueError::class);
-
-        $renderer->renderToString(
-            $input,
-            new RenderState(),
-            Context::createDefaultContext(),
-        );
-    }
-
-    private function createRenderer(TemplateFinder $finder, Environment $env): HtmlRenderer
+    private function createRenderer(TemplateFinder $finder, TwigEnvironment $env): HtmlRenderer
     {
         return new HtmlRenderer(
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
-                $this->createMock(AbstractTranslator::class),
-                $this->createMock(AbstractSalesChannelContextFactory::class),
+                static::createStub(AbstractTranslator::class),
+                static::createStub(AbstractSalesChannelContextFactory::class),
                 'rootDir',
             ),
         );
@@ -173,37 +206,58 @@ class HtmlRendererTest extends TestCase
         return $order;
     }
 
-    /**
-     * @param array<string, mixed> $custom
-     */
-    private function createRenderData(
-        ?string $filenamePrefix = null,
-        array $custom = [],
-    ): InvoiceRenderData {
-        return new InvoiceRenderData(
-            new DocumentConfig(
+    private function createMeta(?string $filenamePrefix = null): DocumentMetaRenderData
+    {
+        return new DocumentMetaRenderData(
+            config: new DocumentConfig(
                 pageSize: 'a4',
                 pageOrientation: 'portrait',
                 itemsPerPage: 10,
                 filenamePrefix: $filenamePrefix,
             ),
-            new CompanyInfo(
+            company: new DocumentCompanyInfo(
                 'company',
                 'street',
                 '12345',
                 'city',
                 new CountryEntity()
             ),
+            display: new DocumentDisplayOptions(),
             documentDate: 'date',
             documentNumber: '12345',
             documentComment: null,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $custom
+     */
+    private function createRenderData(
+        array $custom = [],
+    ): InvoiceRenderData {
+        return new InvoiceRenderData(
+            typeCode: TypeCode::INVOICE,
+            buyerReference: '10000',
+            buyer: new TradePartyView(
+                id: null,
+                name: '',
+                street: null,
+                additionalAddressLine1: null,
+                additionalAddressLine2: null,
+                zipcode: null,
+                city: null,
+                countrySubdivision: null,
+                countryIso: null,
+                email: null,
+            ),
+            deliveryDate: null,
+            lineItems: [],
+            allowanceCharges: [],
+            taxBreakdown: [],
+            monetarySummation: new MonetarySummationView(0, 0, 0, 0, 0, 'EUR', 0, 0, 0, 0),
+            paymentMeans: null,
+            paymentDueDate: null,
             intraCommunityDelivery: false,
-            displayDivergentDeliveryAddress: false,
-            displayLineItems: false,
-            displayLineItemPosition: false,
-            displayPrices: false,
-            deliveryCountries: [],
-            legacyConfig: [],
             custom: $custom,
         );
     }

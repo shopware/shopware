@@ -20,15 +20,6 @@ class CustomFieldsetGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION = 'Create an example custom fieldset';
     private const CLI_QUESTION = 'Do you want to create an example custom fieldset?';
 
-    private string $servicesXmlEntry = <<<'EOL'
-
-            <service id="{{ namespace }}\Service\CustomFieldsInstaller">
-                <argument type="service" id="custom_field_set.repository"/>
-                <argument type="service" id="custom_field_set_relation.repository"/>
-            </service>
-
-    EOL;
-
     public function generateStubs(
         PluginScaffoldConfiguration $configuration,
         StubCollection $stubCollection
@@ -37,39 +28,9 @@ class CustomFieldsetGenerator implements ScaffoldingGenerator
             return;
         }
 
-        $stubCollection->add($this->createInstaller($configuration));
-        $stubCollection->add($this->createPluginClassWithCustomFields($configuration));
-
-        $stubCollection->append(
-            'src/Resources/config/services.xml',
-            str_replace(
-                '{{ namespace }}',
-                $configuration->namespace,
-                $this->servicesXmlEntry
-            )
-        );
-    }
-
-    public function createPluginClassWithCustomFields(PluginScaffoldConfiguration $configuration): Stub
-    {
-        return Stub::template(
-            'src/' . $configuration->name . '.php',
-            self::STUB_DIRECTORY . '/plugin-class-with-custom-fields.stub',
-            [
-                'namespace' => $configuration->namespace,
-                'className' => $configuration->name,
-            ]
-        );
-    }
-
-    private function createInstaller(PluginScaffoldConfiguration $configuration): Stub
-    {
-        return Stub::template(
-            'src/Service/CustomFieldsInstaller.php',
-            self::STUB_DIRECTORY . '/custom-fieldset-installer.stub',
-            [
-                'namespace' => $configuration->namespace,
-            ]
-        );
+        $stubCollection->add(Stub::template(
+            'src/Resources/config/custom-fields.xml',
+            self::STUB_DIRECTORY . '/custom-fields-xml.stub'
+        ));
     }
 }

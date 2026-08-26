@@ -4,8 +4,9 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper({ stubs } = {}) {
     return mount(await wrapTestComponent('sw-tree-item', { sync: true }), {
+        attachTo: document.body,
         props: {
             item: {
                 data: {
@@ -22,6 +23,7 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-checkbox-field': true,
                 'sw-confirm-field': true,
+                ...stubs,
                 'sw-tree-item': await wrapTestComponent('sw-tree-item', {
                     sync: true,
                 }),
@@ -198,5 +200,46 @@ describe('src/app/component/tree/sw-tree-item', () => {
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.find('.sw-context-menu__duplicate-action').exists()).toBeFalsy();
+    });
+
+    describe('naming a new element that is already mounted', () => {
+        async function createMountedItemInNamingMode() {
+            const wrapper = await createWrapper({
+                stubs: {
+                    'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
+                    'sw-field-error': true,
+                },
+            });
+
+            await wrapper.setProps({ newElementId: '1a2b3c' });
+            await flushPromises();
+
+            return wrapper;
+        }
+
+        beforeEach(() => {
+            window.HTMLElement.prototype.scrollIntoView = jest.fn();
+        });
+
+        afterEach(() => {
+            delete window.HTMLElement.prototype.scrollIntoView;
+        });
+
+        it('should focus the naming field', async () => {
+            const wrapper = await createMountedItemInNamingMode();
+
+            const nameField = wrapper.get('.sw-tree-detail__edit-tree-item input');
+
+            expect(document.activeElement).toBe(nameField.element);
+        });
+
+        it('should scroll the naming field into view', async () => {
+            await createMountedItemInNamingMode();
+
+            expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        });
     });
 });

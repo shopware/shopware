@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Bulk edit",
       "descriptionTextModule": "Module to bulk edit data",
       "defaultChangeLabel": "Change:"
     },
@@ -261,7 +260,21 @@
         "description": "Bulk edit finished.",
         "instruction": "The bulk edit has been finished successfully.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "No documents found"
+        "messageNoDocumentsFound": "No documents found",
+        "documentGenerationSkipped": "{count} document was not generated because it already exists. | {count} documents were not generated because they already exist.",
+        "documentGenerationFailed": "{count} document could not be generated. | {count} documents could not be generated.",
+        "failedDocuments": {
+          "columnOrder": "Order",
+          "columnDocumentType": "Document type",
+          "downloadResult": "Download result",
+          "downloadHeadline": "Failed documents",
+          "documentTypes": {
+            "invoice": "Invoice",
+            "cancellationInvoice": "Cancellation invoice",
+            "creditNote": "Credit note",
+            "deliveryNote": "Delivery note"
+          }
+        }
       },
       "error": {
         "title": "Bulk edit - Error",
@@ -327,7 +340,9 @@
           "label": "Generate: Invoice",
           "helpText": "This action increases the value of the corresponding number range.",
           "labelDatePicker": "Date",
-          "labelTextarea": "Comment"
+          "labelTextarea": "Comment",
+          "labelFileFormats": "File formats",
+          "placeholderFileFormats": "Select file formats..."
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",

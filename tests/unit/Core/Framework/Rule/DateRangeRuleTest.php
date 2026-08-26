@@ -39,7 +39,7 @@ class DateRangeRuleTest extends TestCase
             $useTime,
             $timezone ? new \DateTimeZone($timezone) : null,
         );
-        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable($now));
 
         $matchResult = $rule->match($scopeMock);
@@ -387,7 +387,7 @@ class DateRangeRuleTest extends TestCase
             'timezone' => 'UTC',
         ]);
 
-        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2024-01-20 12:00:00'));
 
         $result = $rule->match($scopeMock);
@@ -409,7 +409,7 @@ class DateRangeRuleTest extends TestCase
         $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($unserializedRule);
         static::assertNull($timezone);
 
-        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock = static::createStub(RuleScope::class);
         $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable('2026-01-10 12:00:00'));
         static::assertTrue($unserializedRule->match($scopeMock));
     }
@@ -490,7 +490,7 @@ class DateRangeRuleTest extends TestCase
             RuleException::invalidDateRangeUsage('fromDate, toDate and timezone cannot be a string at this point')
         );
 
-        $rule->match($this->createMock(RuleScope::class));
+        $rule->match(static::createStub(RuleScope::class));
     }
 
     public static function provideInvalidStringValuesForMatch(): \Generator

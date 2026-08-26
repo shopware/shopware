@@ -27,6 +27,7 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-product-price-form', () => import('./component/sw-product-price-form'));
 Shopware.Component.register('sw-product-settings-form', () => import('./component/sw-product-settings-form'));
+Shopware.Component.register('sw-product-guarantee-form', () => import('./component/sw-product-guarantee-form'));
 Shopware.Component.register('sw-product-measurement-form', () => import('./component/sw-product-measurement-form'));
 Shopware.Component.register('sw-product-packaging-form', () => import('./component/sw-product-packaging-form'));
 Shopware.Component.register('sw-product-seo-form', () => import('./component/sw-product-seo-form'));
@@ -122,8 +123,8 @@ Module.register('sw-product', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'solid-products',
-    favicon: 'icon-module-products.png',
+    icon: 'regular-products',
+    favicon: 'icon-module-products.svg',
     entity: 'product',
 
     routes: {

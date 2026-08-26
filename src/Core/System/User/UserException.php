@@ -9,7 +9,18 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@framework')]
 class UserException extends HttpException
 {
+    public const MISSING_REQUEST_PARAMETER_CODE = 'SYSTEM_USER__MISSING_REQUEST_PARAMETER';
     final public const SALES_CHANNEL_NOT_FOUND = 'USER__SALES_CHANNEL_NOT_FOUND';
+
+    public static function missingRequestParameter(string $name, string $path = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name, 'path' => $path]
+        );
+    }
 
     public static function salesChannelNotFound(): HttpException
     {

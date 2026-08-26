@@ -129,7 +129,7 @@ async function createWrapper(privileges = [], repo = mockCustomFieldRepository()
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },
@@ -227,6 +227,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
 
     it('should delete custom field', async () => {
         const wrapper = await createWrapper();
+        const invalidateCaches = jest.spyOn(Shopware.Service('cacheService'), 'invalidateCaches');
 
         const deleteCustomField = {
             id: 'id0',
@@ -254,6 +255,9 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
 
         const expectedRow = rows.at(0);
         expect(expectedRow.find('.sw-grid-column[data-index="label"]').text()).toBe('Special field 1');
+        expect(invalidateCaches).toHaveBeenCalledWith({
+            cacheKey: ['custom-field-sets'],
+        });
     });
 
     it('should sort custom fields by position', async () => {

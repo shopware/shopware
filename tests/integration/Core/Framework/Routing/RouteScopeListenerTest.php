@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class RouteScopeListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

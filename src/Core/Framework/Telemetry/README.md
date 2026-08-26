@@ -125,10 +125,17 @@ class MyTransport implements MetricTransportInterface
 
 Once that is created, you need to register the transport factory as a service in your application and use the `shopware.metric_transport_factory` tag.
 
-```xml
-<service id="YourPackage\NameSpace\MyTransportFactory">
-    <tag name="shopware.metric_transport_factory"/>
-</service>
+```php
+<?php declare(strict_types=1);
+
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use YourPackage\NameSpace\MyTransportFactory;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->services()
+        ->set(MyTransportFactory::class)
+        ->tag('shopware.metric_transport_factory');
+};
 ```
 
 Real-world example of a transport can be found in the [shopware/opentelemetry](https://github.com/shopware/opentelemetry/) package.

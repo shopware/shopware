@@ -49,13 +49,13 @@ class Migration1768545319RevocationRequestMailTemplateTest extends TestCase
         $mailTemplateTypeId = $this->assertIsValidByteId($mailTemplateTypeId);
 
         $typeTranslations = $this->getTranslations('mail_template_type_translation', 'mail_template_type_id', $mailTemplateTypeId);
-        static::assertCount(2, $typeTranslations);
+        $this->assertTranslationsForAllLanguages($typeTranslations);
 
         $mailTemplateId = $this->getMailTemplateId($mailTemplateTypeId);
         $mailTemplateId = $this->assertIsValidByteId($mailTemplateId);
 
         $templateTranslations = $this->getTranslations('mail_template_translation', 'mail_template_id', $mailTemplateId);
-        static::assertCount(2, $templateTranslations);
+        $this->assertTranslationsForAllLanguages($templateTranslations);
     }
 
     private function assertIsValidByteId(?string $byteId): string
@@ -65,6 +65,44 @@ class Migration1768545319RevocationRequestMailTemplateTest extends TestCase
         static::assertTrue(Uuid::isValid($id));
 
         return $byteId;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $translations
+     */
+    private function assertTranslationsForAllLanguages(array $translations): void
+    {
+        $expectedLanguageIds = $this->getLanguageHexIds();
+        $actualLanguageIds = [];
+
+        foreach ($translations as $translation) {
+            static::assertArrayHasKey('language_id', $translation);
+            static::assertIsString($translation['language_id']);
+
+            $actualLanguageIds[] = Uuid::fromBytesToHex($translation['language_id']);
+        }
+
+        \sort($expectedLanguageIds);
+        \sort($actualLanguageIds);
+
+        static::assertSame($expectedLanguageIds, $actualLanguageIds);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getLanguageHexIds(): array
+    {
+        $languageIds = $this->connection->fetchFirstColumn('SELECT `id` FROM `language`');
+        $languageHexIds = [];
+
+        foreach ($languageIds as $languageId) {
+            static::assertIsString($languageId);
+
+            $languageHexIds[] = Uuid::fromBytesToHex($languageId);
+        }
+
+        return $languageHexIds;
     }
 
     private function removePreinstalled(string $technicalName): void

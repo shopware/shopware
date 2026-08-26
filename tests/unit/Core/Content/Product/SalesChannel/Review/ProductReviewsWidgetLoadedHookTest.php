@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,26 +30,26 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 #[CoversClass(ProductReviewsWidgetLoadedHook::class)]
 class ProductReviewsWidgetLoadedHookTest extends TestCase
 {
-    private MockObject&ProductReviewLoader $productReviewLoaderMock;
+    private Stub&ProductReviewLoader $productReviewLoaderMock;
 
     private ProductControllerStub $controller;
 
     protected function setUp(): void
     {
-        $this->productReviewLoaderMock = $this->createMock(ProductReviewLoader::class);
+        $this->productReviewLoaderMock = static::createStub(ProductReviewLoader::class);
 
         $this->controller = new ProductControllerStub(
-            $this->createMock(ProductPageLoader::class),
-            $this->createMock(FindProductVariantRoute::class),
-            $this->createMock(MinimalQuickViewPageLoader::class),
-            $this->createMock(AbstractProductReviewSaveRoute::class),
-            $this->createMock(SeoUrlPlaceholderHandlerInterface::class),
+            static::createStub(ProductPageLoader::class),
+            static::createStub(FindProductVariantRoute::class),
+            static::createStub(MinimalQuickViewPageLoader::class),
+            static::createStub(AbstractProductReviewSaveRoute::class),
+            static::createStub(SeoUrlPlaceholderHandlerInterface::class),
             $this->productReviewLoaderMock,
-            $this->createMock(AbstractProductPurchaseLimitRoute::class),
+            static::createStub(AbstractProductPurchaseLimitRoute::class),
         );
     }
 
@@ -67,29 +68,28 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
 
         $productReview = new ProductReviewEntity();
         $productReview->setUniqueIdentifier($ids->get('productReview'));
-        $reviewResult = new ProductReviewResult(
-            'review',
-            1,
-            new ProductReviewCollection([$productReview]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
-        $reviewResult->setMatrix(new RatingMatrix([]));
-        $reviewResult->setProductId($productId);
-        $reviewResult->setParentId($parentId);
-
-        $this->productReviewLoaderMock->method('load')->with(
-            $request,
-            $this->createMock(SalesChannelContext::class),
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                'review',
+                1,
+                new ProductReviewCollection([$productReview]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
             $productId,
-            $parentId
-        )->willReturn($reviewResult);
+            1,
+            null,
+            $parentId,
+        );
+
+        $this->productReviewLoaderMock->method('load')->willReturn($reviewResult);
 
         $this->controller->loadReviews(
             $productId,
             $request,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);

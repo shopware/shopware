@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Hookable\CoreHookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableEventCollectorTest extends TestCase
 {
     use IntegrationTestBehaviour;

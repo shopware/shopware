@@ -24,8 +24,8 @@ use Shopware\Core\Framework\Rule\Rule;
 /**
  * @internal
  */
-#[CoversClass(PromotionEntity::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionEntity::class)]
 class PromotionEntityTest extends TestCase
 {
     /**

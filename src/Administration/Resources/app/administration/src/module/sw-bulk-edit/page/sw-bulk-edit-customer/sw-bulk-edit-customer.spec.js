@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package checkout
  */
@@ -104,6 +106,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 provide: {
                     validationService: {},
                     orderDocumentApiService: {},
+                    documentV2Service: {},
                     repositoryFactory: {
                         create: () => {
                             return {

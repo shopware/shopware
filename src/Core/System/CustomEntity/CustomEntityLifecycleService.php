@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Core\System\CustomEntity;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
@@ -37,7 +38,8 @@ class CustomEntityLifecycleService
         private readonly CustomEntityXmlSchemaValidator $customEntityXmlSchemaValidator,
         private readonly SourceResolver $sourceResolver,
         private readonly Connection $connection,
-        private readonly EntityRepository $customEntityRepository
+        private readonly EntityRepository $customEntityRepository,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -115,7 +117,7 @@ class CustomEntityLifecycleService
         }
 
         if ($keepUserData) {
-            $deletedAt = new \DateTimeImmutable();
+            $deletedAt = $this->clock->now();
 
             $this->customEntityRepository->update(array_values(array_map(
                 static fn (CustomEntityEntity $customEntity): array => [

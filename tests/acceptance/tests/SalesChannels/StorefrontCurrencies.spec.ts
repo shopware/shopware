@@ -3,7 +3,12 @@ import { satisfies } from 'compare-versions';
 
 test(
     'Shop customers should be able to view products in different currencies.',
-    { tag: ['@Currencies', '@Storefront'] },
+    {
+        tag: [
+            '@Currencies',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, TestDataService, InstanceMeta, StorefrontHeader, StorefrontHome, ChangeStorefrontCurrency }) => {
         const salesChannelId = TestDataService.defaultSalesChannel.id;
         const currency = await TestDataService.createCurrency();
@@ -18,14 +23,16 @@ test(
                 // eslint-disable-next-line playwright/no-conditional-in-test
                 if (satisfies(InstanceMeta.version, '<6.7')) {
                     await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText('Pound');
-                }   
-                else {
+                } else {
                     await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currencySymbol);
                 }
                 await ShopCustomer.expects(productListing.productPrice).toContainText(currencySymbol);
             });
         }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+            intervals: [
+                1_000,
+                2_500,
+            ], // retry after 1 seconds, then every 2.5 seconds
         });
 
         await test.step('Customer can select a different currency', async () => {
@@ -33,12 +40,11 @@ test(
             if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
                 await StorefrontHeader.currenciesDropdown.click();
                 await StorefrontHeader.currenciesMenuOptions.getByText(currency.symbol).click();
-            }   
-            else {
+            } else {
                 await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
             }
             await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currency.name);
             await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
         });
-    }
+    },
 );

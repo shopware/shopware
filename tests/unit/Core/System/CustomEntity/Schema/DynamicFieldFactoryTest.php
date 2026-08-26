@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Schema;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -19,22 +18,13 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 #[CoversClass(DynamicFieldFactory::class)]
 class DynamicFieldFactoryTest extends TestCase
 {
-    private ContainerInterface&MockObject $container;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->container = $this->createMock(ContainerInterface::class);
-    }
-
     public function testCreateThrowsAnExceptionWhenTheServiceIsNotFound(): void
     {
         $this->expectExceptionObject(new ServiceNotFoundException('Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry'));
 
         $factory = new DynamicFieldFactory();
 
-        $factory->create($this->container, 'test', [
+        $factory->create(static::createStub(ContainerInterface::class), 'test', [
             ['name' => 'test', 'type' => '', 'reference' => '', 'onDelete' => ''],
         ]);
     }
@@ -45,11 +35,12 @@ class DynamicFieldFactoryTest extends TestCase
 
         $factory = new DynamicFieldFactory();
 
-        $this->container->expects($this->once())
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
             ->method('get')
-            ->willReturn($this->createMock(DefinitionInstanceRegistry::class));
+            ->willReturn(static::createStub(DefinitionInstanceRegistry::class));
 
-        $factory->create($this->container, 'test', [
+        $factory->create($container, 'test', [
             ['name' => 'test', 'type' => 'many-to-one', 'reference' => 'unit', 'onDelete' => 'INVALID'],
         ]);
     }

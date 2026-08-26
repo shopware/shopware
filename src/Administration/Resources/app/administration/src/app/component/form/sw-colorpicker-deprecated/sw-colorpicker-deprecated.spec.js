@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -17,7 +19,9 @@ async function createWrapper(additionalProps = {}) {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'mt-floating-ui': true,
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
             },
         },
         props: {

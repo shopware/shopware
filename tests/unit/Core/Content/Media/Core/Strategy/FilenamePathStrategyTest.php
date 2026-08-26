@@ -9,10 +9,12 @@ use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(FilenamePathStrategy::class)]
 #[CoversClass(AbstractMediaPathStrategy::class)]
 class FilenamePathStrategyTest extends TestCase
@@ -66,5 +68,19 @@ class FilenamePathStrategyTest extends TestCase
             new MediaLocationStruct('foo', 'jpg', '018b3c6d2ddf726fb12ee582f5caba40', new \DateTimeImmutable('2021-01-01')),
             'media/fd/18/g0/1609459200/018b3c6d2ddf726fb12ee582f5caba40.jpg',
         ];
+    }
+
+    public function testStrategyWithoutPathCacheBuster(): void
+    {
+        $strategy = new FilenamePathStrategy(false);
+
+        static::assertSame(
+            ['foo' => 'media/09/8f/6b/test.jpg'],
+            $strategy->generate([new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01'))])
+        );
+        static::assertSame(
+            ['thumbnail' => 'thumbnail/09/8f/6b/test_100x100.jpg'],
+            $strategy->generate([new ThumbnailLocationStruct('thumbnail', 100, 100, new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01')))])
+        );
     }
 }

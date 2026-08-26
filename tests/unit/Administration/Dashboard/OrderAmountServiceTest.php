@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Dashboard\OrderAmountService;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -23,25 +23,25 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(OrderAmountService::class)]
 class OrderAmountServiceTest extends TestCase
 {
-    private CashRounding&MockObject $cashRounding;
+    private CashRounding&Stub $cashRounding;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private Context $context;
 
-    private QueryBuilder&MockObject $queryBuilder;
+    private QueryBuilder&Stub $queryBuilder;
 
-    private Result&MockObject $result;
+    private Result&Stub $result;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->connection = $this->createMock(Connection::class);
-        $this->cashRounding = $this->createMock(CashRounding::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->cashRounding = static::createStub(CashRounding::class);
         $this->cashRounding->method('cashRound')->willReturnCallback(static fn ($amount) => round($amount, 2));
         $this->context = Context::createDefaultContext();
-        $this->queryBuilder = $this->createMock(QueryBuilder::class);
-        $this->result = $this->createMock(Result::class);
+        $this->queryBuilder = static::createStub(QueryBuilder::class);
+        $this->result = static::createStub(Result::class);
         $this->queryBuilder->method('executeQuery')->willReturn($this->result);
         $this->connection->method('createQueryBuilder')->willReturn($this->queryBuilder);
     }

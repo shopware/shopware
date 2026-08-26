@@ -1,11 +1,9 @@
-@import "~scss/variables";
-
 .sw-cms-el-preview-category-navigation {
     width: 100%;
     background: var(--color-elevation-surface-raised);
     font-size: 22px;
     color: var(--color-text-primary-default);
-    font-weight: $font-weight-semi-bold;
+    font-weight: var(--font-weight-semibold);
 
     .sw-cms-el-category-placeholder-listing div {
         margin: 10px 0;
@@ -27,11 +25,11 @@
         margin: 10px auto;
         height: 1px;
         border: 0 none;
-        background-color: var(--color-border-primary-default);
+        background-color: var(--color-border-secondary-default);
     }
 
     p {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         margin: auto 10px auto 0;
     }
 }

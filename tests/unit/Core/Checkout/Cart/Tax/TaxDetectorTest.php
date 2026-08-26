@@ -18,8 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(TaxDetector::class)]
 #[Package('checkout')]
+#[CoversClass(TaxDetector::class)]
 class TaxDetectorTest extends TestCase
 {
     public function testIsCompanyTaxFreeWithEuCountryAndValidVatIdMatchingPattern(): void
@@ -36,7 +36,7 @@ class TaxDetectorTest extends TestCase
             'vatIds' => ['DE123456789'],
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -57,7 +57,7 @@ class TaxDetectorTest extends TestCase
             'vatIds' => ['INVALID-VAT'],
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -79,7 +79,7 @@ class TaxDetectorTest extends TestCase
             'customerTax' => new TaxFreeConfig(true),
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getShippingLocation')->willReturn(ShippingLocation::createFromCountry($country));
 
         $detector = new TaxDetector();
@@ -96,7 +96,7 @@ class TaxDetectorTest extends TestCase
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setDisplayGross(true);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getShippingLocation')->willReturn(ShippingLocation::createFromCountry($country));
         $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
 
@@ -114,7 +114,7 @@ class TaxDetectorTest extends TestCase
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setDisplayGross(false);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getShippingLocation')->willReturn(ShippingLocation::createFromCountry($country));
         $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
 
@@ -133,7 +133,7 @@ class TaxDetectorTest extends TestCase
             'company' => 'Non-EU Company',
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -147,7 +147,7 @@ class TaxDetectorTest extends TestCase
             'isEu' => false,
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $detector = new TaxDetector();
@@ -168,7 +168,7 @@ class TaxDetectorTest extends TestCase
             'vatIds' => [],
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -186,7 +186,7 @@ class TaxDetectorTest extends TestCase
             'company' => null,
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -205,7 +205,7 @@ class TaxDetectorTest extends TestCase
             'vatIds' => ['DE123456789'],
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -226,7 +226,7 @@ class TaxDetectorTest extends TestCase
             'vatIds' => ['DE123456789', 'DE987654321'],
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();
@@ -247,7 +247,7 @@ class TaxDetectorTest extends TestCase
             'vatIds' => ['DE123456789', 'INVALID'],
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $detector = new TaxDetector();

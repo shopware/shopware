@@ -19,11 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedField
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TranslatedFieldSerializer::class)]
 class TranslatedFieldSerializerTest extends TestCase
 {

@@ -4,7 +4,7 @@
 This module implements a Model Context Protocol (MCP) server for Shopware, enabling AI clients (e.g., Claude Desktop, Cursor) to interact with the Shopware platform through a standardized protocol.
 
 ## Status
-**Experimental** -- gated behind the `MCP_SERVER` feature flag. Use `MCP_SERVER=1` environment variable to enable.
+**Experimental** -- marked `@experimental stableVersion:v6.8.0` (API may change until 6.8.0). Always enabled; there is no feature flag to toggle.
 
 ## MCP capabilities
 
@@ -41,11 +41,22 @@ Static data the AI client can read. Resources are identified by URIs and provide
 | AI needs instructions on how to use the system | Prompt |
 | AI needs static reference data (lists, schemas) | Resource |
 
+## Tool discovery: guaranteed vs best-effort
+
+The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus any session-enabled toolsets), not the full catalogue. There are two ways to reach a hidden tool, and they are not equivalent:
+
+- **`shopware-toolset-enable` + `listChanged` (guaranteed).** Enabling a toolset stores it on the session, advertises its tools in `tools/list`, and emits a `tools/listChanged` notification. Any spec-compliant client refreshes `tools/list` and can then call the tools. This path works on every client and is the one to rely on.
+- **`shopware-tool-search` inline definitions (best-effort).** Search returns full tool definitions inline so a capable client can call them immediately without enabling anything. This only works if the client promotes inline results into its callable set (Anthropic's tool-search-capable clients do; many others do not). `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends — but a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result therefore carries a `_meta.usage` hint pointing at the enable path as the fallback.
+
+Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
+
+The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure via its own toolset meta-tools (`StoreApiToolsetsListTool` / `StoreApiToolsetEnableTool`) and a `store-api` toolset group, and its `shopware-tool-search` carries the same `_meta.usage` hint. Both endpoints' server `instructions` (returned in every `initialize` response) point clients at `shopware-tool-search` as the discovery entry point when no advertised tool matches the requested action.
+
 ## Architecture
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer
 - **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
-- **Feature flag**: All services tagged with `shopware.feature` flag `MCP_SERVER` -- removed from the container when disabled
+- **Availability**: always enabled (no feature flag); services are present whenever `symfony/mcp-bundle` is installed
 
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):
@@ -56,9 +67,13 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `shopware-` prefix is reserved for core tools; `AppMcpToolLoader` skips app tools whose computed name starts with `shopware-`.
 
 ## Folder structure
-- `Authentication/` -- MCP authentication listener
-- `Context/` -- Context bridging (McpContextProvider)
-- `Controller/` -- HTTP endpoint for MCP protocol
+- `AllowList/` -- Per-integration capability allowlist (`McpAllowlistProvider`, `McpAllowlistFilter`, `McpAllowlist`)
+- `Attribute/` -- MCP-specific PHP attributes (`#[McpToolDependsOn]`, `#[McpToolRequires]`)
+- `Authentication/` -- MCP authentication and exception listeners
+- `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
+- `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
+- `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes tool-result cache on session DELETE)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context
 - `Resource/` -- Static MCP resources
@@ -66,18 +81,14 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `sh
 - `Loader/` -- Extension loaders for app capabilities (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`, `AppMcpCapabilityExecutor`, `AbstractAppMcpLoader`)
 - `docs/` -- Documentation: tool reference, examples, security, setup, extensibility, user stories
 
-## Feature flag
+## Availability
 
-`Feature::isActive('MCP_SERVER')` is a **runtime** env-var check, not a compile-time gate. `FeatureFlagCompilerPass` removes services tagged `shopware.feature: { flag: MCP_SERVER }`, but MCP services are NOT tagged that way — they use `nullOnInvalid()` on their injected `mcp.*` dependencies instead.
+The MCP server is **no longer feature-flag gated** — it is always enabled. Classes remain marked `@experimental stableVersion:v6.8.0`, so the API may still change until 6.8.0, but there is no `MCP_SERVER` flag to toggle.
 
-`nullOnInvalid()` injects `null` only when the service does not exist in the container at all (i.e., `symfony/mcp-bundle` absent). Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, MCP services are always present and `nullOnInvalid()` never resolves to `null`.
-
-**Consequence:** `Feature::isActive('MCP_SERVER')` is the only meaningful runtime gate. The `=== null` null-checks in controllers/commands are a safety net for "bundle truly absent", not a feature-flag substitute.
-
-**Do not remove `Feature::isActive('MCP_SERVER')` guards** in isolation. Full unflagging requires a single sweep: `feature.yaml` default, the PHP backend guards, and the Admin UI guard at `sw-integration-list.html.twig:214`.
+The `=== null` null-checks on injected `mcp.*` dependencies in controllers/commands are a safety net for "`symfony/mcp-bundle` truly absent" (they resolve to `null` via `nullOnInvalid()`), **not** a feature-flag substitute. Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, they never resolve to `null` in practice; the guards will be removed once MCP is stable (v6.8.0).
 
 ## Conventions
-- All classes use `@experimental stableVersion:v6.8.0 feature:MCP_SERVER` annotation
+- All classes use `@experimental stableVersion:v6.8.0` annotation
 - All classes use `#[Package('framework')]` attribute
 - Tools return JSON strings; the MCP protocol handles transport encoding
 - Write tools default to `dryRun=true` for safety. Dry-run adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions during preview
@@ -85,6 +96,15 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `sh
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
+
+### Tool metadata: `meta` vs dedicated attributes
+
+Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest representation that keeps the concept clear and maintainable:
+
+- Use `#[McpTool(..., meta: [...])]` for lightweight MCP descriptor hints that are simple scalar values, experimental, client-facing, or only consumed near tool discovery/advertisement. Examples: ranking/search hints, visibility hints. (Advertisement visibility itself is **not** a `meta` hint — it is derived from the `#[McpToolGroup]`; the `discovery` group is advertised, everything else is deferred.)
+- Use a dedicated Shopware attribute only when the concept is first-class in Shopware, needs structured typing or validation, is repeatable, is consumed by several subsystems, or should be discoverable without parsing arbitrary string keys. Examples: `#[McpToolDependsOn]` and `#[McpToolRequires]`.
+- Do not duplicate the same concept in both places. If `meta` grows validation rules, multiple consumers, or cross-cutting behavior, consider promoting it to an attribute in a follow-up. If an attribute is just a single optional scalar with one consumer, prefer `meta` instead.
+- Before adding a new attribute, document why `meta` is not enough in the PR description or nearby tests. Attribute sprawl makes tool declarations harder to scan.
 
 ## Validating capabilities are loaded
 
@@ -100,17 +120,17 @@ Two layers are required: the DI tag **and** the directory must appear in `mcp.ya
 
 | Method | What it covers | When to use |
 |---|---|---|
-| `bin/console debug:mcp` | Full registry — same source as the HTTP endpoint | Quick manual check during development |
+| `bin/console debug:mcp` | Both registries (admin + store-api) — same source as the HTTP endpoints | Quick manual check during development |
 | `McpCapabilityDiscoveryTest` | HTTP → `tools/list` (full kernel) | CI — authoritative end-to-end check |
-| `McpServiceConfigTest` / `McpFeatureFlagTest` | DI layer only | Fast unit-level guard for tag/registration |
+| `McpServiceRegistrationTest` | DI layer only | Fast integration-level guard that every MCP service is registered in the container |
 
-`bin/console debug:mcp` now uses the same `Registry` as the HTTP endpoint (populated by calling `Builder::build()`), so it shows core tools, plugin tools, and app tools in one view. It is the fastest way to check that a newly registered capability is visible.
+`bin/console debug:mcp` uses the same `Registry` instances as the HTTP endpoints (populated by calling `Builder::build()` per scope), so it shows core tools, plugin tools, app tools, and Store API tools in one view, grouped per endpoint. It is the fastest way to check that a newly registered capability is visible. Use `--scope=api` or `--scope=store-api` to narrow it to one endpoint.
 
 **`McpCapabilityDiscoveryTest`** (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) boots the full kernel, authenticates, and calls the live MCP HTTP endpoint. It is the authoritative check that mirrors what the MCP Inspector does interactively. Add new capability names to its `expectedTools()` / `expectedPrompts()` / `expectedResources()` lists when adding new core capabilities.
 
 ## Extensibility
 - **Plugins**: Tag services with `shopware.mcp.tool` -- the `McpToolCompilerPass` re-tags them as `mcp.tool` AND calls `addTool()` on the MCP server builder so they appear in both `debug:mcp` and the HTTP endpoint. No `scan_dirs` entry is needed. Use `McpToolResponse` for consistent error handling and response formatting.
-- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. Gate the service file in the bundle's `build()` method with `Feature::has('MCP_SERVER')`. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
+- **Third-party Symfony bundles**: Same `shopware.mcp.tool` tag mechanism as plugins -- `McpToolCompilerPass` handles discovery. See `custom/bundles/SwagMcpExampleBundle/` for a worked example.
 - **Apps**: Declare capabilities in `Resources/mcp.xml` -- parsed by `Mcp::createFromXmlFile()` (XXE-safe via `XmlUtils::loadFile()`), persisted by the respective Persister (`McpToolPersister`, `McpPromptPersister`, `McpResourcePersister`), loaded at runtime by the corresponding Loader (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`). App tool webhook payloads include `shopId` and `appVersion` in the `source` object. **App tools also support internal dispatch via `/api/script/{path}` -- see the Serverless app tools section below.**
 - **In-tree Shopware bundles** (Storefront, etc.): Tag with **`mcp.tool`** directly (not `shopware.mcp.tool`) and ensure the bundle directory is listed in `mcp.yaml` `scan_dirs`. Using `shopware.mcp.tool` here would cause double-registration (compiler pass + scan_dirs).
 - **Reserved prefix**: The `shopware-` prefix is reserved for core tools. App tools with names starting with `shopware-` are skipped during loading.
@@ -168,6 +188,14 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 - **Filter `shopware://entities` resource by ACL** — `EntityListResource` currently returns all registered entities regardless of the caller's permissions. It should inject `McpContextProvider` and filter by `$context->isAllowed($entity . ':read')`, with a null-safe fallback for CLI/system contexts (return full list when there is no HTTP request).
 - **`debug:mcp` entity visibility** — when `--integration SWIA...` is passed, add an "Entities" count column to the tools table (how many entities that integration can read for entity-tools). In the detail view (`debug:mcp shopware-entity-read --integration ...`), show the full sorted list of accessible entity names.
 
+### Rate limiting
+The two MCP endpoints are rate-limited via the core `RateLimiter` through `McpRateLimiter` (`RateLimit/McpRateLimiter.php`), which owns the throttle/`McpException::throttled()` translation and the per-scope key derivation. Each scope has its own config route: `mcp_admin_api` (keyed per OAuth token, generous) and `mcp_store_api` (keyed per sales-channel context token, tighter because it is public and the key is rotatable). Both are defined in `shopware.yaml` under `shopware.api.rate_limiter`.
+
+Open improvements:
+- **Per-tool rate limiting** — the current limit is per-endpoint: a cheap `tools/list` and an expensive `entity-upsert`/`entity-delete`/`media-upload`/`system-config-write` draw from the same bucket. The industry consensus for MCP servers is to bucket cheap reads (`entity-search`, `entity-schema`) high (~100-200/min) and expensive/mutating tools low (~5-30/min). This needs a per-tool key (e.g. derive the tool name from the JSON-RPC body, which `McpServerController` already parses into `ATTRIBUTE_JSONRPC_BODY`) and a route per cost class.
+- **`Retry-After` header** — `McpException::throttled()` returns HTTP 429 with the wait time in the message/parameters, but no `Retry-After` response header. Adding it (and a structured `retry_after` in the JSON-RPC error) lets well-behaved agent clients back off correctly instead of blindly retrying.
+- **`time_backoff` vs token bucket** — Shopware uses the `time_backoff` policy (escalating penalty on repeated hits), not a token bucket, so it does not give the "burst then sustained" shape the MCP guides recommend for bursty agent traffic. Acceptable as a coarse circuit breaker; revisit if agents hit the limit on legitimate fan-out.
+
 ### Store API / shopper-side MCP
 The current MCP server is admin-API only (`/api/_mcp`, integration key auth). There is no MCP endpoint for the Store API.
 
@@ -190,13 +218,14 @@ The symfony-mcp-bundle (v0.8.0) and mcp/sdk (v0.4.0) already implement the follo
 
 ## Security
 
-Every MCP request passes through three layers in order — see `docs/security.md` for the full reference including error messages and troubleshooting.
+Every MCP request passes through three layers in order:
 
 1. **Authentication** — `sw-access-key` + `sw-secret-access-key` headers required on every request
 2. **Per-integration capability allowlist** — each integration stores a `mcp_allowlist` JSON object with `tools`, `resources`, and `prompts` keys (null per key = unrestricted; empty array = deny all). Configured via Settings → Integrations → Edit MCP Allowlist. `tools/list`, `resources/list`, and `prompts/list` responses are filtered; `tools/call`, `resources/read`, and `prompts/get` are rejected early with a clear error. Tool allowlist auto-expands transitive `#[McpToolDependsOn]` dependencies. **The `admin` flag does NOT bypass this layer** — it only bypasses layer 3 (ACL). **Scope**: enforced only for integration-authenticated requests (`sw-access-key` + `sw-secret-access-key`, or OAuth `client_credentials` for an integration key). Admin user bearer tokens issued via password/refresh grant (`client_id = administration`) resolve to no integration row in `McpAllowlistProvider::forAccessKey()` and fall back to unrestricted — the allowlist is effectively skipped for them.
-3. **ACL / Privileges** — tools call `requirePrivilege()` before touching data. Missing privileges return `{"success": false, "error": "Missing privilege: ..."}`. Tools may also annotate their static requirements with `#[McpToolRequires]` so operators can configure roles correctly upfront — but this is informational only and does not replace the `requirePrivilege()` check.
+3. **ACL / Privileges** — tools call `requirePrivilege()` before touching data. Missing privileges return `{"success": false, "error": "Missing privilege: ..."}` (single canonical prefix — use `McpToolResponse::missingPrivilegesError()`, never a hand-rolled message). Entity tools that accept criteria JSON additionally validate the built `Criteria` with `AclCriteriaValidator` (same association ACL model as the Admin API), so reading, filtering, or aggregating over an association also requires the associated entity's `:read` privilege. Tools may also annotate their static requirements with `#[McpToolRequires]` so operators can configure roles correctly upfront — but this is informational only and does not replace the `requirePrivilege()` check.
 
 Additional safeguards:
+- **Rate limiting**: every request passes through `McpRateLimiter` before the protocol runs. Separate per-scope buckets (`mcp_admin_api`, `mcp_store_api`); exceeding the limit returns HTTP 429 via `McpException::throttled()`. See the Rate limiting section under "Future ideas / backlog" for the keying details and open improvements.
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
 - **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
@@ -214,4 +243,4 @@ App integrations (created on app install via `AppLifecycle::enrichInstallMetadat
 
 **Saving the allowlist** uses a dedicated endpoint `POST /api/_action/integration/{id}/mcp-allowlist` (controller: `IntegrationMcpAllowlistController`). Body: `{ allowlist: {tools, resources, prompts} | null }`. This avoids the changeset generator recursing into the `app` one-to-one association (which has no `_origin` when loaded via criteria) and provides a clean ACL boundary separate from `integration:update`.
 
-**App deactivation**: when an app is deactivated via `AppStateService::deactivateApp()`, its integration is soft-deleted (`deletedAt` set). This suspends MCP authentication for that integration — the DAL excludes soft-deleted rows, so token requests fail. Reactivating the app (`activateApp()`) clears `deletedAt` and restores access.
+**App deactivation**: when an app is deactivated via `AppLifecycle::deactivate()`, its integration is soft-deleted (`deletedAt` set). This suspends MCP authentication for that integration — the DAL excludes soft-deleted rows, so token requests fail. Reactivating the app (`activate()`) clears `deletedAt` and restores access.

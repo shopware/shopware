@@ -25,8 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ContextSwitchRoute extends AbstractContextSwitchRoute
 {
     private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
@@ -92,12 +92,12 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         if ($context->getCustomer()) {
             $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomerId()));
         } else {
-            // do not allow to set address ids if the customer is not logged in
-            if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {
+            // do not allow setting address ids if the customer is not logged in
+            if (isset($parameters[self::SHIPPING_ADDRESS_ID]) && $parameters[self::SHIPPING_ADDRESS_ID] !== '') {
                 throw SalesChannelException::customerNotLoggedIn();
             }
 
-            if (isset($parameters[self::BILLING_ADDRESS_ID])) {
+            if (isset($parameters[self::BILLING_ADDRESS_ID]) && $parameters[self::BILLING_ADDRESS_ID] !== '') {
                 throw SalesChannelException::customerNotLoggedIn();
             }
         }

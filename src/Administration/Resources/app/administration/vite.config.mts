@@ -17,6 +17,7 @@ import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
+import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -49,7 +50,7 @@ export default defineConfig(({ command }) => {
     const isProd = command === 'build';
     const isDev = !isProd;
     const base = isProd ? '/bundles/administration/administration' : undefined;
-    const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
+    const useSourceMap = (isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') || (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
     const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1' && !isInsideDockerContainer();
 
     if (isProd) {
@@ -100,6 +101,9 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
+                ShopwareSetupPlugin({
+                    administrationRoot: __dirname,
+                }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({

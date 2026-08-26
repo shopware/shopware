@@ -133,21 +133,6 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         expect(Array.isArray(userConfigMock.value)).toBeTruthy();
     });
 
-    it('getCriteria > returns a criteria including specific filters', () => {
-        const criteria = service.getCriteria(CmsElementFavorites.USER_CONFIG_KEY);
-
-        expect(criteria.filters).toContainEqual({
-            type: 'equals',
-            field: 'key',
-            value: CmsElementFavorites.USER_CONFIG_KEY,
-        });
-        expect(criteria.filters).toContainEqual({
-            type: 'equals',
-            field: 'userId',
-            value: '8fe88c269c214ea68badf7ebe678ab96',
-        });
-    });
-
     it('getCurrentUserId > returns the userId of the current session user', () => {
         expect(service.getCurrentUserId()).toBe('8fe88c269c214ea68badf7ebe678ab96');
     });

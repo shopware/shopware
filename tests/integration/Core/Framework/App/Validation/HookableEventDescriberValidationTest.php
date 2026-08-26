@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableEventDescriberValidationTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -114,7 +114,7 @@ class PublicKeyLoaderTest extends TestCase
 
     private function createClient(bool $shouldBeCalled, string $data): HttpClientInterface
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getContent')->willReturn($data);
 
         $client = $this->createMock(HttpClientInterface::class);
@@ -138,7 +138,7 @@ class PublicKeyLoaderTest extends TestCase
             'register_url' => 'https://register.url',
         ];
 
-        return new LoginConfigService($rawConfig, $this->createMock(RouterInterface::class));
+        return new LoginConfigService($rawConfig, static::createStub(RouterInterface::class));
     }
 
     private function createCache(?string $cached = null): AdapterInterface&CacheInterface

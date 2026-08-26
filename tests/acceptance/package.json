@@ -2,10 +2,15 @@
   "name": "platform-acceptance-test-suite",
   "version": "1.0.0",
   "private": true,
+  "config": {
+    "prettier_config": "../../src/Administration/Resources/app/administration/.prettierrc.js"
+  },
   "bin": {
     "createTask": "./bin/createTask.js"
   },
   "scripts": {
+    "format": "prettier --config \"$npm_package_config_prettier_config\" --check \"**/*.{js,cjs,ts}\"",
+    "format:fix": "prettier --config \"$npm_package_config_prettier_config\" --write \"**/*.{js,cjs,ts}\" --cache",
     "lint": "eslint . --ext .ts",
     "lint:fix": "npm run lint -- --fix",
     "act": "npx playwright test --ui"
@@ -22,27 +27,33 @@
     "dotenv": "16.6.1",
     "eslint": "8.57.1",
     "eslint-plugin-playwright": "1.6.2",
+    "prettier": "3.6.2",
+    "prettier-plugin-multiline-arrays": "3.0.6",
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@currents/playwright": "2.1.2",
-    "@shopware-ag/acceptance-test-suite": "12.12.1",
+    "@currents/playwright": "2.3.3",
+    "@shopware-ag/acceptance-test-suite": "12.17.0",
     "@shopware/api-client": "1.4.0",
-    "lighthouse": "12.8.2",
+    "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"
   },
   "overrides": {
     "follow-redirects": "1.16.0",
-    "minimatch": "10.2.4",
-    "brace-expansion": "5.0.6",
+    "minimatch": "10.2.5",
+    "nanoid": "3.3.18",
+    "brace-expansion": "5.0.9",
     "basic-ftp": "^5.3.1",
     "flatted": "3.4.2",
     "defu": "6.1.5",
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
-    "axios": "1.15.2",
-    "ip-address": "10.1.1",
+    "axios": "1.18.1",
+    "ip-address": "10.4.0",
     "picomatch@2": "2.3.2",
-    "picomatch@4": "4.0.4"
+    "picomatch@4": "4.0.4",
+    "form-data": "4.0.6",
+    "js-yaml": "4.3.1",
+    "tmp": "0.2.7"
   }
 }

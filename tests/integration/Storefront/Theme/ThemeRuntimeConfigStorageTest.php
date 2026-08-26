@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
  *
  * @phpstan-import-type ThemeRuntimeConfigArrayOverrides from ThemeRuntimeConfig
  */
+#[Package('discovery')]
 class ThemeRuntimeConfigStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -209,6 +211,71 @@ class ThemeRuntimeConfigStorageTest extends TestCase
         // Verify first is gone, second still exists
         static::assertNull($this->storage->getByName($technicalName1));
         static::assertNotNull($this->storage->getByName($technicalName2));
+    }
+
+    public function testSaveReplacesRowConflictingOnTechnicalName(): void
+    {
+        $technicalName = 'shared-name-' . Uuid::randomHex();
+        $themeIdA = Uuid::randomHex();
+        $themeIdB = Uuid::randomHex();
+
+        $this->storage->save($this->createThemeRuntimeConfig([
+            'themeId' => $themeIdA,
+            'technicalName' => $technicalName,
+        ]));
+
+        $this->storage->save($this->createThemeRuntimeConfig([
+            'themeId' => $themeIdB,
+            'technicalName' => $technicalName,
+        ]));
+
+        static::assertNull($this->storage->getById($themeIdA), 'Old row conflicting on technical_name must be removed');
+
+        $retrieved = $this->storage->getByName($technicalName);
+        static::assertNotNull($retrieved);
+        static::assertSame($themeIdB, $retrieved->themeId);
+    }
+
+    public function testSaveReplacesRowsConflictingOnBothPrimaryAndTechnicalName(): void
+    {
+        // The new row conflicts with a different existing row on each index; REPLACE deletes both.
+        $themeIdX = Uuid::randomHex();
+        $themeIdY = Uuid::randomHex();
+        $nameA = 'name-a-' . Uuid::randomHex();
+        $nameB = 'name-b-' . Uuid::randomHex();
+
+        $this->storage->save($this->createThemeRuntimeConfig(['themeId' => $themeIdX, 'technicalName' => $nameA]));
+        $this->storage->save($this->createThemeRuntimeConfig(['themeId' => $themeIdY, 'technicalName' => $nameB]));
+
+        $this->storage->save($this->createThemeRuntimeConfig(['themeId' => $themeIdX, 'technicalName' => $nameB]));
+
+        static::assertNull($this->storage->getById($themeIdY), 'Row conflicting on technical_name must be removed');
+        static::assertNull($this->storage->getByName($nameA), 'Old technical_name of the replaced primary row must be gone');
+
+        $retrieved = $this->storage->getById($themeIdX);
+        static::assertNotNull($retrieved);
+        static::assertSame($nameB, $retrieved->technicalName);
+
+        $byName = $this->storage->getByName($nameB);
+        static::assertNotNull($byName);
+        static::assertSame($themeIdX, $byName->themeId);
+    }
+
+    public function testSaveAllowsMultipleCopiesWithNullTechnicalName(): void
+    {
+        $copyIdA = Uuid::randomHex();
+        $copyIdB = Uuid::randomHex();
+
+        $this->storage->save($this->createThemeRuntimeConfig(['themeId' => $copyIdA, 'technicalName' => null]));
+        $this->storage->save($this->createThemeRuntimeConfig(['themeId' => $copyIdB, 'technicalName' => null]));
+
+        $retrievedA = $this->storage->getById($copyIdA);
+        $retrievedB = $this->storage->getById($copyIdB);
+
+        static::assertNotNull($retrievedA);
+        static::assertNotNull($retrievedB);
+        static::assertNull($retrievedA->technicalName);
+        static::assertNull($retrievedB->technicalName);
     }
 
     public function testSaveAndGetByNameWithImportMap(): void

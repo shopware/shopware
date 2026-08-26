@@ -18,7 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -32,18 +34,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Reader\EntityReaderTest;
 
 use function Symfony\Component\String\u;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Covered by integration test {@see EntityReaderTest}
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\EntityReaderTest
  */
 #[Package('framework')]
 class EntityReader implements EntityReaderInterface
@@ -85,6 +87,10 @@ class EntityReader implements EntityReaderInterface
 
         $fieldsForPartialLoading = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
+        if ($criteria->getExcludedFields() !== []) {
+            $this->assertExcludableFields($definition, $criteria->getExcludedFields());
+        }
+
         return $this->_read(
             $criteria,
             $definition,
@@ -100,6 +106,31 @@ class EntityReader implements EntityReaderInterface
     protected function getParser(): SqlQueryParser
     {
         return $this->parser;
+    }
+
+    /**
+     * Rejects unknown fields and Required/WriteProtected fields — they back non-nullable entity
+     * properties that must not be left unset. The actual omission happens in {@see joinBasic()}.
+     *
+     * @param list<string> $excludedFields
+     */
+    private function assertExcludableFields(EntityDefinition $definition, array $excludedFields): void
+    {
+        foreach ($excludedFields as $propertyName) {
+            $field = $definition->getFields()->get($propertyName);
+
+            if ($field === null) {
+                throw DataAbstractionLayerException::cannotExcludeUnknownField($propertyName, $definition->getEntityName());
+            }
+
+            if ($field->is(Required::class)) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is required');
+            }
+
+            if ($field->is(WriteProtected::class)) {
+                throw DataAbstractionLayerException::fieldCannotBeExcluded($propertyName, $definition->getEntityName(), 'it is write-protected and maps to a non-nullable property that would be left uninitialized');
+            }
+        }
     }
 
     /**
@@ -189,6 +220,7 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading = [],
     ): void {
         $isPartial = $fieldsForPartialLoading !== [];
+        $excludedFields = $criteria?->getExcludedFields() ?? [];
         $filtered = $fields->filter(static function (Field $field) use ($isPartial, $fieldsForPartialLoading) {
             if ($field->is(Runtime::class)) {
                 return false;
@@ -214,6 +246,11 @@ class EntityReader implements EntityReaderInterface
         $addTranslation = false;
 
         foreach ($filtered as $field) {
+            // skip fields excluded via Criteria::excludeFields() (primary keys are always kept)
+            if ($excludedFields !== [] && !$field->getFlag(PrimaryKey::class) && \in_array($field->getPropertyName(), $excludedFields, true)) {
+                continue;
+            }
+
             // translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
@@ -343,6 +380,7 @@ class EntityReader implements EntityReaderInterface
                 $query,
                 $context,
                 $fieldsForPartialLoading,
+                $excludedFields,
             );
         }
     }
@@ -684,19 +722,6 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading,
         bool $isPartialLoading,
     ): void {
-        $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
-
-        // inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
-        $sorting = array_merge(
-            [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
-            $fieldCriteria->getSorting()
-        );
-
-        $fieldCriteria->resetSorting();
-        $fieldCriteria->addSorting(...$sorting);
-
-        $ids = array_values($collection->getIds());
-
         // Do not re-use `$isPartialLoading` here, as this method could be called for associations
         // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
@@ -704,15 +729,18 @@ class EntityReader implements EntityReaderInterface
             $fieldsForPartialLoading[$association->getPropertyName()] = [];
         }
 
-        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
+        $ids = array_values($collection->getIds());
 
+        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
         if ($isInheritanceAware) {
             $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
 
-        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
+        $fieldCriteria->addFilter(
+            new EqualsAnyFilter($this->buildOneToManyPropertyAccessor($definition, $association), $ids)
+        );
 
         $mapping = $this->fetchPaginatedOneToManyMapping($definition, $association, $context, $collection, $fieldCriteria);
 
@@ -811,6 +839,10 @@ class EntityReader implements EntityReaderInterface
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
+
+        if ($criteria->getIds() !== []) {
+            $ids = array_values(array_intersect($ids, $criteria->getIds()));
+        }
 
         if ($ids !== []) {
             $criteria->setIds($ids);
@@ -1013,6 +1045,10 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
+        if ($fieldCriteria->getIds() !== []) {
+            $ids = array_values(array_intersect($ids, $fieldCriteria->getIds()));
+        }
+
         if ($ids !== []) {
             // only read data when we have found mapped IDs
             // otherwise we would load the whole reference table
@@ -1080,9 +1116,6 @@ class EntityReader implements EntityReaderInterface
     ): array {
         $sortings = $fieldCriteria->getSorting();
 
-        // Remove first entry
-        array_shift($sortings);
-
         $query = new QueryBuilder($this->connection);
         $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
 
@@ -1107,24 +1140,31 @@ class EntityReader implements EntityReaderInterface
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.'
             . EntityDefinitionQueryHelper::escape($foreignKey);
 
+        $primaryKeyAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id';
+
+        $orderByParts = $query->getOrderByParts();
+
+        // Always end the window ordering with the reference primary key so ROW_NUMBER() produces a deterministic
+        // total order within each partition. The criteria sortings may be absent or non-unique (e.g. sorting by a
+        // shared `name`); without a unique tie-breaker the row numbering is undefined within a parent and paginated
+        // reads (limit/offset) of the association can return overlapping rows across separate queries.
+        $windowOrderBy = implode(', ', [...$orderByParts, $primaryKeyAccessor]);
+
+        // ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) guarantees that rows are numbered in the declared sort
+        // order within each parent entity, regardless of how the database engine executes the surrounding query, which
+        // is essential when the sort references a joined table: a declarative window function always sees the fully
+        // joined and sorted rowset, so id_count = 1 reliably identifies the top-ranked child.
         $query->select(
-            // build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
-            '@n:=IF(@c=' . $sqlAccessor . ', @n+1, IF(@c:=' . $sqlAccessor . ',1,1)) as id_count',
+            "ROW_NUMBER() OVER (PARTITION BY {$sqlAccessor} ORDER BY {$windowOrderBy}) as id_count",
 
             // add select for foreign key for join condition
             $sqlAccessor,
 
             // add primary key select to group concat them
-            EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
+            $primaryKeyAccessor,
         );
 
-        foreach ($query->getOrderByParts() as $i => $sorting) {
-            // The first order is the primary key
-            if ($i === 0) {
-                continue;
-            }
-            --$i;
-
+        foreach ($orderByParts as $i => $sorting) {
             // Strip the ASC/DESC at the end of the sort
             $query->addSelect(\sprintf('%s as sort_%d', substr((string) $sorting, 0, -4), $i));
         }
@@ -1180,9 +1220,6 @@ class EntityReader implements EntityReaderInterface
             $wrapper->setParameter($key, $value, $type);
         }
 
-        // initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
-        $this->connection->executeQuery('SET @n = 0; SET @c = null;');
-
         $rows = $wrapper->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
@@ -1193,7 +1230,7 @@ class EntityReader implements EntityReaderInterface
                 $grouped[$id] = [];
             }
 
-            if (empty($row['child_id'])) {
+            if ($row['child_id'] === null) {
                 continue;
             }
 

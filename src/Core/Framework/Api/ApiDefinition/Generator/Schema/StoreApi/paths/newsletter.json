@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/newsletter/confirm": {
@@ -46,12 +46,21 @@
                         }
                     },
                     "400": {
-                      "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -133,11 +142,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "required": ["success","status"],
+                                    "required": [
+                                        "success",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "success": {
-                                          "description": "Indicates whether the subscribe request was successful.",
-                                          "type": "boolean"
+                                            "description": "Indicates whether the subscribe request was successful.",
+                                            "type": "boolean"
                                         },
                                         "status": {
                                             "$ref": "#/components/schemas/NewsletterStatus"
@@ -150,11 +162,20 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -199,11 +220,20 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

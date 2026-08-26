@@ -35,9 +35,9 @@ class FlowFactoryTest extends TestCase
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
         $orderStorer = new OrderStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(OrderProvider::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(OrderProvider::class),
         );
         $flowFactory = new FlowFactory([$orderStorer]);
         $flow = $flowFactory->create($awareEvent);
@@ -53,7 +53,7 @@ class FlowFactoryTest extends TestCase
         $order = new OrderEntity();
         $order->setId($ids->get('orderId'));
 
-        $orderProvider = $this->createMock(OrderProvider::class);
+        $orderProvider = static::createStub(OrderProvider::class);
         $orderProvider->method('getData')->willReturn($order);
 
         $context = Generator::generateSalesChannelContext();
@@ -61,8 +61,8 @@ class FlowFactoryTest extends TestCase
         $awareEvent = new CheckoutOrderPlacedEvent($context, $order);
 
         $orderStorer = new OrderStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
             $orderProvider,
         );
         $flowFactory = new FlowFactory([$orderStorer]);

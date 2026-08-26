@@ -147,7 +147,38 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     active?: bool,
+     *     email?: mixed,
+     *     firstName?: mixed,
+     *     lastName?: mixed,
+     *     customerNumber?: mixed,
+     *     company?: mixed,
+     *     affiliateCode?: mixed,
+     *     campaignCode?: mixed,
+     *     groupId?: mixed,
+     *     salutationId?: mixed,
+     *     boundSalesChannelId?: mixed,
+     *     requestedGroupId?: mixed,
+     *     defaultBillingAddress?: array{
+     *         id: string,
+     *         _count: int,
+     *         countryId: string
+     *     }|null,
+     *     defaultShippingAddress?: array{
+     *         id: string,
+     *         _count: int,
+     *         countryId: string
+     *     }|null,
+     *     tags?: list<array{
+     *         id: string,
+     *         _count: int
+     *     }>,
+     *     createdAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DefaultTransportCompilerPass::class)]
 class DefaultTransportCompilerPassTest extends TestCase
 {

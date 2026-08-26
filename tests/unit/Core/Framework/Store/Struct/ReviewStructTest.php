@@ -44,8 +44,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('The parameter "authorName" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('authorName'));
         ReviewStruct::fromRequest(1, $request);
     }
 
@@ -56,8 +55,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('The parameter "headline" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('headline'));
         ReviewStruct::fromRequest(1, $request);
     }
 
@@ -70,8 +68,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('The parameter "rating" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('rating'));
         ReviewStruct::fromRequest(1, $request);
     }
 }

@@ -1,5 +1,11 @@
 {% block sw_multi_snippet_drag_and_drop %}
-<div class="sw-multi-snippet-drag-and-drop">
+<div
+    class="sw-multi-snippet-drag-and-drop"
+    :class="{
+        'is--drag-previewing': hasDragPreview,
+        'is--dragging-snippet': isSnippetDragActive,
+    }"
+>
     <mt-icon
         class="sw-multi-snippet-drag-and-drop__action"
         name="regular-grip-vertical"
@@ -18,43 +24,113 @@
                 class="sw-select-selection-list"
             >
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                <li
+                <template
                     v-for="(snippet, index) in value"
                     :key="index"
-                    class="sw-select-selection-list__item-holder"
-                    :class="'sw-select-selection-list__item-holder--' + index"
-                    :data-id="snippet"
                 >
-                    <slot
-                        name="selected-option"
-                        v-bind="{ snippet, defaultLabel: snippet, disabled, linePosition }"
+                    <li
+                        v-if="shouldShowPlaceholderBefore(index)"
+                        class="sw-select-selection-list__item-holder sw-multi-snippet-drag-and-drop__placeholder"
                     >
                         <sw-label
-                            v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition }}"
-                            v-draggable="{ ...mergedDragConfig, data: { snippet, index, linePosition }}"
-                            :dismissable="!isSelectionDisabled(snippet)"
                             :size="size"
-                            @dismiss="onClickDismiss(index)"
                         >
                             <span class="sw-select-selection-list__item">
-                                <slot
-                                    name="label-property"
-                                    v-bind="{ item: snippet, index, getLabelProperty }"
-                                >
-                                    {{ getLabelProperty(snippet) }}
-                                </slot>
+                                {{ getLabelProperty(dragPreviewSnippet) }}
                             </span>
                         </sw-label>
-                    </slot>
+                    </li>
+
+                    <li
+                        class="sw-select-selection-list__item-holder"
+                        :class="[
+                            'sw-select-selection-list__item-holder--' + index,
+                            { 'is--drag-preview-source': isDragPreviewSource(index) },
+                        ]"
+                        :data-id="snippet"
+                    >
+                        <slot
+                            name="selected-option"
+                            v-bind="{ snippet, defaultLabel: snippet, disabled, linePosition }"
+                        >
+                            <sw-label
+                                v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition }}"
+                                v-draggable="{ ...mergedDragConfig, data: { snippet, index, linePosition }}"
+                                class="sw-multi-snippet-drag-and-drop__snippet"
+                                :dismissable="!isSelectionDisabled(snippet)"
+                                :size="size"
+                                @dismiss="onClickDismiss(index)"
+                            >
+                                <span
+                                    v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition, targetIndex: index }}"
+                                    class="sw-multi-snippet-drag-and-drop__drop-zone sw-multi-snippet-drag-and-drop__drop-zone--before"
+                                    aria-hidden="true"
+                                ></span>
+                                <span
+                                    v-droppable="{ ...mergedDropConfig, data: { snippet, index, linePosition, targetIndex: index + 1 }}"
+                                    class="sw-multi-snippet-drag-and-drop__drop-zone sw-multi-snippet-drag-and-drop__drop-zone--after"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sw-select-selection-list__item">
+                                    <slot
+                                        name="label-property"
+                                        v-bind="{ item: snippet, index, getLabelProperty }"
+                                    >
+                                        {{ getLabelProperty(snippet) }}
+                                    </slot>
+                                </span>
+                            </sw-label>
+                        </slot>
+                    </li>
+
+                    <li
+                        v-if="shouldShowPlaceholderAfter(index)"
+                        class="sw-select-selection-list__item-holder sw-multi-snippet-drag-and-drop__placeholder"
+                    >
+                        <sw-label
+                            :size="size"
+                        >
+                            <span class="sw-select-selection-list__item">
+                                {{ getLabelProperty(dragPreviewSnippet) }}
+                            </span>
+                        </sw-label>
+                    </li>
+                </template>
+
+                <li
+                    v-if="shouldShowEmptyPlaceholder()"
+                    class="sw-select-selection-list__item-holder sw-multi-snippet-drag-and-drop__placeholder"
+                >
+                    <sw-label
+                        :size="size"
+                    >
+                        <span class="sw-select-selection-list__item">
+                            {{ getLabelProperty(dragPreviewSnippet) }}
+                        </span>
+                    </sw-label>
                 </li>
 
-                <li>
+                <li
+                    v-droppable="{ ...mergedDropConfig, data: { index: value.length, linePosition, targetIndex: value.length }}"
+                    class="sw-select-selection-list__input-wrapper"
+                    @click="openModal"
+                >
+                    <mt-icon
+                        class="sw-multi-snippet-drag-and-drop__add-icon"
+                        name="regular-plus-circle-s"
+                        size="14"
+                    />
+
                     <slot name="input">
-                        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                         <input
                             class="sw-select-selection-list__input"
                             type="text"
+                            readonly
+                            :aria-label="$t('sw-settings-country.general.actions.newSnippet')"
+                            :placeholder="$t('sw-settings-country.general.actions.newSnippet')"
                             :disabled="disabled"
+                            @keydown.enter.prevent="openModal"
+                            @keydown.space.prevent="openModal"
                         >
                     </slot>
                 </li>

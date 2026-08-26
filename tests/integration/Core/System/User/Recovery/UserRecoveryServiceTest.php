@@ -76,7 +76,7 @@ class UserRecoveryServiceTest extends TestCase
     {
         $this->createRecovery(self::VALID_EMAIL);
 
-        $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first();
+        $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(UserRecoveryEntity::class, $userRecovery);
     }
 
@@ -84,14 +84,14 @@ class UserRecoveryServiceTest extends TestCase
     {
         $this->createRecovery('foo@bar.com');
 
-        $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first();
+        $userRecovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNull($userRecovery);
     }
 
     #[DataProvider('dataProviderTestCheckHash')]
     public function testCheckHash(\DateInterval $timeInterval, string $hash, bool $expectedResult): void
     {
-        $user = $this->userRepo->search(new Criteria(), $this->context)->first();
+        $user = $this->userRepo->search(new Criteria(), $this->context)->getEntities()->first();
 
         static::assertInstanceOf(UserEntity::class, $user);
 
@@ -152,7 +152,7 @@ class UserRecoveryServiceTest extends TestCase
     {
         $this->createRecovery(self::VALID_EMAIL);
 
-        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first());
+        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->getEntities()->first());
 
         $hash = $recovery->getHash();
 
@@ -178,7 +178,7 @@ class UserRecoveryServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->first());
+        static::assertInstanceOf(UserRecoveryEntity::class, $recovery = $this->userRecoveryRepo->search(new Criteria(), $this->context)->getEntities()->first());
 
         $hash = $recovery->getHash();
 

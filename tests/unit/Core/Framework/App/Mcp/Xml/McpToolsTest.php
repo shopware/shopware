@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(McpTools::class)]
 #[Package('framework')]
+#[CoversClass(McpTools::class)]
 class McpToolsTest extends TestCase
 {
     public function testFromXmlParsesMultipleTools(): void

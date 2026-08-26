@@ -55,7 +55,7 @@ class DeliveryProcessorTest extends TestCase
         $shippingMethodCriteria->addAssociation('deliveryTime');
 
         $this->salesChannelContext->assign([
-            'shippingMethod' => static::getContainer()->get('shipping_method.repository')->search($shippingMethodCriteria, $this->salesChannelContext->getContext())->first(),
+            'shippingMethod' => static::getContainer()->get('shipping_method.repository')->search($shippingMethodCriteria, $this->salesChannelContext->getContext())->getEntities()->first(),
         ]);
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();

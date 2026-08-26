@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DemodataRequestCreatedEvent::class)]
 class DemodataRequestCreatedEventTest extends TestCase
 {

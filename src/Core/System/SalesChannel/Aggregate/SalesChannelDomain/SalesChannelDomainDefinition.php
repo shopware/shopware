@@ -73,6 +73,7 @@ class SalesChannelDomainDefinition extends EntityDefinition
             (new OneToOneAssociationField('salesChannelDefaultHreflang', 'id', 'hreflang_default_domain_id', SalesChannelDefinition::class, false))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_domain_id', 'id'))->addFlags(new RestrictDelete()),
             (new BoolField('hreflang_use_only_locale', 'hreflangUseOnlyLocale'))->addFlags(new ApiAware())->setDescription('This is used to toggle the language configurations, say between DE and DE-DE for instance.'),
+            (new BoolField('is_external_storefront', 'isExternalStorefront'))->addFlags(new ApiAware())->setDescription('Whether the domain points to an external (headless) storefront.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }

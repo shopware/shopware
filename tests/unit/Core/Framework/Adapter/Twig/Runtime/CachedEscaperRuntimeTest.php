@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Error\RuntimeError;
 use Twig\Runtime\EscaperRuntime;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CachedEscaperRuntime::class)]
 class CachedEscaperRuntimeTest extends TestCase
 {

@@ -8,6 +8,7 @@ use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('checkout')]
 class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     public function testValidate(): void

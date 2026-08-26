@@ -116,7 +116,7 @@ The previous `UserAccessKeyMcpAllowlistController` (`POST /api/_action/user-acce
 **MCP allowlist card** on the user detail page (below the Integrations card):
 
 ```twig
-<mt-card v-if="feature.isActive('MCP_SERVER')" :title="...">
+<mt-card :title="...">
     <sw-integration-mcp-allowlist
         :allowlist="user.mcpAllowlist"
         :disabled="!acl.can('users_and_permissions.editor') || !$route.params.id"

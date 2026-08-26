@@ -1,10 +1,8 @@
-$sw-text-editor-toolbar-item-color-boxed: var(--color-icon-secondary-default);
-
 .sw-text-editor-toolbar {
     padding: 0 6px;
     background: var(--color-elevation-floating-default);
     border-radius: 4px;
-    color: var(--color-icon-inverse-default);
+    color: var(--color-icon-primary-inverse);
     display: grid;
     grid-auto-flow: column dense;
     grid-auto-columns: min-content;
@@ -34,8 +32,8 @@ $sw-text-editor-toolbar-item-color-boxed: var(--color-icon-secondary-default);
         left: 0;
         position: initial;
         background: var(--color-background-secondary-default);
-        border-bottom: 1px solid var(--color-border-primary-default);
-        color: $sw-text-editor-toolbar-item-color-boxed;
+        border-bottom: 1px solid var(--color-border-secondary-default);
+        color: var(--color-icon-secondary-default);
         display: grid;
         grid-template-columns: auto;
 
@@ -45,11 +43,11 @@ $sw-text-editor-toolbar-item-color-boxed: var(--color-icon-secondary-default);
 
         .sw-text-editor-buttons {
             &.is--middle {
-                border-left: 1px solid var(--color-border-primary-default);
+                border-left: 1px solid var(--color-border-secondary-default);
             }
 
             &.is--right {
-                border-left: 1px solid var(--color-border-primary-default);
+                border-left: 1px solid var(--color-border-secondary-default);
             }
         }
     }
@@ -63,12 +61,12 @@ $sw-text-editor-toolbar-item-color-boxed: var(--color-icon-secondary-default);
         }
 
         &.is--middle {
-            border-left: 1px solid var(--color-border-primary-default);
+            border-left: 1px solid var(--color-border-secondary-default);
             padding-left: 1px;
         }
 
         &.is--right {
-            border-left: 1px solid var(--color-border-primary-default);
+            border-left: 1px solid var(--color-border-secondary-default);
             padding-left: 1px;
             justify-self: end;
         }

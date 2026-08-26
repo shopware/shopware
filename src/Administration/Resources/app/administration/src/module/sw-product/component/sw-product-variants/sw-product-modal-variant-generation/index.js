@@ -14,6 +14,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'mediaService',
         'swProductDetailLoadAll',
@@ -76,6 +77,30 @@ export default {
     },
 
     computed: {
+        variantGenerationTabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-product.variations.configuratorModal.selectOptions'),
+                    name: 'options',
+                },
+            ];
+
+            if (this.variantsNumber) {
+                tabs.push(
+                    {
+                        label: this.$t('sw-product.variations.configuratorModal.priceSurcharges'),
+                        name: 'prices',
+                    },
+                    {
+                        label: this.$t('sw-product.variations.configuratorModal.defineRestrictions'),
+                        name: 'restrictions',
+                    },
+                );
+            }
+
+            return tabs;
+        },
+
         currencies() {
             return Shopware.Store.get('swProductDetail').currencies;
         },
@@ -336,6 +361,12 @@ export default {
 
             this.variantsGenerator
                 .saveVariants(this.variantGenerationQueue)
+                .then(() => {
+                    return this.variantsGenerator.saveVariantRestrictions();
+                })
+                .then(() => {
+                    return this.variantsGenerator.saveVariantListingConfig();
+                })
                 .then(() => {
                     this.addOriginalConfiguratorSettings();
                     return this.variantsGenerator.saveConfiguratorSettings(

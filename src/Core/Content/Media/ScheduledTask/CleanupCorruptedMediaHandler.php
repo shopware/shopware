@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Defaults;
@@ -35,7 +36,8 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
         protected readonly LoggerInterface $logger,
-        private readonly EntityRepository $mediaRepository
+        private readonly EntityRepository $mediaRepository,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -69,7 +71,7 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
         $criteria->addFilter(new EqualsFilter('uploadedAt', null));
         $criteria->addFilter(new EqualsFilter('path', null));
         $criteria->addFilter(new RangeFilter('createdAt', [
-            RangeFilter::LT => (new \DateTimeImmutable())
+            RangeFilter::LT => $this->clock->now()
                 ->sub(new \DateInterval('P' . self::CORRUPTED_MEDIA_GRACE_PERIOD_DAYS . 'D'))
                 ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]));

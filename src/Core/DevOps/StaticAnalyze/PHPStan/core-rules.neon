@@ -1,13 +1,27 @@
+includes:
+    - tagged-service-contracts.php
+
+parameters:
+    shopwareTaggedServiceContractAdditionalTagContracts: []
+
+parametersSchema:
+    shopwareTaggedServiceContractTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
+    shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
+
 rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\NoBCPlanningDeprecationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\AddColumnRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NoAfterStatementRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NoDropStatementInUpdateRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NonStandardFkGuardRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AbstractClassUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ServiceDefinitionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ExtensionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNewRequestInStorefrontRule
@@ -18,9 +32,32 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NameConstantEntityDefinition
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\StorefrontRouteUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule
+    # core-only until the commercial repositories have swept their own reflection backlogs
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
 
 services:
+    # gated to the core test namespaces inside the rule; downstream repositories carry their own package taxonomy
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestPackageMatchRule
+        arguments:
+            projectDir: %currentWorkingDirectory%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
+        arguments:
+            tagContracts: %shopwareTaggedServiceContractTagContracts%
+            additionalTagContracts: %shopwareTaggedServiceContractAdditionalTagContracts%
+            containerXmlPath: %symfony.containerXmlPath%
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ServiceDefinitionCollector
+        tags:
+            - phpstan.collector
+
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule
         tags:

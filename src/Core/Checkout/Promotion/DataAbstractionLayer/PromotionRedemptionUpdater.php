@@ -96,9 +96,9 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         }
 
         $promotionIds = [];
-        foreach ($event->getWriteResults() as $writeResult) {
+        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_INSERT, EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
             $type = $writeResult->getPayload()['type'] ?? null;
-            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_DELETE && $type === PromotionProcessor::LINE_ITEM_TYPE) {
+            if ($type === PromotionProcessor::LINE_ITEM_TYPE) {
                 $promotionIds[] = $writeResult->getPayload()['promotionId'] ?? null;
             }
         }

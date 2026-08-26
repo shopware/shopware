@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-sidebar__block-preview .sw-cms-block-preview-product-description-reviews {
     color: var(--color-text-primary-default);
     padding: 10px;
@@ -11,20 +9,20 @@
 
     &__tab-description,
     &__tab-reviews {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         color: var(--color-text-secondary-default);
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
         margin: auto 10px auto 0;
         padding: 0 0 5px;
     }
 
     &__tab-description {
         color: var(--color-text-primary-default);
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     &__content {
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         color: var(--color-text-primary-default);
     }
 }

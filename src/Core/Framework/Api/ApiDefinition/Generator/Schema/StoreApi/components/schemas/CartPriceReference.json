@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
@@ -21,7 +21,7 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["cart_price_reference"]
+                        "const": "cart_price_reference"
                     },
                     "listPrice": {
                         "oneOf": [
@@ -43,9 +43,7 @@
                                     },
                                     "apiAlias": {
                                         "type": "string",
-                                        "enum": [
-                                            "cart_regulation_price"
-                                        ]
+                                        "const": "cart_regulation_price"
                                     }
                                 }
                             },
@@ -74,9 +72,6 @@
                     "hasRange",
                     "regulationPrice",
                     "listPrice",
-                    "calculatedTaxes",
-                    "totalPrice",
-                    "quantity",
                     "unitName"
                 ]
             }

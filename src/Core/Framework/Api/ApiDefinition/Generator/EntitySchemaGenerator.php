@@ -52,6 +52,10 @@ use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
+ *
+ * @phpstan-type NestedFieldSchema array{type: string, properties?: array<string, mixed>, relation?: string, entity?: string, local?: string, reference?: string, mapping?: string, localField?: string|null, referenceField?: string|null, primary?: string, flags: array<string, mixed>, description?: string}
+ * @phpstan-type FieldSchema array{type: string, properties?: array<string, NestedFieldSchema>, relation?: string, entity?: string, local?: string, reference?: string, mapping?: string, localField?: string|null, referenceField?: string|null, primary?: string, flags: array<string, mixed>, description?: string}
+ * @phpstan-type EntitySchema array{entity: string, properties: array<string, FieldSchema>, write-protected: bool, read-protected: bool, flags?: list<Flag>}
  */
 #[Package('framework')]
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
@@ -69,16 +73,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array<
-     *     string,
-     *     array{
-     *          entity: string,
-     *          properties: array<string, array{type: string, flags: array<string, mixed>, description?: string}>,
-     *          write-protected: bool,
-     *          read-protected: bool,
-     *          flags?: list<Flag>
-     *      }
-     * >
+     * @return array<string, EntitySchema>
      */
     public function getSchema(array $definitions): array
     {
@@ -102,13 +97,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{
-     *     entity: string,
-     *     properties: array<string, array{type: string, flags: array<string, mixed>, description?: string}>,
-     *     write-protected: bool,
-     *     read-protected: bool,
-     *     flags?: list<Flag>
-     *  }
+     * @return EntitySchema
      */
     private function getEntitySchema(EntityDefinition $definition): array
     {
@@ -134,7 +123,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @return array{type: string, flags: array<string, mixed>, description?: string}
+     * @return FieldSchema
      */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
@@ -159,7 +148,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     /**
      * @param array<string, mixed> $flags
      *
-     * @return array{type: string, flags: array<string, mixed>, description?: string}
+     * @return FieldSchema
      */
     private function mapFieldType(EntityDefinition $definition, Field $field, array $flags): array
     {
@@ -327,12 +316,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
     /**
      * @param array<string, mixed> $flags
      *
-     * @return array{
-     *     type: string,
-     *     properties: array<string,
-     *     array{type: string, flags: array<string, mixed>}>,
-     *     flags: array<string, mixed>
-     * }
+     * @return array{type: string, properties: array<string, FieldSchema>, flags: array<string, mixed>}
      */
     private function createJsonObjectType(EntityDefinition $definition, Field $field, array $flags): array
     {

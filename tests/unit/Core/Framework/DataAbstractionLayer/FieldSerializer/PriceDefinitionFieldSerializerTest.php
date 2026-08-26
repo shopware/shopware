@@ -26,20 +26,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PriceDefinitionFieldSerializer::class)]
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
@@ -47,7 +52,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $this->fieldSerializer = new PriceDefinitionFieldSerializer(
             $definitionInstanceRegistry,
             Validation::createValidator(),
@@ -75,8 +80,43 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
+    }
+
+    /**
+     * The serializer pre-processes the payload before `JsonFieldSerializer::encode()` validates it. A scalar
+     * used to reach that pre-processing and abort the request with a PHP `Error` instead of a violation.
+     */
+    #[DataProvider('nonArrayValueProvider')]
+    public function testEncodeRejectsNonArrayValue(mixed $value): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/test', $value),
+            ])
+        ));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $value, false),
+            new WriteParameterBag(
+                static::createStub(CurrencyDefinition::class),
+                WriteContext::createFromContext(Context::createDefaultContext()),
+                '',
+                new WriteCommandQueue()
+            )
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
     }
 
     public function testEncodeDecodeWithEmptyOperatorCondition(): void
@@ -91,7 +131,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
 
         static::assertArrayHasKey('test', $encoded);
@@ -101,6 +141,168 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         static::assertEquals($definition, $decoded);
     }
 
+    public function testDecodePercentagePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => [
+                '_name' => 'unknownPluginRule',
+                'operator' => Rule::OPERATOR_EQ,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(UnknownConditionRule::class, $filter);
+        static::assertSame('unknownPluginRule', $filter->getOriginalName());
+    }
+
+    public function testDecodeAbsolutePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
+    {
+        $encoded = json_encode([
+            'type' => AbsolutePriceDefinition::TYPE,
+            'price' => -10,
+            'filter' => [
+                '_name' => 'unknownPluginRule',
+                'operator' => Rule::OPERATOR_EQ,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(AbsolutePriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(UnknownConditionRule::class, $filter);
+        static::assertSame('unknownPluginRule', $filter->getOriginalName());
+    }
+
+    public function testDecodeCurrencyPriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
+    {
+        $encoded = json_encode([
+            'type' => CurrencyPriceDefinition::TYPE,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'net' => 100, 'gross' => 200, 'linked' => false],
+            ],
+            'filter' => [
+                '_name' => 'unknownPluginRule',
+                'operator' => Rule::OPERATOR_EQ,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(CurrencyPriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(UnknownConditionRule::class, $filter);
+        static::assertSame('unknownPluginRule', $filter->getOriginalName());
+    }
+
+    public function testDecodePriceDefinitionWithMissingRuleConditionNestedInContainerKeepsSurroundingStructure(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => [
+                '_name' => 'andContainer',
+                'rules' => [
+                    [
+                        '_name' => 'currency',
+                        'operator' => Rule::OPERATOR_EQ,
+                        'currencyIds' => [Defaults::CURRENCY],
+                    ],
+                    [
+                        '_name' => 'unknownPluginRule',
+                        'operator' => Rule::OPERATOR_EQ,
+                    ],
+                ],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(AndRule::class, $filter);
+
+        $rules = $filter->getRules();
+        static::assertCount(2, $rules);
+        static::assertInstanceOf(CurrencyRule::class, $rules[0]);
+        static::assertInstanceOf(UnknownConditionRule::class, $rules[1]);
+        static::assertSame('unknownPluginRule', $rules[1]->getOriginalName());
+    }
+
+    public function testDecodePercentagePriceDefinitionWithoutFilterKeepsNullFilter(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        static::assertNull($decoded->getFilter());
+    }
+
+    public function testEncodePreservesUnknownRuleConditionInsteadOfThrowing(): void
+    {
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ, 'identifiers' => ['foo']];
+        $definition = new PercentagePriceDefinition(-20, new UnknownConditionRule($originalFilter));
+
+        $stored = $this->encodeDefinition($definition);
+
+        // The write must not be rejected (this is what order versioning / recalculation triggers) and the
+        // original rule payload must be preserved verbatim, so the order is restored once the plugin returns.
+        static::assertSame($originalFilter, $stored['filter']);
+    }
+
+    public function testDecodeEncodeRoundTripPreservesUnknownRuleConditionLosslessly(): void
+    {
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ];
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => $originalFilter,
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+
+        $stored = $this->encodeDefinition($decoded);
+
+        static::assertSame($originalFilter, $stored['filter']);
+    }
+
+    public function testEncodePreservesUnknownRuleConditionNestedInContainer(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => [
+                '_name' => 'andContainer',
+                'rules' => [
+                    ['_name' => 'currency', 'operator' => Rule::OPERATOR_EQ, 'currencyIds' => [Defaults::CURRENCY]],
+                    ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ],
+                ],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+
+        $stored = $this->encodeDefinition($decoded);
+
+        static::assertSame('andContainer', $stored['filter']['_name']);
+        static::assertCount(2, $stored['filter']['rules']);
+        static::assertSame(
+            ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ],
+            $stored['filter']['rules'][1]
+        );
+    }
+
     #[DataProvider('serializerProvider')]
     public function testEncodeDecodeRoundTrip(PriceDefinitionInterface $definition): void
     {
@@ -108,7 +310,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new PriceDefinitionField('test', 'test'),
             new EntityExistence('', [], false, false, false, []),
             new KeyValuePair('test', $definition, true),
-            new WriteParameterBag($this->createMock(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
         ));
 
         static::assertArrayHasKey('test', $encoded);
@@ -167,5 +369,24 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'percentage price definition with bool custom field rule' => [
             new PercentagePriceDefinition(-20, $rule),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function encodeDefinition(PriceDefinitionInterface $definition): array
+    {
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
+
+        $encoded = iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $definition, true),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+        ));
+
+        static::assertArrayHasKey('test', $encoded);
+
+        return json_decode((string) $encoded['test'], true, 512, \JSON_THROW_ON_ERROR);
     }
 }

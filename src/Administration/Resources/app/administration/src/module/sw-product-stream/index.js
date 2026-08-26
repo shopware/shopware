@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
@@ -21,6 +17,7 @@ Shopware.Component.extend(
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
+ * @sw-package inventory
  * @private
  */
 Module.register('sw-product-stream', {
@@ -31,8 +28,8 @@ Module.register('sw-product-stream', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'solid-products',
-    favicon: 'icon-module-products.png',
+    icon: 'regular-products',
+    favicon: 'icon-module-products.svg',
     entity: 'product_stream',
 
     routes: {

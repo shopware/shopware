@@ -3,11 +3,13 @@
 namespace Shopware\Tests\DevOps\Core\DevOps;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ADRValidationTest extends TestCase
 {
     public function testADRValidation(): void

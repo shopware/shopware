@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -168,6 +170,30 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
 
         const customComponent = wrapper.find('.foo-bar');
         expect(customComponent.attributes().disabled).toBeUndefined();
+    });
+
+    it.each([
+        'buy-box',
+        'product-description-reviews',
+    ])('should lock %s on product detail pages without changing the slot', async (type) => {
+        Shopware.Store.get('cmsPage').currentPage = { type: 'product_detail' };
+
+        const wrapper = await createWrapper({
+            element: {
+                type,
+                locked: false,
+            },
+            active: true,
+        });
+
+        expect(wrapper.vm.isElementLocked).toBe(true);
+        expect(wrapper.props('element').locked).toBe(false);
+
+        expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
+
+        wrapper.vm.onSettingsButtonClick();
+
+        expect(wrapper.vm.showElementSettings).toBe(false);
     });
 
     it('should show a tooltip when the element is not disabled', async () => {

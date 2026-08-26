@@ -1,22 +1,20 @@
-@import "~scss/variables";
-
 .sw-meteor-single-select {
     .sw-meteor-single-select__preview {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
-        background-color: $color-white;
+        background-color: var(--color-background-primary-default);
         padding: 6px 16px;
         border-radius: 20px;
-        border: 1px solid $color-gray-300;
-        font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        border: 1px solid var(--color-border-primary-default);
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
         cursor: pointer;
         transition: 0.1s all ease-in-out;
 
         &:hover {
-            border-color: $color-shopware-brand-500;
-            color: $color-shopware-brand-500;
+            border-color: var(--color-border-brand-default);
+            color: var(--color-text-brand-default);
         }
 
         .mt-icon {
@@ -32,7 +30,7 @@
     }
 
     .sw-meteor-single-select__label {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         padding-right: 4px;
     }
 
@@ -60,9 +58,9 @@
             position: sticky;
             top: 0;
             border-radius: 3px 3px 0 0;
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-secondary-default);
             padding: var(--search-field-padding);
-            background: $color-white;
+            background: var(--color-background-primary-default);
             margin: 0;
 
             .sw-simple-search-field__search-icon {

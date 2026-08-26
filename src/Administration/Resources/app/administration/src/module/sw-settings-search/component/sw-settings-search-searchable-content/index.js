@@ -14,6 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     emits: ['edit-change'],
@@ -55,6 +56,15 @@ export default {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 700,
+                        tokenize: true,
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-search.generalTab.configFields.parentName'),
+                    value: 'parent.name',
+                    defaultConfigs: {
+                        searchable: false,
+                        ranking: 560,
                         tokenize: true,
                     },
                 },
@@ -245,6 +255,19 @@ export default {
                     label: 'sw-settings-search.generalTab.list.columnSplitKeywords',
                     align: 'center',
                     sortable: true,
+                },
+            ];
+        },
+
+        searchableContentTabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelGeneralTab'),
+                    name: this.tabNames.generalTab,
+                },
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelCustomFieldsTab'),
+                    name: this.tabNames.customTab,
                 },
             ];
         },

@@ -53,7 +53,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
         ], $this->context);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->get($this->streamId);
+        $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->getEntities()->get($this->streamId);
         static::assertSame([['type' => 'equals', 'field' => 'product.name', 'value' => 'awesome']], $entity->getApiFilter());
     }
 
@@ -68,7 +68,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
         ], $this->context);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->get($this->streamId);
+        $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->getEntities()->get($this->streamId);
         static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 
@@ -80,7 +80,7 @@ class ProductStreamFilterRepositoryTest extends TestCase
         ], $this->context);
 
         /** @var ProductStreamEntity $entity */
-        $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->get($this->streamId);
+        $entity = $this->productStreamRepository->search(new Criteria([$this->streamId]), $this->context)->getEntities()->get($this->streamId);
         static::assertSame([['type' => 'range', 'field' => 'product.weight', 'parameters' => [RangeFilter::GT => 0.5, RangeFilter::LT => 100]]], $entity->getApiFilter());
     }
 }

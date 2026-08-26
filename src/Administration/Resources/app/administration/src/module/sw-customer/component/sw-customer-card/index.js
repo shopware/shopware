@@ -51,6 +51,7 @@ export default {
     data() {
         return {
             showImitateCustomerModal: false,
+            showConvertCustomerModal: false,
         };
     },
 
@@ -145,6 +146,10 @@ export default {
             return this.acl.can('api_proxy_imitate-customer');
         },
 
+        canUseConvertCustomer() {
+            return this.customer.guest && this.acl.can('customer.editor');
+        },
+
         customerImitationWarning() {
             if (this.customer.guest) {
                 return this.$t('sw-customer.card.tooltipImitateCustomerGuest');
@@ -226,6 +231,14 @@ export default {
 
         onCloseImitateCustomerModal() {
             this.showImitateCustomerModal = false;
+        },
+
+        onOpenConvertCustomerModal() {
+            this.showConvertCustomerModal = true;
+        },
+
+        onCloseConvertCustomerModal() {
+            this.showConvertCustomerModal = false;
         },
     },
 };

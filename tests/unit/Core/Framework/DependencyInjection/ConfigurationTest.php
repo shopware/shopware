@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
@@ -17,6 +19,7 @@ use Symfony\Component\Config\Definition\Processor;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {
@@ -46,6 +49,102 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('enable', $nodes);
         $node = $nodes['enable'];
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+    }
+
+    public function testCdnPathCacheBusterDefaultsToTrue(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['cdn' => []]]);
+
+        static::assertTrue($config['cdn']['path_cache_buster']);
+    }
+
+    public function testTranslationConfigTreeNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('translation', $nodes);
+        $node = $nodes['translation'];
+        static::assertInstanceOf(ArrayNodeDefinition::class, $node);
+
+        $children = $node->getChildNodeDefinitions();
+        static::assertInstanceOf(ScalarNodeDefinition::class, $children['repository_url']);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $children['metadata_url']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugins']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['use_local_filesystem']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['scheduled_task']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['scheduled_task']->getChildNodeDefinitions()['enabled']);
+    }
+
+    public function testTranslationConfigRejectsInvalidListType(): void
+    {
+        $configuration = new Configuration();
+
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            'Invalid type for path "shopware.translation.languages". Expected "array", but got "string"'
+        ));
+
+        (new Processor())->processConfiguration($configuration, [
+            [
+                'translation' => [
+                    'languages' => 'foo',
+                ],
+            ],
+        ]);
+    }
+
+    public function testTranslationConfigDefaultsToNull(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, []);
+
+        static::assertSame([
+            'repository_url' => null,
+            'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url_snippet_key' => null,
+            'completeness_threshold' => null,
+            'plugins' => null,
+            'excluded_locales' => null,
+            'pseudo_locales' => null,
+            'plugin_mapping' => null,
+            'languages' => null,
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
+        ], $config['translation']);
+    }
+
+    public function testTranslationConfigListOverrideReplacesPreviousValue(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'translation' => [
+                    'plugins' => ['PluginA', 'PluginB'],
+                    'excluded_locales' => ['de-DE'],
+                ],
+            ],
+            [
+                'translation' => [
+                    'plugins' => ['PluginC'],
+                    'excluded_locales' => [],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['PluginC'], $config['translation']['plugins']);
+        static::assertSame([], $config['translation']['excluded_locales']);
     }
 
     public function testFeatureConfigTreeNode(): void
@@ -258,6 +357,101 @@ class ConfigurationTest extends TestCase
         static::assertSame(['root' => '%kernel.project_dir%/public'], $config['filesystem']['public']['config']);
     }
 
+    public function testRemoteThumbnailFallbackSizesDefaultToEmptyList(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [],
+                ],
+            ],
+        ]);
+
+        static::assertSame([], $config['media']['remote_thumbnails']['fallback_sizes']);
+    }
+
+    public function testRemoteThumbnailFallbackSizesRetainsValidEntry(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [
+                            ['width' => 100, 'height' => 200],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([['width' => 100, 'height' => 200]], $config['media']['remote_thumbnails']['fallback_sizes']);
+    }
+
+    public function testRemoteThumbnailFallbackSizesReplacesPreviousList(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [
+                            ['width' => 100, 'height' => 200],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [
+                            ['width' => 300, 'height' => 400],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([['width' => 300, 'height' => 400]], $config['media']['remote_thumbnails']['fallback_sizes']);
+    }
+
+    /**
+     * @param array{width: int, height: int} $fallbackSize
+     */
+    #[DataProvider('invalidRemoteThumbnailFallbackSizes')]
+    public function testRemoteThumbnailFallbackSizesRejectNonPositiveDimensions(array $fallbackSize, string $path, int $value): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(
+            \sprintf('The value %d is too small for path "%s". Should be greater than or equal to 1', $value, $path)
+        ));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'media' => [
+                    'remote_thumbnails' => [
+                        'fallback_sizes' => [$fallbackSize],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @return \Generator<string, array{fallbackSize: array{width: int, height: int}, path: string, value: int}>
+     */
+    public static function invalidRemoteThumbnailFallbackSizes(): \Generator
+    {
+        yield 'zero width' => [
+            'fallbackSize' => ['width' => 0, 'height' => 100],
+            'path' => 'shopware.media.remote_thumbnails.fallback_sizes.0.width',
+            'value' => 0,
+        ];
+
+        yield 'negative height' => [
+            'fallbackSize' => ['width' => 100, 'height' => -1],
+            'path' => 'shopware.media.remote_thumbnails.fallback_sizes.0.height',
+            'value' => -1,
+        ];
+    }
+
     public function testFilesystemAdapterConfigOverrideReplacesPreviousAdapterConfig(): void
     {
         $configuration = new Configuration();
@@ -352,8 +546,7 @@ class ConfigurationTest extends TestCase
 
     public function testInvalidSystemConfigKeys(): void
     {
-        static::expectException(InvalidConfigurationException::class);
-        static::expectExceptionMessage('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID');
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID'));
 
         $configuration = new Configuration();
 

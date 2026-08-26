@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<OrderLineItemDownloadEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class OrderLineItemDownloadCollection extends EntityCollection

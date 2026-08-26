@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @deprecated tag:v6.8.0 - Can be removed as the tested class will be removed as well
  */
+#[Package('framework')]
 #[CoversClass(StoreApiRouteCacheKeyEvent::class)]
 #[DisabledFeatures(['v6.8.0.0'])]
 class StoreApiRouteCacheKeyEventTest extends TestCase

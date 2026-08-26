@@ -3,11 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -34,12 +37,9 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('executeStatement');
 
-        $middleware = new StoreSessionExpiredMiddleware(
-            $connection,
-            new RequestStack(),
-        );
+        $middleware = new StoreSessionExpiredMiddleware($connection, new RequestStack());
 
-        $handledResponse = $middleware($response, $request);
+        $handledResponse = $this->invoke($middleware, $response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -52,12 +52,9 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('executeStatement');
 
-        $middleware = new StoreSessionExpiredMiddleware(
-            $connection,
-            new RequestStack(),
-        );
+        $middleware = new StoreSessionExpiredMiddleware($connection, new RequestStack());
 
-        $handledResponse = $middleware($response, $request);
+        $handledResponse = $this->invoke($middleware, $response, $request);
 
         static::assertSame($response, $handledResponse);
         static::assertSame('{"payload":"data"}', (string) $handledResponse->getBody());
@@ -75,7 +72,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $middleware = new StoreSessionExpiredMiddleware($connection, $requestStack);
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $this->invoke($middleware, $response, $request);
     }
 
     public function testLogsOutUserByInvalidToken(): void
@@ -100,7 +97,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $middleware = new StoreSessionExpiredMiddleware($connection, $requestStack);
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $this->invoke($middleware, $response, $request);
     }
 
     public function testLogsOutUserAndThrowsIfApiRespondsWithTokenExpiredException(): void
@@ -112,31 +109,22 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
 
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
-        $request = new Request(
-            [],
-            [],
-            [
-                'sw-context' => $context,
-            ]
-        );
+        $sfRequest = new Request([], [], ['sw-context' => $context]);
 
         $requestStack = new RequestStack();
-        $requestStack->push($request);
+        $requestStack->push($sfRequest);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('executeStatement')
             ->with(static::anything(), ['userId' => Uuid::fromHexToBytes($adminUser->getId())]);
 
-        $middleware = new StoreSessionExpiredMiddleware(
-            $connection,
-            $requestStack
-        );
+        $middleware = new StoreSessionExpiredMiddleware($connection, $requestStack);
 
         $request = new Psr7Request('GET', '/');
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $this->invoke($middleware, $response, $request);
     }
 
     public static function provideRequestStacks(): \Generator
@@ -157,5 +145,15 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $requestStackWithMissingUserId->push(new Request([], [], ['sw-context' => new Context(new AdminApiSource(null))]));
 
         yield 'request stack with missing user id' => [$requestStackWithMissingUserId];
+    }
+
+    private function invoke(StoreSessionExpiredMiddleware $middleware, Response $response, Psr7Request $request): mixed
+    {
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+
+        return $promise->wait();
     }
 }

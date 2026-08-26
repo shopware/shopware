@@ -47,4 +47,21 @@ class MailExceptionTest extends TestCase
         static::assertSame('Mail body is too long. Maximum allowed length is 5', $exception->getMessage());
         static::assertSame(['maxContentLength' => 5], $exception->getParameters());
     }
+
+    public function testMailTransportFailedWithPrevious(): void
+    {
+        $previous = new \RuntimeException('SMTP connection refused');
+        $exception = MailException::mailTransportFailedException($previous);
+
+        static::assertSame(MailException::MAIL_TRANSPORT_FAILED, $exception->getErrorCode());
+        static::assertSame('Failed sending mail with Error: SMTP connection refused', $exception->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+    }
+
+    public function testMailTransportFailedWithoutPrevious(): void
+    {
+        $exception = MailException::mailTransportFailedException();
+
+        static::assertSame('Failed sending mail with Error: Unknown error', $exception->getMessage());
+    }
 }

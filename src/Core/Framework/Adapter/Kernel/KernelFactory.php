@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
 use Shopware\Core\Kernel;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -51,6 +52,12 @@ class KernelFactory
             && $environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
             $middlewares = [new ProfilingMiddleware()];
         }
+
+        // Counts SQL statements per request for the `http.server.request.queries.count` metric. The
+        // middleware must wrap the driver at connection creation. The container is not built here yet,
+        // so the `shopware.telemetry.metrics.enabled` config flag is not accessible. For this reason
+        // we cannot gate on it.
+        $middlewares[] = new QueryCountMiddleware();
 
         $connection ??= MySQLFactory::create($middlewares);
 

@@ -32,7 +32,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $t('sw-users-permissions.users.user-detail.labelButtonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -42,14 +42,8 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_user_detail_content_inner %}
-            <template v-if="isLoading">
-                <sw-skeleton />
-                <sw-skeleton />
-            </template>
-
-            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
-            <div v-show="!isLoading">
-                {%  block sw_setting_user_detail_card_basic_information %}
+            <div class="sw-settings-user-detail__cards">
+                {% block sw_setting_user_detail_card_basic_information %}
                 <mt-card
                     position-identifier="sw-users-permissions-user-detail"
                     :title="$t('sw-users-permissions.users.user-detail.labelCard')"
@@ -58,10 +52,9 @@
                     {% block sw_settings_user_detail_content_grid %}
                     <div
                         v-if="user"
-                        class="sw-settings-user-detail__grid"
+                        class="sw-settings-user-detail__grid sw-settings-user-detail__information-grid"
                     >
                         {% block sw_settings_user_detail_content_first_name %}
-
                         <mt-text-field
                             v-model="user.firstName"
                             name="sw-field--user-firstName"
@@ -87,7 +80,6 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_email %}
-
                         <mt-text-field
                             v-model="user.email"
                             name="sw-field--user-email"
@@ -100,7 +92,6 @@
                         {% endblock %}
 
                         {% block sw_settings_user_detail_content_username %}
-
                         <mt-text-field
                             v-model="user.username"
                             name="sw-field--user-username"
@@ -111,6 +102,29 @@
                             required
                             :label="$t('sw-users-permissions.users.user-detail.labelUsername')"
                             @update:model-value="checkUsername"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_user_detail_content_password %}
+                        <mt-password-field
+                            class="sw-settings-user-detail__grid-password"
+                            :model-value="user.password"
+                            name="sw-field--user-password"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                            :label="$t('sw-users-permissions.users.user-detail.labelPassword')"
+                            :error="userPasswordError"
+                            autocomplete="new-password"
+                            @update:model-value="setPassword"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_user_detail_grid_content_active %}
+                        <mt-switch
+                            v-model="user.active"
+                            name="sw-field--user-active"
+                            class="sw-settings-user-detail__grid-active"
+                            :label="$t('sw-users-permissions.users.user-detail.labelActive')"
+                            :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
                         />
                         {% endblock %}
 
@@ -134,20 +148,22 @@
                             @media-upload-remove-image="onUnlinkLogo"
                         />
                         {% endblock %}
+                    </div>
+                    {% endblock %}
+                </mt-card>
+                {% endblock %}
 
-                        {% block sw_settings_user_detail_content_password %}
-                        <mt-password-field
-                            class="sw-settings-user-detail__grid-password"
-                            :model-value="user.password"
-                            name="sw-field--user-password"
-                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
-                            :label="$t('sw-users-permissions.users.user-detail.labelPassword')"
-                            :error="userPasswordError"
-                            autocomplete="new-password"
-                            @update:model-value="setPassword"
-                        />
-                        {% endblock %}
-
+                {% block sw_setting_user_detail_card_user_interface %}
+                <mt-card
+                    position-identifier="sw-users-permissions-user-detail-user-interface"
+                    :title="$t('sw-users-permissions.users.user-detail.labelUserInterface')"
+                    :is-loading="isLoading"
+                >
+                    {% block sw_settings_user_detail_user_interface_grid %}
+                    <div
+                        v-if="user"
+                        class="sw-settings-user-detail__grid sw-settings-user-detail__user-interface-grid"
+                    >
                         {% block sw_settings_user_detail_grid_content_language %}
                         <mt-select
                             v-model="user.localeId"
@@ -158,6 +174,7 @@
                             :error="userLocaleIdError"
                             :options="localeOptions"
                             required
+                            hide-clearable-button
                             :placeholder="$t('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
                         />
                         {% endblock %}
@@ -175,29 +192,31 @@
                         />
                         {% endblock %}
 
-                        {% block sw_settings_user_detail_grid_content_acl_is_admin %}
-
-                        <mt-switch
-                            v-model="user.admin"
-                            name="sw-field--user-admin"
-                            class="sw-settings-user-detail__grid-is-admin"
-                            :label="$t('sw-users-permissions.users.user-detail.labelAdministrator')"
-                            :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
-                            bordered
+                        {% block sw_settings_user_detail_grid_content_theme %}
+                        <mt-theme-select
+                            v-if="isCurrentUser"
+                            v-model="userTheme"
+                            name="sw-field--user-theme"
+                            class="sw-settings-user-detail__grid-theme"
+                            :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
                         />
                         {% endblock %}
+                    </div>
+                    {% endblock %}
+                </mt-card>
+                {% endblock %}
 
-                        {% block sw_settings_user_detail_grid_content_job_title %}
-
-                        <mt-text-field
-                            v-model="user.title"
-                            name="sw-field--user-title"
-                            class="sw-settings-user-detail__grid-jobTitle"
-                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
-                            :label="$t('sw-users-permissions.users.user-detail.labelJobTitle')"
-                        />
-                        {% endblock %}
-
+                {% block sw_setting_user_detail_card_roles_permissions %}
+                <mt-card
+                    position-identifier="sw-users-permissions-user-detail-roles-permissions"
+                    :title="$t('sw-users-permissions.users.user-detail.labelRolesPermissionsCard')"
+                    :is-loading="isLoading"
+                >
+                    {% block sw_settings_user_detail_roles_permissions_grid %}
+                    <div
+                        v-if="user"
+                        class="sw-settings-user-detail__grid sw-settings-user-detail__roles-permissions-grid"
+                    >
                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                         <sw-entity-multi-select
                             v-model:entity-collection="user.aclRoles"
@@ -214,15 +233,27 @@
                             label-property="name"
                         />
                         {% endblock %}
-                    </div>
-                    {% endblock %}
 
-                    {% block sw_settings_user_detail_content_confirm_password_modal %}
-                    <sw-verify-user-modal
-                        v-if="confirmPasswordModal"
-                        @verified="saveUser"
-                        @close="onCloseConfirmPasswordModal"
-                    />
+                        {% block sw_settings_user_detail_grid_content_job_title %}
+                        <mt-text-field
+                            v-model="user.title"
+                            name="sw-field--user-title"
+                            class="sw-settings-user-detail__grid-jobTitle"
+                            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+                            :label="$t('sw-users-permissions.users.user-detail.labelJobTitle')"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_user_detail_grid_content_acl_is_admin %}
+                        <mt-switch
+                            v-model="user.admin"
+                            name="sw-field--user-admin"
+                            class="sw-settings-user-detail__grid-is-admin"
+                            :label="$t('sw-users-permissions.users.user-detail.labelAdministrator')"
+                            :disabled="isCurrentUser || !acl.can('users_and_permissions.editor') || undefined"
+                        />
+                        {% endblock %}
+                    </div>
                     {% endblock %}
                 </mt-card>
                 {% endblock %}
@@ -233,10 +264,10 @@
                     position-identifier="sw-users-permissions-user-detail-integrations"
                 >
                     {% block sw_settings_user_detail_grid_toolbar %}
-                    <template #toolbar>
+                    <template #headerRight>
                         {% block sw_settings_user_detail_grid_add_key %}
                         <mt-button
-                            variant="primary"
+                            variant="secondary"
                             size="small"
                             :disabled="!$route.params.id || !acl.can('users_and_permissions.editor') || undefined"
                             @click="addAccessKey"
@@ -258,7 +289,6 @@
                             :show-settings="true"
                             :skeleton-item-amount="skeletonItemAmount"
                         >
-
                             {% block sw_settings_user_detail_grid_columns_actions %}
                             <template #actions="{ item }">
                                 {% block sw_settings_user_detail_grid_columns_actions_edit %}
@@ -278,7 +308,7 @@
                                     variant="danger"
                                     @click="showDeleteModal = item.id"
                                 >
-                                    {{ $t('sw-users-permissions.users.user-detail.contextMenuDelete') }}
+                                    {{ $t('global.default.delete') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
                             </template>
@@ -286,7 +316,7 @@
                         </sw-data-grid>
 
                         <mt-empty-state
-                            v-if="integrations.length === 0"
+                            v-if="integrations.length === 0 && !isLoading"
                             :icon="$route.meta.$module.icon"
                             :headline="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
                             :description="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
@@ -299,7 +329,7 @@
 
                 {% block sw_setting_user_detail_card_mcp_allowlist %}
                 <mt-card
-                    v-if="feature.isActive('MCP_SERVER') && user"
+                    v-if="user"
                     :title="$t('sw-users-permissions.users.user-detail.mcpAllowlistTitle')"
                     position-identifier="sw-users-permissions-user-detail-mcp-allowlist"
                 >
@@ -312,8 +342,16 @@
                     />
                 </mt-card>
                 {% endblock %}
-
             </div>
+
+            <!-- Outside the cards container: its layout containment would trap the fixed-position modal. -->
+            {% block sw_settings_user_detail_content_confirm_password_modal %}
+            <sw-verify-user-modal
+                v-if="confirmPasswordModal"
+                @verified="saveUser"
+                @close="onCloseConfirmPasswordModal"
+            />
+            {% endblock %}
             {% endblock %}
         </sw-card-view>
 
@@ -349,12 +387,13 @@
                 >
                     {{ $t('global.default.cancel') }}
                 </mt-button>
+
                 <mt-button
                     size="small"
                     variant="critical"
                     @click="onConfirmDelete(showDeleteModal)"
                 >
-                    {{ $t('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
             </template>
             {% endblock %}
@@ -367,13 +406,11 @@
             size="550px"
             class="sw-settings-user-detail__detail"
             :is-loading="isModalLoading"
-            :title="showSecretAccessKey ? $t('global.default.warning') : $t('sw-users-permissions.users.user-detail.modal.detailModalTitleEdit')"
+            :title="showSecretAccessKey ? $t('global.default.warning') : $t('global.default.edit')"
             @modal-close="onCloseDetailModal"
         >
             {% block sw_settings_user_detail_detail_modal_inner %}
-
             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
-
             <mt-text-field
                 v-model="currentIntegration.accessKey"
                 :label="$t('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
@@ -385,7 +422,6 @@
 
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key %}
             {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
-
             <mt-text-field
                 v-if="showSecretAccessKey"
                 v-model="currentIntegration.secretAccessKey"

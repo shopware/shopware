@@ -17,7 +17,7 @@ Module.register('sw-settings-sitemap', {
     targetVersion: '1.0.0',
     color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

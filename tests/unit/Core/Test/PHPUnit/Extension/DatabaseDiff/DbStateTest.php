@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DbState;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DbState::class)]
 class DbStateTest extends TestCase
 {

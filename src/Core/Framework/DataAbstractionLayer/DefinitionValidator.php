@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -48,13 +49,13 @@ class DefinitionValidator
         'product_configurator_setting.selected',
         'sales_channel.wishlists',
         'product.wishlists',
-        'order.billingAddress',
         'product_search_config.excludedTerms',
         'media.metaDataRaw',
         'product.sortedProperties',
         'product.cheapestPriceContainer',
         'product.cheapest_price',
         'product.cheapest_price_accessor',
+        'sales_channel_domain.external_storefront_language_id',
     ];
 
     /**
@@ -65,6 +66,8 @@ class DefinitionValidator
         'customer.defaultShippingAddress',
         'customer_address.defaultBillingAddressCustomer',
         'customer_address.defaultShippingAddressCustomer',
+        'order.billingAddress',
+        'order_address.billingAddressOrder',
     ];
 
     private const PLURAL_EXCEPTIONS = [
@@ -100,6 +103,7 @@ class DefinitionValidator
     private const TABLES_WITHOUT_DEFINITION = [
         'admin_elasticsearch_index_task',
         'app_config',
+        'app_feature',
         'cart',
         'deleted_apps',
         'migration',
@@ -119,8 +123,16 @@ class DefinitionValidator
         'consent_state',
         'consent_log',
         'mcp_tool_result_cache',
+        'mcp_toolset_session',
         'webhook_delivery',
         'webhook_stream',
+    ];
+
+    /**
+     * @deprecated tag:v6.8.0 - should be cleared in preparation for 6.9
+     */
+    private const MAJOR_REMOVED_DEFINITIONS = [
+        'import_export_profile_translation',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -179,9 +191,12 @@ class DefinitionValidator
     }
 
     /**
+     * @param list<string> $toleratedNonStandardForeignKeys Foreign key constraint names that are knowingly
+     *                                                      tolerated to reference a non-standard key
+     *
      * @return array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>>
      */
-    public function validate(): array
+    public function validate(array $toleratedNonStandardForeignKeys = []): array
     {
         $violations = [];
 
@@ -193,6 +208,9 @@ class DefinitionValidator
                 continue;
             }
             if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                continue;
+            }
+            if (Feature::isActive('v6.8.0.0') && \in_array($definition->getEntityName(), self::MAJOR_REMOVED_DEFINITIONS, true)) {
                 continue;
             }
 
@@ -250,6 +268,8 @@ class DefinitionValidator
 
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($schema->getTables()));
 
+        $violations = array_merge_recursive($violations, $this->validateForeignKeysReferenceUniqueKey($schema, $toleratedNonStandardForeignKeys));
+
         return array_filter($violations);
     }
 
@@ -301,6 +321,8 @@ class DefinitionValidator
         $fields = $definition->getFields();
 
         $notices = [];
+        $parentClass = $reflection->getParentClass();
+
         foreach ($reflection->getProperties() as $property) {
             $key = $definition->getEntityName() . '.' . $property->getName();
             if ($this->isIgnoredField($key)) {
@@ -321,7 +343,6 @@ class DefinitionValidator
                 $notices[] = \sprintf('Field %s in entity struct should not be private in %s, as it needs to be accessible by the DAL, see https://developer.shopware.com/docs/guides/plugins/plugins/framework/data-handling/add-custom-complex-data.html#entity-class', $property->getName(), $definition->getClass());
             }
 
-            $parentClass = $reflection->getParentClass();
             if (!$parentClass) {
                 continue;
             }
@@ -504,7 +525,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($column->getNotnull() && empty($column->getDefault())) {
+            if ($column->getNotnull() && $column->getDefault() === null) {
                 $violations[$translationDefinition->getClass()][] = \sprintf(
                     'Column `%s`.`%s` is not nullable',
                     $translationDefinition->getEntityName(),
@@ -1030,6 +1051,140 @@ class DefinitionValidator
     }
 
     /**
+     * Validates that every foreign key references columns that form a complete PRIMARY or UNIQUE key
+     * on the parent table.
+     *
+     * Since MySQL 8.4 the server variable restrict_fk_on_non_standard_key defaults to ON and rejects
+     * foreign keys that reference a non-unique key or only a prefix of a composite key. Such foreign
+     * keys can still be created on older/lenient servers but break schema imports on 8.4 (e.g.
+     * disaster-recovery mysqldump restores). This check guards against introducing new ones.
+     *
+     * @param list<string> $toleratedForeignKeys Foreign key constraint names excluded from this check
+     *
+     * @return array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>>
+     */
+    private function validateForeignKeysReferenceUniqueKey(Schema $schema, array $toleratedForeignKeys): array
+    {
+        $violations = [];
+
+        foreach ($schema->getTables() as $table) {
+            $tableName = $table->getObjectName()->toString();
+
+            try {
+                $violationKey = $this->registry->getByEntityName($tableName)->getClass();
+            } catch (DefinitionNotFoundException) {
+                $violationKey = DefinitionInstanceRegistry::class;
+            }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue() ?? '';
+                if (\in_array($foreignKeyName, $toleratedForeignKeys, true)) {
+                    continue;
+                }
+
+                $referencedTableName = $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue();
+                if (!$schema->hasTable($referencedTableName)) {
+                    // Referenced table is not part of the introspected schema, cannot validate.
+                    continue;
+                }
+
+                $referencedColumns = $this->normalizeColumnNames(array_map(
+                    static fn ($columnName): string => $columnName->toString(),
+                    $foreignKey->getReferencedColumnNames()
+                ));
+
+                $isStandard = false;
+                foreach ($this->collectUniqueKeyColumnSets($schema->getTable($referencedTableName)) as $keyColumns) {
+                    if ($keyColumns === $referencedColumns) {
+                        $isStandard = true;
+
+                        break;
+                    }
+                }
+
+                if (!$isStandard) {
+                    $violations[$violationKey][] = \sprintf(
+                        'Foreign key "%s" on table "%s" references %s(%s), which is not a complete PRIMARY or UNIQUE key of the referenced table. MySQL 8.4 (restrict_fk_on_non_standard_key=ON) rejects such foreign keys, which breaks schema imports. Reference the full primary/unique key (e.g. include the missing version_id column) or drop the constraint.',
+                        $foreignKeyName !== '' ? $foreignKeyName : '(unnamed)',
+                        $table->getObjectName()->toString(),
+                        $referencedTableName,
+                        implode(', ', $referencedColumns)
+                    );
+                }
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Returns the normalized column sets of every key on the table that MySQL accepts as a foreign-key
+     * target: the PRIMARY KEY and each UNIQUE index. Prefix indexes (e.g. `col(191)`) are excluded as
+     * they cannot back a foreign key.
+     *
+     * @return list<list<string>>
+     */
+    private function collectUniqueKeyColumnSets(Table $table): array
+    {
+        $keys = [];
+
+        $primaryKey = $table->getPrimaryKeyConstraint();
+        if ($primaryKey !== null) {
+            $keys[] = $this->normalizeColumnNames(array_map(
+                static fn ($columnName): string => $columnName->toString(),
+                $primaryKey->getColumnNames()
+            ));
+        }
+
+        foreach ($table->getIndexes() as $index) {
+            if ($index->getType() !== IndexType::UNIQUE) {
+                continue;
+            }
+
+            // Partial (predicate) indexes cannot be used as a foreign-key target.
+            if ($index->getPredicate() !== null) {
+                continue;
+            }
+
+            $indexedColumns = $index->getIndexedColumns();
+
+            // Prefix indexes (e.g. `col(191)`) cannot be used as a foreign-key target.
+            $isPrefixIndex = false;
+            foreach ($indexedColumns as $indexedColumn) {
+                if ($indexedColumn->getLength() !== null) {
+                    $isPrefixIndex = true;
+
+                    break;
+                }
+            }
+
+            if ($isPrefixIndex) {
+                continue;
+            }
+
+            $keys[] = $this->normalizeColumnNames(array_map(
+                static fn ($indexedColumn): string => $indexedColumn->getColumnName()->toString(),
+                $indexedColumns
+            ));
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param list<string> $columnNames
+     *
+     * @return list<string>
+     */
+    private function normalizeColumnNames(array $columnNames): array
+    {
+        return array_map(
+            static fn (string $columnName): string => mb_strtolower(trim($columnName, '`"')),
+            $columnNames
+        );
+    }
+
+    /**
      * @return array<class-string<EntityDefinition>, list<string>>
      */
     private function validateIsPlural(EntityDefinition $definition, AssociationField $association): array
@@ -1203,16 +1358,16 @@ class DefinitionValidator
 
         $fks = $schema->getTable($reference->getEntityName())->getForeignKeys();
 
+        $deleteFlag = $association->getFlag(CascadeDelete::class)
+            ?? $association->getFlag(RestrictDelete::class)
+            ?? $association->getFlag(SetNullOnDelete::class);
+
         foreach ($fks as $fk) {
             if ($fk->getReferencedTableName()->toString() !== $definition->getEntityName()
                 || !\in_array($association->getReferenceField(), $fk->getReferencingColumnNames(), true)
             ) {
                 continue;
             }
-
-            $deleteFlag = $association->getFlag(CascadeDelete::class)
-                ?? $association->getFlag(RestrictDelete::class)
-                ?? $association->getFlag(SetNullOnDelete::class);
 
             if (!$deleteFlag instanceof Flag) {
                 continue;

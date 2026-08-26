@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -23,16 +24,19 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AppRegistrationServiceTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -114,6 +118,10 @@ class AppRegistrationServiceTest extends TestCase
             \hash_hmac('sha256', $json, $appSecret),
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
+
+        // A fresh install has no earlier secret, so it must NOT send the previous-signature header that a
+        // re-registration uses.
+        static::assertFalse($confirmationReq->hasHeader('shopware-shop-signature-previous'));
 
         static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
         static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
@@ -218,6 +226,7 @@ class AppRegistrationServiceTest extends TestCase
             $shopIdProviderMock,
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
@@ -231,7 +240,9 @@ class AppRegistrationServiceTest extends TestCase
             static::getContainer()->get('app.repository'),
             $this->shopUrl,
             $shopIdMock,
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock(),
+            new NullLogger(),
         );
 
         static::expectException(AppRegistrationException::class);

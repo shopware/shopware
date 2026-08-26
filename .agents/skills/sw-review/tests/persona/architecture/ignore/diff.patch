@@ -1,0 +1,12 @@
+diff --git a/src/Administration/Resources/app/administration/src/module/sw-product/snippet/en-GB.json b/src/Administration/Resources/app/administration/src/module/sw-product/snippet/en-GB.json
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Administration/Resources/app/administration/src/module/sw-product/snippet/en-GB.json
++++ b/src/Administration/Resources/app/administration/src/module/sw-product/snippet/en-GB.json
+@@ -42,7 +42,7 @@
+   "product": {
+     "list": {
+-      "emptyTitle": "No products yet"
++      "emptyTitle": "No products available"
+     }
+   }
+ }

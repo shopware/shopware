@@ -1,24 +1,50 @@
 .mt-banner.sw-settings-services-dashboard-banner__content {
-    max-width: 960px;
+    max-width: 60rem;
     margin: var(--scale-size-32) auto;
-    color: var(--color-text-primary-default);
+    background: var(--color-elevation-surface-raised);
+    border-color: var(--color-border-secondary-default);
+    border-radius: var(--border-radius-card);
 
-    h3 {
+    .sw-settings-services-dashboard-banner__container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--scale-size-16);
+        width: 100%;
+    }
+
+    .sw-settings-services-dashboard-banner__text {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-6);
+        flex: 1;
+        min-width: 0;
+    }
+
+    .sw-settings-services-dashboard-banner__title {
         color: var(--color-text-primary-default);
-        font-size: var(--font-size-xl);
+        font-size: var(--font-size-l);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-l);
+        margin: 0;
     }
 
-    .mt-banner__close {
-        color: var(--color-text-primary-default);
+    .sw-settings-services-dashboard-banner__graphics {
+        flex-shrink: 0;
+        width: 16rem;
+
+        @media screen and (max-width: 48rem) {
+            display: none;
+        }
     }
 
-    .mt-button {
-        margin-top: var(--scale-size-16);
+    .sw-settings-services-dashboard-banner__graphic {
+        width: 100%;
+        height: auto;
     }
 
-    .sw-settings-services-dashboard-banner__content {
-        display: grid;
-        grid-template-columns: 1fr 0.45fr;
+    .sw-settings-services-dashboard-banner__button {
+        margin-top: var(--scale-size-8);
     }
 }
 

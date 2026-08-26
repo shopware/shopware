@@ -56,12 +56,14 @@ class ProductReviewLoader extends AbstractProductReviewLoader
             ->load($productParentId ?? $productId, $request, $context, $reviewCriteria)
             ->getResult();
 
-        $reviewResult = ProductReviewResult::createFrom($reviews);
-        $reviewResult->setMatrix($this->getReviewRatingMatrix($reviews));
-        $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
-        $reviewResult->setTotalReviewsInCurrentLanguage($this->getTotalReviewsInCurrentLanguage($reviews));
-        $reviewResult->setProductId($productId);
-        $reviewResult->setParentId($productParentId ?? $productId);
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            $reviews,
+            $this->getReviewRatingMatrix($reviews),
+            $productId,
+            $this->getTotalReviewsInCurrentLanguage($reviews),
+            $this->getCustomerReview($productId, $context),
+            $productParentId ?? $productId,
+        );
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviewResult, $request, $context));
 

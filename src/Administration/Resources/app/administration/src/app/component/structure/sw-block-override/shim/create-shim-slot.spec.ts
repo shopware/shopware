@@ -4,12 +4,14 @@
  */
 
 import { createShimSlot, resetShimSlotState } from 'src/app/component/structure/sw-block-override/shim/create-shim-slot';
-import type { BlockEntry } from 'src/core/factory/twig-block-index';
+import useLegacyConditionContext from 'src/app/component/structure/sw-block-override/shim/legacy-condition-context';
+import type { BlockEntry } from 'src/core/factory/transform-legacy-block-conditionals';
 
 function makeEntry(overrides: Partial<BlockEntry> = {}): BlockEntry {
     return {
         componentName: 'sw-product-detail',
         innerTemplate: '<div class="shim-content"></div>',
+        legacyConditionCases: [],
         ...overrides,
     };
 }
@@ -85,6 +87,102 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
             const result = slot(null);
 
             expect(result.length).toBeGreaterThan(0);
+        });
+
+        it('exposes allowlisted legacy block helpers while keeping other $ keys hidden', () => {
+            const legacyElse = jest.fn(() => true);
+            const slot = createShimSlot(makeEntry(), 'slot_allowlisted_helper');
+            const [vnode] = slot({
+                $swLegacyBlockElse: legacyElse,
+                $store: {},
+            });
+            const shimComponent = vnode.type as { setup: () => Record<string, unknown> };
+            const setupContext = shimComponent.setup();
+
+            expect(setupContext).toHaveProperty('$swLegacyBlockElse');
+            expect(setupContext).not.toHaveProperty('$store');
+            expect((setupContext.$swLegacyBlockElse as () => boolean)()).toBe(true);
+            expect(legacyElse).toHaveBeenCalledTimes(1);
+        });
+
+        it('reserves legacy condition cases from block entry metadata', () => {
+            const { legacyIf, legacyConditionContext, clearLegacyConditionChain } = useLegacyConditionContext();
+            const chainKey = '42:reservation_chain';
+            const slot = createShimSlot(
+                makeEntry({
+                    legacyConditionCases: [
+                        {
+                            chainKey: 'reservation_chain',
+                            caseStartIndex: 0,
+                            caseCount: 2,
+                        },
+                    ],
+                }),
+                'reservation_block',
+            );
+
+            legacyIf(chainKey, false, {
+                segmentCaseIndex: 0,
+                renderOrderSegment: 'defaultSlot',
+                isStartingCondition: true,
+            });
+            slot({
+                $: {
+                    uid: 42,
+                },
+            });
+
+            expect(legacyConditionContext[chainKey]).toStrictEqual({
+                defaultSlotCases: [
+                    {
+                        result: false,
+                        isStartingCondition: true,
+                    },
+                ],
+                shimExtensionCases: [
+                    undefined,
+                    undefined,
+                ],
+                nativeExtensionCases: [],
+                keepShimResultsForNextReservation: false,
+            });
+
+            clearLegacyConditionChain(chainKey);
+        });
+
+        it('clears reserved legacy condition chains on unmount', () => {
+            const { legacyIf, legacyConditionContext } = useLegacyConditionContext();
+            const chainKey = '43:clear_chain';
+            const slot = createShimSlot(
+                makeEntry({
+                    legacyConditionCases: [
+                        {
+                            chainKey: 'clear_chain',
+                            caseStartIndex: 0,
+                            caseCount: 1,
+                        },
+                    ],
+                }),
+                'clear_block',
+            );
+
+            legacyIf(chainKey, false, {
+                segmentCaseIndex: 0,
+                renderOrderSegment: 'defaultSlot',
+                isStartingCondition: true,
+            });
+            const [vnode] = slot({
+                $: {
+                    uid: 43,
+                },
+            });
+            const shimComponent = vnode.type as { beforeUnmount: () => void };
+
+            expect(legacyConditionContext[chainKey]).toBeDefined();
+
+            shimComponent.beforeUnmount();
+
+            expect(legacyConditionContext[chainKey]).toBeUndefined();
         });
     });
 

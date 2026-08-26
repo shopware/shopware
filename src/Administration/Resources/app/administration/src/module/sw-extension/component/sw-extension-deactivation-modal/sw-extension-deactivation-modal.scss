@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-extension-deactivation-modal {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
     line-height: 22px;
 
     .sw-extension-deactivation-modal__description {
@@ -9,7 +7,7 @@
     }
 
     .sw-extension-deactivation-modal__bold-paragraph {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     .sw-extension-deactivation-modal__hint-paragraph {

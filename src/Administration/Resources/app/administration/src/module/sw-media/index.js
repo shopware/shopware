@@ -40,8 +40,8 @@ Module.register('sw-media', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-pink-500)',
-    icon: 'solid-image',
-    favicon: 'icon-module-content.png',
+    icon: 'regular-image',
+    favicon: 'icon-module-content.svg',
     entity: 'media',
 
     routes: {

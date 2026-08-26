@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
@@ -53,6 +54,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -905,7 +907,7 @@ class AppManagerTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
-        $this->appManager->delete($this->loadApp($app['id']), $this->context);
+        $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
@@ -942,7 +944,7 @@ class AppManagerTest extends TestCase
         $app = $apps->first();
         static::assertNotNull($app);
 
-        $this->appManager->delete($app, $this->context);
+        $this->appManager->uninstall($app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -967,7 +969,7 @@ class AppManagerTest extends TestCase
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appManager->delete($appEntity, $this->context);
+        $this->appManager->uninstall($appEntity, $this->context);
 
         static::assertSame([], $systemConfigService->getDomain('withConfig.config'));
     }
@@ -989,7 +991,7 @@ class AppManagerTest extends TestCase
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appManager->delete($appEntity, $this->context, true);
+        $this->appManager->uninstall($appEntity, $this->context, true);
 
         static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
@@ -1046,7 +1048,7 @@ class AppManagerTest extends TestCase
         $appPrivilege = 'app.' . $app->getName();
         $this->createAclRole($aclRoleId, [$appPrivilege]);
 
-        $this->appManager->delete($app, $this->context);
+        $this->appManager->uninstall($app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1105,7 +1107,7 @@ class AppManagerTest extends TestCase
             'id' => $appId,
         ];
 
-        $this->appManager->delete($this->loadApp($app['id']), $this->context);
+        $this->appManager->uninstall($this->loadApp($app['id']), $this->context);
 
         $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
         static::assertNull($flow);
@@ -1116,7 +1118,7 @@ class AppManagerTest extends TestCase
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('appShippingMethods.shippingMethod');
 
-        $app = $this->appRepository->search($criteria, $this->context)->first();
+        $app = $this->appRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(AppEntity::class, $app);
 
         $appShippingMethods = $app->getAppShippingMethods();
@@ -1224,7 +1226,7 @@ class AppManagerTest extends TestCase
 
         $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertCount(16, $privileges);
+        static::assertCount(17, $privileges);
 
         static::assertContains('product:read', $privileges);
         static::assertContains('product:create', $privileges);
@@ -1242,6 +1244,8 @@ class AppManagerTest extends TestCase
         static::assertContains('custom_field_set:update', $privileges);
         static::assertContains('order:read', $privileges);
         static::assertContains('user_change_me', $privileges);
+        // implied by the manifest's tax provider
+        static::assertContains('tax_processor', $privileges);
     }
 
     private function assertDefaultWebhooks(string $appId): void

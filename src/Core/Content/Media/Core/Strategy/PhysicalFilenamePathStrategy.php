@@ -22,8 +22,8 @@ class PhysicalFilenamePathStrategy extends AbstractMediaPathStrategy
     {
         $media = $location instanceof ThumbnailLocationStruct ? $location->media : $location;
 
-        $timestamp = $media->uploadedAt ? $media->uploadedAt->getTimestamp() . '/' : '';
+        $timestamp = $this->cacheBuster($location);
 
-        return $timestamp . $media->fileName;
+        return ($timestamp !== null ? $timestamp . '/' : '') . $media->fileName;
     }
 }

@@ -89,6 +89,18 @@ export default {
             return null;
         },
 
+        showNavigationDots() {
+            const navigationDots = this.element.config.navigationDots.value;
+
+            return !!navigationDots && navigationDots !== 'none';
+        },
+
+        showNavigationArrows() {
+            const navigationArrows = this.element.config.navigationArrows.value;
+
+            return !!navigationArrows && navigationArrows !== 'none';
+        },
+
         navDotsClass() {
             if (this.element.config.navigationDots.value) {
                 return `is--dot-${this.element.config.navigationDots.value}`;

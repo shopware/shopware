@@ -5,6 +5,10 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    # Injects sw_dimension_normalize into the technical-term chains so
+    # "5 x 70"/"5×70" collapse to one token. See SEARCH_ARCHITECTURE.md §4.
+    # Toggling requires a full reindex.
+    dimension_normalize: "%env(bool:SHOPWARE_ES_DIMENSION_NORMALIZE)%"
     search:
         timeout: 5s
         term_max_length: 300
@@ -17,6 +21,17 @@ elasticsearch:
         # match across multiple fields or language variants without diluting the primary match.
         # Valid range: 0.0 (pure dis_max) to 1.0 (effectively a bool/should sum).
         dismax_tie_breaker: 0.2
+        # Per-match-type boosts for product search (the dis_max clauses). Higher = that
+        # match type contributes more to the score. Keep exact/phrase above the weaker
+        # prefix/fuzzy/partial, otherwise a whole-word or whole-phrase match can be
+        # outranked by a looser one. Field-level ranking (product_search_config) still
+        # multiplies on top of these.
+        boost:
+            exact: 2.0
+            phrase: 4.0
+            fuzzy: 0.4
+            prefix: 0.4
+            partial: 0.4
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
@@ -121,6 +136,7 @@ elasticsearch:
         exclude_source: "%env(bool:SHOPWARE_ES_EXCLUDE_SOURCE)%"
     ssl:
         verify_server_cert: true
+    refresh_after_bulk: false
     index_settings:
         number_of_shards: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_SHARDS)%'
         number_of_replicas: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_REPLICAS)%'
@@ -145,11 +161,47 @@ elasticsearch:
             sw_lowercase_normalizer:
                 type: custom
                 filter: ['lowercase']
+        char_filter:
+            # German "3,3" → "3.3" so comma- and dot-decimal forms share
+            # tokens. German chain only — elsewhere `,` is a thousands
+            # separator.
+            sw_decimal_normalize:
+                type: pattern_replace
+                pattern: '(\d),(\d)'
+                replacement: '$1.$2'
+            # Dimensional notation → single token: "5 x 70"/"5×70" → "5x70".
+            # Off by default; IndexCreator injects it into the technical-term
+            # chains when SHOPWARE_ES_DIMENSION_NORMALIZE is true.
+            sw_dimension_normalize:
+                type: pattern_replace
+                pattern: '(\d)\s*[xX×]\s*(\d)'
+                replacement: '$1x$2'
+            # Glues a numeric quantity to an adjacent unit/symbol before
+            # tokenization: "100 ml" → "100ml", "5 €" → "5€", "1/2 inch" →
+            # "1/2inch". Unit-agnostic. Guards against over-gluing:
+            # `(^|\s)` anchor skips digits inside identifiers ("Gr49"),
+            # and the `[^\d\s]` tail skips separate numerics ("5 of 10").
+            # word_delimiter_graph then re-splits, so both glued and spaced
+            # forms get indexed. Always on, all technical-term chains.
+            sw_unit_glue:
+                type: pattern_replace
+                pattern: '(^|\s)(\d+(?:[./,''\-]\d+)*)\s+([^\d\s])'
+                replacement: '$1$2$3'
         analyzer:
             sw_whitespace_analyzer:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase']
+            sw_whitespace_technical_term_index_analyzer:
+                type: custom
+                tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates']
+            sw_whitespace_technical_term_search_analyzer:
+                type: custom
+                tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_unique_filter']
             sw_ngram_analyzer:
                 type: custom
                 tokenizer: whitespace
@@ -158,15 +210,65 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_english_stop_filter']
+            sw_english_technical_term_index_analyzer:
+                type: custom
+                tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_english_stop_filter']
+            sw_english_technical_term_search_analyzer:
+                type: custom
+                tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_english_stop_filter', 'sw_unique_filter']
             sw_german_analyzer:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_german_stop_filter']
+            sw_german_technical_term_index_analyzer:
+                type: custom
+                tokenizer: whitespace
+                char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_german_stop_filter']
+            sw_german_technical_term_search_analyzer:
+                type: custom
+                tokenizer: whitespace
+                char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_german_stop_filter', 'sw_unique_filter']
         filter:
             sw_ngram_filter:
                 type: ngram
                 min_gram: "%env(int:SHOPWARE_ES_NGRAM_MIN_GRAM)%"
                 max_gram: "%env(int:SHOPWARE_ES_NGRAM_MAX_GRAM)%"
+            sw_word_delimiter_filter:
+                type: word_delimiter_graph
+                preserve_original: true
+                catenate_all: true
+                catenate_words: true
+                catenate_numbers: true
+                split_on_case_change: true
+                generate_word_parts: true
+                split_on_numerics: true
+            sw_length_min:
+                type: length
+                min: 2
+            # Normalizes trailing-zero decimals so precision variants
+            # cross-match: "5.0"/"5.00" → "5", "3.30" → "3.3". Emits the
+            # canonical form as a sibling token (preserve_original keeps the
+            # verbatim one). Mixed fractions ("5.5", "5.15") are untouched,
+            # so distinct values stay distinct. Runs after sw_length_min so
+            # short captures survive the length floor.
+            sw_decimal_normalize_token:
+                type: pattern_capture
+                preserve_original: true
+                patterns:
+                    # Pure-zero fraction → integer: "5.0"/"5.00" → "5"
+                    - '(\d+)\.0+(?=\D|$)'
+                    # Trailing zeros after non-zero digit → trimmed:
+                    # "3.30" → "3.3", "5.150" → "5.15"
+                    - '(\d+\.\d*[1-9])0+(?=\D|$)'
+            sw_unique_filter:
+                type: unique
+                only_on_same_position: false
             sw_english_stop_filter:
                 type: 'stop'
                 stopwords: '_english_'
@@ -208,6 +310,7 @@ parameters:
     env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"
     env(SHOPWARE_ES_NGRAM_MAX_GRAM): "5"
     env(SHOPWARE_ES_USE_LANGUAGE_ANALYZER): "1"
+    env(SHOPWARE_ES_DIMENSION_NORMALIZE): "0"
     env(SHOPWARE_ES_NUMBER_OF_SHARDS): ""
     env(SHOPWARE_ES_NUMBER_OF_REPLICAS): ""
     # @deprecated tag:v6.8.0 - change SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS and SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS to empty string to match regular Elasticsearch of Storefront config

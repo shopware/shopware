@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import template from './sw-settings-snippet-detail.html.twig';
+import './sw-settings-snippet-detail.scss';
 
 const {
     Mixin,
@@ -101,6 +102,15 @@ export default {
                 return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
             },
         },
+
+        snippetStates() {
+            return Object.fromEntries(
+                this.snippets.map((s) => [
+                    s.setId,
+                    this.getSnippetState(s),
+                ]),
+            );
+        },
     },
 
     created() {
@@ -115,6 +125,7 @@ export default {
 
         prepareContent() {
             this.isLoading = true;
+            this.isSaveable = true;
 
             if (!this.$route.params.key && !this.isCreate) {
                 this.onNewKeyRedirect();
@@ -160,6 +171,11 @@ export default {
                     dummySnippet.id = realSnippet.id;
                     dummySnippet.value = realSnippet.value;
                     dummySnippet.origin = realSnippet.origin;
+                    dummySnippet.resetTo = realSnippet.resetTo;
+                    dummySnippet._overriding = false;
+                    dummySnippet._savedValue = null;
+                    dummySnippet._pendingDelete = false;
+                    dummySnippet._hasFileValue = realSnippet.hasFileValue;
                     dummySnippet.translationKey = realSnippet.translationKey;
                     dummySnippet.setId = realSnippet.setId;
 
@@ -183,6 +199,11 @@ export default {
                 snippetDummy.id = null;
                 snippetDummy.value = null;
                 snippetDummy.origin = null;
+                snippetDummy.resetTo = null;
+                snippetDummy._overriding = false;
+                snippetDummy._savedValue = null;
+                snippetDummy._pendingDelete = false;
+                snippetDummy._hasFileValue = false;
                 snippetDummy.translationKey = this.translationKey;
                 snippetDummy.setId = set.id;
 
@@ -236,6 +257,11 @@ export default {
                     snippet.author = this.currentAuthor;
                 }
 
+                if (snippet._pendingDelete) {
+                    responses.push(this.snippetRepository.delete(snippet.id));
+                    return;
+                }
+
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
                     if (snippet.origin === null) {
                         return;
@@ -285,7 +311,11 @@ export default {
                 });
         },
 
-        onChange() {
+        onChange(snippet, value) {
+            if (snippet) {
+                snippet.value = value;
+            }
+
             if (!this.translationKey || this.translationKey.trim().length <= 0) {
                 this.isSaveable = false;
                 this.isInvalidKey = true;
@@ -338,22 +368,83 @@ export default {
         },
 
         checkIsSaveable() {
-            let count = 0;
-            this.snippets.forEach((snippet) => {
+            return this.snippets.some((snippet) => {
+                if (snippet._pendingDelete) {
+                    return true;
+                }
+
                 if (snippet.value === null) {
-                    return;
+                    return false;
                 }
 
-                if (this.translationKey.trim() !== this.translationKeyOrigin) {
-                    count += 1;
-                }
-
-                if (snippet.value.trim().length >= 0) {
-                    count += 1;
-                }
+                return this.translationKey.trim() !== this.translationKeyOrigin || snippet.value.trim().length >= 0;
             });
+        },
 
-            return count > 0;
+        getPlaceholder(snippet) {
+            const emptyPlaceholder = this.$t('sw-settings-snippet.general.placeholderValue');
+            if (this.snippetStates[snippet.setId] === 'empty') {
+                return emptyPlaceholder;
+            }
+
+            return snippet.resetTo || snippet.origin || emptyPlaceholder;
+        },
+
+        getSnippetState(snippet) {
+            if (snippet.id !== null) {
+                if (snippet._pendingDelete) {
+                    return 'inherited';
+                }
+
+                if (!snippet._hasFileValue) {
+                    return snippet.value ? 'custom' : 'empty';
+                }
+
+                return snippet.value !== null ? 'overridden' : 'inherited';
+            }
+
+            const hasFileValue = snippet._hasFileValue ?? !!snippet.origin;
+
+            if (!hasFileValue && !snippet.value) {
+                return 'empty';
+            }
+
+            if (snippet._overriding) {
+                return 'overriding';
+            }
+
+            if (!hasFileValue) {
+                return 'custom';
+            }
+
+            return 'inherited';
+        },
+
+        onRemoveInheritance(snippet) {
+            if (snippet._pendingDelete) {
+                // Undo a pending restore: put the saved DB value back
+                snippet.value = snippet._savedValue;
+                snippet._savedValue = null;
+                snippet._pendingDelete = false;
+            } else {
+                // Start overriding a file-only snippet
+                snippet._overriding = true;
+            }
+            this.isSaveable = this.checkIsSaveable();
+        },
+
+        onResetSnippet(snippet) {
+            if (snippet._overriding) {
+                // Was a file snippet in edit mode: restore to file value
+                snippet.value = snippet.origin;
+                snippet._overriding = false;
+            } else {
+                // DB-overridden snippet: save the current value for undo, then clear
+                snippet._savedValue = snippet.value;
+                snippet.value = null;
+                snippet._pendingDelete = true;
+            }
+            this.isSaveable = this.checkIsSaveable();
         },
 
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {

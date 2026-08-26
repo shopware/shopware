@@ -16,12 +16,14 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 class DefaultMappingsTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -425,7 +427,7 @@ class DefaultMappingsTest extends TestCase
         $criteria->addFilter(new EqualsFilter('sourceEntity', $entity));
         $criteria->addFilter(new EqualsFilter('systemDefault', true));
 
-        $profile = static::getContainer()->get('import_export_profile.repository')->search($criteria, Context::createDefaultContext())->first();
+        $profile = static::getContainer()->get('import_export_profile.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ImportExportProfileEntity::class, $profile);
         $mapping = $profile->getMapping();
         static::assertIsArray($mapping);

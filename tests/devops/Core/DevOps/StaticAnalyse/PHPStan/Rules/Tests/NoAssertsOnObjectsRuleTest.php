@@ -7,12 +7,14 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Tests;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<NoAssertsOnObjectsRule>
  */
+#[Package('framework')]
 class NoAssertsOnObjectsRuleTest extends RuleTestCase
 {
     public function testRule(): void

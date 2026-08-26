@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Config;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -27,6 +31,34 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('after-sales')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
+    private const COMPANY_INFO_CONFIG_DOMAIN = 'core.basicInformation';
+
+    /**
+     * Map of config keys to internal company-info keys
+     *
+     * @var array<string, string>
+     */
+    private const COMPANY_INFO_CONFIG_KEYS = [
+        'companyLogoId' => 'logoId',
+        'companyName' => 'companyName',
+        'companyEmail' => 'companyEmail',
+        'companyPhone' => 'companyPhone',
+        'companyStreet' => 'companyStreet',
+        'companyCountryId' => 'companyCountryId',
+        'companyZipcode' => 'companyZipcode',
+        'companyCity' => 'companyCity',
+        'companyUrl' => 'companyUrl',
+        'companyTaxNumber' => 'taxNumber',
+        'companyTaxOffice' => 'taxOffice',
+        'companyVatId' => 'vatId',
+        'companyBankName' => 'bankName',
+        'companyBankIban' => 'bankIban',
+        'companyBankBic' => 'bankBic',
+        'companyPlaceOfJurisdiction' => 'placeOfJurisdiction',
+        'companyPlaceOfFulfillment' => 'placeOfFulfillment',
+        'companyExecutiveDirector' => 'executiveDirector',
+    ];
+
     /**
      * @var array<string, array<string, DocumentConfigBundle>>
      */
@@ -37,10 +69,13 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      *
      * @param EntityRepository<DocumentBaseConfigCollection> $documentConfigRepository
      * @param EntityRepository<CountryCollection> $countryRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private readonly EntityRepository $documentConfigRepository,
         private readonly EntityRepository $countryRepository,
+        private readonly EntityRepository $mediaRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -53,12 +88,22 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     {
         return [
             'document_base_config.written' => 'reset',
+            SystemConfigChangedEvent::class => 'onSystemConfigChanged',
         ];
     }
 
     public function reset(): void
     {
         $this->bundles = [];
+    }
+
+    public function onSystemConfigChanged(SystemConfigChangedEvent $event): void
+    {
+        if (!str_starts_with($event->getKey(), self::COMPANY_INFO_CONFIG_DOMAIN . '.')) {
+            return;
+        }
+
+        $this->reset();
     }
 
     public function load(string $documentType, string $salesChannelId, Context $context): DocumentConfigBundle
@@ -70,7 +115,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))
+            ->addFilter(new EqualsFilter('typeName', $documentType))
             ->addAssociation('logo');
 
         $criteria->getAssociation('salesChannels')
@@ -84,12 +129,17 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             ->first();
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
-        $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $documentType);
-        $companyInfo = $this->buildCompanyInfo($legacyConfig, $context, $documentType);
+        $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
+        $effectiveCompanyInfo = $systemConfigCompanyInfo ?? $legacyConfig;
+
+        $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $documentType, $context);
+        $companyInfo = $this->buildDocumentCompanyInfo($effectiveCompanyInfo, $context, $documentType);
+        $displayOptions = $this->buildDisplayOptions($globalRow, $salesChannelRow, $legacyConfig);
 
         $bundle = new DocumentConfigBundle(
             config: $documentConfig,
             company: $companyInfo,
+            display: $displayOptions,
             legacyConfig: $legacyConfig,
         );
 
@@ -98,14 +148,45 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         return $this->bundles[$documentType][$salesChannelId] = $bundle;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveCompanyInfoFromSystemConfig(string $salesChannelId): ?array
+    {
+        $basicInformationConfig = $this->systemConfigService->getDomain(self::COMPANY_INFO_CONFIG_DOMAIN, $salesChannelId, true);
+        $companyInfoConfig = [];
+
+        foreach (self::COMPANY_INFO_CONFIG_KEYS as $configKey => $targetKey) {
+            $value = $basicInformationConfig[self::COMPANY_INFO_CONFIG_DOMAIN . '.' . $configKey] ?? null;
+
+            if ($value === null || $value === '' || $value === []) {
+                continue;
+            }
+
+            $companyInfoConfig[$targetKey] = $value;
+        }
+
+        if ($companyInfoConfig !== []) {
+            return $companyInfoConfig;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed>|null $systemConfigCompanyInfo
+     */
     private function buildDocumentConfig(
         ?DocumentBaseConfigEntity $globalRow,
         ?DocumentBaseConfigEntity $salesChannelRow,
+        ?array $systemConfigCompanyInfo,
         string $documentType,
+        Context $context
     ): DocumentConfig {
         $pageSize = $salesChannelRow?->getPageSize() ?? $globalRow?->getPageSize() ?? '';
         $pageOrientation = $salesChannelRow?->getPageOrientation() ?? $globalRow?->getPageOrientation() ?? '';
         $itemsPerPage = $salesChannelRow?->getItemsPerPage() ?? $globalRow?->getItemsPerPage() ?? 0;
+        $logo = $this->resolveLogo($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $context);
 
         $this->ensureRequiredValues(DocumentConfig::class, $documentType, [
             'pageSize' => $pageSize,
@@ -119,63 +200,108 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             itemsPerPage: $itemsPerPage,
             filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
             filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
-            logo: $salesChannelRow?->getLogo() ?? $globalRow?->getLogo(),
-            displayHeader: $salesChannelRow?->getDisplayHeader() ?? $globalRow?->getDisplayHeader() ?? false,
-            displayFooter: $salesChannelRow?->getDisplayFooter() ?? $globalRow?->getDisplayFooter() ?? false,
-            displayPageCount: $salesChannelRow?->getDisplayPageCount() ?? $globalRow?->getDisplayPageCount() ?? false,
-            displayCompanyAddress: $salesChannelRow?->getDisplayCompanyAddress() ?? $globalRow?->getDisplayCompanyAddress() ?? false,
-            displayReturnAddress: $salesChannelRow?->getDisplayReturnAddress() ?? $globalRow?->getDisplayReturnAddress() ?? false,
-            displayCustomerVatId: $salesChannelRow?->getDisplayCustomerVatId() ?? $globalRow?->getDisplayCustomerVatId() ?? false,
+            filenameInfixes: array_merge(
+                $globalRow?->getFilenameInfixes() ?? [],
+                $salesChannelRow?->getFilenameInfixes() ?? [],
+            ),
+            logo: $logo,
         );
     }
 
     /**
-     * @param array<string, mixed> $legacyConfig
+     * @param array<string, mixed>|null $systemConfigCompanyInfo
      */
-    private function buildCompanyInfo(array $legacyConfig, Context $context, string $documentType): CompanyInfo
+    private function resolveLogo(
+        ?DocumentBaseConfigEntity $globalRow,
+        ?DocumentBaseConfigEntity $salesChannelRow,
+        ?array $systemConfigCompanyInfo,
+        Context $context,
+    ): ?MediaEntity {
+        if ($systemConfigCompanyInfo === null) {
+            return $salesChannelRow?->getLogo() ?? $globalRow?->getLogo();
+        }
+
+        $logoId = $systemConfigCompanyInfo['logoId'] ?? null;
+
+        if (!\is_string($logoId) || !Uuid::isValid($logoId)) {
+            return null;
+        }
+
+        $logo = $this->mediaRepository->search(new Criteria([$logoId]), $context)->getEntities()->first();
+
+        return $logo instanceof MediaEntity ? $logo : null;
+    }
+
+    /**
+     * @param array<string, mixed> $companyInfoConfig
+     */
+    private function buildDocumentCompanyInfo(array $companyInfoConfig, Context $context, string $documentType): DocumentCompanyInfo
     {
-        $companyCountryId = $legacyConfig['companyCountryId'] ?? null;
+        $companyCountryId = $companyInfoConfig['companyCountryId'] ?? null;
         $companyCountry = null;
 
         if (\is_string($companyCountryId) && Uuid::isValid($companyCountryId)) {
-            $companyCountry = $this->countryRepository->search(new Criteria([$companyCountryId]), $context)->first();
+            $companyCountry = $this->countryRepository->search(new Criteria([$companyCountryId]), $context)->getEntities()->first();
         }
 
         if (!$companyCountry instanceof CountryEntity) {
-            throw DocumentV2Exception::legacyConfigMissingRequiredFields(
-                CompanyInfo::class,
+            throw DocumentV2Exception::configMissingRequiredFields(
+                DocumentCompanyInfo::class,
                 $documentType,
                 'companyCountry'
             );
         }
 
         $required = [
-            'companyName' => $legacyConfig['companyName'] ?? null,
-            'companyStreet' => $legacyConfig['companyStreet'] ?? null,
-            'companyZipcode' => $legacyConfig['companyZipcode'] ?? null,
-            'companyCity' => $legacyConfig['companyCity'] ?? null,
+            'companyName' => $companyInfoConfig['companyName'] ?? null,
+            'companyStreet' => $companyInfoConfig['companyStreet'] ?? null,
+            'companyZipcode' => $companyInfoConfig['companyZipcode'] ?? null,
+            'companyCity' => $companyInfoConfig['companyCity'] ?? null,
         ];
 
-        $this->ensureRequiredValues(CompanyInfo::class, $documentType, $required);
+        $this->ensureRequiredValues(DocumentCompanyInfo::class, $documentType, $required);
 
-        return new CompanyInfo(
+        return new DocumentCompanyInfo(
             companyName: (string) $required['companyName'],
             companyStreet: (string) $required['companyStreet'],
             companyZipcode: (string) $required['companyZipcode'],
             companyCity: (string) $required['companyCity'],
             companyCountry: $companyCountry,
-            companyEmail: $legacyConfig['companyEmail'] ?? null,
-            companyPhone: $legacyConfig['companyPhone'] ?? null,
-            companyUrl: $legacyConfig['companyUrl'] ?? null,
-            executiveDirector: $legacyConfig['executiveDirector'] ?? null,
-            taxNumber: $legacyConfig['taxNumber'] ?? null,
-            taxOffice: $legacyConfig['taxOffice'] ?? null,
-            vatId: $legacyConfig['vatId'] ?? null,
-            bankName: $legacyConfig['bankName'] ?? null,
-            bankIban: $legacyConfig['bankIban'] ?? null,
-            bankBic: $legacyConfig['bankBic'] ?? null,
-            placeOfJurisdiction: $legacyConfig['placeOfJurisdiction'] ?? null,
-            placeOfFulfillment: $legacyConfig['placeOfFulfillment'] ?? null,
+            companyEmail: $companyInfoConfig['companyEmail'] ?? null,
+            companyPhone: $companyInfoConfig['companyPhone'] ?? null,
+            companyUrl: $companyInfoConfig['companyUrl'] ?? null,
+            executiveDirector: $companyInfoConfig['executiveDirector'] ?? null,
+            taxNumber: $companyInfoConfig['taxNumber'] ?? null,
+            taxOffice: $companyInfoConfig['taxOffice'] ?? null,
+            vatId: $companyInfoConfig['vatId'] ?? null,
+            bankName: $companyInfoConfig['bankName'] ?? null,
+            bankIban: $companyInfoConfig['bankIban'] ?? null,
+            bankBic: $companyInfoConfig['bankBic'] ?? null,
+            placeOfJurisdiction: $companyInfoConfig['placeOfJurisdiction'] ?? null,
+            placeOfFulfillment: $companyInfoConfig['placeOfFulfillment'] ?? null,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $legacyConfig
+     */
+    private function buildDisplayOptions(
+        ?DocumentBaseConfigEntity $globalRow,
+        ?DocumentBaseConfigEntity $salesChannelRow,
+        array $legacyConfig,
+    ): DocumentDisplayOptions {
+        return new DocumentDisplayOptions(
+            displayHeader: $salesChannelRow?->getDisplayHeader() ?? $globalRow?->getDisplayHeader() ?? false,
+            displayFooter: $salesChannelRow?->getDisplayFooter() ?? $globalRow?->getDisplayFooter() ?? false,
+            displayPageCount: $salesChannelRow?->getDisplayPageCount() ?? $globalRow?->getDisplayPageCount() ?? false,
+            displayCompanyAddress: $salesChannelRow?->getDisplayCompanyAddress() ?? $globalRow?->getDisplayCompanyAddress() ?? false,
+            displayReturnAddress: $salesChannelRow?->getDisplayReturnAddress() ?? $globalRow?->getDisplayReturnAddress() ?? false,
+            displayCustomerVatId: $salesChannelRow?->getDisplayCustomerVatId() ?? $globalRow?->getDisplayCustomerVatId() ?? false,
+            displayLineItems: (bool) ($legacyConfig['displayLineItems'] ?? false),
+            displayLineItemPosition: (bool) ($legacyConfig['displayLineItemPosition'] ?? false),
+            displayPrices: (bool) ($legacyConfig['displayPrices'] ?? false),
+            displayDivergentDeliveryAddress: (bool) ($legacyConfig['displayDivergentDeliveryAddress'] ?? false),
+            deliveryCountries: $legacyConfig['deliveryCountries'] ?? [],
         );
     }
 
@@ -205,7 +331,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
                 continue;
             }
 
-            throw DocumentV2Exception::legacyConfigMissingRequiredFields(
+            throw DocumentV2Exception::configMissingRequiredFields(
                 $target,
                 $documentType,
                 $field

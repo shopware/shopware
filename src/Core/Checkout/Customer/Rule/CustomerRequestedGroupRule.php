@@ -37,7 +37,7 @@ class CustomerRequestedGroupRule extends Rule
             return false;
         }
 
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+        if (!$customer = $scope->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -68,7 +68,7 @@ class CustomerRequestedGroupRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('customerGroupIds', CustomerGroupDefinition::ENTITY_NAME, true);
     }
 }

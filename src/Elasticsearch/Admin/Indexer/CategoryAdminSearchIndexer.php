@@ -119,7 +119,24 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>}|array{
+     *         id: string,
+     *         parentId: mixed,
+     *         text: string,
+     *         completion: list<string>,
+     *         name: array<string, string>,
+     *         active: bool,
+     *         visible: bool,
+     *         type: mixed,
+     *         tags: list<array{
+     *             id: string,
+     *             _count: int
+     *         }>,
+     *         createdAt: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {

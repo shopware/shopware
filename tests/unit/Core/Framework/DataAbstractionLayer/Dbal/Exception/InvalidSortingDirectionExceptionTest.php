@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal\Exception
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use DataAbstractionLayerException::invalidSortingDirection() instead
  */
+#[Package('framework')]
 #[CoversClass(InvalidSortingDirectionException::class)]
 class InvalidSortingDirectionExceptionTest extends TestCase
 {

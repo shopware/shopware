@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\ApiClient;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\Exception\ServerException;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -13,12 +15,13 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ApiClient::class)]
 class ApiClientTest extends TestCase
 {
     public function testCheckForUpdatesDisabled(): void
     {
-        $client = new ApiClient(new MockHttpClient([]), false, '6.4.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient([]), false, '6.4.0.0', __DIR__, new NativeClock());
         $version = $client->checkForUpdates();
 
         static::assertEmpty($version->version);
@@ -28,7 +31,7 @@ class ApiClientTest extends TestCase
     {
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.4.1.0';
 
-        $client = new ApiClient(new MockHttpClient([]), true, '6.4.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient([]), true, '6.4.0.0', __DIR__, new NativeClock());
         $version = $client->checkForUpdates();
 
         unset($_SERVER['SW_RECOVERY_NEXT_VERSION']);
@@ -43,7 +46,7 @@ class ApiClientTest extends TestCase
             new MockResponse('{"title": "Shopware", "body": "bla", "date": "2021-09-01", "version": "6.4.8.1", "fixedVulnerabilities": []}', ['Content-Type' => 'application/json']),
         ];
 
-        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__, new NativeClock());
         $version = $client->checkForUpdates();
 
         static::assertSame('6.4.8.1', $version->version);
@@ -56,7 +59,7 @@ class ApiClientTest extends TestCase
             new MockResponse('{"title": "Shopware", "body": "bla", "date": "2021-09-01", "version": "6.4.8.1", "fixedVulnerabilities": []}', ['Content-Type' => 'application/json']),
         ];
 
-        $client = new ApiClient(new MockHttpClient($responses), true, '6.6.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient($responses), true, '6.6.0.0', __DIR__, new NativeClock());
         $version = $client->checkForUpdates();
 
         static::assertSame('6.4.8.1', $version->version);
@@ -69,7 +72,7 @@ class ApiClientTest extends TestCase
             new MockResponse('{"title": "Shopware", "body": "bla", "date": "2021-09-01", "version": "6.5.0.0", "fixedVulnerabilities": []}', ['Content-Type' => 'application/json']),
         ];
 
-        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__, new NativeClock());
         $version = $client->checkForUpdates();
 
         static::assertSame('6.5.0.0', $version->version);
@@ -82,7 +85,7 @@ class ApiClientTest extends TestCase
             new MockResponse('', ['http_code' => 404]),
         ];
 
-        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__, new NativeClock());
         $version = $client->checkForUpdates();
 
         static::assertSame('', $version->version);
@@ -97,7 +100,7 @@ class ApiClientTest extends TestCase
             new MockResponse('', ['http_code' => 500]),
         ];
 
-        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__);
+        $client = new ApiClient(new MockHttpClient($responses), true, '6.4.0.0', __DIR__, new NativeClock());
 
         static::expectException(ServerException::class);
         $client->checkForUpdates();
@@ -108,7 +111,7 @@ class ApiClientTest extends TestCase
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.4.0.0';
 
         $httpClient = new MockHttpClient([]);
-        $client = new ApiClient($httpClient, true, '6.4.0.0', __DIR__);
+        $client = new ApiClient($httpClient, true, '6.4.0.0', __DIR__, new NativeClock());
 
         $client->downloadRecoveryTool();
 
@@ -126,7 +129,7 @@ class ApiClientTest extends TestCase
         $fs->mkdir(__DIR__ . '/public');
 
         $httpClient = new MockHttpClient($responses);
-        $client = new ApiClient($httpClient, true, '6.4.0.0', __DIR__);
+        $client = new ApiClient($httpClient, true, '6.4.0.0', __DIR__, new NativeClock());
 
         $client->downloadRecoveryTool();
 

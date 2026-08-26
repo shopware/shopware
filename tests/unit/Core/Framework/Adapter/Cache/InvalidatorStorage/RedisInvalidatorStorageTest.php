@@ -6,17 +6,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Redis\RedisStub;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RedisInvalidatorStorage::class)]
 class RedisInvalidatorStorageTest extends TestCase
 {
     public function testStorage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = static::createStub(LoggerInterface::class);
         $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
 
         static::assertSame($storage->loadAndDelete(), []);

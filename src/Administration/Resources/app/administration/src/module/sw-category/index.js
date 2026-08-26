@@ -46,8 +46,8 @@ Module.register('sw-category', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-green-500)',
-    icon: 'solid-products',
-    favicon: 'icon-module-products.png',
+    icon: 'regular-products',
+    favicon: 'icon-module-products.svg',
     entity: 'category',
 
     searchMatcher: (regex, labelType, manifest) => {

@@ -13,8 +13,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CollectPeriodicMetricsTask::class)]
 #[Package('framework')]
+#[AsMessageHandler(handles: CollectPeriodicMetricsTask::class)]
 final class CollectPeriodicMetricsTaskHandler extends ScheduledTaskHandler
 {
     /**

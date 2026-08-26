@@ -2,284 +2,284 @@ name: Acceptance test suite
 description: "Run the acceptance testsuite"
 author: "shopware AG"
 branding:
-    color: "blue"
-    icon: "download"
+  color: "blue"
+  icon: "download"
 
 inputs:
-    project:
-        required: true
-        description: Project to run
-    directory:
-        default: "tests/acceptance"
-        required: false
-        description: Directory of the ats
-    install:
-        default: "true"
-        required: false
-        description: Install
-    build:
-        default: "true"
-        required: false
-        description: Build assets
-    major:
-        default: ""
-        required: false
-        description: Simulate major
-    php-version:
-        default: "8.4"
-        required: false
-        description: php version
-    extra-options:
-        default: ""
-        required: false
-        description: Extra playwright cmd options
+  project:
+    required: true
+    description: Project to run
+  directory:
+    default: "tests/acceptance"
+    required: false
+    description: Directory of the ats
+  install:
+    default: "true"
+    required: false
+    description: Install
+  build:
+    default: "true"
+    required: false
+    description: Build assets
+  major:
+    default: ""
+    required: false
+    description: Simulate major
+  php-version:
+    default: "8.4"
+    required: false
+    description: php version
+  extra-options:
+    default: ""
+    required: false
+    description: Extra playwright cmd options
 
-    use-currents:
-        default: ""
-        required: false
-        description: Use currents pwc cli instead of playwright
+  use-currents:
+    default: ""
+    required: false
+    description: Use currents pwc cli instead of playwright
 
-    currents-project-id:
-        default: ""
-        required: false
-        description: Currents project id
+  currents-project-id:
+    default: ""
+    required: false
+    description: Currents project id
 
-    currents-record-key:
-        default: ""
-        required: false
-        description: Currents record key
+  currents-record-key:
+    default: ""
+    required: false
+    description: Currents record key
 
-    # optimizations
-    workers:
-        default: "2"
-        required: false
-        description: Number of workers
-    shard:
-        required: false
-        description: Shard to run
-        default: "1"
-    shard-count:
-        required: false
-        description: Number of shards
-        default: "1"
+  # optimizations
+  workers:
+    default: "2"
+    required: false
+    description: Number of workers
+  shard:
+    required: false
+    description: Shard to run
+    default: "1"
+  shard-count:
+    required: false
+    description: Number of shards
+    default: "1"
 
-    artifact-prefix:
-        required: false
-        default: "ats"
-        description: "Prefix for the artifact name"
+  artifact-prefix:
+    required: false
+    default: "ats"
+    description: "Prefix for the artifact name"
 
-    playwright-role-arn:
-        required: false
-        description: "Role ARN to assume for uploading traces (pass as secret)"
-    playwright-traces-domain:
-        required: false
-        description: "Playwright traces domain for report URLs"
-    s3-bucket:
-        required: false
-        default: "shopware-ci-playwright-traces"
-        description: "S3 bucket name"
-    report-prefix:
-        required: false
-        default: "playwright-reports"
-        description: "S3 prefix for reports"
+  playwright-role-arn:
+    required: false
+    description: "Role ARN to assume for uploading traces (pass as secret)"
+  playwright-traces-domain:
+    required: false
+    description: "Playwright traces domain for report URLs"
+  s3-bucket:
+    required: false
+    default: "shopware-ci-playwright-traces"
+    description: "S3 bucket name"
+  report-prefix:
+    required: false
+    default: "playwright-reports"
+    description: "S3 prefix for reports"
 
 runs:
 
   using: "composite"
   steps:
-        - uses: shopware/octo-sts-action@main
-          id: create-pr-token
-          with:
-            scope: shopware
-            identity: CreatePR
-          continue-on-error: true
+    - uses: shopware/octo-sts-action@main
+      id: create-pr-token
+      with:
+        scope: shopware
+        identity: CreatePR
+      continue-on-error: true
 
-        - name: Start redis
-          shell: bash
-          run: docker run --name redis -p 6379:6379 -d redis:alpine
-        - name: Start mailpit
-          shell: bash
-          run: docker run --name mailpit -p 1025:1025 -p 8025:8025 -d axllent/mailpit
+    - name: Start redis
+      shell: bash
+      run: docker run --name redis -p 6379:6379 -d redis:alpine
+    - name: Start mailpit
+      shell: bash
+      run: docker run --name mailpit -p 1025:1025 -p 8025:8025 -d axllent/mailpit
 
-        - name: Define environment
-          shell: bash
-          run: |
-              echo "FEATURE_ALL=${{ inputs.major && 'major' }}" >> $GITHUB_ENV
-              echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-              echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
-              echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
-              echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
-              echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
-              echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
-              echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+    - name: Define environment
+      shell: bash
+      run: |
+        echo "FEATURE_ALL=${{ inputs.major && 'major' }}" >> $GITHUB_ENV
+        echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+        echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
+        echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
+        echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
+        echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
+        echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
+        echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
 
-        - name: Setup Shopware
-          uses: shopware/setup-shopware@main
-          with:
-              mysql-version: "builtin"
-              npm-version: 11.8.0
-              shopware-version: ${{ github.ref }}
-              shopware-repository: ${{ github.repository }}
-              install: ${{ inputs.install }}
-              install-admin: true
-              install-storefront: true
-              env: prod
-              composer-root-version: ${{ inputs.major != '' && '6.8.9999999-dev' || '.auto' }}
-              php-version: ${{ inputs.php-version }}
+    - name: Setup Shopware
+      uses: shopware/setup-shopware@main
+      with:
+        mysql-version: "builtin"
+        npm-version: 11.8.0
+        shopware-version: ${{ github.ref }}
+        shopware-repository: ${{ github.repository }}
+        install: ${{ inputs.install }}
+        install-admin: true
+        install-storefront: true
+        env: prod
+        php-version: ${{ inputs.php-version }}
 
-        - name: Build js
-          if: ${{ inputs.build && (inputs.install == '' || inputs.install == 'false') }}
-          shell: bash
-          run: |
-              mkdir -p config/jwt
-              composer run build:js:admin
-              composer npm:storefront run production # we cannot use build:js because it requires a db
-              (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
+    - name: Build js
+      if: ${{ inputs.build && (inputs.install == '' || inputs.install == 'false') }}
+      shell: bash
+      run: |
+        mkdir -p config/jwt
+        composer run build:js:admin
+        composer npm:storefront run production # we cannot use build:js because it requires a db
+        (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
-        - name: Start Webserver
-          if: ${{ inputs.install == '' || inputs.install == 'false' }}
-          shell: bash
-          working-directory: ${{ inputs.path }}
-          env:
-              SYMFONY_DAEMON: "1"
-              SYMFONY_NO_TLS: "1"
-              SYMFONY_ALLOW_HTTP: "1"
-              SYMFONY_PORT: "8000"
-              SYMFONY_ALLOW_ALL_IP: "1"
-          run: symfony server:start
+    - name: Start Webserver
+      if: ${{ inputs.install == '' || inputs.install == 'false' }}
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      env:
+        SYMFONY_DAEMON: "1"
+        SYMFONY_NO_TLS: "1"
+        SYMFONY_ALLOW_HTTP: "1"
+        SYMFONY_PORT: "8000"
+        SYMFONY_ALLOW_ALL_IP: "1"
+      run: symfony server:start
 
-        - uses: actions/setup-node@v4
-          with:
-              node-version: 22
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: lts/*
 
-        - name: Install npm
-          shell: bash
-          run: npm install -g npm@11.8.0
+    - name: Install npm
+      shell: bash
+      run: npm install -g npm@11.8.0
 
-        - name: Cache npm packages
-          uses: actions/cache@v4
-          with:
-              path: |
-                  ${{ inputs.directory }}/node_modules
-                  ~/.npm
-              key: ${{ runner.os }}-${{ inputs.directory }}-${{ hashFiles(format('{0}/package-lock.json', inputs.directory)) }}
-              restore-keys: |
-                  ${{ runner.os }}-${{ inputs.directory }}
+    - name: Cache npm packages
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: |
+          ${{ inputs.directory }}/node_modules
+          ~/.npm
+        key: ${{ runner.os }}-${{ inputs.directory }}-${{ hashFiles(format('{0}/package-lock.json', inputs.directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-${{ inputs.directory }}
 
-        - name: Install dependencies
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npm ci
+    - name: Install dependencies
+      # Reuses the ~/.npm tarballs cached above (offline) and retries transient registry resets.
+      uses: shopware/github-actions/npm-ci-retry@main
+      with:
+        working-directory: ${{ inputs.directory }}
 
-        - name: Refresh Package List
-          shell: bash
-          run: sudo apt-get update --allow-releaseinfo-change
+    - name: Install Playwright Browsers
+      uses: shopware/github-actions/npm-ci-retry@main
+      with:
+        working-directory: ${{ inputs.directory }}
+        # A stalled apt mirror hangs without failing, so the retry loop never fires; time each attempt out so it can retry (normal runtime is ~2 minutes).
+        command: timeout 10m bash -c 'sudo apt-get update --allow-releaseinfo-change && npx playwright install --with-deps chromium'
 
-        - name: Install Playwright Browsers
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npx playwright install --with-deps chromium
+    - name: Run your tests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      env:
+        CURRENTS_PROJECT_ID: ${{ inputs.currents-project-id }}
+        CURRENTS_RECORD_KEY: ${{ inputs.currents-record-key }}
+        CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
+        ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
+      run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
+      continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
-        - name: Run your tests
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          env:
-              CURRENTS_PROJECT_ID: ${{ inputs.currents-project-id }}
-              CURRENTS_RECORD_KEY: ${{ inputs.currents-record-key }}
-              CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
-              ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
-          run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
-          continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
+    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      # Upload whenever a Playwright trace was retained (trace: 'retain-on-failure' => only failures
+      # and the failed first attempt of a flaky test; never a clean pass), or always for Visual runs
+      # (continue-on-error, results need manual review). Gating on trace.zip rather than on test-results/
+      # being non-empty avoids uploading the Lighthouse HTML report, which is written on every run.
+      if: always() && (hashFiles(format('{0}/test-results/**/trace.zip', inputs.directory)) != '' || contains(inputs.project, 'Visual'))
+      with:
+        name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
+        path: ${{ inputs.directory }}/test-results/
+        retention-days: 3
+      continue-on-error: true
 
-        - uses: actions/upload-artifact@v4
-          if: always()
-          with:
-              name: ${{ inputs.artifact-prefix }}-${{ inputs.project }}-${{ inputs.shard }}-php${{ inputs.php-version }}-${{ inputs.major && '-major' || '' }}
-              path: ${{ inputs.directory }}/test-results/
-              retention-days: 3
-          continue-on-error: true
+    - name: Check if this run should attempt AWS operations
+      id: check-aws-allowed
+      if: ${{ github.repository_owner == 'shopware' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.playwright-role-arn }}" ]; then
+          echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+          echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+        else
+          echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+        fi
 
+    - name: Configure AWS credentials
+      if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
+      uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+      with:
+        aws-region: eu-central-1
+        role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+        role-to-assume: ${{ inputs.playwright-role-arn }}
 
-        - name: Check if this run should attempt AWS operations
-          id: check-aws-allowed
-          if: ${{ github.repository_owner == 'shopware' &&
-              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
-          shell: bash
-          run: |
-              if [ -z "${{ inputs.playwright-role-arn }}" ]; then
-                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
-                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
-              else
-                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
-              fi
+    - name: Upload Playwright HTML report to S3
+      working-directory: ${{ inputs.directory }}
+      if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        RANDOM_STR=$(openssl rand -hex 6)
 
-        - name: Configure AWS credentials
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-region: eu-central-1
-            role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
-            role-to-assume: ${{ inputs.playwright-role-arn }}
+        # build the destination prefix and export it for subsequent steps
+        REPORT_DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
 
-        - name: Upload Playwright HTML report to S3
-          working-directory: ${{ inputs.directory }}
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
-          shell: bash
-          run: |
-                set -euo pipefail
-                RANDOM_STR=$(openssl rand -hex 6)
+        aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
 
-                # build the destination prefix and export it for subsequent steps
-                REPORT_DEST="${{ inputs.report-prefix }}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+        echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+        echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
 
-                aws s3 cp "playwright-report" "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/" --recursive
+    - name: Publish S3 Static Website URL
+      if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
+      shell: bash
+      run: |
+        set -euo pipefail
 
-                echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
-                echo "Uploaded to s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/"
+        if [ -z "${REPORT_DEST:-}" ]; then
+          echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+          exit 0
+        fi
 
-        - name: Publish S3 Static Website URL
-          if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles(format('{0}/playwright-report/*', inputs.directory)) }}
-          shell: bash
-          run: |
-                set -euo pipefail
+        if ! aws s3 ls "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+          echo "Index file not found ... skipping publish." >&2
+          exit 0
+        fi
 
-                if [ -z "${REPORT_DEST:-}" ]; then
-                  echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
-                  exit 0
-                fi
+        DOMAIN="${{ inputs.playwright-traces-domain }}"
+        URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+        echo "${URL}"
 
-                if ! aws s3 ls "s3://${{ inputs.s3-bucket }}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
-                  echo "Index file not found ... skipping publish." >&2
-                  exit 0
-                fi
+        echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
 
-                DOMAIN="${{ inputs.playwright-traces-domain }}"
-                URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
-                echo "${URL}"
+    - name: Check for changes
+      id: diff
+      shell: bash
+      run: |
+        git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> $GITHUB_OUTPUT
 
-                echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
-                echo "" >> "$GITHUB_STEP_SUMMARY"
-                echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
-
-        - name: Check for changes
-          id: diff
-          shell: bash
-          run: |
-              git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> $GITHUB_OUTPUT
-
-        - name: Create Pull Request
-          if: steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' && contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots')
-          uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
-          with:
-              token: ${{ steps.create-pr-token.outputs.token }}
-              add-paths: |
-                  .gitignore
-                  tests/acceptance/tests/**/*-snapshots/*.png
-              branch: update-ats-snapshots
-              branch-suffix: short-commit-hash
-              labels: |
-                  domain/quality-ops
-              commit-message: "chore(ci): update acceptance test snapshots"
-              title: "chore(ci): update acceptance test snapshots"
-              body: "🤖 This PR updates acceptance test snapshots."
-          continue-on-error: true
+    - name: Create Pull Request
+      if: steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' && contains(inputs.project, 'visual') && contains(inputs.extra-options, 'update-snapshots')
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+      with:
+        token: ${{ steps.create-pr-token.outputs.token }}
+        add-paths: |
+          .gitignore
+          tests/acceptance/tests/**/*-snapshots/*.png
+        branch: update-ats-snapshots
+        branch-suffix: short-commit-hash
+        labels: |
+          domain/quality-ops
+        commit-message: "chore(ci): update acceptance test snapshots"
+        title: "chore(ci): update acceptance test snapshots"
+        body: "🤖 This PR updates acceptance test snapshots."
+      continue-on-error: true

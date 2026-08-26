@@ -3,14 +3,13 @@
 namespace Shopware\Elasticsearch\Profiler;
 
 use OpenSearch\Client;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - will be considered internal from 6.8.0.0 onwards
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

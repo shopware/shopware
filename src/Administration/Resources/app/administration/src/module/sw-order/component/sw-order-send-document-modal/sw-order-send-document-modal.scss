@@ -13,15 +13,15 @@
     }
 
     &__email-content-label {
-        line-height: $font-size-s;
-        font-size: $font-size-xs;
+        line-height: var(--font-size-s);
+        font-size: var(--font-size-xs);
         color: var(--color-text-secondary-default);
     }
 
     &__email-content {
         margin-top: 8px;
         padding: 15px;
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: $border-radius-default;
         overflow: scroll;
         background: var(--color-background-tertiary-default);

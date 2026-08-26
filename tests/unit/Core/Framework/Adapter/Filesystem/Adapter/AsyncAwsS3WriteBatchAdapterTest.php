@@ -10,11 +10,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AsyncAwsS3WriteBatchAdapter::class)]
 class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 {
@@ -31,15 +33,19 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
 
         $result = ResultMockFactory::create(PutObjectOutput::class);
         $s3Client
+            ->expects($this->once())
             ->method('putObject')
-            ->with([
-                'Bucket' => 'test',
-                'Key' => 'test.txt',
-                'Body' => $sourceFile,
-                'ACL' => 'public-read',
-                'ContentType' => 'text/plain',
-            ])
-            ->willReturn($result);
+            ->willReturnCallback(static function (array $input) use ($sourceFile, $result) {
+                static::assertSame([
+                    'Bucket' => 'test',
+                    'Key' => 'test.txt',
+                    'Body' => $sourceFile,
+                    'ACL' => 'public-read',
+                    'ContentType' => 'text/plain',
+                ], $input);
+
+                return $result;
+            });
 
         $adapter = new AsyncAwsS3WriteBatchAdapter($s3Client, 'test', '', new PortableVisibilityConverter());
         $adapter->writeBatch(new CopyBatchInput($sourceFile, ['test.txt']));
@@ -51,7 +57,7 @@ class AsyncAwsS3WriteBatchAdapterTest extends TestCase
         $tmpFile = $fs->tempnam(sys_get_temp_dir(), 'test');
         $fs->dumpFile($tmpFile, 'test');
 
-        $s3Client = $this->createMock(S3Client::class);
+        $s3Client = static::createStub(S3Client::class);
 
         $result = ResultMockFactory::create(PutObjectOutput::class);
         $s3Client

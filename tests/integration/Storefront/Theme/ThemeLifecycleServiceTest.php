@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -41,6 +43,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\ThemeWithLabels\ThemeWi
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -73,12 +76,12 @@ class ThemeLifecycleServiceTest extends TestCase
     protected function setUp(): void
     {
         $kernel = $this->createMock(Kernel::class);
-        $kernel->expects($this->any())->method('getBundles')->willReturn([
+        $kernel->method('getBundles')->willReturn([
             'ThemeWithFileAssociations' => new ThemeWithFileAssociations(),
             'ThemeWithLabels' => new ThemeWithLabels(),
         ]);
 
-        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+        $kernel->method('getBundle')->willReturnMap([
             ['ThemeWithFileAssociations', new ThemeWithFileAssociations()],
             ['ThemeWithLabels', new ThemeWithLabels()],
         ]);
@@ -336,8 +339,8 @@ class ThemeLifecycleServiceTest extends TestCase
         $firstTranslation = $theme->getTranslations()->first();
         static::assertNotNull($firstTranslation);
         static::assertSame('en-GB', $firstTranslation->getLanguage()?->getLocale()?->getCode());
-        static::assertSame(['fields.sw-image' => 'test label'], $firstTranslation->getLabels());
-        static::assertSame(['fields.sw-image' => 'test help'], $firstTranslation->getHelpTexts());
+        static::assertSame(['fields.sw-image' => 'test label'], Feature::silent('v6.8.0.0', fn () => $firstTranslation->getLabels()));
+        static::assertSame(['fields.sw-image' => 'test help'], Feature::silent('v6.8.0.0', fn () => $firstTranslation->getHelpTexts()));
     }
 
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
@@ -354,18 +357,18 @@ class ThemeLifecycleServiceTest extends TestCase
         $translation = $this->getTranslationByLocale('de-DE-1', $theme->getTranslations());
         static::assertSame([
             'fields.sw-image' => 'test label',
-        ], $translation->getLabels());
+        ], Feature::silent('v6.8.0.0', fn () => $translation->getLabels()));
         static::assertSame([
             'fields.sw-image' => 'test help',
-        ], $translation->getHelpTexts());
+        ], Feature::silent('v6.8.0.0', fn () => $translation->getHelpTexts()));
 
         $germanTranslation = $this->getTranslationByLocale('de-DE', $theme->getTranslations());
         static::assertSame([
             'fields.sw-image' => 'Test label',
-        ], $germanTranslation->getLabels());
+        ], Feature::silent('v6.8.0.0', fn () => $germanTranslation->getLabels()));
         static::assertSame([
             'fields.sw-image' => 'Test Hilfe',
-        ], $germanTranslation->getHelpTexts());
+        ], Feature::silent('v6.8.0.0', fn () => $germanTranslation->getHelpTexts()));
     }
 
     public function testItRemovesAThemeCorrectly(): void
@@ -444,7 +447,7 @@ class ThemeLifecycleServiceTest extends TestCase
         // check whether the theme is no longer in the table and the associated media have been deleted
         static::assertFalse($this->hasTheme($bundle));
         static::assertCount(0, $this->mediaRepository->searchIds(new Criteria($ids), Context::createDefaultContext())->getIds());
-        static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context));
+        static::assertCount(0, $this->themeRepository->search(new Criteria([$childId, $themeEntity->getId()]), $this->context)->getEntities());
     }
 
     private function getThemeConfig(): StorefrontPluginConfiguration
@@ -491,7 +494,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('fileName', $fileName));
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->first();
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(MediaEntity::class, $media);
 
         return $media;
@@ -502,7 +505,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('fileName', $fileName));
 
-        $media = $this->mediaRepository->search($criteria, $this->context)->first();
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertNull($media);
     }
 

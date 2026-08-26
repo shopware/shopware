@@ -35,6 +35,7 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Beschreibung",
+      "hintCoverImageDescription": "Beginne die Beschreibung mit ein, zwei kurzen Sätzen, die das Produkt auf dem Coverbild beschreiben. Das verbessert die Barrierefreiheit und die Darstellung in Produkt-Listings.",
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
       "labelManufacturerCreation": "Hersteller",
@@ -124,6 +125,11 @@
       "labelMaxPurchase": "Maximalabnahme",
       "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Hersteller-Produktnummer",
+      "labelGuaranteeDescription": "Die Kennzeichnung steht für eine gewerbliche Haltbarkeitsgarantie, dargestellt in Jahren. Diese Garantie gewährt Ihnen der Hersteller ohne Zusatzkosten für die gesamte Ware und für eine Dauer von mehr als zwei Jahren.",
+      "labelGuaranteeMonths": "Dauer der herstellerseitigen Garantie in Monaten",
+      "helpTextGuaranteeMonths": "Mindestwert ist 30, in Schritten von 6.",
+      "labelGuaranteeConfirmed": "Label in der Storefront anzeigen",
+      "helpTextGuaranteeConfirmed": "Das Garantie-Label wird nur angezeigt, wenn eine gültige Garantiedauer, ein Hersteller und die Hersteller-Produktnummer angegeben sind.",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
       "labelShippingFree": "Versandkostenfrei",
@@ -147,15 +153,16 @@
       "placeholderRestockTime": "Wiederauffüllintervall ...",
       "placeholderEan": "Gib die GTIN/EAN ein ...",
       "placeholderManufacturerNumber": "Produktnummer eingeben ...",
+      "placeholderGuaranteeMonths": "z. B. 30, 36 oder 42 Monate ...",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },
     "measurementForm": {
-      "description": "Gib die Produktmaße in den Dir zur Verfügung stehenden Maßeinheiten ein. Die Anzeige für Deine Kunden wird automatisch gemäß den {link} umgerechnet.",
+      "description": "Gib Produktmaße in Deinen bevorzugten Einheiten ein. Shopware rechnet sie für Kunden gemäß den {link} um.",
       "linkText": "Verkaufskanal-Einstellungen"
     },
     "packagingForm": {
-      "description": "Definiere, wie das Produkt verkauft und verpackt wird. Diese Informationen werden den Kunden in der Storefront angezeigt.",
+      "description": "Lege Verkaufseinheiten und Verpackungsdetails fest, die Kunden in der Storefront sehen.",
       "labelProductUnit": "Produkteinheit",
       "placeholderSellingUnit": "z. B. 6 ...",
       "placeholderProductUnit": "Produkteinheit auswählen ...",
@@ -173,6 +180,7 @@
       "cardTitleAssignment": "Zuweisung",
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Auszeichnung",
+      "cardTitleGuarantee": "Garantie (GARAN Label)",
       "cardTitlePackaging": "Maße & Verpackung",
       "linkAdvancedPrices": "Erweiterte Preisansicht",
       "linkMaintainCurrencyPrices": "Währungsabhängige Preise",
@@ -185,12 +193,13 @@
       "cardTitleDownloads": "Dateien",
       "cardSubtitleDownloads": "Füge Dateien zu Deinem digitalen Produkt hinzu.",
       "downloadsLabel": "Datei-Upload",
+      "downloadsContextMenuDownloadFile": "Datei herunterladen",
       "manageStockLabel": "Lagerbestand verwalten",
       "manageStockTooltip": "Wenn der Lagerbestand nicht verwaltet wird, ist das digitale Produkt für eine unendliche Anzahl von Transaktionen verfügbar."
     },
     "specifications": {
       "cardTitleMeasurement": "Produktmaße",
-      "cardTitleSellingPackaging": "Verkaufs- & Verpackungsinformationen",
+      "cardTitleSellingPackaging": "Verkauf und Verpackung",
       "cardTitleEssentialCharacteristics": "Wesentliche Merkmale",
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",
@@ -208,12 +217,9 @@
       "labelCreatedAt": "Erstellt am",
       "labelPoints": "Sterne",
       "labelTitle": "Titel",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
       "modal": {
         "confirmTitle": "Bewertung löschen",
-        "confirmText": "Möchten Sie diese Bewertung wirklich löschen?",
-        "buttonDelete": "Löschen"
+        "confirmText": "Möchten Sie diese Bewertung wirklich löschen?"
       },
       "messageEmptyTitle": "Produkt noch nicht bewertet",
       "messageEmptySubline": "Sieh Dir stattdessen die Bewertungen anderer Produkte an.",
@@ -233,8 +239,6 @@
       "columnQuantityStart": "Menge von ...",
       "columnQuantityEnd": "bis ...",
       "columnPrice": "Preis (brutto / netto)",
-      "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDelete": "Löschen",
       "settingShowListPrices": "Zeige Streichpreise",
       "toolbarLabel": "Regeln"
     },
@@ -242,8 +246,6 @@
       "textProductOverview": "Produkte",
       "buttonAddProduct": "Produkt anlegen",
       "buttonAddDownloadableProduct": "Digitales Produkt anlegen",
-      "buttonDuplicate": "Duplizieren",
-      "buttonDelete": "Löschen",
       "columnName": "Name",
       "columnProductNumber": "Produktnummer",
       "columnManufacturer": "Hersteller",
@@ -261,9 +263,6 @@
       "columnMedia": "Medien",
       "columnSales": "Verkäufe",
       "columnDownloadsTooltip": "Digitale Produkte müssen über mindestens eine Datei verfügen.",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "contextMenuDuplicate": "Duplizieren",
       "contextMenuShowVariants": "Varianten anzeigen",
       "variantIndicatorTooltip": "Dieses Produkt hat Varianten.",
       "variantModalTitle": "Varianten von \"{productName}\"",
@@ -286,7 +285,6 @@
     },
     "detail": {
       "textHeadline": "Neues Produkt",
-      "buttonSave": "Speichern",
       "buttonSaveDuplicate": "Speichern und duplizieren",
       "buttonSaveAndNew": "Speichern und neues erstellen",
       "tabGeneral": "Allgemein",
@@ -301,10 +299,10 @@
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
       "messageSaveWarning": "Keine Änderung vorgenommen.",
+      "messageProductNotFound": "Das Produkt konnte nicht gefunden werden. Es wurde möglicherweise gelöscht.",
       "errorMinMaxPurchase": "Produkt konnte nicht gespeichert werden, die minimale Bestellmenge überschreitet die Maximalabnahme."
     },
     "mediaForm": {
-      "errorHeadline": "Fehler",
       "errorNoImage": "\"{file}\" ist kein Bild.",
       "errorMediaItemDuplicated": "Medium \"{fileName}\" bereits verwendet.",
       "coverSubline": "Cover",
@@ -366,7 +364,6 @@
       "generateVariationsButton": "Varianten speichern",
       "nextModalButton": "Weiter",
       "deleteVariationsButton": "Alle Varianten löschen",
-      "backVariationsButton": "Zurück",
       "configuratorCardTitle": "Varianten generieren",
       "generatedVariationCardTitle": "Varianten",
       "variationCard": {
@@ -391,11 +388,8 @@
       "generatedListColumnContentProductState": {
         "is-download": "digital"
       },
-      "generatedListContextMenuEdit": "Bearbeiten",
-      "generatedListContextMenuDelete": "Löschen",
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
       "generatedListDeleteModalMessagePlural": "Möchten Sie diese Varianten löschen?",
-      "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
       "generatedListMessageDeleteErrorCanonicalUrl": "Die Variante konnte nicht gelöscht werden, da sie als Canonical-URL-Template dient.",
@@ -428,12 +422,8 @@
         "restrictedCombinations": "Ausgeschlossene Eigenschaftsausprägungen",
         "searchRestrictions": "Durchsuche ausgeschlossene Ausprägungen ...",
         "addNewRestriction": "Ausprägungen ausschließen",
-        "editRestriction": "Bearbeiten",
-        "deleteRestriction": "Löschen",
         "singleRestrictionSeperation": "Und",
-        "deleteCombination": "Löschen",
         "isOneFrom": "ist eine von",
-        "save": "Speichern",
         "searchPlaceholder": "Durchsuche Ausprägungen ...",
         "singleRestrictionAddTitle": "Ausprägungen ausschließen",
         "surchargeNotice": "Änderungen an den Auf-/Abschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen.",
@@ -456,8 +446,7 @@
         "listingExplanationModeSingle": "Wähle eine Variante, die in den Listen angezeigt und auf der Produktdetailseite vorausgewählt wird.",
         "listingExplanationModeMainProduct": "Wähle eine Variante, die auf der Produktdetailseite vorausgewählt wird.",
         "listingLabelModeExpanded": "Auffächern der Eigenschaften in Produktliste",
-        "listingPlaceholderSelectMainVariant": "Wähle eine Variante ...",
-        "save": "Speichern"
+        "listingPlaceholderSelectMainVariant": "Wähle eine Variante ..."
       }
     },
     "layout": {
@@ -471,7 +460,6 @@
       "buttonAddCrossSelling": "Neues Cross Selling hinzufügen",
       "newCrossSellingTitle": "Neues Cross Selling",
       "buttonAddCrossSellingLanguageWarning": "Du kannst neue Cross-Sellings nur in Deiner Standardsprache erstellen",
-      "buttonDeleteCrossSelling": "Löschen",
       "inputCrossSellingTitle": "Titel",
       "inputCrossSellingActive": "Aktiv",
       "inputCrossSellingType": "Typ",
@@ -494,7 +482,6 @@
       "productListType": "Manuelle Zuweisung",
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross-Selling-Konfiguration wirklich löschen?",
-      "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross-Selling-Konfiguration.",
       "inheritedEmptyStateDescription": "Dieses Produkt hat vererbte Cross Sellings vom Hauptprodukt.",
@@ -510,9 +497,8 @@
     },
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",
-      "descriptionTitle": "Wesentliche Merkmale",
-      "descriptionBody": "Wesentliche Merkmale helfen Dir, relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden hervorgehoben im Warenkorb und an der Kasse dargestellt.",
-      "configInformation": "Lege zuerst Templates für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "descriptionBody": "Mit wesentlichen Merkmalen zeigst Du wichtige Produktdetails im Warenkorb und Checkout.",
+      "configInformation": "Lege Templates für {0} an und wähle dann eines für dieses Produkt aus.",
       "linkFeatureSetsConfig": "Wesentliche Merkmale",
       "templateSelectFieldLabel": "Templates",
       "templateSelectFieldPlaceholder": "Wähle ein Template aus ..."

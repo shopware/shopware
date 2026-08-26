@@ -6,7 +6,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\TaxProvider;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\CustomFieldType;
 
 /**
  * @internal

@@ -15,8 +15,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(RuleIdMatcher::class)]
 #[Package('framework')]
+#[CoversClass(RuleIdMatcher::class)]
 class RuleIdMatcherTest extends TestCase
 {
     private readonly IdsCollection $ids;

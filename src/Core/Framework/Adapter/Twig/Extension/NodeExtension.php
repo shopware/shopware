@@ -7,22 +7,22 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TokenParser\TokenParserInterface;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class NodeExtension extends AbstractExtension
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0  - replace TemplateFinder with TemplateFinderInterface
      */
     public function __construct(
+        /**
+         * @deprecated tag:v6.8.0 - Replace TemplateFinder with TemplateFinderInterface
+         */
         private readonly TemplateFinder $finder,
         private readonly TemplateScopeDetector $templateScopeDetector,
     ) {

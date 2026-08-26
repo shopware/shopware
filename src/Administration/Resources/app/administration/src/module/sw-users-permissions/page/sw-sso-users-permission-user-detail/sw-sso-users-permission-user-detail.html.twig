@@ -1,6 +1,5 @@
 {% block sw_settings_sso_user_detail %}
 <sw-page class="sw-settings-sso-user-detail">
-
     {% block sw_settings_sso_user_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="!isLoading">
@@ -31,7 +30,7 @@
             variant="primary"
             @click.prevent="onSave"
         >
-            {{ $t('sw-users-permissions.users.user-detail.labelButtonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -90,6 +89,37 @@
                         :label="$t('sw-users-permissions.users.user-detail.labelEmail')"
                     />
                     {% endblock %}
+
+                    {% block sw_settings_sso_user_detail_grid_content_active %}
+                    <mt-switch
+                        v-model="user.active"
+                        name="sw-field--user-active"
+                        class="sw-sso-detail-card__information-active"
+                        :label="$t('sw-users-permissions.users.user-detail.labelActive')"
+                        :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_sso_user_detail_content_media_upload %}
+                    <sw-upload-listener
+                        :upload-tag="user.id"
+                        auto-upload
+                        @media-upload-finish="setMediaItem"
+                    />
+
+                    <sw-media-upload-v2
+                        class="sw-sso-detail-card__information-picture"
+                        :source="user.avatarMedia"
+                        :label="$t('sw-users-permissions.users.user-detail.labelProfilePicture')"
+                        :upload-tag="user.id"
+                        :allow-multi-select="false"
+                        :source-context="user"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        default-folder="user"
+                        @media-drop="onDropMedia"
+                        @media-upload-remove-image="onRemoveMedia"
+                    />
+                    {% endblock %}
                 </div>
                 {% endblock %}
             </mt-card>
@@ -129,24 +159,13 @@
                     />
                     {% endblock %}
 
-                    {% block sw_settings_sso_user_detail_content_media_upload %}
-                    <sw-upload-listener
-                        :upload-tag="user.id"
-                        auto-upload
-                        @media-upload-finish="setMediaItem"
-                    />
-
-                    <sw-media-upload-v2
-                        class="w-sso-detail-card__user-interface-picture"
-                        :source="user.avatarMedia"
-                        :label="$t('sw-users-permissions.users.user-detail.labelProfilePicture')"
-                        :upload-tag="user.id"
-                        :allow-multi-select="false"
-                        :source-context="user"
-                        :disabled="!acl.can('users_and_permissions.editor')"
-                        default-folder="user"
-                        @media-drop="onDropMedia"
-                        @media-upload-remove-image="onRemoveMedia"
+                    {% block sw_settings_sso_user_detail_grid_content_theme %}
+                    <mt-theme-select
+                        v-if="isCurrentUser"
+                        v-model="userTheme"
+                        name="sw-field--user-theme"
+                        class="sw-sso-detail-card__user-interface-theme"
+                        :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
                     />
                     {% endblock %}
                 </div>
@@ -206,11 +225,11 @@
                 :is-loading="isLoading"
             >
                 {% block sw_settings_sso_user_detail_grid_toolbar %}
-                <template #toolbar>
+                <template #headerRight>
                     {% block sw_settings_sso_user_detail_grid_add_key %}
                     <mt-button
                         class="sw-sso-detail-card__integrations-create-access-key"
-                        variant="primary"
+                        variant="secondary"
                         size="small"
                         :is-loading="isLoading"
                         :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')"
@@ -252,19 +271,18 @@
                                 variant="danger"
                                 @click="onDeleteAccessKey(item.id)"
                             >
-                                {{ $t('sw-users-permissions.users.user-detail.contextMenuDelete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
                         {% endblock %}
                     </sw-data-grid>
 
-                    <sw-empty-state
+                    <mt-empty-state
                         v-if="integrations.length === 0"
-                        :absolute="false"
-                        :title="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
-                        :subline="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
-                        auto-height
+                        icon="regular-user"
+                        :headline="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
+                        :description="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
                     />
                     {% endblock %}
                 </template>
@@ -294,13 +312,14 @@
                 >
                     {{ $t('global.default.cancel') }}
                 </mt-button>
+
                 <mt-button
                     size="small"
                     variant="critical"
                     :is-loading="isLoading"
                     @click="onConfirmDeleteAccessKey"
                 >
-                    {{ $t('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
             </template>
             {% endblock %}

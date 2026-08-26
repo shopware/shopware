@@ -106,6 +106,21 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
         ];
     }
 
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>}|array{
+     *         id: string,
+     *         text: string,
+     *         completion: list<string>,
+     *         name: array<string, string>,
+     *         type: mixed,
+     *         createdAt: string|null
+     * }>
+     */
     public function fetch(array $ids): array
     {
         $data = $this->connection->fetchAllAssociative(

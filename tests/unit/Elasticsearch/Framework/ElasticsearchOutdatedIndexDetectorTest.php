@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -21,6 +22,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchOutdatedIndexDetector::class)]
 class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 {
@@ -51,24 +53,24 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
                 ],
             ]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
 
-        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $registry = static::createStub(ElasticsearchRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition, $definition]);
 
         $makeLanguage = static fn () => (new LanguageEntity())->assign(['id' => Uuid::randomHex()]);
 
         $collection = new EntitySearchResult('test', 1, new LanguageCollection([$makeLanguage(), $makeLanguage(), $makeLanguage()]), null, new Criteria(), Context::createDefaultContext());
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository
             ->method('search')
             ->willReturn($collection);
 
-        $esHelper = $this->createMock(ElasticsearchHelper::class);
+        $esHelper = static::createStub(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         $arr = $detector->get();
@@ -85,12 +87,12 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
             ->method('get')
             ->willReturnCallback(static fn () => []);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
-        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $registry = static::createStub(ElasticsearchRegistry::class);
 
-        $esHelper = $this->createMock(ElasticsearchHelper::class);
+        $esHelper = static::createStub(ElasticsearchHelper::class);
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         static::assertEmpty($detector->get());

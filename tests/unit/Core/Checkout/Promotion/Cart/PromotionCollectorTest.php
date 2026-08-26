@@ -6,7 +6,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -40,24 +41,19 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(PromotionCollector::class)]
 class PromotionCollectorTest extends TestCase
 {
-    private readonly PromotionGatewayInterface&MockObject $gateway;
+    private readonly PromotionGatewayInterface&Stub $gateway;
 
     private readonly PromotionCollector $promotionCollector;
 
     private readonly SalesChannelContext $context;
 
-    private readonly Connection&MockObject $connection;
+    private readonly Connection&Stub $connection;
 
     protected function setUp(): void
     {
-        $this->gateway = $this->createMock(PromotionGatewayInterface::class);
-        $this->connection = $this->createMock(Connection::class);
-        $this->promotionCollector = new PromotionCollector(
-            $this->gateway,
-            new PromotionItemBuilder(),
-            static::createStub(HtmlSanitizer::class),
-            $this->connection
-        );
+        $this->gateway = static::createStub(PromotionGatewayInterface::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->promotionCollector = $this->createPromotionCollector();
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -119,6 +115,7 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+        $this->assertAlreadyRedeemedError($cart);
     }
 
     public function testPromotionWithInvalidOrderCountPerCustomerCount(): void
@@ -131,6 +128,30 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+        $this->assertAlreadyRedeemedError($cart);
+    }
+
+    public function testUnknownPromotionCodeAddsNotFoundError(): void
+    {
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $cartExtension = new CartExtension();
+        $cartExtension->addCode('unknown-code');
+        $cart->addExtension(CartExtension::KEY, $cartExtension);
+
+        // gateway finds no promotion for the code (global, individual and automatic lookups)
+        $this->gateway->method('get')->willReturn(new PromotionCollection());
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+        static::assertTrue($cart->getErrors()->has('promotion-not-found'));
+        static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
     }
 
     public function testPromotionWithoutDiscount(): void
@@ -203,9 +224,11 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxTotalUseIsReachedInEditingOrder(): void
     {
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
+        $promotionCollector = $this->createPromotionCollector($connection);
         $discountId1 = Uuid::randomHex();
         $discountId2 = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -214,7 +237,7 @@ class PromotionCollectorTest extends TestCase
         $cart->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct(Uuid::randomHex()));
         $cartDataCollection = new CartDataCollection();
 
-        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+        $promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
@@ -236,9 +259,11 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithMaxUsePerCustomerIsReachedInEditingOrder(): void
     {
-        $this->connection->expects($this->once())
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->willReturn('1');
+        $promotionCollector = $this->createPromotionCollector($connection);
         $discountId1 = Uuid::randomHex();
         $discountId2 = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -257,7 +282,7 @@ class PromotionCollectorTest extends TestCase
 
         $cartDataCollection = new CartDataCollection();
 
-        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+        $promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         /** @var LineItemCollection $promotions */
         $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
@@ -275,6 +300,27 @@ class PromotionCollectorTest extends TestCase
         static::assertSame($promotionId, $promotionLast->getPayloadValue('promotionId'));
         static::assertSame($discountId2, $promotionLast->getPayloadValue('discountId'));
         static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
+    }
+
+    private function assertAlreadyRedeemedError(Cart $cart): void
+    {
+        static::assertFalse($cart->getErrors()->has('promotion-not-found'));
+
+        $error = $cart->getErrors()->get('promotion-not-eligible');
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-already-redeemed', $error->getMessageKey());
+        // must be persistent, otherwise the Processor drops it and the customer sees nothing
+        static::assertTrue($error->isPersistent());
+    }
+
+    private function createPromotionCollector(?Connection $connection = null): PromotionCollector
+    {
+        return new PromotionCollector(
+            $this->gateway,
+            new PromotionItemBuilder(),
+            static::createStub(HtmlSanitizer::class),
+            $connection ?? $this->connection
+        );
     }
 
     /**

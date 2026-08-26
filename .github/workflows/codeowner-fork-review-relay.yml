@@ -1,0 +1,24 @@
+name: 'Code Owners (fork review trigger)'
+# A fork PR's GITHUB_TOKEN has no OIDC on pull_request_review, and there is no
+# pull_request_review_target, so codeowner-fork-review-handler.yml runs privileged
+# instead via workflow_run — whose `pull_requests` field is empty for fork PRs, hence
+# relaying the number as an artifact (github.event.pull_request.number is GitHub's own
+# metadata, not attacker-controlled).
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions: {}
+
+jobs:
+  relay:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ github.event.pull_request.number }}" > pr-number.txt
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: codeowners-fork-review-pr
+          path: pr-number.txt
+          retention-days: 1

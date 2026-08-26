@@ -18,7 +18,6 @@ export default Shopware.Component.wrapComponentConfig({
     inject: [
         'acl',
         'feature',
-        'userConfigService',
     ],
 
     data() {
@@ -47,6 +46,20 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        /**
+         * Dismissible change notices shown at the top of the settings overview. Each entry carries the
+         * `deprecationVersion` it becomes obsolete with. Once that version is reached, DELETE the entry
+         * here — it is no longer relevant.
+         */
+        changeNotices(): { key: string; deprecationVersion: string }[] {
+            return [
+                {
+                    key: 'sw-settings.index.textSettingRenameBanner',
+                    deprecationVersion: 'v6.8.0.0',
+                },
+            ];
+        },
+
         settingsGroups() {
             // Helpers
             const labelOfSetting = (setting: SettingsItemHere) =>
@@ -124,9 +137,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         async getUserConfig() {
-            const response = await this.userConfigService.search(['settings.hideRenameBanner']);
-            // @ts-expect-error - type error won't be fixed as it is deprecated anyway
-            this.hideSettingRenameBanner = !!response?.data['settings.hideRenameBanner']?.value;
+            const config = (await Shopware.Service('userConfigService').search(['settings.hideRenameBanner']))?.data?.[
+                'settings.hideRenameBanner'
+            ] as { value?: boolean } | undefined;
+
+            this.hideSettingRenameBanner = !!config?.value;
         },
 
         /**
@@ -135,9 +150,8 @@ export default Shopware.Component.wrapComponentConfig({
         async onCloseSettingRenameBanner() {
             this.hideSettingRenameBanner = true;
 
-            await this.userConfigService.upsert({
+            await Shopware.Service('userConfigService').upsert({
                 'settings.hideRenameBanner': {
-                    // @ts-expect-error - type error won't be fixed as it is deprecated anyway
                     value: true,
                 },
             });

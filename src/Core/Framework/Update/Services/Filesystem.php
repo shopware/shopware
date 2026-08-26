@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\Update\Services;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @codeCoverageIgnore
+ * @codeCoverageIgnore can not be unit tested by design; covered by integration test
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Update\Services\FilesystemTest
  */
 #[Package('framework')]
 class Filesystem

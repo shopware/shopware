@@ -81,7 +81,7 @@
                                 variant="danger"
                                 @click="removeMedia(item)"
                             >
-                                {{ $t('global.sw-product-image.context.buttonRemove') }}
+                                {{ $t('global.default.remove') }}
                             </sw-context-menu-item>
                             {% endblock %}
                             {% endblock %}
@@ -102,7 +102,6 @@
                     <mt-button
                         class="sw-media-upload-v2__button upload"
                         :disabled="disabled"
-                        ghost
                         size="small"
                         variant="secondary"
                         @click="onClickUpload"

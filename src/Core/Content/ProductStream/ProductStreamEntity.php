@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductStreamEntity extends Entity
 {
@@ -33,6 +36,8 @@ class ProductStreamEntity extends Entity
     protected bool $invalid;
 
     protected bool $internal = false;
+
+    protected bool $displayAsGroup = true;
 
     protected ?ProductStreamTranslationCollection $translations = null;
 
@@ -108,6 +113,16 @@ class ProductStreamEntity extends Entity
     public function setInternal(bool $internal): void
     {
         $this->internal = $internal;
+    }
+
+    public function isDisplayAsGroup(): bool
+    {
+        return $this->displayAsGroup;
+    }
+
+    public function setDisplayAsGroup(bool $displayAsGroup): void
+    {
+        $this->displayAsGroup = $displayAsGroup;
     }
 
     public function getTranslations(): ?ProductStreamTranslationCollection

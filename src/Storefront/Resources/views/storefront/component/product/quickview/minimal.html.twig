@@ -62,11 +62,8 @@
                                 {% set manufacturerLink = manufacturer.translated.link %}
                                 {% set manufacturerLinkHasScheme = manufacturerLink matches '/^[a-zA-Z][a-zA-Z0-9+.-]*:/' or manufacturerLink starts with '//' %}
                                 {% set manufacturerLinkHref = manufacturerLink ? (manufacturerLinkHasScheme ? manufacturerLink : 'https://' ~ manufacturerLink) : '' %}
-                                <a href="{{ manufacturerLinkHref }}"
-                                   target="_blank"
-                                   rel="noopener"
-                                   title="{{ manufacturer.translated.name }}"
-                                   class="quickview-minimal-product-manufacturer">
+
+                                {% set manufacturerContent %}
                                     {% if manufacturer.media %}
                                         {% sw_thumbnails 'quickview-minimal-product-manufacturer-logo' with {
                                             media: manufacturer.media,
@@ -81,7 +78,21 @@
                                     {% else %}
                                         {{ manufacturer.translated.name }}
                                     {% endif %}
-                                </a>
+                                {% endset %}
+
+                                {% if manufacturerLinkHref %}
+                                    <a href="{{ manufacturerLinkHref }}"
+                                       target="_blank"
+                                       rel="noopener"
+                                       title="{{ manufacturer.translated.name }}"
+                                       class="quickview-minimal-product-manufacturer">
+                                        {{ manufacturerContent }}
+                                    </a>
+                                {% else %}
+                                    <span class="quickview-minimal-product-manufacturer">
+                                        {{ manufacturerContent }}
+                                    </span>
+                                {% endif %}
                             {% endif %}
                         {% endblock %}
                     </div>

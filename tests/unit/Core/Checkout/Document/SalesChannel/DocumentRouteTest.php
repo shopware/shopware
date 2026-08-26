@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
@@ -56,39 +55,38 @@ class DocumentRouteTest extends TestCase
 
     public function testDownloadWithDocumentNotFound(): void
     {
-        $generator = $this->createMock(DocumentGenerator::class);
+        $generator = static::createStub(DocumentGenerator::class);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
             $generator,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
         );
 
         $this->expectExceptionObject(DocumentException::documentNotFound('documentId'));
 
-        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
+        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
     public function testDownloadWithOrderNotFound(): void
     {
-        $generator = $this->createMock(DocumentGenerator::class);
+        $generator = static::createStub(DocumentGenerator::class);
 
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setOrderId('test');
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
@@ -100,23 +98,22 @@ class DocumentRouteTest extends TestCase
 
         $this->expectExceptionObject(DocumentException::orderNotFound('test'));
 
-        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
+        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
     public function testDownloadWithoutOrderCustomer(): void
     {
-        $generator = $this->createMock(DocumentGenerator::class);
+        $generator = static::createStub(DocumentGenerator::class);
 
         $order = new OrderEntity();
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
@@ -128,14 +125,14 @@ class DocumentRouteTest extends TestCase
 
         $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
 
-        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
+        $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
     public function testThrowExceptionForNotGuestOrderForGuest(): void
     {
         $this->createCustomer(Uuid::randomHex(), true);
 
-        $generator = $this->createMock(DocumentGenerator::class);
+        $generator = static::createStub(DocumentGenerator::class);
 
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setId(Uuid::randomHex());
@@ -146,13 +143,12 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
@@ -163,7 +159,7 @@ class DocumentRouteTest extends TestCase
         );
 
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
@@ -193,17 +189,16 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -214,7 +209,7 @@ class DocumentRouteTest extends TestCase
             'zipcode' => 'not matching',
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $this->expectExceptionObject(CustomerException::wrongGuestCredentials());
@@ -239,17 +234,16 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -257,7 +251,7 @@ class DocumentRouteTest extends TestCase
 
         $request = new Request();
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $this->expectExceptionObject(CustomerException::guestNotAuthenticated());
@@ -285,17 +279,16 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -305,11 +298,10 @@ class DocumentRouteTest extends TestCase
             'email' => 'email',
             'zipcode' => 'zipcode',
         ]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerNotLoggedInException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
@@ -335,17 +327,16 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
-            $this->createMock(DocumentGenerator::class),
+            static::createStub(DocumentGenerator::class),
             $documentRepository,
             new GuestAuthenticator(),
             $fileRenderersMock,
@@ -355,7 +346,7 @@ class DocumentRouteTest extends TestCase
             'email' => 'email',
             'zipcode' => 'zipcode',
         ]);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         if (Feature::isActive('v6.8.0.0')) {
@@ -380,15 +371,14 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder(Uuid::randomHex());
         $document = $this->createDocument($order);
 
-        $generator = $this->createMock(DocumentGenerator::class);
+        $generator = static::createStub(DocumentGenerator::class);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
@@ -399,11 +389,10 @@ class DocumentRouteTest extends TestCase
         );
 
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
@@ -415,15 +404,14 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        $generator = $this->createMock(DocumentGenerator::class);
+        $generator = static::createStub(DocumentGenerator::class);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
         ]);
 
         $route = new DocumentRoute(
@@ -434,7 +422,7 @@ class DocumentRouteTest extends TestCase
         );
 
         $request = new Request();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         if (Feature::isActive('v6.8.0.0')) {
@@ -460,14 +448,13 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
-        $generatorMock = $this->createMock(DocumentGenerator::class);
-        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
-        $htmlFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $generatorMock = static::createStub(DocumentGenerator::class);
+        $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
+        $htmlFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
@@ -487,7 +474,7 @@ class DocumentRouteTest extends TestCase
         $request = new Request();
         $request->headers->set('Accept', PdfRenderer::FILE_CONTENT_TYPE);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         if (Feature::isActive('v6.8.0.0')) {
@@ -515,13 +502,12 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $generator = $this->createMock(DocumentGenerator::class);
-        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
 
         $fileRenderers = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
@@ -536,7 +522,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderers,
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -577,14 +563,13 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $generator = $this->createMock(DocumentGenerator::class);
-        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
-        $htmlFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
+        $htmlFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
@@ -601,7 +586,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -645,14 +630,13 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $generator = $this->createMock(DocumentGenerator::class);
-        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
-        $htmlFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
+        $htmlFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
@@ -669,7 +653,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -696,14 +680,13 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $generator = $this->createMock(DocumentGenerator::class);
-        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
-        $htmlFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
+        $htmlFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
@@ -720,7 +703,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -750,14 +733,13 @@ class DocumentRouteTest extends TestCase
         $order = $this->createOrder($customerID);
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
 
         $generator = $this->createMock(DocumentGenerator::class);
-        $pdfFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
-        $htmlFileRendererMock = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $pdfFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
+        $htmlFileRendererMock = static::createStub(AbstractDocumentTypeRenderer::class);
 
         $fileRenderersMock = new \ArrayIterator([
             PdfRenderer::FILE_EXTENSION => $pdfFileRendererMock,
@@ -774,7 +756,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock
         );
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         $request = new Request();

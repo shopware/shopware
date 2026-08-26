@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
 use Twig\Error\SyntaxError;
@@ -15,6 +16,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExtendsTokenParser::class)]
 class ExtendsTokenParserTest extends TestCase
 {
@@ -137,8 +139,8 @@ class ExtendsTokenParserTest extends TestCase
         static::assertSame(
             'sw_extends',
             (new ExtendsTokenParser(
-                $this->createMock(TemplateFinderInterface::class),
-                $this->createMock(TemplateScopeDetector::class),
+                static::createStub(TemplateFinderInterface::class),
+                static::createStub(TemplateScopeDetector::class),
             ))->getTag()
         );
     }

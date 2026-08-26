@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
@@ -52,6 +54,7 @@ class SearchKeywordUpdater implements ResetInterface
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $productRepository,
         private readonly ProductSearchKeywordAnalyzerInterface $analyzer,
+        private readonly ClockInterface $clock,
         private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
@@ -109,7 +112,7 @@ class SearchKeywordUpdater implements ResetInterface
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
 
@@ -125,6 +128,8 @@ class SearchKeywordUpdater implements ResetInterface
                 $existingProducts[$product->getId()] = $product;
             }
         }
+
+        $this->assignParentProducts($existingProducts, $configFields, $context);
 
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
@@ -229,11 +234,14 @@ class SearchKeywordUpdater implements ResetInterface
     {
         $definition = $this->productRepository->getDefinition();
 
-        // Filter for products that have translations in the given language
-        // if there are no translations, we copy the keywords of the parent language without fetching the product
+        // Filter for products that have translations anywhere in the language inheritance chain
+        // (current language, its parent and the system default). A sales channel language may
+        // inherit from a parent language that is not itself indexed (e.g. de-CH inheriting de-DE),
+        // in which case the carried-over keywords of the parent language are not available and the
+        // product must be fetched here so its inherited translation can be indexed.
         $filters = [
-            new EqualsFilter('translations.languageId', $context->getLanguageId()),
-            new EqualsFilter('parent.translations.languageId', $context->getLanguageId()),
+            new EqualsAnyFilter('translations.languageId', $context->getLanguageIdChain()),
+            new EqualsAnyFilter('parent.translations.languageId', $context->getLanguageIdChain()),
         ];
 
         foreach ($accessors as $accessor) {
@@ -250,6 +258,11 @@ class SearchKeywordUpdater implements ResetInterface
             $path = array_map(static fn (Field $field) => $field->getPropertyName(), $fields);
 
             $association = implode('.', $path);
+            if ($association === 'parent') {
+                // Product parent associations cannot be loaded inline and must be fetched separately.
+                continue;
+            }
+
             if ($criteria->hasAssociation($association)) {
                 continue;
             }
@@ -286,6 +299,61 @@ class SearchKeywordUpdater implements ResetInterface
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+    }
+
+    /**
+     * @param array<string, ProductEntity> $existingProducts
+     * @param array<int, ConfigField> $configFields
+     */
+    private function assignParentProducts(array $existingProducts, array $configFields, Context $context): void
+    {
+        if (!\in_array('parent.name', array_column($configFields, 'field'), true)) {
+            return;
+        }
+
+        /** @var array<string, list<ProductEntity>> $productsByParentId */
+        $productsByParentId = [];
+        foreach ($existingProducts as $product) {
+            $parentId = $product->getParentId();
+            if ($parentId === null) {
+                continue;
+            }
+
+            $productsByParentId[$parentId][] = $product;
+        }
+
+        $this->hydrateParentProducts($productsByParentId, $context);
+    }
+
+    /**
+     * @param array<string, list<ProductEntity>> $productsByParentId
+     */
+    private function hydrateParentProducts(array $productsByParentId, Context $context): void
+    {
+        if ($productsByParentId === []) {
+            return;
+        }
+
+        $criteria = new Criteria(array_keys($productsByParentId));
+        $criteria->setLimit(50);
+        $criteria->addFields(['name']);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+
+        while ($parentProducts = $iterator->fetch()) {
+            foreach ($parentProducts->getEntities() as $parent) {
+                $parentProduct = new ProductEntity();
+                $parentProduct->setId($parent->getId());
+                $parentProduct->setTranslated($parent->getTranslated());
+
+                $name = $parent->get('name');
+                $parentProduct->setName(\is_string($name) ? $name : null);
+
+                foreach ($productsByParentId[$parentProduct->getId()] ?? [] as $product) {
+                    $product->setParent($parentProduct);
+                }
+            }
+        }
     }
 
     /**

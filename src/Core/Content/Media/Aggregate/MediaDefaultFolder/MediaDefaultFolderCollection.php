@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MediaDefaultFolderEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class MediaDefaultFolderCollection extends EntityCollection

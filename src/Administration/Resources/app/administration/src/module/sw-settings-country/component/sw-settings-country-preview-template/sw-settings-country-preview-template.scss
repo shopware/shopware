@@ -1,5 +1,23 @@
 .sw-settings-country-preview-template {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    position: relative;
+    min-height: 96px;
+    padding: var(--scale-size-16);
+    color: var(--color-text-primary-default);
+    background: var(--color-background-secondary-default);
+    border: 1px solid var(--color-border-primary-default);
+    border-radius: var(--border-radius-xs);
+
+    &__content {
+        white-space: normal;
+    }
+
+    &__loader.sw-loader {
+        position: absolute;
+        top: var(--scale-size-12);
+        right: var(--scale-size-12);
+    }
+
+    &.is--loading &__content {
+        opacity: 0.6;
+    }
 }

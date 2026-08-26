@@ -5,12 +5,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Extension\CoreExtension;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class StringTemplateRendererTest extends TestCase
 {
     use KernelTestBehaviour;

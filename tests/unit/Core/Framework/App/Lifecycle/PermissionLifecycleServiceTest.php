@@ -5,20 +5,24 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionLifecycleService::class)]
 class PermissionLifecycleServiceTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private Privileges&MockObject $permissions;
 
@@ -26,9 +30,9 @@ class PermissionLifecycleServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->permissions = $this->createMock(Privileges::class);
-        $this->service = new PermissionLifecycleService($this->connection, $this->permissions);
+        $this->service = new PermissionLifecycleService($this->connection, $this->permissions, new NativeClock());
     }
 
     public function testUpdatePrivilegesAutoAcceptsIfFlagIsSpecified(): void

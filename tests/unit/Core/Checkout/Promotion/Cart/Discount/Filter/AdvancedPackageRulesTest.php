@@ -62,7 +62,7 @@ class AdvancedPackageRulesTest extends TestCase
         $filtered = $packageRules->filter(
             new DiscountLineItem('someLabel', new AbsolutePriceDefinition(0, new LineItemRule(identifiers: [$itemId1, $itemId3])), $payload, null),
             $packages,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $package = $packages->first();

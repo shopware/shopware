@@ -1,11 +1,9 @@
-@import "~scss/variables";
-
 .sw-product-media-form {
     height: 100%;
 
     .sw-product-media-form__previews {
         border-radius: var(--border-radius-xs);
-        border: var(--scale-size-1) solid var(--color-gray-300);
+        border: var(--scale-size-1) solid var(--color-border-secondary-default);
         padding: var(--scale-size-20);
         margin-top: var(--scale-size-20);
         height: auto;
@@ -42,7 +40,7 @@
         height: calc(var(--scale-size-160) + var(--scale-size-16));
         max-height: 100%;
         max-width: 100%;
-        color: var(--color-gray-300);
+        color: var(--color-text-secondary-default);
         overflow: hidden;
         margin-bottom: var(--scale-size-10);
 
@@ -58,7 +56,7 @@
         }
 
         &.is--placeholder {
-            border: var(--scale-size-2) dashed var(--color-gray-300);
+            border: var(--scale-size-2) dashed var(--color-border-secondary-default);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,19 +69,19 @@
 
     &.is--disabled {
         .mt-button {
-            background-color: var(--color-gray-100);
-            color: var(--color-gray-700);
+            background-color: var(--color-background-tertiary-default);
+            color: var(--color-text-primary-disabled);
         }
 
         .mt-button--ghost {
             background-color: transparent;
-            border-color: #7ec9ff;
-            color: var(--color-gray-800);
+            border-color: var(--color-border-brand-disabled);
+            color: var(--color-text-primary-disabled);
         }
 
         .mt-button--primary {
-            background: #7ec9ff;
-            color: var(--color-white);
+            background: var(--color-interaction-primary-disabled);
+            color: var(--color-static-white);
         }
 
         &::after {

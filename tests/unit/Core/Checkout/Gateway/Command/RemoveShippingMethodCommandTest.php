@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(RemoveShippingMethodCommand::class)]
 #[Package('checkout')]
+#[CoversClass(RemoveShippingMethodCommand::class)]
 class RemoveShippingMethodCommandTest extends TestCase
 {
     public function testCommand(): void

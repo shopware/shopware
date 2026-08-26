@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -14,17 +15,20 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductConfiguratorOrderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -80,6 +84,140 @@ class ProductConfiguratorOrderTest extends TestCase
     {
         $groupNames = $this->getOrder(['f', 'b', 'c', 'd', 'a', 'e'], ['f', 'e', 'd', 'c', 'b', 'a']);
         static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+    }
+
+    /**
+     * When a variant carries an option id that is missing from
+     * `product_configurator_setting`, the remaining configurator options must
+     * stay combinable for in-stock variants instead of being greyed out.
+     */
+    public function testVariantsRemainCombinableWhenOptionIsMissingFromConfiguratorSetting(): void
+    {
+        // The variants are on clearance (isCloseout). Make sure the storefront's
+        // "hide closeout products when out of stock" setting does not filter the
+        // in-stock variant out of the sales-channel result, so the test loads the
+        // data deterministically regardless of the environment default.
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
+
+        $productId = Uuid::randomHex();
+        $redSmallId = Uuid::randomHex();
+        $redMediumId = Uuid::randomHex();
+        $blueSmallId = Uuid::randomHex();
+        $blueMediumId = Uuid::randomHex();
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+
+        $redOptionId = Uuid::randomHex();
+        $blueOptionId = Uuid::randomHex();
+        $smallOptionId = Uuid::randomHex();
+        $mediumOptionId = Uuid::randomHex();
+
+        // Write the Blue property group option up front so the variants below
+        // can reference it without a product_configurator_setting row.
+        $propertyGroupOptionRepository = static::getContainer()->get('property_group_option.repository');
+        $propertyGroupOptionRepository->create([
+            [
+                'id' => $blueOptionId,
+                'name' => 'Blue',
+                'group' => [
+                    'id' => $colorGroupId,
+                    'name' => 'Color',
+                    'position' => 1,
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productData = [
+            [
+                'id' => $productId,
+                'name' => 'Test product',
+                'productNumber' => 'configurator-missing-setting-parent',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => $tax,
+                'stock' => 10,
+                'active' => true,
+                'isCloseout' => true,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
+                'configuratorSettings' => [
+                    $this->createConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
+                    // Blue is intentionally missing from the configurator settings.
+                    $this->createConfiguratorSetting($smallOptionId, 'Small', $sizeGroupId, 'Size', 2),
+                    $this->createConfiguratorSetting($mediumOptionId, 'Medium', $sizeGroupId, 'Size', 2),
+                ],
+                'visibilities' => [
+                    [
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
+            ],
+            [
+                'id' => $redSmallId,
+                'productNumber' => 'configurator-missing-setting-red-small',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $redOptionId], ['id' => $smallOptionId]],
+            ],
+            [
+                'id' => $redMediumId,
+                'productNumber' => 'configurator-missing-setting-red-medium',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $redOptionId], ['id' => $mediumOptionId]],
+            ],
+            [
+                'id' => $blueSmallId,
+                'productNumber' => 'configurator-missing-setting-blue-small',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $blueOptionId], ['id' => $smallOptionId]],
+            ],
+            [
+                'id' => $blueMediumId,
+                'productNumber' => 'configurator-missing-setting-blue-medium',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $blueOptionId], ['id' => $mediumOptionId]],
+            ],
+        ];
+
+        $this->repository->create($productData, Context::createDefaultContext());
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        // Load a Blue variant; Blue has no configurator setting row.
+        $salesChannelProduct = $this->salesChannelProductRepository
+            ->search(new Criteria([$blueSmallId]), $this->context)
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
+
+        $groups = $this->loader->load($salesChannelProduct, $this->context);
+
+        $sizeGroup = $groups->get($sizeGroupId);
+        static::assertInstanceOf(PropertyGroupEntity::class, $sizeGroup);
+        $sizeOptions = $sizeGroup->getOptions();
+        static::assertNotNull($sizeOptions);
+
+        $smallOption = $sizeOptions->get($smallOptionId);
+        static::assertNotNull($smallOption);
+        static::assertTrue(
+            $smallOption->getCombinable(),
+            'Small size must remain combinable on a variant whose color option is missing from product_configurator_setting.'
+        );
+
+        $mediumOption = $sizeOptions->get($mediumOptionId);
+        static::assertNotNull($mediumOption);
+        static::assertTrue(
+            $mediumOption->getCombinable(),
+            'Medium size must remain combinable on a variant whose color option is missing from product_configurator_setting.'
+        );
     }
 
     public function testGroupsWithoutAvailableOptionsAreRemoved(): void
@@ -140,7 +278,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = new Criteria([$variantId]);
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
 
@@ -239,6 +377,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
                 'stock' => 10,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
                 'configuratorSettings' => $configuratorSettings,
                 'variantListingConfig' => [
@@ -266,7 +405,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
         /** @var SalesChannelProductEntity $salesChannelProduct */
-        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->getEntities()->first();
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);

@@ -30,8 +30,8 @@ Module.register('sw-settings-payment', {
     title: 'sw-settings-payment.general.mainMenuItemGeneral',
     description: 'Payment section in the settings module',
     color: 'var(--color-icon-secondary-default)',
-    icon: 'solid-cog',
-    favicon: 'icon-module-settings.png',
+    icon: 'regular-cog',
+    favicon: 'icon-module-settings.svg',
     entity: 'payment_method',
 
     routes: {
@@ -48,7 +48,7 @@ Module.register('sw-settings-payment', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.payment.overview',
-                privilege: 'payment.viewer',
+                privilege: 'payment.editor',
             },
         },
         create: {

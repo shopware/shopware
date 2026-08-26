@@ -14,7 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * Whilst this adapter attempts to work around various locking issues, it is not foolproof, so if you encounter deadlock due to load, use the `\Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage` adapter instead.
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorageTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorStorageTest
  */
 #[Package('framework')]
 class MySQLInvalidatorStorage extends AbstractInvalidatorStorage

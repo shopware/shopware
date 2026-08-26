@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\DefaultPolicies;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -45,6 +46,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @phpstan-import-type DefaultPoliciesConfig from DefaultPolicies
  * @phpstan-import-type CacheAttributeType from CacheAttribute
  */
+#[Package('framework')]
 #[CoversClass(CacheResponseSubscriber::class)]
 #[CoversClass(HttpCacheCookieEvent::class)]
 class CacheResponseSubscriberTest extends TestCase
@@ -79,6 +81,11 @@ class CacheResponseSubscriberTest extends TestCase
 
     public function testHasEvents(): void
     {
+        $this->cartService->expects($this->never())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->never())
+            ->method('applyCacheHeaders');
+
         $expected = [
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
@@ -94,7 +101,7 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber = $this->getCacheResponseSubscriberWithCacheDisabled();
 
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -105,6 +112,11 @@ class CacheResponseSubscriberTest extends TestCase
 
         $event = $this->createResponseEvent($request, $response);
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->never())
+            ->method('applyCacheHeaders');
+
         $subscriber->setResponseCache($event);
 
         static::assertSame($expectedHeaders, $response->headers->all());
@@ -114,7 +126,7 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $subscriber = $this->getCacheResponseSubscriberWithCacheDisabled();
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
@@ -123,6 +135,11 @@ class CacheResponseSubscriberTest extends TestCase
         $response = new Response();
 
         $event = $this->createResponseEvent($request, $response);
+
+        $this->cartService->expects($this->never())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->never())
+            ->method('applyCacheHeaders');
 
         $subscriber->setResponseCache($event);
 
@@ -142,6 +159,11 @@ class CacheResponseSubscriberTest extends TestCase
 
         $event = $this->createResponseEvent($request, $response);
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->never())
+            ->method('applyCacheHeaders');
+
         $this->subscriber->setResponseCacheHeader($event);
 
         static::assertSame('1', $event->getResponse()->headers->get(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER));
@@ -158,6 +180,8 @@ class CacheResponseSubscriberTest extends TestCase
 
         $event = $this->createResponseEvent($request, $response);
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
@@ -175,6 +199,8 @@ class CacheResponseSubscriberTest extends TestCase
 
         $event = $this->createResponseEvent($request, $response);
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
@@ -190,13 +216,13 @@ class CacheResponseSubscriberTest extends TestCase
     public function testMaintenanceRequest(bool $active, array $whitelist, bool $shouldBeCached): void
     {
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, $active);
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, \json_encode($whitelist, \JSON_THROW_ON_ERROR));
         $request->server->set('REMOTE_ADDR', self::IP);
 
         static::assertSame(self::IP, $request->getClientIp());
@@ -212,6 +238,10 @@ class CacheResponseSubscriberTest extends TestCase
         $this->cartService->expects($this->exactly($count))
             ->method('getCart')
             ->willReturn($cart);
+
+        // context is present, so cache headers are always applied before the maintenance decision
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
 
         if ($shouldBeCached) {
             $this->cacheHeadersService->expects($this->once())
@@ -242,11 +272,18 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request();
         $request->query->set(SalesChannelContextService::CURRENCY_ID, $currencyId);
         $request->attributes->set('_route', 'frontend.checkout.configure');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
+
+        $this->cartService->expects($this->once())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash');
 
         $response = new Response();
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -274,12 +311,19 @@ class CacheResponseSubscriberTest extends TestCase
     public function testStatesGetDeletedOnEmptyState(): void
     {
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
+
+        $this->cartService->expects($this->once())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash');
 
         $response = new Response();
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -297,11 +341,13 @@ class CacheResponseSubscriberTest extends TestCase
         $request = new Request([], [], ['_route' => 'admin.dashboard.index']);
         $response = new Response();
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -318,11 +364,13 @@ class CacheResponseSubscriberTest extends TestCase
             $response = new Response();
         }
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -346,7 +394,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $maintenanceRequest = clone $salesChannelRequest;
         $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE, true);
-        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
+        $maintenanceRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST, \json_encode([self::IP, \JSON_THROW_ON_ERROR]));
         $maintenanceRequest->server->set('REMOTE_ADDR', self::IP);
 
         yield 'no sales channel context' => [new Request()];
@@ -359,18 +407,23 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $cart = new Cart('test');
         $cart->add(new LineItem('test', 'test', 'test', 1));
-        $this->cartService->method('getCart')->willReturn($cart);
+        $this->cartService->expects($this->once())->method('getCart')->willReturn($cart);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, new CacheAttribute(
             states: ['cart-filled'],
         ));
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
+
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash');
 
         $response = new Response();
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -388,15 +441,17 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $request->cookies->set(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE, 'cart-filled');
 
+        $this->cartService->expects($this->once())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->once())
             ->method('applyCacheHash');
 
         $response = new Response();
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -414,12 +469,19 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->setMethod($method);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
 
         if ($withHttpCache) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
         }
+
+        $this->cartService->expects($this->once())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHeaders');
+        $this->cacheHeadersService->expects($this->once())
+            ->method('applyCacheHash');
 
         $response = new Response();
         $this->subscriber->setResponseCache($this->createResponseEvent($request, $response));
@@ -465,7 +527,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // manually create instance with custom configured policy provider
         $subscriber = new CacheResponseSubscriber(
-            $this->createMock(CartService::class),
+            static::createStub(CartService::class),
             $subscriberConfig['defaultTtl'] ?? 100,
             true,
             new MaintenanceModeResolver($this->eventDispatcher),
@@ -490,11 +552,14 @@ class CacheResponseSubscriberTest extends TestCase
         // determine if storefront route
         $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
+        // the shared setUp double is unused here; the SUT is built with a local stub above
+        $this->cartService->expects($this->never())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->once())
             ->method('applyCacheHash');
 
         $subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -735,16 +800,18 @@ class CacheResponseSubscriberTest extends TestCase
     {
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->attributes->set('_route', 'store-api.test');
 
+        $this->cartService->expects($this->never())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->never())
             ->method('applyCacheHash');
 
         $response = new Response();
         $this->subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -758,6 +825,8 @@ class CacheResponseSubscriberTest extends TestCase
         // request without sales channel context should not apply headers
         $event = $this->createResponseEvent(new Request(), new Response());
 
+        $this->cartService->expects($this->once())
+            ->method('getCart');
         $this->cacheHeadersService->expects($this->once())
             ->method('applyCacheHeaders');
 
@@ -765,7 +834,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         // request with sales channel context should apply headers
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, self::createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $event = $this->createResponseEvent($request, new Response());
 
         $this->cacheHeadersService->expects($this->once())
@@ -779,6 +848,12 @@ class CacheResponseSubscriberTest extends TestCase
     #[DataProvider('cacheHashValidationProvider')]
     public function testCacheHashValidation(array $clientHash, ?string $serviceHash, bool $expectCacheable, bool $expectBypassHeader): void
     {
+        // the shared setUp doubles are unused here; the SUT is built with the local doubles below
+        $this->cartService->expects($this->never())
+            ->method('getCart');
+        $this->cacheHeadersService->expects($this->never())
+            ->method('applyCacheHeaders');
+
         $cacheHeadersService = $this->createMock(CacheHeadersService::class);
 
         $policyProvider = $this->createCachePolicyProvider(
@@ -793,7 +868,7 @@ class CacheResponseSubscriberTest extends TestCase
         );
 
         $subscriber = new CacheResponseSubscriber(
-            $this->createMock(CartService::class),
+            static::createStub(CartService::class),
             100,
             true,
             new MaintenanceModeResolver($this->eventDispatcher),
@@ -804,7 +879,7 @@ class CacheResponseSubscriberTest extends TestCase
         );
 
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
 
         if (isset($clientHash['header'])) {
@@ -815,7 +890,7 @@ class CacheResponseSubscriberTest extends TestCase
         }
 
         if ($serviceHash !== null) {
-            $eventMock = $this->createMock(HttpCacheCookieEvent::class);
+            $eventMock = static::createStub(HttpCacheCookieEvent::class);
             $eventMock->method('getHash')->willReturn($serviceHash);
 
             if ($serviceHash === HttpCacheCookieEvent::NOT_CACHEABLE) {
@@ -834,7 +909,7 @@ class CacheResponseSubscriberTest extends TestCase
 
         $response = new Response();
         $subscriber->setResponseCache(new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -927,7 +1002,7 @@ class CacheResponseSubscriberTest extends TestCase
     private function createResponseEvent(Request $request, Response $response): ResponseEvent
     {
         return new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -943,7 +1018,7 @@ class CacheResponseSubscriberTest extends TestCase
             new MaintenanceModeResolver($this->eventDispatcher),
             null,
             null,
-            $this->createMock(CacheHeadersService::class),
+            static::createStub(CacheHeadersService::class),
             $this->createCachePolicyProvider(),
         );
     }

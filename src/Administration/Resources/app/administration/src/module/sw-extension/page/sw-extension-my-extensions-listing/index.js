@@ -20,7 +20,6 @@ export default {
     data() {
         return {
             filterByActiveState: false,
-            sortingOption: 'updated-at',
             selectedNames: [],
             isBulkRunning: false,
             bulkProcessingNames: [],
@@ -124,6 +123,24 @@ export default {
                     term: newTerm,
                     page: 1,
                 });
+            },
+        },
+
+        sortingOption: {
+            get() {
+                const sorting = this.$route.query.sorting;
+
+                return [
+                    'updated-at',
+                    'name-asc',
+                    'name-desc',
+                ].includes(sorting)
+                    ? sorting
+                    : 'updated-at';
+            },
+
+            set(newSorting) {
+                this.updateRouteQuery({ sorting: newSorting });
             },
         },
 
@@ -270,6 +287,7 @@ export default {
             const limit = query.limit || this.$route.query.limit;
             const page = query.page || this.$route.query.page;
             const term = query.term || this.$route.query.term;
+            const sorting = query.sorting || this.$route.query.sorting;
 
             // Create new route
             const route = {
@@ -279,6 +297,7 @@ export default {
                     limit: limit || 25,
                     page: page || 1,
                     term: term || undefined,
+                    sorting: sorting || 'updated-at',
                 },
             };
 

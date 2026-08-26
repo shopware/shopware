@@ -1,14 +1,12 @@
 includes:
     - phpstan-baseline.php
+    # computes the analysed paths with node_modules subtrees pruned, see the file header
+    - phpstan-paths.php
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
     tmpDir: var/cache/phpstan
-    paths:
-        - src
-        - tests
-
     bootstrapFiles:
         - src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php # run `php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php` to create the container
     symfony:
@@ -36,6 +34,9 @@ parameters:
 
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+
+        # Danger rule test fixtures
+        - tests/unit/Core/DevOps/StaticAnalyze/Danger/Rules/_fixtures/*
 
     universalObjectCratesClasses:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
@@ -116,8 +117,9 @@ parameters:
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
-        - # Invalid trait usage
-            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+        - # Exception is thrown in trait
+            message: '#Expected domain exception class Shopware\\Core\\.*, got Shopware\\Core\\Framework\\FrameworkException#'
+            identifier: shopware.domainException
             paths:
                 - src/Core/Checkout/Cart/Error/Error.php
                 - src/Core/Content/ProductExport/Error/Error.php
@@ -217,8 +219,9 @@ parameters:
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
 
-        - # Bug in PHPStan. See https://github.com/phpstan/phpstan-phpunit/issues/286
-            message: '#Method Shopware\\Tests\\Integration\\Elasticsearch.*Test::test.*Search\(\) invoked with \d parameters, \d required#'
-            paths:
-                - tests/integration/Elasticsearch/Admin/AdminSearchControllerTest.php
-                - tests/integration/Elasticsearch/Product/ProductSearchQueryBuilderTest.php
+        - # @deprecated tag:v6.8.0 - Should be fixed, once the parent class changes
+            message: '#Parameter .* expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> given#'
+            identifier: argument.type
+        -
+            message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
+            identifier: return.type

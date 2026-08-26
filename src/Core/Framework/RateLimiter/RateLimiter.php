@@ -35,7 +35,9 @@ class RateLimiter
 
     final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
 
-    final public const MCP = 'mcp';
+    final public const MCP_ADMIN_API = 'mcp_admin_api';
+
+    final public const MCP_STORE_API = 'mcp_store_api';
 
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 

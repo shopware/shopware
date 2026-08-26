@@ -14,6 +14,7 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
+            "php-http/discovery": true,
             "symfony/runtime": true
         }
     },
@@ -38,12 +39,12 @@
         "league/oauth2-server": "^9.3",
         "pentatrion/vite-bundle": "^8.1",
         "phpseclib/phpseclib": "^3.0",
+        "psr/clock": "^1.0.0",
         "psr/http-message": "^1.1 || ^2.0",
         "shopware/core": "*",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.12",
         "symfony/cache-contracts": "~3.6.0",
-        "symfony/clock": "~7.4.0",
         "symfony/config": "~7.4.0",
         "symfony/console": "~7.4.0",
         "symfony/dependency-injection": "~7.4.0",

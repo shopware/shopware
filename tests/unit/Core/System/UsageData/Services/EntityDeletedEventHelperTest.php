@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Services\EntityDeleteEventHelper;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -30,6 +31,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('data-services')]
 #[CoversClass(EntityDeleteEventHelper::class)]
 class EntityDeletedEventHelperTest extends TestCase
 {
@@ -122,8 +124,8 @@ class EntityDeletedEventHelperTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             $this->entityDefinitions,
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $definition = new EntityWithSinglePrimaryKey();
@@ -150,7 +152,7 @@ class EntityDeletedEventHelperTest extends TestCase
                 'storage_aware_primary_key' => Uuid::fromHexToBytes($id),
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
     }
 }

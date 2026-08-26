@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
@@ -29,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeCompilerEventSubscriberTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -38,6 +40,8 @@ class ThemeCompilerEventSubscriberTest extends TestCase
     private Filesystem $filesystem;
 
     private Filesystem $tempFilesystem;
+
+    private Filesystem $assetFilesystem;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -49,12 +53,14 @@ class ThemeCompilerEventSubscriberTest extends TestCase
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->assetFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $this->themeCompiler = new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
+            $this->assetFilesystem,
             new CopyBatchInputFactory(),
             static::getContainer()->get(ThemeFileResolver::class),
             true,

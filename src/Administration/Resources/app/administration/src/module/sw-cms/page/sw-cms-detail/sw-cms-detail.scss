@@ -15,29 +15,28 @@
     }
 
     .sw-cms-detail__page-info {
-        display: flex;
-        gap: 20px;
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-columns: auto auto minmax(0, max-content);
+        justify-content: start;
+        gap: var(--scale-size-8);
         align-items: center;
-    }
 
-    .sw-cms-detail__back-btn {
-        padding-right: 20px;
-        height: 80px;
-        line-height: 80px;
-        border-right: 1px solid var(--color-border-primary-default);
-        color: var(--color-text-primary-default);
-
-        &:hover {
-            color: var(--color-text-brand-default);
-        }
-
-        .mt-icon {
-            padding: 3px;
+        // Divider between the close button and the title
+        &::before {
+            content: "";
+            grid-column: 2;
+            width: 1px;
+            height: 100%;
+            margin-inline-end: var(--scale-size-16);
+            background: var(--color-border-secondary-default);
         }
     }
 
     .sw-cms-detail__page-name {
         max-width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
         text-overflow: ellipsis;
     }
 
@@ -49,8 +48,8 @@
     }
 
     .sw-cms-detail__page-defaults {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xxs;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-2xs);
         line-height: 16px;
         color: var(--color-static-white);
         padding: 4px 8px;
@@ -61,7 +60,8 @@
     .sw-cms-detail__device-actions {
         display: grid;
         grid-template-columns: 24px 24px 24px 24px;
-        grid-column-gap: 20px;
+        grid-column-gap: var(--scale-size-16);
+        margin-inline: var(--scale-size-16);
         align-content: center;
         align-items: center;
         justify-content: start;
@@ -89,12 +89,11 @@
         }
     }
 
+    // Sizes to its content; the former fixed column only left a gap behind
     .sw-cms-detail__actions {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-column-gap: 8px;
-        align-content: center;
+        display: flex;
         align-items: center;
+        gap: var(--scale-size-8);
 
         .sw-field.sw-field--select {
             margin: 0;
@@ -104,7 +103,7 @@
                 padding: 8px 16px;
                 line-height: 22px;
                 height: 40px;
-                font-size: $font-size-xs;
+                font-size: var(--font-size-xs);
             }
         }
     }
@@ -164,7 +163,7 @@
 
             h2.sw-cms-detail__empty-stage-headline {
                 font-size: 32px;
-                font-weight: $font-weight-regular;
+                font-weight: var(--font-weight-regular);
                 margin-bottom: 5px;
             }
         }

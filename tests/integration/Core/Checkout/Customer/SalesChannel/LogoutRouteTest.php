@@ -209,7 +209,7 @@ class LogoutRouteTest extends TestCase
         $customerId = $this->createCustomer();
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria(), Context::createDefaultContext())
+            ->search(new Criteria(), Context::createDefaultContext())->getEntities()
             ->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $customer->setGuest(false);
@@ -247,7 +247,7 @@ class LogoutRouteTest extends TestCase
         $customerId = $this->createCustomer();
         $customer = static::getContainer()
             ->get('customer.repository')
-            ->search(new Criteria(), Context::createDefaultContext())
+            ->search(new Criteria(), Context::createDefaultContext())->getEntities()
             ->get($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         $customer->setGuest(true);

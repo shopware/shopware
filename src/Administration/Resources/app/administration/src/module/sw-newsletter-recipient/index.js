@@ -24,8 +24,8 @@ Module.register('sw-newsletter-recipient', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#FFD700',
-    icon: 'solid-megaphone',
-    favicon: 'icon-module-marketing.png',
+    icon: 'regular-megaphone',
+    favicon: 'icon-module-marketing.svg',
     entity: 'newsletter_recipient',
     entityDisplayProperty: 'email',
 

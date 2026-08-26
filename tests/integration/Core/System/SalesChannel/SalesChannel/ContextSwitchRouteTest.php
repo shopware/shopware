@@ -101,6 +101,16 @@ class ContextSwitchRouteTest extends TestCase
         );
     }
 
+    public function testUpdateContextWithNonLoggedInCustomerAndEmptyAddressIds(): void
+    {
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/context', [
+            'billingAddressId' => '',
+            'shippingAddressId' => '',
+        ]);
+
+        static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
+    }
+
     public function testInvalidParameters(): void
     {
         $this->getSalesChannelBrowser()->request(

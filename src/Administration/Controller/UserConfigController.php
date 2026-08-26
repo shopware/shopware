@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiException;
@@ -25,8 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 #[Package('fundamentals@framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [AdministrationRouteScope::ID]])]
 class UserConfigController extends AbstractController
 {
     /**
@@ -36,7 +37,8 @@ class UserConfigController extends AbstractController
      */
     public function __construct(
         private readonly EntityRepository $userConfigRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -118,7 +120,7 @@ class UserConfigController extends AbstractController
                 'user_id' => Uuid::fromHexToBytes($userId),
                 'key' => $key,
                 'id' => Uuid::randomBytes(),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
             if (\array_key_exists($key, $userConfigsGroupByKey)) {
                 $data['id'] = Uuid::fromHexToBytes($userConfigsGroupByKey[$key]);

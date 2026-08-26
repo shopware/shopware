@@ -1,10 +1,8 @@
-@import "~scss/variables";
-
 .sw-category-entry-point-modal {
     .sw-category-entry-point-modal__layout-headline,
     .sw-category-entry-point-modal__seo-headline {
-        font-size: $font-size-m;
-        font-weight: $font-weight-regular;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-regular);
     }
 
     .sw-category-entry-point-modal__base-layout {
@@ -24,12 +22,12 @@
         align-items: baseline;
 
         .sw-category-entry-point-modal__desc-headline {
-            font-weight: $font-weight-semi-bold;
-            font-size: $font-size-xs;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-xs);
         }
 
         .sw-category-entry-point-modal__desc-subheadline {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
         }
 
         .sw-category-entry-point-modal__desc-headline.is--empty,
@@ -54,7 +52,7 @@
             justify-content: flex-end;
             color: var(--color-text-brand-default);
             text-decoration: none;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
             margin-top: 8px;
 
             .mt-icon {

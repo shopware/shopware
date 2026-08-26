@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisComp
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -140,6 +141,51 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         static::assertSame([], $container->getParameter('shopware.mcp.tool_privileges'));
     }
 
+    public function testToolGroupsAreResolvedAndStored(): void
+    {
+        $container = $this->createContainer();
+
+        $explicit = new Definition(McpAnalysisTestExplicitGroupTool::class);
+        $explicit->addTag('mcp.tool');
+        $container->setDefinition('tool.explicit', $explicit);
+
+        $derived = new Definition(McpAnalysisTestCoreTool::class);
+        $derived->addTag('mcp.tool');
+        $container->setDefinition('tool.derived', $derived);
+
+        $methodLevel = new Definition(McpAnalysisTestMethodLevelGroupTool::class);
+        $methodLevel->addTag('mcp.tool');
+        $container->setDefinition('tool.method-level', $methodLevel);
+
+        $pass = new McpToolAnalysisCompilerPass();
+        $pass->process($container);
+
+        static::assertSame([
+            'shopware-analysis-explicit-group-tool' => 'catalogue',
+            'shopware-analysis-method-level-group-tool' => 'orders',
+        ], $container->getParameter('shopware.mcp.tool_groups'));
+    }
+
+    public function testToolWithMissingClassIsSkippedAndWarns(): void
+    {
+        $container = $this->createContainer();
+
+        $def = new Definition('App\\Does\\Not\\Exist\\Tool');
+        $def->addTag('mcp.tool');
+        $container->setDefinition('tool.missing', $def);
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame([], $container->getParameter('shopware.mcp.tool_groups'));
+
+        $warnings = array_values(array_filter(
+            $container->getCompiler()->getLog(),
+            static fn (string $message): bool => str_contains($message, 'tool.missing'),
+        ));
+        static::assertCount(1, $warnings);
+        static::assertStringContainsString('cannot be loaded', $warnings[0]);
+    }
+
     public function testSkipsWhenNoMcpServerBuilder(): void
     {
         $container = new ContainerBuilder();
@@ -162,6 +208,7 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         $container->register('mcp.server.builder');
         $container->setParameter('shopware.mcp.tool_dependencies', []);
         $container->setParameter('shopware.mcp.tool_privileges', []);
+        $container->setParameter('shopware.mcp.tool_groups', []);
 
         return $container;
     }
@@ -213,6 +260,32 @@ class McpAnalysisTestStaticPrivilegeTool extends McpToolResponse
 #[McpToolRequires(entityParam: 'entity', operations: ['update'])]
 class McpAnalysisTestDynamicPrivilegeTool extends McpToolResponse
 {
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'shopware-analysis-explicit-group-tool', description: 'tool with explicit group')]
+#[McpToolGroup('catalogue')]
+class McpAnalysisTestExplicitGroupTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+class McpAnalysisTestMethodLevelGroupTool extends McpToolResponse
+{
+    #[McpTool(name: 'shopware-analysis-method-level-group-tool', description: 'method-level group tool')]
+    #[McpToolGroup('orders')]
     public function __invoke(): string
     {
         return '';

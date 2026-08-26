@@ -3,16 +3,17 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest;
 
 /**
- * @codeCoverageIgnore tested via integration test,
+ * @codeCoverageIgnore
  *
- * @see IncrementSqlStorageTest
+ * @see \Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest
  */
 #[Package('framework')]
 class IncrementSqlStorage extends AbstractIncrementStorage
@@ -20,8 +21,10 @@ class IncrementSqlStorage extends AbstractIncrementStorage
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     public function reserve(array $config): int
@@ -37,7 +40,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'value' => $start,
                 'id' => Uuid::fromHexToBytes($config['id']),
                 'stateId' => $stateId,
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -95,8 +98,27 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'value' => $value,
                 'id' => Uuid::fromHexToBytes($configurationId),
                 'stateId' => $stateId,
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
+        );
+    }
+
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $stateId = Uuid::randomBytes();
+        $this->connection->executeStatement(
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
+                ON DUPLICATE KEY UPDATE
+                `last_value` = GREATEST(`last_value`, :value)',
+            [
+                'value' => $value,
+                'id' => Uuid::fromHexToBytes($configurationId),
+                'stateId' => $stateId,
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            [
+                'value' => ParameterType::INTEGER,
+            ],
         );
     }
 

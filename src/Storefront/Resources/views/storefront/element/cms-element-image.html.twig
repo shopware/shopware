@@ -35,7 +35,7 @@
                     {% block element_image_container %}
                         {% if element.data.media.url %}
                             <div class="w-100 cms-image-container is-{{ displayMode }}"
-                                {% if element.translated.config.minHeight.value and isCover %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
+                                {% if isCover %} style="min-height: {{ element.translated.config.minHeight.value ?: '340px' }};"{% endif %}>
                                 {% block element_image_media %}
                                     {% set attributes = {
                                         'class': 'cms-image',

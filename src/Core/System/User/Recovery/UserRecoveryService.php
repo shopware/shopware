@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -43,6 +44,7 @@ class UserRecoveryService
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly EntityRepository $salesChannelRepository,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -117,7 +119,7 @@ class UserRecoveryService
 
         $recovery = $this->getUserRecovery($criteria, $context);
 
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
+        $validDateTime = $this->clock->now()->sub(new \DateInterval('PT2H'));
 
         return $recovery && $validDateTime < $recovery->getCreatedAt();
     }
@@ -191,7 +193,7 @@ class UserRecoveryService
         $criteria->setLimit(1);
         $criteria->addFilter(new NotEqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON));
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$salesChannel instanceof SalesChannelEntity) {
             throw UserException::salesChannelNotFound();

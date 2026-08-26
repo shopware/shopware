@@ -42,8 +42,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
     final public const STATUS_NOT_SET = 'notSet';
@@ -117,16 +117,19 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             )
         );
 
-        $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+        $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
-    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
+    // Decorators that do not override this method inherit a signature without a default, and the
+    // route then fails with "Could not resolve argument $validateStorefrontUrl".
+    #[Route(
+        path: '/store-api/newsletter/subscribe',
+        name: 'store-api.newsletter.subscribe',
+        defaults: ['validateStorefrontUrl' => true],
+        methods: ['POST']
+    )]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
     {
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
@@ -165,7 +168,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $recipientId = $this->getNewsletterRecipientId($data['email'], $context);
 
         if ($recipientId !== null) {
-            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->first();
+            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->getEntities()->first();
             \assert($recipient instanceof NewsletterRecipientEntity);
 
             // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`
@@ -255,12 +258,12 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $definition->add('email', new NotBlank(), new Email())
             ->add('option', new NotBlank(), new Choice(choices: array_keys($this->getOptionSelection($context, $dataBag->get('email')))));
 
-        if (!empty($dataBag->get('firstName'))) {
-            $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
+        if ($dataBag->get('firstName') !== null && $dataBag->get('firstName') !== '') {
+            $definition->add('firstName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, message: 'error.urlNotAllowed', match: false));
         }
 
-        if (!empty($dataBag->get('lastName'))) {
-            $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, match: false));
+        if ($dataBag->get('lastName') !== null && $dataBag->get('lastName') !== '') {
+            $definition->add('lastName', new NotBlank(), new Regex(pattern: self::DOMAIN_NAME_REGEX, message: 'error.urlNotAllowed', match: false));
         }
 
         if ($validateStorefrontUrl) {

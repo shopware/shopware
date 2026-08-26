@@ -33,15 +33,15 @@ describe('src/app/service/file-helper.service.ts', () => {
 
         it('should be able to extend valid types with new type', () => {
             expect(
-                checkByExtension({ ...fileMock, type: 'test/test', name: 'test.test' }, fileAcceptString, null, {
+                checkByExtension({ ...fileMock, type: 'test/test', name: 'test.test' }, 'test', {
                     'test/test': ['test'],
                 }),
-            ).toBe(false);
+            ).toBe(true);
         });
 
         it('should be able to extend valid types with new extension', () => {
             expect(
-                checkByExtension({ ...fileMock, type: 'application/pdf', name: 'test.pdf' }, fileAcceptString, null, {
+                checkByExtension({ ...fileMock, type: 'application/pdf', name: 'test.test' }, 'test', {
                     'application/pdf': [
                         'pdf',
                         'test',
@@ -62,6 +62,43 @@ describe('src/app/service/file-helper.service.ts', () => {
 
         it('should return false when filename is empty', () => {
             expect(checkByExtension({ ...fileMock, name: '' }, fileAcceptString)).toBe(false);
+        });
+
+        it('should return true for backend allowed extension and mime type', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: 'book.epub', type: 'application/epub+zip' }, 'epub', null, {
+                    epub: ['application/epub+zip'],
+                }),
+            ).toBe(true);
+        });
+
+        it('should return false when backend metadata knows the mime type for another extension', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: 'book.epub', type: 'application/pdf' }, 'pdf, epub', null, {
+                    pdf: ['application/pdf'],
+                    epub: ['application/epub+zip'],
+                }),
+            ).toBe(false);
+        });
+
+        it('should return true when backend metadata does not know the browser mime type', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: 'book.epub', type: 'application/x-unknown' }, 'epub', null, {
+                    epub: ['application/epub+zip'],
+                }),
+            ).toBe(true);
+        });
+
+        it('should return true when backend metadata exists and the browser mime type is empty', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: 'book.epub', type: '' }, 'epub', null, {
+                    epub: ['application/epub+zip'],
+                }),
+            ).toBe(true);
+        });
+
+        it('should use legacy fallback when no backend metadata is passed', () => {
+            expect(checkByExtension({ ...fileMock, name: 'book.epub', type: 'application/epub+zip' }, 'epub')).toBe(false);
         });
     });
 

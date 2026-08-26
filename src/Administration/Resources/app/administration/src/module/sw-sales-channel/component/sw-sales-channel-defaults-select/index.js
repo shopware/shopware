@@ -6,6 +6,7 @@ import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 
 const { Mixin } = Shopware;
+const { EntityCollection } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -126,7 +127,7 @@ export default {
         },
 
         singleSelectClass() {
-            return `sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
+            return `sw-sales-channel-detail__assign sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
         },
 
         defaultsValueError() {
@@ -216,7 +217,10 @@ export default {
             this.defaultId = defaultId;
 
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
-                this.propertyCollection = this.propertyCollection.concat([defaultEntity]);
+                const updatedCollection = EntityCollection.fromCollection(this.propertyCollection);
+                updatedCollection.add(defaultEntity);
+
+                this.propertyCollection = updatedCollection;
             }
         },
 

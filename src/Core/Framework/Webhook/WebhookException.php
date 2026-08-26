@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,9 +49,7 @@ class WebhookException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidDataMapping(string $propertyName, string $className): self|\RuntimeException
     {
         return new self(
@@ -61,9 +60,7 @@ class WebhookException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unknownEventDataType(string $type): self|\RuntimeException
     {
         return new self(

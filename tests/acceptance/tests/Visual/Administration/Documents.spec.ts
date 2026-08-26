@@ -16,16 +16,13 @@ test(
         let invoiceDocumentId: string;
 
         const product = {
-            ...await TestDataService.createBasicProduct(),
+            ...(await TestDataService.createBasicProduct()),
             productNumber: 'TEST-PRODUCT',
             name: 'Test Product',
         };
 
         await test.step('should match expected appearance for each document type', async ({}) => {
-            const order = await TestDataService.createOrder(
-                [{ product, quantity: 1 }],
-                DefaultSalesChannel.customer,
-            );
+            const order = await TestDataService.createOrder([{ product, quantity: 1 }], DefaultSalesChannel.customer);
 
             const documents: DocumentTypes[] = [
                 'invoice',
@@ -80,7 +77,7 @@ test(
             }));
 
             const order = await TestDataService.createOrder(
-                productsForOrder.map(product => ({ product, quantity: 1 })),
+                productsForOrder.map((product) => ({ product, quantity: 1 })),
                 DefaultSalesChannel.customer,
             );
 

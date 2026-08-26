@@ -1,20 +1,15 @@
 @import "~scss/variables";
 
 $sw-tooltip-z-index: $z-index-tooltip;
-$sw-tooltip-color-background: var(--color-elevation-surface-floating);
-$sw-tooltip-color: var(--color-text-inverse-default);
-$sw-tooltip-border-radius: var(--border-radius-overlay);
-$sw-tooltip-color-light: $color-darkgray-200;
-$sw-tooltip-border-color-light: $color-gray-300;
 
 .sw-tooltip {
     position: absolute;
     z-index: $sw-tooltip-z-index;
 
     &.sw-tooltip--dark {
-        background-color: var(--color-elevation-surface-floating);
+        background-color: var(--color-elevation-floating-default);
         border-radius: var(--border-radius-xs);
-        color: var(--color-text-inverse-default);
+        color: var(--color-text-primary-inverse);
         padding: var(--scale-size-12);
         font-size: var(--font-size-2xs);
         word-wrap: break-word;
@@ -25,7 +20,7 @@ $sw-tooltip-border-color-light: $color-gray-300;
             height: 8px;
             width: 8px;
             transform: rotate(45deg);
-            background: $sw-tooltip-color-background;
+            background: var(--color-elevation-floating-default);
         }
 
         &.sw-tooltip--top::before {
@@ -55,14 +50,14 @@ $sw-tooltip-border-color-light: $color-gray-300;
 
     &.sw-tooltip--light {
         pointer-events: none;
-        color: var(--color-text-inverse-default);
+        color: var(--color-text-primary-inverse);
         font-size: var(--font-size-2xs);
         font-weight: var(--font-weight-regular);
         line-height: var(--font-line-height-2xs);
         width: auto !important;
         height: auto !important;
         padding: 5px 10px;
-        background: var(--color-elevation-surface-floating);
+        background: var(--color-elevation-floating-default);
         box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
         border-radius: var(--border-radius-xs);
 

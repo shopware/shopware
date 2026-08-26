@@ -7,13 +7,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  */
-#[McpResource(uri: 'shopware://state-machines', name: 'shopware-state-machines', description: 'All state machines with their states and transitions. Use this to understand valid actions for shopware-order-state.')]
 #[Package('framework')]
+#[McpResource(
+    uri: 'shopware://state-machines',
+    name: 'shopware-state-machines',
+    description: 'All state machines with their states and transitions. Use this to understand valid actions for shopware-order-state.'
+)]
 class StateMachineResource
 {
     /**
@@ -68,7 +73,7 @@ class StateMachineResource
         return [
             'uri' => 'shopware://state-machines',
             'mimeType' => 'application/json',
-            'text' => json_encode($machines, \JSON_THROW_ON_ERROR),
+            'text' => Json::encode($machines),
         ];
     }
 }

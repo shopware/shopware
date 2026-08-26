@@ -42,6 +42,7 @@ abstract class AbstractFilter
                             'author' => '',
                             'id' => null,
                             'setId' => $setId,
+                            'hasFileValue' => false,
                         ];
 
                         continue;

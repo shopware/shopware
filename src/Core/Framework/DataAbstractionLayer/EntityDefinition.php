@@ -66,6 +66,19 @@ abstract class EntityDefinition
      */
     public function __construct()
     {
+        // When a child calls parent::__construct(), the next stack frame is that child's constructor.
+        // An inherited constructor has its instantiation site as the caller instead, so it remains compatible with the removal.
+        $caller = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1] ?? [];
+        $callerClass = $caller['class'] ?? null;
+
+        if (($caller['function'] ?? null) !== '__construct' || !\is_string($callerClass) || !\is_subclass_of($callerClass, self::class)) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
     }
 
     /**
@@ -432,6 +445,11 @@ abstract class EntityDefinition
     public function getExtensionFields(): array
     {
         return $this->getFields()->getExtensionFields();
+    }
+
+    public function getRestrictDeleteMetaFields(): FieldCollection
+    {
+        return new FieldCollection([]);
     }
 
     protected function getParentDefinitionClass(): ?string

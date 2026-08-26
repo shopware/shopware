@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  * @group disabledCompat
@@ -58,16 +60,15 @@
  *
  * 2.  Mount a Vue component whose template contains a migrated native block:
  *
- *         <sw-block name="block_name" :data="$dataScope()">
+ *         <sw-block name="block_name" :data="$dataScope">
  *             <div class="default-content">…</div>
  *         </sw-block>
  *
  *     Resolve components via `wrapTestComponent('sw-block', { sync: true })` and
  *     `wrapTestComponent('sw-block-parent', { sync: true })`.
- *     Provide `$dataScope` via `global.mocks` using the `getBlockDataScope` helper
- *     (imported from `../sw-block/get-block-data-scope`), exactly as
- *     `sw-block.spec.js` does. This ensures the host component's reactive proxy is
- *     exposed to the shim slot under the same conditions as production.
+ *     Provide `$dataScope` through the shared `createDataScopeFixture`. This ensures the
+ *     host component's reactive proxy is exposed to the shim slot under the same conditions
+ *     as production.
  *
  * 3.  Assert on the rendered DOM with `wrapper.find(...)`.
  *
@@ -121,7 +122,7 @@
 import { mount } from '@vue/test-utils';
 import { resetBlockIndex } from 'src/core/factory/twig-block-index';
 import '../../../../store/block-override.store';
-import getBlockDataScope from '../sw-block/get-block-data-scope';
+import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 import { resetShimSlotState } from './create-shim-slot';
 
 /**
@@ -151,7 +152,7 @@ async function createWrapper({
             template: `
                 <div>
                     <div v-if="renderHost" class="component-root">
-                        <sw-block name="${blockName}" :data="$dataScope()">
+                        <sw-block name="${blockName}" :data="$dataScope">
                             ${defaultContent}
                         </sw-block>
                     </div>
@@ -168,9 +169,7 @@ async function createWrapper({
         },
         {
             global: {
-                mocks: {
-                    $dataScope: getBlockDataScope,
-                },
+                plugins: [createDataScopeFixture()],
                 components: {
                     'sw-block': swBlock,
                     'sw-block-parent': swBlockParent,
@@ -198,7 +197,7 @@ async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
                         .map(
                             ({ rootClass, blockName, defaultContent }) => `
                                 <div class="${rootClass}">
-                                    <sw-block name="${blockName}" :data="$dataScope()">
+                                    <sw-block name="${blockName}" :data="$dataScope">
                                         ${defaultContent}
                                     </sw-block>
                                 </div>
@@ -210,9 +209,7 @@ async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
         },
         {
             global: {
-                mocks: {
-                    $dataScope: getBlockDataScope,
-                },
+                plugins: [createDataScopeFixture()],
                 components: {
                     'sw-block': swBlock,
                     'sw-block-parent': swBlockParent,
@@ -418,12 +415,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="root-a">
-                                <sw-block name="shim_multi_diff_block_a" :data="$dataScope()">
+                                <sw-block name="shim_multi_diff_block_a" :data="$dataScope">
                                     <div class="default-a"></div>
                                 </sw-block>
                             </div>
                             <div class="root-b">
-                                <sw-block name="shim_multi_diff_block_b" :data="$dataScope()">
+                                <sw-block name="shim_multi_diff_block_b" :data="$dataScope">
                                     <div class="default-b"></div>
                                 </sw-block>
                             </div>
@@ -432,7 +429,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        mocks: { $dataScope: getBlockDataScope },
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -973,14 +970,14 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 {
                     template: `
                         <div>
-                            <sw-block name="shim_warn_separate_a" :data="$dataScope()"></sw-block>
-                            <sw-block name="shim_warn_separate_b" :data="$dataScope()"></sw-block>
+                            <sw-block name="shim_warn_separate_a" :data="$dataScope"></sw-block>
+                            <sw-block name="shim_warn_separate_b" :data="$dataScope"></sw-block>
                         </div>
                     `,
                 },
                 {
                     global: {
-                        mocks: { $dataScope: getBlockDataScope },
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1367,13 +1364,13 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 {
                     template: `
                         <div class="component-root">
-                            <sw-block name="shim_global_component_ref" :data="$dataScope()"></sw-block>
+                            <sw-block name="shim_global_component_ref" :data="$dataScope"></sw-block>
                         </div>
                     `,
                 },
                 {
                     global: {
-                        mocks: { $dataScope: getBlockDataScope },
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1483,12 +1480,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="root-a">
-                                <sw-block name="shim_edge_multi_top_a" :data="$dataScope()">
+                                <sw-block name="shim_edge_multi_top_a" :data="$dataScope">
                                     <div class="default-a"></div>
                                 </sw-block>
                             </div>
                             <div class="root-b">
-                                <sw-block name="shim_edge_multi_top_b" :data="$dataScope()">
+                                <sw-block name="shim_edge_multi_top_b" :data="$dataScope">
                                     <div class="default-b"></div>
                                 </sw-block>
                             </div>
@@ -1497,7 +1494,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        mocks: { $dataScope: getBlockDataScope },
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1538,12 +1535,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="instance-a">
-                                <sw-block name="shim_multi_instance_isolation" :data="$dataScope()">
+                                <sw-block name="shim_multi_instance_isolation" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
                             <div class="instance-b">
-                                <sw-block name="shim_multi_instance_isolation" :data="$dataScope()">
+                                <sw-block name="shim_multi_instance_isolation" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
@@ -1552,7 +1549,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        mocks: { $dataScope: getBlockDataScope },
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,
@@ -1586,12 +1583,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="instance-a">
-                                <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope()">
+                                <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
                             <div class="instance-b">
-                                <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope()">
+                                <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
@@ -1600,7 +1597,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 },
                 {
                     global: {
-                        mocks: { $dataScope: getBlockDataScope },
+                        plugins: [createDataScopeFixture()],
                         components: {
                             'sw-block': swBlock,
                             'sw-block-parent': swBlockParent,

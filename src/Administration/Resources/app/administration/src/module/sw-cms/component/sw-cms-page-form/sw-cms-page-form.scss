@@ -37,7 +37,7 @@
 
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         &:last-child {
             margin-bottom: 0;
@@ -128,7 +128,7 @@
 
     &__section-action-label {
         color: var(--color-text-primary-default);
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         line-height: 22px;
         width: 190px;
         word-wrap: break-word;
@@ -155,7 +155,7 @@
     &__section-type-icon {
         margin-right: 10px;
         color: var(--color-text-secondary-default);
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__section-divider {

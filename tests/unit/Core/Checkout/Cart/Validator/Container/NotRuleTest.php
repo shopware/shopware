@@ -14,8 +14,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(NotRule::class)]
-#[Package('checkout')]
 class NotRuleTest extends TestCase
 {
     public function testTrue(): void
@@ -27,7 +27,7 @@ class NotRuleTest extends TestCase
         static::assertTrue(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );
@@ -52,7 +52,7 @@ class NotRuleTest extends TestCase
         static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );

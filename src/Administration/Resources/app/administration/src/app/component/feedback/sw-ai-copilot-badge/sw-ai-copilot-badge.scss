@@ -15,8 +15,8 @@
 
     .sw-ai-copilot-badge__label {
         color: var(--color-text-brand-default);
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
-        line-height: $line-height-sm;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--font-line-height-s);
     }
 }

@@ -42,25 +42,25 @@ Used inside an override block to render the content from the previous block in t
 
 ### Defining an extension point
 
-In a component template (SFC or `.html.twig`):
+In a component template:
 
 ```html
-<sw-block name="sw_product_detail_summary" :data="$dataScope">
+<sw-block name="sw_product_detail_summary">
     <p>Default summary content</p>
 </sw-block>
 ```
 
 - `name` — unique identifier for this block, scoped globally across the app. Block names follow the same convention as TwigJS blocks: `sw_` prefix + snake_case (e.g., `sw_product_detail_summary`).
-- `:data="$dataScope"` — passes the component's entire data/computed/methods scope to any override that wants it (more on this below)
+- The block's data scope is wired by the Shopware setup transform; `name` (or `extends`) is the only binding an author writes on `<sw-block>`.
 
 ### Complete end-to-end example
 
 The following shows both sides together: the base component that declares the block and a plugin component that overrides it.
 
 ```html
-<!-- ── Base component: sw-product-detail.html.twig ── -->
+<!-- ── Base component: sw-product-detail.vue ── -->
 <div class="sw-product-detail">
-    <sw-block name="sw_product_detail_summary" :data="$dataScope">
+    <sw-block name="sw_product_detail_summary">
         <p>Default summary content</p>
     </sw-block>
 </div>
@@ -161,35 +161,31 @@ When there are multiple overrides and none uses `<sw-block-parent />`, only the 
 
 ---
 
-## Accessing the Component's Data Scope
+## Accessing State Around a Block
 
-Override blocks are rendered outside the component they extend, so they normally have no access to its reactive data. The `data` prop and the slot's default scope solve this.
+Override blocks are rendered outside the component they extend, so they have no implicit access to its reactive state. State flows through the Shopware setup transform instead:
 
-### Passing data
+- The owning component's data scope is wired to every named `<sw-block>` by the transform, which is how `<sw-block-parent />` content keeps rendering with the base component's state.
+- Inside `<sw-block extends>` content, an override references its **own setup bindings** directly — the transform detects the references and exposes them to the block content. Public base state is read through `useSwPreviousState()`:
 
-The component that owns the block passes itself down via `:data="$dataScope"`:
-
-```html
-<!-- In the component being extended -->
-<sw-block name="sw_product_price_display" :data="$dataScope">
-    <span>{{ product.price }}</span>
-</sw-block>
-```
-
-`$dataScope` is a helper that returns the current component's proxy (`getCurrentInstance()?.proxy`), which exposes all `data`, `computed`, and `methods`.
-
-### Consuming data in an override
-
-The override block receives the scope as its default slot argument:
-
-```html
-<sw-block extends="sw_product_price_display" #default="{ product, formatPrice }">
+```vue
+<template>
+<sw-block extends="sw_product_price_display">
     <sw-block-parent />
-    <span class="custom-price">{{ formatPrice(product.price) }}</span>
+    <span class="custom-price">{{ customPrice }}</span>
 </sw-block>
+</template>
+<script setup>
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const customPrice = computed(() => `${previousState.price.value} €`);
+
+swDefineOverride({});
+</script>
 ```
 
-This is standard Vue scoped slot syntax — `#default="{ ... }"` destructures whatever the `data` prop provided.
+See [`07-native-setup-authoring.md`](./07-native-setup-authoring.md) for the authoring rules.
 
 ---
 
@@ -199,13 +195,13 @@ Blocks can be nested freely. Each block is independently overrideable:
 
 ```html
 <!-- Component template -->
-<sw-block name="sw_product_tabs" :data="$dataScope">
+<sw-block name="sw_product_tabs">
     <div class="tabs">
-        <sw-block name="sw_product_tab_basic" :data="$dataScope">
+        <sw-block name="sw_product_tab_basic">
             <span>Basic Info</span>
         </sw-block>
 
-        <sw-block name="sw_product_tab_advanced" :data="$dataScope">
+        <sw-block name="sw_product_tab_advanced">
             <span>Advanced</span>
         </sw-block>
     </div>
@@ -214,11 +210,11 @@ Blocks can be nested freely. Each block is independently overrideable:
 <!-- Plugin: add a new tab without touching the outer block -->
 <sw-block extends="sw_product_tabs">
     <sw-block-parent />
-    <sw-block name="sw_product_tab_custom" :data="$dataScope">
-        <span>Custom Tab</span>
-    </sw-block>
+    <span>Custom Tab</span>
 </sw-block>
 ```
+
+New named blocks are declared by the base components that own them; override files use `extends` to contribute into existing blocks.
 
 ---
 
@@ -264,85 +260,62 @@ The registry maps a block name to an ordered array of Vue `Slot` functions. Ever
 
 ### `sw-block` render logic
 
-```59:114:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
-export default Shopware.Component.wrapComponentConfig({
-    props: {
-        name: {
-            type: String,
-        },
-        extends: {
-            type: String,
-        },
-        data: {
-            type: Object as PropType<ComponentInternalInstance['proxy']>,
-            default: null,
-        },
-    },
-    setup(props, { slots }) {
-        const { addBlock, removeBlock, getBlocks } = useBlockContext();
-        if (props.extends) {
-            addBlock(props.extends, slots.default);
-
-            onBeforeUnmount(() => {
-                if (props.extends) {
-                    removeBlock(props.extends, slots.default);
-                }
-            });
-
-            return { template: null };
-        }
-
-        const providedParents = ref<ReturnType<Slot>[]>([]);
-        provide(parentsInjectionKey, providedParents);
-
+```147:171:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
         const template = computed(() => {
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }
 
-            const blocks = getBlocks(props.name);
+            // shimSlots come before nativeBlocks so that Twig plugin overrides (registered
+            // at boot time) are positioned below native <sw-block extends> overrides
+            // (registered at mount time), matching the expected stacking order:
+            //   default → shim (legacy plugin) → native (newer plugin or core extension)
+            const nativeBlocks = getBlocks(props.name);
             const blocksAndParent = [
                 slots.default ?? (() => []),
-                ...blocks,
+                ...shimSlots,
+                ...nativeBlocks,
             ];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
             const lastNode = blocksNodes.pop();
-            // Reset the list on every render so unconsumed entries from the previous cycle
-            // are released and each sw-block-parent pops the correct slot.
+            // Each <sw-block-parent /> calls .pop() exactly once in its own setup()
+            // to claim its parent slot. The array must be reset to the current render's
+            // ordered list so that each parent instance pops the correct slot — not a
+            // stale or accumulated list from a previous render cycle.
             providedParents.value = blocksNodes;
             return lastNode;
         });
-
-        return {
-            template,
-        };
-    },
-    render() {
-        return this.template;
-    },
-});
 ```
+
+`shimSlots` is built once in `setup()` from the legacy TwigJS overrides for this block name (via `getBlockEntries`), giving each shim a stable VNode type so reactive updates don't remount it.
 
 The key steps when rendering a **named block** (`name` prop):
 
-1. Retrieve all registered override slots from `getBlocks(name)`
-2. Build an array: `[defaultSlot, ...overrideSlots]`
-3. Call each slot function with the `data` prop (making scope available)
-4. **Pop the last element** — that is what actually gets rendered
-5. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
+1. Build the ordered slot array `[defaultSlot, ...shimSlots, ...nativeBlocks]` — the default content, then legacy Twig-plugin overrides (shim slots), then native `<sw-block extends>` overrides from `getBlocks(name)`
+2. Call each slot function with the `data` prop (making scope available)
+3. **Pop the last element** — that is what actually gets rendered
+4. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
 
 This is why the last registered override wins when no `<sw-block-parent />` is used.
 
 ### `sw-block-parent` render logic
 
-```1:26:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
-import { h, inject } from 'vue';
-import parentsInjectionKey from '../sw-block/parents-injection-key';
-
+```15:37:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
 export default Shopware.Component.wrapComponentConfig({
     setup() {
-        const parent = inject(parentsInjectionKey, null)?.value.pop();
+        const parents = inject(parentsInjectionKey, null);
+        const initialParents = parents?.value;
+        const initialParent = initialParents?.pop();
+        const parentIndex = initialParents ? initialParents.length : -1;
+        // Reserve the stack slot once, then read the current VNode at that slot after reactive parent updates.
+        const parent = computed(() => {
+            if (parentIndex < 0 || !parents || parents.value === initialParents) {
+                return initialParent;
+            }
+
+            return parents.value[parentIndex];
+        });
 
         return {
             parent,
@@ -354,34 +327,34 @@ export default Shopware.Component.wrapComponentConfig({
 });
 ```
 
-`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key), and **pops** the last element from it — which is the pre-rendered VNode array of the previous block in the chain. It then renders that as its output.
+`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key) and **pops** its last element **once** during `setup()`, claiming the previous block in the chain. It remembers that slot index and reads it through a `computed`, so when `sw-block` re-renders and replaces `providedParents.value`, the parent re-reads the current VNode at its reserved slot instead of popping again. It renders that as its output.
 
 ### Data flow diagram
 
 ```
-Component with <sw-block name="foo" :data="$dataScope">
+Component with <sw-block name="foo"> (data scope wired by the setup transform)
 │
 │  Mount
 │
-│  useBlockContext.getBlocks("foo")
-│  → [defaultSlot, overrideSlot1, overrideSlot2]
+│  Compose [defaultSlot, ...shimSlots, ...getBlocks("foo")]
+│  → [defaultSlot, shimSlot, nativeSlot]   (one legacy shim, one native override)
 │
 │  Call each slot with $dataScope
-│  → [defaultVNodes, override1VNodes, override2VNodes]
+│  → [defaultVNodes, shimVNodes, nativeVNodes]
 │
-│  provide(parentsInjectionKey, [defaultVNodes, override1VNodes])
-│  render → override2VNodes   ← last one wins
+│  providedParents.value = [defaultVNodes, shimVNodes]
+│  render → nativeVNodes   ← last one wins
 │
-│       ↓ inside override2VNodes template ↓
-│
-│  <sw-block-parent />
-│  inject(parentsInjectionKey).pop()
-│  → override1VNodes   ← previous in chain
-│
-│       ↓ inside override1VNodes template ↓
+│       ↓ inside nativeVNodes template ↓
 │
 │  <sw-block-parent />
-│  inject(parentsInjectionKey).pop()
+│  setup() reserves slot 1, computed reads providedParents.value[1]
+│  → shimVNodes   ← previous in chain
+│
+│       ↓ inside shimVNodes template ↓
+│
+│  <sw-block-parent />
+│  setup() reserves slot 0, computed reads providedParents.value[0]
 │  → defaultVNodes
 ```
 
@@ -403,10 +376,10 @@ This is verified in the test suite — toggling `v-if` on an override component 
 
 | Aspect | TwigJS `{% block %}` | Native `<sw-block>` |
 |--------|----------------------|---------------------|
-| Template file | `.html.twig` | Any template (SFC, `.html.twig`) |
+| Template file | `.html.twig` | Vue SFC `<template>` |
 | Resolution time | Build-time string merge | Vue reactive runtime |
 | Parent content | `{% parent %}` | `<sw-block-parent />` |
-| Data access | Via `$super`, `this` in JS | Scoped slot `#default="{ ... }"` |
+| Data access | Via `$super`, `this` in JS | Setup bindings (`useSwPreviousState()`, generated block scope) |
 | TypeScript support | None inside templates | Full (slot typing, props) |
 | Performance | Runtime TwigJS compilation | Standard Vue rendering |
 | Debugging | Difficult (string merging) | Standard Vue devtools |
@@ -450,6 +423,18 @@ From the ADR (`2024-09-26-native-block-system.md`):
     <div>My content</div>
 </sw-block>
 ```
+
+**`v-if` / `v-else` directly on `<sw-block-parent />`** — prohibited. `<sw-block-parent />` must not be part of a Vue conditional chain. It must always render unconditionally inside an extending block, otherwise local `v-else` branches can break the parent chain resolution:
+
+```html
+<!-- ❌ Conditional sw-block-parent breaks the parent chain -->
+<sw-block extends="sw_product_detail_summary">
+    <sw-block-parent v-if="showParent" />
+    <div v-else>Local fallback</div>
+</sw-block>
+```
+
+**Override-local state needs a native-setup host** — an override's `<sw-block extends>` content can read the override's own setup bindings (the transform forwards them through the block's generated data scope). That forwarding only works when the component actually rendering the block is itself a native-setup (Composition API) component. If the block is rendered by an Options API component, the block data scope has no override-local (`__swOverride`) channel, so override-local bindings are not available there. Read shared base state through `useSwPreviousState()` instead, which does not depend on this channel.
 
 **`<sw-block extends>` inside `v-for`** — prohibited. Each iteration independently calls `addBlock()`, registering a separate override entry per list item and causing the override content to be rendered multiple times:
 

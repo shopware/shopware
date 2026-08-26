@@ -8,21 +8,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
+use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BundleConfigGenerator::class)]
 class BundleConfigGeneratorTest extends TestCase
 {
@@ -37,8 +37,9 @@ class BundleConfigGeneratorTest extends TestCase
     {
         $this->expectExceptionObject(PluginException::invalidContainerParameter('kernel.project_dir', 'string'));
         new BundleConfigGenerator(
-            $this->createMock(Kernel::class),
-            $this->createMock(ActiveAppsLoader::class)
+            static::createStub(Kernel::class),
+            static::createStub(ActiveAppsLoader::class),
+            new NullBundleConfigStyleFileResolver(),
         );
     }
 
@@ -81,26 +82,14 @@ class BundleConfigGeneratorTest extends TestCase
         $activePluginName = $activePlugin->getName();
         $inactivePluginName = $inactivePlugin->getName();
 
-        $container = $this->createMock(ContainerInterface::class);
-        $container->method('getParameter')->with('kernel.project_dir')->willReturn($this->projectDir);
-        $container->method('get')
-            ->with(StorefrontPluginRegistry::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
-            ->willReturn(null);
+        $kernel = $this->createKernelWithBundles([$coreBundle, $activePlugin, $inactivePlugin], [$activePlugin]);
 
-        $pluginLoader = $this->createMock(KernelPluginLoader::class);
-        $pluginLoader->method('getPluginInstances')->willReturn(new KernelPluginCollection([$activePlugin::class => $activePlugin]));
-
-        $kernel = $this->createMock(Kernel::class);
-        $kernel->method('getContainer')->willReturn($container);
-        $kernel->method('getPluginLoader')->willReturn($pluginLoader);
-        $kernel->method('getBundles')->willReturn([$coreBundle, $activePlugin, $inactivePlugin]);
-
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $activeAppsLoader->method('getActiveApps')->willReturn([
             ['name' => 'SwagDemoApp', 'path' => $appRelativePath],
         ]);
 
-        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader);
+        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, new NullBundleConfigStyleFileResolver());
         $config = $generator->getConfig();
 
         static::assertArrayHasKey($coreBundleName, $config);
@@ -126,7 +115,7 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertSame('Resources/app/storefront/build/webpack.config.ts', $config['SwagDemoApp']['storefront']['webpack']);
     }
 
-    public function testGetStyleFilesUsesRegistryConfigAndReturnsJoinedPaths(): void
+    public function testGetConfigDelegatesStyleFilesToResolverPerBundle(): void
     {
         $bundlePath = $this->projectDir . '/custom/plugins/SwagPlugin';
         $bundle = new class($bundlePath) extends Bundle {
@@ -141,20 +130,17 @@ class BundleConfigGeneratorTest extends TestCase
         };
         $bundleName = $bundle->getName();
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $resolver = $this->createMock(BundleConfigStyleFileResolver::class);
+        $resolver->expects($this->once())
+            ->method('resolveStyleFiles')
+            ->with($bundleName, 'custom/plugins/SwagPlugin')
+            ->willReturn([
+                'custom/plugins/SwagPlugin/Resources/app/storefront/src/scss/base.scss',
+                'custom/plugins/SwagPlugin/Resources/app/storefront/src/scss/overrides.scss',
+            ]);
 
-        $configuration = new StorefrontPluginConfiguration($bundleName);
-        $configuration->setStyleFiles(FileCollection::createFromArray([
-            'app/storefront/src/scss/base.scss',
-            'app/storefront/src/scss/overrides.scss',
-        ]));
-
-        $registry->method('getConfigurations')->willReturn(
-            new StorefrontPluginConfigurationCollection([$configuration])
-        );
-
-        $kernel = $this->createKernelWithBundles([$bundle], $registry);
-        $generator = new BundleConfigGenerator($kernel, $this->createMock(ActiveAppsLoader::class));
+        $kernel = $this->createKernelWithBundles([$bundle]);
+        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), $resolver);
         $config = $generator->getConfig();
 
         static::assertSame(
@@ -163,6 +149,38 @@ class BundleConfigGeneratorTest extends TestCase
                 'custom/plugins/SwagPlugin/Resources/app/storefront/src/scss/overrides.scss',
             ],
             $config[$bundleName]['storefront']['styleFiles']
+        );
+    }
+
+    public function testGetConfigDelegatesAppStyleFilesToResolver(): void
+    {
+        $appName = 'SwagDemoApp';
+        $appPath = 'extensions/apps/SwagDemoApp';
+
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
+        $activeAppsLoader->method('getActiveApps')->willReturn([
+            ['name' => $appName, 'path' => $appPath],
+        ]);
+
+        $resolver = $this->createMock(BundleConfigStyleFileResolver::class);
+        $resolver->expects($this->once())
+            ->method('resolveStyleFiles')
+            ->with($appName, $appPath)
+            ->willReturn([
+                $appPath . '/Resources/app/storefront/src/scss/base.scss',
+                $appPath . '/Resources/app/storefront/src/scss/overrides.scss',
+            ]);
+
+        $kernel = $this->createKernelWithBundles([]);
+        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, $resolver);
+        $config = $generator->getConfig();
+
+        static::assertSame(
+            [
+                $appPath . '/Resources/app/storefront/src/scss/base.scss',
+                $appPath . '/Resources/app/storefront/src/scss/overrides.scss',
+            ],
+            $config[$appName]['storefront']['styleFiles']
         );
     }
 
@@ -183,7 +201,7 @@ class BundleConfigGeneratorTest extends TestCase
         $bundleName = $bundle->getName();
 
         $kernel = $this->createKernelWithBundles([$bundle]);
-        $generator = new BundleConfigGenerator($kernel, $this->createMock(ActiveAppsLoader::class));
+        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), new NullBundleConfigStyleFileResolver());
         $config = $generator->getConfig();
 
         static::assertFalse($config[$bundleName]['storefront']['hasComponentAssets']);
@@ -191,19 +209,22 @@ class BundleConfigGeneratorTest extends TestCase
 
     /**
      * @param list<Bundle> $bundles
+     * @param list<Plugin> $activePlugins
      */
-    private function createKernelWithBundles(array $bundles, ?StorefrontPluginRegistry $registry = null): Kernel
+    private function createKernelWithBundles(array $bundles, array $activePlugins = []): Kernel
     {
         $container = $this->createMock(ContainerInterface::class);
-        $container->method('getParameter')->with('kernel.project_dir')->willReturn($this->projectDir);
-        $container->method('get')
-            ->with(StorefrontPluginRegistry::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
-            ->willReturn($registry);
+        $container->expects($this->once())->method('getParameter')->with('kernel.project_dir')->willReturn($this->projectDir);
 
-        $pluginLoader = $this->createMock(KernelPluginLoader::class);
-        $pluginLoader->method('getPluginInstances')->willReturn(new KernelPluginCollection([]));
+        $pluginInstances = [];
+        foreach ($activePlugins as $plugin) {
+            $pluginInstances[$plugin::class] = $plugin;
+        }
 
-        $kernel = $this->createMock(Kernel::class);
+        $pluginLoader = static::createStub(KernelPluginLoader::class);
+        $pluginLoader->method('getPluginInstances')->willReturn(new KernelPluginCollection($pluginInstances));
+
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getContainer')->willReturn($container);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
         $kernel->method('getBundles')->willReturn($bundles);

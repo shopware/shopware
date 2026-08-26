@@ -1,0 +1,201 @@
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+name: Visual Tests (Docker)
+
+on:
+  workflow_dispatch:
+    inputs:
+      update-snapshots:
+        description: "Update snapshots?"
+        type: boolean
+        default: false
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: "Filter passed to Playwright's --grep input (matches test titles)."
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      update-snapshots:
+        description: "Update snapshots?"
+        type: boolean
+        default: false
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: "Filter passed to Playwright's --grep input (matches test titles)."
+        type: string
+        default: ""
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Define environment
+        shell: bash
+        run: |
+          {
+            echo "REDIS_URL=redis://localhost:6379"
+            echo "MAILER_DSN=smtp://localhost:1025"
+            echo "MAILPIT_BASE_URL=http://localhost:8025"
+            echo "SHOPWARE_HTTP_CACHE_ENABLED=0"
+            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true"
+            echo "BLUE_GREEN_DEPLOYMENT=1"
+            echo "ENABLE_SERVICES=0"
+          } >> "$GITHUB_ENV"
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          env: prod
+          mysql-version: "builtin"
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+          install: true
+          install-admin: true
+          install-storefront: true
+
+      - name: Install Playwright dependencies
+        working-directory: tests/acceptance
+        run: |
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 20000
+          npm ci
+      - name: Run visual tests in Playwright container
+        working-directory: tests/acceptance
+        continue-on-error: true
+        env:
+          UPDATE_SNAPSHOTS: ${{ inputs.update-snapshots && '--update-snapshots=all' || '--update-snapshots=none' }}
+          FILTER: ${{ inputs.filter && format('--grep={0}', inputs.filter) || '' }}
+          CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}
+          CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
+          CURRENTS_BUILD_ID: ${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}
+          ATS_CMD: ${{ inputs.currents && 'pwc' || 'playwright'}}
+        run: |
+          PLAYWRIGHT_VERSION=$(jq -r '.packages["node_modules/playwright-core"].version' package-lock.json)
+          docker run --rm \
+            --ipc=host \
+            --init \
+            --network=host \
+            --user "$(id -u):$(id -g)" \
+            -e APP_URL=http://localhost:8000 \
+            -e SHOPWARE_ADMIN_USERNAME=admin \
+            -e SHOPWARE_ADMIN_PASSWORD=shopware \
+            -e CURRENTS_PROJECT_ID \
+            -e CURRENTS_RECORD_KEY \
+            -e CURRENTS_BUILD_ID \
+            -v "$GITHUB_WORKSPACE:/app" \
+            -w /app/tests/acceptance \
+            "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
+            npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+      - name: Upload visual test results
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-visual-results
+          path: |
+            tests/acceptance/test-results/
+            tests/acceptance/playwright-report/
+          retention-days: 3
+
+      - name: Check if this run should attempt AWS operations
+        id: check-aws-allowed
+        if: ${{ github.repository_owner == 'shopware' }}
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+            echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+            echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+          else
+            echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure AWS credentials
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          aws-region: eu-central-1
+          role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+          role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
+      - name: Upload Playwright HTML report to S3
+        working-directory: tests/acceptance
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          RANDOM_STR=$(openssl rand -hex 6)
+
+          # build the destination prefix and export it for subsequent steps
+          REPORT_DEST="playwright-reports/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+
+          aws s3 cp "playwright-report" "s3://shopware-ci-playwright-traces/${REPORT_DEST}/" --recursive
+
+          echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+          echo "Uploaded to s3://shopware-ci-playwright-traces/${REPORT_DEST}/"
+
+      - name: Publish S3 Static Website URL
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' && hashFiles('tests/acceptance/playwright-report/*') }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${REPORT_DEST:-}" ]; then
+            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+            exit 0
+          fi
+
+          if ! aws s3 ls "s3://shopware-ci-playwright-traces/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+            echo "Index file not found ... skipping publish." >&2
+            exit 0
+          fi
+
+          DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+          URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+          echo "${URL}"
+
+          {
+            echo "### Playwright HTML Report"
+            echo ""
+            echo "- ${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create token for PR
+        if: ${{ inputs.update-snapshots }}
+        uses: shopware/octo-sts-action@main
+        id: create-pr-token
+        with:
+          scope: shopware
+          identity: CreatePR
+        continue-on-error: true
+
+      - name: Check for snapshot changes
+        if: ${{ inputs.update-snapshots }}
+        id: diff
+        shell: bash
+        run: git diff --exit-code tests/acceptance/tests/ || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        if: ${{ inputs.update-snapshots && steps.diff.outputs.changed == 'true' && steps.create-pr-token.outputs.token != '' }}
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ steps.create-pr-token.outputs.token }}
+          add-paths: |
+            .gitignore
+            tests/acceptance/tests/**/*-snapshots/*.png
+          branch: update-ats-snapshots-docker
+          branch-suffix: short-commit-hash
+          labels: |
+            domain/quality-ops
+          commit-message: "chore(ci): update acceptance test snapshots"
+          title: "chore(ci): update acceptance test snapshots (docker)"
+          body: "🤖 This PR updates acceptance test snapshots from the Docker run."
+        continue-on-error: true

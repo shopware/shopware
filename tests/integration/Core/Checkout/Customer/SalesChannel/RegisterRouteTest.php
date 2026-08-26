@@ -14,7 +14,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule;
+use Shopware\Core\Checkout\Customer\Rule\IsNewsletterRecipientRule;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -160,6 +162,46 @@ class RegisterRouteTest extends TestCase
 
         static::assertNotNull($ruleIds, 'Register event was not dispatched');
         static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
+    }
+
+    public function testRegisterEventWithNewsletterRecipientRule(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('newsletter_recipient.repository')->create([
+            [
+                'id' => $ids->create('newsletter-recipient'),
+                'email' => 'teg-reg@example.com',
+                'salesChannelId' => $this->ids->get('sales-channel'),
+                'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
+                'hash' => Uuid::randomHex(),
+            ],
+        ], Context::createDefaultContext());
+
+        $rule = [
+            'id' => $ids->create('rule'),
+            'name' => 'Test newsletter recipient rule',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new IsNewsletterRecipientRule())->getName(), 'value' => ['isNewsletterRecipient' => true]],
+            ],
+        ];
+
+        static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
+
+        $ruleIds = null;
+        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+            $ruleIds = $event->getSalesChannelContext()->getRuleIds();
+        });
+
+        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData(), \JSON_THROW_ON_ERROR));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('apiAlias', $response, \print_r($response, true));
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertNotNull($ruleIds, 'Register event was not dispatched');
+        static::assertContains($ids->get('rule'), $ruleIds, 'Newsletter recipient rule was not available in the refreshed context');
     }
 
     #[DataProvider('customerBoundToSalesChannelProvider')]
@@ -376,7 +418,7 @@ class RegisterRouteTest extends TestCase
         static::assertSame('401', $responseData['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser
@@ -446,7 +488,7 @@ class RegisterRouteTest extends TestCase
         $customerId = $response['id'];
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => Hasher::hash('teg-reg@example.com', 'sha1')], \JSON_THROW_ON_ERROR));
@@ -566,7 +608,7 @@ class RegisterRouteTest extends TestCase
         $customerId = $response['id'];
 
         $criteria = new Criteria([$customerId]);
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         $this->browser
@@ -626,7 +668,7 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
 
-        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
@@ -1159,7 +1201,7 @@ class RegisterRouteTest extends TestCase
         $criteria = new Criteria([$response['id']]);
         $criteria->addAssociation('addresses');
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
@@ -1421,7 +1463,7 @@ class RegisterRouteTest extends TestCase
         $criteria = new Criteria([$response['id']]);
         $criteria->addAssociation('salutation');
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
 

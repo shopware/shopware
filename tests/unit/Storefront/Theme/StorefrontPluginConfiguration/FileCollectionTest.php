@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Storefront\Theme\StorefrontPluginConfiguration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(FileCollection::class)]
 class FileCollectionTest extends TestCase
 {

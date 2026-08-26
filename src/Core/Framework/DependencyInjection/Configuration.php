@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
@@ -58,10 +59,12 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
+                ->append($this->createTranslationSection())
             ->end();
 
         return $treeBuilder;
@@ -155,6 +158,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->booleanNode('path_cache_buster')->defaultTrue()->end()
                 ->arrayNode('fastly')
                     ->children()
                         ->scalarNode('api_key')->end()
@@ -342,6 +346,16 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->booleanNode('enable')->end()
                         ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                        ->arrayNode('fallback_sizes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([])
+                            ->arrayPrototype()
+                                ->children()
+                                    ->integerNode('width')->isRequired()->min(1)->end()
+                                    ->integerNode('height')->isRequired()->min(1)->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->scalarNode('thumbnail_processor')
@@ -374,18 +388,33 @@ class Configuration implements ConfigurationInterface
                             ->performNoDeepMerging()
                             ->defaultValue([
                                 'a',
+                                'animate',
+                                'animatetransform',
                                 'circle',
                                 'clippath',
                                 'defs',
                                 'desc',
                                 'ellipse',
+                                'feblend',
+                                'fecolormatrix',
+                                'fecomposite',
+                                'feflood',
+                                'fegaussianblur',
+                                'femorphology',
+                                'feoffset',
+                                'filter',
+                                'font',
+                                'font-face',
                                 'g',
+                                'glyph',
+                                'hkern',
                                 'image',
                                 'line',
                                 'lineargradient',
                                 'marker',
                                 'mask',
                                 'metadata',
+                                'missing-glyph',
                                 'path',
                                 'pattern',
                                 'polygon',
@@ -402,19 +431,29 @@ class Configuration implements ConfigurationInterface
                                 'tspan',
                                 'use',
                                 'view',
+                                'vkern',
                             ])
                             ->scalarPrototype()->end()
                         ->end()
                         ->arrayNode('allowed_attributes')
                             ->performNoDeepMerging()
                             ->defaultValue([
+                                'alphabetic',
                                 'alignment-baseline',
+                                'accumulate',
+                                'additive',
                                 'aria-describedby',
                                 'aria-hidden',
                                 'aria-label',
                                 'aria-labelledby',
                                 'aria-roledescription',
+                                'ascent',
+                                'attributename',
+                                'attributetype',
+                                'baseprofile',
                                 'baseline-shift',
+                                'bbox',
+                                'cap-height',
                                 'class',
                                 'clip-path',
                                 'clip-rule',
@@ -422,19 +461,28 @@ class Configuration implements ConfigurationInterface
                                 'color',
                                 'color-interpolation',
                                 'color-interpolation-filters',
+                                'color-rendering',
+                                'begin',
+                                'by',
+                                'calcmode',
                                 'cursor',
                                 'cx',
                                 'cy',
                                 'd',
+                                'descent',
                                 'direction',
                                 'display',
                                 'dominant-baseline',
+                                'dur',
+                                'enable-background',
                                 'dx',
                                 'dy',
                                 'fill',
                                 'fill-opacity',
                                 'fill-rule',
                                 'filter',
+                                'filterunits',
+                                'focusable',
                                 'flood-color',
                                 'flood-opacity',
                                 'font-family',
@@ -444,14 +492,26 @@ class Configuration implements ConfigurationInterface
                                 'font-style',
                                 'font-variant',
                                 'font-weight',
+                                'font-scale',
+                                'from',
                                 'fx',
                                 'fy',
+                                'g1',
+                                'g2',
+                                'glyph-name',
                                 'gradienttransform',
                                 'gradientunits',
                                 'height',
+                                'horiz-adv-x',
                                 'href',
                                 'id',
                                 'image-rendering',
+                                'in',
+                                'in2',
+                                'isolation',
+                                'k',
+                                'keysplines',
+                                'keytimes',
                                 'lang',
                                 'letter-spacing',
                                 'lighting-color',
@@ -466,11 +526,16 @@ class Configuration implements ConfigurationInterface
                                 'mask-type',
                                 'maskcontentunits',
                                 'maskunits',
+                                'mix-blend-mode',
+                                'mode',
                                 'offset',
                                 'opacity',
+                                'operator',
                                 'orient',
                                 'overflow',
                                 'paint-order',
+                                'panose-1',
+                                'path',
                                 'patterncontentunits',
                                 'patterntransform',
                                 'patternunits',
@@ -478,13 +543,23 @@ class Configuration implements ConfigurationInterface
                                 'points',
                                 'preserveaspectratio',
                                 'r',
+                                'radius',
                                 'refx',
                                 'refy',
+                                'repeatcount',
+                                'repeatdur',
+                                'requiredfeatures',
+                                'restart',
+                                'result',
                                 'role',
+                                'rotate',
                                 'rx',
                                 'ry',
                                 'shape-rendering',
+                                'slope',
+                                'space',
                                 'spreadmethod',
+                                'stddeviation',
                                 'stop-color',
                                 'stop-opacity',
                                 'stroke',
@@ -496,6 +571,8 @@ class Configuration implements ConfigurationInterface
                                 'stroke-opacity',
                                 'stroke-width',
                                 'style',
+                                't',
+                                'text',
                                 'text-anchor',
                                 'text-decoration',
                                 'text-overflow',
@@ -503,7 +580,17 @@ class Configuration implements ConfigurationInterface
                                 'transform',
                                 'transform-origin',
                                 'type',
+                                'title',
+                                'to',
+                                'u1',
+                                'u2',
+                                'underline-position',
+                                'underline-thickness',
+                                'unicode',
                                 'unicode-bidi',
+                                'unicode-range',
+                                'units-per-em',
+                                'values',
                                 'vector-effect',
                                 'version',
                                 'viewbox',
@@ -512,6 +599,7 @@ class Configuration implements ConfigurationInterface
                                 'width',
                                 'word-spacing',
                                 'writing-mode',
+                                'x-height',
                                 'x',
                                 'x1',
                                 'x2',
@@ -523,6 +611,7 @@ class Configuration implements ConfigurationInterface
                                 'y',
                                 'y1',
                                 'y2',
+                                'zoomandpan',
                             ])
                             ->scalarPrototype()->end()
                         ->end()
@@ -608,10 +697,52 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
+            // @deprecated tag:v6.8.0 - remove this whole "beforeNormalization" block
+            ->beforeNormalization()
+                ->always()->then(static function ($config) {
+                    if (!\is_array($config)) {
+                        return $config;
+                    }
+
+                    if (\array_key_exists('cache_compression', $config) && !\array_key_exists('compress', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'
+                        );
+                        $config['compress'] = $config['cache_compression'];
+                    }
+
+                    if (\array_key_exists('cache_compression_method', $config) && !\array_key_exists('compression_method', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.'
+                        );
+                        $config['compression_method'] = $config['cache_compression_method'];
+                    }
+
+                    // backward compatibility
+                    if (!isset($config['cache_compression']) && isset($config['compress'])) {
+                        $config['cache_compression'] = $config['compress'];
+                    }
+                    if (!isset($config['cache_compression_method']) && isset($config['compression_method'])) {
+                        $config['cache_compression_method'] = $config['compression_method'];
+                    }
+
+                    return $config;
+                })
+            ->end()
             ->children()
                 ->scalarNode('redis_prefix')->end()
-                ->booleanNode('cache_compression')->defaultTrue()->end()
-                ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('cache_compression')
+                    ->defaultNull()
+                    ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression` option is deprecated and will be removed in v6.8.0 Please use the `compress` option instead.')
+                ->end()
+                ->booleanNode('compress')->defaultTrue()->end()
+                ->scalarNode('cache_compression_method')
+                    ->defaultNull()
+                    ->setDeprecated('shopware/core', '6.8.0', 'The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead.')
+                ->end()
+                ->scalarNode('compression_method')->defaultValue('gzip')->end()
                 ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
@@ -1167,12 +1298,10 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->validate()
             ->ifFalse(
-                static fn (array $v) => \count(
-                    array_filter(
-                        array_keys($v),
-                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
-                    )
-                ) === 0
+                static fn (array $v) => array_filter(
+                    array_keys($v),
+                    static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                ) === []
             )
             ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
@@ -1496,6 +1625,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createProductExportSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_export');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('read_buffer_size')
+                    ->info('Number of products read and rendered per product export batch. Higher values reduce per-batch overhead but increase peak worker memory, as each batch hydrates and renders that many full product entities.')
+                    ->min(1)
+                    ->defaultValue(200)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createMcpSection(): ArrayNodeDefinition
     {
         $rootNode = (new TreeBuilder('mcp'))->getRootNode();
@@ -1553,6 +1700,68 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTranslationSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('translation');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->info('Overrides for the built-in translation system. Options left unset fall back to the shipped defaults in translation.yaml.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('repository_url')->defaultNull()->end()
+                ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('community_translations_url')->defaultNull()->end()
+                ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
+                ->integerNode('completeness_threshold')->defaultNull()->end()
+                // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
+                ->arrayNode('plugins')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('pseudo_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('plugin_mapping')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('plugin')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('languages')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->booleanNode('use_local_filesystem')->defaultFalse()->end()
+                ->arrayNode('scheduled_task')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                    ->end()
                 ->end()
             ->end();
 

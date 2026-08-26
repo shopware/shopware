@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\Staging\Handler\StagingAppHandler;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -14,12 +15,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StagingAppHandler::class)]
 class StagingAppHandlerTest extends TestCase
 {
     public function testDeletion(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchAllAssociative')
             ->willReturn([
@@ -45,7 +47,7 @@ class StagingAppHandlerTest extends TestCase
         $handler = new StagingAppHandler($connection, $shopIdProvider);
         $handler->__invoke(new SetupStagingEvent(
             Context::createDefaultContext(),
-            $this->createMock(SymfonyStyle::class),
+            static::createStub(SymfonyStyle::class),
             false,
             []
         ));

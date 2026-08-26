@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation\DataBag;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataBag::class)]
 class DataBagTest extends TestCase
 {

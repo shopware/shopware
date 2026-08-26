@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -10,9 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class BinaryCollection extends StoreCollection
 {
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     protected function getExpectedClass(): ?string
     {
         return BinaryStruct::class;

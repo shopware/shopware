@@ -1,83 +1,12 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
-import AclService from 'src/app/service/acl.service';
-import 'src/app/component/structure/sw-admin-menu-item';
-import catalogues from './_sw-admin-menu-item/catalogues';
-
-async function createWrapper({ props = {}, privileges = [] } = {}) {
-    const $router = {
-        resolve: ({ path }) => {
-            let match = props.entry;
-
-            const route = path.replace('/', '').replace(/\//g, '.');
-
-            const matchedChild = props.entry.children.find((child) => {
-                return child.path === route;
-            });
-
-            if (matchedChild) {
-                match = matchedChild;
-            }
-
-            return {
-                ...match,
-                privilege: undefined,
-                meta: {
-                    privilege: match.privilege,
-                },
-            };
-        },
-    };
-
-    const can = (privilege) => {
-        if (!privilege) {
-            return true;
-        }
-
-        return privileges.includes(privilege);
-    };
-
-    const aclService = new AclService();
-
-    return mount(await wrapTestComponent('sw-admin-menu-item', { sync: true }), {
-        props,
-        global: {
-            stubs: {
-                'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
-                'router-link': {
-                    template: '<a class="router-link"></a>',
-                    props: ['to'],
-                },
-            },
-            mocks: {
-                $route: {
-                    meta: { $module: { name: '' } },
-                },
-                $router,
-            },
-            provide: {
-                acl: {
-                    can,
-                    hasAccessToRoute: (path) => {
-                        const route = path.replace(/\./g, '/');
-                        const match = $router.resolve(route);
-
-                        if (!match.meta) {
-                            return true;
-                        }
-
-                        return can(match.meta.privilege);
-                    },
-                    hasActiveSettingModules: aclService.hasActiveSettingModules,
-                    state: aclService.state,
-                },
-            },
-        },
-    });
-}
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import createWrapper from './sw-admin-menu-item.spec/create-wrapper';
+import catalogues from './sw-admin-menu-item.spec/catalogues';
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeEach(async () => {
@@ -122,9 +51,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        const children = wrapper.findAll('sw-admin-menu-item-stub');
-        expect(children).toHaveLength(0);
-
+        expect(wrapper.find('.sw-admin-menu__sub-navigation-list').exists()).toBe(false);
         expect(wrapper.classes()).toContain('navigation-list-item__sw-product');
     });
 
@@ -160,8 +87,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
+        // Entries without a usable path render a collapsible trigger button instead of a link
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('BUTTON');
     });
 
     it('should not show the menu entry when user has no privilege', async () => {
@@ -206,7 +134,31 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(wrapper.html().length).toBeGreaterThan(1);
+        expect(wrapper.find('.navigation-list-item__sw-product .sw-admin-menu__navigation-link').exists()).toBe(true);
+    });
+
+    it('should check route access by exact route name', async () => {
+        const wrapper = await createWrapper({
+            privileges: [],
+            props: {
+                entry: {
+                    id: 'sw-extension',
+                    label: 'sw-extension.general.mainMenuItemGeneral',
+                    color: '#189EFF',
+                    path: 'sw.extension.my-extensions',
+                    icon: 'regular-plug',
+                    parent: null,
+                    privilege: 'system.plugin_maintain',
+                    position: 10,
+                    moduleType: 'core',
+                    level: 1,
+                    children: [],
+                },
+            },
+        });
+
+        expect(wrapper.vm.hasAccessToRoute('sw.extension.my-extensions')).toBe(false);
+        expect(wrapper.vm.hasAccessToRoute('sw.extension.my.extensions')).toBe(true);
     });
 
     it('should not show a link when the path goes to a route which needs a privilege which is not set', async () => {
@@ -254,8 +206,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
+        // Entries without a usable path render a collapsible trigger button instead of a link
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('BUTTON');
     });
 
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {
@@ -542,76 +495,6 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).not.toBe('');
     });
 
-    it('get the first plugin menu entry', async () => {
-        const wrapper = await createWrapper({
-            privileges: [],
-            props: {
-                entry: {
-                    path: 'sw.foo.index',
-                    label: 'sw-foo.general.mainMenuItemList',
-                    id: 'sw-foo',
-                    moduleType: 'plugin',
-                    parent: 'sw-catalogue',
-                    position: 1010,
-                    children: [],
-                    level: 2,
-                },
-            },
-        });
-
-        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
-
-        await wrapper.setProps({
-            entry: {
-                path: 'sw.bar.index',
-                label: 'sw-bar.general.mainMenuItemList',
-                id: 'sw-bar',
-                moduleType: 'plugin',
-                parent: 'sw-catalogue',
-                position: 1010,
-                children: [],
-                level: 2,
-            },
-        });
-
-        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
-    });
-
-    it('should match route', async () => {
-        const entries = [...catalogues.children];
-        entries.unshift({
-            id: 'sw-catalogue',
-            moduleType: 'core',
-            label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
-            color: '#57D9A3',
-            icon: 'regular-products',
-            position: 20,
-            level: 1,
-        });
-
-        Shopware.Store.get('adminMenu').adminModuleNavigation = entries;
-
-        const wrapper = await createWrapper({
-            privileges: [],
-            props: {
-                entry: {
-                    path: 'sw.foo.index',
-                    label: 'sw-foo.general.mainMenuItemList',
-                    id: 'sw-foo',
-                    moduleType: 'plugin',
-                    parent: 'sw-catalogue',
-                    position: 1010,
-                    children: [],
-                    level: 2,
-                },
-            },
-        });
-
-        await flushPromises();
-
-        expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
-    });
-
     it('should not show the icon on sub menu items', async () => {
         const wrapper = await createWrapper({
             privileges: [],
@@ -662,5 +545,97 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
         );
         expect(childMenuItem.props().displayIcon).toBe(false);
+    });
+
+    describe('module icon colors', () => {
+        const productEntry = {
+            id: 'sw-product',
+            label: 'sw-product.general.mainMenuItemGeneral',
+            color: '#57D9A3',
+            path: 'sw.product.index',
+            icon: 'regular-products',
+            position: 10,
+            level: 1,
+            moduleType: 'core',
+            children: [],
+        };
+
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should leave the icon color to the stylesheet by default', async () => {
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.vm.navigationIconColor).toBeUndefined();
+            expect(wrapper.find('.sw-admin-menu__navigation-link-icon').attributes('style')).not.toContain('color');
+        });
+
+        it('should paint the icon in the module color when the preference is enabled', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.vm.navigationIconColor).toBe('#57D9A3');
+            expect(wrapper.find('.sw-admin-menu__navigation-link-icon').attributes('style')).toContain(
+                'color: rgb(87, 217, 163)',
+            );
+        });
+
+        it('should not mark the row as module colored by default', async () => {
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.classes()).not.toContain('is--module-colored');
+        });
+
+        it('should mark the row as module colored so the active state drops the brand tint', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({ props: { entry: productEntry } });
+
+            expect(wrapper.classes()).toContain('is--module-colored');
+        });
+
+        it('should expose the module color to sub items as a custom property', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({ props: { entry: catalogues } });
+            await flushPromises();
+
+            expect(wrapper.attributes('style')).toContain('--sw-admin-menu-module-color: #57D9A3');
+        });
+
+        it('should not expose a module color while the preference is off', async () => {
+            const wrapper = await createWrapper({ props: { entry: catalogues } });
+            await flushPromises();
+
+            expect(wrapper.attributes('style')).toBeUndefined();
+        });
+
+        it('should not mark rows without a module color', async () => {
+            useModuleIconColors().enabled.value = true;
+
+            const wrapper = await createWrapper({
+                props: { entry: { ...productEntry, color: undefined } },
+            });
+
+            expect(wrapper.classes()).not.toContain('is--module-colored');
+        });
+    });
+
+    it('should emit a branch toggle with the chevron following the open state', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                entry: catalogues,
+            },
+        });
+
+        expect(wrapper.vm.expandIcon).toBe('regular-chevron-down-xs');
+
+        await wrapper.find('.sw-admin-menu__navigation-link').trigger('click');
+
+        expect(wrapper.emitted('branch-toggle')).toEqual([
+            [{ entry: catalogues, open: true }],
+        ]);
     });
 });

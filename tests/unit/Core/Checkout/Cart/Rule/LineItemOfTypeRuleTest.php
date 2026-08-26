@@ -23,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemOfTypeRule::class)]
-#[Package('checkout')]
 class LineItemOfTypeRuleTest extends TestCase
 {
     public function testGetName(): void
@@ -53,7 +53,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         static::assertEquals(
             (new RuleConfig())
-                ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+                ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
                 ->selectField('lineItemType', [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::PROMOTION_LINE_ITEM_TYPE]),
             $rule->getConfig()
         );
@@ -65,7 +65,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $scope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));
+        $scope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
 
         static::assertTrue($rule->match($scope));
     }
@@ -76,7 +76,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $scope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));
+        $scope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -87,7 +87,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $scope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));
+        $scope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -98,7 +98,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $lineItem = new LineItem(Uuid::randomHex(), 'shirt');
 
-        $scope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));
+        $scope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
 
         static::assertTrue($rule->match($scope));
     }
@@ -111,7 +111,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertTrue($rule->match($scope));
     }
@@ -124,7 +124,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -137,7 +137,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -150,7 +150,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertTrue($rule->match($scope));
     }
@@ -163,7 +163,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CheckoutRuleScope(static::createMock(SalesChannelContext::class));
+        $scope = new CheckoutRuleScope(static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
 
@@ -173,7 +173,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CheckoutRuleScope(static::createMock(SalesChannelContext::class));
+        $scope = new CheckoutRuleScope(static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -188,7 +188,7 @@ class LineItemOfTypeRuleTest extends TestCase
 
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems(new LineItemCollection([$lineItem]));
-        $scope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         $rule->match($scope);
     }

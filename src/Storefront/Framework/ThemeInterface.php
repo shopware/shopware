@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Framework;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('framework')]
+#[Package('discovery')]
 interface ThemeInterface
 {
 }

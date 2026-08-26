@@ -200,6 +200,7 @@ shopware:
     cdn:
         url: ''
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
+        path_cache_buster: true
         fastly:
             api_key: ''
             soft_purge: false
@@ -352,15 +353,30 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
-            mcp:
+            mcp_admin_api:
+                # Trusted automation (integrations / admin users), keyed per OAuth token, so a
+                # generous limit is acceptable. Kept higher than the Store API on purpose.
                 enabled: true
                 policy: 'time_backoff'
                 reset: '1 hours'
                 limits:
-                    - limit: 60
+                    - limit: 300
                       interval: '60 seconds'
+                    - limit: 1000
+                      interval: '10 minutes'
+            mcp_store_api:
+                # Tighter than the Admin API: this endpoint is customer/sales-channel facing and
+                # the rate-limit key (sales-channel context token) is cheap to rotate, so the
+                # effective protection is closer to per-IP. Still generous enough for an AI agent
+                # to browse, search and build a cart in a single session.
+                enabled: true
+                policy: 'time_backoff'
+                reset: '1 hours'
+                limits:
                     - limit: 120
-                      interval: '120 seconds'
+                      interval: '60 seconds'
+                    - limit: 600
+                      interval: '10 minutes'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'
@@ -389,6 +405,11 @@ shopware:
         scheduled_task:
             enabled: true
 
+    translation:
+        use_local_filesystem: false
+        scheduled_task:
+            enabled: true
+
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
         cluster_setup: false
@@ -404,8 +425,8 @@ shopware:
             enabled: false
             expiration_minutes: 5
         svg:
-            allowed_elements: ["a", "circle", "clippath", "defs", "desc", "ellipse", "g", "image", "line", "lineargradient", "marker", "mask", "metadata", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "svg", "switch", "symbol", "text", "title", "tspan", "use", "view"]
-            allowed_attributes: ["alignment-baseline", "aria-describedby", "aria-hidden", "aria-label", "aria-labelledby", "aria-roledescription", "baseline-shift", "class", "clip-path", "clip-rule", "clippathunits", "color", "color-interpolation", "color-interpolation-filters", "cursor", "cx", "cy", "d", "direction", "display", "dominant-baseline", "dx", "dy", "fill", "fill-opacity", "fill-rule", "filter", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "gradienttransform", "gradientunits", "height", "href", "id", "image-rendering", "lang", "letter-spacing", "lighting-color", "marker", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "mask", "mask-type", "maskcontentunits", "maskunits", "offset", "opacity", "orient", "overflow", "paint-order", "patterncontentunits", "patterntransform", "patternunits", "pointer-events", "points", "preserveaspectratio", "r", "refx", "refy", "role", "rx", "ry", "shape-rendering", "spreadmethod", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "style", "text-anchor", "text-decoration", "text-overflow", "text-rendering", "transform", "transform-origin", "type", "unicode-bidi", "vector-effect", "version", "viewbox", "visibility", "white-space", "width", "word-spacing", "writing-mode", "x", "x1", "x2", "xlink:href", "xml:lang", "xml:space", "xmlns", "xmlns:xlink", "y", "y1", "y2"]
+            allowed_elements: ["a", "animate", "animatetransform", "circle", "clippath", "defs", "desc", "ellipse", "feblend", "fecolormatrix", "fecomposite", "feflood", "fegaussianblur", "femorphology", "feoffset", "filter", "font", "font-face", "g", "glyph", "hkern", "image", "line", "lineargradient", "marker", "mask", "metadata", "missing-glyph", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "svg", "switch", "symbol", "text", "title", "tspan", "use", "view", "vkern"]
+            allowed_attributes: ["alphabetic", "alignment-baseline", "accumulate", "additive", "aria-describedby", "aria-hidden", "aria-label", "aria-labelledby", "aria-roledescription", "ascent", "attributename", "attributetype", "baseprofile", "baseline-shift", "bbox", "cap-height", "class", "clip-path", "clip-rule", "clippathunits", "color", "color-interpolation", "color-interpolation-filters", "color-rendering", "begin", "by", "calcmode", "cursor", "cx", "cy", "d", "descent", "direction", "display", "dominant-baseline", "dur", "enable-background", "dx", "dy", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "focusable", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "font-scale", "from", "fx", "fy", "g1", "g2", "glyph-name", "gradienttransform", "gradientunits", "height", "horiz-adv-x", "href", "id", "image-rendering", "in", "in2", "isolation", "k", "keysplines", "keytimes", "lang", "letter-spacing", "lighting-color", "marker", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "mask", "mask-type", "maskcontentunits", "maskunits", "mix-blend-mode", "mode", "offset", "opacity", "operator", "orient", "overflow", "paint-order", "panose-1", "path", "patterncontentunits", "patterntransform", "patternunits", "pointer-events", "points", "preserveaspectratio", "r", "radius", "refx", "refy", "repeatcount", "repeatdur", "requiredfeatures", "restart", "result", "role", "rotate", "rx", "ry", "shape-rendering", "slope", "space", "spreadmethod", "stddeviation", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "style", "t", "text", "text-anchor", "text-decoration", "text-overflow", "text-rendering", "transform", "transform-origin", "type", "title", "to", "u1", "u2", "underline-position", "underline-thickness", "unicode", "unicode-bidi", "unicode-range", "units-per-em", "values", "vector-effect", "version", "viewbox", "visibility", "white-space", "width", "word-spacing", "writing-mode", "x-height", "x", "x1", "x2", "xlink:href", "xml:lang", "xml:space", "xmlns", "xmlns:xlink", "y", "y1", "y2", "zoomandpan"]
             allowed_reference_attributes: ["href", "xlink:href"]
 
     dal:
@@ -485,6 +506,8 @@ shopware:
         fields:
             - name: product_translation.description
               sets: ["basic", "media", "HTML5"]
+            - name: product_translation.descriptionTeaser
+              sets: []
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
@@ -571,6 +594,8 @@ shopware:
             CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__PRODUCT_EXPORT_EMPTY: notice
+            CONTENT__LANDING_PAGE_NOT_FOUND: notice
+            CONTENT__IMPORT_FILE_HAS_UNEXPECTED_TYPE: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
             FRAMEWORK__APP_NOT_COMPATIBLE: notice
             FRAMEWORK__APP_INTEGRATION_NOT_FOUND: notice
@@ -585,6 +610,8 @@ shopware:
             FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
             FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
+            FRAMEWORK__INVALID_CAPTCHA_VALUE: notice
+            FRAMEWORK__CUSTOM_ENTITY_NOT_FOUND: notice
             FRAMEWORK__RATE_LIMIT_EXCEEDED: notice
             FRAMEWORK__SALES_CHANNEL_NOT_FOUND: notice
             PRODUCT__CATEGORY_NOT_FOUND: notice
@@ -668,6 +695,8 @@ shopware:
 
     product_stream:
         indexing: true
+    product_export:
+        read_buffer_size: 200
     product:
         allowed_types:
           - physical

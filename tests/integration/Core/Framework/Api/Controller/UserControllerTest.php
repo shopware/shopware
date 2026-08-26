@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -28,7 +27,6 @@ class UserControllerTest extends TestCase
         $this->resetBrowser();
     }
 
-    #[Group('slow')]
     public function testMe(): void
     {
         $url = '/api/_info/me';
@@ -75,6 +73,15 @@ class UserControllerTest extends TestCase
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $adminFlag = static::getContainer()->get(Connection::class)
+            ->fetchOne(
+                'SELECT admin FROM user WHERE username = :username',
+                ['username' => 'foobar']
+            );
+
+        static::assertNotNull($adminFlag);
+        static::assertSame(0, (int) $adminFlag);
     }
 
     public function testRemoveRoleAssignment(): void

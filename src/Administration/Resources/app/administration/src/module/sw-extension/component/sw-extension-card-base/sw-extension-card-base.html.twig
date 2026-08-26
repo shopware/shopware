@@ -84,7 +84,7 @@
             <sw-time-ago
                 v-if="extension.storeLicense.creationDate"
                 :date="extension.storeLicense.creationDate"
-                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                :date-time-format="DATE_ONLY_FORMAT"
             />
         </span>
     </div>
@@ -102,9 +102,9 @@
         </span>
         <router-link
             v-else-if="extension.configurable"
-            :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
+            :to="configLink"
         >
-            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+            {{ $t('global.default.configure') }}
         </router-link>
     </div>
 
@@ -175,7 +175,7 @@
             variant="danger"
             @click="openRemovalModal"
         >
-            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel') }}
+            {{ $t('global.default.remove') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item

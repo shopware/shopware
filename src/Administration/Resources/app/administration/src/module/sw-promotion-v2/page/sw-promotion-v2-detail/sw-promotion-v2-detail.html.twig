@@ -63,44 +63,59 @@
             {% endblock %}
 
             {% block sw_promotion_v2_detail_content_tabs %}
-            <sw-tabs
-                v-if="!isCreateMode"
-                class="sw-promotion-v2-detail-page__tabs"
-                position-identifier="sw-promotion-detail"
-            >
-
-                {% block sw_promotion_v2_detail_content_tabs_general %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
-                    :title="$t('sw-promotion-v2.detail.tabs.tabGeneral')"
-                    :has-error="swPromotionV2DetailBaseError"
-                    :disabled="!promotionId || undefined"
-                >
-                    {{ $t('sw-promotion-v2.detail.tabs.tabGeneral') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_promotion_v2_detail_content_mt_tabs %}
+                <mt-tabs
+                    v-if="!isCreateMode"
+                    class="sw-promotion-v2-detail-page__tabs"
+                    position-identifier="sw-promotion-detail"
+                    :default-item="$route.name"
+                    :items="promotionDetailTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_promotion_v2_detail_content_tabs_conditions %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
-                    :title="$t('sw-promotion-v2.detail.tabs.tabConditions')"
-                    :disabled="!promotionId || undefined"
+            <template v-else>
+                <sw-tabs
+                    v-if="!isCreateMode"
+                    class="sw-promotion-v2-detail-page__tabs"
+                    position-identifier="sw-promotion-detail"
                 >
-                    {{ $t('sw-promotion-v2.detail.tabs.tabConditions') }}
-                </sw-tabs-item>
-                {% endblock %}
 
-                {% block sw_promotion_v2_detail_content_tabs_discounts %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
-                    :title="$t('sw-promotion-v2.detail.tabs.tabDiscounts')"
-                    :disabled="!promotionId || undefined"
-                >
-                    {{ $t('sw-promotion-v2.detail.tabs.tabDiscounts') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_promotion_v2_detail_content_tabs_general %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.promotion.v2.detail.base', params: { id: $route.params.id } }"
+                        :title="$t('sw-promotion-v2.detail.tabs.tabGeneral')"
+                        :has-error="swPromotionV2DetailBaseError"
+                        :disabled="!promotionId || undefined"
+                    >
+                        {{ $t('sw-promotion-v2.detail.tabs.tabGeneral') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-            </sw-tabs>
+                    {% block sw_promotion_v2_detail_content_tabs_conditions %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.promotion.v2.detail.conditions', params: { id: $route.params.id } }"
+                        :title="$t('sw-promotion-v2.detail.tabs.tabConditions')"
+                        :disabled="!promotionId || undefined"
+                    >
+                        {{ $t('sw-promotion-v2.detail.tabs.tabConditions') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_promotion_v2_detail_content_tabs_discounts %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.promotion.v2.detail.discounts', params: { id: $route.params.id } }"
+                        :title="$t('sw-promotion-v2.detail.tabs.tabDiscounts')"
+                        :disabled="!promotionId || undefined"
+                    >
+                        {{ $t('sw-promotion-v2.detail.tabs.tabDiscounts') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_promotion_v2_detail_content_view %}

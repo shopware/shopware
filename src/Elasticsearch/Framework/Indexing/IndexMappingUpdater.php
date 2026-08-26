@@ -17,6 +17,20 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 class IndexMappingUpdater
 {
     /**
+     * putMapping errors that cannot be resolved on a live index; the affected entity has to
+     * be reindexed into a freshly created index instead. This includes analysis-settings
+     * mismatches ("has not been configured in mappings"), because analyzers/normalizers are
+     * fixed at index creation and cannot be added to a live index.
+     */
+    private const REINDEXABLE_MAPPING_ERRORS = [
+        'conflicts with existing mapper:\n\tCannot update parameter',
+        'cannot be changed from type',
+        'can\'t merge a non object mapping',
+        'cannot change object mapping from',
+        'has not been configured in mappings',
+    ];
+
+    /**
      * @internal
      */
     public function __construct(
@@ -45,7 +59,8 @@ class IndexMappingUpdater
         }
 
         foreach ($this->registry->getDefinitions() as $definition) {
-            $indexName = $this->elasticsearchHelper->getIndexName($definition->getEntityDefinition());
+            $entityDefinition = $definition->getEntityDefinition();
+            $indexName = $this->elasticsearchHelper->getIndexName($entityDefinition);
 
             try {
                 $this->client->indices()->putMapping([
@@ -55,15 +70,15 @@ class IndexMappingUpdater
             } catch (BadRequestHttpException $exception) {
                 $errorMessage = $exception->getMessage();
 
-                $mapperConflicted = str_contains($errorMessage, 'conflicts with existing mapper:\n\tCannot update parameter');
-                $mapperCannotBeChanged = str_contains($errorMessage, 'cannot be changed from type');
-                $cannotMergeNonObject = str_contains($errorMessage, 'can\'t merge a non object mapping');
+                // These putMapping errors cannot be resolved on a live index, so the entity is
+                // scheduled for a reindex into a freshly created index.
+                foreach (self::REINDEXABLE_MAPPING_ERRORS as $needle) {
+                    if (str_contains($errorMessage, $needle)) {
+                        $entitiesToReindex[] = $entityDefinition->getEntityName();
+                        $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
 
-                // If one of these errors occur, we need to reindex the entity
-                if ($mapperConflicted || $mapperCannotBeChanged || $cannotMergeNonObject) {
-                    $entitiesToReindex[] = $definition->getEntityDefinition()->getEntityName();
-
-                    $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
+                        break;
+                    }
                 }
 
                 $this->elasticsearchHelper->logAndThrowException($exception);

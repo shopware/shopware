@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-search-more-results__link {
-    color: $color-shopware-brand-500;
+    color: var(--color-text-brand-default);
     margin-left: 5px;
 
     &--v2 {
-        font-size: $font-size-xs;
-        color: $color-gray-500;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary-default);
         text-decoration: none;
         margin-left: 10px;
     }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeConfigChangedEvent extends Event implements ShopwareEvent
 {
     /**

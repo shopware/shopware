@@ -4,33 +4,22 @@ namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryException;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
 
 #[Package('discovery')]
 class CategoryBreadcrumbUpdater
 {
+    private const WRITE_CHUNK_SIZE = 250;
+
     /**
      * @internal
-     *
-     * @param EntityRepository<CategoryCollection> $categoryRepository
-     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly EntityRepository $categoryRepository,
-        private readonly EntityRepository $languageRepository
+        private readonly Connection $connection
     ) {
     }
 
@@ -43,99 +32,199 @@ class CategoryBreadcrumbUpdater
             return;
         }
 
-        $versionId = Uuid::fromHexToBytes($context->getVersionId());
+        $all = $this->collectCategoryIds($ids, $context);
 
+        foreach ($this->fetchActiveLanguages() as $language) {
+            $languageChain = array_values(array_unique(array_filter([
+                $language['id'],
+                $language['parentId'],
+                Defaults::LANGUAGE_SYSTEM,
+            ])));
+
+            $names = $this->fetchNames($all, $languageChain);
+
+            $this->updateLanguage($ids, $language['id'], $names);
+        }
+    }
+
+    /**
+     * @return list<array{id: string, parentId: string|null}>
+     */
+    private function fetchActiveLanguages(): array
+    {
+        /** @var list<array{id: string, parentId: string|null}> $languages */
+        $languages = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(`id`)) AS id, LOWER(HEX(`parent_id`)) AS parentId FROM `language` WHERE `active` = 1'
+        );
+
+        return $languages;
+    }
+
+    /**
+     * @param string[] $ids
+     *
+     * @return string[]
+     */
+    private function collectCategoryIds(array $ids, Context $context): array
+    {
         $query = $this->connection->createQueryBuilder();
         $query->select('category.path');
         $query->from('category');
         $query->where('category.id IN (:ids)');
         $query->andWhere('category.version_id = :version');
-        $query->setParameter('version', $versionId);
+        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
 
         $paths = $query->executeQuery()->fetchFirstColumn();
 
         $all = $ids;
         foreach ($paths as $path) {
-            $path = explode('|', (string) $path);
-            foreach ($path as $id) {
+            foreach (explode('|', (string) $path) as $id) {
                 $all[] = $id;
             }
         }
 
-        $all = array_filter(array_keys(array_flip($all)));
-        $languageCriteria = new Criteria();
-        $languageCriteria->addFilter(new EqualsFilter('active', true));
-
-        $languages = $this->languageRepository->search($languageCriteria, $context)->getEntities();
-
-        foreach ($languages as $language) {
-            $context = new Context(
-                new SystemSource(),
-                [],
-                Defaults::CURRENCY,
-                array_values(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM])),
-                Defaults::LIVE_VERSION
-            );
-
-            $this->updateLanguage($ids, $context, $all);
-        }
+        return array_filter(array_keys(array_flip($all)));
     }
 
     /**
      * @param string[] $ids
-     * @param string[] $all
+     * @param string[] $languageChain
+     *
+     * @return array<string, array{parentId: string|null, name: string|null}>
      */
-    private function updateLanguage(array $ids, Context $context, array $all): void
+    private function fetchNames(array $ids, array $languageChain): array
     {
-        $versionId = Uuid::fromHexToBytes($context->getVersionId());
-        $languageId = Uuid::fromHexToBytes($context->getLanguageId());
+        $query = $this->connection->createQueryBuilder();
+        $query->from('category');
+        $query->where('category.id IN (:ids)');
+        $query->andWhere('category.version_id = :version');
+        $query->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
 
-        $categories = $this->categoryRepository
-            ->search(new Criteria($all), $context)
-            ->getEntities();
+        $coalesce = [];
+        foreach ($languageChain as $index => $languageId) {
+            $alias = 'translation' . $index;
+            $query->leftJoin(
+                'category',
+                'category_translation',
+                $alias,
+                \sprintf(
+                    '%1$s.category_id = category.id'
+                    . ' AND %1$s.category_version_id = category.version_id'
+                    . ' AND %1$s.language_id = :language%2$d',
+                    $alias,
+                    $index
+                )
+            );
+            $query->setParameter('language' . $index, Uuid::fromHexToBytes($languageId));
+            $coalesce[] = $alias . '.name';
+        }
 
-        $update = $this->connection->prepare('
-            INSERT INTO `category_translation` (`category_id`, `category_version_id`, `language_id`, `breadcrumb`, `created_at`)
-            VALUES (:categoryId, :versionId, :languageId, :breadcrumb, DATE(NOW()))
-            ON DUPLICATE KEY UPDATE `breadcrumb` = :breadcrumb
-        ');
-        $update = new RetryableQuery($this->connection, $update);
+        $query->select(
+            'LOWER(HEX(category.id)) AS id',
+            'LOWER(HEX(category.parent_id)) AS parentId',
+            'COALESCE(' . implode(', ', $coalesce) . ') AS name'
+        );
 
+        $names = [];
+        foreach ($query->executeQuery()->fetchAllAssociative() as $row) {
+            $names[(string) $row['id']] = [
+                'parentId' => $row['parentId'] !== null ? (string) $row['parentId'] : null,
+                'name' => $row['name'] !== null ? (string) $row['name'] : null,
+            ];
+        }
+
+        return $names;
+    }
+
+    /**
+     * @param string[] $ids
+     * @param array<string, array{parentId: string|null, name: string|null}> $names
+     */
+    private function updateLanguage(array $ids, string $languageId, array $names): void
+    {
+        $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $languageIdBytes = Uuid::fromHexToBytes($languageId);
+
+        $cache = [];
+        $rows = [];
         foreach ($ids as $id) {
-            try {
-                $path = $this->buildBreadcrumb($id, $categories);
-            } catch (CategoryNotFoundException) {
+            $breadcrumb = $this->buildBreadcrumb($id, $names, $cache);
+            if ($breadcrumb === null) {
                 continue;
             }
 
-            $update->execute([
-                'categoryId' => Uuid::fromHexToBytes($id),
-                'versionId' => $versionId,
-                'languageId' => $languageId,
-                'breadcrumb' => json_encode($path, \JSON_THROW_ON_ERROR),
-            ]);
+            $rows[] = [
+                Uuid::fromHexToBytes($id),
+                $versionId,
+                $languageIdBytes,
+                json_encode($breadcrumb, \JSON_THROW_ON_ERROR),
+            ];
+        }
+
+        foreach (array_chunk($rows, self::WRITE_CHUNK_SIZE) as $chunk) {
+            $this->write($chunk);
         }
     }
 
     /**
-     * @return array<string, string>
+     * @param array<string, array{parentId: string|null, name: string|null}> $names
+     * @param array<string, array<string, string|null>|null> $cache
+     *
+     * @return array<string, string|null>|null
      */
-    private function buildBreadcrumb(string $id, CategoryCollection $categories): array
+    private function buildBreadcrumb(string $id, array $names, array &$cache): ?array
     {
-        $category = $categories->get($id);
+        if (\array_key_exists($id, $cache)) {
+            return $cache[$id];
+        }
 
-        if (!$category) {
-            throw CategoryException::categoryNotFound($id);
+        $category = $names[$id] ?? null;
+        if ($category === null) {
+            return $cache[$id] = null;
         }
 
         $breadcrumb = [];
-        if ($category->getParentId()) {
-            $breadcrumb = $this->buildBreadcrumb($category->getParentId(), $categories);
+        if ($category['parentId'] !== null) {
+            $parent = $this->buildBreadcrumb($category['parentId'], $names, $cache);
+            if ($parent === null) {
+                // A missing ancestor invalidates the whole chain, as in core.
+                return $cache[$id] = null;
+            }
+            $breadcrumb = $parent;
         }
 
-        $breadcrumb[$category->getId()] = $category->getTranslation('name');
+        $breadcrumb[$id] = $category['name'];
 
-        return $breadcrumb;
+        return $cache[$id] = $breadcrumb;
+    }
+
+    /**
+     * @param array<int, array{0: string, 1: string, 2: string, 3: string}> $rows
+     */
+    private function write(array $rows): void
+    {
+        if ($rows === []) {
+            return;
+        }
+
+        $placeholders = implode(', ', array_fill(0, \count($rows), '(?, ?, ?, ?, DATE(NOW()))'));
+
+        $parameters = [];
+        foreach ($rows as $row) {
+            foreach ($row as $value) {
+                $parameters[] = $value;
+            }
+        }
+
+        RetryableQuery::retryable($this->connection, function () use ($placeholders, $parameters): void {
+            $this->connection->executeStatement(
+                'INSERT INTO `category_translation` (`category_id`, `category_version_id`, `language_id`, `breadcrumb`, `created_at`)
+                 VALUES ' . $placeholders . '
+                 ON DUPLICATE KEY UPDATE `breadcrumb` = VALUES(`breadcrumb`)',
+                $parameters
+            );
+        });
     }
 }

@@ -32,10 +32,10 @@ class SsoServiceTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            $this->createMock(RouterInterface::class)
+            static::createStub(RouterInterface::class)
         );
 
-        $ssoService = new SsoService($loginConfigService, $this->createMock(RefreshTokenRepository::class));
+        $ssoService = new SsoService($loginConfigService, static::createStub(RefreshTokenRepository::class));
 
         static::assertTrue($ssoService->isSso());
     }
@@ -43,9 +43,9 @@ class SsoServiceTest extends TestCase
     public function testIsSsoShouldReturnFalse(): void
     {
         // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
-        $loginConfigService = new LoginConfigService([], $this->createMock(RouterInterface::class));
+        $loginConfigService = new LoginConfigService([], static::createStub(RouterInterface::class));
 
-        $ssoService = new SsoService($loginConfigService, $this->createMock(RefreshTokenRepository::class));
+        $ssoService = new SsoService($loginConfigService, static::createStub(RefreshTokenRepository::class));
 
         static::assertFalse($ssoService->isSso());
     }
@@ -53,7 +53,7 @@ class SsoServiceTest extends TestCase
     public function testRevokeUserTokensDelegatesToRepository(): void
     {
         // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
-        $loginConfigService = new LoginConfigService([], $this->createMock(RouterInterface::class));
+        $loginConfigService = new LoginConfigService([], static::createStub(RouterInterface::class));
 
         $refreshTokenRepository = $this->createMock(RefreshTokenRepository::class);
         $refreshTokenRepository->expects($this->once())

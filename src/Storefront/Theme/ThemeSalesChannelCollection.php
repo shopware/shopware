@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<ThemeSalesChannel>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeSalesChannelCollection extends Collection
 {
     protected function getExpectedClass(): string

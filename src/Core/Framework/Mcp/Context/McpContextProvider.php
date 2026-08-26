@@ -8,14 +8,14 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Bridges the authenticated HTTP request context into MCP tool invocations.
  * The MCP bundle's HTTP transport processes requests through Shopware's API middleware,
  * so the Context is already resolved and attached to the request by ApiRequestContextResolver.
  */
 #[Package('framework')]
-class McpContextProvider
+class McpContextProvider implements McpContextProviderInterface
 {
     /**
      * @internal

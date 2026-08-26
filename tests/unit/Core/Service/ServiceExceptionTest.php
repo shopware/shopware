@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\ServiceException;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceException::class)]
 class ServiceExceptionTest extends TestCase
 {
@@ -46,8 +48,8 @@ class ServiceExceptionTest extends TestCase
 
     public function testRequestFailed(): void
     {
-        $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
+        $response = static::createStub(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
 
         $e = ServiceException::requestFailed($response);
 
@@ -59,7 +61,7 @@ class ServiceExceptionTest extends TestCase
     public function testRequestFailedWithErrors(): void
     {
         $response = static::createMock(ResponseInterface::class);
-        $response->expects($this->any())->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
+        $response->method('getStatusCode')->willReturn(Response::HTTP_NOT_FOUND);
         $response->expects($this->once())->method('toArray')->with(false)->willReturn(['errors' => ['Error 1', 'Error 2']]);
 
         $e = ServiceException::requestFailed($response);
@@ -125,13 +127,13 @@ class ServiceExceptionTest extends TestCase
         static::assertSame('Service is not allowed to toggle itself.', $e->getMessage());
     }
 
-    public function testMissingAppSecretInfo(): void
+    public function testStateChangeNotPermitted(): void
     {
-        $e = ServiceException::missingAppSecretInfo('app-123');
+        $e = ServiceException::stateChangeNotPermitted('MyCoolService');
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ServiceException::SERVICE_MISSING_APP_SECRET_INFO, $e->getErrorCode());
-        static::assertSame('Error creating client. The app secret information was missing. App ID: "app-123"', $e->getMessage());
+        static::assertSame(ServiceException::SERVICE_STATE_CHANGE_NOT_PERMITTED, $e->getErrorCode());
+        static::assertSame('The state of service "MyCoolService" is managed by its requirements and cannot be changed manually.', $e->getMessage());
     }
 
     public function testScheduledTaskNotRegistered(): void

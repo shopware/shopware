@@ -144,7 +144,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
-            $result = $this->repository->search(new Criteria([$id]), $this->context);
+            $result = $this->repository->search(new Criteria([$id]), $this->context)->getEntities();
             $importExportFile = $result->get($id);
             static::assertInstanceOf(ImportExportFileEntity::class, $importExportFile);
             static::assertCount(1, $result);
@@ -163,7 +163,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
+        $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context)->getEntities();
         static::assertCount(0, $result);
     }
 

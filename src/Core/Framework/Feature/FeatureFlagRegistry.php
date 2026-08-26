@@ -46,7 +46,7 @@ class FeatureFlagRegistry
         try {
             $stored = $this->keyValueStorage->get(self::STORAGE_KEY, []);
 
-            if (!empty($stored) && \is_string($stored)) {
+            if (\is_string($stored) && $stored !== '') {
                 $stored = \json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
             }
 
@@ -86,7 +86,7 @@ class FeatureFlagRegistry
             throw FeatureException::featureNotRegistered($feature);
         }
 
-        if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || (bool) $registeredFlags[$feature]['toggleable'] === false) {
+        if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || !$registeredFlags[$feature]['toggleable']) {
             throw FeatureException::featureCannotBeToggled($feature);
         }
 

@@ -10,12 +10,14 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeE
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -48,7 +50,7 @@ class MediaFolderConfigurationMediaThumbnailSizeTest extends TestCase
         $criteria = new Criteria([$configurationId]);
         $criteria->addAssociation('mediaThumbnailSizes');
 
-        $read = $repository->search($criteria, $context);
+        $read = $repository->search($criteria, $context)->getEntities();
         $configuration = $read->get($configurationId);
 
         static::assertInstanceOf(MediaFolderConfigurationEntity::class, $configuration);

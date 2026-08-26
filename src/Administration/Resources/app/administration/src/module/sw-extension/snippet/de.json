@@ -82,7 +82,6 @@
       "fileUpload": {
         "buttonFileUpload": "Erweiterung hochladen",
         "messageUploadSuccess": "Erweiterung hochgeladen.",
-        "titleWarningModal": "Warnung",
         "descriptionWarningModal": "Erweiterungen, die nicht aus dem Shopware Store stammen, wurden nicht von uns überprüft und könnten eine Gefahr für Deinen Shop darstellen. Wir empfehlen, wenn möglich, Erweiterungen aus dem Shopware Store zu verwenden.",
         "textHideWarning": "Nicht erneut anzeigen"
       }
@@ -127,10 +126,8 @@
     },
     "sw-extension-app-module-error-page": {
       "error": {
-        "heading": "Hoppla! Du bist zu schnell und hast die Orientierung verloren.",
-        "phrase": "Die Seite, die Du gesucht hast, liegt außerhalb unserer Reichweite. Vielleicht ist die Seite umgezogen, existiert nicht mehr oder Du magst einfach unsere 404-Seite. Wir werden es wahrscheinlich nie erfahren.",
-        "info": "Mach Dir keine Sorgen! Wir haben eine Weltraumrettungskatze entsandt, die Dich wieder in Sicherheit bringen wird.",
-        "lblBackButton": "Zurück"
+        "heading": "Seite nicht gefunden",
+        "description": "Die gesuchte Seite konnte nicht gefunden werden. Möglicherweise wurde sie verschoben oder existiert nicht mehr."
       }
     }
   },
@@ -283,16 +280,13 @@
         "inactiveLabel": "(inaktiv)",
         "purchasedLabel": "Gekauft:",
         "installedLabel": "Installiert:",
-        "openExtensionLabel": "Öffnen",
         "installExtensionLabel": "Installieren",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
         "allowDisableTooltip": "Diese App verwendet eigene Datenstrukturen, die sich auf Ihr System auswirken. Die App kann daher nicht deaktiviert werden.",
         "contextMenu": {
           "getHelpLabel": "Hilfe anfragen",
           "seeDetailsLabel": "Details ansehen",
-          "config": "Konfigurieren",
           "privacyAndSafetyLabel": "Datenschutz & Datensicherheit",
-          "removeLabel": "Entfernen",
           "cancelAndRemoveLabel": "Kündigen und entfernen",
           "uninstallLabel": "Deinstallieren",
           "updateLabel": "Aktualisieren auf {version}",
@@ -337,9 +331,7 @@
       },
       "sw-extension-permissions-details-modal": {
         "operationRead": "Ansehen",
-        "operationUpdate": "Bearbeiten",
-        "operationCreate": "Erstellen",
-        "operationDelete": "Löschen"
+        "operationCreate": "Erstellen"
       },
       "sw-extension-my-extensions-listing": {
         "apps": {
@@ -364,8 +356,7 @@
         "description": "Wenn Du die Erweiterung entfernst, kannst Du sie nicht mehr nutzen.",
         "alertCancel": "Möchtest Du die Erweiterung wirklich kündigen und entfernen?",
         "alertRemove": "Möchtest Du die Erweiterung wirklich entfernen?",
-        "labelCancel": "Kündigen und entfernen",
-        "labelRemove": "Entfernen"
+        "labelCancel": "Kündigen und entfernen"
       },
       "sw-extension-uninstall-modal": {
         "title": "\"{extensionName}\" deinstallieren",

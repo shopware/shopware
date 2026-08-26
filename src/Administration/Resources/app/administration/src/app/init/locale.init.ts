@@ -21,6 +21,11 @@ export default function initializeLocaleService() {
                 localeFactory.register(locale, {});
             });
 
+            const { systemLanguageId } = Shopware.Context.api;
+            const systemFallbackLocale = systemLanguageId ? (locales[systemLanguageId] ?? null) : null;
+
+            localeFactory.setSystemFallbackLocale(systemFallbackLocale);
+
             return snippetService.getSnippets(localeFactory);
         })
         .then(() => localeFactory)

@@ -348,6 +348,23 @@ export default {
             return item.type === this.lineItemTypes.PRODUCT;
         },
 
+        canOpenProduct(item) {
+            return this.isProductItem(item) && !!item.productId;
+        },
+
+        getProductRoute(item) {
+            if (!this.canOpenProduct(item)) {
+                return null;
+            }
+
+            return {
+                name: 'sw.product.detail',
+                params: {
+                    id: item.productId,
+                },
+            };
+        },
+
         isPromotionItem(item) {
             return item.type === this.lineItemTypes.PROMOTION;
         },

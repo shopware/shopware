@@ -4,13 +4,18 @@ namespace Shopware\Core\Checkout\Document\Aggregate\DocumentType;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentTypeTranslation\DocumentTypeTranslationCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed. Use `document.type_name` instead.
+ */
 #[Package('after-sales')]
 class DocumentTypeEntity extends Entity
 {
@@ -21,7 +26,7 @@ class DocumentTypeEntity extends Entity
 
     protected string $technicalName;
 
-    protected ?ProductTranslationCollection $translations = null;
+    protected ?DocumentTypeTranslationCollection $translations = null;
 
     protected ?DocumentCollection $documents = null;
 
@@ -49,12 +54,12 @@ class DocumentTypeEntity extends Entity
         $this->technicalName = $technicalName;
     }
 
-    public function getTranslations(): ?ProductTranslationCollection
+    public function getTranslations(): ?DocumentTypeTranslationCollection
     {
         return $this->translations;
     }
 
-    public function setTranslations(ProductTranslationCollection $translations): void
+    public function setTranslations(DocumentTypeTranslationCollection $translations): void
     {
         $this->translations = $translations;
     }

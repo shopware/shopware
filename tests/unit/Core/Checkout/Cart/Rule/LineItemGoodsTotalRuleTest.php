@@ -28,9 +28,9 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemGoodsTotalRule::class)]
 #[Group('rules')]
-#[Package('checkout')]
 class LineItemGoodsTotalRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -43,7 +43,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -59,7 +59,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -75,7 +75,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -94,7 +94,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $scope = new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $lineItemGoodsTotalRule = new LineItemGoodsTotalRule($operator, $count);
@@ -145,7 +145,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
 
         $scope = new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $lineItemGoodsTotalRule = new LineItemGoodsTotalRule($operator, $count);

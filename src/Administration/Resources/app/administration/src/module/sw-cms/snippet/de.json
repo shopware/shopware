@@ -88,8 +88,7 @@
       "chooseSectionTitle": "Mit welcher Sektion möchtest Du starten?",
       "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ sein kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
-      "createLayout": "Layout erstellen",
-      "stepBack": "Zurück"
+      "createLayout": "Layout erstellen"
     },
     "detail": {
       "alert": {
@@ -100,7 +99,6 @@
         "cssClassField": "Du kannst eine oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen"
       },
       "label": {
-        "buttonSave": "Speichern",
         "pageName": "Layout-Name",
         "pageNamePlaceholder": "Layout-Namen eingeben ...",
         "pageEntity": "Individuelle Entität",
@@ -266,7 +264,7 @@
           },
           "helpText": {
             "ariaLabel": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
-            "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "minHeight": "Gib die Mindesthöhe an. Eine reine Zahl wird als Pixel interpretiert. Aus \"200\" wird zum Beispiel \"200px\".",
             "fetchPriorityHigh": "Setze diese Option, wenn das Bild das erste Bild auf der Seite ist. Diesem Bild wird dann das Attribut 'fetchpriority=\"high\"' hinzugefügt, was dem Browser mitteilt, dass das Bild mit höherer Priorität geladen werden soll, was den Largest Contentful Paint (LCP) verbessern kann.",
             "useFetchPriorityOnFirstItem": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
             "isDecorative": "Wenn diese Option eingeschaltet ist, werden die Bildinformationen nicht von Screenreadern vorgelesen, das heißt der \"alt\"-Tag und \"title\"-Tag bleiben leer."
@@ -877,10 +875,7 @@
       },
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",
-        "edit": "Bearbeiten",
         "rename": "Umbenennen",
-        "delete": "Löschen",
-        "duplicate": "Duplizieren",
         "view": "Vorschau",
         "addPreviewImage": "Vorschau hinzufügen",
         "setAsDefaultProductList": "Als Standard für Kategorieseiten festlegen",
@@ -894,8 +889,7 @@
           "renameModalTitle": "Layout umbenennen",
           "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
-          "buttonRename": "Umbenennen",
-          "buttonDelete": "Löschen"
+          "buttonRename": "Umbenennen"
         }
       }
     }

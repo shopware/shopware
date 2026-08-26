@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class EmptyCartException extends CartException
 {

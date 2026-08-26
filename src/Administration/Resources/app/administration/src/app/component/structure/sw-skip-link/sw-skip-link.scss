@@ -2,22 +2,21 @@
 
 .sw-skip-link {
     position: fixed;
-    left: 24px;
-    top: 21px;
+    left: 20px;
+    top: 24px;
     height: 40px;
     width: auto;
     z-index: $z-index-help-sidebar;
     text-align: center;
-    background-color: var(--color-interaction-secondary-default);
-    border-radius: var(--border-radius-round);
-    border: 1px solid var(--color-border-primary-default);
+    background-color: var(--color-elevation-surface-floating);
+    border-radius: var(--border-radius-m);
     outline-offset: 2px;
-    outline: 2px solid var(--color-border-brand-selected);
+    outline: 2px solid var(--color-border-brand-default);
     padding: 0 16px;
     text-decoration: none;
     display: flex;
     align-items: center;
-    color: var(--color-text-primary-default);
+    color: var(--color-text-primary-inverse);
     font-family: var(--font-family-body);
     font-size: var(--font-size-xs);
     font-style: normal;

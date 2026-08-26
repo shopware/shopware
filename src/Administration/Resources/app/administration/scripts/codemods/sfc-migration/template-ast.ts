@@ -11,6 +11,7 @@
 
 import { ElementTypes, NodeTypes, isCoreComponent, parse, parserOptions } from '@vue/compiler-dom';
 import type { ElementNode, ExpressionNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
+import { camelize, capitalize } from 'vue';
 
 /**
  * Parses generated template markup, or returns `null` when Vue rejects it. Markup Vue cannot parse
@@ -96,9 +97,6 @@ function collectTemplateIdentifiers(template: string): Set<string> {
 
     return names;
 }
-
-const camelize = (tag: string): string => tag.replace(/-(\w)/g, (_, character: string) => character.toUpperCase());
-const capitalize = (name: string): string => name.charAt(0).toUpperCase() + name.slice(1);
 
 /**
  * A tag `resolveComponentType()` settles before it ever reaches the setup bindings: `<component>`

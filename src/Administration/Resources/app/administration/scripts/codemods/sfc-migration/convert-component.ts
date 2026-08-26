@@ -51,10 +51,11 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     }
 
     const langAttribute = input.lang === 'ts' ? ' lang="ts"' : '';
+    const commentBlock = template.sfcComments?.length ? `${template.sfcComments.join('\n')}\n` : '';
     const moduleBlock = script.moduleScript
         ? `<script data-sfc-migration-module${langAttribute}>\n${script.moduleScript}\n</script>\n\n`
         : '';
-    const rawSfc = `${moduleBlock}<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
+    const rawSfc = `${commentBlock}${moduleBlock}<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
 
     let formatted: string;
 

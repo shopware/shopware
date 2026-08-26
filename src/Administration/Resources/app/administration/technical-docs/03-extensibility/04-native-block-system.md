@@ -260,7 +260,7 @@ The registry maps a block name to an ordered array of Vue `Slot` functions. Ever
 
 ### `sw-block` render logic
 
-```148:172:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
+```148:180:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
         const template = computed(() => {
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
@@ -286,6 +286,15 @@ The registry maps a block name to an ordered array of Vue `Slot` functions. Ever
             providedParents.value = blocksNodes;
             return lastNode;
         });
+
+        return {
+            template,
+        };
+    },
+    render() {
+        return reduceToSingleRoot(this.template);
+    },
+});
 ```
 
 `shimSlots` is built once in `setup()` from the legacy TwigJS overrides for this block name (via `getBlockEntries`), giving each shim a stable VNode type so reactive updates don't remount it.

@@ -3,63 +3,54 @@
  */
 
 /**
- * A comment left at the template root costs the component its element root.
+ * A Twig comment rendered no node, so keeping one at the Vue template root would turn a component
+ * with one root into a development-only fragment. Root Twig comments are moved outside `<template>`
+ * as SFC comments instead: the note stays in the generated source without entering the render tree.
  *
- * `{# … #}` renders nothing in twig, but the conversion turns it into an HTML comment, and a
- * development build keeps that comment as a second root node. The component's subtree is a fragment
- * from then on: attributes do still fall through, because Vue flags the shape `DEV_ROOT_FRAGMENT`,
- * but `$el` is the fragment's text anchor rather than an element — the same failure the single-root
- * reduction removes everywhere else, and the one `popover.directive.ts` throws on.
- *
- * Moving the comments into the block hands the root back and keeps each note next to the markup it
- * describes, because `reduceToSingleRoot()` skips an author's comment when it picks the block's
- * root. Only a template whose sole root is one converted block is touched: anything else renders a
- * fragment either way, so there is no root to restore.
+ * The marker preserves provenance while the other template passes run. An authored HTML comment is
+ * left exactly where it was, because it already rendered as a comment before the migration. Markers
+ * on nested Twig comments are only removed; those comments cannot change the component's root shape.
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
-import type { CommentNode, TemplateChildNode } from '@vue/compiler-dom';
-import { isConvertedBlock, parseTemplate } from './template-ast';
+import type { CommentNode } from '@vue/compiler-dom';
+import MagicString from 'magic-string';
+import { parseTemplate } from './template-ast';
 
-/** An eslint directive is positional — moving it would silence a line it was never written for. */
-const ESLINT_DIRECTIVE = /^\s*eslint-/;
+const TWIG_COMMENT_MARKER = '__sfc_migration_twig_comment__';
+const MARKED_COMMENT_START = `<!--${TWIG_COMMENT_MARKER}`;
 
-function isBlank(node: TemplateChildNode): boolean {
-    return node.type === NodeTypes.TEXT && node.content.trim() === '';
+type RootCommentsResult = {
+    template: string;
+    sfcComments: string[];
+};
+
+function restoreTwigComment(comment: string): string {
+    return comment.replaceAll(MARKED_COMMENT_START, '<!--');
 }
 
-function moveRootCommentsIntoBlock(template: string): string {
+function moveRootTwigCommentsOutOfTemplate(template: string): RootCommentsResult {
     const root = parseTemplate(template);
 
     if (root === null) {
-        return template;
+        return { template: restoreTwigComment(template), sfcComments: [] };
     }
 
-    const comments = root.children.filter((child): child is CommentNode => child.type === NodeTypes.COMMENT);
-    const rendered = root.children.filter((child) => child.type !== NodeTypes.COMMENT && !isBlank(child));
+    const comments = root.children.filter(
+        (child): child is CommentNode => child.type === NodeTypes.COMMENT && child.content.startsWith(TWIG_COMMENT_MARKER),
+    );
+    const output = new MagicString(template);
 
-    if (
-        comments.length === 0 ||
-        rendered.length !== 1 ||
-        comments.some((comment) => ESLINT_DIRECTIVE.test(comment.content))
-    ) {
-        return template;
+    for (const comment of comments) {
+        output.remove(comment.loc.start.offset, comment.loc.end.offset);
     }
 
-    const [block] = rendered;
-
-    // An empty block has no first child to insert before, and it renders an empty fragment whatever
-    // happens to the comments, so there is nothing to gain.
-    if (block.type !== NodeTypes.ELEMENT || !isConvertedBlock(block) || block.children.length === 0) {
-        return template;
-    }
-
-    const insertAt = block.children[0].loc.start.offset;
-    const moved = comments.map((comment) => template.slice(comment.loc.start.offset, comment.loc.end.offset)).join('\n');
-
-    // Everything outside the block is a comment or whitespace, so keeping only the block's own
-    // source removes the comments from the root and leaves nothing else behind.
-    return `${template.slice(block.loc.start.offset, insertAt)}${moved}\n${template.slice(insertAt, block.loc.end.offset)}`;
+    return {
+        template: restoreTwigComment(output.toString()),
+        sfcComments: comments.map((comment) =>
+            restoreTwigComment(template.slice(comment.loc.start.offset, comment.loc.end.offset)),
+        ),
+    };
 }
 
-export { moveRootCommentsIntoBlock };
+export { moveRootTwigCommentsOutOfTemplate, TWIG_COMMENT_MARKER, type RootCommentsResult };

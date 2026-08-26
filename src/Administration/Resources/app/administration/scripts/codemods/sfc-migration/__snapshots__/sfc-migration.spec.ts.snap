@@ -28,9 +28,9 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 {
   "outcome": "full",
   "reasons": [],
-  "sfc": "<template>
+  "sfc": "<!-- Legacy twig comment, becomes an HTML comment -->
+<template>
     <sw-block name="sw_block_demo">
-        <!-- Legacy twig comment, becomes an HTML comment -->
         <div class="sw-block-demo">
             <sw-block name="sw_block_demo_inner">
                 <p>{{ message }}</p>
@@ -1472,9 +1472,9 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 {
   "outcome": "full",
   "reasons": [],
-  "sfc": "<template>
+  "sfc": "<!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->
+<template>
     <sw-block name="sw_root_comment">
-        <!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->
         <div class="sw-root-comment">{{ label }}</div>
     </sw-block>
 </template>

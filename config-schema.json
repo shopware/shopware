@@ -1456,6 +1456,16 @@
                 "url_upload_max_size": {
                     "type": "string"
                 },
+                "url_upload_timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "title": "Maximum duration in seconds for fetching a media file from a URL. Set to 0 to disable the timeout."
+                },
+                "external_link_timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "title": "Maximum duration in seconds for checking an external media link. Set to 0 to disable the timeout."
+                },
                 "remote_thumbnails": {
                     "type": "object",
                     "additionalProperties": false,

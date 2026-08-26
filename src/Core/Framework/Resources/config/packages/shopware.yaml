@@ -418,6 +418,8 @@ shopware:
         enable_url_upload_feature: true
         enable_url_validation: true
         url_upload_max_size: 0
+        url_upload_timeout: 0.0
+        external_link_timeout: 0.0
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'

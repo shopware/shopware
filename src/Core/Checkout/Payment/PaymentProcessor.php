@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -97,7 +99,7 @@ class PaymentProcessor
             return $response;
         } catch (\Throwable $e) {
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage(), 'exceptionTrace' => $e->getTraceAsString(), 'exception' => $e]);
-            $this->transactionStateHandler->fail($transaction->getId(), $salesChannelContext->getContext());
+            $this->failTransaction($transaction->getId(), $salesChannelContext->getContext());
             if ($errorUrl !== null) {
                 $errorCode = $e instanceof HttpException ? $e->getErrorCode() : PaymentException::PAYMENT_PROCESS_ERROR;
 
@@ -149,7 +151,7 @@ class PaymentProcessor
                 $this->transactionStateHandler->cancel($transactionId, $context->getContext());
             } else {
                 $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
-                $this->transactionStateHandler->fail($transactionId, $context->getContext());
+                $this->failTransaction($transactionId, $context->getContext());
             }
 
             if ($token instanceof PaymentToken) {
@@ -193,6 +195,23 @@ class PaymentProcessor
             );
 
             throw $e;
+        }
+    }
+
+    /**
+     * The transaction can reach a state that cannot be failed while the payment handler is running, for example
+     * when the payment provider confirms it through a webhook. Failing is then neither possible nor wanted, and
+     * the payment error is the one the caller has to act on, so it must not be replaced by this one.
+     */
+    private function failTransaction(string $transactionId, Context $context): void
+    {
+        try {
+            $this->transactionStateHandler->fail($transactionId, $context);
+        } catch (IllegalTransitionException $illegalTransition) {
+            $this->logger->error(
+                'The order transaction could not be failed after the payment error',
+                ['orderTransactionId' => $transactionId, 'exceptionMessage' => $illegalTransition->getMessage()]
+            );
         }
     }
 

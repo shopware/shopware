@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 
 #[Package('checkout')]
 class PaymentRefundProcessor
@@ -62,7 +63,12 @@ class PaymentRefundProcessor
             $struct = $this->transactionStructFactory->refund($refundId, $orderTransactionId);
             $refundHandler->refund($struct, $context);
         } catch (\Throwable $e) {
-            $this->stateHandler->fail($refundId, $context);
+            try {
+                $this->stateHandler->fail($refundId, $context);
+            } catch (IllegalTransitionException) {
+                // The refund reached a state that cannot be failed, for example because it completed
+                // concurrently. The refund error is the one worth reporting.
+            }
 
             throw $e;
         }

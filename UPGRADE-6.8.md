@@ -367,6 +367,16 @@ After:
 public function fail(string $transactionId, Context $context, array $skipIfInStates = []): void
 ```
 
+Until then an override with the old signature keeps working, but it does not pass the list on and therefore silently drops the guard it carries. Forward it in the meantime:
+
+```php
+public function fail(string $transactionId, Context $context): void
+{
+    // your logic
+    parent::fail(...\func_get_args());
+}
+```
+
 ## Landing page slot config must not be null
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.

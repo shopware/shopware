@@ -172,7 +172,7 @@ class StateMachineRegistry implements ResetInterface
         // have its own result overwritten by ours. Without the lock the destination was computed from a state that
         // another process could still change, which silently reverted state changes it had already committed.
         return RetryableTransaction::transactional($this->connection, function () use ($transition, $context, $stateMachine, $stateField, $definition, $repository): StateMachineTransitionResult {
-            $fromPlace = $this->lockAndReadCurrentPlace($definition, $stateField, $transition, $context);
+            $fromPlace = $this->readCurrentPlace($definition, $stateField, $transition, $context, $repository);
 
             if (\in_array($fromPlace->getTechnicalName(), $transition->getSkipIfInStates(), true)) {
                 // The caller declared this state as one it must not transition away from. It was reached after the
@@ -251,20 +251,31 @@ class StateMachineRegistry implements ResetInterface
     /**
      * Reads the current state directly from the entity row and keeps that row locked for the rest of the
      * transaction. Reading through the DAL would return the same state but would not lock anything, which is the
-     * whole point of this read.
+     * whole point of this read. An inherited state field is the one case that cannot be locked this way and keeps
+     * the DAL read.
+     *
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      *
      * @throws StateMachineException
      */
-    private function lockAndReadCurrentPlace(
+    private function readCurrentPlace(
         EntityDefinition $definition,
         StateMachineStateField $stateField,
         Transition $transition,
-        Context $context
+        Context $context,
+        EntityRepository $repository
     ): StateMachineStateEntity {
         if ($stateField->is(Inherited::class)) {
-            // An inherited state lives on the parent row, so locking this row would guard the wrong state.
-            // No such field exists today; fail loudly rather than serialize nothing.
-            throw StateMachineException::stateMachineInvalidStateField($transition->getStateFieldName());
+            // An inherited state can be resolved from the parent row, which a lock on this row would not cover.
+            // No core or first-party entity declares one, so rather than refuse the transition outright, keep the
+            // unlocked read this class used before. Such a transition is not serialized against concurrent changes.
+            return $this->getFromPlace(
+                $transition->getEntityName(),
+                $transition->getEntityId(),
+                $transition->getStateFieldName(),
+                $context,
+                $repository
+            );
         }
 
         $idField = $definition->getPrimaryKeys()

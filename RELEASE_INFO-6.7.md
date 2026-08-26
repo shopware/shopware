@@ -2,13 +2,21 @@
 
 ## Core
 
-### State transitions are serialized against concurrent state changes
+### State transitions are computed from the locked entity row
 
-`StateMachineRegistry::transition()` now locks the entity row and computes the transition from the state that row carries at that moment, instead of from a state that was read before. A state change another process committed in between is therefore no longer overwritten: the transition is recalculated against the new state, and raises `IllegalTransitionException` if it is no longer allowed from there. Previously a payment confirmed by a payment service provider webhook could be silently reverted to `failed`.
+`StateMachineRegistry::transition()` now locks the entity row for the duration of the transaction that writes the new state, and derives the source state, the destination, the history entry and the state update from that locked read instead of from a state read beforehand. Two processes transitioning the same entity therefore queue behind each other rather than both computing a destination from the same state, and the second one is recalculated against what the first committed: it raises `IllegalTransitionException` when the transition is no longer allowed from there. Previously a payment confirmed by a payment service provider webhook could be silently reverted to `failed`.
 
-`Transition` accepts an optional `skipIfInStates` argument, a list of technical state names the transition must not be executed from even when the state machine allows it. It is evaluated against the locked state, so callers can rule out a state another process reached without reintroducing the race. `OrderTransactionStateHandler::fail()` accepts such a list as a third argument and passes it through. That argument is announced with `#[NewOptionalParameter]` and only becomes part of the signature in 6.8, so classes overriding `fail()` keep working until they add it.
+Two limits are worth knowing. A transition triggered from inside another transition of the same entity in the same process still runs inside the outer transaction and can still be overwritten by it. And a state field flagged `Inherited` can be resolved from a parent row, which this lock does not cover, so such a transition keeps the previous unlocked behaviour; no core entity declares one.
 
-`PaymentRecurringProcessor::processRecurring()` uses this to guard `paid` and `authorized`. When the payment was confirmed while the payment handler was running, the transaction keeps its confirmed state and the method returns normally instead of rethrowing the handler error, because the payment did go through. Callers that relied on every handler error surfacing as an exception — for example to mark a subscription as failed — now correctly see a success for these renewals.
+Because the destination is now recalculated, `IllegalTransitionException` reaches callers in cases that previously wrote the state anyway. `PaymentProcessor::pay()`, `PaymentProcessor::finalize()` and `PaymentRefundProcessor` catch it around the `fail()` they perform after a payment error, so the payment error itself still reaches the caller.
+
+`Transition` accepts an optional `skipIfInStates`, a list of technical state names the transition must not be executed from even when the state machine allows it. It is evaluated against the locked state, so a caller can rule out a state another process reached without reintroducing the race. `OrderTransactionStateHandler::fail()` accepts such a list as a third argument, announced with `#[NewOptionalParameter]` because the class is not final and a real signature change would stop existing subclasses from loading. A subclass overriding `fail()` with the 6.7 signature keeps loading and working, but does not pass the list on, so that installation keeps the previous behaviour for these transitions; forward it with `parent::fail(...\func_get_args())` until the 6.8 signature is adopted.
+
+`PaymentRecurringProcessor::processRecurring()` uses the list to guard `paid` and `authorized`. When the payment was confirmed while the payment handler was running, the transaction keeps that state and the method returns normally instead of rethrowing the handler error, because the provider accepted the payment. Callers that relied on every handler error surfacing as an exception — for example to mark a subscription as failed — now correctly see a success for these renewals.
+
+### Failed payments can be authorized afterwards
+
+`order_transaction.state` gained an `authorize` transition from `failed`. A payment provider can report an authorization after the transaction was already failed, and every other confirmation could already be applied on top of a failed transaction — `paid`, `paid_partially`, `process`, `process_unconfirmed` and `reopen` all start there. Only `authorize` could not, which left such a transaction failed for good.
 
 ### Customer imports validate customer number patterns
 

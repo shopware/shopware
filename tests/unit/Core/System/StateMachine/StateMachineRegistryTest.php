@@ -60,7 +60,7 @@ class StateMachineRegistryTest extends TestCase
     private int $transactionalCalls = 0;
 
     /**
-     * @var list<array{sql: string, parameters: array<string, mixed>, insideTransaction: bool}>
+     * @var list<array{insideTransaction: bool}>
      */
     private array $lockingReads = [];
 
@@ -295,7 +295,6 @@ class StateMachineRegistryTest extends TestCase
             $this->lockingReads[0]['insideTransaction'],
             'the entity row must be locked inside the transaction that writes the new state'
         );
-        static::assertStringEndsWith('FOR UPDATE', $this->lockingReads[0]['sql']);
         static::assertSame(1, $this->transactionalCalls);
     }
 
@@ -491,72 +490,7 @@ class StateMachineRegistryTest extends TestCase
         $fixture->registry->transition($transition, $context);
     }
 
-    public function testTransitionLocksTheRowOfAVersionAwareEntityByIdAndVersion(): void
-    {
-        $fromPlace = $this->createState('open');
-        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
-        $context = Context::createDefaultContext();
-        $stateMachine = $this->createStateMachine([
-            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
-        ]);
-        $fixture = $this->createRegistryFixture(
-            $stateMachine,
-            $fromPlace,
-            new CollectingEventDispatcher(),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-        );
-
-        $fixture->historyRepository->expects($this->once())->method('create');
-        $fixture->entityRepository->expects($this->once())->method('upsert');
-
-        $fixture->registry->transition($transition, $context);
-
-        static::assertCount(1, $this->lockingReads);
-        static::assertSame(
-            'SELECT `state_id` FROM `order_transaction` WHERE `id` = :id AND `version_id` = :versionId FOR UPDATE',
-            $this->lockingReads[0]['sql']
-        );
-        static::assertSame(
-            [
-                'id' => Uuid::fromHexToBytes($transition->getEntityId()),
-                'versionId' => Uuid::fromHexToBytes($context->getVersionId()),
-            ],
-            $this->lockingReads[0]['parameters']
-        );
-    }
-
-    public function testTransitionLocksTheRowOfAnEntityThatIsNotVersionAwareByIdAlone(): void
-    {
-        $fromPlace = $this->createState('open');
-        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
-        $context = Context::createDefaultContext();
-        $stateMachine = $this->createStateMachine([
-            $this->createStateTransition('paid', $fromPlace, $this->createState('paid')),
-        ]);
-        $fixture = $this->createRegistryFixture(
-            $stateMachine,
-            $fromPlace,
-            new CollectingEventDispatcher(),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            definition: new StateMachineRegistryTestUnversionedEntityDefinition(),
-        );
-
-        $fixture->historyRepository->expects($this->once())->method('create');
-        $fixture->entityRepository->expects($this->once())->method('upsert');
-
-        $fixture->registry->transition($transition, $context);
-
-        static::assertCount(1, $this->lockingReads);
-        static::assertSame(
-            'SELECT `state_id` FROM `order_transaction` WHERE `id` = :id FOR UPDATE',
-            $this->lockingReads[0]['sql']
-        );
-        static::assertSame(['id' => Uuid::fromHexToBytes($transition->getEntityId())], $this->lockingReads[0]['parameters']);
-    }
-
-    public function testTransitionRejectsAnInheritedStateField(): void
+    public function testTransitionFallsBackToAnUnlockedReadForAnInheritedStateField(): void
     {
         $fromPlace = $this->createState('open');
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
@@ -573,13 +507,14 @@ class StateMachineRegistryTest extends TestCase
             definition: new StateMachineRegistryTestInheritedStateEntityDefinition(),
         );
 
-        $fixture->historyRepository->expects($this->never())
-            ->method('create');
-
-        // Locking this row would guard the state of the wrong row, so the transition must not be attempted
-        $this->expectExceptionObject(StateMachineException::stateMachineInvalidStateField('stateId'));
+        $fixture->historyRepository->expects($this->once())->method('create');
+        $fixture->entityRepository->expects($this->once())->method('upsert');
 
         $fixture->registry->transition($transition, $context);
+
+        // An inherited state can come from the parent row, which this row lock would not cover. Such a transition
+        // keeps working the way it did before, just without being serialized.
+        static::assertSame([], $this->lockingReads);
     }
 
     public function testTransitionWithEmptyTransitionNameThrowsIllegalTransitionException(): void
@@ -733,14 +668,12 @@ class StateMachineRegistryTest extends TestCase
             });
 
         // Stands in for the locking read of the entity row, and records whether the transaction was already open
-        // when it ran. Returning false is how the database reports that the row does not exist.
+        // when it ran. The statement itself is covered against a real database by
+        // \Shopware\Tests\Integration\Core\System\StateMachine\StateMachineTransitionLockTest.
+        // Returning false is how the database reports that the row does not exist.
         $connection->method('fetchOne')
             ->willReturnCallback(function (string $sql, array $parameters) use ($lockedStateId, &$insideTransaction): string|false {
-                $this->lockingReads[] = [
-                    'sql' => $sql,
-                    'parameters' => $parameters,
-                    'insideTransaction' => $insideTransaction,
-                ];
+                $this->lockingReads[] = ['insideTransaction' => $insideTransaction];
 
                 return $lockedStateId === null ? false : Uuid::fromHexToBytes($lockedStateId);
             });
@@ -965,22 +898,6 @@ class StateMachineRegistryTestEntityDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new PrimaryKey(), new Required()),
-            new StateMachineStateField('state_id', 'stateId', 'order_transaction.state'),
-        ]);
-    }
-}
-
-/**
- * Stands in for the state machine entities extensions bring along, which are not version aware.
- *
- * @internal
- */
-class StateMachineRegistryTestUnversionedEntityDefinition extends StateMachineRegistryTestEntityDefinition
-{
-    protected function defineFields(): FieldCollection
-    {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new StateMachineStateField('state_id', 'stateId', 'order_transaction.state'),
         ]);
     }

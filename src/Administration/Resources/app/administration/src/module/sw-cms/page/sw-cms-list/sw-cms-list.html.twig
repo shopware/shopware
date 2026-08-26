@@ -42,13 +42,6 @@
 
             {% block sw_cms_list_content %}
             <div class="sw-cms-list__content">
-                {# @deprecated tag:v6.9.0 - Kept as extension anchors, the page type tabs moved above the listing. #}
-                {% block sw_cms_list_sidebar %}
-                    {% block sw_cms_list_sidebar_tabs %}
-                        {% block sw_cms_list_sidebar_mt_tabs %}{% endblock %}
-                    {% endblock %}
-                {% endblock %}
-
                 {% block sw_cms_list_listing %}
                 <div class="sw-cms-list__listing">
 
@@ -78,6 +71,7 @@
                             variant="secondary"
                             size="small"
                             square
+                            :aria-label="$t('sw-cms.general.switchLayoutListMode')"
                             @click="onListModeChange"
                         >
                             <mt-icon
@@ -95,10 +89,12 @@
                     </div>
                     {% endblock %}
 
-                    {% block sw_cms_list_listing_page_type_tabs %}
+                    {# the page type tabs are horizontal now, the block names and the position identifier stay for extension compatibility #}
+                    {% block sw_cms_list_sidebar %}
                     <div class="sw-cms-list__type-nav-horizontal">
+                        {% block sw_cms_list_sidebar_tabs %}
                         <template v-if="feature.isActive('v6.8.0.0')">
-                            {% block sw_cms_list_listing_page_type_mt_tabs %}
+                            {% block sw_cms_list_sidebar_mt_tabs %}
                             <mt-tabs
                                 position-identifier="sw-cms-list-sidebar"
                                 :default-item="activePageTypeTab"
@@ -118,13 +114,14 @@
                                     v-for="pageType in sortPageTypes"
                                     :key="pageType.name"
                                     :disabled="pageType.disabled || undefined"
-                                    :active="(pageType.value || 'all-pages') === activePageTypeTab"
+                                    :active="pageType.active"
                                     @click="onSortPageType(pageType.value)"
                                 >
                                     {{ pageType.name }}
                                 </sw-tabs-item>
                             </sw-tabs>
                         </template>
+                        {% endblock %}
                     </div>
                     {% endblock %}
 

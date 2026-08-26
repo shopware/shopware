@@ -50,16 +50,17 @@
     }
 
     .sw-cms-list__list-grid-content {
+        --sw-cms-list-grid-gap: var(--scale-size-24);
+
         display: grid;
 
         // min() keeps at least two columns on very narrow pages by subtracting half the gap
-        grid-template-columns: repeat(auto-fill, minmax(min(260px, calc(50% - var(--scale-size-12))), 1fr));
-        grid-gap: var(--scale-size-24);
+        grid-template-columns: repeat(auto-fill, minmax(min(260px, calc(50% - var(--sw-cms-list-grid-gap) / 2)), 1fr));
+        grid-gap: var(--sw-cms-list-grid-gap);
         align-content: start;
 
         @media screen and (max-width: 700px) {
-            grid-template-columns: repeat(auto-fill, minmax(min(260px, calc(50% - var(--scale-size-8))), 1fr));
-            grid-gap: var(--scale-size-16);
+            --sw-cms-list-grid-gap: var(--scale-size-16);
         }
 
         .sw-skeleton__gallery::before {

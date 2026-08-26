@@ -277,10 +277,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             {
                 name: 'page',
                 value: 'page',
+                active: false,
             },
             {
                 name: 'landingpage',
                 value: 'landingpage',
+                active: false,
             },
         ]);
     });
@@ -320,32 +322,23 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             }),
         ]);
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+
+        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
+        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-list__sidebar').exists()).toBe(false);
     });
 
     it('should size the card view pagination steps and skeletons like the card view limit', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const { cardView } = wrapper.vm.limitDefaults;
-
-        expect(wrapper.getComponent({ name: 'sw-pagination' }).props('steps')).toEqual([cardView]);
+        expect(wrapper.vm.limitDefaults.cardView).toBe(9);
+        expect(wrapper.getComponent({ name: 'sw-pagination' }).props('steps')).toEqual([9]);
 
         wrapper.vm.isLoading = true;
         await flushPromises();
 
-        expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(cardView);
-    });
-
-    it('should render the page type tabs horizontally above the list', async () => {
-        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
-        await flushPromises();
-
-        const tabs = wrapper.findAllComponents({ name: 'mt-tabs' });
-        expect(tabs).toHaveLength(1);
-
-        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
-        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
-        expect(wrapper.find('.sw-cms-list__sidebar').exists()).toBe(false);
+        expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(9);
     });
 
     it('should mark the active page type in the deprecated tab bar', async () => {

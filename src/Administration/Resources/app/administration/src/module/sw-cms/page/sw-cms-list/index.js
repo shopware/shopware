@@ -85,7 +85,7 @@ export default {
             const sortByAllPagesOption = {
                 value: '',
                 name: this.$t('sw-cms.sorting.labelSortByAllPages'),
-                active: true,
+                active: this.activePageTypeTab === 'all-pages',
             };
 
             return this.cmsPageTypeService.getTypes().reduce(
@@ -93,6 +93,7 @@ export default {
                     accumulator.push({
                         value: pageType.name,
                         name: this.$t(pageType.title),
+                        active: this.activePageTypeTab === pageType.name,
                     });
 
                     return accumulator;

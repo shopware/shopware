@@ -393,9 +393,7 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 ### CMS layout listing page type tabs moved
 
-The page type navigation of the layout listing (Content > Layouts) moved from a vertical sidebar to horizontal tabs above the listing.
-
-The blocks `sw_cms_list_sidebar`, `sw_cms_list_sidebar_tabs` and `sw_cms_list_sidebar_mt_tabs` still exist but are empty and deprecated for removal in v6.9.0. Content injected there renders outside the listing and is no longer positioned. Register additional page type tabs in the new blocks `sw_cms_list_listing_page_type_tabs` and `sw_cms_list_listing_page_type_mt_tabs` instead.
+The page type navigation of the layout listing (Content > Layouts) moved from a vertical sidebar to horizontal tabs above the listing. The Twig blocks (`sw_cms_list_sidebar`, `sw_cms_list_sidebar_tabs`, `sw_cms_list_sidebar_mt_tabs`) and the position identifier `sw-cms-list-sidebar` are unchanged; overrides and SDK tab extensions keep working and render at the new position.
 
 The element `div.sw-cms-list__sidebar` and the class `.sw-cms-list__type-nav` no longer exist; the tab bar is `.sw-cms-list__type-nav-horizontal`. Adapt custom styles and end-to-end test selectors accordingly.
 

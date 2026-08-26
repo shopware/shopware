@@ -22,12 +22,12 @@ class DocumentEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - Type will change to ?string.
      */
-    protected string $orderId = '';
+    protected string $orderId;
 
     /**
      * @deprecated tag:v6.8.0 - Type will change to ?string.
      */
-    protected string $orderVersionId = '';
+    protected string $orderVersionId;
 
     protected string $documentTypeId;
 
@@ -82,7 +82,7 @@ class DocumentEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderVersionId(): string
     {
-        return $this->orderVersionId;
+        return $this->orderVersionId ?? '';
     }
 
     #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderVersionId', newType: '?string', description: 'Will accept null for documents without order.')]
@@ -94,7 +94,7 @@ class DocumentEntity extends Entity
     #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderId(): string
     {
-        return $this->orderId;
+        return $this->orderId ?? '';
     }
 
     #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderId', newType: '?string', description: 'Will accept null for documents without order.')]

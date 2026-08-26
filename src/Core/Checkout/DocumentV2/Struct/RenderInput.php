@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Shared immutable input handed to all renderers during one generation run.
  *
- * It bundles the document source snapshot, the final document number and all provider DTOs so renderers
+ * It bundles the order snapshot, the final document number and all provider DTOs so renderers
  * can consume prepared data without reloading or recalculating it.
  *
  * @internal

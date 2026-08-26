@@ -182,9 +182,7 @@ class WebhookManagerTest extends TestCase
         unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId'], $data['source']['sequence']);
         static::assertSame([
             'data' => [
-                'payload' => [
-                    'contextToken' => 'testToken',
-                ],
+                'payload' => [],
                 'event' => CustomerLoginEvent::EVENT_NAME,
             ],
             'source' => [

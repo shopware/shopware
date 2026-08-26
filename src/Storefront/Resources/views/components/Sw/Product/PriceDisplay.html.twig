@@ -20,32 +20,29 @@
 } %}
 
 {% block component_product_box_price_info %}
-    {% if product is null %}
-        <div {{ attributes.defaults(attributeDefaults) }}>
+    <div {{ attributes.defaults(attributeDefaults) }}>
+        {% if product is null %}
             <twig:Sw:Icon name="tags" size="sm" />
             {{ 'detail.priceUnavailable'|trans|sw_sanitize }}
-        </div>
-    {% else %}
-        {% set cheapest = product.calculatedCheapestPrice %}
+        {% else %}
+            {% set cheapest = product.calculatedCheapestPrice %}
 
-        {% set real = product.calculatedPrice %}
-        {% if product.calculatedPrices.count > 0 %}
-            {% set real = product.calculatedPrices.last %}
-        {% endif %}
+            {% set real = product.calculatedPrice %}
+            {% if product.calculatedPrices.count > 0 %}
+                {% set real = product.calculatedPrices.last %}
+            {% endif %}
 
-        {% set referencePrice = real.referencePrice %}
+            {% set referencePrice = real.referencePrice %}
 
-        {% set displayFrom = product.calculatedPrices.count > 1 %}
-        {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+            {% set displayFrom = product.calculatedPrices.count > 1 %}
+            {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
-        {% if displayParent %}
-            {% set displayFromVariants = displayParent and real.unitPrice !== cheapest.unitPrice %}
-            {% set real = cheapest %}
-            {% set totalVariants = product.cheapestPriceContainer.value %}
-            {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}
-        {% endif %}
-
-        <div {{ attributes.defaults(attributeDefaults) }}>
+            {% if displayParent %}
+                {% set displayFromVariants = displayParent and real.unitPrice !== cheapest.unitPrice %}
+                {% set real = cheapest %}
+                {% set totalVariants = product.cheapestPriceContainer.value %}
+                {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}
+            {% endif %}
 
             {% if referencePrice is not null %}
                 <p class="sw-product-price-display__reference-price">
@@ -150,55 +147,9 @@
                 />
             {% endif %}
 
-            {#
-                Graduated (tiered) pricing table — a product detail page extra, shown when the product has
-                multiple calculated prices. Lists each quantity range with its price and, when available,
-                its reference price.
-            #}
-            {% block component_product_price_advanced_prices %}
-                {% if advancedPricing and product.calculatedPrices.count > 1 %}
-                    <table class="sw-product-price-display__advanced-prices table">
-                        <thead>
-                            <tr>
-                                <th scope="col">{{ 'detail.dataColumnQuantity'|trans|sw_sanitize }}</th>
-                                <th scope="col">{{ 'detail.dataColumnPrice'|trans|sw_sanitize }}</th>
-                                {% if product.calculatedPrice.referencePrice %}
-                                    <th scope="col">{{ 'detail.dataColumnReferencePrice'|trans|sw_sanitize }}</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tier in product.calculatedPrices %}
-                                {% set tierIsListPrice = tier.listPrice.percentage > 0 %}
-                                <tr class="sw-product-price-display__advanced-row">
-                                    <th scope="row" class="sw-product-price-display__advanced-quantity">
-                                        {% if loop.last %}
-                                            {{ 'detail.priceDataInfoFrom'|trans|sw_sanitize }}
-                                        {% else %}
-                                            {{ 'detail.priceDataInfoUntil'|trans|sw_sanitize }}
-                                        {% endif %}
-                                        <span>{{ tier.quantity }}</span>
-                                    </th>
-                                    <td class="sw-product-price-display__advanced-price">
-                                        <span class="{% if tierIsListPrice %}text-danger{% endif %}">{{ tier.unitPrice|currency }}</span>
-                                        {% if tierIsListPrice %}
-                                            <s class="fs-6">{{ tier.listPrice.price|currency }}</s>
-                                            <span class="fs-6">{{ 'detail.listPricePercentage'|trans({'%price%': tier.listPrice.percentage})|sw_sanitize }}</span>
-                                        {% endif %}
-                                    </td>
-                                    {% if product.calculatedPrice.referencePrice %}
-                                        <td class="sw-product-price-display__advanced-reference-price">
-                                            {% if tier.referencePrice is not null %}
-                                                {{ tier.referencePrice.price|currency }} / {{ tier.referencePrice.referenceUnit }} {{ tier.referencePrice.unitName }}
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            {% endblock %}
+            {% if advancedPricing %}
+                <twig:Sw:Product:AdvancedPrices :product="product" />
+            {% endif %}
 
             {#
                 Structured pricing data for search engines — a product detail page extra: a single Offer,
@@ -227,7 +178,6 @@
                     <script type="application/ld+json">{{ {'@context': 'https://schema.org'}|merge(offer)|json_encode|raw }}</script>
                 {% endif %}
             {% endblock %}
-
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 {% endblock %}

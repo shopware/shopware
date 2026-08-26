@@ -42,6 +42,51 @@
 
             {% block sw_cms_list_content %}
             <div class="sw-cms-list__content">
+                {# @deprecated tag:v6.9.0 - Block will be removed. Use `sw_cms_list_listing_page_type_tabs` instead. #}
+                {% block sw_cms_list_sidebar %}
+                <div
+                    v-if="hasPageTypeSidebarOverride"
+                    class="sw-cms-list__sidebar"
+                >
+                    {# @deprecated tag:v6.9.0 - Block will be removed. Use `sw_cms_list_listing_page_type_tabs` instead. #}
+                    {% block sw_cms_list_sidebar_tabs %}
+                    <template v-if="feature.isActive('v6.8.0.0')">
+                        {# @deprecated tag:v6.9.0 - Block will be removed. Use `sw_cms_list_listing_page_type_mt_tabs` instead. #}
+                        {% block sw_cms_list_sidebar_mt_tabs %}
+                        <mt-tabs
+                            vertical
+                            position-identifier="sw-cms-list-sidebar"
+                            class="sw-cms-list__type-nav"
+                            :default-item="activePageTypeTab"
+                            :items="cmsListPageTypeTabs"
+                            :use-routes-for-extensions="false"
+                            :small="true"
+                        />
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+                        <sw-tabs
+                            is-vertical
+                            small
+                            position-identifier="sw-cms-list-sidebar"
+                            class="sw-cms-list__type-nav"
+                        >
+                            <sw-tabs-item
+                                v-for="pageType in sortPageTypes"
+                                :key="pageType.name"
+                                :disabled="pageType.disabled || undefined"
+                                :active="pageType.active"
+                                @click="onSortPageType(pageType.value)"
+                            >
+                                {{ pageType.name }}
+                            </sw-tabs-item>
+                        </sw-tabs>
+                    </template>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
                 {% block sw_cms_list_listing %}
                 <div class="sw-cms-list__listing">
 
@@ -89,11 +134,13 @@
                     </div>
                     {% endblock %}
 
-                    {% block sw_cms_list_sidebar %}
-                    <div class="sw-cms-list__type-nav-horizontal">
-                        {% block sw_cms_list_sidebar_tabs %}
+                    {% block sw_cms_list_listing_page_type_tabs %}
+                    <div
+                        v-if="!hasPageTypeSidebarOverride"
+                        class="sw-cms-list__type-nav-horizontal"
+                    >
                         <template v-if="feature.isActive('v6.8.0.0')">
-                            {% block sw_cms_list_sidebar_mt_tabs %}
+                            {% block sw_cms_list_listing_page_type_mt_tabs %}
                             <mt-tabs
                                 position-identifier="sw-cms-list-sidebar"
                                 :default-item="activePageTypeTab"
@@ -120,7 +167,6 @@
                                 </sw-tabs-item>
                             </sw-tabs>
                         </template>
-                        {% endblock %}
                     </div>
                     {% endblock %}
 

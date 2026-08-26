@@ -328,6 +328,25 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.find('.sw-cms-list__sidebar').exists()).toBe(false);
     });
 
+    it('should render the sidebar instead of the horizontal tabs when a plugin overrides the sidebar blocks', async () => {
+        const overridesSpy = jest.spyOn(Shopware.Template, 'getTemplateOverrides').mockReturnValue([
+            {
+                index: 0,
+                raw: '{% block sw_cms_list_sidebar_tabs %}<div class="plugin-tabs"></div>{% endblock %}',
+            },
+        ]);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const sidebar = wrapper.find('.sw-cms-list__sidebar');
+        expect(sidebar.exists()).toBe(true);
+        expect(sidebar.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-list__type-nav-horizontal').exists()).toBe(false);
+
+        overridesSpy.mockRestore();
+    });
+
     it('should size the card view pagination steps and skeletons like the card view limit', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

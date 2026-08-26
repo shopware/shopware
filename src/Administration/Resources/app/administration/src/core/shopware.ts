@@ -172,6 +172,7 @@ class ShopwareClass implements CustomShopwareProperties {
         extend: TemplateFactory.extendComponentTemplate,
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
+        getTemplateOverrides: TemplateFactory.getTemplateOverrides,
     };
 
     /**

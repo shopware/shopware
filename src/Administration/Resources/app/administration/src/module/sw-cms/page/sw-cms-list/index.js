@@ -106,6 +106,13 @@ export default {
             return this.currentPageType || 'all-pages';
         },
 
+        // plugins overriding the sidebar blocks ship markup built for the vertical sidebar
+        hasPageTypeSidebarOverride() {
+            return Shopware.Template.getTemplateOverrides('sw-cms-list').some((override) =>
+                /\{%\s*block\s+sw_cms_list_sidebar/.test(override.raw ?? ''),
+            );
+        },
+
         cmsListPageTypeTabs() {
             return this.sortPageTypes.map((pageType) => {
                 const tab = {

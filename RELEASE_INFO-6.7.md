@@ -393,9 +393,11 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 ### CMS layout listing page type tabs moved
 
-The page type tabs of the layout listing (Content > Layouts) render horizontally above the listing instead of in a sidebar. The Twig blocks and the position identifier `sw-cms-list-sidebar` are unchanged; overrides and SDK tabs render at the new position.
+The page type tabs of the layout listing (Content > Layouts) render horizontally above the listing in the new blocks `sw_cms_list_listing_page_type_tabs` / `sw_cms_list_listing_page_type_mt_tabs`.
 
-For custom styles and end-to-end selectors: `div.sw-cms-list__sidebar` and `.sw-cms-list__type-nav` no longer exist, the tab bar is `.sw-cms-list__type-nav-horizontal`, and `.sw-cms-list__actions-mode` is now a `<button>` (`mt-button`) instead of a `div[role="button"]`.
+The sidebar blocks `sw_cms_list_sidebar`, `sw_cms_list_sidebar_tabs` and `sw_cms_list_sidebar_mt_tabs` are deprecated for removal in v6.9.0. While a plugin overrides one of them, the listing renders the previous left sidebar with its unchanged block content instead of the horizontal tabs, so existing overrides — replacing or extending via `{% parent %}` — keep working unchanged until they migrate to the new blocks.
+
+For custom styles and end-to-end selectors: the tab bar is `.sw-cms-list__type-nav-horizontal` (`.sw-cms-list__type-nav` only exists inside the deprecated sidebar), and `.sw-cms-list__actions-mode` is now a `<button>` (`mt-button`) instead of a `div[role="button"]`.
 
 ## Storefront
 

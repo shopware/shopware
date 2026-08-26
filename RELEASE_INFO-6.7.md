@@ -393,11 +393,9 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 ### CMS layout listing page type tabs moved
 
-The page type navigation of the layout listing (Content > Layouts) moved from a vertical sidebar to horizontal tabs above the listing. The Twig blocks (`sw_cms_list_sidebar`, `sw_cms_list_sidebar_tabs`, `sw_cms_list_sidebar_mt_tabs`) and the position identifier `sw-cms-list-sidebar` are unchanged; overrides and SDK tab extensions keep working and render at the new position.
+The page type tabs of the layout listing (Content > Layouts) render horizontally above the listing instead of in a sidebar. The Twig blocks and the position identifier `sw-cms-list-sidebar` are unchanged; overrides and SDK tabs render at the new position.
 
-The element `div.sw-cms-list__sidebar` and the class `.sw-cms-list__type-nav` no longer exist; the tab bar is `.sw-cms-list__type-nav-horizontal`. Adapt custom styles and end-to-end test selectors accordingly.
-
-`.sw-cms-list__actions-mode` is now an `mt-button` instead of a `div[role="button"]`. A `keydown.enter` handler bound to that selector no longer fires; the button handles Enter natively.
+For custom styles and end-to-end selectors: `div.sw-cms-list__sidebar` and `.sw-cms-list__type-nav` no longer exist, the tab bar is `.sw-cms-list__type-nav-horizontal`, and `.sw-cms-list__actions-mode` is now a `<button>` (`mt-button`) instead of a `div[role="button"]`.
 
 ## Storefront
 

@@ -341,7 +341,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(9);
     });
 
-    it('should mark the active page type in the deprecated tab bar', async () => {
+    it('should mark the active page type when the major feature flag is inactive', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

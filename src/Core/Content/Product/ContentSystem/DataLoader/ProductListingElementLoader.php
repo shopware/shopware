@@ -35,6 +35,12 @@ class ProductListingElementLoader
 {
     /**
      * Element property holding the toggle, mapped to the request parameter the matching filter handler reads.
+     *
+     * The toggle decides whether this element offers the filter, not whether the page applies it. Switching
+     * one off removes the control and its aggregation from this element; a request that already carries the
+     * filter still narrows a listing element, which declares no toggles of its own. That keeps a shared or
+     * bookmarked link working, and it is why elements never coordinate their filters: each one reads the
+     * request and its own configuration, nothing else.
      */
     private const FILTER_TOGGLE_PARAMETERS = [
         'showManufacturerFilter' => ManufacturerListingFilterHandler::FILTER_ENABLED_REQUEST_PARAM,
@@ -91,11 +97,11 @@ class ProductListingElementLoader
      * Translates the element's listing configuration into request parameters: a disabled filter toggle switches
      * its handler off, and `defaultSorting` preselects an order.
      *
-     * The two kinds differ in scope. Filter parameters describe this element only, so they go on a duplicate:
-     * the hydrator threads one Request through every loader in document order, and one panel must not narrow
-     * another element's listing. `order` describes the products, so it goes on the shared request, because the
-     * element rendering the sorting select is not the one rendering the products. Only elements hydrated after
-     * this one see it, so a layout has to place its sorting select ahead of the listings it sorts.
+     * Every parameter describes this element alone, so all of them go on a duplicate. The hydrator threads one
+     * Request through every loader in document order, and an element's own configuration must not reach the
+     * next one: a panel must not narrow another element's listing, and a listing's `defaultSorting` must not
+     * become the order of a second listing that declares none — that one still falls back to the sales
+     * channel's default sorting.
      *
      * @param array<string, bool|list<string>> $parameters
      */
@@ -122,13 +128,13 @@ class ProductListingElementLoader
             $parameters[PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM] = $propertyWhitelist;
         }
 
+        $request = $request->duplicate();
+
         $order = $this->resolveDefaultSortingKey($element, $request, $context);
 
         if ($order !== null) {
             $request->request->set('order', $order);
         }
-
-        $request = $request->duplicate();
 
         foreach ($parameters as $parameter => $value) {
             $request->request->set($parameter, $value);

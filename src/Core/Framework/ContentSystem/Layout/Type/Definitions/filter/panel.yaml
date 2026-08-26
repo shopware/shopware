@@ -1,13 +1,15 @@
 meta:
   label: "Filter Panel"
-  description: "Product listing filter panel with sorting and layout switch actions."
+  description: "Product listing filter panel."
   icon: "regular-filter-s"
   category: "commerce"
   copilot:
-    summary: "Listing filter and sorting panel."
+    summary: "Listing filter panel."
     hints:
       - "The listing is loaded per request from the page's category, no configuration needed."
       - "Place it anywhere on a category layout. It does not have to sit inside the product listing."
+      - "Sorting and the layout switch belong to the Product Listing element, not here."
+      - "Turning a filter off hides its control here. A link that already carries that filter still narrows the listing, so shared and bookmarked URLs keep working."
       - "Use additional filter slots to extend built-in filters."
 
 properties:

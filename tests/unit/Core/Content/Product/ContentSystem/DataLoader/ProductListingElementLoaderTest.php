@@ -121,7 +121,7 @@ class ProductListingElementLoaderTest extends TestCase
         static::assertCount(2, $capturedCriteria->getAssociations());
     }
 
-    #[TestDox('sets the element defaultSorting as order parameter on the shared request when it carries none')]
+    #[TestDox('sets the element defaultSorting as order parameter on this element request only')]
     public function testLoadAppliesDefaultSortingWhenRequestHasNoOrder(): void
     {
         $sortingId = Uuid::randomHex();
@@ -140,7 +140,10 @@ class ProductListingElementLoaderTest extends TestCase
 
         static::assertInstanceOf(Request::class, $capturedRequest);
         static::assertSame('price-asc', $capturedRequest->request->get('order'));
-        static::assertSame('price-asc', $request->request->get('order'), 'later listing elements must see the order');
+        static::assertFalse(
+            $request->request->has('order'),
+            'a later listing element without its own defaultSorting must fall back to the sales channel default'
+        );
     }
 
     #[TestDox('keeps an order the request already carries instead of applying the element defaultSorting')]
@@ -188,7 +191,7 @@ class ProductListingElementLoaderTest extends TestCase
 
         static::assertInstanceOf(Request::class, $capturedRequest);
         static::assertSame('price-asc', $capturedRequest->request->get('order'));
-        static::assertSame('price-asc', $request->request->get('order'));
+        static::assertSame('topseller', $request->request->get('order'), 'the shared request stays as it was');
     }
 
     #[TestDox('leaves the request untouched when the element defaultSorting matches no product sorting')]

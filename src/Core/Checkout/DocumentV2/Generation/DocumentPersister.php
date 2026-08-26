@@ -165,7 +165,7 @@ final readonly class DocumentPersister
     ): void {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
+            ->addFilter(new EqualsFilter('typeName', $generationRequest->documentType))
             ->setLimit(1);
 
         $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;

@@ -17,6 +17,11 @@ body,
     overflow: hidden;
 }
 
+html,
+body {
+    background: var(--color-elevation-surface-default);
+}
+
 .sw-drag-select-box {
     position: absolute;
     background: $color-drag-select-box;

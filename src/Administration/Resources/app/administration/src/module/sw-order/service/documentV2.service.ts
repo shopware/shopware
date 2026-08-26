@@ -13,31 +13,34 @@ interface DeliveryNoteConfig extends DocumentConfig {
     deliveryDate: string;
 }
 
-interface DocumentEntityConfig {
-    custom?: {
-        invoiceNumber?: string;
-    };
-}
-
 /**
  * @sw-package after-sales
  * @private
  */
-export type { DocumentConfig, DeliveryNoteConfig, DocumentEntityConfig };
+export type { DocumentConfig, DeliveryNoteConfig };
 
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
     DELIVERY_NOTE: 'delivery_note',
     CREDIT_NOTE: 'credit_note',
     CANCELLATION_INVOICE: 'storno',
+    /** @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type. */
     ZUGFERD_INVOICE: 'zugferd_invoice',
+    /** @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type. */
     ZUGFERD_EMBEDDED_INVOICE: 'zugferd_embedded_invoice',
+    /** @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type. */
     ZUGFERD_CANCELLATION_INVOICE: 'zugferd_cancellation_invoice',
+    /** @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type. */
     ZUGFERD_EMBEDDED_CANCELLATION_INVOICE: 'zugferd_embedded_cancellation_invoice',
+    /** @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type. */
     ZUGFERD_CREDIT_NOTE: 'zugferd_credit_note',
+    /** @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type. */
     ZUGFERD_EMBEDDED_CREDIT_NOTE: 'zugferd_embedded_credit_note',
 } as const;
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type.
+ */
 const ZUGFERD_DOCUMENT_TYPES = [
     DOCUMENT_TYPES.ZUGFERD_INVOICE,
     DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,

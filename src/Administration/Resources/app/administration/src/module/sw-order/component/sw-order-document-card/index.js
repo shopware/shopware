@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+// @deprecated tag:v6.9.0 - DocumentEvents is deprecated and will be removed.
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
@@ -14,6 +15,8 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
+ *
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
  */
 export const ZUGFERD_COMPONENT_MAPPING = {
     [DOCUMENT_TYPES.ZUGFERD_INVOICE]: DOCUMENT_TYPES.INVOICE,
@@ -29,6 +32,7 @@ export default {
     template,
 
     inject: [
+        // @deprecated tag:v6.9.0 - documentService will be removed.
         'documentService',
         'documentV2ApiService',
         'documentV2Service',
@@ -71,6 +75,7 @@ export default {
             cardLoading: false,
             documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
+            // @deprecated tag:v6.9.0 - showModal will be removed.
             showModal: false,
             currentDocumentType: null,
             documentNumber: null,
@@ -114,6 +119,9 @@ export default {
             return this.documents.length === 0;
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         documentModal() {
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
 
@@ -297,9 +305,13 @@ export default {
                 this.cardLoading = false;
             });
 
+            // @deprecated tag:v6.9.0 - Removed with document generation v1.
             this.documentService.setListener(this.convertStoreEventToVueEvent);
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         convertStoreEventToVueEvent({ action, payload }) {
             if (action === DocumentEvents.DOCUMENT_FAILED) {
                 let errorMessage = payload.detail;
@@ -371,6 +383,9 @@ export default {
             this.getList();
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         createDocument(orderId, documentTypeName, params, referencedDocumentId, file) {
             return this.documentService.createDocument(
                 orderId,
@@ -420,15 +435,24 @@ export default {
             return this.documentV2Service.getPreferredFileFormat(this.getDocumentFileFormats(document), FILE_FORMATS.PDF);
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         onCancelCreation() {
             this.showModal = false;
             this.currentDocumentType = null;
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         onPrepareDocument() {
             this.showModal = true;
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         openDocument(documentId, documentDeepLink, fileType) {
             this.documentService
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
@@ -463,6 +487,7 @@ export default {
                 return;
             }
 
+            // @deprecated tag:v6.9.0 - Removed with document generation v1.
             this.documentService
                 .getDocument(documentId, documentDeepLink, Shopware.Context.api, true, fileType)
                 .then((response) => {
@@ -582,6 +607,7 @@ export default {
                 return;
             }
 
+            // @deprecated tag:v6.9.0 - Removed with document generation v1.
             await this.$nextTick();
 
             try {
@@ -710,6 +736,7 @@ export default {
                     });
             }
 
+            // @deprecated tag:v6.9.0 - Removed with document generation v1.
             return this.documentService
                 .getDocumentPreview(this.order.id, this.order.deepLinkCode, this.currentDocumentType.technicalName, params, {
                     fileType,
@@ -750,6 +777,7 @@ export default {
                 return;
             }
 
+            // @deprecated tag:v6.9.0 - Removed with document generation v1.
             this.openDocument(id, deepLink, fileType);
         },
 

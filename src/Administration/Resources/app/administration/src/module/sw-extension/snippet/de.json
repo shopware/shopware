@@ -140,8 +140,10 @@
       "retryButton": "Wiederholen",
       "activationSuccessTitle": "Erfolgreich aktiviert",
       "activationSuccessDescription": "Viel Spaß beim Stöbern im Shopware Store.",
-      "activationHeadline": "Shopware Extension Store noch nicht aktiv",
-      "activationDescription": "Aktiviere den Extension Store, um Erweiterungen und Themes zu entdecken und zu kaufen, die sich nahtlos in Deinen Shop integrieren – ganz ohne Programmierkenntnisse.",
+      "label": "Jetzt verfügbar",
+      "activationDescriptionTitleFirst": "Erweiterungen einfach entdecken und kaufen -",
+      "activationDescriptionTitleSecond": "direkt aus Ihrem eigenen Shopware-Shop heraus.",
+      "activationDescriptionTitleDescription": "Aktiviere den Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die Du nahtlos in Deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse.",
       "activate": "Aktivieren"
     },
     "title": "Store",

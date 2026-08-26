@@ -4,6 +4,7 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -169,6 +170,9 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new NoCreateMockWithoutExpectationsRule(self::getContainer()->getService('defaultAnalysisParser'));
+        return new NoCreateMockWithoutExpectationsRule(
+            new Configuration(['allowedUnitTestClassNamespaces' => ['Shopware\\Tests\\Unit\\', 'Shopware\\Tests\\Migration\\']]),
+            self::getContainer()->getService('defaultAnalysisParser'),
+        );
     }
 }

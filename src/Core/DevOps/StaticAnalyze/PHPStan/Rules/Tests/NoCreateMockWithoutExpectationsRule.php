@@ -30,6 +30,7 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -52,18 +53,6 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public const ERROR_ORPHANED = 'createMock(%s) is created in setUp() and re-created via `$this->... = $this->createMock(...)` in %s. Re-assigning the property replaces this instance before it is used, so it never receives an expectation and triggers the PHPUnit "no expectations" notice. Configure the setUp instance directly in those tests instead of re-creating it (or move the creation out of setUp).';
 
     /**
-     * The domain-by-domain rollout is complete: every unit test suite is covered.
-     *
-     * @var list<string>
-     */
-    private const ENABLED_NAMESPACES = [
-        'Shopware\\Tests\\Unit\\Core\\',
-        'Shopware\\Tests\\Unit\\Administration\\',
-        'Shopware\\Tests\\Unit\\Storefront\\',
-        'Shopware\\Tests\\Unit\\Elasticsearch\\',
-    ];
-
-    /**
      * ClassMethod attribute carrying the ancestor file an inherited method was parsed from.
      */
     private const SOURCE_FILE = 'noCreateMockRuleSourceFile';
@@ -84,8 +73,37 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         'willThrowException',
     ];
 
-    public function __construct(private readonly Parser $parser)
-    {
+    /**
+     * Hard boundary: the rule never fires outside these trees, so third-party plugins reusing the
+     * core PHPStan config do not inherit enforcement. Consumers narrow further via $enabledNamespaces.
+     *
+     * @var list<string>
+     */
+    private const SUPPORTED_NAMESPACES = [
+        'Shopware\\Tests\\Unit\\',
+        'Shopware\\Commercial\\Tests\\Unit\\',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private readonly array $unitTestClassNamespaces;
+
+    /**
+     * Narrows enforcement to matching test namespaces; an empty list enforces every unit test class
+     * inside SUPPORTED_NAMESPACES. Consumers rolling the rule out domain by domain grow this list via
+     * the `shopware.createMockWithoutExpectationsEnabledNamespaces` parameter of their PHPStan config.
+     *
+     * @var list<string>
+     */
+    private readonly array $enabledNamespaces;
+
+    public function __construct(
+        Configuration $configuration,
+        private readonly Parser $parser,
+    ) {
+        $this->unitTestClassNamespaces = $configuration->getAllowedUnitTestClassNamespaces();
+        $this->enabledNamespaces = $configuration->getCreateMockWithoutExpectationsEnabledNamespaces();
     }
 
     public function getNodeType(): string
@@ -101,7 +119,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $classReflection = $node->getClassReflection();
-        if (!TestRuleHelper::isUnitTestClass($classReflection) || !$this->isEnabledNamespace($classReflection->getName())) {
+        if (!TestRuleHelper::isUnitTestClass($classReflection, $this->unitTestClassNamespaces) || !$this->isEnabledNamespace($classReflection->getName())) {
             return [];
         }
 
@@ -154,7 +172,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     {
         $methods = [];
         foreach (array_reverse($classReflection->getParents()) as $parent) {
-            if (!TestRuleHelper::isUnitTestClass($parent) || !$this->isEnabledNamespace($parent->getName())) {
+            if (!TestRuleHelper::isUnitTestClass($parent, $this->unitTestClassNamespaces) || !$this->isEnabledNamespace($parent->getName())) {
                 continue;
             }
 
@@ -1291,7 +1309,19 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     private function isEnabledNamespace(string $className): bool
     {
-        foreach (self::ENABLED_NAMESPACES as $namespace) {
+        if (!self::matchesAny($className, self::SUPPORTED_NAMESPACES)) {
+            return false;
+        }
+
+        return $this->enabledNamespaces === [] || self::matchesAny($className, $this->enabledNamespaces);
+    }
+
+    /**
+     * @param list<string> $namespaces
+     */
+    private static function matchesAny(string $className, array $namespaces): bool
+    {
+        foreach ($namespaces as $namespace) {
             if (\str_contains($className, $namespace)) {
                 return true;
             }

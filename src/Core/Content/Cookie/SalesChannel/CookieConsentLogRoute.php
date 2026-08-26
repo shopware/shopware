@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -43,6 +44,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 {
+    public const CONFIG_KEY_LOG_ENABLED = 'core.cookieConsent.logEnabled';
+
     final public const ACTION_ACCEPT_ALL = 'accept_all';
     final public const ACTION_ACCEPT_REQUIRED = 'accept_required';
     final public const ACTION_ACCEPT_SELECTED = 'accept_selected';
@@ -65,6 +68,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -76,6 +80,12 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
     #[Route(path: '/store-api/cookie-consent-log', name: 'store-api.cookie.consent-log', methods: [Request::METHOD_POST])]
     public function log(Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
     {
+        // Checked before the rate limiter: limiting a request that does no work would cost
+        // more than answering it, and the setting is read from the cached system config.
+        if (!$this->isLoggingEnabled($salesChannelContext->getSalesChannelId())) {
+            return new NoContentResponse();
+        }
+
         $this->ensureNotRateLimited($request);
 
         $payload = $this->validatePayload($request);
@@ -147,6 +157,25 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         ));
 
         return new NoContentResponse();
+    }
+
+    /**
+     * Operators can switch the log off, e.g. when a third-party consent manager keeps the
+     * record instead. An unset value counts as enabled: the setting is seeded by migration,
+     * and a missing row must not silently stop collecting evidence.
+     *
+     * Not getBool(), which casts: `system:config:set` without `--json` stores the string
+     * "false", and casting that to a bool would keep logging against the operator's intent.
+     */
+    private function isLoggingEnabled(string $salesChannelId): bool
+    {
+        $configured = $this->systemConfigService->get(self::CONFIG_KEY_LOG_ENABLED, $salesChannelId);
+
+        if ($configured === null) {
+            return true;
+        }
+
+        return filter_var($configured, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE) ?? true;
     }
 
     /**

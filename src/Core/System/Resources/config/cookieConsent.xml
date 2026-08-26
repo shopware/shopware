@@ -5,6 +5,15 @@
         <title>Cookie consent logging</title>
         <title lang="de-DE">Cookie-Einwilligungsprotokoll</title>
 
+        <input-field type="bool">
+            <name>logEnabled</name>
+            <defaultValue>true</defaultValue>
+            <label>Log cookie consent decisions</label>
+            <label lang="de-DE">Cookie-Einwilligungen protokollieren</label>
+            <helpText>Whether consent decisions from the built-in cookie banner are recorded. Turn this off when a third-party consent manager keeps the evidence instead. Decisions that were already recorded are kept and still expire through the retention period below.</helpText>
+            <helpText lang="de-DE">Legt fest, ob Einwilligungen aus dem integrierten Cookie-Banner erfasst werden. Deaktivieren, wenn ein externer Consent-Manager den Nachweis führt. Bereits erfasste Einwilligungen bleiben erhalten und verfallen weiterhin über die Aufbewahrungsdauer unten.</helpText>
+        </input-field>
+
         <input-field type="int">
             <name>logRetentionDays</name>
             <defaultValue>120</defaultValue>

@@ -227,7 +227,12 @@
                     'frontend.cart.offcanvas': '{{ path('frontend.cart.offcanvas') }}',
                     'frontend.cookie.offcanvas': '{{ path('frontend.cookie.offcanvas') }}',
                     'frontend.cookie.groups': '{{ path('frontend.cookie.groups') }}',
-                    'frontend.cookie.consent.log': '{{ path('frontend.cookie.consent.log') }}',
+                    {# Omitted when logging is switched off, so the banner does not post to a route that discards
+                       the request. An unset value means enabled. This only saves the request, the route itself
+                       decides whether anything is stored. #}
+                    {% if config('core.cookieConsent.logEnabled') is not same as (false) %}
+                        'frontend.cookie.consent.log': '{{ path('frontend.cookie.consent.log') }}',
+                    {% endif %}
                     'frontend.checkout.finish.page': '{{ path('frontend.checkout.finish.page') }}',
                     'frontend.checkout.info': '{{ path('frontend.checkout.info') }}',
                     'frontend.menu.offcanvas': '{{ path('frontend.menu.offcanvas') }}',

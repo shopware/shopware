@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Clock\MockClock;
@@ -38,6 +39,8 @@ class CookieConsentLogRouteTest extends TestCase
     private CookieConsentLogRoute $route;
 
     private RateLimiter&Stub $rateLimiter;
+
+    private SystemConfigService&Stub $systemConfigService;
 
     /**
      * @var list<array<string, mixed>>
@@ -64,12 +67,16 @@ class CookieConsentLogRouteTest extends TestCase
 
         $this->rateLimiter = static::createStub(RateLimiter::class);
 
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->systemConfigService->method('get')->willReturn(true);
+
         $this->route = new CookieConsentLogRoute(
             $cookieRoute,
             $connection,
             $this->eventDispatcher,
             new MockClock('2026-07-13 12:00:00'),
             $this->rateLimiter,
+            $this->systemConfigService,
         );
     }
 
@@ -274,6 +281,33 @@ class CookieConsentLogRouteTest extends TestCase
         $this->log(['consentAction' => 'accept_all', 'renderedConfigHash' => ['not' => 'a-string']]);
     }
 
+    public function testASwitchedOffLogStoresNothing(): void
+    {
+        $route = $this->createRouteWithLogEnabled(false);
+
+        $response = $route->log(
+            new Request(content: (string) json_encode(['consentAction' => 'accept_all'])),
+            Generator::generateSalesChannelContext(),
+        );
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame([], $this->insertedParameters);
+        static::assertSame([], $this->eventDispatcher->getEvents());
+    }
+
+    public function testAnUnsetSwitchKeepsTheLogEnabled(): void
+    {
+        // The setting is seeded by migration, a missing row must not stop collecting evidence
+        $route = $this->createRouteWithLogEnabled(null);
+
+        $route->log(
+            new Request(content: (string) json_encode(['consentAction' => 'accept_all'])),
+            Generator::generateSalesChannelContext(),
+        );
+
+        static::assertCount(1, $this->eventDispatcher->getEvents());
+    }
+
     public function testTheClientIpIsUsedAsRateLimitKey(): void
     {
         $rateLimiter = static::createMock(RateLimiter::class);
@@ -338,6 +372,35 @@ class CookieConsentLogRouteTest extends TestCase
      * Builds an isolated route for tests that place expectations on the rate limiter,
      * so the shared stub in setUp() never mixes stub and mock roles.
      */
+    private function createRouteWithLogEnabled(?bool $enabled, ?RateLimiter $rateLimiter = null): CookieConsentLogRoute
+    {
+        $cookieRoute = static::createStub(AbstractCookieRoute::class);
+        $cookieRoute->method('getCookieGroups')
+            ->willReturn(new CookieRouteResponse($this->cookieGroups(), 'server-hash', 'language-id'));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')
+            ->willReturnCallback(static fn (callable $callback) => $callback($connection));
+        $connection->method('executeStatement')
+            ->willReturnCallback(function (string $_query, array $parameters = []): int {
+                $this->insertedParameters[] = $parameters;
+
+                return 1;
+            });
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn($enabled);
+
+        return new CookieConsentLogRoute(
+            $cookieRoute,
+            $connection,
+            $this->eventDispatcher,
+            new MockClock('2026-07-13 12:00:00'),
+            $rateLimiter ?? static::createStub(RateLimiter::class),
+            $systemConfigService,
+        );
+    }
+
     private function createRoute(RateLimiter $rateLimiter): CookieConsentLogRoute
     {
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
@@ -347,12 +410,16 @@ class CookieConsentLogRouteTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('executeStatement')->willReturn(1);
 
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn(true);
+
         return new CookieConsentLogRoute(
             $cookieRoute,
             $connection,
             new CollectingEventDispatcher(),
             new MockClock('2026-07-13 12:00:00'),
             $rateLimiter,
+            $systemConfigService,
         );
     }
 

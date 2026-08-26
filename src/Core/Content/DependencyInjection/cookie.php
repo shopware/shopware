@@ -53,6 +53,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EventDispatcherInterface::class),
             service(ClockInterface::class),
             service(RateLimiter::class),
+            service(SystemConfigService::class),
         ]);
 
     $services->set(CleanupCookieConsentLogTask::class)

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Cookie consent retention</title>
+        <title lang="de-DE">Aufbewahrung der Cookie-Einwilligungen</title>
+
+        <input-field type="int">
+            <name>days</name>
+            <defaultValue>120</defaultValue>
+            <label>Retention period in days</label>
+            <label lang="de-DE">Aufbewahrungsdauer in Tagen</label>
+            <helpText>How long recorded cookie consent decisions are kept before the daily cleanup deletes them. 0 deletes them on the next run, a negative value disables the cleanup and keeps the log indefinitely. The cleanup deletes across the whole installation, so this value applies to all sales channels.</helpText>
+            <helpText lang="de-DE">Wie lange erfasste Cookie-Einwilligungen aufbewahrt werden, bevor die tägliche Aufräumaufgabe sie löscht. 0 löscht sie beim nächsten Lauf, ein negativer Wert deaktiviert das Aufräumen und behält das Protokoll dauerhaft. Das Aufräumen löscht über die gesamte Installation, der Wert gilt daher für alle Verkaufskanäle.</helpText>
+        </input-field>
+    </card>
+</config>

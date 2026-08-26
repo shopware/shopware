@@ -28,7 +28,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler(handles: CleanupCookieConsentLogTask::class)]
 final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
 {
-    public const CONFIG_KEY_RETENTION_DAYS = 'core.cookieConsent.logRetentionDays';
+    public const CONFIG_KEY_RETENTION_DAYS = 'core.cookieConsentRetention.days';
 
     public const DEFAULT_RETENTION_DAYS = 120;
 
@@ -51,6 +51,8 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
     {
         // getInt() cannot tell an unset config from an explicit 0, so read the raw value:
         // an operator setting 0 wants same-day deletion, not the default retention.
+        // Read without a sales channel: the deletes below cover the whole table, so the
+        // retention is one value per installation.
         $configured = $this->systemConfigService->get(self::CONFIG_KEY_RETENTION_DAYS);
         $retentionDays = \is_numeric($configured) ? (int) $configured : self::DEFAULT_RETENTION_DAYS;
 

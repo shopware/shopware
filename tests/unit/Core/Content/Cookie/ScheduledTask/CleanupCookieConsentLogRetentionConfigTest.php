@@ -10,7 +10,7 @@ use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
- * Guards the coupling between the admin settings card (cookieConsent.xml) and the
+ * Guards the coupling between the admin settings card (cookieConsentRetention.xml) and the
  * config key the cleanup task reads: if either side is renamed without the other,
  * operator edits in the admin would silently stop affecting the cleanup.
  *
@@ -22,12 +22,12 @@ class CleanupCookieConsentLogRetentionConfigTest extends TestCase
 {
     public function testAdminConfigFieldMatchesTheKeyAndDefaultTheCleanupReads(): void
     {
-        $cards = (new ConfigReader())->getConfigFromBundle(new System(), 'cookieConsent');
+        $cards = (new ConfigReader())->getConfigFromBundle(new System(), 'cookieConsentRetention');
 
         $retentionField = null;
         foreach ($cards as $card) {
             foreach ($card['elements'] as $element) {
-                if ('core.cookieConsent.' . $element['name'] === CleanupCookieConsentLogTaskHandler::CONFIG_KEY_RETENTION_DAYS) {
+                if ('core.cookieConsentRetention.' . $element['name'] === CleanupCookieConsentLogTaskHandler::CONFIG_KEY_RETENTION_DAYS) {
                     $retentionField = $element;
                 }
             }
@@ -36,7 +36,7 @@ class CleanupCookieConsentLogRetentionConfigTest extends TestCase
         static::assertNotNull(
             $retentionField,
             \sprintf(
-                'cookieConsent.xml must expose the field behind "%s", otherwise the retention cannot be managed in the admin',
+                'cookieConsentRetention.xml must expose the field behind "%s", otherwise the retention cannot be managed in the admin',
                 CleanupCookieConsentLogTaskHandler::CONFIG_KEY_RETENTION_DAYS,
             ),
         );

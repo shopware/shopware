@@ -71,12 +71,21 @@
                 {% endblock %}
 
                 {% block sw_settings_basic_information_cookie_consent_config %}
-                {# Not sales channel switchable: cookie_consent_log.cleanup reads the retention globally, so a per sales channel value would have no effect #}
                 <sw-system-config
                     ref="systemConfigCookieConsent"
-                    :sales-channel-switchable="false"
+                    sales-channel-switchable
                     domain="core.cookieConsent"
                     @loading-changed="onCookieConsentLoadingChanged"
+                />
+                {% endblock %}
+
+                {% block sw_settings_basic_information_cookie_consent_retention_config %}
+                {# Not switchable: the cleanup deletes across the whole table, so a per sales channel retention would be ignored #}
+                <sw-system-config
+                    ref="systemConfigCookieConsentRetention"
+                    :sales-channel-switchable="false"
+                    domain="core.cookieConsentRetention"
+                    @loading-changed="onCookieConsentRetentionLoadingChanged"
                 />
                 {% endblock %}
             </div>

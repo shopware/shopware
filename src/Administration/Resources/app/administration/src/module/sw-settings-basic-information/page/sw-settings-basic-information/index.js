@@ -20,6 +20,7 @@ export default {
             isSaveSuccessful: false,
             basicInformationLoading: false,
             cookieConsentLoading: false,
+            cookieConsentRetentionLoading: false,
         };
     },
 
@@ -31,7 +32,7 @@ export default {
 
     computed: {
         systemConfigLoading() {
-            return this.basicInformationLoading || this.cookieConsentLoading;
+            return this.basicInformationLoading || this.cookieConsentLoading || this.cookieConsentRetentionLoading;
         },
     },
 
@@ -47,6 +48,7 @@ export default {
             Promise.all([
                 this.$refs.systemConfig.saveAll(),
                 this.$refs.systemConfigCookieConsent.saveAll(),
+                this.$refs.systemConfigCookieConsentRetention.saveAll(),
             ])
                 .then(() => {
                     this.isLoading = false;
@@ -66,6 +68,10 @@ export default {
 
         onCookieConsentLoadingChanged(loading) {
             this.cookieConsentLoading = loading;
+        },
+
+        onCookieConsentRetentionLoadingChanged(loading) {
+            this.cookieConsentRetentionLoading = loading;
         },
     },
 };

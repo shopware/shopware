@@ -10,17 +10,8 @@
             <defaultValue>true</defaultValue>
             <label>Log cookie consent decisions</label>
             <label lang="de-DE">Cookie-Einwilligungen protokollieren</label>
-            <helpText>Whether consent decisions from the built-in cookie banner are recorded. Turn this off when a third-party consent manager keeps the evidence instead. Decisions that were already recorded are kept and still expire through the retention period below.</helpText>
-            <helpText lang="de-DE">Legt fest, ob Einwilligungen aus dem integrierten Cookie-Banner erfasst werden. Deaktivieren, wenn ein externer Consent-Manager den Nachweis führt. Bereits erfasste Einwilligungen bleiben erhalten und verfallen weiterhin über die Aufbewahrungsdauer unten.</helpText>
-        </input-field>
-
-        <input-field type="int">
-            <name>logRetentionDays</name>
-            <defaultValue>120</defaultValue>
-            <label>Retention period in days</label>
-            <label lang="de-DE">Aufbewahrungsdauer in Tagen</label>
-            <helpText>How long recorded cookie consent decisions are kept before the daily cleanup deletes them. 0 deletes them on the next run, a negative value disables the cleanup and keeps the log indefinitely. The value applies to all sales channels.</helpText>
-            <helpText lang="de-DE">Wie lange erfasste Cookie-Einwilligungen aufbewahrt werden, bevor die tägliche Aufräumaufgabe sie löscht. 0 löscht sie beim nächsten Lauf, ein negativer Wert deaktiviert das Aufräumen und behält das Protokoll dauerhaft. Der Wert gilt für alle Verkaufskanäle.</helpText>
+            <helpText>Whether consent decisions from the built-in cookie banner are recorded. Turn this off when a third-party consent manager keeps the evidence instead. Decisions that were already recorded are kept and still expire through the retention period. This setting applies per sales channel.</helpText>
+            <helpText lang="de-DE">Legt fest, ob Einwilligungen aus dem integrierten Cookie-Banner erfasst werden. Deaktivieren, wenn ein externer Consent-Manager den Nachweis führt. Bereits erfasste Einwilligungen bleiben erhalten und verfallen weiterhin über die Aufbewahrungsdauer. Diese Einstellung gilt je Verkaufskanal.</helpText>
         </input-field>
     </card>
 </config>

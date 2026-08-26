@@ -77,30 +77,37 @@ describe('module/sw-settings-basic-information/page/sw-settings-basic-informatio
         await flushPromises();
     });
 
-    it('should render both configuration domains', async () => {
+    it('should render all configuration domains', async () => {
         const domains = wrapper.findAll('.sw-card-view .sw-system-config').map((config) => config.attributes('data-domain'));
 
         expect(domains).toEqual([
             'core.basicInformation',
             'core.cookieConsent',
+            'core.cookieConsentRetention',
         ]);
     });
 
-    it('should not offer a sales channel switch for the cookie consent retention', async () => {
-        // cookie_consent_log.cleanup reads the retention globally, a per sales channel value would be ignored
-        const configs = wrapper.findAll('.sw-card-view .sw-system-config');
+    it('should offer a sales channel switch for everything except the retention', async () => {
+        // cookie_consent_log.cleanup deletes across the whole table, a per sales channel retention would be ignored
+        const switchable = wrapper
+            .findAll('.sw-card-view .sw-system-config')
+            .map((config) => config.attributes('data-switchable'));
 
-        expect(configs[0].attributes('data-switchable')).toBe('true');
-        expect(configs[1].attributes('data-switchable')).toBe('false');
+        expect(switchable).toEqual([
+            'true',
+            'true',
+            'false',
+        ]);
     });
 
-    it('should save both configuration domains', async () => {
+    it('should save all configuration domains', async () => {
         await wrapper.vm.onSave();
         await flushPromises();
 
         expect(savedDomains).toEqual([
             'core.basicInformation',
             'core.cookieConsent',
+            'core.cookieConsentRetention',
         ]);
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
     });
@@ -117,7 +124,7 @@ describe('module/sw-settings-basic-information/page/sw-settings-basic-informatio
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('should stay loading while either domain is loading', async () => {
+    it('should stay loading while any domain is loading', async () => {
         expect(wrapper.vm.systemConfigLoading).toBe(false);
 
         wrapper.vm.onCookieConsentLoadingChanged(true);
@@ -128,6 +135,10 @@ describe('module/sw-settings-basic-information/page/sw-settings-basic-informatio
         expect(wrapper.vm.systemConfigLoading).toBe(true);
 
         wrapper.vm.onBasicInformationLoadingChanged(false);
+        wrapper.vm.onCookieConsentRetentionLoadingChanged(true);
+        expect(wrapper.vm.systemConfigLoading).toBe(true);
+
+        wrapper.vm.onCookieConsentRetentionLoadingChanged(false);
         expect(wrapper.vm.systemConfigLoading).toBe(false);
     });
 });

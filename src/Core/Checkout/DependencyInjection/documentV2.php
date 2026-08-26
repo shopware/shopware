@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentTypeNameSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -61,6 +62,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(NumberRangeValueGeneratorInterface::class),
         ]);
+
+    $services->set(DocumentFileResolver::class);
 
     $services->set(DocumentConfigLoader::class)
         ->args([
@@ -251,6 +254,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_type.repository'),
             service(MediaService::class),
             service(FileNameProvider::class),
+            service(DocumentFileResolver::class),
         ])
         ->call('setContainer', [
             service('service_container'),

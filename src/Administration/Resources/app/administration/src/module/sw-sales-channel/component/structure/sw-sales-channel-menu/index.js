@@ -23,18 +23,41 @@ export default {
     data() {
         return {
             salesChannels: [],
+            salesChannelsLoaded: false,
             showModal: false,
             isLoading: true,
+            isMobileViewport: false,
+            contextMenuOpen: false,
         };
     },
 
     computed: {
+        adminMenuStore() {
+            return Shopware.Store.get('adminMenu');
+        },
+
+        isSidebarExpanded() {
+            // The off-canvas panel always shows the expanded layout
+            return this.adminMenuStore.isExpanded || this.isMobileViewport;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
 
         canCreateSalesChannels() {
             return this.acl.can('sales_channel.creator');
+        },
+
+        // Gated on the finished request, so the row never flashes while loading.
+        // Stale favourites of deleted channels return zero rows although channels exist.
+        showAddChannelMenuItem() {
+            return (
+                this.salesChannelsLoaded &&
+                this.salesChannels.length === 0 &&
+                this.salesChannelFavorites.length === 0 &&
+                this.canCreateSalesChannels
+            );
         },
 
         salesChannelCriteria() {
@@ -79,7 +102,6 @@ export default {
                     id: salesChannel.id,
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
-                    color: 'var(--color-zinc-200)',
                     label: {
                         label: salesChannel.translated.name,
                         translated: true,
@@ -96,13 +118,10 @@ export default {
 
         moreItemsEntry() {
             return {
-                active: true,
                 children: [],
-                color: 'var(--color-zinc-200)',
-                icon: 'regular-ellipsis-v',
+                icon: 'regular-eye',
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
-                position: -1, // use last position
             };
         },
 
@@ -127,6 +146,18 @@ export default {
 
             this.loadEntityData();
         },
+
+        // The teleported action menu would keep floating over the next page otherwise
+        '$route.path'() {
+            this.contextMenuOpen = false;
+        },
+
+        // The teleported action menu would float detached over the hidden off-canvas rail otherwise
+        isMobileViewport(isMobile) {
+            if (isMobile) {
+                this.contextMenuOpen = false;
+            }
+        },
     },
 
     created() {
@@ -139,11 +170,19 @@ export default {
 
     methods: {
         createdComponent() {
+            this.mobileViewportQuery = this.$device.getMediaQuery('(max-width: 1280px)');
+            this.mobileViewportQuery.addEventListener('change', this.syncMobileViewport);
+            this.syncMobileViewport();
+
             this.registerListener();
 
             this.salesChannelFavoritesService.initService().finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        syncMobileViewport() {
+            this.isMobileViewport = this.mobileViewportQuery.matches;
         },
 
         registerListener() {
@@ -154,6 +193,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.mobileViewportQuery?.removeEventListener('change', this.syncMobileViewport);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
@@ -165,8 +205,9 @@ export default {
         },
 
         loadEntityData() {
-            this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
+            return this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
                 this.salesChannels = response;
+                this.salesChannelsLoaded = true;
             });
         },
 

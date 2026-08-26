@@ -58,16 +58,24 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
         $this->checkForDependentDocuments($ids, $context);
 
         $criteria = new Criteria($ids);
+        $criteria->addAssociation('documentFiles');
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         $mediaIds = [];
         foreach ($documents as $document) {
+            // Legacy documents have a single media file and an optional accessibility media file
+            // We keep this logic for backward compatibility
             if ($mediaId = $document->getDocumentMediaFileId()) {
                 $mediaIds[] = ['id' => $mediaId];
             }
 
             if ($mediaId = $document->getDocumentA11yMediaFileId()) {
                 $mediaIds[] = ['id' => $mediaId];
+            }
+
+            // DocumentV2-generated documents
+            foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
+                $mediaIds[] = ['id' => $documentFile->getMediaId()];
             }
         }
 

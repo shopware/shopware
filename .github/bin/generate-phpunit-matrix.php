@@ -40,7 +40,49 @@ $db = ['mysql:8.0'];
 
 if ($nightly) {
     $php = ['8.3', '8.5'];
-    $db = ['mysql:8.0', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+}
+
+$includes = [
+    [
+        'test' => ['testsuite' => 'devops'],
+        'php' => '8.5',
+        'db' => 'mariadb:11',
+        'phpunit' => '12',
+    ],
+    // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
+    // skips without it.
+    [
+        'test' => ['testsuite' => 'devops'],
+        'php' => '8.3',
+        'db' => 'mysql:8.4',
+        'phpunit' => '12',
+    ]
+];
+
+if ($nightly) {
+    // The DB spread runs on PHP 8.2 only and the PHP spread (8.5) on mysql:8.0 only:
+    // DB behaviour does not depend on the PHP version, so the full cross product
+    // adds jobs but no signal.
+    $nightlyDbs = ['mysql:9.7', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+    foreach ($nightlyDbs as $nightlyDb) {
+        foreach (array_merge($integrationTests, [['testsuite' => 'migration']]) as $test) {
+            $includes[] = [
+                'test' => $test,
+                'php' => '8.3',
+                'db' => $nightlyDb,
+                'opensearch' => 'opensearchproject/opensearch:3',
+                'phpunit' => '12',
+            ];
+        }
+    }
+} else {
+    // Covered by the nightly DB spread above; PR/release runs need the explicit lane.
+    $includes[] = [
+        'test' => ['testsuite' => 'migration'],
+        'php' => '8.3',
+        'db' => 'mariadb:11',
+        'phpunit' => '12',
+    ];
 }
 
 $matrix = [
@@ -53,28 +95,7 @@ $matrix = [
         'db' => $db,
         'opensearch' => ['opensearchproject/opensearch:3'],
         'phpunit' => ['12'],
-        'include' => [
-            [
-                'test' => ['testsuite' => 'migration'],
-                'php' => '8.3',
-                'db' => 'mariadb:11',
-                'phpunit' => '12'
-            ],
-            [
-                'test' => ['testsuite' => 'devops'],
-                'php' => '8.5',
-                'db' => 'mariadb:11',
-                'phpunit' => '12'
-            ],
-            // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
-            // skips without it.
-            [
-                'test' => ['testsuite' => 'devops'],
-                'php' => '8.3',
-                'db' => 'mysql:8.4',
-                'phpunit' => '12'
-            ]
-        ]
+        'include' => $includes
     ]
 ];
 

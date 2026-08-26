@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\Compatibility\LegacyDocumentEventBridge;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
@@ -45,6 +46,7 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProv
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencingDocumentDataProvider;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -586,6 +588,7 @@ class DocumentGeneratorTest extends TestCase
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
+            new LegacyDocumentEventBridge(new EventDispatcher()),
         );
 
         return [$generator, $documentRepository, $documentFileRepository];

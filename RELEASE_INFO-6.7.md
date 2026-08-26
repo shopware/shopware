@@ -8,6 +8,13 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Remote media request timeouts are configurable
+
+Installations can configure `shopware.media.url_upload_timeout` and
+`shopware.media.external_link_timeout` in seconds to bound remote media URL
+uploads and external-media link checks. Both values default to `0.0`, which
+preserves the previous unlimited behavior.
+
 ## Administration
 
 ### Admin UI shell rework (sidebar, top bar, smart bar)
@@ -272,12 +279,6 @@ Replace a matrix in a single request, so the method is never priceless in betwee
   { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [{ "currencyId": "…", "net": 0, "gross": 0, "linked": false }] }] }
 ]
 ```
-### Remote media request timeouts are configurable
-
-Installations can configure `shopware.media.url_upload_timeout` and
-`shopware.media.external_link_timeout` in seconds to bound remote media URL
-uploads and external-media link checks. Both values default to `0.0`, which
-preserves the previous unlimited behavior.
 
 ### E-invoice line positions state the correct price base quantity
 

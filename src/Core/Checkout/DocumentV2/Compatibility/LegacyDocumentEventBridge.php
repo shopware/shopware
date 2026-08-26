@@ -32,7 +32,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * and the ZUGFeRD event, which is what the v1 embedded renderers did as well: they delegated to the invoice
  * renderer and to the electronic renderer, and each of those dispatched its own event.
  *
- * @deprecated tag:v6.9.0 - Will be removed together with the v1 document domain
+ * This is just a compatibility temporary bridge and will be removed together with the v1 document domain
  *
  * @internal
  */

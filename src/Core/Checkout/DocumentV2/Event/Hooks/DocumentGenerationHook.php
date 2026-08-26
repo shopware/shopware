@@ -11,6 +11,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 /**
  * Triggered once per document generation, after the order is loaded and the document number is allocated, but before any renderer runs.
  *
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
+ *
  * @hook-use-case data_loading
  *
  * @codeCoverageIgnore

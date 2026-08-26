@@ -16,6 +16,7 @@ export type ElementPropertyControlType =
     | 'select'
     | 'radio-panel'
     | 'entity'
+    | 'entity-multi'
     | 'media'
     | 'richtext'
     | 'text'
@@ -42,6 +43,8 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'text-editor': 'richtext',
     'entity-single-select': 'entity',
     'sw-entity-single-select': 'entity',
+    'entity-multi-id-select': 'entity-multi',
+    'sw-entity-multi-id-select': 'entity-multi',
     'media-field': 'media',
     'sw-media-field': 'media',
     'responsive-number': 'responsive-number',

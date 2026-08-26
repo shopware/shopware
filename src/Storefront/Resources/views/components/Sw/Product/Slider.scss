@@ -1,10 +1,12 @@
-.sw-product-slider {
+sw-product-slider {
     --sw-product-slider-gap: var(--spacer-md);
     --sw-product-slider-item-width: 300px;
     --sw-product-slider-scrollbar-size: 3px;
     --sw-product-slider-scrollbar-track-color: var(--bs-gray-200);
     --sw-product-slider-scrollbar-thumb-color: var(--bs-gray-600);
+}
 
+.sw-product-slider__list {
     align-items: stretch;
     display: flex;
     flex-flow: row nowrap;
@@ -19,23 +21,23 @@
 }
 
 @supports not selector(::-webkit-scrollbar) {
-    .sw-product-slider {
+    .sw-product-slider__list {
         scrollbar-color: var(--sw-product-slider-scrollbar-thumb-color)
             var(--sw-product-slider-scrollbar-track-color);
         scrollbar-width: thin;
     }
 }
 
-.sw-product-slider::-webkit-scrollbar {
+.sw-product-slider__list::-webkit-scrollbar {
     height: var(--sw-product-slider-scrollbar-size);
 }
 
-.sw-product-slider::-webkit-scrollbar-track {
+.sw-product-slider__list::-webkit-scrollbar-track {
     background-color: var(--sw-product-slider-scrollbar-track-color);
     height: var(--sw-product-slider-scrollbar-size);
 }
 
-.sw-product-slider::-webkit-scrollbar-thumb {
+.sw-product-slider__list::-webkit-scrollbar-thumb {
     background-color: var(--sw-product-slider-scrollbar-thumb-color);
     border: 0;
     height: var(--sw-product-slider-scrollbar-size);

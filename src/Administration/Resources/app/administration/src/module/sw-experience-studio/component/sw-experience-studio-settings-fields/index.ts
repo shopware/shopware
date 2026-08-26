@@ -2,6 +2,7 @@ import type {
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
+import type Repository from 'src/core/data/repository.data';
 import {
     getAdminUiHelpText,
     getAdminUiProps as getPropertyAdminUiProps,
@@ -61,6 +62,8 @@ export type SettingsFieldDefinition = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    inject: ['repositoryFactory'],
 
     props: {
         fields: {
@@ -517,6 +520,10 @@ export default Shopware.Component.wrapComponentConfig({
                 value,
                 label: String(value),
             }));
+        },
+
+        getEntityRepository(entityName: string): Repository<keyof EntitySchema.Entities> {
+            return this.repositoryFactory.create(entityName as keyof EntitySchema.Entities);
         },
 
         getEntityName(property: ContentSystemElementTypeProperty): string | null {

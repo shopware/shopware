@@ -4,11 +4,15 @@
 
 {% props
     products,
+    productIds = [],
+    title = null,
     slots = [],
 %}
 
+{% set titleId = 'sw-product-slider-title-' ~ random() %}
+
 {% set sliderCVA = cva({
-    base: 'sw-product-slider list-unstyled',
+    base: 'sw-product-slider',
 }) %}
 
 {% set componentOptions = {} %}
@@ -17,14 +21,22 @@
     class: sliderCVA.apply({}),
     'data-component': 'Sw:Product:Slider',
     'data-component-options': componentOptions|json_encode,
+    'aria-labelledby': title ? titleId : false,
+    'aria-label': title ? false : 'listing.productSliderAriaLabel'|trans({ '%total%': products|length })|striptags,
 } %}
 
-<ul {{ attributes.defaults(attributeDefaults) }}>
-    {% block items %}
-        {% for product in products %}
-            <li {{ attributes.nested('item').defaults({ class: 'sw-product-slider__item' }) }}>
-                <twig:Sw:Product:Card :product="product"></twig:Sw:Product:Card>
-            </li>
-        {% endfor %}
-    {% endblock %}
-</ul>
+<section {{ attributes.defaults(attributeDefaults) }}>
+    {% if title %}
+        <h2 {{ attributes.nested('title').defaults({ id: titleId, class: 'sw-product-slider__title' }) }}>{{ title }}</h2>
+    {% endif %}
+
+    <ul {{ attributes.nested('list').defaults({ class: 'sw-product-slider__list list-unstyled' }) }}>
+        {% block items %}
+            {% for product in products %}
+                <li {{ attributes.nested('item').defaults({ class: 'sw-product-slider__item' }) }}>
+                    <twig:Sw:Product:Card :product="product"></twig:Sw:Product:Card>
+                </li>
+            {% endfor %}
+        {% endblock %}
+    </ul>
+</section>

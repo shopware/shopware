@@ -156,10 +156,6 @@ Added new experimental Store API route `GET /store-api/snippet` (not part of the
 ### Number range admin action endpoints now require ACL privileges
 
 Three admin action endpoints that previously only required authentication now enforce ACL privileges. Requests with tokens lacking the privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`:
-### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
-
-The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
-### Nested `productReviews` associations follow the same visibility rules as the top-level association
 
 * `GET /api/_action/number-range/reserve/{type}/{salesChannelId}` requires `number_range:read`. Without `preview=1` this endpoint permanently advances the number range state, so it was possible for any authenticated backend account to consume invoice, order, delivery-note and credit-note numbers and create gaps in the sequence.
 * `GET /api/_action/number-range/{numberRangeId}/preview-pattern` and the deprecated `GET /api/_action/number-range/preview-pattern/{type}` require `number_range:read`.
@@ -348,10 +344,6 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 
 `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
 
-### Custom entity and field names are validated before the schema is built
-
-Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores and `$` — the characters that are valid in an unquoted SQL identifier. A manifest using any other character (whitespace, or punctuation such as `-`) is rejected with a clear error.
-
 ### Elasticsearch index updates schedule a reindex when analysis settings change
 
 When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
@@ -520,28 +512,12 @@ Cross-sellings with a manual product assignment are unchanged. Extensions that n
 Writing the `template` field of a `seo_url_template` row now regenerates the SEO URLs of the affected route automatically, instead of leaving them on the old template until the SEO indexer is run manually. The new `SeoUrlTemplateChangeSubscriber` queues `SeoUrlTemplateIndexingMessage` on the `async` transport, and the handler walks the route's entities in batches of 250, chaining one message per batch.
 
 This affects every write path, not just Settings > Shop > SEO:
-### Nested `productReviews` associations follow the same visibility rules as the top-level association
-
-Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
-
-### An oversized sales channel criteria is rejected
-
-`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and the entity specific filters such as product availability — to the first 99 criteria nodes it walks. A criteria with more nested associations than that kept the remaining nodes unrestricted. Such a criteria is now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces a criteria of that size; integrations that build one must split it into several requests.
-
-### Media import URL checks apply to the address that is connected to
 
 - Both storefront routes (registered in the `SeoUrlRouteRegistry`) and headless store-api routes (tagged `shopware.entity.seo_url.route`) are covered.
 - Writes that do not change the stored `template` value do not queue anything: update commands request a DAL change set, so an idempotent Sync API push of an identical template stays inert. Inserts with an empty or `null` template are skipped as well.
 - Extensions and deployment scripts that write `seo_url_template` rows on every install or update will therefore queue a full regeneration pass for the affected route each time. Guard such writes with a value comparison if that is not intended.
 
 ### Newsletter route methods keep the `StoreApiResponse` return type
-### Webhook target validation hardened
-
-Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
-
-Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
-
-### Document rendering supports decorated Twig environments
 
 `subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` keep
 `StoreApiResponse` as their return type in the abstract newsletter routes, in the next major as well.
@@ -883,23 +859,72 @@ The service registry decides which Shopware Services a shop installs and where t
 
 Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
-## Administration
+# 6.7.13.1
 
-### `integrationService.updateAdmin()` is deprecated
+## Security Fixes
 
-The Administration service method `Shopware.Service('integrationService').updateAdmin()` will be removed in Shopware 6.8. Use the integration repository instead:
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
+
+### Administration password recovery links use a trusted origin
+
+Administration password recovery links are now built from `APP_URL` when no trusted hosts are configured. If trusted hosts are configured, Shopware can continue to use the request host after Symfony has validated it. Ensure that `APP_URL` contains the public HTTP or HTTPS URL of the shop.
+
+### Custom entity and field names are validated before the schema is built
+
+Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores, `$`, and non-ASCII bytes supported by MySQL/MariaDB identifiers. A manifest using whitespace or punctuation such as `-` is rejected with a clear error.
+
+### Store API aggregation names reject control characters
+
+Aggregation names supplied through Store API criteria can no longer contain control characters. Invalid names are rejected before the aggregation query is built. Integrations must use printable names for aggregations.
+
+### ACL roles and protected Administration fields use authorized write paths
+
+Generic Admin API writes can no longer create or update `acl_role` entities. Direct DAL writes to the `admin` fields of users and integrations remain system-only; the authenticated Administration API controllers continue to authorize these changes, while self-profile and integration management work as before.
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` is deprecated and will be removed in Shopware 6.8. Use the integration repository instead:
 
 ```javascript
 const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
 await integrationRepository.save(integration);
 ```
-# 6.7.13.1
 
-## Critical Fixes
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### Oversized sales channel criteria are rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and entity-specific filters such as product availability — to the first 99 criteria nodes it walks. Criteria with more nested associations than that kept the remaining nodes unrestricted. Such criteria are now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces criteria of that size; integrations that build them must split them into several requests.
+
+### Media file extensions are validated on every write
+
+Direct writes to `media.fileExtension` now use the same configured extension allowlist as media uploads. Invalid public or private media extensions are rejected with the error code `MEDIA_ILLEGAL_FILE_EXTENSION`.
 
 ### Media import URL checks apply to the address that is connected to
 
 Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
+
+### Webhook target validation hardened
+
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+
+Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
+
+### Guest document downloads are rate limited
+
+Guest document download requests using a deep link code are now covered by the guest login rate limiter. Repeated invalid authentication attempts are rejected once the configured limit is reached; a successful authentication resets the limit.
+
+## Critical Fixes
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When an Elasticsearch/OpenSearch mapping update references an analyzer or normalizer that the live index's analysis settings do not define, updating the mapping fails. Analysis settings cannot be added to a live index, so the affected entity is now scheduled for a reindex into a freshly created index with the current analysis settings instead of leaving the outdated mapping in place.
+
+### Document rendering supports decorated Twig environments
+
+The document renderer now type-hints the base `Twig\Environment` instead of Shopware's `TwigEnvironment`, so a decorated `twig` service no longer breaks document generation. The sales channel business timezone override applies only when Shopware's `TwigEnvironment` is in use. With a decorator that does not extend it, documents render in Twig's default timezone.
 
 # 6.7.13.0
 
@@ -1367,9 +1392,6 @@ Extension SDK action and URI-signing requests now require `app.all` or `app.<app
 Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
 The Administration module response omits modules for apps the current user cannot access.
 Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
-### App requests block private targets and unencrypted traffic by default
-
-App-system requests now block private and reserved network targets as well as unencrypted HTTP traffic by default, including redirect targets. Before upgrading, operators whose apps use HTTP endpoints must set `shopware.app_system.allow_unencrypted_traffic`; operators whose apps use private endpoints must add each required address to `shopware.app_system.allowed_private_ip_addresses`.
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

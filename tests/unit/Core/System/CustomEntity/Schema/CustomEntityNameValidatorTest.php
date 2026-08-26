@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Schema;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityNameValidator::class)]
 class CustomEntityNameValidatorTest extends TestCase
 {

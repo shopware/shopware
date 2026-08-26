@@ -6,6 +6,8 @@
 
 The administration update wizard now asks you to choose an update method before starting the web installer. `shopware-cli project upgrade` is the recommended path for developers and managed deployments. The existing web installer flow remains available.
 
+When `shopware.auto_update.enabled` is `false` or `SHOPWARE_DISABLE_UPDATE_CHECK` is set, the wizard no longer claims the shop is already on the latest version. `GET /api/_action/update/check` returns `{ "disabled": true }` instead of an empty object, and the Administration explains that update checks are disabled and points to Shopware CLI.
+
 ## Core
 
 ### `system:install` dispatches `SystemInstallCompletedEvent`

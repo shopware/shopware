@@ -107,7 +107,35 @@ class UpdateControllerTest extends TestCase
         $content = $response->getContent();
 
         static::assertJson((string) $content);
-        static::assertSame('{}', $content);
+        static::assertSame('{"disabled":true}', $content);
+    }
+
+    public function testCheckForUpdatesDisabledByAutoUpdateConfig(): void
+    {
+        $apiClient = static::createStub(ApiClient::class);
+        $apiClient
+            ->method('checkForUpdates')
+            ->willReturn(new Version(['version' => '6.5.0.0', 'date' => '2020-01-01']));
+
+        $updateController = new UpdateController(
+            $apiClient,
+            static::createStub(WriteableCheck::class),
+            static::createStub(LicenseCheck::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0.0',
+            disableUpdateCheck: false,
+            shopwareUpdateEnabled: false,
+        );
+
+        $response = $updateController->updateApiCheck();
+
+        $content = $response->getContent();
+
+        static::assertJson((string) $content);
+        static::assertSame('{"disabled":true}', $content);
     }
 
     public function testCheckForRequirements(): void

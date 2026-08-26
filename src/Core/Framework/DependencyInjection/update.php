@@ -40,6 +40,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ExtensionLifecycleService::class),
             param('kernel.shopware_version'),
             env('SHOPWARE_DISABLE_UPDATE_CHECK')->bool(),
+            param('shopware.auto_update.enabled'),
         ])
         ->call('setContainer', [
             service('service_container'),

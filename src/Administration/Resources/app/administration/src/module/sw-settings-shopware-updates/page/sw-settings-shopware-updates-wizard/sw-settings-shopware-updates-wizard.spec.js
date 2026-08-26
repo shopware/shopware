@@ -165,6 +165,14 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-external-link': {
                             template: '<a class="sw-external-link" :href="$attrs.href"><slot></slot></a>',
                         },
+                        'mt-empty-state': {
+                            props: [
+                                'headline',
+                                'description',
+                            ],
+                            template:
+                                '<div class="mt-empty-state"><p>{{ headline }}</p><p>{{ description }}</p><slot name="button"></slot></div>',
+                        },
                         'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
@@ -381,6 +389,24 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await flushPromises();
 
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
+    });
+
+    it('shows that update checks are disabled instead of claiming the shop is up to date', async () => {
+        wrapper.vm.updateInfo = {
+            version: null,
+            changelog: null,
+        };
+        wrapper.vm.updateCheckDisabled = true;
+        wrapper.vm.isLoading = false;
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-shopware-updates-wizard__empty-state');
+
+        expect(emptyState.text()).toContain('sw-settings-shopware-updates.general.disabledTitle');
+        expect(emptyState.text()).toContain('sw-settings-shopware-updates.general.disabledDescription');
+        expect(wrapper.get('.sw-settings-shopware-updates-wizard__cli-link').attributes('href')).toBe(
+            'https://developer.shopware.com/docs/products/tools/cli/',
+        );
     });
 
     it('hides continue and the backup checkbox for the recommended CLI method', async () => {

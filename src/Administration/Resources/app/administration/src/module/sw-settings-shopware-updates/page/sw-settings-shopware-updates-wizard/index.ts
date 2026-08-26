@@ -38,6 +38,7 @@ export default Component.wrapComponentConfig({
         updateModalShown: boolean;
         chosenPluginBehaviour: string;
         chosenUpdateMethod: 'cli' | 'web';
+        updateCheckDisabled: boolean;
     } {
         return {
             updateInfo: {
@@ -55,6 +56,7 @@ export default Component.wrapComponentConfig({
             updateModalShown: false,
             chosenPluginBehaviour: '',
             chosenUpdateMethod: 'cli',
+            updateCheckDisabled: false,
         };
     },
 
@@ -134,6 +136,22 @@ export default Component.wrapComponentConfig({
         cliInstallUrl(): string {
             return 'https://developer.shopware.com/docs/products/tools/cli/';
         },
+
+        emptyStateHeadline(): string {
+            if (this.updateCheckDisabled) {
+                return this.$t('sw-settings-shopware-updates.general.disabledTitle');
+            }
+
+            return this.$t('sw-settings-shopware-updates.general.emptyState');
+        },
+
+        emptyStateDescription(): string {
+            if (this.updateCheckDisabled) {
+                return this.$t('sw-settings-shopware-updates.general.disabledDescription');
+            }
+
+            return '';
+        },
     },
 
     created() {
@@ -148,6 +166,7 @@ export default Component.wrapComponentConfig({
 
         createdComponent() {
             void this.updateService.checkForUpdates().then((response) => {
+                this.updateCheckDisabled = response.disabled === true;
                 this.updateInfo = response;
 
                 if (response.version) {

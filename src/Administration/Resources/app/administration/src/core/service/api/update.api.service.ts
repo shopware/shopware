@@ -25,7 +25,11 @@ export default class UpdateService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get<{ version: unknown; changelog: unknown }>(`/_action/${this.getApiBasePath()}/check`, { headers })
+            .get<{
+                version: unknown;
+                changelog: unknown;
+                disabled?: boolean;
+            }>(`/_action/${this.getApiBasePath()}/check`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

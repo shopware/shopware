@@ -46,7 +46,8 @@ class UpdateController extends AbstractController
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly string $shopwareVersion,
-        private readonly bool $disableUpdateCheck = false
+        private readonly bool $disableUpdateCheck = false,
+        private readonly bool $shopwareUpdateEnabled = true,
     ) {
     }
 
@@ -58,8 +59,8 @@ class UpdateController extends AbstractController
     )]
     public function updateApiCheck(): JsonResponse
     {
-        if ($this->disableUpdateCheck) {
-            return new JsonResponse();
+        if ($this->disableUpdateCheck || !$this->shopwareUpdateEnabled) {
+            return new JsonResponse(['disabled' => true]);
         }
 
         $updates = $this->apiClient->checkForUpdates();

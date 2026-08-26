@@ -6,7 +6,7 @@
             {{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}
         </h2>
         <h2 v-if="!updateInfo.version">
-            {{ $t('sw-settings-shopware-updates.general.emptyTitle') }}
+            {{ $t(updateCheckDisabled ? 'sw-settings-shopware-updates.general.disabledTitle' : 'sw-settings-shopware-updates.general.emptyTitle') }}
         </h2>
     </template>
     {% endblock %}
@@ -54,10 +54,24 @@
 
             <mt-empty-state
                 v-if="!isLoading && !updateInfo.version"
+                class="sw-settings-shopware-updates-wizard__empty-state"
                 :centered="true"
                 :icon="$route.meta.$module.icon"
-                :headline="$t('sw-settings-shopware-updates.general.emptyState')"
-            />
+                :headline="emptyStateHeadline"
+                :description="emptyStateDescription"
+            >
+                <template
+                    v-if="updateCheckDisabled"
+                    #button
+                >
+                    <sw-external-link
+                        class="sw-settings-shopware-updates-wizard__cli-link"
+                        :href="cliInstallUrl"
+                    >
+                        {{ $t('sw-settings-shopware-updates.methodModal.cliInstallLink') }}
+                    </sw-external-link>
+                </template>
+            </mt-empty-state>
 
             <sw-modal
                 v-if="updaterIsRunning"

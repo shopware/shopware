@@ -5,6 +5,8 @@
       "title": "Shopware update ({version})",
       "emptyTitle": "Shopware updates",
       "emptyState": "You are running the latest version.",
+      "disabledTitle": "Update checks are disabled",
+      "disabledDescription": "Automatic update checks are turned off (shopware.auto_update.enabled). This shop is not necessarily on the latest version. Use Shopware CLI to update: shopware-cli project upgrade",
       "checkForUpdates": "Check for updates",
       "currentVersion": "Current version:"
     },

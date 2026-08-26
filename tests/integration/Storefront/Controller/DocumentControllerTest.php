@@ -338,8 +338,6 @@ class DocumentControllerTest extends TestCase
 
     public function testDownloadV2DocumentWithFormatName(): void
     {
-        Feature::skipTestIfInActive('v6.9.0.0', $this);
-
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
         $this->seedDemoBaseConfig(DocumentType::INVOICE->value);

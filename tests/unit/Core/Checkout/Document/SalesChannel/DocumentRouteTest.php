@@ -65,7 +65,7 @@ class DocumentRouteTest extends TestCase
         ZugferdRenderer::FILE_EXTENSION => ZugferdRenderer::FILE_CONTENT_TYPE,
     ];
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithDocumentNotFound(): void
     {
         $generator = static::createStub(DocumentGenerator::class);
@@ -87,7 +87,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithOrderNotFound(): void
     {
         $generator = static::createStub(DocumentGenerator::class);
@@ -117,7 +117,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithoutOrderCustomer(): void
     {
         $generator = static::createStub(DocumentGenerator::class);
@@ -146,7 +146,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), static::createStub(SalesChannelContext::class));
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testThrowExceptionForNotGuestOrderForGuest(): void
     {
         $this->createCustomer(Uuid::randomHex(), true);
@@ -187,7 +187,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testThrowExceptionWrongCredentialsForGuestAuthentication(): void
     {
         $billingAddress = new OrderAddressEntity();
@@ -239,7 +239,7 @@ class DocumentRouteTest extends TestCase
         $route->download($document->getId(), $request, $context);
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testThrowExceptionGuestNotAuthenticated(): void
     {
         $customerId = Uuid::randomHex();
@@ -283,7 +283,7 @@ class DocumentRouteTest extends TestCase
         $route->download($document->getId(), $request, $context);
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testThrowExceptionForGuestWithoutDeepLinkCode(): void
     {
         $billingAddress = new OrderAddressEntity();
@@ -332,7 +332,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testGuestCanDownload(): void
     {
         $billingAddress = new OrderAddressEntity();
@@ -393,7 +393,7 @@ class DocumentRouteTest extends TestCase
         }
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testThrowExceptionForNotMatchingCustomer(): void
     {
         $customer = $this->createCustomer(Uuid::randomHex(), false);
@@ -427,7 +427,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testMatchingCustomerCanDownload(): void
     {
         $customerID = Uuid::randomHex();
@@ -473,7 +473,7 @@ class DocumentRouteTest extends TestCase
         }
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadShouldThrowExceptionWhenDocumentIsNotFound(): void
     {
         $customerID = Uuid::randomHex();
@@ -528,7 +528,7 @@ class DocumentRouteTest extends TestCase
     }
 
     #[DataProvider('provideAcceptHeaderThatFallbacksToDefaultFileType')]
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadShouldFallbackToDefaultFileType(
         ?string $acceptHeader
     ): void {
@@ -590,7 +590,7 @@ class DocumentRouteTest extends TestCase
     }
 
     #[DataProvider('provideAcceptHeaderValues')]
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithAcceptHeaderMimeTypes(
         string $acceptHeader,
         string $expectedFileExtension
@@ -661,7 +661,7 @@ class DocumentRouteTest extends TestCase
         ];
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithUnsupportedMimeTypeShouldNotCallReadDocumentAndThrowException(): void
     {
         $customerID = Uuid::randomHex();
@@ -711,7 +711,7 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithInvalidFileTypeParameterShouldNotCallReadDocumentAndThrowException(): void
     {
         Feature::skipTestIfInActive('v6.8.0.0', $this);
@@ -766,7 +766,7 @@ class DocumentRouteTest extends TestCase
         );
     }
 
-    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.9.0.0'])]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithInvalidFileTypeParameterCallsReadDocumentAndReturnsJustCodeInResponse(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -984,142 +984,6 @@ class DocumentRouteTest extends TestCase
             null,
             DocumentFormat::ZUGFERD_XML->value,
         );
-    }
-
-    public function testDownloadUsesDocumentReaderForALegacyDocumentWhenV690IsActive(): void
-    {
-        Feature::fake(['v6.9.0.0'], function (): void {
-            $customerId = Uuid::randomHex();
-            $customer = $this->createCustomer($customerId, false);
-            $order = $this->createOrder($customerId);
-            $document = $this->createDocument($order);
-
-            $media = new MediaEntity();
-            $media->setId(Uuid::randomHex());
-            $media->setFileName('invoice');
-            $media->setFileExtension('pdf');
-            $media->setMimeType('application/pdf');
-
-            $document->setDocumentMediaFile($media);
-
-            $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
-                new DocumentCollection([$document]), // DocumentRoute::loadDocument()
-                new DocumentCollection([$document]), // DocumentReader::read()
-            ], new DocumentDefinition());
-
-            $mediaService = static::createStub(MediaService::class);
-            $mediaService->method('loadFile')->willReturn('legacy content');
-
-            $generator = static::createMock(DocumentGenerator::class);
-            $generator->expects($this->never())->method('readDocument');
-
-            $route = new DocumentRoute(
-                $generator,
-                new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
-                $documentRepository,
-                new GuestAuthenticator(),
-                new \ArrayIterator([]),
-            );
-
-            $context = static::createStub(SalesChannelContext::class);
-            $context->method('getCustomer')->willReturn($customer);
-            $context->method('getContext')->willReturn(Context::createDefaultContext());
-
-            $response = $route->download(
-                $document->getId(),
-                new Request(),
-                $context,
-                '',
-                'pdf',
-            );
-
-            static::assertSame('legacy content', $response->getContent());
-        });
-    }
-
-    public function testDownloadIgnoresFormatQueryParameterForALegacyDocumentWhenV690IsActive(): void
-    {
-        Feature::fake(['v6.9.0.0'], function (): void {
-            $customerId = Uuid::randomHex();
-            $customer = $this->createCustomer($customerId, false);
-            $order = $this->createOrder($customerId);
-            $document = $this->createDocument($order);
-
-            $media = new MediaEntity();
-            $media->setId(Uuid::randomHex());
-            $media->setFileName('invoice');
-            $media->setFileExtension('pdf');
-            $media->setMimeType('application/pdf');
-
-            $document->setDocumentMediaFile($media);
-
-            $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
-                new DocumentCollection([$document]), // DocumentRoute::loadDocument()
-                new DocumentCollection([$document]), // DocumentReader::read()
-            ], new DocumentDefinition());
-
-            $mediaService = static::createStub(MediaService::class);
-            $mediaService->method('loadFile')->willReturn('legacy content');
-
-            $route = new DocumentRoute(
-                static::createStub(DocumentGenerator::class),
-                new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
-                $documentRepository,
-                new GuestAuthenticator(),
-                new \ArrayIterator([]),
-            );
-
-            $context = static::createStub(SalesChannelContext::class);
-            $context->method('getCustomer')->willReturn($customer);
-            $context->method('getContext')->willReturn(Context::createDefaultContext());
-
-            $response = $route->download(
-                $document->getId(),
-                new Request(['format' => DocumentFormat::HTML->value]),
-                $context,
-                '',
-                DocumentFormat::PDF->value,
-            );
-
-            static::assertSame('legacy content', $response->getContent());
-        });
-    }
-
-    public function testDownloadRejectsUnsupportedFileTypeForALegacyDocumentWhenV690IsActive(): void
-    {
-        Feature::fake(['v6.8.0.0', 'v6.9.0.0'], function (): void {
-            $customerId = Uuid::randomHex();
-            $customer = $this->createCustomer($customerId, false);
-            $order = $this->createOrder($customerId);
-            $document = $this->createDocument($order);
-
-            $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
-                new DocumentCollection([$document]), // DocumentRoute::loadDocument()
-            ], new DocumentDefinition());
-
-            $route = new DocumentRoute(
-                static::createStub(DocumentGenerator::class),
-                $this->createDocumentReaderStub(),
-                $documentRepository,
-                new GuestAuthenticator(),
-                new \ArrayIterator([]),
-            );
-
-            $context = static::createStub(SalesChannelContext::class);
-            $context->method('getCustomer')->willReturn($customer);
-            $context->method('getContext')->willReturn(Context::createDefaultContext());
-
-            $this->expectExceptionObject(DocumentException::documentFileTypeNotSupported(self::INVALID_FILE_TYPE));
-
-            $route->download(
-                $document->getId(),
-                new Request(),
-                $context,
-                '',
-                self::INVALID_FILE_TYPE,
-                self::INVALID_FILE_TYPE,
-            );
-        });
     }
 
     private function createCustomer(string $customerId, bool $isGuest): CustomerEntity

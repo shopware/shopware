@@ -176,15 +176,12 @@ describe('scripts/codemods/sfc-migration', () => {
         // A Twig comment renders nothing; keeping it outside <template> preserves the note without
         // turning it into a second root node in development.
         it('moves a root Twig comment outside the generated template', async () => {
+            const rootComment = '<!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->';
             const result = await convertFixture('sw-root-comment');
 
             expect(result.outcome).toBe('full');
-            expect(
-                result.sfc?.startsWith(
-                    '<!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->\n<template>',
-                ),
-            ).toBe(true);
-            expect(result.sfc).not.toContain('<template>\n    <!-- @deprecated');
+            expect(result.sfc?.startsWith(`${rootComment}\n<template>`)).toBe(true);
+            expect(result.sfc).not.toContain(`<template>\n    ${rootComment}`);
         });
 
         it.each([

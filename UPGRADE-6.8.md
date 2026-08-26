@@ -1479,7 +1479,103 @@ After:
 
 ## `sw-tabs` remains available until 6.9
 
-The deprecated Administration `sw-tabs` component remains available in 6.8 and keeps rendering its legacy implementation, including when the `v6.8.0.0` feature flag is active. It will be removed in 6.9. Migrate extensions directly to `mt-tabs` before upgrading to 6.9; `mt-tabs` uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot.
+The deprecated Administration `sw-tabs` component remains available in 6.8 and keeps rendering its legacy implementation, including when the `v6.8.0.0` feature flag is active. No migration is required for 6.8. The component will be removed in 6.9, so migrate extensions directly to `mt-tabs` before upgrading to 6.9.
+
+The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
+
+### Replace `sw-tabs` with `mt-tabs`
+
+Before:
+
+```html
+<sw-tabs />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
+### Replace `sw-tabs-item` children with the `items` prop
+
+Before:
+
+```html
+<sw-tabs>
+    <template #default="{ active }">
+        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
+        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs :items="[
+    {
+        label: 'Tab 1',
+        name: 'tab1',
+    },
+    {
+        label: 'Tab 2',
+        name: 'tab2',
+    },
+]" />
+```
+
+### Render content outside `mt-tabs`
+
+The legacy `content` slot is not supported. Store the active item from `new-item-active` and render the corresponding content outside the component.
+
+Before:
+
+```html
+<sw-tabs>
+    <template #content="{ active }">
+        The current active item is {{ active }}
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs @new-item-active="setActiveItem" />
+
+The current active item is {{ activeItem }}
+```
+
+### Rename `is-vertical` to `vertical`
+
+Before:
+
+```html
+<sw-tabs is-vertical />
+```
+
+After:
+
+```html
+<mt-tabs vertical />
+```
+
+### Remove `align-right`
+
+`mt-tabs` has no replacement for `align-right`.
+
+Before:
+
+```html
+<sw-tabs align-right />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
 
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 

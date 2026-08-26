@@ -272,6 +272,12 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 ### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
 
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
+### Remote media request timeouts are configurable
+
+Installations can configure `shopware.media.url_upload_timeout` and
+`shopware.media.external_link_timeout` in seconds to bound remote media URL
+uploads and external-media link checks. Both values default to `0.0`, which
+preserves the previous unlimited behavior.
 
 ## Administration
 
@@ -673,12 +679,6 @@ Replace a matrix in a single request, so the method is never priceless in betwee
   { "key": "write-prices", "entity": "shipping_method_price", "action": "upsert", "payload": [{ "id": "…", "shippingMethodId": "…", "calculation": 1, "quantityStart": 0, "currencyPrice": [{ "currencyId": "…", "net": 0, "gross": 0, "linked": false }] }] }
 ]
 ```
-### Remote media request timeouts are configurable
-
-Installations can configure `shopware.media.url_upload_timeout` and
-`shopware.media.external_link_timeout` in seconds to bound remote media URL
-uploads and external-media link checks. Both values default to `0.0`, which
-preserves the previous unlimited behavior.
 
 ### E-invoice line positions state the correct price base quantity
 

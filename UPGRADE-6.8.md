@@ -1477,9 +1477,13 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
+## `sw-tabs` remains available until 6.9
+
+The deprecated Administration `sw-tabs` component remains available in 6.8 and keeps rendering its legacy implementation, including when the `v6.8.0.0` feature flag is active. It will be removed in 6.9. Migrate extensions directly to `mt-tabs` before upgrading to 6.9; `mt-tabs` uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot.
+
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 
-The Administration `sw-tabs` component has been replaced by `mt-tabs`. The legacy `sw-tabs` fallback branches guarded by the `v6.8.0.0` feature flag have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+The affected core Administration components use `mt-tabs` in their `v6.8.0.0` branches. Their legacy `sw-tabs` fallback branches have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
 
 The following Twig blocks have been removed:
 

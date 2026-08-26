@@ -6,6 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
@@ -33,11 +36,16 @@ class NotHookablePolicyTest extends TestCase
 
         static::assertTrue($policy->handles(UserRecoveryRequestEvent::EVENT_NAME));
         static::assertTrue($policy->handles(CustomerAccountRecoverRequestEvent::EVENT_NAME));
+        static::assertTrue($policy->handles(MailBeforeValidateEvent::EVENT_NAME));
+        static::assertTrue($policy->handles(MailBeforeSentEvent::EVENT_NAME));
     }
 
     public function testEventsWithoutTheAttributeAreNotHandled(): void
     {
-        static::assertFalse($this->createPolicy()->handles(CustomerLoginEvent::EVENT_NAME));
+        $policy = $this->createPolicy();
+
+        static::assertFalse($policy->handles(CustomerLoginEvent::EVENT_NAME));
+        static::assertFalse($policy->handles(MailSentEvent::EVENT_NAME));
     }
 
     public function testClassesAddedByABundleAreHandled(): void

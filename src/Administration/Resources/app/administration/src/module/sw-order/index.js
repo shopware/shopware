@@ -131,7 +131,7 @@ Module.register('sw-order', {
     targetVersion: '1.0.0',
     color: 'var(--color-purple-500)',
     icon: 'regular-shopping-bag',
-    favicon: 'icon-module-orders.png',
+    favicon: 'icon-module-orders.svg',
     entity: 'order',
 
     routes: {
@@ -259,6 +259,6 @@ function orderCreateChildren() {
     };
 }
 
-Application.addServiceProvider('documentV2Service', () => {
-    return new DocumentV2Service();
+Application.addServiceProvider('documentV2Service', (container) => {
+    return new DocumentV2Service(container.documentV2ApiService);
 });

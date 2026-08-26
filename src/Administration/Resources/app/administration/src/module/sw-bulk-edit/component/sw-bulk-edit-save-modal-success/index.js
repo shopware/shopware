@@ -18,10 +18,14 @@ const documentTypeOrder = [
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderDocumentApiService',
-    ],
+    inject: {
+        repositoryFactory: {},
+        orderDocumentApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
+        feature: {},
+    },
 
     emits: [
         'title-set',
@@ -72,10 +76,11 @@ export default {
 
         latestDocumentsCriteria() {
             const criteria = new Criteria(1, null);
+            criteria.addAssociation('documentType');
             criteria.addFilter(
                 Criteria.equalsAny(
-                    'documentTypeId',
-                    this.selectedDocumentTypes.map((item) => item.id),
+                    'documentType.technicalName',
+                    this.selectedDocumentTypes.map((item) => item.technicalName),
                 ),
             );
             criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
@@ -264,7 +269,7 @@ export default {
                 const latestDoc = latestDocuments[documentType.technicalName];
 
                 const documentsGrouped = documents.filter((document) => {
-                    return document.documentTypeId === documentType.id;
+                    return document.documentType?.technicalName === documentType.technicalName;
                 });
 
                 const latestDocKeyedByOrderId = {};
@@ -300,17 +305,29 @@ export default {
             }
 
             this.document[documentType].isDownloading = true;
-            return this.orderDocumentApiService
-                .download(documentIds)
-                .then((response) => {
-                    if (!response.data) {
+
+            const request = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2ApiService.getDocumentArchive(documentIds)
+                : this.orderDocumentApiService.download(documentIds).then((response) => {
+                      if (!response.data) {
+                          return null;
+                      }
+
+                      return {
+                          file: response.data,
+                          fileName: fileReaderUtils.getFilenameFromResponse(response),
+                      };
+                  });
+
+            return request
+                .then((documentFileResponse) => {
+                    if (!documentFileResponse) {
                         return;
                     }
 
-                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
+                    link.href = URL.createObjectURL(documentFileResponse.file);
+                    link.download = documentFileResponse.fileName;
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
                 })
@@ -362,12 +379,30 @@ export default {
         },
 
         getDocumentGenerationResultFileContent() {
+            const seenRows = new Set();
+            const lines = [];
+
+            this.documentGenerationFailedItems.forEach((failedItem) => {
+                const rowKey = `${failedItem.orderId}::${failedItem.documentType}`;
+
+                if (seenRows.has(rowKey)) {
+                    return;
+                }
+                seenRows.add(rowKey);
+
+                const orderNumber = this.orderNumbers[failedItem.orderId] ?? failedItem.orderId;
+                const documentTypeLabel = this.getDocumentTypeLabel(failedItem.documentType);
+                const reason = failedItem.detail ?? failedItem.errorCode;
+
+                lines.push(
+                    reason ? `${orderNumber} - ${documentTypeLabel}: ${reason}` : `${orderNumber} - ${documentTypeLabel}`,
+                );
+            });
+
             return [
                 this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'),
                 '',
-                ...this.failedDocumentRows.map((row) => {
-                    return `${row.orderNumber} - ${row.documentTypesLabel}`;
-                }),
+                ...lines,
             ].join('\n');
         },
 

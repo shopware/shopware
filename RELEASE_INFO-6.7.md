@@ -254,7 +254,6 @@ The Store API OpenAPI schema previously documented item prices and cart totals a
 ### Store API no longer offers shipping methods without a usable price
 
 `onlyAvailable=1` no longer returns active shipping methods whose prices cannot resolve a cost: an empty matrix, or rows that all lack currency values. One usable row is enough. Requests without the flag are unchanged.
-
 ### Sales channel language list validation compares against the incoming default language
 
 Assigning a new `languageId` to a sales channel and removing the previous default language from its `languages` list in the same write is now accepted. It previously failed with `SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID`, and the two steps had to be sent as separate requests.

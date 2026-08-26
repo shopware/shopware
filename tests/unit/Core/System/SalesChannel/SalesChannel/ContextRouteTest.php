@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute;
 use Shopware\Core\Test\Generator;
@@ -16,6 +17,13 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(ContextRoute::class)]
 class ContextRouteTest extends TestCase
 {
+    public function testGetDecoratedThrows(): void
+    {
+        static::expectExceptionObject(new DecorationPatternException(ContextRoute::class));
+
+        (new ContextRoute())->getDecorated();
+    }
+
     public function testLoadReturnsContextTokenHeader(): void
     {
         $context = Generator::generateSalesChannelContext(token: 'test-token');

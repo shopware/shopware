@@ -6,8 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -27,6 +29,18 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ContextSwitchRoute::class)]
 class ContextSwitchRouteTest extends TestCase
 {
+    public function testGetDecoratedThrows(): void
+    {
+        static::expectExceptionObject(new DecorationPatternException(ContextSwitchRoute::class));
+
+        (new ContextSwitchRoute(
+            static::createStub(DataValidator::class),
+            static::createStub(SalesChannelContextPersister::class),
+            $this->createEventDispatcher(),
+            static::createStub(SalesChannelContextServiceInterface::class)
+        ))->getDecorated();
+    }
+
     public function testSwitchContextAllowsEmptyAddressIdsForAnonymousContext(): void
     {
         $token = 'test-token';
@@ -78,6 +92,68 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    public function testSwitchContextAllowsAddressIdsForCustomerContext(): void
+    {
+        $token = 'test-token';
+        $salesChannelId = Uuid::randomHex();
+        $customerId = Uuid::randomHex();
+        $billingAddressId = Uuid::randomHex();
+        $shippingAddressId = Uuid::randomHex();
+        $frameworkContext = Context::createDefaultContext();
+        $customer = new CustomerEntity();
+        $customer->setId($customerId);
+
+        $salesChannelContext = $this->createSalesChannelContext(
+            $token,
+            $salesChannelId,
+            $frameworkContext,
+            $customer
+        );
+
+        $validator = $this->createMock(DataValidator::class);
+        $validator
+            ->expects($this->exactly(2))
+            ->method('validate');
+
+        $contextPersister = $this->createMock(SalesChannelContextPersister::class);
+        $contextPersister
+            ->expects($this->once())
+            ->method('save')
+            ->with(
+                $token,
+                [
+                    SalesChannelContextService::BILLING_ADDRESS_ID => $billingAddressId,
+                    SalesChannelContextService::SHIPPING_ADDRESS_ID => $shippingAddressId,
+                ],
+                $salesChannelId,
+                $customerId
+            );
+
+        $contextService = $this->createMock(SalesChannelContextServiceInterface::class);
+        $contextService
+            ->expects($this->once())
+            ->method('get')
+            ->with(static::equalTo(new SalesChannelContextServiceParameters($salesChannelId, $token)))
+            ->willReturn($salesChannelContext);
+
+        $route = new ContextSwitchRoute(
+            $validator,
+            $contextPersister,
+            $this->createEventDispatcher(),
+            $contextService
+        );
+
+        $response = $route->switchContext(
+            new RequestDataBag([
+                SalesChannelContextService::BILLING_ADDRESS_ID => $billingAddressId,
+                SalesChannelContextService::SHIPPING_ADDRESS_ID => $shippingAddressId,
+            ]),
+            $salesChannelContext
+        );
+
+        static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
     /**
      * @param array<string, string> $parameters
      */
@@ -111,12 +187,16 @@ class ContextSwitchRouteTest extends TestCase
     private function createSalesChannelContext(
         string $token,
         string $salesChannelId,
-        Context $frameworkContext
+        Context $frameworkContext,
+        ?CustomerEntity $customer = null
     ): SalesChannelContext {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getCustomer')
-            ->willReturn(null);
+            ->willReturn($customer);
+        $salesChannelContext
+            ->method('getCustomerId')
+            ->willReturn($customer?->getId());
         $salesChannelContext
             ->method('getToken')
             ->willReturn($token);
@@ -126,6 +206,9 @@ class ContextSwitchRouteTest extends TestCase
         $salesChannelContext
             ->method('getContext')
             ->willReturn($frameworkContext);
+        $salesChannelContext
+            ->method('getPermissions')
+            ->willReturn([]);
 
         return $salesChannelContext;
     }

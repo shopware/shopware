@@ -154,6 +154,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('twig'),
             service(Translator::class),
             service(SalesChannelContextFactory::class),
+            service('event_dispatcher'),
             param('kernel.project_dir'),
         ]);
 

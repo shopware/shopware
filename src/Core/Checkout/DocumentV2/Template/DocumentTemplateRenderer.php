@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Template;
 
+use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -12,11 +13,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Renders a document Twig template under the order's locale, translator and sales-channel context.
  *
- * Auto-injects `order`, `documentNumber`, `rootDir` and `context` into the template scope.
+ * Auto-injects `order`, `documentNumber`, `rootDir`, `context` and `extensions` into the template scope.
  * Renderers pass only the view path, the {@see RenderInput} and any format-specific extras
  * (e.g. an HTML pagination counter or PDF configuration).
  *
@@ -30,6 +32,7 @@ final readonly class DocumentTemplateRenderer
         private TwigEnvironment $twig,
         private AbstractTranslator $translator,
         private AbstractSalesChannelContextFactory $contextFactory,
+        private EventDispatcherInterface $eventDispatcher,
         private string $rootDir,
     ) {
     }
@@ -64,6 +67,10 @@ final readonly class DocumentTemplateRenderer
             'documentV2' => true,
             ...$additionalParameters,
         ];
+
+        $parameterEvent = new DocumentTemplateRendererParameterEvent($parameters);
+        $this->eventDispatcher->dispatch($parameterEvent);
+        $parameters['extensions'] = $parameterEvent->getExtensions();
 
         $this->translator->injectSettings(
             $salesChannelId,

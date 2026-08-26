@@ -442,6 +442,7 @@
       "labelDocumentStornoNumber": "Cancellation number",
       "labelInvoiceNumber": "Invoice",
       "selectInvoiceNumber": "Select invoice",
+      "errorInvoiceMissingCreditItem": "The selected invoice has no credit item.",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
       "labelCreateDownload": "Create and download",

@@ -442,6 +442,7 @@
       "labelDocumentStornoNumber": "Stornonummer",
       "labelInvoiceNumber": "Rechnung",
       "selectInvoiceNumber": "Rechnung wählen",
+      "errorInvoiceMissingCreditItem": "Die ausgewählte Rechnung enthält keine Gutschriftsposition.",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
       "labelCreateDownload": "Erstellen und herunterladen",

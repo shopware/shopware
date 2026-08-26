@@ -23,14 +23,6 @@ properties:
     adminUI:
       component: "switch"
 
-  advancedPricing:
-    type: boolean
-    title: "Advanced pricing"
-    description: "Render the graduated (tiered) price table for products with staggered prices. Enabled on the product detail page."
-    default: true
-    adminUI:
-      component: "switch"
-
   jsonLd:
     type: boolean
     title: "JSON-LD structured data"

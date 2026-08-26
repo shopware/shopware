@@ -11,7 +11,7 @@
 {% props
     product = null,
     showTaxInfo = false,
-    advancedPricing = false,
+    advancedPricing = true,
     jsonLd = false,
 %}
 
@@ -22,12 +22,8 @@
 {% block component_product_box_price_info %}
     {% if product is null %}
         <div {{ attributes.defaults(attributeDefaults) }}>
-            <span class="sw-product-price-display__placeholder-icon">
-                <twig:Sw:Icon name="tags" size="sm" />
-            </span>
-            <span class="sw-product-price-display__placeholder-label">
-                {{ 'detail.priceUnavailable'|trans|sw_sanitize }}
-            </span>
+            <twig:Sw:Icon name="tags" size="sm" />
+            {{ 'detail.priceUnavailable'|trans|sw_sanitize }}
         </div>
     {% else %}
         {% set cheapest = product.calculatedCheapestPrice %}

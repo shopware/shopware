@@ -212,6 +212,11 @@ final class DocumentRoute extends AbstractDocumentRoute
         }
 
         if (!$orderCustomer->getCustomer()?->getGuest()) {
+            if (Feature::isActive('v6.8.0.0')) {
+                // always throws here: the validator rejects an order that was not placed by a guest
+                $this->guestAuthenticator->validate($order, $request);
+            }
+
             throw DocumentException::customerNotLoggedIn();
         }
 

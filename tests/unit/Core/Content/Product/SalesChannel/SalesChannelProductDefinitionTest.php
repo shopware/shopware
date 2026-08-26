@@ -6,14 +6,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -84,20 +90,6 @@ class SalesChannelProductDefinitionTest extends TestCase
         static::assertFalse($criteria->hasAssociation('prices'));
     }
 
-    private function createDefinition(): SalesChannelProductDefinition
-    {
-        $registry = new StaticDefinitionInstanceRegistry(
-            [SalesChannelProductDefinition::class],
-            static::createStub(ValidatorInterface::class),
-            static::createStub(EntityWriteGateway::class),
-        );
-
-        $definition = $registry->getByEntityName(SalesChannelProductDefinition::ENTITY_NAME);
-        static::assertInstanceOf(SalesChannelProductDefinition::class, $definition);
-
-        return $definition;
-    }
-
     #[DataProvider('nestingLevelProvider')]
     public function testProcessCriteriaFiltersInactiveReviewsOnEveryNestingLevel(int $nestingLevel): void
     {
@@ -144,5 +136,19 @@ class SalesChannelProductDefinitionTest extends TestCase
         yield 'root level' => [Criteria::ROOT_NESTING_LEVEL];
         yield 'first association level' => [1];
         yield 'second association level' => [2];
+    }
+
+    private function createDefinition(): SalesChannelProductDefinition
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [SalesChannelProductDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
+        );
+
+        $definition = $registry->getByEntityName(SalesChannelProductDefinition::ENTITY_NAME);
+        static::assertInstanceOf(SalesChannelProductDefinition::class, $definition);
+
+        return $definition;
     }
 }

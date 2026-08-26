@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\System\User\Recovery;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -46,12 +45,8 @@ class UserRecoveryServiceTest extends TestCase
 
     private const HASH = 'Ynp1oKlXNlLRnjTHVCXBSLnFmQCLLbNe';
 
-    private EventDispatcherInterface&MockObject $dispatcher;
-
     protected function setUp(): void
     {
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-
         Request::setTrustedHosts([]);
         $this->setEnvVars([
             'APP_URL' => 'https://shop.example.com',
@@ -87,7 +82,8 @@ class UserRecoveryServiceTest extends TestCase
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
 
-        $this->dispatcher
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
             ->expects($this->never())
             ->method('dispatch');
 
@@ -95,7 +91,7 @@ class UserRecoveryServiceTest extends TestCase
             $recoveryRepository,
             $userRepository,
             $router,
-            $this->dispatcher,
+            $dispatcher,
             $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
@@ -137,7 +133,8 @@ class UserRecoveryServiceTest extends TestCase
             new SalesChannelCollection([]),
         ], new SalesChannelDefinition());
 
-        $this->dispatcher
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
             ->expects($this->never())
             ->method('dispatch');
 
@@ -145,7 +142,7 @@ class UserRecoveryServiceTest extends TestCase
             $recoveryRepository,
             $userRepository,
             $router,
-            $this->dispatcher,
+            $dispatcher,
             $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
@@ -194,7 +191,8 @@ class UserRecoveryServiceTest extends TestCase
             ->method('get')
             ->willReturn(static::createStub(SalesChannelContext::class));
 
-        $this->dispatcher
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with(
@@ -206,7 +204,7 @@ class UserRecoveryServiceTest extends TestCase
             $recoveryRepository,
             $userRepository,
             $router,
-            $this->dispatcher,
+            $dispatcher,
             $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
@@ -261,7 +259,8 @@ class UserRecoveryServiceTest extends TestCase
             ->method('get')
             ->willReturn(static::createStub(SalesChannelContext::class));
 
-        $this->dispatcher
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with(
@@ -273,7 +272,7 @@ class UserRecoveryServiceTest extends TestCase
             $recoveryRepository,
             $userRepository,
             $router,
-            $this->dispatcher,
+            $dispatcher,
             $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()
@@ -405,7 +404,8 @@ class UserRecoveryServiceTest extends TestCase
             ->willReturn(static::createStub(SalesChannelContext::class));
 
         $recoveryUrl = null;
-        $this->dispatcher
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher
             ->method('dispatch')
             ->willReturnCallback(function (UserRecoveryRequestEvent $event) use (&$recoveryUrl) {
                 $recoveryUrl = $event->getResetUrl();
@@ -433,7 +433,7 @@ class UserRecoveryServiceTest extends TestCase
             $recoveryRepository,
             $userRepository,
             $router,
-            $this->dispatcher,
+            $dispatcher,
             $salesChannelContextService,
             $salesChannelRepository,
             new NativeClock()

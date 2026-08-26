@@ -52,9 +52,6 @@ class WebhookException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
     public static function targetNotAllowed(): self
     {
         return new self(
@@ -82,6 +79,7 @@ class WebhookException extends HttpException
         );
     }
 
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidDataMapping(string $propertyName, string $className): self|\RuntimeException
     {
         return new self(

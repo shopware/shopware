@@ -598,7 +598,11 @@ class DocumentRouteTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
+        } else {
+            $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
+        }
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }

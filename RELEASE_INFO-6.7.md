@@ -47,7 +47,7 @@ Media imports send the request to the address the URL check resolved, and check 
 
 ### Webhook target validation hardened
 
-Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`. `allowed_private_ip_addresses` accepts single IP addresses as well as CIDR ranges (for example `10.0.0.0/8` or `fd00::/8`), so a whole internal subnet can be allowed with one entry.
 
 Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
 
@@ -518,7 +518,7 @@ The route is guarded by the existing `media:read` ACL privilege and returns a sm
 
 ### App requests block private targets and unencrypted traffic by default
 
-App-system requests now block private and reserved network targets as well as unencrypted HTTP traffic by default, including redirect targets. Before upgrading, operators whose apps use HTTP endpoints must set `shopware.app_system.allow_unencrypted_traffic`; operators whose apps use private endpoints must add each required address to `shopware.app_system.allowed_private_ip_addresses`.
+App-system requests now block private and reserved network targets as well as unencrypted HTTP traffic by default, including redirect targets. Before upgrading, operators whose apps use HTTP endpoints must set `shopware.app_system.allow_unencrypted_traffic`; operators whose apps use private endpoints must add each required address to `shopware.app_system.allowed_private_ip_addresses`. That option accepts single IP addresses as well as CIDR ranges (for example `10.0.0.0/8` or `fd00::/8`).
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 

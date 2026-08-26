@@ -166,6 +166,30 @@ class TrustedUrlResolverTest extends TestCase
         $resolver->resolve('https://internal.example.com/image.png');
     }
 
+    public function testAllowsPrivateIpWithinAllowListedCidrRange(): void
+    {
+        $resolver = new TrustedUrlResolver(
+            static fn (string $host): array => ['10.0.5.42'],
+            allowedPrivateIps: ['10.0.0.0/8'],
+        );
+
+        $resolved = $resolver->resolve('https://internal.example.com/image.png');
+
+        static::assertSame('10.0.5.42', $resolved->ip);
+    }
+
+    public function testRejectsPrivateIpOutsideAllowListedCidrRange(): void
+    {
+        $resolver = new TrustedUrlResolver(
+            static fn (string $host): array => ['192.168.0.1'],
+            allowedPrivateIps: ['10.0.0.0/8'],
+        );
+
+        $this->expectException(MediaException::class);
+
+        $resolver->resolve('https://internal.example.com/image.png');
+    }
+
     public function testPermittingPrivateRangesStillRejectsUnusableUrls(): void
     {
         $resolver = new TrustedUrlResolver(

@@ -19,9 +19,15 @@ class DocumentEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    protected ?string $orderId = null;
+    /**
+     * @deprecated tag:v6.8.0 - Type will change to ?string.
+     */
+    protected string $orderId = '';
 
-    protected ?string $orderVersionId = null;
+    /**
+     * @deprecated tag:v6.8.0 - Type will change to ?string.
+     */
+    protected string $orderVersionId = '';
 
     protected string $documentTypeId;
 
@@ -73,35 +79,25 @@ class DocumentEntity extends Entity
         $this->order = $order;
     }
 
-    #[ReturnTypeWidening(version: 'v6.9.0', newType: '?string', description: 'Will return null for documents without order.')]
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderVersionId(): string
     {
-        /** @deprecated tag:v6.9.0 - remove this fallback condition */
-        if ($this->orderVersionId === null) {
-            return '';
-        }
-
         return $this->orderVersionId;
     }
 
-    #[ParameterTypeWidening(version: 'v6.9.0', parameterName: 'orderVersionId', newType: '?string', description: 'Will accept null for documents without order.')]
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderVersionId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
     }
 
-    #[ReturnTypeWidening(version: 'v6.9.0', newType: '?string', description: 'Will return null for documents without order.')]
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderId(): string
     {
-        /** @deprecated tag:v6.9.0 - remove this fallback condition */
-        if ($this->orderId === null) {
-            return '';
-        }
-
         return $this->orderId;
     }
 
-    #[ParameterTypeWidening(version: 'v6.9.0', parameterName: 'orderId', newType: '?string', description: 'Will accept null for documents without order.')]
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;

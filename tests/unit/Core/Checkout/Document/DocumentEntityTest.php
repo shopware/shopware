@@ -18,7 +18,21 @@ class DocumentEntityTest extends TestCase
     {
         $document = new DocumentEntity();
 
-        // @deprecated tag:v6.9.0 - expect null for both getters once the return types are widened.
+        // @deprecated tag:v6.8.0 - expect null for both getters once the return types are widened.
+        static::assertSame('', $document->getOrderId());
+        static::assertSame('', $document->getOrderVersionId());
+    }
+
+    public function testAssignKeepsEmptyStringFallbackForNullOrderReferenceUntilMajorCompatibilityBreak(): void
+    {
+        $document = new DocumentEntity();
+
+        $document->assign([
+            'orderId' => null,
+            'orderVersionId' => null,
+        ]);
+
+        // @deprecated tag:v6.8.0 - expect null for both getters once the return types are widened.
         static::assertSame('', $document->getOrderId());
         static::assertSame('', $document->getOrderVersionId());
     }

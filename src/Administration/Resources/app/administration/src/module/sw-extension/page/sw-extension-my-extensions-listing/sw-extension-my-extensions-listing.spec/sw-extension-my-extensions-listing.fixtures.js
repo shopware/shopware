@@ -14,14 +14,12 @@ export const routes = [
         path: '/sw/extension/my-extensions/listing/app',
         query: {},
         component: {},
-        meta: { $module: { icon: 'regular-plug' } },
     },
     {
         name: 'sw.extension.my-extensions.listing.theme',
         path: '/sw/extension/my-extensions/listing/theme',
         query: {},
         component: {},
-        meta: { $module: { icon: 'regular-plug' } },
     },
 ];
 

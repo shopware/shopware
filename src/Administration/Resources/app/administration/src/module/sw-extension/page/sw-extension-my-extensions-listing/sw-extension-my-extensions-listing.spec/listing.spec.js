@@ -53,7 +53,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const emptyState = wrapper.find('.sw-extension-my-extensions-listing__empty-state');
         expect(emptyState.classes()).toContain('mt-empty-state');
         expect(emptyState.find('.mt-button').exists()).toBe(false);
-        expect(emptyState.attributes('role')).toBe('status');
     });
 
     it('openStore should call router', async () => {

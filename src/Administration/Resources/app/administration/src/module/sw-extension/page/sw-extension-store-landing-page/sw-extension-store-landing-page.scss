@@ -7,13 +7,13 @@
     width: 100%;
     height: 100%;
 
-    // keeps the modal from resizing while the activation states swap
+    // reserves the previous fixed card height so the checkout modal keeps its size while activation states swap
     .sw-extension-store-landing-page__wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 100%;
-        min-height: 260px;
+        min-height: 500px;
     }
 
     .sw-extension-store-landing-page__wrapper-loading {

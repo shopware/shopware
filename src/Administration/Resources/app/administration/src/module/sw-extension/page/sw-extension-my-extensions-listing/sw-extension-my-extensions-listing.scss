@@ -8,18 +8,11 @@
             margin: 0 auto 8px;
         }
 
-        .sw-extension-my-extensions-listing__empty-state.mt-empty-state {
+        .sw-extension-my-extensions-listing__empty-state {
             margin: 0 auto;
-            padding: 56px 32px;
         }
 
-        .sw-extension-my-extensions-listing__empty-state--headline-only {
-            .mt-empty-state__description {
-                display: none;
-            }
-        }
-
-        /* @deprecated tag:v6.9.0 - Kept for overrides still rendering the old sw-meteor-card empty state. */
+        // @deprecated tag:v6.9.0 - Kept for overrides still rendering the old sw-meteor-card empty state.
         .sw-extension-my-extensions-listing__empty-state .sw-meteor-card__content-wrapper {
             text-align: center;
             padding: 56px 32px;

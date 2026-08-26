@@ -27,12 +27,13 @@ export default {
     },
 
     computed: {
-        /** @deprecated tag:v6.9.0 - Kept for overrides, the empty states no longer render an image. */
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
         extensionName() {
             return 'SwagExtensionStore';
+        },
+
+        /** @deprecated tag:v6.9.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -45,6 +46,7 @@ export default {
         activateStore() {
             this.isLoading = true;
             this.activationStatus = null;
+            this.error = null;
 
             this.extensionHelperService
                 .downloadAndActivateExtension(this.extensionName)

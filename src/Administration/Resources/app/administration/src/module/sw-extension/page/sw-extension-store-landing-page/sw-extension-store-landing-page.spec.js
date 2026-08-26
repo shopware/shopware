@@ -103,6 +103,28 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(activationHeading.text()).toBe('sw-extension-store.landing-page.activationErrorTitle');
     });
 
+    it('should discard a previous error when retrying the activation', async () => {
+        const wrapper = await createWrapper();
+
+        successfulActivation = false;
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+        wrapper.vm.error = {
+            title: 'stale title',
+            detail: 'stale detail',
+        };
+
+        const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
+        await activationButton.trigger('click');
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // the second failure has no error payload, so the generic snippets show instead of the stale error
+        const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');
+        expect(activationHeading.text()).toBe('sw-extension-store.landing-page.activationErrorTitle');
+    });
+
     it('should render inside a meteor page for the top bar', async () => {
         const wrapper = await createWrapper();
 

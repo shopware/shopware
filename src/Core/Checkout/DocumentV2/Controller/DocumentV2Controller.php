@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollectio
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -83,9 +84,17 @@ final class DocumentV2Controller extends AbstractController
         $documentTypes = [];
 
         foreach ($this->documentTypeRegistry->getTechnicalNames() as $documentType) {
-            $documentTypes[$documentType] = [
+            $entry = [
                 'formats' => $this->documentTypeRegistry->getSupportedFormats($documentType),
             ];
+
+            $label = $this->documentTypeRegistry->getAppLabel($documentType);
+
+            if ($label !== []) {
+                $entry['label'] = $label;
+            }
+
+            $documentTypes[$documentType] = $entry;
         }
 
         return new JsonResponse([
@@ -354,6 +363,9 @@ final class DocumentV2Controller extends AbstractController
         return $fileName !== '' ? $fileName : Uuid::randomHex();
     }
 
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed once `document.document_type_id` is removed.
+     */
     private function getDocumentTypeId(string $documentType, Context $context): string
     {
         $criteria = (new Criteria())
@@ -362,11 +374,24 @@ final class DocumentV2Controller extends AbstractController
 
         $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
 
-        if ($documentTypeId === null) {
+        if ($documentTypeId !== null) {
+            return $documentTypeId;
+        }
+
+        if (!$this->documentTypeRegistry->supports($documentType)) {
             throw DocumentV2Exception::documentTypeNotFound($documentType);
         }
 
-        return $documentTypeId;
+        $sentinelId = $this->documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', DocumentType::APP_PROVIDED->value))->setLimit(1),
+            $context,
+        )->firstId();
+
+        if ($sentinelId === null) {
+            throw DocumentV2Exception::documentTypeNotFound($documentType);
+        }
+
+        return $sentinelId;
     }
 
     private function createResponse(

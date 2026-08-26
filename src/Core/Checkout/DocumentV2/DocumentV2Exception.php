@@ -94,6 +94,11 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
 
+    /**
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -203,6 +208,19 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::DOCUMENT_TYPE_SHADOWS_CORE_TYPE,
             'The document type "{{ identifier }}" shadows a core document type and cannot be registered by an app.',
+            ['identifier' => $identifier],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public static function documentTypeReservedIdentifier(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_RESERVED_IDENTIFIER,
+            'The document type "{{ identifier }}" is a reserved technical name and cannot be registered by an app.',
             ['identifier' => $identifier],
         );
     }

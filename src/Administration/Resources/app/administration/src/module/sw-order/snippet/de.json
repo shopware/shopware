@@ -389,7 +389,8 @@
         "uploadDocument": "Das Hochladen des Dokumentes ist fehlgeschlagen.",
         "attachMediaToDocumentUpload": "Das Anfügen des ausgewählten Mediums an das Dokument ist fehlgeschlagen.",
         "loadDocumentPreview": "Das Laden der Dokumentenvorschau ist fehlgeschlagen.",
-        "openDocument": "Das Öffnen des ausgewählten Dokumentes ist fehlgeschlagen."
+        "openDocument": "Das Öffnen des ausgewählten Dokumentes ist fehlgeschlagen.",
+        "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen."
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."

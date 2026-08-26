@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -186,7 +187,6 @@ final readonly class DocumentPersister
      */
     private function resolveDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
     {
-        // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $generationRequest->documentType))
             ->setLimit(1);
@@ -202,7 +202,7 @@ final readonly class DocumentPersister
         }
 
         $sentinelId = $this->documentTypeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'app_provided'))->setLimit(1),
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', DocumentType::APP_PROVIDED->value))->setLimit(1),
             $context,
         )->firstId();
 

@@ -76,6 +76,9 @@ export default {
             return this.repositoryFactory.create('document_type');
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - dropped this filter when document_type is removed.
+         */
         documentTypeCriteria() {
             return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
         },
@@ -88,7 +91,10 @@ export default {
             return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
                 return {
                     value: technicalName,
-                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                    label: this.documentV2Service.getDocumentTypeLabel(
+                        technicalName,
+                        this.supportedDocumentTypes[technicalName]?.label,
+                    ),
                 };
             });
         },

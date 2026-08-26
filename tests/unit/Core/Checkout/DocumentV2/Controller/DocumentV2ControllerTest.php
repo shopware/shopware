@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -37,6 +38,7 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -135,6 +137,32 @@ class DocumentV2ControllerTest extends TestCase
             ],
             json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR),
         );
+    }
+
+    public function testAvailableTypesIncludesAppDeclaredLabels(): void
+    {
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, Uuid::randomHex()),
+            $rendererRegistry,
+            $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $this->createDocumentFileResolver(),
+        );
+
+        $response = $controller->availableTypes();
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame([DocumentFormat::PDF->value], $payload['documentTypes']['swag_warranty']['formats']);
+        static::assertSame(['en-GB' => 'Warranty'], $payload['documentTypes']['swag_warranty']['label']);
     }
 
     public function testCreateReturnsGeneratedDocumentResponse(): void
@@ -290,6 +318,54 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame($payload['documentId'], $this->documentFileRepository->creates[0][0]['documentId']);
         static::assertSame(DocumentFormat::PDF->value, $this->documentFileRepository->creates[0][0]['documentFormat']);
         static::assertSame($mediaId, $this->documentFileRepository->creates[0][0]['mediaId']);
+    }
+
+    public function testUploadResolvesTheAppProvidedSentinelForAnAppDocumentType(): void
+    {
+        $sentinelId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+
+        $this->documentTypeRepository->searches[] = [];
+        $this->documentTypeRepository->searches[] = [$sentinelId];
+
+        $rendererRegistry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::PDF),
+        ]);
+
+        $controller = new DocumentV2Controller(
+            $this->createGenerator($rendererRegistry, $orderId),
+            $rendererRegistry,
+            $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
+            $this->createArchiveGenerator(static::createStub(MediaService::class)),
+            $this->documentRepository,
+            $this->documentFileRepository,
+            $this->documentTypeRepository,
+            static::createStub(MediaService::class),
+            static::createStub(FileNameProvider::class),
+            $this->createDocumentFileResolver(),
+        );
+
+        $response = $controller->upload(
+            Request::create(
+                '/api/_action/order/document-v2/upload',
+                Request::METHOD_POST,
+                server: ['CONTENT_TYPE' => 'application/json'],
+                content: json_encode([
+                    'documentNumber' => '1000',
+                    'documentType' => 'swag_warranty',
+                    'format' => DocumentFormat::PDF->value,
+                    'mediaId' => $mediaId,
+                    'orderId' => $orderId,
+                    'orderVersionId' => $orderVersionId,
+                ], \JSON_THROW_ON_ERROR),
+            ),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame($sentinelId, $this->documentRepository->creates[0][0]['documentTypeId']);
     }
 
     public function testUploadRejectsUnsupportedFormat(): void
@@ -973,6 +1049,27 @@ class DocumentV2ControllerTest extends TestCase
         return new DocumentTypeRegistry([
             new StaticDocumentType(DocumentType::INVOICE->value, $formats),
         ], $this->appFeatureStorage);
+    }
+
+    /**
+     * @param list<string> $formats
+     */
+    private function createTypeRegistryWithAppType(string $identifier, array $formats): DocumentTypeRegistry
+    {
+        $feature = new AppFeature(
+            appId: 'app-id',
+            appName: 'SwagWarranty',
+            appActive: true,
+            appVersion: '1.0.0',
+            appHasSecret: false,
+            createdAt: new \DateTimeImmutable(),
+            config: new AppDocumentTypeConfig($identifier, $formats, ['en-GB' => 'Warranty'], []),
+        );
+
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([$feature]);
+
+        return new DocumentTypeRegistry([], $storage);
     }
 
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator

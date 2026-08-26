@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Type;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\App;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
+use Shopware\Core\Checkout\DocumentV2\App\DocumentAppFeatureDefinition;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeConfig;
-use Shopware\Core\Checkout\DocumentV2\Type\DocumentAppFeatureDefinition;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
@@ -164,7 +164,7 @@ class DocumentAppFeatureDefinitionTest extends TestCase
     public function testPersistedSeedsANumberRangeForADeclaredAppType(): void
     {
         $typeRepository = StaticEntityRepository::of(NumberRangeTypeCollection::class, [[]]);
-        $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class);
+        $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class, [[]]);
 
         $definition = $this->buildDefinition(claimedBy: [], typeRepository: $typeRepository, rangeRepository: $rangeRepository);
         $definition->persisted([$this->config('swag_warranty')], $this->persistContext());
@@ -186,16 +186,46 @@ class DocumentAppFeatureDefinitionTest extends TestCase
         static::assertTrue($range['global']);
     }
 
-    public function testPersistedIsIdempotentWhenTheNumberRangeTypeAlreadyExists(): void
+    public function testPersistedIsIdempotentWhenBothTypeAndRangeAlreadyExist(): void
     {
         $typeRepository = StaticEntityRepository::of(NumberRangeTypeCollection::class, [[Uuid::randomHex()]]);
-        $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class);
+        $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class, [[Uuid::randomHex()]]);
 
         $definition = $this->buildDefinition(claimedBy: [], typeRepository: $typeRepository, rangeRepository: $rangeRepository);
         $definition->persisted([$this->config('swag_warranty')], $this->persistContext());
 
         static::assertSame([], $typeRepository->creates);
         static::assertSame([], $rangeRepository->creates);
+    }
+
+    public function testPersistedRecreatesAMissingRangeWhenTheTypeAlreadyExists(): void
+    {
+        $existingTypeId = Uuid::randomHex();
+        $typeRepository = StaticEntityRepository::of(NumberRangeTypeCollection::class, [[$existingTypeId]]);
+        $rangeRepository = StaticEntityRepository::of(NumberRangeCollection::class, [[]]);
+
+        $definition = $this->buildDefinition(claimedBy: [], typeRepository: $typeRepository, rangeRepository: $rangeRepository);
+        $definition->persisted([$this->config('swag_warranty')], $this->persistContext());
+
+        static::assertSame([], $typeRepository->creates);
+        static::assertCount(1, $rangeRepository->creates);
+
+        $range = $rangeRepository->creates[0][0];
+        static::assertSame($existingTypeId, $range['typeId']);
+        static::assertSame('swag_warranty', $range['name']);
+    }
+
+    public function testValidateThrowsWhenIdentifierIsTheReservedAppProvidedSentinel(): void
+    {
+        $definition = $this->buildDefinition(
+            claimedBy: [],
+            typeRepository: StaticEntityRepository::of(NumberRangeTypeCollection::class),
+            rangeRepository: StaticEntityRepository::of(NumberRangeCollection::class),
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::documentTypeReservedIdentifier('app_provided'));
+
+        $definition->validate([$this->config('app_provided')], $this->persistContext());
     }
 
     public function testPersistedDoesNothingWhenNoConfigsAreDeclared(): void

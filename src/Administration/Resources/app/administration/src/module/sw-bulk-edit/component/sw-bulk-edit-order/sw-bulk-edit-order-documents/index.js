@@ -52,6 +52,8 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            /** @deprecated tag:v6.9.0 - dropped this filter when document_type is removed. */
             criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;
@@ -72,7 +74,10 @@ export default {
                         return {
                             id: technicalName,
                             technicalName,
-                            name: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                            name: this.documentV2Service.getDocumentTypeLabel(
+                                technicalName,
+                                supportedDocumentTypes[technicalName]?.label,
+                            ),
                         };
                     });
                 } else {

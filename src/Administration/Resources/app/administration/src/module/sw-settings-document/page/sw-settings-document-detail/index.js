@@ -485,6 +485,7 @@ export default {
             return new Criteria(1, 25).addFilter(
                 Criteria.not('OR', [
                     Criteria.prefix('technicalName', 'zugferd_'),
+                    /** @deprecated tag:v6.9.0 - dropped this filter when document_type is removed. */
                     Criteria.equals('technicalName', 'app_provided'),
                 ]),
             );

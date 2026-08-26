@@ -248,6 +248,8 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
                     sortFileFormats: (formats) => [...formats],
+                    getAvailableDocumentTypes: () => Promise.resolve({}),
+                    getDocumentTypeLabel: (technicalName, label) => label?.['en-GB'] ?? `${technicalName}--type-snippet`,
                 },
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: '1000' }),
@@ -1455,5 +1457,26 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await flushPromises();
 
         expect(wrapper.find(expectedSelector).exists()).toBe(true);
+    });
+
+    it('renders the resolved document type label in the grid type column', async () => {
+        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+
+        await wrapper.setData({
+            supportedDocumentTypes: { swag_warranty: { formats: ['pdf'], label: { 'en-GB': 'Warranty' } } },
+            documents: getCollection('document', [
+                documentFixture,
+                {
+                    ...documentFixture,
+                    id: 'document-app',
+                    documentType: { id: '2', name: 'App document', technicalName: 'app_provided' },
+                    typeName: 'swag_warranty',
+                },
+            ]),
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--documentType-name').text()).toBe('Invoice');
+        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--documentType-name').text()).toBe('Warranty');
     });
 });

@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Type;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Type\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
@@ -154,6 +154,20 @@ final class DocumentTypeRegistryTest extends TestCase
         $registry = new DocumentTypeRegistry([], $this->appFeatureStorage([]));
 
         static::assertSame([], $registry->getAppConfig('does_not_exist'));
+    }
+
+    public function testGetLabelReturnsAppDeclaredLabelMapAndEmptyForCoreAndUnknown(): void
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([
+            $this->appFeature(new AppDocumentTypeConfig('swag_warranty', ['html'], ['en-GB' => 'Warranty', 'de-DE' => 'Garantie'], [])),
+        ]);
+
+        $registry = new DocumentTypeRegistry([new StaticDocumentType('invoice', ['html'])], $storage);
+
+        static::assertSame(['en-GB' => 'Warranty', 'de-DE' => 'Garantie'], $registry->getAppLabel('swag_warranty'));
+        static::assertSame([], $registry->getAppLabel('invoice'));
+        static::assertSame([], $registry->getAppLabel('does_not_exist'));
     }
 
     public function testAppTypesAreOnlyFetchedOnceUntilReset(): void

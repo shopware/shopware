@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Type;
+namespace Shopware\Core\Checkout\DocumentV2\App;
 
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\Log\Package;

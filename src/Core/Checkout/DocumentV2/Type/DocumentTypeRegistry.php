@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Type;
 
+use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Log\Package;
@@ -50,6 +51,14 @@ final class DocumentTypeRegistry implements ResetInterface
     public function getAppConfig(string $documentType): array
     {
         return ($this->appTypes()[$documentType] ?? null)?->getConfig() ?? [];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getAppLabel(string $documentType): array
+    {
+        return ($this->appTypes()[$documentType] ?? null)?->getLabel() ?? [];
     }
 
     public function getDocumentType(string $documentType): AbstractDocumentType

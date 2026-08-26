@@ -214,7 +214,13 @@ export default class DocumentV2Service {
         return translationKey ?? format;
     }
 
-    public getDocumentTypeSnippet(technicalName: string): string {
+    public getDocumentTypeLabel(technicalName: string, label?: Record<string, string> | null): string {
+        if (label && Object.keys(label).length > 0) {
+            const locale = Shopware.Store.get('session')?.currentLocale ?? 'en-GB';
+
+            return label[locale] ?? label['en-GB'] ?? Object.values(label)[0] ?? technicalName;
+        }
+
         const translationKey = (
             {
                 [DOCUMENT_TYPES.INVOICE]: 'sw-order.components.createDocumentModal.documentTypes.invoice',
@@ -225,6 +231,6 @@ export default class DocumentV2Service {
             } as Record<string, string>
         )[technicalName];
 
-        return translationKey ?? technicalName;
+        return translationKey ? (Shopware.Snippet.tc(translationKey) as string) : technicalName;
     }
 }

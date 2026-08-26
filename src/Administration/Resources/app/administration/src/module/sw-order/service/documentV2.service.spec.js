@@ -363,10 +363,57 @@ describe('core/service/documentV2.service.ts', () => {
             'foo',
             'foo',
         ],
-    ])('should get correct document type snippet', (documentType, expectedSnippet) => {
+    ])('should translate a core document type via its snippet key', (documentType, expectedKey) => {
+        const documentV2Service = new DocumentV2Service();
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ tc: (key) => key });
+
+        expect(documentV2Service.getDocumentTypeLabel(documentType)).toStrictEqual(expectedKey);
+
+        snippetSpy.mockRestore();
+    });
+
+    it('resolves an app document type label from the locale map for the current admin locale', () => {
+        const documentV2Service = new DocumentV2Service();
+        const getSpy = jest.spyOn(Shopware.Store, 'get').mockReturnValue({ currentLocale: 'de-DE' });
+
+        expect(documentV2Service.getDocumentTypeLabel('swag_warranty', { 'en-GB': 'Warranty', 'de-DE': 'Garantie' })).toBe(
+            'Garantie',
+        );
+
+        getSpy.mockRestore();
+    });
+
+    it('does not translate app-provided labels so i18n message syntax is not parsed', () => {
+        const documentV2Service = new DocumentV2Service();
+        const getSpy = jest.spyOn(Shopware.Store, 'get').mockReturnValue({ currentLocale: 'en-GB' });
+
+        const tc = jest.fn(() => 'translated');
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ tc });
+
+        expect(documentV2Service.getDocumentTypeLabel('swag_warranty', { 'en-GB': 'Cost {amount} | fee' })).toBe(
+            'Cost {amount} | fee',
+        );
+        expect(tc).not.toHaveBeenCalled();
+
+        getSpy.mockRestore();
+        snippetSpy.mockRestore();
+    });
+
+    it('falls back to en-GB then the first entry when the current locale is missing from an app label map', () => {
+        const documentV2Service = new DocumentV2Service();
+        const getSpy = jest.spyOn(Shopware.Store, 'get').mockReturnValue({ currentLocale: 'fr-FR' });
+
+        expect(documentV2Service.getDocumentTypeLabel('swag_warranty', { 'en-GB': 'Warranty' })).toBe('Warranty');
+        expect(documentV2Service.getDocumentTypeLabel('swag_warranty', { 'nl-NL': 'Garantie' })).toBe('Garantie');
+
+        getSpy.mockRestore();
+    });
+
+    it('returns the technical name unchanged when no app label map and no core snippet key match', () => {
         const documentV2Service = new DocumentV2Service();
 
-        expect(documentV2Service.getDocumentTypeSnippet(documentType)).toStrictEqual(expectedSnippet);
+        expect(documentV2Service.getDocumentTypeLabel('swag_warranty')).toBe('swag_warranty');
+        expect(documentV2Service.getDocumentTypeLabel('swag_warranty', {})).toBe('swag_warranty');
     });
 
     it('should request the available document types only once and share the result', async () => {

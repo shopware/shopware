@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Type;
+namespace Shopware\Core\Checkout\DocumentV2\App;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
@@ -138,6 +138,15 @@ final class DocumentAppFeatureDefinition extends AppFeatureDefinition
         foreach ($configs as $config) {
             $identifier = $config->getName();
 
+            /**
+             * @deprecated tag:v6.9.0 - Remove this branch together with the `app_provided` sentinel
+             *
+             * @phpstan-ignore classConstant.deprecated
+             */
+            if ($identifier === DocumentType::APP_PROVIDED->value) {
+                throw DocumentV2Exception::documentTypeReservedIdentifier($identifier);
+            }
+
             if (DocumentType::tryFrom($identifier) !== null) {
                 throw DocumentV2Exception::documentTypeShadowsCoreType($identifier);
             }
@@ -161,20 +170,25 @@ final class DocumentAppFeatureDefinition extends AppFeatureDefinition
             $identifier = $config->getName();
             $technicalName = DocumentNumberGenerator::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $identifier;
 
-            $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName));
+            $typeCriteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName));
+            $typeId = $this->numberRangeTypeRepository->searchIds($typeCriteria, $context)->firstId();
 
-            if ($this->numberRangeTypeRepository->searchIds($criteria, $context)->firstId() !== null) {
-                continue;
+            if ($typeId === null) {
+                $typeId = Uuid::randomHex();
+
+                $this->numberRangeTypeRepository->create([[
+                    'id' => $typeId,
+                    'technicalName' => $technicalName,
+                    'global' => true,
+                    'typeName' => $identifier,
+                ]], $context);
             }
 
-            $typeId = Uuid::randomHex();
+            $rangeCriteria = (new Criteria())->addFilter(new EqualsFilter('typeId', $typeId));
 
-            $this->numberRangeTypeRepository->create([[
-                'id' => $typeId,
-                'technicalName' => $technicalName,
-                'global' => true,
-                'typeName' => $identifier,
-            ]], $context);
+            if ($this->numberRangeRepository->searchIds($rangeCriteria, $context)->firstId() !== null) {
+                continue;
+            }
 
             $this->numberRangeRepository->create([[
                 'id' => Uuid::randomHex(),

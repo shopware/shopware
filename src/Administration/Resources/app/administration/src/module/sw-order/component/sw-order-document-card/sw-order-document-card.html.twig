@@ -121,6 +121,14 @@
             </template>
             {% endblock %}
 
+            {% block sw_order_document_card_grid_column_type %}
+            <template #[`column-documentType.name`]="{ item }">
+                {% block sw_order_document_card_grid_column_type_label %}
+                {{ documentTypeLabel(item) }}
+                {% endblock %}
+            </template>
+            {% endblock %}
+
             {% block sw_order_document_card_grid_column_avaiable_formats %}
             <template #column-fileTypes="{ item }">
                 {% block sw_order_document_card_grid_column_available_formats_label %}

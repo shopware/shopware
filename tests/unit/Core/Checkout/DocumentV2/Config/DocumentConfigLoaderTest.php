@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
+use Shopware\Core\Checkout\DocumentV2\App\AppDocumentTypeConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -528,6 +530,93 @@ class DocumentConfigLoaderTest extends TestCase
         );
 
         static::assertSame(self::LEGACY_LOGO_ID, $bundle->config->logo?->getId());
+    }
+
+    public function testLoadThrowsForUnknownDocumentTypeWithoutConfigRows(): void
+    {
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidDocumentType('unknown_document_type'));
+
+        $loader->load('unknown_document_type', Uuid::randomHex(), Context::createDefaultContext());
+    }
+
+    public function testLoadReturnsManifestDefaultsForRegisteredAppTypeWithoutConfigRows(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService([
+                'companyName' => 'System Config GmbH',
+                'companyStreet' => 'System Street 5',
+                'companyZipcode' => '54321',
+                'companyCity' => 'System City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            ], $salesChannelId),
+            $this->documentTypeRegistryWithAppType('swag_warranty', [
+                'pageSize' => 'a5',
+                'pageOrientation' => 'landscape',
+                'itemsPerPage' => 5,
+                'filenamePrefix' => 'warranty',
+            ]),
+        );
+
+        $bundle = $loader->load('swag_warranty', $salesChannelId, Context::createDefaultContext());
+
+        static::assertSame('a5', $bundle->config->pageSize);
+        static::assertSame('landscape', $bundle->config->pageOrientation);
+        static::assertSame(5, $bundle->config->itemsPerPage);
+        static::assertSame('warranty', $bundle->config->filenamePrefix);
+    }
+
+    /**
+     * @param array<string, scalar> $appConfig
+     */
+    private function documentTypeRegistryWithAppType(string $identifier, array $appConfig): DocumentTypeRegistry
+    {
+        $feature = new AppFeature(
+            appId: 'app-id',
+            appName: 'SwagWarranty',
+            appActive: true,
+            appVersion: '1.0.0',
+            appHasSecret: false,
+            createdAt: new \DateTimeImmutable(),
+            config: new AppDocumentTypeConfig($identifier, ['html', 'pdf'], ['en-GB' => 'Warranty'], $appConfig),
+        );
+
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([$feature]);
+
+        return new DocumentTypeRegistry([], $storage);
     }
 
     /**

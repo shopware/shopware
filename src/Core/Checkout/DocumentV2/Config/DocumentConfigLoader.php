@@ -190,7 +190,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         array $appConfig,
     ): DocumentConfig {
         if ($globalRow === null && $salesChannelRow === null) {
-            if (DocumentType::tryFrom($documentType) !== null) {
+            if (DocumentType::tryFrom($documentType) !== null || !$this->documentTypeRegistry->supports($documentType)) {
                 throw DocumentV2Exception::invalidDocumentType($documentType);
             }
 

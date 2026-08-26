@@ -129,7 +129,10 @@ export interface ElementLocation {
  * @private
  * @sw-package discovery
  */
-export function findElementLocation(layout: ContentElementNode[], elementId: string): ElementLocation | null {
+export function findElementLocation(
+    layout: ContentElementNode[],
+    elementId: string,
+): ElementLocation | null {
     const rootIndex = layout.findIndex((element) => element.id === elementId);
 
     if (rootIndex !== -1) {
@@ -239,10 +242,7 @@ export function updateElementStyleInLayout(
         ...cloneDeep(style),
     };
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(style)) {
+    for (const [key, value] of Object.entries(style)) {
         if (value === null || value === undefined) {
             delete element.style[key];
         }
@@ -267,7 +267,9 @@ function copyWritableContentElementFields(
 
     if (source.style !== undefined) {
         const style = cloneDeep(source.style);
-        const normalizedStyle = styleOptions ? normalizeElementStyleForWrite(style, styleOptions) : style;
+        const normalizedStyle = styleOptions
+            ? normalizeElementStyleForWrite(style, styleOptions)
+            : style;
 
         if (normalizedStyle !== undefined) {
             target.style = normalizedStyle;
@@ -289,16 +291,16 @@ function copyWritableContentElementFields(
     if (source.slots) {
         target.slots = {};
 
-        for (const [
-            slotName,
-            slotElements,
-        ] of Object.entries(source.slots)) {
+        for (const [slotName, slotElements] of Object.entries(source.slots)) {
             target.slots[slotName] = mapSlotElements(slotElements);
         }
     }
 }
 
-function findElementLocationInElement(parent: ContentElementNode, elementId: string): ElementLocation | null {
+function findElementLocationInElement(
+    parent: ContentElementNode,
+    elementId: string,
+): ElementLocation | null {
     const slots = parent.slots ?? {};
 
     for (const slotElements of Object.values(slots)) {

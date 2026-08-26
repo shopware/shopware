@@ -15,10 +15,6 @@ async function createWrapper() {
             },
             global: {
                 mocks: {
-                    $route: {
-                        params: {},
-                        meta: { $module: { icon: 'regular-products' } },
-                    },
                     $router: {
                         resolve: jest.fn((route) => ({
                             href: `#/sw/product/detail/${route.params.id}/cross-selling`,

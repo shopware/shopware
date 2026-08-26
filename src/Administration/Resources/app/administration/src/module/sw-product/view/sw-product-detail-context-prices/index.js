@@ -45,7 +45,7 @@ export default {
     },
 
     computed: {
-        /** @deprecated tag:v6.9.0 - Kept for overrides, the empty states no longer render an image. */
+        /** @deprecated tag:v6.9.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -222,11 +222,11 @@ export default {
             return this.$t('sw-product.advancedPrices.advancedPricesNotInherited');
         },
 
-        showParentPricesLink() {
-            return this.isChild && this.isInherited;
-        },
-
         parentPricesHref() {
+            if (!this.isChild || !this.isInherited) {
+                return undefined;
+            }
+
             return this.$router.resolve({
                 name: 'sw.product.detail.prices',
                 params: { id: this.product.parentId },

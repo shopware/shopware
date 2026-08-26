@@ -306,40 +306,38 @@
         {% block sw_product_detail_prices_price_empty_state %}
         <mt-empty-state
             class="sw-product-detail-context-prices__empty-state"
-            role="status"
             :centered="true"
             icon="regular-money-bill"
             :headline="$t('sw-product.detail.tabAdvancedPrices')"
             :description="emptyStateDescription"
-            :link-text="showParentPricesLink ? $t('sw-product.advancedPrices.linkAdvancedPricesOfParent') : undefined"
-            :link-href="showParentPricesLink ? parentPricesHref : undefined"
+            :link-text="$t('sw-product.advancedPrices.linkAdvancedPricesOfParent')"
+            :link-href="parentPricesHref"
         >
             <template #button>
                 {% block sw_product_detail_prices_price_empty_state__inherit_switch %}
-                <template v-if="isChild">
-                    <div
-                        class="sw-product-detail-context-prices__inherit-toggle-wrapper"
-                        :class="{ 'is--inherited': isInherited }"
-                    >
+                <div
+                    v-if="isChild"
+                    class="sw-product-detail-context-prices__inherit-toggle-wrapper"
+                    :class="{ 'is--inherited': isInherited }"
+                >
 
-                        <mt-switch
-                            v-model="isInherited"
-                            class="sw-product-detail-context-prices__inherit-switch"
-                            :disabled="!acl.can('product.editor')"
-                        />
-                        <sw-inheritance-switch
-                            class="sw-product-detail-context-prices__inheritance-icon"
-                            :is-inherited="isInherited"
-                            :disabled="!acl.can('product.editor')"
-                            @inheritance-restore="restoreInheritance"
-                            @inheritance-remove="removeInheritance"
-                        />
-                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-                        <label class="sw-product-detail-context-prices__inheritance-label">
-                            {{ $t('sw-product.advancedPrices.inheritSwitchLabel') }}
-                        </label>
-                    </div>
-                </template>
+                    <mt-switch
+                        v-model="isInherited"
+                        class="sw-product-detail-context-prices__inherit-switch"
+                        :disabled="!acl.can('product.editor')"
+                    />
+                    <sw-inheritance-switch
+                        class="sw-product-detail-context-prices__inheritance-icon"
+                        :is-inherited="isInherited"
+                        :disabled="!acl.can('product.editor')"
+                        @inheritance-restore="restoreInheritance"
+                        @inheritance-remove="removeInheritance"
+                    />
+                    <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                    <label class="sw-product-detail-context-prices__inheritance-label">
+                        {{ $t('sw-product.advancedPrices.inheritSwitchLabel') }}
+                    </label>
+                </div>
                 {% endblock %}
 
                 {% block sw_product_detail_prices_price_empty_state_select_rule %}
@@ -361,13 +359,21 @@
         {# @deprecated tag:v6.9.0 - Kept as extension anchors, the image and the texts became mt-empty-state props. #}
         {% block sw_product_detail_prices_empty_state_image %}{% endblock %}
         {% block sw_product_detail_prices_price_empty_state_text %}
+        <template v-if="isChild">
             {% block sw_product_detail_prices_price_empty_state_text_child %}
+            <template v-if="isInherited">
                 {% block sw_product_detail_prices_price_empty_state_text_inherited %}
                     {% block sw_product_detail_prices_price_empty_state_text_link %}{% endblock %}
                 {% endblock %}
+            </template>
+            <template v-else>
                 {% block sw_product_detail_prices_price_empty_state_text_not_inherited %}{% endblock %}
+            </template>
             {% endblock %}
+        </template>
+        <template v-else>
             {% block sw_product_detail_prices_price_empty_state_text_empty %}{% endblock %}
+        </template>
         {% endblock %}
         {% endblock %}
     </mt-card>

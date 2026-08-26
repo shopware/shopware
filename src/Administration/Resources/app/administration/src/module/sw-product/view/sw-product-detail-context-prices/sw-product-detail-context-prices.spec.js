@@ -14,10 +14,6 @@ const createWrapper = async () => {
         {
             global: {
                 mocks: {
-                    $route: {
-                        params: {},
-                        meta: { $module: { icon: 'regular-products' } },
-                    },
                     $router: {
                         resolve: jest.fn((route) => ({
                             href: `#/sw/product/detail/${route.params.id}/prices`,
@@ -165,7 +161,6 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
         expect(emptyState.classes()).toContain('mt-empty-state');
-        expect(emptyState.attributes('role')).toBe('status');
         expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotExisting');
         expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });

@@ -64,41 +64,39 @@
         {% block sw_product_detail_cross_selling_empty_state %}
         <mt-empty-state
             class="sw-product-detail-cross-selling__empty-state"
-            role="status"
             :centered="true"
-            :icon="$route.meta.$module.icon"
+            icon="regular-products"
             :headline="$t('sw-product.crossselling.cardTitleCrossSelling')"
             :description="emptyStateDescription"
-            :link-text="showParentCrossSellingLink ? $t('sw-product.crossselling.linkCrossSellingsOfParent') : undefined"
-            :link-href="showParentCrossSellingLink ? parentCrossSellingHref : undefined"
+            :link-text="$t('sw-product.crossselling.linkCrossSellingsOfParent')"
+            :link-href="parentCrossSellingHref"
         >
             <template #button>
                 {% block sw_product_detail_cross_selling_empty_state_inherit_switch %}
-                <template v-if="isChild">
-                    <div
-                        class="sw-product-detail-cross-selling__inherit-toggle-wrapper"
-                        :class="{ 'is--inherited': isInherited }"
-                    >
-                        <mt-switch
-                            v-model="isInherited"
-                            class="sw-product-detail-cross-selling__inherit-switch"
-                            :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
-                        />
+                <div
+                    v-if="isChild"
+                    class="sw-product-detail-cross-selling__inherit-toggle-wrapper"
+                    :class="{ 'is--inherited': isInherited }"
+                >
+                    <mt-switch
+                        v-model="isInherited"
+                        class="sw-product-detail-cross-selling__inherit-switch"
+                        :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+                    />
 
-                        <sw-inheritance-switch
-                            class="sw-product-detail-cross-selling__inheritance-icon"
-                            :is-inherited="isInherited"
-                            :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
-                            @inheritance-restore="restoreInheritance"
-                            @inheritance-remove="removeInheritance"
-                        />
+                    <sw-inheritance-switch
+                        class="sw-product-detail-cross-selling__inheritance-icon"
+                        :is-inherited="isInherited"
+                        :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+                        @inheritance-restore="restoreInheritance"
+                        @inheritance-remove="removeInheritance"
+                    />
 
-                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-                        <label class="sw-product-detail-cross-selling__inheritance-label">
-                            {{ $t('sw-product.crossselling.inheritSwitchLabel') }}
-                        </label>
-                    </div>
-                </template>
+                    <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                    <label class="sw-product-detail-cross-selling__inheritance-label">
+                        {{ $t('sw-product.crossselling.inheritSwitchLabel') }}
+                    </label>
+                </div>
                 {% endblock %}
 
                 {% block sw_product_detail_cross_selling_empty_state_actions_add %}
@@ -123,12 +121,20 @@
         {% block sw_product_detail_cross_selling_empty_state_actions %}{% endblock %}
         {% block sw_product_detail_cross_selling_empty_state_icon %}{% endblock %}
         {% block sw_product_detail_cross_selling_empty_state_content %}
+        <template v-if="isChild">
             {% block sw_product_detail_cross_selling_empty_state_content_child %}
+            <template v-if="isInherited">
                 {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}{% endblock %}
                 {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}{% endblock %}
+            </template>
+            <template v-else>
                 {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}{% endblock %}
+            </template>
             {% endblock %}
+        </template>
+        <template v-else>
             {% block sw_product_detail_cross_selling_empty_state_content_empty %}{% endblock %}
+        </template>
         {% endblock %}
         {% endblock %}
     </mt-card>

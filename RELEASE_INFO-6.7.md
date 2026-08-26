@@ -205,24 +205,11 @@ The listing reloads once after the batch finishes rather than after every indivi
 
 The empty states of the product detail tabs "Advanced pricing" and "Cross Selling" now render `mt-empty-state` instead of custom markup with an illustration. The headline, description, icon and the link to the parent product are `mt-empty-state` props.
 
-The following blocks still exist but are empty and deprecated for removal in v6.9.0, because the content they wrapped became component props:
+The Twig blocks of `sw-product-detail-context-prices.html.twig` and `sw-product-detail-cross-selling.html.twig` that wrapped the image, icon and description texts still exist with their previous render conditions, but are empty and deprecated for removal in v6.9.0.
 
-- `src/module/sw-product/view/sw-product-detail-context-prices/sw-product-detail-context-prices.html.twig`
-  - `sw_product_detail_prices_empty_state_image`
-  - `sw_product_detail_prices_price_empty_state_text`
-  - `sw_product_detail_prices_price_empty_state_text_child`
-  - `sw_product_detail_prices_price_empty_state_text_inherited`
-  - `sw_product_detail_prices_price_empty_state_text_link`
-  - `sw_product_detail_prices_price_empty_state_text_not_inherited`
-  - `sw_product_detail_prices_price_empty_state_text_empty`
-- `src/module/sw-product/view/sw-product-detail-cross-selling/sw-product-detail-cross-selling.html.twig`
-  - `sw_product_detail_cross_selling_empty_state_icon`
-  - `sw_product_detail_cross_selling_empty_state_actions`
-  - `sw_product_detail_cross_selling_empty_state_content` and its child blocks
+`sw_product_detail_cross_selling_empty_state_icon` and `sw_product_detail_cross_selling_empty_state_actions` no longer wrap a `<template #icon>` / `<template #actions>`; overrides that reproduced these slot wrappers must drop them. The add button lives in `sw_product_detail_cross_selling_empty_state_actions_add` inside the `button` slot of `mt-empty-state`.
 
-`sw_product_detail_cross_selling_empty_state_actions` no longer wraps a `<template #actions>`; the add button lives in `sw_product_detail_cross_selling_empty_state_actions_add` inside the `button` slot of `mt-empty-state`. Overrides that reproduced the slot wrapper must drop it.
-
-The `assetFilter` computed of both components is deprecated for removal in v6.9.0. It is still available for template overrides that render their own image.
+The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 The classes `.sw-product-detail-context-prices__parent-prices-link` and `.sw-product-detail-cross-selling__parent-cross-sellings-link` no longer exist; the parent link is rendered as `.mt-empty-state__link`.
 

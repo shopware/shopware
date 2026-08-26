@@ -82,16 +82,11 @@
 
     .sw-product-detail-context-prices__empty-state {
         margin: 0 auto;
-        padding: calc(var(--scale-size-40) + var(--scale-size-20)) var(--scale-size-20);
+        padding: var(--scale-size-64);
 
         &-card {
             width: 100%;
             max-width: none;
-        }
-
-        // sw-select-rule-create sets inheritAttrs: false, so this class lands on the inner select, not the wrapper
-        &-select-rule {
-            width: 100%;
         }
 
         .mt-empty-state__button {
@@ -105,8 +100,7 @@
             width: 100%;
             max-width: 400px;
 
-            .sw-field,
-            .mt-field {
+            .sw-field {
                 margin-bottom: 0;
             }
         }

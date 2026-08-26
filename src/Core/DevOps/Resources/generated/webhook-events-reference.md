@@ -5,10 +5,10 @@
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
 |`checkout.customer.changed-payment-method` | Triggers when a customer changes his payment method in the checkout process | `customer:read` | {"entity":"customer"}
 |`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"entity":"customer"}
-|`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}
-|`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"entity":"customer","confirmUrl":"string"}
+|`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer"}
+|`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"entity":"customer"}
 |`checkout.customer.guest_register` | __EMPTY__ | `customer:read` | {"entity":"customer"}
-|`checkout.customer.login` | Triggers as soon as a customer logs in | `customer:read` | {"entity":"customer","contextToken":"string"}
+|`checkout.customer.login` | Triggers as soon as a customer logs in | `customer:read` | {"entity":"customer"}
 |`checkout.customer.logout` | Triggers when a customer logs out | `customer:read` | {"entity":"customer"}
 |`checkout.customer.register` | Triggers when a new customer was registered | `customer:read` | {"entity":"customer"}
 |`checkout.order.payment_method.changed` | __EMPTY__ | `order:read` `order_transaction:read` | {"entity":"order_transaction"}
@@ -21,7 +21,7 @@
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}
 |`newsletter.confirm` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
-|`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient","url":"string"}
+|`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`product_export.log` | __EMPTY__ | - | {"name":"string"}
 |`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}

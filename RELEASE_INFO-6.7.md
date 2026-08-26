@@ -148,6 +148,12 @@ $criteria->addAssociation('vatIdCountry');
 
 `customer.vat_ids` is a list while the storefront exposes one input, so the first entry decides the country; validation already requires every entry to match some member state. `order_customer` deliberately gets no snapshot of this — documents re-derive the country from the order's own `vat_ids`, so an order keeps rendering what it was placed with.
 
+### Documents print the intra-community delivery note for the same orders as the cart
+
+The invoice, the cancellation invoice and the credit note validate the order's VAT IDs with the shared `CustomerVatIdentification` constraint, so both document stacks accept a VAT ID of any EU member state and print the intra-community delivery note for exactly the orders the cart treats as tax free.
+
+No public method signatures changed, so renderers and document data providers extending `AbstractDocumentRenderer` or `InvoiceDataProvider` keep working. Already generated documents are untouched.
+
 ### An active shipping method must keep at least one usable price
 
 Removing, reassigning or emptying the last usable `shipping_method_price`, or activating a method without one, now returns a `400` (`active_shipping_method_without_price`). Creating a method without prices still works. To remove a matrix, deactivate the method in an earlier request first.

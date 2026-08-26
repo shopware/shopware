@@ -182,7 +182,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, vat_id_pattern: string}> $euPatterns
+     * @param list<array{iso: string, id: string, vat_id_pattern: string}> $euPatterns
      */
     private function createValidator(
         string $countryPattern,

@@ -107,10 +107,13 @@ async function createWrapper(privileges = []) {
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)">
+                                <slot name="column-firstName" v-bind="{ item, compact: false, isInlineEdit: false }"></slot>
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>`,
                 },
+                'mt-avatar': true,
+                'mt-badge': true,
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
@@ -316,6 +319,22 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await flushPromises();
 
         expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
+
+    it('should render the customer name as a router-link so it can be opened in a new tab', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // A real router-link renders a valid admin (hash) href, which is required for
+        // "Open link in new tab" to point at the customer detail page instead of the storefront.
+        const nameLink = wrapper.findComponent('.sw-customer-list-grid router-link-stub');
+
+        expect(nameLink.exists()).toBe(true);
+        expect(nameLink.props('to')).toEqual({
+            name: 'sw.customer.detail',
+            params: { id: '1a2b3c' },
+            query: { edit: false },
+        });
     });
 
     it('should sort the customer group column by its name field', async () => {

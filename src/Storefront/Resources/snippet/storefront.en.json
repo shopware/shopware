@@ -659,6 +659,7 @@
     "tabsPreviewMore": "More",
     "descriptionTitle": "Product information",
     "priceUnitName": "Content:",
+    "priceUnavailable": "Price not available",
     "priceDataInfoUntil": "To",
     "priceDataInfoFrom": "From",
     "listPricePercentage": "(%price%% saved)",

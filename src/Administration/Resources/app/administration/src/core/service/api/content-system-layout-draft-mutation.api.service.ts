@@ -66,11 +66,45 @@ type ContentLayoutDraftMutationDiagnostics = {
 };
 
 /**
+ * How a reference property is (or could be) filled: `parent` (an ancestor/root context), `loader` (a data
+ * loader), or `stored` (the element's own applied wiring).
+ *
+ * @private
+ */
+export type ContentSystemResolutionCandidate = {
+    origin: 'parent' | 'loader' | 'stored';
+    contextKey: string | null;
+    providerElementId: string | null;
+    path: string | null;
+    distribution: string | null;
+    contextType: 'single' | 'collection' | null;
+    loaderSource: string | null;
+    configTemplate: Record<string, unknown> | null;
+    configComplete: boolean | null;
+};
+
+/**
+ * A single declared property's resolution, as reported per element by the diagnose/mutation endpoints.
+ *
+ * @private
+ */
+export type ContentSystemPropertyResolution = {
+    key: string;
+    kind: 'primitive' | 'reference';
+    required: boolean;
+    type: string | null;
+    default: unknown;
+    fqcn: string | null;
+    resolved: ContentSystemResolutionCandidate | null;
+    candidates: ContentSystemResolutionCandidate[];
+};
+
+/**
  * @private
  */
 export type ContentLayoutDraftMutationResponse = {
     layout: ContentLayoutDraftMutationElement[];
-    resolutions: Record<string, unknown>;
+    resolutions: Record<string, ContentSystemPropertyResolution[]>;
     diagnostics: ContentLayoutDraftMutationDiagnostics;
     affectedElementIds: string[];
     orphaned: ContentLayoutDraftMutationElement[];

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
@@ -74,7 +75,11 @@ class StateMachineRegistry implements ResetInterface
             ->setLimit(1);
 
         $criteria->getAssociation('transitions')
-            ->addSorting(new FieldSorting('state_machine_transition.actionName'))
+            ->addSorting(
+                new FieldSorting('state_machine_transition.actionName'),
+                new FieldSorting('state_machine_transition.createdAt'),
+                new FieldSorting('state_machine_transition.id')
+            )
             ->addAssociation('fromStateMachineState')
             ->addAssociation('toStateMachineState');
 
@@ -327,6 +332,7 @@ class StateMachineRegistry implements ResetInterface
         $stateMachineTransitions = $stateMachine->getTransitions();
         \assert($stateMachineTransitions !== null);
 
+        $destinations = [];
         foreach ($stateMachineTransitions as $transition) {
             // Not the transition that was requested step over
             if ($transition->getActionName() !== $transitionName) {
@@ -340,7 +346,11 @@ class StateMachineRegistry implements ResetInterface
 
             // Already transitioned, this exception is handled by StateMachineRegistry::transition
             if ($toState->getId() === $fromStateId) {
-                throw StateMachineException::unnecessaryTransition($transitionName);
+                if ($destinations === []) {
+                    throw StateMachineException::unnecessaryTransition($transitionName);
+                }
+
+                continue;
             }
 
             $fromState = $transition->getFromStateMachineState();
@@ -350,8 +360,30 @@ class StateMachineRegistry implements ResetInterface
 
             // Desired transition found
             if ($fromState->getId() === $fromStateId) {
-                return $toState;
+                $destinations[] = $toState;
             }
+        }
+
+        if (\count($destinations) > 1) {
+            $toStateNames = array_map(static fn (StateMachineStateEntity $state): string => $state->getTechnicalName(), $destinations);
+
+            if (Feature::isActive('v6.8.0.0')) {
+                throw StateMachineException::ambiguousStateTransition($stateMachineName, $transitionName, $fromStateId, $toStateNames);
+            }
+
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                \sprintf(
+                    'The action "%s" of state machine "%s" resolves to multiple destination states ("%s") from the same source state. This will throw an exception in v6.8.0.0, a state machine action must have exactly one destination state per source state.',
+                    $transitionName,
+                    $stateMachineName,
+                    implode('", "', $toStateNames)
+                )
+            );
+        }
+
+        if ($destinations !== []) {
+            return $destinations[0];
         }
 
         if ($context->hasState(SetOrderStateAction::FORCE_TRANSITION)) {

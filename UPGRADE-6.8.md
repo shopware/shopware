@@ -4,6 +4,25 @@
 
 <details>
 
+## State machine actions enforce a single destination per source state
+
+A state machine action now maps to exactly one destination state per source state:
+
+- Firing a transition whose action name resolved to multiple destination states from the current state now throws a `StateMachineException` with the code `SYSTEM__AMBIGUOUS_STATE_TRANSITION` instead of silently picking an undefined destination.
+- Writing a `state_machine_transition` that has the same state machine, source state, and action name as an existing transition, but a different destination state, is now rejected with a write validation error.
+- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and tightened the unique key on `state_machine_transition` from `(action_name, state_machine_id, from_state_id, to_state_id)` to `(action_name, state_machine_id, from_state_id)`.
+
+If your extension registered a transition that reuses an existing action name (for example `authorize`) from the same source state with its own destination state, register it under its own action name instead. Find affected installations with:
+
+```sql
+SELECT sm.technical_name, f.technical_name AS from_state, t.action_name, COUNT(*) AS destinations
+FROM state_machine_transition t
+JOIN state_machine sm ON sm.id = t.state_machine_id
+JOIN state_machine_state f ON f.id = t.from_state_id
+GROUP BY t.state_machine_id, t.from_state_id, t.action_name
+HAVING COUNT(*) > 1;
+```
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.

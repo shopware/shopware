@@ -8,17 +8,12 @@ meta:
     hints:
       - "Place inside a product detail page layout; the product is resolved from the page automatically."
 
-acceptsContext:
-  product:
-    type: single
-    required: true
-
 properties:
   product:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
-    description: "Hydrated product whose price is shown. Provided by the product detail page as the `product` context this element accepts."
+    description: "Hydrated product whose price is shown."
 
   showTaxInfo:
     type: boolean

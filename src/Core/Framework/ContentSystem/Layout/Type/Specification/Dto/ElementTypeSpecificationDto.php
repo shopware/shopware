@@ -15,7 +15,6 @@ final readonly class ElementTypeSpecificationDto
     /**
      * @param array<string, PropertySpecificationDto> $properties
      * @param list<SlotSpecificationDto> $slots
-     * @param array<string, array<string, mixed>> $acceptsContext consumer definitions keyed by context key
      */
     public function __construct(
         #[Assert\NotBlank]
@@ -32,7 +31,6 @@ final readonly class ElementTypeSpecificationDto
         public array $properties,
         #[Assert\Valid]
         public array $slots,
-        public array $acceptsContext = [],
     ) {
     }
 
@@ -58,7 +56,6 @@ final readonly class ElementTypeSpecificationDto
             $properties,
             $slots,
             $source,
-            $this->acceptsContext,
         );
     }
 }

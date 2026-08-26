@@ -51,13 +51,6 @@ class ElementTypeSpecificationSerializer
             );
         }
 
-        $acceptsContext = [];
-        foreach ($data['acceptsContext'] ?? [] as $contextKey => $consumer) {
-            if (\is_array($consumer)) {
-                $acceptsContext[(string) $contextKey] = $consumer;
-            }
-        }
-
         return new ElementTypeSpecificationDto(
             label: $meta['label'] ?? '',
             description: $description,
@@ -66,7 +59,6 @@ class ElementTypeSpecificationSerializer
             copilot: $copilot,
             properties: $properties,
             slots: $slots,
-            acceptsContext: $acceptsContext,
         );
     }
 
@@ -149,10 +141,6 @@ class ElementTypeSpecificationSerializer
                 $slots[] = $slotData;
             }
             $result['slots'] = $slots;
-        }
-
-        if ($dto->acceptsContext !== []) {
-            $result['acceptsContext'] = $dto->acceptsContext;
         }
 
         return $result;

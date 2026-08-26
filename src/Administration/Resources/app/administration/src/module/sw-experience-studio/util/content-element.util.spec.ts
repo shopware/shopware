@@ -1,7 +1,8 @@
+import type { ContentSystemPropertyResolution } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentElementNode } from '../types/content-element.types';
 import {
-    applyDeclaredContextConsumers,
+    applyResolvedContextConsumers,
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
@@ -319,94 +320,130 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
         });
     });
 
-    describe('applyDeclaredContextConsumers', () => {
-        // The price element declares it consumes the `product` context; the grid and text declare nothing.
-        const declaredByType: Record<string, Record<string, unknown>> = {
-            'Sw:Product:PriceDisplay': { product: { type: 'single', required: true } },
-        };
+    describe('applyResolvedContextConsumers', () => {
+        const parent = (
+            key: string,
+            contextKey: string,
+            contextType: 'single' | 'collection',
+            required: boolean,
+        ): ContentSystemPropertyResolution => ({
+            key,
+            kind: 'reference',
+            required,
+            type: null,
+            default: null,
+            fqcn: 'App\\Entity',
+            resolved: {
+                origin: 'parent',
+                contextKey,
+                providerElementId: 'root',
+                path: null,
+                distribution: 'broadcast',
+                contextType,
+                loaderSource: null,
+                configTemplate: null,
+                configComplete: false,
+            },
+            candidates: [],
+        });
 
-        const resolveAcceptsContext = (component: string): Record<string, unknown> | null =>
-            declaredByType[component] ?? null;
+        const nonParent = (
+            key: string,
+            resolved: ContentSystemPropertyResolution['resolved'],
+        ): ContentSystemPropertyResolution => ({
+            key,
+            kind: 'reference',
+            required: true,
+            type: null,
+            default: null,
+            fqcn: 'App\\Entity',
+            resolved,
+            candidates: [],
+        });
 
-        it('writes the declared consumer onto an element that declares one', () => {
+        it('writes a consumer for each parent-resolved property, using the resolved key, type and required', () => {
             const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
 
-            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+            applyResolvedContextConsumers([price], {
+                p1: [
+                    parent('product', 'product', 'single', true),
+                    parent('reviews', 'reviews', 'collection', false),
+                ],
+            });
 
             expect(price.acceptsContext).toEqual({
                 product: { type: 'single', required: true },
+                reviews: { type: 'collection', required: false },
             });
         });
 
-        it('writes declared consumers onto nested elements, not their containers', () => {
-            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
-            const grid: ContentElementNode = { id: 'g1', component: 'Sw:Grid', slots: { default: [price] } };
+        it('ignores loader, stored and unresolved properties', () => {
+            const element: ContentElementNode = { id: 'e1', component: 'Sw:Test' };
 
-            applyDeclaredContextConsumers([grid], resolveAcceptsContext);
-
-            // The grid declares no context, so it stays clean — only elements that ask for it get it.
-            expect(grid.acceptsContext).toBeUndefined();
-            expect(price.acceptsContext).toEqual({
-                product: { type: 'single', required: true },
+            applyResolvedContextConsumers([element], {
+                e1: [
+                    nonParent('media', {
+                        origin: 'loader',
+                        contextKey: null,
+                        providerElementId: null,
+                        path: null,
+                        distribution: null,
+                        contextType: null,
+                        loaderSource: 'entity',
+                        configTemplate: { entity: 'media', property: 'mediaId' },
+                        configComplete: true,
+                    }),
+                    nonParent('wired', {
+                        origin: 'stored',
+                        contextKey: null,
+                        providerElementId: null,
+                        path: null,
+                        distribution: null,
+                        contextType: null,
+                        loaderSource: null,
+                        configTemplate: null,
+                        configComplete: null,
+                    }),
+                    nonParent('missing', null),
+                ],
             });
+
+            expect(element.acceptsContext).toBeUndefined();
         });
 
-        it('leaves an element untouched when its type declares no context', () => {
-            const grid: ContentElementNode = { id: 'g1', component: 'Sw:Grid' };
-
-            applyDeclaredContextConsumers([grid], resolveAcceptsContext);
-
-            expect(grid.acceptsContext).toBeUndefined();
-        });
-
-        it('respects an authored consumer for the same key and does not override it', () => {
+        it('never overrides authored wiring (consumer or data requirement)', () => {
             const authored = { product: { type: 'single', required: true, propertyAlias: 'item' } };
-            const price: ContentElementNode = {
-                id: 'p1',
-                component: 'Sw:Product:PriceDisplay',
+            const withConsumer: ContentElementNode = {
+                id: 'e1',
+                component: 'Sw:Test',
                 acceptsContext: cloneDeep(authored),
             };
-
-            applyDeclaredContextConsumers([price], resolveAcceptsContext);
-
-            expect(price.acceptsContext).toEqual(authored);
-        });
-
-        it('respects an authored data requirement for the same key and does not add a consumer', () => {
-            const price: ContentElementNode = {
-                id: 'p1',
-                component: 'Sw:Product:PriceDisplay',
+            const withRequirement: ContentElementNode = {
+                id: 'e2',
+                component: 'Sw:Test',
                 dataRequirements: { product: { source: 'entity', config: { entityName: 'product', id: 'abc' } } },
             };
 
-            applyDeclaredContextConsumers([price], resolveAcceptsContext);
-
-            expect(price.acceptsContext).toBeUndefined();
-        });
-
-        it('adds a declared key while preserving an unrelated authored consumer', () => {
-            const price: ContentElementNode = {
-                id: 'p1',
-                component: 'Sw:Product:PriceDisplay',
-                acceptsContext: { salesChannel: { type: 'single', required: false } },
-            };
-
-            applyDeclaredContextConsumers([price], resolveAcceptsContext);
-
-            expect(price.acceptsContext).toEqual({
-                salesChannel: { type: 'single', required: false },
-                product: { type: 'single', required: true },
+            applyResolvedContextConsumers([withConsumer, withRequirement], {
+                e1: [parent('product', 'product', 'single', true)],
+                e2: [parent('product', 'product', 'single', true)],
             });
+
+            expect(withConsumer.acceptsContext).toEqual(authored);
+            expect(withRequirement.acceptsContext).toBeUndefined();
         });
 
-        it('is idempotent across repeated runs', () => {
-            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
+        it('resolves nested elements by id and ignores ids not in the layout', () => {
+            const nested: ContentElementNode = { id: 'c1', component: 'Sw:Product:PriceDisplay' };
+            const grid: ContentElementNode = { id: 'g1', component: 'Sw:Grid', slots: { default: [nested] } };
 
-            applyDeclaredContextConsumers([price], resolveAcceptsContext);
-            const first = cloneDeep(price.acceptsContext);
-            applyDeclaredContextConsumers([price], resolveAcceptsContext);
+            applyResolvedContextConsumers([grid], {
+                c1: [parent('product', 'product', 'single', true)],
+                unknown: [parent('product', 'product', 'single', true)],
+            });
 
-            expect(price.acceptsContext).toEqual(first);
+            expect(nested.acceptsContext).toEqual({ product: { type: 'single', required: true } });
+            expect(grid.acceptsContext).toBeUndefined();
         });
     });
 });

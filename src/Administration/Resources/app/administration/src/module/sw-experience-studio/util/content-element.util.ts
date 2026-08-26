@@ -1,65 +1,59 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
+import type { ContentSystemPropertyResolution } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ContentElementNode } from '../types/content-element.types';
 import { normalizeElementStyleForWrite } from './style-settings.util';
 
 const { cloneDeep } = Shopware.Utils.object;
-
-/**
- * Returns the `acceptsContext` an element type declares in its definition, or null when the type is unknown.
- *
- * @private
- * @sw-package discovery
- */
-export type AcceptsContextResolver = (component: string) => Record<string, unknown> | null;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**
- * Writes each element's declared context consumers into a layout tree.
- * Idempotent and per-key additive: a context key already carried by an authored consumer or a data
- * requirement on the node is left untouched, so explicit edits always win.
+ * @param resolutions per-element property resolutions from the mutation response, keyed by element id
  *
  * @private
  * @sw-package discovery
  */
-export function applyDeclaredContextConsumers(
-    nodes: ContentElementNode[],
-    resolveAcceptsContext: AcceptsContextResolver,
+export function applyResolvedContextConsumers(
+    layout: ContentElementNode[],
+    resolutions: Record<string, ContentSystemPropertyResolution[]>,
 ): void {
-    const apply = (node: ContentElementNode): void => {
-        const declared = resolveAcceptsContext(node.component);
+    for (const [elementId, propertyResolutions] of Object.entries(resolutions)) {
+        const location = findElementLocation(layout, elementId);
+        const node = location?.elements[location.index];
 
-        if (declared && Object.keys(declared).length > 0) {
-            const accepts = isRecord(node.acceptsContext) ? node.acceptsContext : {};
-            const dataRequirements = isRecord(node.dataRequirements) ? node.dataRequirements : {};
-            const additions: Record<string, unknown> = {};
-
-            for (const [
-                contextKey,
-                consumer,
-            ] of Object.entries(declared)) {
-                if (!(contextKey in accepts) && !(contextKey in dataRequirements)) {
-                    additions[contextKey] = cloneDeep(consumer);
-                }
-            }
-
-            if (Object.keys(additions).length > 0) {
-                node.acceptsContext = { ...accepts, ...additions };
-            }
+        if (!node) {
+            continue;
         }
 
-        const slots = node.slots ?? {};
-        for (const slotName of Object.keys(slots)) {
-            for (const child of slots[slotName]) {
-                apply(child);
-            }
-        }
-    };
+        const accepts = isRecord(node.acceptsContext) ? node.acceptsContext : {};
+        const dataRequirements = isRecord(node.dataRequirements) ? node.dataRequirements : {};
+        const additions: Record<string, unknown> = {};
 
-    for (const node of nodes) {
-        apply(node);
+        for (const resolution of propertyResolutions) {
+            const resolved = resolution.resolved;
+            const contextKey = resolved?.contextKey;
+
+            // Only parent-provided (context) resolutions become consumers; loader/stored fill themselves.
+            if (!resolved || resolved.origin !== 'parent' || typeof contextKey !== 'string' || contextKey.length === 0) {
+                continue;
+            }
+
+            // Already wired explicitly (authored consumer or data requirement): leave it.
+            if (contextKey in accepts || contextKey in dataRequirements) {
+                continue;
+            }
+
+            additions[contextKey] = {
+                type: resolved.contextType ?? 'single',
+                required: resolution.required,
+            };
+        }
+
+        if (Object.keys(additions).length > 0) {
+            node.acceptsContext = { ...accepts, ...additions };
+        }
     }
 }
 

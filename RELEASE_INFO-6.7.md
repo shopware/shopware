@@ -12,14 +12,6 @@ Aggregation names and range aggregation keys containing a backtick, question mar
 `POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
 Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
 
-### Password recovery events are no longer delivered to webhooks
-
-`user.recovery.request` and `customer.recovery.request` are no longer sent to webhooks and are removed from the generated webhook events reference. Both stay available in Flow Builder.
-
-App manifests subscribing to them keep validating until 6.8, so such apps can still be installed and updated. Doing so triggers a deprecation; from 6.8 the manifest is rejected.
-
-An event opts out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
-
 ### Store API context token response header is restricted on cacheable reads
 
 Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
@@ -281,9 +273,9 @@ While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopwa
 
 ## Security Fixes
 
-### Password recovery events are no longer delivered to webhooks
+### Password recovery and mail events are no longer delivered to webhooks
 
-`user.recovery.request` and `customer.recovery.request` are no longer sent to webhooks and are removed from the generated webhook events reference. Both stay available in Flow Builder.
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` are no longer sent to webhooks and are removed from the generated webhook events reference. All of them stay available in Flow Builder.
 
 App manifests subscribing to them keep validating until 6.8, so such apps can still be installed and updated. Doing so triggers a deprecation; from 6.8 the manifest is rejected.
 

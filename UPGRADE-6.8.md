@@ -30,11 +30,11 @@ GROUP BY t.state_machine_id, t.from_state_id, t.action_name
 HAVING COUNT(*) > 1;
 ```
 
-## Password recovery events can no longer be received by webhooks
+## Password recovery and mail events can no longer be received by webhooks
 
-`user.recovery.request` and `customer.recovery.request` were removed from the events an app may subscribe to with a webhook. They have not been delivered since 6.7; a manifest with a `<webhook>` for either event is now rejected on install and update with a `WebhookNotPermittedError`.
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` were removed from the events an app may subscribe to with a webhook. They have not been delivered since 6.7; a manifest with a `<webhook>` for any of them is now rejected on install and update with a `WebhookNotPermittedError`.
 
-Remove the webhook from your manifest. Both events remain available in Flow Builder.
+Remove the webhook from your manifest. The events remain available in Flow Builder.
 
 Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
 

@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
@@ -201,6 +202,37 @@ class WebhookManagerTest extends TestCase
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+    }
+
+    public function testDispatchesMailSentWithoutTheContents(): void
+    {
+        $this->createApp(webhooks: [
+            [
+                'name' => 'hook1',
+                'event_name' => MailSentEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+            ],
+        ]);
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new MailSentEvent(
+            'Your order',
+            ['max@example.com' => 'Max Mustermann'],
+            ['text/html' => '<p>Reset your password: https://shop.example/reset/token</p>'],
+            Context::createDefaultContext()
+        );
+
+        $this->getManager()->dispatch($event);
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request);
+
+        $data = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([
+            'subject' => 'Your order',
+            'recipients' => ['Max Mustermann'],
+        ], $data['data']['payload']);
     }
 
     public function testDoesNotDispatchBusinessEventIfShopIdFingerprintsHaveChanged(): void

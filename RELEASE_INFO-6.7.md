@@ -281,6 +281,12 @@ App manifests subscribing to them keep validating until 6.8, so such apps can st
 
 An event opts out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
 
+## Core
+
+### `EventDataCollection` will become final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` will be declared `final` in Shopware 6.8.
+
 # 6.7.14.0
 
 ## Features

@@ -93,8 +93,10 @@ class StructEncoder implements ResetInterface
             if (isset($data['elements'])) {
                 $entities = [];
 
+                $elements = \array_values($struct->getEntities()->getElements());
+
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entity = $struct->getEntities()->getAt($index);
+                    $entity = $elements[$index] ?? null;
                     if (!$entity instanceof Struct) {
                         throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }
@@ -113,8 +115,9 @@ class StructEncoder implements ResetInterface
 
         if ($struct instanceof Collection) {
             $new = [];
+            $elements = \array_values($struct->getElements());
             foreach ($data as $index => $value) {
-                $structItem = $struct->getAt($index);
+                $structItem = $elements[$index] ?? null;
                 if ($structItem instanceof Struct) {
                     $new[] = $this->encodeStruct($structItem, $fields, $value);
                 }
@@ -134,6 +137,8 @@ class StructEncoder implements ResetInterface
     private function encodeStruct(Struct $struct, ResponseFields $fields, array $data, ?string $alias = null): array
     {
         $alias ??= $struct->getApiAlias();
+
+        $vars = $struct->getVars();
 
         foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {
@@ -161,8 +166,8 @@ class StructEncoder implements ResetInterface
             }
 
             $object = $value;
-            if (\array_key_exists($property, $struct->getVars())) {
-                $object = $struct->getVars()[$property];
+            if (\array_key_exists($property, $vars)) {
+                $object = $vars[$property];
             }
 
             if ($object instanceof Struct) {

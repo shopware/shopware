@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
@@ -60,16 +61,27 @@ class DocumentDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        $orderIdField = (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware());
+        $orderVersionIdField = (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new ApiAware());
+
+        // @deprecated tag:v6.8.0 - remove conditional required flags, order references stay optional with the document generation rework.
+        Feature::ifNotActive('v6.8.0.0', static function () use ($orderIdField, $orderVersionIdField): void {
+            Feature::ifNotActive('DOCUMENT_GENERATION_REWORK', static function () use ($orderIdField, $orderVersionIdField): void {
+                $orderIdField->addFlags(new Required());
+                $orderVersionIdField->addFlags(new Required());
+            });
+        });
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
             (new StringField('type_name', 'typeName'))->addFlags(new ApiAware())->setDescription('Technical name of the document type.'),
             (new FkField('referenced_document_id', 'referencedDocumentId', self::class))->addFlags(new ApiAware()),
 
-            (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware()),
+            $orderIdField,
             (new FkField('document_media_file_id', 'documentMediaFileId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('document_a11y_media_file_id', 'documentA11yMediaFileId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new ApiAware()),
+            $orderVersionIdField,
 
             (new JsonField('config', 'config', [], []))->addFlags(new ApiAware(), new Required()),
             (new BoolField('sent', 'sent'))->addFlags(new ApiAware()),

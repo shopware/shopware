@@ -1,0 +1,102 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product = null,
+    inputName = null,
+    value = null,
+    disabled = false,
+    includeProductNameInAriaLabels = false,
+%}
+
+{% if product %}
+    {% set inputId = "quantity-selector-input-#{product.id}" %}
+    {% set inputName = inputName ?? "lineItems[#{product.id}][quantity]" %}
+    {% set value = value ?? product.minPurchase %}
+
+    {% if includeProductNameInAriaLabels %}
+        {% set decreaseLabel = 'component.product.quantitySelect.decreaseOfProduct'|trans({ '%product%': product.translated.name })|striptags %}
+        {% set increaseLabel = 'component.product.quantitySelect.increaseOfProduct'|trans({ '%product%': product.translated.name })|striptags %}
+        {% set quantityLabel = 'component.product.quantitySelect.labelWithProduct'|trans({ '%product%': product.translated.name })|striptags %}
+    {% else %}
+        {% set decreaseLabel = 'component.product.quantitySelect.decrease'|trans|striptags %}
+        {% set increaseLabel = 'component.product.quantitySelect.increase'|trans|striptags %}
+        {% set quantityLabel = 'component.product.quantitySelect.label'|trans|striptags %}
+    {% endif %}
+
+    {% set purchaseLimitUrl = product.isCloseout ? path('frontend.product.purchase-limit', { productId: product.id }) : null %}
+
+    {% set quantitySelectorCVA = cva({
+        base: 'sw-product-quantity-selector input-group',
+    }) %}
+
+    {% set attributeDefaults = {
+        class: quantitySelectorCVA.apply({}),
+        'data-component': 'Sw:Product:QuantitySelector',
+        'data-component-options': { purchaseLimitUrl: purchaseLimitUrl }|json_encode,
+    } %}
+
+    <div {{ attributes.defaults(attributeDefaults) }}>
+        {% block decrease_button %}
+            <button {{ attributes.nested('decrease-button').defaults({
+                type: 'button',
+                class: 'btn btn-outline-light sw-product-quantity-selector__button sw-product-quantity-selector__button--decrease',
+                'aria-label': decreaseLabel,
+                disabled: disabled,
+            }) }}>
+                {% sw_icon 'minus' style {size: 'xs'} %}
+            </button>
+        {% endblock %}
+
+        {% block quantity_input %}
+            <label {{ attributes.nested('quantity-label').defaults({ class: 'visually-hidden', for: inputId }) }}>
+                {{ quantityLabel }}
+            </label>
+            <input {{ attributes.nested('quantity-input').defaults({
+                id: inputId,
+                type: 'number',
+                name: inputName,
+                class: 'form-control sw-product-quantity-selector__input',
+                min: product.minPurchase,
+                max: product.calculatedMaxPurchase,
+                step: product.purchaseSteps,
+                value: value,
+                disabled: disabled,
+            }) }}>
+        {% endblock %}
+
+        {% block increase_button %}
+            <button {{ attributes.nested('increase-button').defaults({
+                type: 'button',
+                class: 'btn btn-outline-light sw-product-quantity-selector__button sw-product-quantity-selector__button--increase',
+                'aria-label': increaseLabel,
+                disabled: disabled,
+            }) }}>
+                {% sw_icon 'plus' style {size: 'xs'} %}
+            </button>
+        {% endblock %}
+
+        {% if product.translated.packUnit %}
+            {% block unit_label %}
+                <span {{ attributes.nested('unit').defaults({
+                    class: 'input-group-text sw-product-quantity-selector__unit',
+                    'data-unit-singular': product.translated.packUnit,
+                    'data-unit-plural': product.translated.packUnitPlural,
+                }) }}>
+                    {{ value > 1 and product.translated.packUnitPlural ? product.translated.packUnitPlural : product.translated.packUnit }}
+                </span>
+            {% endblock %}
+        {% endif %}
+
+        {% block live_region %}
+            <div {{ attributes.nested('live-region').defaults({
+                class: 'sw-product-quantity-selector__live visually-hidden',
+                'aria-live': 'polite',
+                'aria-atomic': 'true',
+                'data-aria-live-text': 'component.product.quantitySelect.areaLiveText'|trans|striptags,
+                'data-aria-live-product-name': product.translated.name,
+            }) }}></div>
+        {% endblock %}
+    </div>
+{% endif %}

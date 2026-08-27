@@ -1,0 +1,17 @@
+meta:
+  label: "Product Quantity Selector"
+  description: "Allows customers to select the purchase quantity of the current product on the product detail page."
+  icon: "regular-list-numbered-xs"
+  category: "commerce"
+  copilot:
+    summary: "Product purchase quantity selector."
+    hints:
+      - "Use on a product detail page; the product is resolved from the current product-page context."
+      - "Uses the hydrated product's minimum, maximum, and purchase-step values to constrain the quantity."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product that provides the purchase quantity constraints; resolved from the current product context."

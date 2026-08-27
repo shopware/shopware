@@ -1,0 +1,50 @@
+.sw-product-quantity-selector {
+    --sw-product-quantity-selector-border-color: var(--bs-border-color);
+    --sw-product-quantity-selector-control-height: 2.5rem;
+}
+
+.sw-product-quantity-selector__button {
+    --bs-btn-border-color: var(--sw-product-quantity-selector-border-color);
+    --bs-btn-hover-border-color: var(--sw-product-quantity-selector-border-color);
+    --bs-btn-active-border-color: var(--sw-product-quantity-selector-border-color);
+    --bs-btn-disabled-border-color: var(--sw-product-quantity-selector-border-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--sw-product-quantity-selector-control-height);
+    line-height: 1;
+}
+
+.sw-product-quantity-selector__button > .icon > svg {
+    top: 0;
+}
+
+.sw-product-quantity-selector__button--increase {
+    border-left: 0;
+}
+
+.sw-product-quantity-selector__button--decrease {
+    border-right: 0;
+}
+
+.sw-product-quantity-selector__unit {
+    height: var(--sw-product-quantity-selector-control-height);
+    line-height: 1rem;
+}
+
+// Hide native number spinners because the component provides custom controls.
+.sw-product-quantity-selector__input {
+    -moz-appearance: textfield;
+    height: var(--sw-product-quantity-selector-control-height);
+    text-align: center;
+    border-left: 0;
+    border-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sw-product-quantity-selector__input::-webkit-outer-spin-button,
+.sw-product-quantity-selector__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

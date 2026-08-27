@@ -142,15 +142,15 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
             ],
             [
                 'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "inheritedMethod()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
-                333,
-            ],
-            [
-                'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "overriddenWithoutDeprecation()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
-                333,
+                334,
             ],
             [
                 'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "ancestorMethod()" from "HierarchyRoot" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
-                333,
+                334,
+            ],
+            [
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "providedByTrait()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                334,
             ],
         ]);
     }

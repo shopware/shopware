@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\DirectHierarchyMethodTrait;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\NewHierarchyParent;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\OldHierarchyParent;
 use Symfony\Component\Routing\Attribute\Route;
@@ -341,6 +342,8 @@ class InvalidHierarchyChange extends OldHierarchyParent
 #[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
 class ValidHierarchyChange extends OldHierarchyParent
 {
+    use DirectHierarchyMethodTrait;
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed with the old parent.
      */

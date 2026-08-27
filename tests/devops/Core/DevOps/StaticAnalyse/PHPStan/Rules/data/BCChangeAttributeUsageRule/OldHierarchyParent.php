@@ -4,6 +4,11 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCC
 
 class OldHierarchyParent extends HierarchyRoot
 {
+    public function __toString(): string
+    {
+        return '';
+    }
+
     public function inheritedMethod(): void
     {
     }
@@ -20,6 +25,10 @@ class OldHierarchyParent extends HierarchyRoot
     }
 
     public function providedByNewParent(): void
+    {
+    }
+
+    public function providedByTrait(): void
     {
     }
 }

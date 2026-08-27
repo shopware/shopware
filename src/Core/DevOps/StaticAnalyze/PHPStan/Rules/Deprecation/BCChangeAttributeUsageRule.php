@@ -295,12 +295,11 @@ class BCChangeAttributeUsageRule implements Rule
 
         $errors = [];
         foreach ($removedParentMethods as $methodName => $parentMethod) {
-            if ($this->isDeprecated($parentMethod) || isset($newParentMethods[$methodName])) {
+            if (str_starts_with($parentMethod->getName(), '__') || $this->isDeprecated($parentMethod) || isset($newParentMethods[$methodName])) {
                 continue;
             }
 
-            $methodNode = $methodNodes[$methodName] ?? null;
-            if ($methodNode !== null && \str_contains($methodNode->getDocComment()?->getText() ?? '', '@deprecated')) {
+            if ($this->isDeclaredByClass($class, $methodNodes, $methodName)) {
                 continue;
             }
 
@@ -313,6 +312,25 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return $errors;
+    }
+
+    /**
+     * @param array<string, ClassMethod> $methodNodes
+     */
+    private function isDeclaredByClass(ClassReflection $class, array $methodNodes, string $methodName): bool
+    {
+        if (isset($methodNodes[$methodName])) {
+            return true;
+        }
+
+        foreach ($class->getTraits() as $trait) {
+            if ($trait->hasNativeMethod($methodName)
+                && $trait->getNativeMethod($methodName)->getDeclaringClass()->getName() === $trait->getName()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isInHierarchy(ClassReflection $class, string $possibleDescendant): bool

@@ -121,6 +121,10 @@
             </template>
             {% endblock %}
 
+            <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')" #column-typeName="{ item }">
+                {{ $t(documentV2Service.getDocumentTypeSnippet(item.typeName)) }}
+            </template>
+
             {% block sw_order_document_card_grid_column_avaiable_formats %}
             <template #column-fileTypes="{ item }">
                 {% block sw_order_document_card_grid_column_available_formats_label %}

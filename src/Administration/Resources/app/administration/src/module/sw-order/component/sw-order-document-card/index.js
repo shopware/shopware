@@ -182,8 +182,8 @@ export default {
                     allowResize: false,
                 },
                 {
-                    property: 'documentType.name',
-                    dataIndex: 'documentType.name',
+                    property: this.feature.isActive('DOCUMENT_GENERATION_REWORK') ? 'typeName' : 'documentType.name',
+                    dataIndex: this.feature.isActive('DOCUMENT_GENERATION_REWORK') ? 'typeName' : 'documentType.name',
                     label: 'sw-order.documentCard.labelType',
                     allowResize: false,
                 },

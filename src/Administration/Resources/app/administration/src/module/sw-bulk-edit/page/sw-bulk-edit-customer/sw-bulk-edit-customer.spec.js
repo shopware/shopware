@@ -429,6 +429,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         const customFieldsCard = wrapper.find('.sw-bulk-edit-customer-base__custom_fields');
         expect(customFieldsCard.exists()).toBeTruthy();
+        expect(wrapper.vm.customFieldSetCriteria.hasAssociation('customFields')).toBe(true);
 
         wrapper.vm.bulkEditData.customFields.value = {
             field1: 'abc',

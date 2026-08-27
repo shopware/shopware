@@ -20,7 +20,6 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
-    // Shared between the mail attachment builder and the a11y flow storer
     $services->set(DocumentResolver::class)
         ->args([
             service('document.repository'),

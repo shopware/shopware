@@ -184,19 +184,15 @@ async function createWrapper(sequence = {}) {
                     getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
                     getDocumentTypeSnippet: (technicalName) =>
                         `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
-                },
-                documentV2ApiService: {
-                    getAvailableTypes: () =>
+                    getAvailableDocumentTypes: () =>
                         Promise.resolve({
-                            documentTypes: {
-                                invoice: {
-                                    formats: [
-                                        'pdf',
-                                        'zugferd_xml',
-                                    ],
-                                },
-                                credit_note: { formats: ['pdf'] },
+                            invoice: {
+                                formats: [
+                                    'pdf',
+                                    'zugferd_xml',
+                                ],
                             },
+                            credit_note: { formats: ['pdf'] },
                         }),
                 },
             },

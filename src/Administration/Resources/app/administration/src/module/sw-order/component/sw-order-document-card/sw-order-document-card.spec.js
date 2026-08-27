@@ -248,6 +248,7 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     getPreferredFileFormat: (formats, defaultFormat) => formats[0] ?? defaultFormat,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
                     sortFileFormats: (formats) => [...formats],
+                    getDocumentTypeSnippet: (documentType) => `${documentType}--snippet`,
                 },
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: '1000' }),

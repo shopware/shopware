@@ -709,10 +709,10 @@ export default {
                         link.remove();
                     })
                     .catch(async (err) => {
-                        const errorData = await err.response.data.text();
                         let message;
 
                         try {
+                            const errorData = await err.response?.data?.text();
                             const errorJson = JSON.parse(errorData);
                             message =
                                 this.documentV2Service.getErrorTranslation(

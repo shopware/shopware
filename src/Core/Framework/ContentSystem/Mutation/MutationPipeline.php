@@ -17,6 +17,7 @@ class MutationPipeline
 {
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly PageContextConsumerWiring $contextWiring,
     ) {
     }
 
@@ -29,6 +30,10 @@ class MutationPipeline
         $mutated = $mutation->apply($tree);
 
         $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext);
+
+        // Wire the page-context consumers into the mutated tree from the analysis, so the returned (and, on the
+        // persisted route, stored) layout carries the distribution wiring every consumer needs.
+        $mutated = $this->contextWiring->apply($mutated, $analysis->resolutions, $rootContext ?? []);
 
         return MutationResult::fromAnalyzedMutation($mutated, $analysis, $mutation);
     }

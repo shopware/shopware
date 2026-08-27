@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
+use Shopware\Core\Framework\ContentSystem\Mutation\PageContextConsumerWiring;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
@@ -105,9 +106,23 @@ class MutationPipelineTest extends TestCase
         static::assertSame($report, $result->diagnostics);
     }
 
+    #[TestDox('wires the page-context consumers into the returned layout')]
+    public function testRunWiresContextConsumers(): void
+    {
+        $price = new StoredElement('p1', 'Sw:Product:PriceDisplay');
+        $resolutions = ['p1' => [new PropertyResolution('product', PropertyKind::Reference, false, null, null, 'App\\Product')]];
+        $rootContext = [new ProvidedContext('product', 'App\\Product', ContextType::Single, null, DistributionStrategy::Broadcast)];
+
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
+
+        $result = $pipeline->run($this->mutation(new StoredTree([$price]), ['p1']), $this->inputTree(), $rootContext);
+
+        static::assertArrayHasKey('product', $result->layout->roots[0]->contextDefinitions->getAllConsumers());
+    }
+
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
     {
-        return new MutationPipeline($diagnostics);
+        return new MutationPipeline($diagnostics, new PageContextConsumerWiring());
     }
 
     private function inputTree(): StoredTree

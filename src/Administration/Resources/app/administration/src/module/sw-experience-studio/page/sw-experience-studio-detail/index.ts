@@ -18,7 +18,6 @@ import type {
 } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
-    applyResolvedContextConsumers,
     findElementLocation,
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
@@ -989,7 +988,6 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
-                applyResolvedContextConsumers(response.layout, response.resolutions);
                 this.layout.layout = response.layout;
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {

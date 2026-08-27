@@ -12,7 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonElement;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonPage;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 use Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel\ContentRouteRenderingTest;
 
@@ -36,7 +36,7 @@ use Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel\Content
 #[Package('framework')]
 class ContentPageAliasRegistrationTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @return \Generator<string, array{string}>

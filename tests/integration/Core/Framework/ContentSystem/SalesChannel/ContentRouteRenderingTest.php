@@ -693,7 +693,8 @@ class ContentRouteRenderingTest extends TestCase
         // read: `RenderedElementFactory` reads the same cache entry to decide which declared primitives exist
         // at all, so the probe proves the served index depends on the cached specification without attributing
         // that dependency to one reader over the other.
-        $poisoned = $cachedTypes->get();
+        $original = $cachedTypes->get();
+        $poisoned = $original;
         static::assertIsArray($poisoned);
         unset($poisoned['Sw:Media:Image']);
         static::assertTrue(
@@ -701,20 +702,22 @@ class ContentRouteRenderingTest extends TestCase
             'The element-type cache entry must be writable from the test.',
         );
 
-        $probe = $this->requestJson($this->uri('content-data'));
+        try {
+            $probe = $this->requestJson($this->uri('content-data'));
 
-        static::assertSame(
-            ['media'],
-            array_keys($this->assignments($probe)[$this->ids->get('image')] ?? []),
-            'A render reading the cached element types must emit no declared primitive for a type the cache no '
-            . 'longer carries.',
-        );
-
-        // Restore what the earlier render computed, so no later test in this process observes the poisoned map.
-        static::assertTrue(
-            $this->overwriteElementTypeCache($pool, $cachedTypes->get()),
-            'The element-type cache entry must be writable from the test.',
-        );
+            static::assertSame(
+                ['media'],
+                array_keys($this->assignments($probe)[$this->ids->get('image')] ?? []),
+                'A render reading the cached element types must emit no declared primitive for a type the cache no '
+                . 'longer carries.',
+            );
+        } finally {
+            // Restore what the earlier render computed, so no later test in this process observes the poisoned map.
+            static::assertTrue(
+                $this->overwriteElementTypeCache($pool, $original),
+                'The element-type cache entry must be writable from the test.',
+            );
+        }
     }
 
     #[TestDox('serves decomposed skeleton nodes with id, component and the element alias at every depth, and no property values')]

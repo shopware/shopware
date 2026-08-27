@@ -33,19 +33,24 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
-    #[TestDox('answers 400 for a stored envelope that does not decode into a preview request')]
-    public function testUndecodableStoredEnvelopeIsBadRequest(): void
+    #[TestDox('answers 500 for a stored envelope that does not decode into a preview request')]
+    public function testUndecodableStoredEnvelopeIsServerError(): void
     {
         $token = Uuid::randomHex();
         $cache = static::getContainer()->get('cache.system');
         $item = $cache->getItem('content-system.preview.' . $token);
-        // An envelope with no entityType: the redemption route refuses it instead of previewing an empty entity.
+        // An envelope with no entityType: only a validated envelope is ever written, so a malformed hit is
+        // server-side state, not a defect in this caller's request.
         $item->set(['layout' => [], 'salesChannelId' => $this->getSalesChannelId()]);
         $cache->save($item);
 
-        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        try {
+            $response = $this->request('GET', 'content-system/preview/' . $token, []);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        } finally {
+            $cache->deleteItem('content-system.preview.' . $token);
+        }
     }
 
     /**

@@ -33,14 +33,15 @@ class ProductSuggestLoaderConfigSerializerTest extends TestCase
         static::assertSame('product_suggest', ProductSuggestLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into ProductSuggestLoaderConfig with null searchTermProperty')]
-    public function testDecodeEmptyArrayReturnsConfigWithNullSearchTermProperty(): void
+    #[TestDox('decodes empty array into ProductSuggestLoaderConfig with every field at its default')]
+    public function testDecodeEmptyArrayReturnsConfigWithAllDefaults(): void
     {
         $result = $this->serializer->decode([]);
 
         static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
         static::assertNull($result->searchTermProperty);
         static::assertSame([], $result->associations);
+        static::assertNull($result->associationOverride);
     }
 
     #[TestDox('decodes config with valid searchTermProperty into config with property set')]
@@ -193,15 +194,6 @@ class ProductSuggestLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
         static::assertSame('extraAssociations', $result->associationOverride);
-    }
-
-    #[TestDox('decodes a config without associationOverride into a null associationOverride')]
-    public function testDecodeWithoutAssociationOverrideLeavesItNull(): void
-    {
-        $result = $this->serializer->decode([]);
-
-        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
-        static::assertNull($result->associationOverride);
     }
 
     /**

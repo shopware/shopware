@@ -19,7 +19,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,7 +59,7 @@ class ProductReviewDataLoaderTest extends TestCase
     #[TestDox('returns review search result as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithReviewData(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = 'product-alice';
 
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
@@ -92,7 +91,7 @@ class ProductReviewDataLoaderTest extends TestCase
     #[TestDox('lowercases productId before passing it to the review route')]
     public function testLoadCallsReviewRouteWithLowercasedProductId(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = 'product-alice';
         $upperCaseId = strtoupper($productId);
 
         $context = Generator::generateSalesChannelContext();
@@ -167,13 +166,15 @@ class ProductReviewDataLoaderTest extends TestCase
         $loader = new ProductReviewDataLoader($productReviewRoute);
         $inputs = $this->resolve(new ProductReviewLoaderConfig(), ['productId' => 'product-alice']);
 
-        $loader->load($inputs, self::requirement(), $context, new Request());
+        $result = $loader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertSame($reviewResult, $result->data);
     }
 
     #[TestDox('adds every configured association to the criteria')]
     public function testLoadAddsConfigAssociationsToCriteria(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = 'product-alice';
 
         $context = Generator::generateSalesChannelContext();
 
@@ -256,7 +257,7 @@ class ProductReviewDataLoaderTest extends TestCase
     #[TestDox('returns notFound result when review route throws ProductException for review not active')]
     public function testLoadReturnsNotFoundWhenProductExceptionReviewNotActiveIsThrown(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = 'test-product-id';
 
         $context = Generator::generateSalesChannelContext();
 
@@ -279,7 +280,7 @@ class ProductReviewDataLoaderTest extends TestCase
     #[TestDox('returns notFound result when review route throws legacy ReviewNotActiveExeption')]
     public function testLoadReturnsNotFoundWhenLegacyReviewNotActiveExeptionIsThrown(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = 'test-product-id';
 
         $context = Generator::generateSalesChannelContext();
 

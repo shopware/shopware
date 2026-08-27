@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Shipping\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfig;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,14 +25,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ShippingMethodDataLoader::class)]
 class ShippingMethodDataLoaderTest extends TestCase
 {
-    private AbstractShippingMethodRoute&Stub $shippingMethodRoute;
-
     private ShippingMethodDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
-        $this->dataLoader = new ShippingMethodDataLoader($this->shippingMethodRoute);
+        $this->dataLoader = new ShippingMethodDataLoader(static::createStub(AbstractShippingMethodRoute::class));
     }
 
     #[TestDox('returns shipping_method source type identifier')]
@@ -60,9 +57,11 @@ class ShippingMethodDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->shippingMethodRoute->method('load')->willReturn($response);
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturn($response);
 
-        $result = $this->dataLoader->load(
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $result = $dataLoader->load(
             new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
             self::requirement(),
             $context,
@@ -83,28 +82,28 @@ class ShippingMethodDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->expects($this->atLeastOnce())
-            ->method('load')
-            ->with(
-                static::callback(function (Request $clonedRequest): bool {
-                    static::assertTrue($clonedRequest->query->get('onlyAvailable'));
+        $capturedRequest = null;
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturnCallback(
+            function (Request $clonedRequest) use (&$capturedRequest, $response): ShippingMethodRouteResponse {
+                $capturedRequest = $clonedRequest;
 
-                    return true;
-                }),
-                static::anything(),
-                static::anything()
-            )
-            ->willReturn($response);
+                return $response;
+            }
+        );
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load(
+        $result = $dataLoader->load(
             new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
             self::requirement(),
             $context,
             new Request(),
         );
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertTrue($capturedRequest->query->get('onlyAvailable'));
+        static::assertTrue($result->hasData());
+        static::assertSame($shippingMethods, $result->data);
     }
 
     #[TestDox('adds the associations input to criteria')]
@@ -115,29 +114,29 @@ class ShippingMethodDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->expects($this->once())
-            ->method('load')
-            ->with(
-                static::anything(),
-                static::anything(),
-                static::callback(function (Criteria $criteria): bool {
-                    static::assertContains('country', array_keys($criteria->getAssociations()));
-                    static::assertContains('translations', array_keys($criteria->getAssociations()));
+        $capturedCriteria = null;
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturnCallback(
+            function (Request $clonedRequest, SalesChannelContext $context, Criteria $criteria) use (&$capturedCriteria, $response): ShippingMethodRouteResponse {
+                $capturedCriteria = $criteria;
 
-                    return true;
-                })
-            )
-            ->willReturn($response);
+                return $response;
+            }
+        );
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load(
+        $result = $dataLoader->load(
             new LoaderInputs(['associations' => ['country', 'translations'], 'onlyAvailable' => true]),
             self::requirement(),
             $context,
             new Request(),
         );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertContains('country', array_keys($capturedCriteria->getAssociations()));
+        static::assertContains('translations', array_keys($capturedCriteria->getAssociations()));
+        static::assertTrue($result->hasData());
+        static::assertSame($shippingMethods, $result->data);
     }
 
     #[TestDox('sets onlyAvailable false on cloned request when the onlyAvailable input is false')]
@@ -149,29 +148,29 @@ class ShippingMethodDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $originalRequest = new Request();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->expects($this->once())
-            ->method('load')
-            ->with(
-                static::callback(function (Request $clonedRequest) use ($originalRequest): bool {
-                    static::assertNotSame($originalRequest, $clonedRequest);
-                    static::assertFalse($clonedRequest->query->get('onlyAvailable'));
+        $capturedRequest = null;
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturnCallback(
+            function (Request $clonedRequest) use (&$capturedRequest, $response): ShippingMethodRouteResponse {
+                $capturedRequest = $clonedRequest;
 
-                    return true;
-                }),
-                static::anything(),
-                static::anything()
-            )
-            ->willReturn($response);
+                return $response;
+            }
+        );
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load(
+        $result = $dataLoader->load(
             new LoaderInputs(['associations' => [], 'onlyAvailable' => false]),
             self::requirement(),
             $context,
             $originalRequest,
         );
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertNotSame($originalRequest, $capturedRequest);
+        static::assertFalse($capturedRequest->query->get('onlyAvailable'));
+        static::assertTrue($result->hasData());
+        static::assertSame($shippingMethods, $result->data);
     }
 
     private static function requirement(): DataRequirement

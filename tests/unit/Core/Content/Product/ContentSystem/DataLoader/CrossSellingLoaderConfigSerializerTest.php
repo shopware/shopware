@@ -33,14 +33,15 @@ class CrossSellingLoaderConfigSerializerTest extends TestCase
         static::assertSame('cross_selling', CrossSellingLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into CrossSellingLoaderConfig with null property')]
-    public function testDecodeEmptyArrayReturnsCrossSellingLoaderConfigWithNullProperty(): void
+    #[TestDox('decodes empty array into CrossSellingLoaderConfig with all defaults')]
+    public function testDecodeEmptyArrayReturnsConfigWithAllDefaults(): void
     {
         $result = $this->serializer->decode([]);
 
         static::assertInstanceOf(CrossSellingLoaderConfig::class, $result);
         static::assertNull($result->property);
         static::assertSame([], $result->associations);
+        static::assertNull($result->associationOverride);
     }
 
     #[TestDox('decodes config with valid property into CrossSellingLoaderConfig with property set')]
@@ -192,16 +193,9 @@ class CrossSellingLoaderConfigSerializerTest extends TestCase
         $result = $this->serializer->decode(['associationOverride' => 'extraAssociations']);
 
         static::assertInstanceOf(CrossSellingLoaderConfig::class, $result);
+        static::assertNull($result->property);
+        static::assertSame([], $result->associations);
         static::assertSame('extraAssociations', $result->associationOverride);
-    }
-
-    #[TestDox('decodes a config without associationOverride into a null associationOverride')]
-    public function testDecodeWithoutAssociationOverrideLeavesItNull(): void
-    {
-        $result = $this->serializer->decode([]);
-
-        static::assertInstanceOf(CrossSellingLoaderConfig::class, $result);
-        static::assertNull($result->associationOverride);
     }
 
     /**

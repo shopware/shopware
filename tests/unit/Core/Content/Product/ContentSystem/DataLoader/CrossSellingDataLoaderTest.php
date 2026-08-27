@@ -63,8 +63,7 @@ class CrossSellingDataLoaderTest extends TestCase
         $request = new Request();
 
         $crossSellingCollection = new CrossSellingElementCollection();
-        $response = static::createStub(ProductCrossSellingRouteResponse::class);
-        $response->method('getResult')->willReturn($crossSellingCollection);
+        $response = new ProductCrossSellingRouteResponse($crossSellingCollection);
 
         $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
         $crossSellingRoute
@@ -95,8 +94,7 @@ class CrossSellingDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $crossSellingCollection = new CrossSellingElementCollection();
-        $response = static::createStub(ProductCrossSellingRouteResponse::class);
-        $response->method('getResult')->willReturn($crossSellingCollection);
+        $response = new ProductCrossSellingRouteResponse($crossSellingCollection);
 
         $capturedProductId = null;
         $this->crossSellingRoute
@@ -124,8 +122,7 @@ class CrossSellingDataLoaderTest extends TestCase
 
         $capturedProductId = null;
         $crossSellingCollection = new CrossSellingElementCollection();
-        $response = static::createStub(ProductCrossSellingRouteResponse::class);
-        $response->method('getResult')->willReturn($crossSellingCollection);
+        $response = new ProductCrossSellingRouteResponse($crossSellingCollection);
 
         $this->crossSellingRoute
             ->method('load')
@@ -151,8 +148,7 @@ class CrossSellingDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $crossSellingCollection = new CrossSellingElementCollection();
-        $response = static::createStub(ProductCrossSellingRouteResponse::class);
-        $response->method('getResult')->willReturn($crossSellingCollection);
+        $response = new ProductCrossSellingRouteResponse($crossSellingCollection);
 
         $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
         $crossSellingRoute
@@ -177,8 +173,7 @@ class CrossSellingDataLoaderTest extends TestCase
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
         $crossSellingCollection = new CrossSellingElementCollection();
-        $response = static::createStub(ProductCrossSellingRouteResponse::class);
-        $response->method('getResult')->willReturn($crossSellingCollection);
+        $response = new ProductCrossSellingRouteResponse($crossSellingCollection);
 
         $this->crossSellingRoute
             ->method('load')
@@ -207,8 +202,7 @@ class CrossSellingDataLoaderTest extends TestCase
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
         $crossSellingCollection = new CrossSellingElementCollection();
-        $response = static::createStub(ProductCrossSellingRouteResponse::class);
-        $response->method('getResult')->willReturn($crossSellingCollection);
+        $response = new ProductCrossSellingRouteResponse($crossSellingCollection);
 
         $this->crossSellingRoute
             ->method('load')

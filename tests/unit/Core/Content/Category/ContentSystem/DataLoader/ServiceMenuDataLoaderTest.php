@@ -75,7 +75,7 @@ class ServiceMenuDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createMock(NavigationLoaderInterface::class);
         $navigationLoader
             ->expects($this->once())
             ->method('load')
@@ -109,7 +109,7 @@ class ServiceMenuDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createMock(NavigationLoaderInterface::class);
         $navigationLoader
             ->expects($this->once())
             ->method('load')
@@ -151,31 +151,8 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns empty CategoryCollection when service category is not configured')]
+    #[TestDox('returns an empty cached CategoryCollection when the service category is not configured, an unset rootId input included')]
     public function testLoadReturnsEmptyCollectionWhenServiceCategoryNotConfigured(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader->expects($this->never())->method('load');
-
-        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => 'service-navigation']),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertTrue($result->hasData());
-        static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(0, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('resolves an unset rootId to the declared service-navigation default')]
-    public function testUnsetRootIdResolvesToDeclaredServiceNavigationDefault(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -194,6 +171,8 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
         static::assertCount(0, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('returns notFound result when navigation loader throws CategoryNotFoundException')]

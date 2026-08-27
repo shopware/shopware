@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -29,13 +30,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -248,6 +250,7 @@ class StoreApiSeoResolverTest extends TestCase
      * @param callable(SalesChannelProductEntity): list<RenderedElement> $forest
      */
     #[DataProvider('renderedElementPlacementProvider')]
+    #[TestDox('adds SEO information for rendered element placed at $_dataName')]
     public function testAddSeoInformationForRenderedElement(callable $forest): void
     {
         $request = new Request();
@@ -303,6 +306,7 @@ class StoreApiSeoResolverTest extends TestCase
         ];
     }
 
+    #[TestDox('ignores non-Struct rendered property values (headline, publishedAt)')]
     public function testAddSeoInformationIgnoresNonStructRenderedPropertyValues(): void
     {
         $request = new Request();
@@ -316,7 +320,6 @@ class StoreApiSeoResolverTest extends TestCase
 
         $element = new RenderedElement('element-1', 'product-box', [
             'headline' => 'A headline',
-            'counts' => [1, 2, 3],
             'publishedAt' => new \DateTimeImmutable('2026-08-25 12:00:00'),
             'product' => $product,
         ]);
@@ -337,6 +340,7 @@ class StoreApiSeoResolverTest extends TestCase
      * A rendered element sitting directly in another struct's vars, not inside an array. The page's `elements`
      * array never produces that placement, so the direct-variable filter has no other coverage.
      */
+    #[TestDox('adds SEO information when rendered element is held directly in struct vars (not array)')]
     public function testAddSeoInformationForARenderedElementHeldDirectlyInStructVars(): void
     {
         $request = new Request();
@@ -508,10 +512,22 @@ class StoreApiSeoResolverTest extends TestCase
         // not a PHPUnit assertion to avoid indirect assertions and hiding risky tests, narrows from EntityDefinition
         \assert($productDefinition instanceof ProductDefinition);
 
-        $salesChannelRepository = static::createStub(SalesChannelRepository::class);
-        $salesChannelRepository
-            ->method('search')
-            ->willReturn($entitySearchResult);
+        /** @var StaticSalesChannelRepository<SeoUrlCollection> $salesChannelRepository */
+        $salesChannelRepository = new StaticSalesChannelRepository([
+            static function (Criteria $criteria) use ($entitySearchResult): EntitySearchResult {
+                $fields = [];
+                foreach ($criteria->getFilters() as $filter) {
+                    if ($filter instanceof SingleFieldFilter) {
+                        $fields[] = $filter->getField();
+                    }
+                }
+
+                static::assertContains('foreignKey', $fields);
+                static::assertContains('isCanonical', $fields);
+
+                return $entitySearchResult;
+            },
+        ]);
 
         return new StoreApiSeoResolver(
             $salesChannelRepository,

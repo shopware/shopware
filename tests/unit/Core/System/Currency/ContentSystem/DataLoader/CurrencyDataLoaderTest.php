@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\System\Currency\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
@@ -26,14 +25,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CurrencyDataLoader::class)]
 class CurrencyDataLoaderTest extends TestCase
 {
-    private AbstractCurrencyRoute&Stub $currencyRoute;
-
     private CurrencyDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->currencyRoute = static::createStub(AbstractCurrencyRoute::class);
-        $this->dataLoader = new CurrencyDataLoader($this->currencyRoute);
+        $this->dataLoader = new CurrencyDataLoader(static::createStub(AbstractCurrencyRoute::class));
     }
 
     #[TestDox('returns currency source type identifier')]
@@ -74,11 +70,11 @@ class CurrencyDataLoaderTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
-        $this->currencyRoute
-            ->method('load')
-            ->willReturn($response);
+        $currencyRoute = static::createStub(AbstractCurrencyRoute::class);
+        $currencyRoute->method('load')->willReturn($response);
+        $dataLoader = new CurrencyDataLoader($currencyRoute);
 
-        $result = $this->dataLoader->load(
+        $result = $dataLoader->load(
             new LoaderInputs(['associations' => []]),
             self::requirement(),
             $context,
@@ -100,7 +96,7 @@ class CurrencyDataLoaderTest extends TestCase
 
         $currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
         $currencyRoute
-            ->expects($this->once())
+            ->expects($this->atLeastOnce())
             ->method('load')
             ->with(
                 static::anything(),

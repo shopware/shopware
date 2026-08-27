@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Category\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
@@ -26,17 +25,17 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(NavigationDataLoader::class)]
 class NavigationDataLoaderTest extends TestCase
 {
-    private NavigationLoaderInterface&Stub $navigationLoader;
-
     private NavigationAliasResolver $aliasResolver;
 
     private NavigationDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $this->aliasResolver = new NavigationAliasResolver();
-        $this->dataLoader = new NavigationDataLoader($this->navigationLoader, $this->aliasResolver);
+        $this->dataLoader = new NavigationDataLoader(
+            static::createStub(NavigationLoaderInterface::class),
+            $this->aliasResolver,
+        );
     }
 
     #[TestDox('returns navigation source type identifier')]
@@ -149,9 +148,11 @@ class NavigationDataLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader->method('load')->willReturn($tree);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
+        $navigationLoader->method('load')->willReturn($tree);
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
 
-        $result = $this->dataLoader->load(
+        $result = $dataLoader->load(
             new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
             self::requirement(),
             $context,

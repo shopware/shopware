@@ -86,6 +86,27 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
+    #[TestDox('treats an empty-string navigationId as a resolved value rather than not found')]
+    public function testLoadTreatsEmptyStringNavigationIdAsResolved(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $listingResult = static::createStub(ProductListingResult::class);
+        $response = static::createStub(ProductListingRouteResponse::class);
+        $response->method('getResult')->willReturn($listingResult);
+
+        $this->listingRoute->method('load')->willReturn($response);
+
+        $result = $this->loader->load(
+            new LoaderInputs(['property' => '', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertSame($listingResult, $result->data);
+    }
+
     #[TestDox('lowercases navigationId before passing it to the listing route')]
     public function testLoadCallsListingRouteWithLowercasedNavigationId(): void
     {
@@ -154,17 +175,19 @@ class ProductListingDataLoaderTest extends TestCase
         $response = static::createStub(ProductListingRouteResponse::class);
         $response->method('getResult')->willReturn($listingResult);
 
-        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
-        $listingRoute
-            ->expects($this->once())
+        $capturedNavigationId = null;
+        $this->listingRoute
             ->method('load')
-            ->with('category-alice', static::isInstanceOf(Request::class), $context, static::isInstanceOf(Criteria::class))
-            ->willReturn($response);
+            ->willReturnCallback(static function (string $navigationId) use (&$capturedNavigationId, $response): ProductListingRouteResponse {
+                $capturedNavigationId = $navigationId;
 
-        $loader = new ProductListingDataLoader($listingRoute);
+                return $response;
+            });
+
         $inputs = $this->resolve(new ProductListingLoaderConfig(), ['navigationId' => 'category-alice']);
+        $this->loader->load($inputs, self::requirement(), $context, new Request());
 
-        $loader->load($inputs, self::requirement(), $context, new Request());
+        static::assertSame('category-alice', $capturedNavigationId);
     }
 
     #[TestDox('adds every configured association to the criteria')]
@@ -197,6 +220,38 @@ class ProductListingDataLoaderTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertSame(['manufacturer', 'cover'], array_keys($capturedCriteria->getAssociations()));
+    }
+
+    #[TestDox('builds a criteria carrying no associations when none are configured')]
+    public function testLoadBuildsEmptyCriteriaWhenNoAssociationsConfigured(): void
+    {
+        $navigationId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        /** @var Criteria|null $capturedCriteria */
+        $capturedCriteria = null;
+        $listingResult = static::createStub(ProductListingResult::class);
+        $response = static::createStub(ProductListingRouteResponse::class);
+        $response->method('getResult')->willReturn($listingResult);
+
+        $this->listingRoute
+            ->method('load')
+            ->willReturnCallback(static function (string $catId, Request $req, $ctx, Criteria $criteria) use (&$capturedCriteria, $response): ProductListingRouteResponse {
+                $capturedCriteria = $criteria;
+
+                return $response;
+            });
+
+        $this->loader->load(
+            new LoaderInputs(['property' => $navigationId, 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertSame([], array_keys($capturedCriteria->getAssociations()));
     }
 
     #[TestDox('appends the resolved associationOverride entries after the configured associations')]

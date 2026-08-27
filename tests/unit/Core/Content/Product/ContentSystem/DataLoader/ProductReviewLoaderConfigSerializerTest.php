@@ -33,7 +33,7 @@ class ProductReviewLoaderConfigSerializerTest extends TestCase
         static::assertSame('product_review', ProductReviewLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into ProductReviewLoaderConfig with null property')]
+    #[TestDox('decodes empty array into ProductReviewLoaderConfig with null property and null associationOverride')]
     public function testDecodeEmptyArrayReturnsProductReviewLoaderConfigWithNullProperty(): void
     {
         $result = $this->serializer->decode([]);
@@ -41,6 +41,7 @@ class ProductReviewLoaderConfigSerializerTest extends TestCase
         static::assertInstanceOf(ProductReviewLoaderConfig::class, $result);
         static::assertNull($result->property);
         static::assertSame([], $result->associations);
+        static::assertNull($result->associationOverride);
     }
 
     #[TestDox('decodes config with valid property into ProductReviewLoaderConfig with property set')]
@@ -193,15 +194,6 @@ class ProductReviewLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(ProductReviewLoaderConfig::class, $result);
         static::assertSame('extraAssociations', $result->associationOverride);
-    }
-
-    #[TestDox('decodes a config without associationOverride into a null associationOverride')]
-    public function testDecodeWithoutAssociationOverrideLeavesItNull(): void
-    {
-        $result = $this->serializer->decode([]);
-
-        static::assertInstanceOf(ProductReviewLoaderConfig::class, $result);
-        static::assertNull($result->associationOverride);
     }
 
     /**

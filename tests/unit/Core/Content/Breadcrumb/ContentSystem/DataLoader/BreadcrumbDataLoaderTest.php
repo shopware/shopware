@@ -29,17 +29,13 @@ class BreadcrumbDataLoaderTest extends TestCase
 
     private BreadcrumbDataLoader $loader;
 
-    private BreadcrumbCollection $breadcrumbCollection;
-
     private ?Request $capturedRequest = null;
 
     protected function setUp(): void
     {
-        $this->breadcrumbCollection = new BreadcrumbCollection();
         $this->capturedRequest = null;
 
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($this->breadcrumbCollection);
+        $response = new BreadcrumbRouteResponse(new BreadcrumbCollection());
 
         $this->breadcrumbRoute = static::createStub(AbstractBreadcrumbRoute::class);
         $this->breadcrumbRoute
@@ -73,14 +69,21 @@ class BreadcrumbDataLoaderTest extends TestCase
     #[TestDox('returns breadcrumb collection as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithBreadcrumbData(): void
     {
-        $result = $this->loader->load(
+        $breadcrumbCollection = new BreadcrumbCollection();
+        $response = new BreadcrumbRouteResponse($breadcrumbCollection);
+
+        $breadcrumbRoute = static::createStub(AbstractBreadcrumbRoute::class);
+        $breadcrumbRoute->method('load')->willReturn($response);
+
+        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
+        $result = $loader->load(
             self::inputs('product-alice'),
             self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
 
-        static::assertSame($this->breadcrumbCollection, $result->data);
+        static::assertSame($breadcrumbCollection, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }

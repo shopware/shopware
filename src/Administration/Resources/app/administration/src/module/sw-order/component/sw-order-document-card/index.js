@@ -549,9 +549,13 @@ export default {
                         params.deliveryDate,
                         referencedDocumentId,
                     );
-                } catch (_) {
+                } catch (err) {
                     this.createNotificationError({
-                        message: this.$t('sw-order.documentCard.error.createDocument'),
+                        message:
+                            this.documentV2Service.getErrorTranslation(
+                                err.response?.data?.errors?.[0]?.code ?? '',
+                                err.response?.data?.errors?.[0]?.meta.parameters ?? [],
+                            ) ?? this.$t('sw-order.documentCard.error.createDocument'),
                     });
 
                     this.isLoadingDocument = false;
@@ -645,9 +649,13 @@ export default {
                     params.documentMediaFileId,
                     file,
                 );
-            } catch {
+            } catch (err) {
                 this.createNotificationError({
-                    message: this.$t('sw-order.documentCard.error.uploadDocument'),
+                    message:
+                        this.documentV2Service.getErrorTranslation(
+                            err.response?.data?.errors?.[0]?.code ?? '',
+                            err.response?.data?.errors?.[0]?.meta.parameters ?? [],
+                        ) ?? this.$t('sw-order.documentCard.error.uploadDocument'),
                 });
 
                 this.isLoadingDocument = false;
@@ -700,9 +708,23 @@ export default {
                         link.dispatchEvent(new MouseEvent('click'));
                         link.remove();
                     })
-                    .catch(() => {
+                    .catch(async (err) => {
+                        const errorData = await err.response.data.text();
+                        let message;
+
+                        try {
+                            const errorJson = JSON.parse(errorData);
+                            message =
+                                this.documentV2Service.getErrorTranslation(
+                                    errorJson.errors?.[0]?.code ?? '',
+                                    errorJson.errors?.[0]?.meta.parameters ?? [],
+                                ) ?? this.$t('sw-order.documentCard.error.loadDocumentPreview');
+                        } catch {
+                            message = this.$t('sw-order.documentCard.error.loadDocumentPreview');
+                        }
+
                         this.createNotificationError({
-                            message: this.$t('sw-order.documentCard.error.loadDocumentPreview'),
+                            message: message,
                         });
                     })
                     .finally(() => {

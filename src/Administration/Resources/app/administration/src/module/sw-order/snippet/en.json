@@ -389,7 +389,10 @@
         "uploadDocument": "Failed to upload the document.",
         "attachMediaToDocumentUpload": "Failed to attach selected media to the document.",
         "loadDocumentPreview": "Failed to load the document preview.",
-        "openDocument": "Failed to open the selected document."
+        "openDocument": "Failed to open the selected document.",
+        "missingCompanyInformation": "The field \"{field}\" in your company settings (Settings > Basic Information) is empty. Please make sure to fill it with your data before generating documents.",
+        "noUnprocessedCreditLineItems": "There are no unprocessed credit line items on this order.",
+        "duplicateDocumentNumber": "A document with the document number \"{documentNumber}\" already exists."
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."

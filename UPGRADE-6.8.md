@@ -1182,6 +1182,15 @@ The method must raise the stored increment state to at least the given value wit
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
 
+## Removed `integrationService.updateAdmin()`
+
+`Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
 <details>
 
 ### Block removals

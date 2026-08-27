@@ -77,7 +77,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.9.0 - dropped this filter when document_type is removed.
+         * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
          */
         documentTypeCriteria() {
             return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));

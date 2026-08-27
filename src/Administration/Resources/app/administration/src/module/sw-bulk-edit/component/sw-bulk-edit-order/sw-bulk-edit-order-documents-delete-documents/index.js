@@ -34,7 +34,7 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
-            /** @deprecated tag:v6.9.0 - dropped this filter when document_type is removed. */
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
             criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;

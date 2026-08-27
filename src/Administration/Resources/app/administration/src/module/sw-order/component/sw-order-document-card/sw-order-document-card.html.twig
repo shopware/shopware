@@ -123,9 +123,7 @@
 
             {% block sw_order_document_card_grid_column_type %}
             <template #[`column-documentType.name`]="{ item }">
-                {% block sw_order_document_card_grid_column_type_label %}
                 {{ documentTypeLabel(item) }}
-                {% endblock %}
             </template>
             {% endblock %}
 

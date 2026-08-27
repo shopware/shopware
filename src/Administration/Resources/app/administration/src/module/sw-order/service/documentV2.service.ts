@@ -13,17 +13,11 @@ interface DeliveryNoteConfig extends DocumentConfig {
     deliveryDate: string;
 }
 
-interface DocumentEntityConfig {
-    custom?: {
-        invoiceNumber?: string;
-    };
-}
-
 /**
  * @sw-package after-sales
  * @private
  */
-export type { DocumentConfig, DeliveryNoteConfig, DocumentEntityConfig };
+export type { DocumentConfig, DeliveryNoteConfig };
 
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
@@ -231,6 +225,11 @@ export default class DocumentV2Service {
             } as Record<string, string>
         )[technicalName];
 
-        return translationKey ? (Shopware.Snippet.tc(translationKey) as string) : technicalName;
+        if (!translationKey) {
+            return technicalName;
+        }
+
+        // @ts-expect-error
+        return (Shopware.Snippet?.tc(translationKey) as string | undefined) ?? translationKey;
     }
 }

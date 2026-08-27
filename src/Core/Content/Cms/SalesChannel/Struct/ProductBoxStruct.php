@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class ProductBoxStruct extends Struct
 {

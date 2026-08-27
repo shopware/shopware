@@ -43,6 +43,7 @@
     "./build/vue-setup-transform/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",
+    "./scripts/codemods/**/*.ts",
     "./scripts/extensionTooling/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",
@@ -50,7 +51,7 @@
   ],
   // The sourcemap fixtures are standalone ESM scripts run via jiti/node (import.meta, top-level await),
   // not part of the admin's commonjs compilation - keep them out of the type-check program.
-  "exclude": ["node_modules", "build/vite-plugins/**/fixtures/**"],
+  "exclude": ["node_modules", "build/vite-plugins/**/fixtures/**", "scripts/codemods/**/__fixtures__/**"],
   "files": [
     "node_modules/jest-expect-message/types/index.d.ts",
     "build/vue-setup-transform/shopware-setup-macros.d.ts"

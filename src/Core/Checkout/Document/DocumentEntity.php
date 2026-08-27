@@ -26,6 +26,8 @@ class DocumentEntity extends Entity
 
     protected string $documentTypeId;
 
+    protected ?string $typeName = null;
+
     protected ?string $documentMediaFileId = null;
 
     protected ?OrderEntity $order = null;
@@ -128,24 +130,46 @@ class DocumentEntity extends Entity
         $this->deepLinkCode = $deepLinkCode;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
         $this->documentType = $documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentTypeId(): string
     {
         return $this->documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getReferencedDocumentId(): ?string

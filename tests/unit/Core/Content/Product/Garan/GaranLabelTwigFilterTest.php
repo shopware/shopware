@@ -200,6 +200,7 @@ class GaranLabelTwigFilterTest extends TestCase
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer-id');
         $manufacturer->setName('ACME');
+        $manufacturer->setTranslated(['name' => 'ACME']);
 
         $product = new ProductEntity();
         $product->setId('product-id');

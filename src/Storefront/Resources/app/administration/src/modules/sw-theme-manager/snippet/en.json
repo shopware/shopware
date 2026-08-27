@@ -205,7 +205,8 @@
       },
       "asyncCompilation": {
         "started": "The changes are being compiled in the background. They will be visible in about 1 minute. You will receive a notification once the compilation is complete.",
-        "completed": "The theme compilation has been completed."
+        "completed": "The theme compilation has been completed.",
+        "error": "The theme compilation failed in the background. The theme was not changed."
       }
     },
     "themeModal": {

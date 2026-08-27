@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Shopware administration</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon/favicon-32x32.png" id="dynamic-favicon">
+    <title>Shopware Administration</title>
+    <!-- Raster fallback for Safari < 26; must stay before the SVG link. -->
+    <link rel="icon" href="/static/img/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/static/img/favicon/favicon.svg" id="dynamic-favicon">
 
     <script type="text/javascript">
         window._features_ = <%- featureFlags %>;

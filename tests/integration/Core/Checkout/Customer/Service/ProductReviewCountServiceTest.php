@@ -20,7 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('fundamentals@after-sales')]
+#[Package('checkout')]
 class ProductReviewCountServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

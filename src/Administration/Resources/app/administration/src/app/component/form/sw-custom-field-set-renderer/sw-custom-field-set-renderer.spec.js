@@ -127,7 +127,9 @@ async function createWrapper(props, options = {}) {
                     'sw-ai-copilot-badge': true,
                     'mt-skeleton-bar': true,
                     'sw-skeleton-bar-deprecated': true,
-                    'mt-floating-ui': true,
+                    'mt-floating-ui': {
+                        template: '<div><slot /></div>',
+                    },
                     'sw-color-badge': true,
                     'sw-media-upload-v2': true,
                     'sw-pagination': true,

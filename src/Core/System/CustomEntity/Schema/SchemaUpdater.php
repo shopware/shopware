@@ -24,6 +24,10 @@ class SchemaUpdater
 
     private const COMMENT = 'custom-entity-element';
 
+    public function __construct(private readonly CustomEntityNameValidator $nameValidator)
+    {
+    }
+
     /**
      * @param list<array{name: string, fields: string}> $customEntities
      */
@@ -43,6 +47,8 @@ class SchemaUpdater
                 );
             }
 
+            $this->nameValidator->validate($entityName, $this->fieldNames($fields));
+
             $tables[$entityName] = $fields;
         }
 
@@ -54,6 +60,16 @@ class SchemaUpdater
         foreach ($tables as $name => $fields) {
             $this->addAssociationFields($schema, $name, $fields);
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fieldNames(mixed $fields): array
+    {
+        \assert(\is_array($fields) && \array_is_list($fields));
+
+        return array_map(static fn (array $field): string => (string) $field['name'], $fields);
     }
 
     /**

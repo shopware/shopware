@@ -1171,7 +1171,7 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
-The `loginService` injection and the `confirmPassword` and `isConfirmingPassword` data properties in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
 
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
@@ -1211,10 +1211,6 @@ Due to inappropriate block names, the following deprecated blocks have been remo
 #### sw-product-cross-selling-assignment.html.twig
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
-
-#### sw-users-permissions-user-listing.html.twig
-
-* `sw_settings_user_list_delete_modal_input__confirm_password` -> `sw_settings_user_detail_content_confirm_password_modal_input__confirm_password`
 
 ## Migrating Options API overrides to the Composition API Extension System
 

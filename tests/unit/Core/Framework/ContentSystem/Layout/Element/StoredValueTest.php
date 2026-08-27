@@ -192,15 +192,15 @@ class StoredValueTest extends TestCase
         ];
     }
 
-    #[TestDox('each variant constructor unwraps back to the payload it wrapped')]
     #[DataProvider('variantConstructorProvider')]
+    #[TestDox('unwraps back to the payload it wrapped')]
     public function testVariantConstructorRoundTripsItsPayload(StoredValue $value, mixed $expected): void
     {
         static::assertSame($expected, $value->jsonSerialize());
     }
 
-    #[TestDox('a shape-safe scalar accessor returns the payload when the variant matches')]
     #[DataProvider('matchingScalarAccessorProvider')]
+    #[TestDox('returns the payload on a variant match')]
     public function testScalarAccessorReturnsThePayloadOnAVariantMatch(
         StoredValue $value,
         callable $accessor,
@@ -209,7 +209,7 @@ class StoredValueTest extends TestCase
         static::assertSame($expected, $accessor($value));
     }
 
-    #[TestDox('asList returns the wrapped elements of a list variant')]
+    #[TestDox('returns the wrapped elements of a list variant')]
     public function testAsListReturnsTheWrappedElements(): void
     {
         $first = StoredValue::ofString('a');
@@ -218,7 +218,7 @@ class StoredValueTest extends TestCase
         static::assertSame([$first, $second], StoredValue::ofList([$first, $second])->asList());
     }
 
-    #[TestDox('asMap returns the wrapped entries of a map variant keyed as authored')]
+    #[TestDox('returns the wrapped entries of a map variant keyed as authored')]
     public function testAsMapReturnsTheWrappedEntriesByKey(): void
     {
         $value = StoredValue::ofString('a');
@@ -226,8 +226,46 @@ class StoredValueTest extends TestCase
         static::assertSame(['x' => $value], StoredValue::ofMap(['x' => $value])->asMap());
     }
 
-    #[TestDox('a shape-safe accessor throws when the variant does not match')]
+    #[DataProvider('nullVariantProvider')]
+    #[TestDox('returns true only for the null variant, never for a falsy payload')]
+    public function testIsNullIsTrueOnlyForTheNullVariant(StoredValue $value, bool $expected): void
+    {
+        static::assertSame($expected, $value->isNull());
+    }
+
+    #[DataProvider('decodableValueProvider')]
+    #[TestDox('wraps a raw decoded value so it unwraps back unchanged')]
+    public function testFromDecodedRoundTripsARawValue(mixed $raw): void
+    {
+        static::assertSame($raw, StoredValue::fromDecoded($raw)->jsonSerialize());
+    }
+
+    #[TestDox('wraps every nested value, not only the outermost one')]
+    public function testFromDecodedWrapsNestedValuesAtEveryDepth(): void
+    {
+        $value = StoredValue::fromDecoded(['items' => ['first', 'second']]);
+
+        static::assertSame('first', $value->asMap()['items']->asList()[0]->asString());
+    }
+
+    #[TestDox('reads a zero-indexed array as a list and a keyed array as a map')]
+    public function testFromDecodedDistinguishesListsFromMaps(): void
+    {
+        static::assertFalse(StoredValue::fromDecoded([])->equals(StoredValue::ofMap([])));
+        static::assertTrue(StoredValue::fromDecoded([])->equals(StoredValue::ofList([])));
+        static::assertTrue(StoredValue::fromDecoded(['x' => 1])->equals(StoredValue::ofMap(['x' => StoredValue::ofInt(1)])));
+    }
+
+    #[DataProvider('equalityProvider')]
+    #[TestDox('compares scalars strictly, lists positionally and maps regardless of key order')]
+    public function testEqualsAppliesTheCanonicalComparison(StoredValue $left, StoredValue $right, bool $expected): void
+    {
+        static::assertSame($expected, $left->equals($right));
+        static::assertSame($expected, $right->equals($left));
+    }
+
     #[DataProvider('mismatchedAccessorProvider')]
+    #[TestDox('throws when the variant does not match')]
     public function testShapeSafeAccessorThrowsOnAVariantMismatch(
         StoredValue $value,
         callable $accessor,
@@ -238,38 +276,8 @@ class StoredValueTest extends TestCase
         $accessor($value);
     }
 
-    #[TestDox('isNull is true only for the null variant, never for a falsy payload')]
-    #[DataProvider('nullVariantProvider')]
-    public function testIsNullIsTrueOnlyForTheNullVariant(StoredValue $value, bool $expected): void
-    {
-        static::assertSame($expected, $value->isNull());
-    }
-
-    #[TestDox('fromDecoded wraps a raw decoded value so it unwraps back unchanged')]
-    #[DataProvider('decodableValueProvider')]
-    public function testFromDecodedRoundTripsARawValue(mixed $raw): void
-    {
-        static::assertSame($raw, StoredValue::fromDecoded($raw)->jsonSerialize());
-    }
-
-    #[TestDox('fromDecoded wraps every nested value, not only the outermost one')]
-    public function testFromDecodedWrapsNestedValuesAtEveryDepth(): void
-    {
-        $value = StoredValue::fromDecoded(['items' => ['first', 'second']]);
-
-        static::assertSame('first', $value->asMap()['items']->asList()[0]->asString());
-    }
-
-    #[TestDox('fromDecoded reads a zero-indexed array as a list and a keyed array as a map')]
-    public function testFromDecodedDistinguishesListsFromMaps(): void
-    {
-        static::assertFalse(StoredValue::fromDecoded([])->equals(StoredValue::ofMap([])));
-        static::assertTrue(StoredValue::fromDecoded([])->equals(StoredValue::ofList([])));
-        static::assertTrue(StoredValue::fromDecoded(['x' => 1])->equals(StoredValue::ofMap(['x' => StoredValue::ofInt(1)])));
-    }
-
-    #[TestDox('ofFloat rejects a float that cannot be JSON encoded')]
     #[DataProvider('nonFiniteFloatProvider')]
+    #[TestDox('rejects a float that cannot be JSON encoded')]
     public function testOfFloatRejectsANonFiniteFloat(float $value, string $rendered): void
     {
         $this->expectExceptionObject(
@@ -279,7 +287,7 @@ class StoredValueTest extends TestCase
         StoredValue::ofFloat($value);
     }
 
-    #[TestDox('fromDecoded rejects a non-finite float found below the top level')]
+    #[TestDox('rejects a non-finite float found below the top level')]
     public function testFromDecodedRejectsANonFiniteFloatNestedInAList(): void
     {
         $this->expectExceptionObject(
@@ -289,7 +297,7 @@ class StoredValueTest extends TestCase
         StoredValue::fromDecoded(['ratios' => [1.0, \INF]]);
     }
 
-    #[TestDox('fromDecoded rejects an object payload rather than coercing it')]
+    #[TestDox('rejects an object payload rather than coercing it')]
     public function testFromDecodedRejectsAnObjectPayload(): void
     {
         $this->expectExceptionObject(
@@ -297,13 +305,5 @@ class StoredValueTest extends TestCase
         );
 
         StoredValue::fromDecoded(new \stdClass());
-    }
-
-    #[TestDox('equals compares scalars strictly, lists positionally and maps regardless of key order')]
-    #[DataProvider('equalityProvider')]
-    public function testEqualsAppliesTheCanonicalComparison(StoredValue $left, StoredValue $right, bool $expected): void
-    {
-        static::assertSame($expected, $left->equals($right));
-        static::assertSame($expected, $right->equals($left));
     }
 }

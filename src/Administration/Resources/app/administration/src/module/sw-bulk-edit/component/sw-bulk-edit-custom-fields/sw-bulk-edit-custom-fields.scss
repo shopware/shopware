@@ -7,26 +7,4 @@
     .sw-tabs__content {
         margin: auto 32px;
     }
-
-    .mt-tabs__custom-content {
-        margin: auto 32px;
-    }
-
-    .sw-tabs__custom-content .sw-container {
-        padding: 12px 32px;
-    }
-
-    .sw-tabs__custom-content,
-    .mt-tabs__custom-content {
-        .sw-container {
-            &:nth-child(even) {
-                background-color: var(--color-background-secondary-default);
-            }
-
-            .sw-field,
-            .sw-field--checkbox {
-                margin-bottom: unset;
-            }
-        }
-    }
 }

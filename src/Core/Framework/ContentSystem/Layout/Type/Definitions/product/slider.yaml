@@ -8,6 +8,7 @@ meta:
     hints:
       - "Select the products to be shown."
       - "Disable the navigation arrows to leave scrolling to the scrollbar and touch gestures."
+      - "Use the fit item sizing to fill the available width with whole columns instead of a fixed card width."
 
 properties:
   products:
@@ -35,3 +36,14 @@ properties:
     default: true
     adminUI:
       component: "switch"
+
+  itemSizing:
+    type: string
+    title: "Item Sizing"
+    description: "How the product cards are sized. Fixed keeps a fixed card width and lets the next card peek in at the edge, fit sizes the cards so a whole number of columns fills the available width."
+    default: "fixed"
+    enum:
+      - "fixed"
+      - "fit"
+    adminUI:
+      component: "select"

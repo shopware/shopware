@@ -7,6 +7,7 @@
     productIds = [],
     title = null,
     showNavigationArrows = true,
+    itemSizing = 'fixed',
     slots = [],
 %}
 
@@ -14,12 +15,18 @@
 
 {% set sliderCVA = cva({
     base: 'sw-product-slider',
+    variants: {
+        itemSizing: {
+            fixed: null,
+            fit: 'is--fit-content',
+        },
+    },
 }) %}
 
 {% set componentOptions = {} %}
 
 {% set attributeDefaults = {
-    class: sliderCVA.apply({}),
+    class: sliderCVA.apply({ itemSizing }),
     'data-component': 'Sw:Product:Slider',
     'data-component-options': componentOptions|json_encode,
     'aria-labelledby': title ? titleId : false,

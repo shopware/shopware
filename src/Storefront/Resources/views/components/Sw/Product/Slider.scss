@@ -1,3 +1,7 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
 .sw-product-slider {
     --sw-product-slider-gap: var(--spacer-md);
     --sw-product-slider-item-width: 300px;
@@ -79,5 +83,32 @@
 
     &.is--forward {
         right: 0;
+    }
+}
+
+/* Column counts mirror the product listing grid (see Sw:Product:Listing) */
+.sw-product-slider.is--fit-content {
+    --sw-product-slider-columns: 1;
+    --sw-product-slider-item-width: calc(
+        (100% - (var(--sw-product-slider-columns) - 1) * var(--sw-product-slider-gap))
+            / var(--sw-product-slider-columns)
+    );
+}
+
+@include media-breakpoint-up(sm) {
+    .sw-product-slider.is--fit-content {
+        --sw-product-slider-columns: 2;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .sw-product-slider.is--fit-content {
+        --sw-product-slider-columns: 3;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .sw-product-slider.is--fit-content {
+        --sw-product-slider-columns: 4;
     }
 }

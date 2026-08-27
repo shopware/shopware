@@ -231,6 +231,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
             service(DocumentTypeRegistry::class),
             service(FileNameProvider::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)
@@ -267,8 +268,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentTypeRegistry::class),
             service(DocumentArchiveGenerator::class),
             service('document.repository'),
-            service('document_file.repository'),
-            service('document_type.repository'),
+            service(DocumentPersister::class),
             service(MediaService::class),
             service(FileNameProvider::class),
             service(DocumentFileResolver::class),

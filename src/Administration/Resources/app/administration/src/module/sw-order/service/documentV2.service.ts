@@ -205,7 +205,7 @@ export default class DocumentV2Service {
             } as Record<string, string>
         )[format];
 
-        return translationKey ?? format;
+        return translationKey ?? `sw-order.components.createDocumentModal.fileFormats.${format}`;
     }
 
     public getDocumentTypeLabel(technicalName: string, label?: Record<string, string> | null): string {

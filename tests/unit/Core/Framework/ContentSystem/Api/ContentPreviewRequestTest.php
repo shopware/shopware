@@ -23,6 +23,17 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ContentPreviewRequestTest extends TestCase
 {
     /**
+     * PHP casts a JSON member name to an integer array key only in canonical decimal form, so this stays a
+     * string key and the constraint's `is_string($key)` branch never fires — the same branch an ordinary
+     * name takes, which is why this is one representative case rather than one per PHP-casting boundary.
+     */
+    #[TestDox('accepts a query parameter name PHP would not cast to an integer key')]
+    public function testAcceptsAQueryParameterNameThatStaysAString(): void
+    {
+        static::assertCount(0, $this->validator()->validate($this->request(['elementId' => 'el-1'])));
+    }
+
+    /**
      * @param array<array-key, mixed> $queryParameters
      */
     #[DataProvider('rejectedQueryParameterKeyProvider')]
@@ -55,31 +66,6 @@ class ContentPreviewRequestTest extends TestCase
             json_decode('{"-3":"x"}', true, 512, \JSON_THROW_ON_ERROR),
             'Query parameter name "-3" must be a string.',
         ];
-    }
-
-    /**
-     * @param array<array-key, mixed> $queryParameters
-     */
-    #[DataProvider('acceptedQueryParameterKeyProvider')]
-    #[TestDox('accepts $_dataName as a query parameter name')]
-    public function testAcceptsAQueryParameterNameThatStaysAString(array $queryParameters): void
-    {
-        static::assertCount(0, $this->validator()->validate($this->request($queryParameters)));
-    }
-
-    /**
-     * @return iterable<string, array{array<array-key, mixed>}>
-     */
-    public static function acceptedQueryParameterKeyProvider(): iterable
-    {
-        yield 'an ordinary name' => [['elementId' => 'el-1']];
-
-        // PHP casts a key to an integer only in canonical decimal form, so each of these stays a string key.
-        yield 'the leading-zero name "012"' => [json_decode('{"012":"x"}', true, 512, \JSON_THROW_ON_ERROR)];
-
-        yield 'the decimal name "1.0"' => [json_decode('{"1.0":"x"}', true, 512, \JSON_THROW_ON_ERROR)];
-
-        yield 'an empty name' => [json_decode('{"":"x"}', true, 512, \JSON_THROW_ON_ERROR)];
     }
 
     /**

@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\AttachElementRequest;
+use Shopware\Core\Framework\ContentSystem\Api\BindElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Api\DuplicateElementRequest;
 use Shopware\Core\Framework\ContentSystem\Api\InsertElementRequest;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
@@ -120,7 +122,11 @@ class LayoutMutationControllerTest extends TestCase
         )];
 
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolveGated')->willReturn($rootContext);
+        $registry->method('resolveGated')->willReturnCallback(function (?string $rootSource, Context $context) use ($rootContext): array {
+            static::assertSame('product', $rootSource);
+
+            return $rootContext;
+        });
 
         $threadedRootContext = false;
         $controller = $this->controller($this->capturingPipeline($threadedRootContext), $registry);
@@ -190,6 +196,7 @@ class LayoutMutationControllerTest extends TestCase
         yield 'wrap' => [static fn (LayoutMutationController $c): Response => $c->wrap(new WrapElementsRequest(['a'], 'Sw:Container'), $context), WrapElements::class];
         yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
         yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
+        yield 'bind' => [static fn (LayoutMutationController $c): Response => $c->bind(new BindElementRequest('el', 'source:spec'), $context), BindElement::class];
     }
 
     /**

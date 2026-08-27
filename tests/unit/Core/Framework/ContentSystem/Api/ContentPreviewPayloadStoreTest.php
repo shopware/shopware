@@ -19,7 +19,7 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 #[CoversClass(ContentPreviewPayloadStore::class)]
 class ContentPreviewPayloadStoreTest extends TestCase
 {
-    #[TestDox('load returns the stored request unchanged for the token store minted')]
+    #[TestDox('returns the stored request unchanged for the token store minted')]
     public function testRoundTripsTheStoredRequest(): void
     {
         $store = new ContentPreviewPayloadStore(new ArrayAdapter());
@@ -38,7 +38,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
         static::assertEquals($payload, $store->load($store->store($payload)));
     }
 
-    #[TestDox('load accepts an envelope whose optional fields are null and whose query parameters are empty')]
+    #[TestDox('accepts an envelope whose optional fields are null and whose query parameters are empty')]
     public function testLoadAcceptsTheMinimalEnvelope(): void
     {
         $store = self::storeHolding(self::envelope([]));
@@ -54,7 +54,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
         );
     }
 
-    #[TestDox('load returns null for a token that addresses no entry')]
+    #[TestDox('returns null for a token that addresses no entry')]
     public function testLoadReturnsNullForUnknownToken(): void
     {
         $store = new ContentPreviewPayloadStore(new ArrayAdapter());
@@ -62,7 +62,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
         static::assertNull($store->load('no-such-token'));
     }
 
-    #[TestDox('load refuses a stored value that is not an array instead of returning null')]
+    #[TestDox('refuses a stored value that is not an array, throwing instead of returning null')]
     public function testLoadRejectsNonArrayStoredValue(): void
     {
         $cache = new ArrayAdapter();
@@ -81,7 +81,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
      * @param array<string, mixed> $stored
      */
     #[DataProvider('malformedEnvelopeProvider')]
-    #[TestDox('load refuses a stored envelope that ContentPreviewRequest would not have accepted')]
+    #[TestDox('refuses a stored envelope that violates declared constraints')]
     public function testLoadRejectsMalformedEnvelope(array $stored, ContentSystemException $expected): void
     {
         $store = self::storeHolding($stored);

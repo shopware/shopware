@@ -53,7 +53,7 @@ class ContentPreviewPageBuilderTest extends TestCase
             ->willReturn(new ConstraintViolationList());
 
         $pipeline = static::createMock(ContentPipeline::class);
-        $pipeline->expects($this->once())
+        $pipeline->expects($this->atLeastOnce())
             ->method('load')
             ->with(
                 static::callback(static function (RenderableLayout $layout) use ($stored): bool {

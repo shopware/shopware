@@ -84,28 +84,6 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
     }
 
-    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
-    public function testDiagnoseMapsDecodeClientDefect(): void
-    {
-        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
-        $configProvider->method('decode')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
-
-        $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            configProvider: $configProvider,
-        );
-
-        $response = $controller->diagnose(new ContentDiagnoseRequest([[
-            'id' => 'el-1',
-            'component' => 'Sw:Block',
-            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['entity' => 'prodct']]],
-        ]]), Context::createDefaultContext());
-
-        $body = $this->decode($response);
-        static::assertFalse($body['diagnostics']['wellFormed']);
-        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
-    }
-
     #[TestDox('returns 200 with an embedded invalid_config violation for a draft element whose providers collide on a child-facing key')]
     public function testDiagnoseEmbedsProviderDeliveryCollision(): void
     {
@@ -201,6 +179,28 @@ class ContentDiagnoseControllerTest extends TestCase
         $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
 
         static::assertNull($threadedRootContext);
+    }
+
+    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
+    public function testDiagnoseMapsDecodeClientDefect(): void
+    {
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            configProvider: $configProvider,
+        );
+
+        $response = $controller->diagnose(new ContentDiagnoseRequest([[
+            'id' => 'el-1',
+            'component' => 'Sw:Block',
+            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['entity' => 'prodct']]],
+        ]]), Context::createDefaultContext());
+
+        $body = $this->decode($response);
+        static::assertFalse($body['diagnostics']['wellFormed']);
+        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
     }
 
     #[TestDox('propagates the registry unknownRootSource exception instead of swallowing it into a 200')]

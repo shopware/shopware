@@ -27,8 +27,10 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -96,14 +98,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $typeRegistry,
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->availableTypes();
@@ -141,14 +142,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId, $document),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->create(
@@ -184,14 +184,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->preview(
@@ -226,14 +225,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->upload(
@@ -292,14 +290,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry([DocumentFormat::HTML->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         static::expectExceptionObject(
@@ -366,14 +363,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             $fileNameProvider,
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->upload(
@@ -443,14 +439,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->download(
@@ -496,14 +491,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->download($documentId, DocumentFormat::PDF->value, Context::createDefaultContext());
@@ -546,14 +540,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->download($documentId, 'custom', Context::createDefaultContext());
@@ -601,14 +594,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->download($documentId, $format, Context::createDefaultContext());
@@ -686,14 +678,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator($mediaService),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->downloadArchive(
@@ -729,14 +720,13 @@ class DocumentV2ControllerTest extends TestCase
     {
         $controller = new DocumentV2Controller(
             $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
-            new DocumentRendererRegistry([]),
+            $this->createDocumentReader(new DocumentRendererRegistry([])),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $documentIds = [];
@@ -764,14 +754,13 @@ class DocumentV2ControllerTest extends TestCase
     {
         $controller = new DocumentV2Controller(
             $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
-            new DocumentRendererRegistry([]),
+            $this->createDocumentReader(new DocumentRendererRegistry([])),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::invalidRequestParameter('documentIds'));
@@ -795,14 +784,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator(new DocumentRendererRegistry([]), Uuid::randomHex()),
-            new DocumentRendererRegistry([]),
+            $this->createDocumentReader(new DocumentRendererRegistry([])),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentArchiveUnavailable($documentIds));
@@ -836,14 +824,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         static::expectExceptionObject(
@@ -890,14 +877,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry, $mediaService),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             $mediaService,
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format));
@@ -921,14 +907,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistry(),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         static::expectExceptionObject(DocumentV2Exception::documentNotFound($documentId));
@@ -982,6 +967,16 @@ class DocumentV2ControllerTest extends TestCase
         ]);
     }
 
+    private function createDocumentReader(DocumentRendererRegistry $rendererRegistry, ?MediaService $mediaService = null): DocumentReader
+    {
+        return new DocumentReader(
+            $this->documentRepository,
+            $mediaService ?? static::createStub(MediaService::class),
+            $rendererRegistry,
+            new DocumentFileResolver(),
+        );
+    }
+
     private function createArchiveGenerator(MediaService $mediaService): DocumentArchiveGenerator
     {
         return new DocumentArchiveGenerator(
@@ -992,11 +987,6 @@ class DocumentV2ControllerTest extends TestCase
                 new StaticDocumentRenderer(DocumentFormat::HTML),
             ]),
         );
-    }
-
-    private function createDocumentFileResolver(): DocumentFileResolver
-    {
-        return new DocumentFileResolver();
     }
 
     private function createGenerator(
@@ -1055,7 +1045,7 @@ class DocumentV2ControllerTest extends TestCase
 
         return new DocumentGenerator(
             new DocumentDataProviderRegistry([
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value]),
+                new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
             ]),
             $rendererRegistry,
             new DocumentNumberGenerator(static::createStub(NumberRangeValueGeneratorInterface::class)),

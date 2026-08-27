@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -276,7 +277,7 @@ class GenerateDocumentActionTest extends TestCase
 
         $generator = new DocumentV2Generator(
             new DocumentDataProviderRegistry([
-                new StaticDocumentDataProvider([DocumentType::INVOICE->value]),
+                new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
             ]),
             $rendererRegistry,
             new DocumentNumberGenerator($numberRangeValueGenerator),

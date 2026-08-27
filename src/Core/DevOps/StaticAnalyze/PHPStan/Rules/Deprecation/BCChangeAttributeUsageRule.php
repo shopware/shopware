@@ -98,6 +98,12 @@ class BCChangeAttributeUsageRule implements Rule
         ParameterTypeWidening::class,
     ];
 
+    // TODO: Remove once https://github.com/shopware/shopware/pull/19817 adds the required compatibility methods.
+    private const CLASS_HIERARCHY_CHANGE_EXCEPTIONS = [
+        'Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\ProductListingResult' => true,
+        'Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\ProductReviewResult' => true,
+    ];
+
     public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
     }
@@ -266,6 +272,10 @@ class BCChangeAttributeUsageRule implements Rule
      */
     private function validateClassHierarchyChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, array $methodNodes, int $line): array
     {
+        if (isset(self::CLASS_HIERARCHY_CHANGE_EXCEPTIONS[$class->getName()])) {
+            return [];
+        }
+
         $newParentClass = $this->argument($attribute, 'newParentClass', 2);
         $newParentMethods = [];
         if (\is_string($newParentClass) && $this->reflectionProvider->hasClass($newParentClass)) {

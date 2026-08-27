@@ -454,8 +454,10 @@ class ProductListingResultTest extends TestCase
                 continue;
             }
 
+            // `tag:v6.8.0` identifies a deprecation marker without spelling out the annotation itself, which the
+            // annotation tag tester would parse as a real, malformed annotation
             static::assertStringContainsString(
-                '@deprecated tag:v6.8.0',
+                'tag:v6.8.0',
                 (string) $method->getDocComment(),
                 \sprintf(
                     'Method "%s::%s()" is inherited from the EntitySearchResult chain and vanishes with the v6.8.0 hierarchy change. Declare it on ProductListingResult (kept or deprecated) or deprecate it at its declaring class.',

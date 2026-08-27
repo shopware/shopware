@@ -67,7 +67,6 @@ export default {
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
-            criteria.addAssociation('customFields');
 
             return criteria;
         },

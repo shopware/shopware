@@ -462,8 +462,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.customFieldSetCriteria.hasAssociation('customFields')).toBe(true);
-
         const infoForm = wrapper.find('.sw-bulk-edit-product-base__info');
         const activeField = infoForm.find('.sw-bulk-edit-change-field-active');
         await activeField.find('.sw-bulk-edit-change-field__change input').setValue('checked');

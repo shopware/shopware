@@ -7,37 +7,6 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-const customFieldSets = [
-    {
-        id: 'set1',
-        name: 'set1',
-        config: {},
-        customFields: [
-            {
-                name: 'field1',
-                type: 'text',
-                config: {
-                    label: 'field1Label',
-                },
-            },
-        ],
-    },
-    {
-        id: 'set2',
-        name: 'set2',
-        config: {},
-        customFields: [
-            {
-                name: 'field2',
-                type: 'bool',
-                config: {
-                    label: 'field2Label',
-                },
-            },
-        ],
-    },
-];
-
 async function createWrapper(customProps = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-custom-fields', { sync: true }), {
         global: {
@@ -98,7 +67,36 @@ async function createWrapper(customProps = {}) {
             attachTo: document.body,
         },
         props: {
-            sets: createEntityCollection(customFieldSets),
+            sets: createEntityCollection([
+                {
+                    id: 'set1',
+                    name: 'set1',
+                    config: {},
+                    customFields: [
+                        {
+                            name: 'field1',
+                            type: 'text',
+                            config: {
+                                label: 'field1Label',
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: 'set2',
+                    name: 'set2',
+                    config: {},
+                    customFields: [
+                        {
+                            name: 'field2',
+                            type: 'bool',
+                            config: {
+                                label: 'field2Label',
+                            },
+                        },
+                    ],
+                },
+            ]),
             ...customProps,
         },
     });
@@ -134,33 +132,6 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         expect(wrapper.find('.sw-bulk-edit-custom-fields__change').exists()).toBe(true);
         expect(wrapper.find('.mt-tabs__custom-content').exists()).toBe(true);
         expect(wrapper.find('.mt-tabs__custom-content .sw-bulk-edit-change-field__container').exists()).toBe(true);
-    });
-
-    it.deprecated('v6.8.0.0')('should render the change toggle with legacy tabs', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        const customField = wrapper.find('.sw-tabs__custom-content .sw-bulk-edit-change-field__container');
-
-        expect(customField.exists()).toBe(true);
-        expect(customField.isVisible()).toBe(true);
-    });
-
-    it.deprecated('v6.8.0.0')('should render custom fields loaded after legacy tabs', async () => {
-        wrapper = await createWrapper({
-            sets: createEntityCollection(),
-        });
-        await flushPromises();
-
-        await wrapper.setProps({
-            sets: createEntityCollection(customFieldSets),
-        });
-        await flushPromises();
-
-        const customField = wrapper.find('.sw-tabs__custom-content .sw-bulk-edit-change-field__container');
-
-        expect(customField.exists()).toBe(true);
-        expect(customField.isVisible()).toBe(true);
     });
 
     it('should only emit selected custom fields when user toggle to the change type field', async () => {

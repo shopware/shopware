@@ -126,6 +126,14 @@ The following classes are marked `@experimental stableVersion:v6.8.0 feature:DOC
 
 The service tags `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` and the events `document.generation.completed` / `document.generation.deleted` belong to this surface as well. Everything else in the `DocumentV2` namespace is `@internal`.
 
+## Company information required for document generation v2
+
+With the `DOCUMENT_GENERATION_REWORK` flag enabled, document company data is read from the new "Company information" card in Settings > Basic information (system config domain `core.basicInformation`, per sales channel). The company fields on `document_base_config` and `document_base_config_sales_channel` are no longer used.
+
+Existing values are not migrated. When the card is empty for a sales channel, v2 falls back to the legacy document settings. As soon as one card field is set, the legacy values are ignored completely.
+
+Generation throws `DocumentV2Exception` (`DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS`) when `companyName`, `companyStreet`, `companyZipcode`, `companyCity`, or a valid company country is missing.
+
 ## Administration: legacy document generation components deprecated
 
 Deprecated with `@deprecated tag:v6.9.0`, removed in Shopware 6.9.

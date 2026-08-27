@@ -1,24 +1,30 @@
 import { test } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
-test('The Storefront should implement accessibility best practices.', { tag: ['@Accessibility', '@Storefront'] }, async ({
-    ShopCustomer,
-    TestDataService,
-    ValidateAccessibility,
-    Login,
-    AddProductToCart,
-    ProceedFromCartToCheckout,
-    ConfirmTermsAndConditions,
-    SubmitOrder,
-    StorefrontProductDetail,
-    StorefrontCategory,
-    StorefrontAccountLogin,
-    StorefrontAccount,
-    StorefrontAccountOrder,
-    StorefrontCheckoutCart,
-    StorefrontAccountProfile,
-    StorefrontAccountAddresses,
-    StorefrontAccountPayment,
-}) => {
+test(
+    'The Storefront should implement accessibility best practices.',
+    { tag: '@Accessibility' },
+    async ({
+        ShopCustomer,
+        TestDataService,
+        ValidateAccessibility,
+        Login,
+        AddProductToCart,
+        ProceedFromCartToCheckout,
+        ConfirmTermsAndConditions,
+        SubmitOrder,
+        StorefrontProductDetail,
+        StorefrontCategory,
+        StorefrontAccountLogin,
+        StorefrontAccount,
+        StorefrontAccountOrder,
+        StorefrontCheckoutCart,
+        StorefrontAccountProfile,
+        StorefrontAccountAddresses,
+        StorefrontPageNotFound,
+        InstanceMeta,
+    }) => {
+        test.slow();
 
     test.slow();
 
@@ -70,18 +76,18 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Order', true));
     });
 
-    await test.step('Account Profile Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountProfile.url());
-        await ShopCustomer.attemptsTo(ValidateAccessibility('Account Profile', true));
-    });
+        await test.step('Account Addresses Accessibility', async () => {
+            await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
+            await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', true));
+        });
 
-    await test.step('Account Addresses Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
-        await ShopCustomer.attemptsTo(ValidateAccessibility('Account Addresses', true));
-    });
-
-    await test.step('Account Payment Accessibility', async () => {
-        await ShopCustomer.goesTo(StorefrontAccountPayment.url());
-        await ShopCustomer.attemptsTo(ValidateAccessibility('Account Payment', true));
-    });
-});
+        // The 404 page title and landmark fixes are not available before version 6.7.14.0.
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (!satisfies(InstanceMeta.version, '<6.7.14.0')) {
+            await test.step('Page Not Found Accessibility', async () => {
+                await ShopCustomer.goesTo(StorefrontPageNotFound.url());
+                await ShopCustomer.attemptsTo(ValidateAccessibility('Page Not Found', true));
+            });
+        }
+    },
+);

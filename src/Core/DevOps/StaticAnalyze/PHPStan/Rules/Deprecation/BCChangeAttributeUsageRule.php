@@ -305,7 +305,7 @@ class BCChangeAttributeUsageRule implements Rule
             }
 
             $errors[] = $this->error($line, \sprintf(
-                'ClassHierarchyChange on "%s": inherited method "%s()" from "%s" will be removed from the hierarchy. Override it explicitly and mark the override as @deprecated, unless the new parent also provides the method.',
+                'ClassHierarchyChange on "%s": inherited method "%s()" from "%s" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
                 $this->shortClassName($class->getName()),
                 $parentMethod->getName(),
                 $parentMethod->getDeclaringClass()->getShortName()

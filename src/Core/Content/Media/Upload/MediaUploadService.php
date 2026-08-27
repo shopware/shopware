@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -50,6 +52,7 @@ readonly class MediaUploadService
         private EntityRepository $thumbnailRepository,
         private EntityRepository $thumbnailSizeRepository,
         private FileUrlValidatorInterface $fileUrlValidator,
+        private TrustedUrlResolver $trustedUrlResolver,
         private bool $enableUrlValidation = true,
     ) {
     }
@@ -318,7 +321,19 @@ readonly class MediaUploadService
     {
         $this->assertValidExternalUrl($url);
 
-        $headers = $this->httpClient->request('HEAD', $url, ['max_redirects' => 0])->getHeaders();
+        $resolved = $this->trustedUrlResolver->resolve($url);
+
+        $client = $this->httpClient;
+        $options = [
+            'max_redirects' => 0,
+            'resolve' => [$resolved->host => $resolved->ip],
+        ];
+
+        if ($this->enableUrlValidation) {
+            $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
+        }
+
+        $headers = $client->request('HEAD', $url, $options)->getHeaders();
         if (!\array_key_exists('content-length', $headers)) {
             throw MediaException::fileNotFound($url);
         }

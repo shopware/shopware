@@ -54,22 +54,56 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         expect(customerComment.value).toBe('comment from customer B');
     });
 
-    test('restores tos for the active customer only', () => {
+    test('never restores a persisted tos acceptance', () => {
+        Storage.setItem(storageKey, JSON.stringify({
+            customerA: {
+                tos: true,
+            },
+            customerB: {
+                customerComment: 'comment from customer B',
+                tos: true,
+            },
+        }));
+
+        expect(createPlugin('customerA').tos.checked).toBe(false);
+        expect(createPlugin('customerB').tos.checked).toBe(false);
+    });
+
+    test('never persists the tos acceptance', () => {
+        const { tos } = createPlugin('customerA');
+
+        tos.checked = true;
+        tos.dispatchEvent(new Event('change'));
+
+        expect(Storage.getItem(storageKey)).toBeNull();
+    });
+
+    test('updates only the active customer comment entry', () => {
         Storage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
             },
             customerB: {
-                tos: true,
+                customerComment: 'comment from customer B',
             },
         }));
 
-        const { tos } = createPlugin('customerB');
+        const { customerComment } = createPlugin('customerA');
 
-        expect(tos.checked).toBe(true);
+        customerComment.value = 'updated comment';
+        customerComment.dispatchEvent(new Event('input'));
+
+        expect(storedCustomers()).toEqual({
+            customerA: {
+                customerComment: 'updated comment',
+            },
+            customerB: {
+                customerComment: 'comment from customer B',
+            },
+        });
     });
 
-    test('updates only the active customer comment entry', () => {
+    test('drops a stale persisted tos acceptance when the customer data is rewritten', () => {
         Storage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
@@ -91,53 +125,6 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
             },
             customerB: {
                 customerComment: 'comment from customer B',
-                tos: true,
-            },
-        });
-    });
-
-    test('updates only the active customer tos entry', () => {
-        Storage.setItem(storageKey, JSON.stringify({
-            customerA: {
-                customerComment: 'comment from customer A',
-            },
-            customerB: {
-                customerComment: 'comment from customer B',
-            },
-        }));
-
-        const { tos } = createPlugin('customerA');
-
-        tos.checked = true;
-        tos.dispatchEvent(new Event('change'));
-
-        expect(storedCustomers()).toEqual({
-            customerA: {
-                customerComment: 'comment from customer A',
-                tos: true,
-            },
-            customerB: {
-                customerComment: 'comment from customer B',
-            },
-        });
-    });
-
-    test('removes tos when it is unchecked', () => {
-        Storage.setItem(storageKey, JSON.stringify({
-            customerA: {
-                customerComment: 'comment from customer A',
-                tos: true,
-            },
-        }));
-
-        const { tos } = createPlugin('customerA');
-
-        tos.checked = false;
-        tos.dispatchEvent(new Event('change'));
-
-        expect(storedCustomers()).toEqual({
-            customerA: {
-                customerComment: 'comment from customer A',
             },
         });
     });
@@ -161,7 +148,6 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         Storage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
-                tos: true,
             },
             customerB: {
                 customerComment: 'comment from customer B',
@@ -194,7 +180,6 @@ describe('CheckoutCustomerStoragePlugin tests', () => {
         Storage.setItem(storageKey, JSON.stringify({
             customerA: {
                 customerComment: 'comment from customer A',
-                tos: true,
             },
         }));
 

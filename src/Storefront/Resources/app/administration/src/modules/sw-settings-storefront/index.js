@@ -23,7 +23,7 @@ Shopware.Module.register('sw-settings-storefront', {
     description: 'sw-settings-storefront.general.description',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

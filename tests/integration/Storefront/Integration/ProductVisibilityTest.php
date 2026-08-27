@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
@@ -119,16 +120,16 @@ class ProductVisibilityTest extends TestCase
 
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing()->getEntities());
-        static::assertTrue($page->getListing()->getEntities()->has($this->productId2));
-        static::assertTrue($page->getListing()->getEntities()->has($this->productId3));
+        static::assertCount(2, $page->getListing()->getSource()->getEntities());
+        static::assertTrue($page->getListing()->getSource()->getEntities()->has($this->productId2));
+        static::assertTrue($page->getListing()->getSource()->getEntities()->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing()->getEntities());
-        static::assertTrue($page->getListing()->getEntities()->has($this->productId1));
-        static::assertTrue($page->getListing()->getEntities()->has($this->productId2));
+        static::assertCount(2, $page->getListing()->getSource()->getEntities());
+        static::assertTrue($page->getListing()->getSource()->getEntities()->has($this->productId1));
+        static::assertTrue($page->getListing()->getSource()->getEntities()->has($this->productId2));
     }
 
     public function testVisibilityOnProductPage(): void
@@ -181,16 +182,20 @@ class ProductVisibilityTest extends TestCase
 
         $page = $this->suggestPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getSearchResult()->getEntities());
-        static::assertTrue($page->getSearchResult()->getEntities()->has($this->productId2));
-        static::assertTrue($page->getSearchResult()->getEntities()->has($this->productId3));
+        $suggestListing = $page->getSearchResult();
+        static::assertInstanceOf(ProductListingResult::class, $suggestListing);
+        $suggestedProducts = $suggestListing->getSource()->getEntities();
+
+        static::assertCount(2, $suggestedProducts);
+        static::assertTrue($suggestedProducts->has($this->productId2));
+        static::assertTrue($suggestedProducts->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getListing()->getEntities());
-        static::assertTrue($page->getListing()->getEntities()->has($this->productId1));
-        static::assertTrue($page->getListing()->getEntities()->has($this->productId2));
+        static::assertCount(2, $page->getListing()->getSource()->getEntities());
+        static::assertTrue($page->getListing()->getSource()->getEntities()->has($this->productId1));
+        static::assertTrue($page->getListing()->getSource()->getEntities()->has($this->productId2));
     }
 
     private function insertData(): void

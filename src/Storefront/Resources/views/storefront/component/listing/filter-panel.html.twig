@@ -11,6 +11,8 @@
     {% endblock %}
 
     {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
+    {# `listing` is either a plain EntitySearchResult or a result wrapper like ProductListingResult, which carries the aggregations on its source #}
+    {% set listingAggregations = listing.source.aggregations ?? listing.aggregations %}
     {% block component_filter_panel_element %}
         <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}" role="region" aria-label="{{ 'listing.filterTitleText'|trans|sw_sanitize }}">
             {% block component_filter_panel_items_container %}
@@ -18,7 +20,7 @@
                     {% block component_filter_panel_items %}
                         {% block component_filter_panel_item_manufacturer %}
                             {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
-                            {% set manufacturers = listing.aggregations.get('manufacturer') %}
+                            {% set manufacturers = listingAggregations.get('manufacturer') %}
                             {% if not manufacturers.entities is empty %}
                                 {% set manufacturersSorted = manufacturers.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
 
@@ -34,7 +36,7 @@
 
                         {% block component_filter_panel_item_properties %}
                             {# @var properties \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
-                            {% set properties = listing.aggregations.get('properties') %}
+                            {% set properties = listingAggregations.get('properties') %}
 
                             {% if not properties.entities is empty %}
                                 {% for property in properties.entities %}
@@ -53,7 +55,7 @@
                         {% endblock %}
 
                         {% block component_filter_panel_item_price %}
-                            {% set price = listing.aggregations.get('price') %}
+                            {% set price = listingAggregations.get('price') %}
 
                             {% if price.min !== null and price.max !== null %}
                                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-range.html.twig' with {
@@ -71,7 +73,7 @@
                         {% endblock %}
 
                         {% block component_filter_panel_item_rating_select %}
-                            {% set rating = listing.aggregations.get('rating') %}
+                            {% set rating = listingAggregations.get('rating') %}
 
                             {% if rating.max > 0 %}
                                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating-select.html.twig' with {
@@ -85,7 +87,7 @@
                         {% endblock %}
 
                         {% block component_filter_panel_item_shipping_free %}
-                            {% set shippingFree = listing.aggregations.get('shipping-free') %}
+                            {% set shippingFree = listingAggregations.get('shipping-free') %}
 
                             {% if shippingFree.max > 0 %}
                                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-boolean.html.twig' with {

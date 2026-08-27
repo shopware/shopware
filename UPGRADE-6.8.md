@@ -377,7 +377,9 @@ Changes affecting all three classes:
 `ProductListingResult`:
 
 - Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
+- The search result data moved behind `getSource()`: unlike on `EntitySearchResult` itself, the accessors inherited from it (`getEntities()`, `getTotal()`, `getAggregations()`, `getCriteria()`, `getContext()`, `getEntity()`) were not re-added to the listing. Read them from the wrapped result instead, e.g. `$result->getSource()->getEntities()` — for this class that replaces the generic `$result->getEntities()` guidance above, including the collection methods, which point to `getSource()->getEntities()`. In Twig, use `searchResult.source.entities` / `searchResult.source.total` / `listing.source.aggregations` for a `ProductListingResult`.
 - The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+- The core connection points narrowed their types to `ProductListingResult`: `SuggestPage::setSearchResult()`/`getSearchResult()` and `ProductListingStruct::setListing()`/`getListing()` no longer accept or return a plain `EntitySearchResult<ProductCollection>`.
 
 `ProductReviewResult`:
 

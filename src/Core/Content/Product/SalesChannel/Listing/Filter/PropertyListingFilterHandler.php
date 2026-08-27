@@ -122,7 +122,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
         $groups->sortByPositions();
         $groups->sortByConfig($context->getLanguageInfo()->localeCode);
 
-        $aggregations = $result->getAggregations();
+        $aggregations = $result->getSource()->getAggregations();
 
         // remove id results to prevent wrong usages
         $aggregations->remove('properties');
@@ -189,7 +189,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
      */
     private function collectOptionIds(ProductListingResult $result): array
     {
-        $aggregations = $result->getAggregations();
+        $aggregations = $result->getSource()->getAggregations();
 
         $properties = $aggregations->get('properties');
         \assert($properties instanceof TermsResult || $properties === null);

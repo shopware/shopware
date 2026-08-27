@@ -501,9 +501,9 @@ class ProductSearchRouteTest extends TestCase
                     new Criteria()
                 );
 
-                static::assertSame(1, $result->getListingResult()->getTotal());
+                static::assertSame(1, $result->getListingResult()->getSource()->getTotal());
 
-                $product = $result->getListingResult()->getEntities()->first();
+                $product = $result->getListingResult()->getSource()->getEntities()->first();
                 static::assertInstanceOf(SalesChannelProductEntity::class, $product);
                 static::assertNotSame($ids->get('parent-variant-name'), $product->getId());
                 static::assertSame($ids->get('parent-variant-name'), $product->getParentId());
@@ -554,10 +554,10 @@ class ProductSearchRouteTest extends TestCase
 
             static::assertSame(
                 $shouldBeFound,
-                $result->getListingResult()->getEntities()->has($ids->get($productNumber)),
+                $result->getListingResult()->getSource()->getEntities()->has($ids->get($productNumber)),
                 \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
-                    $result->getListingResult()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
+                    $result->getListingResult()->getSource()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
                     $searchTerm
                 )
@@ -571,10 +571,10 @@ class ProductSearchRouteTest extends TestCase
 
             static::assertSame(
                 $shouldBeFound,
-                $result->getListingResult()->getEntities()->has($ids->get($productNumber)),
+                $result->getListingResult()->getSource()->getEntities()->has($ids->get($productNumber)),
                 \sprintf(
                     'Product was%s found, but should%s be found for term "%s".',
-                    $result->getListingResult()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
+                    $result->getListingResult()->getSource()->getEntities()->has($ids->get($productNumber)) ? '' : ' not',
                     $shouldBeFound ? '' : ' not',
                     $searchTerm
                 )

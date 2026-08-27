@@ -52,7 +52,7 @@ class ProductListingPartialLoadingTest extends TestCase
         $this->createData();
         static::getContainer()->get(SystemConfigService::class)->set(self::CONFIG_KEY, true);
 
-        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
+        $product = $this->loadListing()->getSource()->getEntities()->get($this->ids->get('product0'));
 
         // Reduced loading drops only the heavy columns and keeps a full, typed entity (no PartialEntity).
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
@@ -75,7 +75,7 @@ class ProductListingPartialLoadingTest extends TestCase
         $this->createData();
 
         // No config set: reduced loading is opt-in, so full entities incl. description are loaded.
-        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
+        $product = $this->loadListing()->getSource()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotEmpty($product->getTranslation('description'));
         static::assertNotEmpty($product->getTranslation('descriptionTeaser'));
@@ -86,7 +86,7 @@ class ProductListingPartialLoadingTest extends TestCase
         $this->createData();
         static::getContainer()->get(SystemConfigService::class)->set(self::CONFIG_KEY, false);
 
-        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
+        $product = $this->loadListing()->getSource()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotEmpty($product->getTranslation('description'));
     }
@@ -99,7 +99,7 @@ class ProductListingPartialLoadingTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFields(['id', 'name', 'description']);
 
-        $product = $this->loadListing($criteria)->getEntities()->get($this->ids->get('product0'));
+        $product = $this->loadListing($criteria)->getSource()->getEntities()->get($this->ids->get('product0'));
 
         // An explicit allowlist wins; reduced loading is not applied on top (it would conflict with addFields()).
         static::assertInstanceOf(PartialEntity::class, $product);
@@ -128,7 +128,7 @@ class ProductListingPartialLoadingTest extends TestCase
             'cover' => ['id' => $this->ids->create('product-media'), 'mediaId' => $this->ids->get('media')],
         ]], Context::createDefaultContext());
 
-        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
+        $product = $this->loadListing()->getSource()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
 
         $media = $product->getCover()?->getMedia();

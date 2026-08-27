@@ -7,7 +7,8 @@
         {% set sidebar = block.sectionPosition == 'sidebar' %}
     {% endif %}
 
-    {% if listing.aggregations.elements|length > 0 %}
+    {# `listing` is either a plain EntitySearchResult or a result wrapper like ProductListingResult, which carries the aggregations on its source #}
+    {% if (listing.source.aggregations ?? listing.aggregations).elements|length > 0 %}
         <div class="cms-element-sidebar-filter">
             {% block element_product_listing_filter_button %}
                 <button

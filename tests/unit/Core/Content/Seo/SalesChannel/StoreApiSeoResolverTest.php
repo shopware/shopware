@@ -11,6 +11,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -73,6 +75,43 @@ class StoreApiSeoResolverTest extends TestCase
             new Criteria(),
             Context::createDefaultContext(),
         ));
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+
+        static::assertEmpty($productEntity->getSeoUrls());
+
+        $storeApiSeoResolver = $this->createStoreApiSeoResolver();
+        $storeApiSeoResolver->addSeoInformation($event);
+
+        static::assertNotEmpty($productEntity->getSeoUrls());
+    }
+
+    /**
+     * ProductListingResult deprecates the collection surface inherited from EntitySearchResult; resolving SEO urls for a listing response must not trip those deprecations.
+     */
+    public function testAddSeoInformationForProductListingResult(): void
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+            static::createStub(SalesChannelContext::class),
+        );
+
+        $productEntity = $this->createProductEntity();
+        $response = new ProductListingRouteResponse(ProductListingResult::fromSearchResult(new EntitySearchResult(
+            'product',
+            1,
+            new ProductCollection([$productEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        )));
 
         $event = new ResponseEvent(
             static::createStub(HttpKernelInterface::class),

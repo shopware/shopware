@@ -160,8 +160,10 @@ class SortingListingProcessorTest extends TestCase
             $sortingRepository
         );
 
-        $result = new ProductListingResult($requested, 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
-        $result->getCriteria()->addExtension('sortings', $sortings);
+        $criteria = new Criteria();
+        $criteria->addExtension('sortings', $sortings);
+
+        $result = new ProductListingResult($requested, 1, new ProductCollection(), null, $criteria, Context::createDefaultContext());
 
         $processor->process(
             new Request(['order' => $requested]),

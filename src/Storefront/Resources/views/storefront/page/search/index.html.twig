@@ -12,7 +12,7 @@
                     {% block page_search_headline_text %}
                         {% if page.searchTerm %}
                             {{ 'search.headline'|trans({
-                                '%count%': page.listing.total,
+                                '%count%': page.listing.source.total,
                                 '%searchTerm%': page.searchTerm,
                             }) }}
                         {% endif %}

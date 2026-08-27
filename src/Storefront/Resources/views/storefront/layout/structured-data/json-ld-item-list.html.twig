@@ -4,11 +4,13 @@
         Only the products visible on this page/page-number are listed; this is
         the recommended approach for paginated content — each page describes its
         own slice and Google assembles the full catalogue from the individual pages.
-        searchResult is an EntitySearchResult<ProductCollection>.
+        searchResult is either a plain EntitySearchResult<ProductCollection> or a
+        ProductListingResult, which carries the products on its source.
     #}
-    {% if searchResult is defined and searchResult and searchResult.total > 0 %}
+    {% set itemListResult = searchResult.source ?? searchResult ?? null %}
+    {% if itemListResult and itemListResult.total > 0 %}
         {% set itemListElements = [] %}
-        {% for product in searchResult.entities %}
+        {% for product in itemListResult.entities %}
             {% set itemListElements = itemListElements|merge([{
                 '@type': 'ListItem',
                 position: loop.index,

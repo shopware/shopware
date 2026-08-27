@@ -92,7 +92,7 @@ class ProductListingRoute extends AbstractProductListingRoute
 
         $entities = $this->listingLoader->load($criteria, $context);
 
-        $result = ProductListingResult::createFrom($entities);
+        $result = ProductListingResult::fromSearchResult($entities);
         $result->addState(...$entities->getStates());
 
         $result->setStreamId($category->get('productStreamId'));

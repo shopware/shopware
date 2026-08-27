@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
@@ -93,7 +94,9 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         if ($struct instanceof EntitySearchResult) {
-            foreach ($struct->getEntities() as $entity) {
+            // @deprecated tag:v6.8.0 - Remove the silent wrapper; result subclasses stop extending EntitySearchResult and no longer reach this branch.
+            $entities = Feature::silent('v6.8.0.0', static fn () => $struct->getEntities());
+            foreach ($entities as $entity) {
                 $this->findStruct($data, $entity);
             }
 

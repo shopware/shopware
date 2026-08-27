@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
@@ -93,8 +94,11 @@ class StructEncoder implements ResetInterface
             if (isset($data['elements'])) {
                 $entities = [];
 
+                // @deprecated tag:v6.8.0 - Remove the silent wrapper; result subclasses stop extending EntitySearchResult and no longer reach this branch.
+                $collection = Feature::silent('v6.8.0.0', static fn () => $struct->getEntities());
+
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entity = $struct->getEntities()->getAt($index);
+                    $entity = $collection->getAt($index);
                     if (!$entity instanceof Struct) {
                         throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }

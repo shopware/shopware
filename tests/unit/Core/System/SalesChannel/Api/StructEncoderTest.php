@@ -10,11 +10,16 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -330,6 +335,33 @@ class StructEncoderTest extends TestCase
         ];
 
         static::assertSame($expected, $encoded);
+    }
+
+    /**
+     * Result wrappers like ProductListingResult deprecate the collection surface inherited from EntitySearchResult; encoding must not trip those deprecations and must not expose the wrapped search result.
+     */
+    public function testProductListingResultIsEncodedWithoutItsSource(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+        $product->setId('product-id');
+        $product->setUniqueIdentifier('product-id');
+
+        $listing = ProductListingResult::fromSearchResult(new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        ));
+
+        $encoded = $this->createStructEncoder([ProductDefinition::class])->encode($listing, new ResponseFields(null));
+
+        static::assertSame('product_listing', $encoded['apiAlias']);
+        static::assertArrayNotHasKey('source', $encoded);
+        static::assertArrayHasKey('elements', $encoded);
+        static::assertCount(1, $encoded['elements']);
     }
 
     /**

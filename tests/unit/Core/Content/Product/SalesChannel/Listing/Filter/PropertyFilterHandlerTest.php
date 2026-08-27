@@ -284,10 +284,12 @@ class PropertyFilterHandlerTest extends TestCase
 
         $handler->process($request, $result, $context);
 
-        static::assertTrue($result->getAggregations()->has('properties'));
-        static::assertFalse($result->getAggregations()->has('options'));
+        $aggregations = $result->getSource()->getAggregations();
 
-        $properties = $result->getAggregations()->get('properties');
+        static::assertTrue($aggregations->has('properties'));
+        static::assertFalse($aggregations->has('options'));
+
+        $properties = $aggregations->get('properties');
 
         static::assertInstanceOf(EntityResult::class, $properties);
         static::assertCount(2, $properties->getEntities());

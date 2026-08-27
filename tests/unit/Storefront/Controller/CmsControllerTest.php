@@ -17,12 +17,17 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRou
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -142,16 +147,18 @@ class CmsControllerTest extends TestCase
             'count' => new CountResult('count', 2),
             'sum' => new SumResult('sum', 2.3),
         ]);
-        $productListingResultMock = static::createStub(ProductListingResult::class);
-        $productListingResultMock->method('getAggregations')->willReturn(
-            new AggregationResultCollection(
-                $testAggregations
-            )
-        );
+        $productListingResult = ProductListingResult::fromSearchResult(new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
+            0,
+            new ProductCollection(),
+            new AggregationResultCollection($testAggregations),
+            new Criteria(),
+            Context::createDefaultContext(),
+        ));
 
         $request = new Request();
 
-        $productListingRouteResponse = new ProductListingRouteResponse($productListingResultMock);
+        $productListingRouteResponse = new ProductListingRouteResponse($productListingResult);
         $this->productListingRouteMock->method('load')->willReturn($productListingRouteResponse);
 
         $response = $this->controller->filter($ids->get('navigation'), $request, static::createStub(SalesChannelContext::class));

@@ -519,6 +519,28 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed.
+     */
+    protected function getExpectedClass(): string
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
+
+        return Entity::class;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     *
+     * @param TElement $element
+     */
+    protected function validateType($element): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
+
+        parent::validateType($element);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
      *
      * @param iterable<TElement> $elements
      *

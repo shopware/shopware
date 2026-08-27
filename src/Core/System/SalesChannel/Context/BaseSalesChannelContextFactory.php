@@ -113,14 +113,12 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         }
 
         $availableCurrencies = $salesChannel->getCurrencies();
-        $currency = $availableCurrencies?->get($currencyId);
-        if (!$currency instanceof CurrencyEntity) {
-            if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
-                throw SalesChannelException::providedCurrencyNotAvailable($currencyId, $availableCurrencies?->getIds() ?? []);
-            }
-
+        if ($availableCurrencies === null || !$availableCurrencies->has($currencyId)) {
             throw SalesChannelException::currencyNotFound($currencyId);
         }
+
+        $currency = $availableCurrencies->get($currencyId);
+        \assert($currency instanceof CurrencyEntity);
 
         // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);

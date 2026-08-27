@@ -44,13 +44,6 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'Provided language "myCustomScn" is not in list of available languages: scn1, scn2',
         ];
 
-        yield SalesChannelException::SALES_CHANNEL_CURRENCY_NOT_AVAILABLE_EXCEPTION => [
-            'exception' => SalesChannelException::providedCurrencyNotAvailable('myCustomCurrency', ['currency1', 'currency2']),
-            'statusCode' => Response::HTTP_PRECONDITION_FAILED,
-            'errorCode' => SalesChannelException::SALES_CHANNEL_CURRENCY_NOT_AVAILABLE_EXCEPTION,
-            'message' => 'Provided currency "myCustomCurrency" is not in list of available currencies: currency1, currency2',
-        ];
-
         yield SalesChannelException::SALES_CHANNEL_DOES_NOT_EXISTS_EXCEPTION => [
             'exception' => SalesChannelException::salesChannelNotFound('myCustomScn'),
             'statusCode' => Response::HTTP_NOT_FOUND,

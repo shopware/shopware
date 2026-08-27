@@ -276,7 +276,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'expectedException' => SalesChannelException::invalidCurrencyId(),
         ];
 
-        yield 'provided currency not available' => [
+        yield 'currency not available in sales channel' => [
             'options' => [
                 SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
                 SalesChannelContextService::CURRENCY_ID => '3ebb5fe2e29a4d70aa5854ce7ce3e20b',
@@ -293,7 +293,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                     TestDefaults::SALES_CHANNEL => $salesChannelEntity,
                 ],
             ],
-            'expectedException' => SalesChannelException::providedCurrencyNotAvailable('3ebb5fe2e29a4d70aa5854ce7ce3e20b', [$currencyId]),
+            'expectedException' => SalesChannelException::currencyNotFound('3ebb5fe2e29a4d70aa5854ce7ce3e20b'),
         ];
 
         yield 'currency not set in options and not in sales channel' => [

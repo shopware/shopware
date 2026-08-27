@@ -9,7 +9,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutEx
 use Shopware\Core\Framework\Log\Package;
 
 // the abstract-base fixtures are not autoloadable (their namespace deliberately sits in the rule's
-// enabled unit-test namespaces); loading them lets reflection resolve the subclass -> ancestor walk
+// enabled namespaces); loading them lets reflection resolve the subclass -> ancestor walk
 require_once __DIR__ . '/data/NoCreateMockWithoutExpectationsRule/AbstractBaseCases.php';
 
 /**
@@ -171,10 +171,7 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
     protected function getRule(): Rule
     {
         return new NoCreateMockWithoutExpectationsRule(
-            new Configuration([
-                'allowedUnitTestClassNamespaces' => ['Shopware\\Tests\\Unit\\', 'Shopware\\Tests\\Migration\\'],
-                'createMockWithoutExpectationsEnabledNamespaces' => ['Shopware\\Tests\\Unit\\'],
-            ]),
+            new Configuration(['createMockWithoutExpectationsEnabledNamespaces' => ['Shopware\\Tests\\Unit\\']]),
             self::getContainer()->getService('defaultAnalysisParser'),
         );
     }

@@ -24,10 +24,7 @@ class NoCreateMockWithoutExpectationsRuleDisabledTest extends RuleTestCase
     protected function getRule(): Rule
     {
         return new NoCreateMockWithoutExpectationsRule(
-            new Configuration([
-                'allowedUnitTestClassNamespaces' => ['Shopware\\Tests\\Unit\\'],
-                'createMockWithoutExpectationsEnabledNamespaces' => [],
-            ]),
+            new Configuration(['createMockWithoutExpectationsEnabledNamespaces' => []]),
             self::getContainer()->getService('defaultAnalysisParser'),
         );
     }

@@ -74,11 +74,6 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     ];
 
     /**
-     * @var list<string>
-     */
-    private readonly array $unitTestClassNamespaces;
-
-    /**
      * Narrows enforcement to matching test namespaces; an empty list disables the rule.
      * Consumers rolling the rule out domain by domain grow this list via the
      * `shopware.createMockWithoutExpectationsEnabledNamespaces` parameter of their PHPStan config.
@@ -91,7 +86,6 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         Configuration $configuration,
         private readonly Parser $parser,
     ) {
-        $this->unitTestClassNamespaces = $configuration->getAllowedUnitTestClassNamespaces();
         $this->enabledNamespaces = $configuration->getCreateMockWithoutExpectationsEnabledNamespaces();
     }
 
@@ -108,7 +102,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $classReflection = $node->getClassReflection();
-        if (!TestRuleHelper::isUnitTestClass($classReflection, $this->unitTestClassNamespaces) || !$this->isEnabledNamespace($classReflection->getName())) {
+        if (!TestRuleHelper::isTestClass($classReflection) || !$this->isEnabledNamespace($classReflection->getName())) {
             return [];
         }
 
@@ -150,9 +144,9 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     }
 
     /**
-     * The methods this class inherits from its unit-test ancestors, parsed from the ancestor files and keyed
+     * The methods this class inherits from its test-class ancestors, parsed from the ancestor files and keyed
      * by lowercased name, nearest ancestor last so closer definitions override. Each carries its origin in the
-     * {@see self::SOURCE_FILE} attribute for error reporting. Ancestors outside the enabled unit-test
+     * {@see self::SOURCE_FILE} attribute for error reporting. Ancestors outside the enabled
      * namespaces (the framework's TestCase and other vendor bases) contribute nothing.
      *
      * @return array<string, ClassMethod>
@@ -161,7 +155,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     {
         $methods = [];
         foreach (array_reverse($classReflection->getParents()) as $parent) {
-            if (!TestRuleHelper::isUnitTestClass($parent, $this->unitTestClassNamespaces) || !$this->isEnabledNamespace($parent->getName())) {
+            if (!TestRuleHelper::isTestClass($parent) || !$this->isEnabledNamespace($parent->getName())) {
                 continue;
             }
 

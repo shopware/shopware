@@ -290,6 +290,7 @@ function transformScript(
     transformOptions: {
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
+        templateComponentTags: ReadonlySet<string>;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -300,6 +301,7 @@ function transformScript(
         bindings: new Map(),
         renamedBindings: new Map(),
         templateIdentifiers: transformOptions.templateIdentifiers,
+        templateComponentTags: transformOptions.templateComponentTags,
         templateRefs: new Set(),
         helpers: new Set(),
         inferredEmits: [],
@@ -363,6 +365,18 @@ function transformScript(
         }
     }
 
+    // A template resolves a component tag against setup bindings first, so a binding named after a
+    // tag the template renders replaces that component with the binding's value. Props are included
+    // because they become setup bindings too, and are where this shows up in practice.
+    for (const bindingName of [
+        ...setupBindingNames,
+        ...collected.propNames,
+    ]) {
+        if (ctx.templateComponentTags.has(bindingName)) {
+            report(ctx, 'skip', `binding '${bindingName}' shadows a component tag the template renders`);
+        }
+    }
+
     if (ctx.reports.some((entry) => entry.kind === 'skip')) {
         return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
     }
@@ -402,6 +416,14 @@ function transformScript(
 
     for (const node of collected.foreignNodes) {
         rewriteThis(ctx, node, false);
+    }
+
+    // Template refs are collected by the rewrite pass, so their tag collisions are only visible
+    // here. A ref cannot be renamed around one either: the `ref` attribute in the template names it.
+    for (const refName of ctx.templateRefs) {
+        if (ctx.templateComponentTags.has(refName)) {
+            report(ctx, 'skip', `template ref '${refName}' shadows a component tag the template renders`);
+        }
     }
 
     if (ctx.reports.some((entry) => entry.kind === 'skip')) {

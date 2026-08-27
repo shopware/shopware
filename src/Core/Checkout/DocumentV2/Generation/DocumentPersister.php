@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollect
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -78,6 +80,7 @@ final readonly class DocumentPersister
             $context,
         );
 
+        $meta = $input->requireData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class);
         $documentFiles = [];
 
         foreach ($persistedFiles as $format => $mediaId) {
@@ -102,6 +105,7 @@ final readonly class DocumentPersister
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [
                     'documentNumber' => $input->documentNumber,
+                    'displayInCustomerAccount' => (bool) ($meta->legacyConfig['displayInCustomerAccount'] ?? false),
                 ],
             ],
             $documentFiles,

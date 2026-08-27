@@ -4,6 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
@@ -20,6 +21,7 @@ use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
@@ -30,6 +32,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 
@@ -110,8 +113,27 @@ class BCChangeAttributeUsageRule implements Rule
         $classIsFinal = $class->isFinal() || \str_contains((string) $class->getDocComment(), '@final');
 
         $methodNodes = [];
+        $propertyNodes = [];
         foreach ($node->getOriginalNode()->getMethods() as $methodNode) {
             $methodNodes[$methodNode->name->toLowerString()] = $methodNode;
+
+            if ($methodNode->name->toLowerString() !== '__construct') {
+                continue;
+            }
+
+            foreach ($methodNode->params as $parameter) {
+                if ($parameter->flags === 0 || !$parameter->var instanceof Variable || !\is_string($parameter->var->name)) {
+                    continue;
+                }
+
+                $propertyNodes[\strtolower($parameter->var->name)] = $parameter;
+            }
+        }
+
+        foreach ($node->getOriginalNode()->getProperties() as $propertyNode) {
+            foreach ($propertyNode->props as $property) {
+                $propertyNodes[$property->name->toLowerString()] = $propertyNode;
+            }
         }
 
         $errors = [];
@@ -145,6 +167,19 @@ class BCChangeAttributeUsageRule implements Rule
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
+            }
+        }
+
+        foreach ($class->getProperties() as $property) {
+            if ($property->getDeclaringClass()->getName() !== $class->getName()) {
+                continue;
+            }
+
+            $symbol = \sprintf('%s::$%s', $class->getShortName(), $property->getName());
+            $line = ($propertyNodes[\strtolower($property->getName())] ?? null)?->getStartLine() ?? $classLine;
+            foreach ($this->bcChangeAttributes($property->getAttributes()) as $attribute) {
+                $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
+                $errors = [...$errors, ...$this->validatePropertyLevel($attribute, $property, $symbol, $line)];
             }
         }
 
@@ -283,6 +318,47 @@ class BCChangeAttributeUsageRule implements Rule
                 $symbol,
                 $parameterName
             ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validatePropertyLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionProperty $property, string $symbol, int $line): array
+    {
+        if ($attribute->getName() === BecomesReadonly::class && $property->isReadOnly()) {
+            return [$this->error($line, \sprintf('BecomesReadonly on "%s": the property is already readonly.', $symbol))];
+        }
+
+        if ($attribute->getName() === PropertyTypeNarrowing::class) {
+            $newType = $this->argument($attribute, 'newType', 1);
+            if (!\is_string($newType)) {
+                return [];
+            }
+
+            $currentType = $property->getType();
+            if ($currentType instanceof \ReflectionNamedType
+                && ($currentType->allowsNull() ? '?' : '') . $currentType->getName() === $newType
+            ) {
+                return [$this->error($line, \sprintf('PropertyTypeNarrowing on "%s": announced type "%s" is identical to the current property type.', $symbol, $newType))];
+            }
+        }
+
+        if ($attribute->getName() !== VisibilityChange::class) {
+            return [];
+        }
+
+        $newVisibility = $this->argument($attribute, 'newVisibility', 1);
+        if ($newVisibility === 'protected' && !$property->isPublic()) {
+            return [$this->error($line, \sprintf(
+                'VisibilityChange on "%s": announced visibility "protected" is not narrower than the current visibility.',
+                $symbol
+            ))];
+        }
+        if ($newVisibility === 'private' && $property->isPrivate()) {
+            return [$this->error($line, \sprintf('VisibilityChange on "%s": the property is already private.', $symbol))];
         }
 
         return [];

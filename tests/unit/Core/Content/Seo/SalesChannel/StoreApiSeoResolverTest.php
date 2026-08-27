@@ -22,6 +22,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -315,6 +316,7 @@ class StoreApiSeoResolverTest extends TestCase
     private function createProductEntity(string $identifier = 'random'): SalesChannelProductEntity
     {
         $productEntity = new SalesChannelProductEntity();
+        $productEntity->internalSetEntityData('product', new FieldVisibility([]));
         $productEntity->setUniqueIdentifier($identifier);
 
         return $productEntity;
@@ -338,7 +340,7 @@ class StoreApiSeoResolverTest extends TestCase
         }
 
         $entitySearchResult = new EntitySearchResult(
-            'seoUrl',
+            'seo_url',
             1,
             $seoUrlCollection,
             null,

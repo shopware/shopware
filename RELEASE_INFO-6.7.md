@@ -2,17 +2,11 @@
 
 ## Core
 
-### State transitions are computed from the locked entity row
+### Concurrent state transitions no longer overwrite committed states
 
-`StateMachineRegistry::transition()` now locks the entity row for the duration of the transaction that writes the new state, and derives the source state, the destination, the history entry and the state update from that locked read instead of from a state read beforehand. Two processes transitioning the same entity therefore queue behind each other rather than both computing a destination from the same state, and the second one is recalculated against what the first committed: it raises `IllegalTransitionException` when the transition is no longer allowed from there. Previously a payment confirmed by a payment service provider webhook could be silently reverted to `failed`.
+`StateMachineRegistry::transition()` now evaluates state changes against the state committed when the transition runs. If another process changed the same entity first, the transition is recalculated and may raise `IllegalTransitionException` instead of overwriting that state. This prevents asynchronous payment confirmations from being reverted to `failed`.
 
-A state field flagged `Inherited` can be resolved from a parent row, which this lock does not cover, so such a transition keeps the previous unlocked behaviour; no core entity declares one.
-
-Because the destination is now recalculated, `IllegalTransitionException` reaches callers in cases that previously wrote the state anyway. `PaymentProcessor::pay()`, `PaymentProcessor::finalize()` and `PaymentRefundProcessor` catch it around the `fail()` they perform after a payment error, so the payment error itself still reaches the caller.
-
-`Transition` accepts an optional `skipIfInStates`, a list of technical state names the transition must not be executed from even when the state machine allows it. It is evaluated against the locked state, so a caller can rule out a state another process reached without reintroducing the race. `OrderTransactionStateHandler::fail()` accepts such a list as a third argument, announced with `#[NewOptionalParameter]` because the class is not final and a real signature change would stop existing subclasses from loading. A subclass overriding `fail()` with the 6.7 signature keeps loading and working, but does not pass the list on, so that installation keeps the previous behaviour for these transitions until it adopts the 6.8 signature.
-
-`PaymentRecurringProcessor::processRecurring()` uses the list to guard `paid` and `authorized`. When the payment was confirmed while the payment handler was running, the transaction keeps that state and the method returns normally instead of rethrowing the handler error, because the provider accepted the payment. Callers that relied on every handler error surfacing as an exception — for example to mark a subscription as failed — now correctly see a success for these renewals.
+`Transition` now accepts an optional `skipIfInStates` list of technical state names, and `OrderTransactionStateHandler::fail()` supports the same option. Use it when a transition must leave specific concurrently reached states unchanged. `PaymentRecurringProcessor` uses this guard for `paid` and `authorized`, so a confirmed recurring payment remains successful even when its handler subsequently reports an error. Existing calls remain unchanged; see `UPGRADE-6.8.md` for the planned `fail()` signature.
 
 ### Customer imports validate customer number patterns
 

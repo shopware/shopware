@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Output\Encoder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
@@ -21,71 +22,43 @@ use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 #[CoversClass(ContentDataPageEncoder::class)]
 class ContentDataPageEncoderTest extends TestCase
 {
-    #[TestDox('names the body keys in their wire order and reads the page triple off the render result reference')]
-    public function testEncodeWritesTheBodyKeysInTheirWireOrder(): void
+    /**
+     * `ContentDataPageEncoder::encode()` is a single straight-line call with no branch of its own; the four
+     * facts below are everything it produces from one render result, so one test carrying all of them proves
+     * the same single code path without four redundant calls. The tree carries a two-level forest and the
+     * index carries two entries under keys that would sort differently than the assignment map's, so a wire
+     * order, key, or map mix-up fails a specific assertion rather than passing on incidental agreement.
+     */
+    #[TestDox('serves the body keys in wire order, the page triple, the index maps, and the api alias, with no structure key')]
+    public function testEncodeServesTheDataPageBody(): void
     {
-        $result = new RenderResult(
-            [new RenderedElement('root', 'Sw:Content:Text')],
-            LayoutReference::create('layout-1', 'Landing', '1.0.0'),
-            new ResolvedValueIndex(['r2' => 'Beta', 'r1' => 'Alpha'], ['root' => ['title' => 'r2']]),
-        );
+        $child = new RenderedElement('child', 'Sw:Content:Text');
+        $tree = [new RenderedElement('root', 'Sw:Grid:Container', [], ['content' => [$child]])];
+        $data = ['r2' => 'Beta', 'r1' => 'Alpha'];
+        $assignments = ['zulu-element' => ['title' => 'r2'], 'alpha-element' => ['title' => 'r1']];
 
-        $body = $this->encoder()->encode($result)->jsonSerialize();
+        $carrier = $this->encoder()->encode($this->renderResult($tree, new ResolvedValueIndex($data, $assignments)));
+        $body = $carrier->jsonSerialize();
 
         static::assertSame(['id', 'name', 'version', 'data', 'assignments'], array_keys($body));
         static::assertSame('layout-1', $body['id']);
         static::assertSame('Landing', $body['name']);
         static::assertSame('1.0.0', $body['version']);
-    }
-
-    /**
-     * The render result carries a two-level forest, so the absence of a structure key is the encoder's decision
-     * rather than an artefact of there being no structure to emit.
-     */
-    #[TestDox('emits no structure key at all, even for a render result carrying a forest')]
-    public function testEncodeEmitsNoSkeletonKey(): void
-    {
-        $child = new RenderedElement('child', 'Sw:Content:Text');
-        $tree = [new RenderedElement('root', 'Sw:Grid:Container', [], ['content' => [$child]])];
-
-        $body = $this->encode($tree, new ResolvedValueIndex([], []));
-
-        static::assertArrayNotHasKey('skeletons', $body);
-        static::assertArrayNotHasKey('elements', $body);
-    }
-
-    /**
-     * The two maps carry different content, so an encoder that swapped them fails here rather than passing on
-     * the key names alone.
-     */
-    #[TestDox('serves the value index data and assignment maps under their own keys')]
-    public function testEncodeServesTheIndexMapsUnderTheirOwnKeys(): void
-    {
-        $data = ['r2' => 'Beta', 'r1' => 'Alpha'];
-        $assignments = ['zulu-element' => ['title' => 'r2'], 'alpha-element' => ['title' => 'r1']];
-
-        $body = $this->encode([], new ResolvedValueIndex($data, $assignments));
-
         static::assertSame($data, $body['data']);
         static::assertSame($assignments, $body['assignments']);
-    }
-
-    #[TestDox('reports the data page alias the carrier publishes')]
-    public function testEncodeReturnsACarrierUnderThePageAlias(): void
-    {
-        $carrier = $this->encoder()->encode($this->renderResult([], new ResolvedValueIndex([], [])));
-
+        static::assertArrayNotHasKey('skeletons', $body);
+        static::assertArrayNotHasKey('elements', $body);
         static::assertSame('content_data_page', $carrier->getApiAlias());
     }
 
-    /**
-     * @param list<RenderedElement> $tree
-     *
-     * @return array<string, mixed>
-     */
-    private function encode(array $tree, ResolvedValueIndex $index): array
+    #[TestDox('throws resolvedValueIndexMissing when the render result carries no value index')]
+    public function testEncodeThrowsWhenIndexIsMissing(): void
     {
-        return $this->encoder()->encode($this->renderResult($tree, $index))->jsonSerialize();
+        $result = $this->renderResult([], null);
+
+        $this->expectExceptionObject(ContentSystemException::resolvedValueIndexMissing('layout-1'));
+
+        $this->encoder()->encode($result);
     }
 
     private function encoder(): ContentDataPageEncoder
@@ -98,7 +71,7 @@ class ContentDataPageEncoderTest extends TestCase
     /**
      * @param list<RenderedElement> $tree
      */
-    private function renderResult(array $tree, ResolvedValueIndex $index): RenderResult
+    private function renderResult(array $tree, ?ResolvedValueIndex $index): RenderResult
     {
         return new RenderResult(
             $tree,

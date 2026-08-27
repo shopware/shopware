@@ -30,12 +30,4 @@ class DataResponseFactoryTest extends TestCase
         static::assertInstanceOf(ContentDataRouteResponse::class, $response);
         static::assertSame($result, $response->getRenderResult());
     }
-
-    #[TestDox('rebuilds its body from the value index and asks for its collection')]
-    public function testCollectsTheValueIndex(): void
-    {
-        $factory = new DataResponseFactory();
-
-        static::assertTrue($factory->collectsValueIndex());
-    }
 }

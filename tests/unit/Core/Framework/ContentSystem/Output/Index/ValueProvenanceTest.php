@@ -20,23 +20,36 @@ use Shopware\Core\Framework\Log\Package;
 class ValueProvenanceTest extends TestCase
 {
     /**
+     * The other half of the pair the two rejection tests below own: a shape that matches the rule
+     * (identity present iff LoaderResolved) must construct without throwing. Reading the constructed
+     * object's properties back would prove nothing beyond PHP's own constructor-promotion — readonly
+     * public properties are assigned whether or not the coherence check runs. `$provenance` is
+     * statically typed `ValueProvenance`, so an `assertInstanceOf` against that type can never fail
+     * and asserts nothing; the only outcome that discriminates is that construction itself does not
+     * throw, which `expectNotToPerformAssertions()` states directly: flip the coherence check to
+     * reject a valid shape and this test is what catches it.
+     */
+    #[DataProvider('coherentProvenanceProvider')]
+    #[TestDox('accepts a coherent provenance')]
+    public function testAcceptsACoherentProvenance(ValueOrigin $origin, ?LoaderValueIdentity $loaderIdentity): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        new ValueProvenance($origin, $loaderIdentity);
+    }
+
+    /**
      * Without an identity the key would fall back to plain value dedup, which merges two requirements that
      * only happen to have resolved to equal values.
      */
-    #[TestDox('a loader-resolved provenance without a loader identity is rejected')]
+    #[TestDox('rejects loader-resolved provenance without loader identity')]
     public function testLoaderResolvedOriginRequiresAnIdentity(): void
     {
-        try {
-            new ValueProvenance(ValueOrigin::LoaderResolved);
-            static::fail('Expected ContentSystemException was not thrown.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::INVALID_MAP_VALUE, $exception->getErrorCode());
-            static::assertStringContainsString(
-                'Value provenance (LoaderResolved) value for "loaderIdentity"',
-                $exception->getMessage()
-            );
-            static::assertStringContainsString('got null', $exception->getMessage());
-        }
+        $this->expectExceptionObject(
+            ContentSystemException::invalidMapValue('Value provenance (LoaderResolved)', 'loaderIdentity', LoaderValueIdentity::class, 'null')
+        );
+
+        new ValueProvenance(ValueOrigin::LoaderResolved);
     }
 
     /**
@@ -44,23 +57,17 @@ class ValueProvenanceTest extends TestCase
      * consults, so it is a producer bug rather than harmless extra data.
      */
     #[DataProvider('nonLoaderOriginProvider')]
-    #[TestDox('a provenance of a non-loader origin carrying a loader identity is rejected')]
+    #[TestDox('rejects non-loader-origin provenance with loader identity')]
     public function testNonLoaderOriginRejectsAnIdentity(ValueOrigin $origin): void
     {
-        try {
-            new ValueProvenance(
-                $origin,
-                new LoaderValueIdentity('product', 'config-a', 'inputs-a', 'fingerprint-a')
-            );
-            static::fail('Expected ContentSystemException was not thrown.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::INVALID_MAP_VALUE, $exception->getErrorCode());
-            static::assertStringContainsString(
-                \sprintf('Value provenance (%s) value for "loaderIdentity"', $origin->name),
-                $exception->getMessage()
-            );
-            static::assertStringContainsString('must be null', $exception->getMessage());
-        }
+        $this->expectExceptionObject(
+            ContentSystemException::invalidMapValue(\sprintf('Value provenance (%s)', $origin->name), 'loaderIdentity', 'null', LoaderValueIdentity::class)
+        );
+
+        new ValueProvenance(
+            $origin,
+            new LoaderValueIdentity('product', 'config-a', 'inputs-a', 'fingerprint-a')
+        );
     }
 
     /**
@@ -72,5 +79,17 @@ class ValueProvenanceTest extends TestCase
         yield 'a delivered context key' => [ValueOrigin::DeliveredContext];
         yield 'a distribution referenced key' => [ValueOrigin::DistributionReferenced];
         yield 'a listener-injected key' => [ValueOrigin::Injected];
+    }
+
+    /**
+     * @return \Generator<string, array{ValueOrigin, LoaderValueIdentity|null}>
+     */
+    public static function coherentProvenanceProvider(): \Generator
+    {
+        yield 'a loader-resolved origin with an identity' => [
+            ValueOrigin::LoaderResolved,
+            new LoaderValueIdentity('product', 'config-a', 'inputs-a', 'fingerprint-a'),
+        ];
+        yield 'a declared-authored origin without an identity' => [ValueOrigin::DeclaredAuthored, null];
     }
 }

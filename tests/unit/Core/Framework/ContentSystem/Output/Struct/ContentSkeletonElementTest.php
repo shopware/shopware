@@ -28,7 +28,7 @@ class ContentSkeletonElementTest extends TestCase
         static::assertSame('root-1', $skeletons[0]->id);
         static::assertSame('section', $skeletons[0]->component);
         static::assertSame([], $skeletons[0]->slots);
-        static::assertArrayNotHasKey('properties', $skeletons[0]->jsonSerialize());
+        static::assertSame(['id', 'component', 'slots'], array_keys($skeletons[0]->jsonSerialize()));
     }
 
     #[TestDox('projects a rendered forest recursively, keeping slot names and child order')]

@@ -21,20 +21,6 @@ use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
 #[CoversClass(ResolvedValueIndexEncoder::class)]
 class ResolvedValueIndexEncoderTest extends TestCase
 {
-    #[TestDox('fails hard on a render result carrying no index rather than serving an empty data map for it')]
-    public function testEncodeThrowsWhenTheRenderResultCarriesNoIndex(): void
-    {
-        $encoder = new ResolvedValueIndexEncoder(static::createStub(StructEncoder::class));
-
-        try {
-            $encoder->encode($this->renderResult(null));
-            static::fail('Expected ContentSystemException was not thrown.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::RESOLVED_VALUE_INDEX_MISSING, $exception->getErrorCode());
-            static::assertStringContainsString('layout-1', $exception->getMessage());
-        }
-    }
-
     #[TestDox('hands every struct-valued index entry to the framework encoder, which is what applies the protection gate')]
     public function testEncodeDelegatesStructValuesToTheStructEncoder(): void
     {
@@ -146,6 +132,20 @@ class ResolvedValueIndexEncoderTest extends TestCase
         $body = $this->encode(new ResolvedValueIndex([], []));
 
         static::assertSame(['data' => [], 'assignments' => []], $body);
+    }
+
+    #[TestDox('fails hard on a render result carrying no index rather than serving an empty data map for it')]
+    public function testEncodeThrowsWhenTheRenderResultCarriesNoIndex(): void
+    {
+        $encoder = new ResolvedValueIndexEncoder(static::createStub(StructEncoder::class));
+
+        try {
+            $encoder->encode($this->renderResult(null));
+            static::fail('Expected ContentSystemException was not thrown.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::RESOLVED_VALUE_INDEX_MISSING, $exception->getErrorCode());
+            static::assertStringContainsString('layout-1', $exception->getMessage());
+        }
     }
 
     /**

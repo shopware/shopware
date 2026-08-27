@@ -62,8 +62,10 @@ class ResolvedValueIndexTest extends TestCase
             static::fail('Expected ContentSystemException was not thrown.');
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_MAP_VALUE, $exception->getErrorCode());
-            static::assertStringContainsString('Resolved value index lookup value for "r9"', $exception->getMessage());
-            static::assertStringContainsString('no such ref', $exception->getMessage());
+            static::assertSame(
+                'Resolved value index lookup value for "r9" must be a ref present in the index data, got no such ref',
+                $exception->getMessage()
+            );
         }
     }
 
@@ -75,11 +77,10 @@ class ResolvedValueIndexTest extends TestCase
             static::fail('Expected ContentSystemException was not thrown.');
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_MAP_VALUE, $exception->getErrorCode());
-            static::assertStringContainsString(
-                'Resolved value index assignment value for "element-1.product"',
+            static::assertSame(
+                'Resolved value index assignment value for "element-1.product" must be a ref present in the index data, got unknown ref "r9"',
                 $exception->getMessage()
             );
-            static::assertStringContainsString('unknown ref "r9"', $exception->getMessage());
         }
     }
 }

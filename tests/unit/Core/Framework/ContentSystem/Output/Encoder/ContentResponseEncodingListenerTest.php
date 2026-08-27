@@ -66,7 +66,11 @@ class ContentResponseEncodingListenerTest extends TestCase
         $replacement = $event->getResponse();
         static::assertNotSame($response, $replacement);
         static::assertInstanceOf(StoreApiResponse::class, $replacement);
-        static::assertInstanceOf(EncodedContentPage::class, $replacement->getObject());
+
+        $body = $replacement->getObject();
+        static::assertInstanceOf(EncodedContentPage::class, $body);
+        static::assertSame(ContentPageEncoder::PAGE_API_ALIAS, $body->getApiAlias());
+        static::assertSame([], $body->jsonSerialize()['elements'] ?? null);
         static::assertSame(Response::HTTP_OK, $replacement->getStatusCode());
         static::assertSame('content-layout-1', $replacement->headers->get('sw-cache-tags'));
     }

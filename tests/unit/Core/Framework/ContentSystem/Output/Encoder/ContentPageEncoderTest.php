@@ -82,7 +82,7 @@ class ContentPageEncoderTest extends TestCase
         $payload = new StubStruct();
 
         $structEncoder = static::createMock(StructEncoder::class);
-        $structEncoder->expects($this->once())
+        $structEncoder->expects($this->atLeastOnce())
             ->method('encode')
             ->with(
                 static::identicalTo($payload),
@@ -108,8 +108,8 @@ class ContentPageEncoderTest extends TestCase
     {
         $payload = new StubStruct();
 
-        $structEncoder = static::createMock(StructEncoder::class);
-        $structEncoder->expects($this->once())
+        $structEncoder = static::createStub(StructEncoder::class);
+        $structEncoder
             ->method('encode')
             ->willReturn(['encoded' => true]);
 

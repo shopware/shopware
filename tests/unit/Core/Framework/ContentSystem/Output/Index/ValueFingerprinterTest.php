@@ -24,6 +24,14 @@ class ValueFingerprinterTest extends TestCase
         static::assertSame((string) spl_object_id($value), (new ValueFingerprinter())->fingerprint($value));
     }
 
+    #[TestDox('fingerprints equal scalars identically across separate calls')]
+    public function testEqualScalarsFingerprintIdentically(): void
+    {
+        $fingerprinter = new ValueFingerprinter();
+
+        static::assertSame($fingerprinter->fingerprint('Hello'), $fingerprinter->fingerprint('Hello'));
+    }
+
     /**
      * Two objects that are equal in every field are still two values as far as this rule is concerned, which
      * is what lets the index tell a replaced value from the one a loader returned.
@@ -33,7 +41,7 @@ class ValueFingerprinterTest extends TestCase
      * released — which is the recycling hazard the class documents, not the property under test. The values
      * this rule fingerprints in production are alive together too: the rendered tree holds them.
      */
-    #[TestDox('two instances alive at once fingerprint differently even when their contents are equal')]
+    #[TestDox('fingerprints distinct instances differently even when their contents are equal')]
     public function testDistinctInstancesFingerprintDifferently(): void
     {
         $first = new StubStruct();
@@ -43,15 +51,7 @@ class ValueFingerprinterTest extends TestCase
         static::assertNotSame($fingerprinter->fingerprint($first), $fingerprinter->fingerprint($second));
     }
 
-    #[TestDox('equal scalars fingerprint identically across separate calls')]
-    public function testEqualScalarsFingerprintIdentically(): void
-    {
-        $fingerprinter = new ValueFingerprinter();
-
-        static::assertSame($fingerprinter->fingerprint('Hello'), $fingerprinter->fingerprint('Hello'));
-    }
-
-    #[TestDox('different scalars fingerprint differently')]
+    #[TestDox('fingerprints different scalars differently')]
     public function testDifferentScalarsFingerprintDifferently(): void
     {
         $fingerprinter = new ValueFingerprinter();
@@ -63,7 +63,7 @@ class ValueFingerprinterTest extends TestCase
      * A loader's `notFound()` records a fingerprint like any other produced value, so null needs one that
      * still matches when it is recomputed at finalization.
      */
-    #[TestDox('null fingerprints to a stable value that no scalar shares')]
+    #[TestDox('fingerprints null to a stable value that no scalar shares')]
     public function testNullFingerprintIsStable(): void
     {
         $fingerprinter = new ValueFingerprinter();

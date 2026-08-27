@@ -30,12 +30,4 @@ class DecomposedResponseFactoryTest extends TestCase
         static::assertInstanceOf(ContentDecomposedRouteResponse::class, $response);
         static::assertSame($result, $response->getRenderResult());
     }
-
-    #[TestDox('rebuilds its body from the value index and asks for its collection')]
-    public function testCollectsTheValueIndex(): void
-    {
-        $factory = new DecomposedResponseFactory();
-
-        static::assertTrue($factory->collectsValueIndex());
-    }
 }

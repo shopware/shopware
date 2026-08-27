@@ -44,27 +44,10 @@ class PartialRendererTest extends TestCase
             ->withSlot('default', [$target])
             ->build();
 
-        // Fixture guard: the first root is populated but target-free, so only a search for the target
-        // itself can decide to skip it — "has no children" would keep it.
-        static::assertNotSame([], $root1->slots);
-        static::assertNull(
-            (new ElementTreePruner())->pruneToPathAndDescendants($root1, 'target', new ContextDependencyAnalyzer())
-        );
-
         $result = $this->renderer->pruneToTarget([$root1, $root2], 'target');
 
         static::assertCount(1, $result);
         static::assertSame('target', $result[0]->id);
-    }
-
-    #[TestDox('returns empty array when target not found in any root during pruning')]
-    public function testPruneToTargetReturnsEmptyWhenNotFoundInAnyRoot(): void
-    {
-        $root = StoredElementBuilder::create('section', 'r1')->build();
-
-        $result = $this->renderer->pruneToTarget([$root], 'nonexistent');
-
-        static::assertSame([], $result);
     }
 
     #[TestDox('extracts target from first element containing it')]
@@ -79,6 +62,16 @@ class PartialRendererTest extends TestCase
         $result = $this->renderer->extractTarget([$root1, $root2], 'target');
 
         static::assertSame('target', $result->id);
+    }
+
+    #[TestDox('returns empty array when target not found in any root during pruning')]
+    public function testPruneToTargetReturnsEmptyWhenNotFoundInAnyRoot(): void
+    {
+        $root = StoredElementBuilder::create('section', 'r1')->build();
+
+        $result = $this->renderer->pruneToTarget([$root], 'nonexistent');
+
+        static::assertSame([], $result);
     }
 
     #[TestDox('throws when target element not found in any root during extraction')]

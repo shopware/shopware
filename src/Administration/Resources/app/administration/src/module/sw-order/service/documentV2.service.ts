@@ -230,6 +230,6 @@ export default class DocumentV2Service {
         }
 
         // @ts-expect-error
-        return (Shopware.Snippet?.tc(translationKey) as string | undefined) ?? translationKey;
+        return (Shopware.Snippet?.t(translationKey) as string | undefined) ?? translationKey;
     }
 }

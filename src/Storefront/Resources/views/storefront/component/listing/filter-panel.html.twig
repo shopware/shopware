@@ -13,6 +13,7 @@
     {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
     {# `listing` is either a plain EntitySearchResult or a result wrapper like ProductListingResult, which carries the aggregations on its source #}
     {% set listingAggregations = listing.source.aggregations ?? listing.aggregations %}
+
     {% block component_filter_panel_element %}
         <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}" role="region" aria-label="{{ 'listing.filterTitleText'|trans|sw_sanitize }}">
             {% block component_filter_panel_items_container %}

@@ -301,7 +301,7 @@ class ProductListingRouteTest extends TestCase
             ->load($categoryId, $request, $context, new Criteria())
             ->getResult();
 
-        $aggregation = $listing->getAggregations()->get($expected['aggregation']);
+        $aggregation = $listing->getSource()->getAggregations()->get($expected['aggregation']);
 
         if ($expected['instanceOf'] === null) {
             static::assertNull($aggregation);

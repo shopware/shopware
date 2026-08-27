@@ -1930,14 +1930,14 @@ class ElasticsearchProductTest extends TestCase
 
             // ensure that all data loaded by elastic search
             static::assertTrue($listing->hasState(ElasticsearchEntitySearcher::RESULT_STATE));
-            static::assertTrue($listing->getAggregations()->hasState(ElasticsearchEntityAggregator::RESULT_STATE));
+            static::assertTrue($listing->getSource()->getAggregations()->hasState(ElasticsearchEntityAggregator::RESULT_STATE));
 
-            static::assertTrue($listing->getTotal() > 0);
-            static::assertTrue($listing->getAggregations()->has('shipping-free'));
-            static::assertTrue($listing->getAggregations()->has('rating'));
-            static::assertTrue($listing->getAggregations()->has('price'));
-            static::assertTrue($listing->getAggregations()->has('properties'));
-            static::assertTrue($listing->getAggregations()->has('manufacturer'));
+            static::assertTrue($listing->getSource()->getTotal() > 0);
+            static::assertTrue($listing->getSource()->getAggregations()->has('shipping-free'));
+            static::assertTrue($listing->getSource()->getAggregations()->has('rating'));
+            static::assertTrue($listing->getSource()->getAggregations()->has('price'));
+            static::assertTrue($listing->getSource()->getAggregations()->has('properties'));
+            static::assertTrue($listing->getSource()->getAggregations()->has('manufacturer'));
         } catch (\Exception $e) {
             $this->tearDown();
 

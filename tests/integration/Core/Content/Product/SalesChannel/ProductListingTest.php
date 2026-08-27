@@ -79,7 +79,7 @@ class ProductListingTest extends TestCase
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
-        $products = $listing->getEntities();
+        $products = $listing->getSource()->getEntities();
 
         static::assertCount(10, $products);
         static::assertFalse($products->has($this->testData->getId('product1')));
@@ -127,7 +127,7 @@ class ProductListingTest extends TestCase
             $this->testData->getId('product5-green'),
         ]);
 
-        $result = $listing->getAggregations()->get('properties');
+        $result = $listing->getSource()->getAggregations()->get('properties');
         static::assertInstanceOf(EntityResult::class, $result);
 
         $options = $result->getEntities();
@@ -157,9 +157,9 @@ class ProductListingTest extends TestCase
             ->load($this->categoryStreamId, $request, $context, new Criteria())
             ->getResult();
 
-        static::assertSame(7, $listing->getTotal());
-        static::assertFalse($listing->getEntities()->has($this->productIdWidth100));
-        static::assertTrue($listing->getEntities()->has($this->productIdWidth150));
+        static::assertSame(7, $listing->getSource()->getTotal());
+        static::assertFalse($listing->getSource()->getEntities()->has($this->productIdWidth100));
+        static::assertTrue($listing->getSource()->getEntities()->has($this->productIdWidth150));
     }
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void
@@ -178,8 +178,8 @@ class ProductListingTest extends TestCase
             ->load($this->categoryStreamId, $request, $context, $criteria)
             ->getResult();
 
-        static::assertSame(3, $listing->getTotal());
-        $firstFilter = $listing->getCriteria()->getFilters()[0];
+        static::assertSame(3, $listing->getSource()->getTotal());
+        $firstFilter = $listing->getSource()->getCriteria()->getFilters()[0];
         static::assertInstanceOf(ContainsFilter::class, $firstFilter);
         static::assertSame('name', $firstFilter->getField());
         static::assertSame('Foo Bar', $firstFilter->getValue());
@@ -202,7 +202,7 @@ class ProductListingTest extends TestCase
             ->getResult();
 
         /** @var EntityResult<PropertyGroupCollection> $result */
-        $result = $listing->getAggregations()->get('properties');
+        $result = $listing->getSource()->getAggregations()->get('properties');
         $propertyGroups = $result->getEntities();
 
         $propertyGroupIds = [];

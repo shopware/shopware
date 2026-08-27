@@ -434,8 +434,9 @@ class ProductListingResultTest extends TestCase
      */
     public function testInheritedPublicApiIsDeclaredLocallyOrDeprecated(): void
     {
-        // the final parent constructor can be neither overridden nor deprecated; its v6.8.0 change is documented for EntitySearchResult
-        $allowList = ['__construct'];
+        // the final parent constructor can be neither overridden nor deprecated; its v6.8.0 change is documented for EntitySearchResult.
+        // The state methods are intentionally kept: the v6.8.0 rework adds StateAwareTrait to this class itself.
+        $allowList = ['__construct', 'addState', 'removeState', 'hasState', 'getStates', 'state'];
 
         $struct = new \ReflectionClass(Struct::class);
 
@@ -454,7 +455,7 @@ class ProductListingResultTest extends TestCase
             }
 
             static::assertStringContainsString(
-                '@deprecated',
+                '@deprecated tag:v6.8.0',
                 (string) $method->getDocComment(),
                 \sprintf(
                     'Method "%s::%s()" is inherited from the EntitySearchResult chain and vanishes with the v6.8.0 hierarchy change. Declare it on ProductListingResult (kept or deprecated) or deprecate it at its declaring class.',

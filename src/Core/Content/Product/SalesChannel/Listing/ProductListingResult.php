@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -23,9 +22,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntitySearchResult, but will keep extending Struct.', newParentClass: Struct::class)]
 class ProductListingResult extends EntitySearchResult
 {
-    // Used here, not only inherited from EntitySearchResult: the listing keeps its states across the v6.8.0 hierarchy change
-    use StateAwareTrait;
-
     protected ?string $sorting = null;
 
     /**

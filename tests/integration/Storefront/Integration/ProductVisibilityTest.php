@@ -8,8 +8,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -98,8 +98,8 @@ class ProductVisibilityTest extends TestCase
             ->load($this->categoryId, $request, $salesChannelContext, new Criteria())
             ->getResult();
 
-        static::assertSame(1, $data->getTotal());
-        static::assertTrue($data->getEntities()->has($this->productId3));
+        static::assertSame(1, $data->getSource()->getTotal());
+        static::assertTrue($data->getSource()->getEntities()->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
 
@@ -108,8 +108,8 @@ class ProductVisibilityTest extends TestCase
             ->load($this->categoryId, $request, $salesChannelContext, new Criteria())
             ->getResult();
 
-        static::assertSame(1, $data->getTotal());
-        static::assertTrue($data->getEntities()->has($this->productId1));
+        static::assertSame(1, $data->getSource()->getTotal());
+        static::assertTrue($data->getSource()->getEntities()->has($this->productId1));
     }
 
     public function testVisibilityInSearch(): void

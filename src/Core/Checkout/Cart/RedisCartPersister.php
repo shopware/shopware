@@ -100,6 +100,7 @@ class RedisCartPersister extends AbstractCartPersister
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
             $this->delete($cart->getToken(), $context);
+            $cart->setPersisted(false);
 
             return;
         }

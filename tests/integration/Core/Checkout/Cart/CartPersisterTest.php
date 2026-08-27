@@ -19,6 +19,8 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
@@ -176,6 +178,68 @@ class CartPersisterTest extends TestCase
             ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
 
         static::assertFalse($token);
+    }
+
+    public function testRetokenizedCartIsInsertedUnderTheNewToken(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $persister->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $loaded = $persister->load($cart->getToken(), $this->getSalesChannelContext($cart->getToken()));
+
+        // extensions hand a persisted cart a new token and store it elsewhere, e.g. as a quote payload
+        $detachedToken = Uuid::randomHex();
+        $loaded->setToken($detachedToken);
+
+        $detached = unserialize(serialize($loaded));
+        static::assertInstanceOf(Cart::class, $detached);
+
+        $persister->save($detached, $this->getSalesChannelContext($detachedToken));
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        static::assertSame($detachedToken, $connection->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $detachedToken]
+        ));
+        static::assertSame($cart->getToken(), $connection->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $cart->getToken()]
+        ));
+    }
+
+    public function testRecalculatingARetokenizedCartWritesItUnderTheNewToken(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('A', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $persister->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $loaded = $persister->load($cart->getToken(), $this->getSalesChannelContext($cart->getToken()));
+
+        $newToken = Uuid::randomHex();
+        $loaded->setToken($newToken);
+
+        // Processor::process() carries the persisted state over, so a stale one loses the write here
+        static::getContainer()->get(CartService::class)
+            ->recalculate($loaded, $this->getSalesChannelContext($newToken));
+
+        static::assertSame($newToken, static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $newToken]
+        ));
     }
 
     /**

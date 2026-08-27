@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -189,6 +190,42 @@ class ShippingMethodRouteTest extends TestCase
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
+    public function testOnlyAvailableExcludesShippingMethodsWithoutAnyPrice(): void
+    {
+        $this->createShippingMethodWithPrices('shipping4', []);
+
+        static::assertContains($this->ids->get('shipping4'), $this->requestShippingMethodIds(false));
+
+        $available = $this->requestShippingMethodIds(true);
+
+        static::assertNotContains($this->ids->get('shipping4'), $available);
+        static::assertCount(2, $available);
+    }
+
+    public function testOnlyAvailableExcludesShippingMethodsWhoseOnlyPricesHaveNoCurrencyValues(): void
+    {
+        $this->createShippingMethodWithPrices('shipping4', [
+            ['id' => $this->ids->create('empty-price'), 'calculation' => 1, 'quantityStart' => 1],
+        ]);
+
+        static::assertContains($this->ids->get('shipping4'), $this->requestShippingMethodIds(false));
+
+        static::assertNotContains($this->ids->get('shipping4'), $this->requestShippingMethodIds(true));
+    }
+
+    public function testOnlyAvailableKeepsShippingMethodsWithAMixOfUsableAndEmptyPrices(): void
+    {
+        // A nullable field on one row must not turn the existence check into an anti-join
+        static::getContainer()->get('shipping_method_price.repository')->create([[
+            'id' => $this->ids->create('mixed-empty-price'),
+            'shippingMethodId' => $this->ids->get('shipping'),
+            'calculation' => 1,
+            'quantityStart' => 2,
+        ]], Context::createDefaultContext());
+
+        static::assertContains($this->ids->get('shipping'), $this->requestShippingMethodIds(true));
+    }
+
     public function testIncludes(): void
     {
         $this->browser
@@ -267,12 +304,70 @@ class ShippingMethodRouteTest extends TestCase
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolvingPrice(string $key): array
+    {
+        return [
+            'id' => $this->ids->create($key),
+            'calculation' => 1,
+            'quantityStart' => 1,
+            'currencyPrice' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'net' => 10,
+                    'gross' => 11,
+                    'linked' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $prices
+     */
+    private function createShippingMethodWithPrices(string $key, array $prices): void
+    {
+        static::getContainer()->get('shipping_method.repository')->create([[
+            'id' => $this->ids->create($key),
+            'active' => true,
+            'position' => 10,
+            'bindShippingfree' => false,
+            'name' => 'test',
+            'technicalName' => 'shipping_test_' . $key,
+            'prices' => $prices,
+            'availabilityRuleId' => $this->ids->get('rule'),
+            'deliveryTime' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'testDeliveryTime',
+                'min' => 1,
+                'max' => 90,
+                'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+            ],
+            'salesChannels' => [['id' => $this->ids->get('sales-channel')]],
+        ]], Context::createDefaultContext());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function requestShippingMethodIds(bool $onlyAvailable): array
+    {
+        $this->browser->request('POST', '/store-api/shipping-method', $onlyAvailable ? ['onlyAvailable' => true] : []);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        return array_column($response['elements'], 'id');
+    }
+
     private function createData(): void
     {
         $data = [
             [
                 'id' => $this->ids->create('shipping'),
                 'active' => true,
+                'prices' => [$this->resolvingPrice('shipping-price')],
                 'position' => 1,
                 'bindShippingfree' => false,
                 'name' => 'test',
@@ -303,6 +398,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping2'),
                 'active' => true,
+                'prices' => [$this->resolvingPrice('shipping2-price')],
                 'position' => 5,
                 'bindShippingfree' => false,
                 'name' => 'test',
@@ -333,6 +429,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping3'),
                 'active' => true,
+                'prices' => [$this->resolvingPrice('shipping3-price')],
                 'position' => -3,
                 'bindShippingfree' => false,
                 'name' => 'test',

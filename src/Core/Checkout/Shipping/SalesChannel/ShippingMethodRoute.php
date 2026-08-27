@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -53,9 +54,16 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             self::buildName($context->getSalesChannelId())
         ));
 
+        $onlyAvailable = $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable');
+
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
+
+        if ($onlyAvailable) {
+            // Any bound excludes rows without currency values, which cannot resolve shipping costs
+            $criteria->addFilter(new RangeFilter('prices.currencyPrice', [RangeFilter::GTE => -\PHP_INT_MAX]));
+        }
 
         if (empty($criteria->getSorting())) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
@@ -72,7 +80,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         /**
          * @deprecated tag:v6.7.0 - onlyAvailable flag will be removed, use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute  instead
          */
-        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
+        if ($onlyAvailable) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }
 
@@ -81,7 +89,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         if (Feature::isActive('cache_rework')) {
             $this->scriptExecutor->execute(new ShippingMethodRouteHook(
                 $shippingMethods,
-                $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
+                $onlyAvailable,
                 $context
             ));
         }

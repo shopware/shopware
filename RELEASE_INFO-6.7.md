@@ -859,6 +859,73 @@ The service registry decides which Shopware Services a shop installs and where t
 
 Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
+# 6.7.13.1
+
+## Security Fixes
+
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
+
+### Administration password recovery links use a trusted origin
+
+Administration password recovery links are now built from `APP_URL` when no trusted hosts are configured. If trusted hosts are configured, Shopware can continue to use the request host after Symfony has validated it. Ensure that `APP_URL` contains the public HTTP or HTTPS URL of the shop.
+
+### Custom entity and field names are validated before the schema is built
+
+Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores, `$`, and non-ASCII bytes supported by MySQL/MariaDB identifiers. A manifest using whitespace or punctuation such as `-` is rejected with a clear error.
+
+### Store API aggregation names reject control characters
+
+Aggregation names supplied through Store API criteria can no longer contain control characters. Invalid names are rejected before the aggregation query is built. Integrations must use printable names for aggregations.
+
+### ACL roles and protected Administration fields use authorized write paths
+
+Generic Admin API writes can no longer create or update `acl_role` entities. Direct DAL writes to the `admin` fields of users and integrations remain system-only; the authenticated Administration API controllers continue to authorize these changes, while self-profile and integration management work as before.
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` is deprecated and will be removed in Shopware 6.8. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### Oversized sales channel criteria are rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and entity-specific filters such as product availability — to the first 99 criteria nodes it walks. Criteria with more nested associations than that kept the remaining nodes unrestricted. Such criteria are now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces criteria of that size; integrations that build them must split them into several requests.
+
+### Media file extensions are validated on every write
+
+Direct writes to `media.fileExtension` now use the same configured extension allowlist as media uploads. Invalid public or private media extensions are rejected with the error code `MEDIA_ILLEGAL_FILE_EXTENSION`.
+
+### Media import URL checks apply to the address that is connected to
+
+Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
+
+### Webhook target validation hardened
+
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+
+Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
+
+### Guest document downloads are rate limited
+
+Guest document download requests using a deep link code are now covered by the guest login rate limiter. Repeated invalid authentication attempts are rejected once the configured limit is reached; a successful authentication resets the limit.
+
+## Critical Fixes
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When an Elasticsearch/OpenSearch mapping update references an analyzer or normalizer that the live index's analysis settings do not define, updating the mapping fails. Analysis settings cannot be added to a live index, so the affected entity is now scheduled for a reindex into a freshly created index with the current analysis settings instead of leaving the outdated mapping in place.
+
+### Document rendering supports decorated Twig environments
+
+The document renderer now type-hints the base `Twig\Environment` instead of Shopware's `TwigEnvironment`, so a decorated `twig` service no longer breaks document generation. The sales channel business timezone override applies only when Shopware's `TwigEnvironment` is in use. With a decorator that does not extend it, documents render in Twig's default timezone.
+
 # 6.7.13.0
 
 ## Critical Fixes

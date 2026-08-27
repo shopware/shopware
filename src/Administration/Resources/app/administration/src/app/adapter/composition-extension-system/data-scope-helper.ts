@@ -197,8 +197,6 @@ export const mergeOverrideState = (targetState: OverrideLocalState, overrideStat
  * const headlineRef = createPropertyRef(reactiveSetupState, 'headline');
  */
 const createPropertyRef = (source: Record<string, unknown>, key: string): Ref<unknown> => {
-    // The customRef track/trigger callbacks stay unused on purpose: reads and writes go through the
-    // reactive proxy, which already tracks readers and only triggers when the value actually changed.
     return customRef(() => ({
         get: () => source[key],
         set: (value: unknown) => {

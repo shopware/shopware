@@ -130,6 +130,10 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 - Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
 - Footer column will become `<li>` instead of `<div role="listitem">`.
 
+### Clear message when adding a second code of the same promotion
+
+Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
+
 # 6.7.14.0 (upcoming)
 
 ## Features

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  * silently stop reporting either.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final readonly class TreePreparationResult

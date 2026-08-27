@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
  * away, and the finishing stage must then not unwrap.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final readonly class RenderScaffolding

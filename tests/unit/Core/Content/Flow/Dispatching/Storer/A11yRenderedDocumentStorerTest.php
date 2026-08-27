@@ -476,8 +476,6 @@ class A11yRenderedDocumentStorerTest extends TestCase
     }
 
     /**
-     * The storer only needs the resolved document ids; argument mapping is covered by DocumentResolverTest.
-     *
      * @param array<string> $latestOfTypes ids the v1 `documentTypeIds` lookup resolves to
      */
     private function createResolver(array $latestOfTypes = [], ?string $latestByTechnicalName = null): DocumentResolver

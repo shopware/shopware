@@ -15,7 +15,7 @@ if (class_exists(AdminNotificationEntity::class)) {
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
-    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationEntity but directly \Shopware\Core\Framework\DataAbstractionLayer\Entity.')]
+    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationEntity but directly \Shopware\Core\Framework\DataAbstractionLayer\Entity.', newParentClass: Entity::class)]
     class NotificationEntity extends AdminNotificationEntity
     {
         use EntityIdTrait;

@@ -3,7 +3,7 @@
 {# @internal #}
 
 {% props
-    products,
+    products = null,
     productIds = [],
     title = null,
     slots = [],
@@ -30,13 +30,48 @@
         <h2 {{ attributes.nested('title').defaults({ id: titleId, class: 'sw-product-slider__title' }) }}>{{ title }}</h2>
     {% endif %}
 
-    <ul {{ attributes.nested('list').defaults({ class: 'sw-product-slider__list list-unstyled' }) }}>
-        {% block items %}
-            {% for product in products %}
-                <li {{ attributes.nested('item').defaults({ class: 'sw-product-slider__item' }) }}>
-                    <twig:Sw:Product:Card :product="product"></twig:Sw:Product:Card>
-                </li>
-            {% endfor %}
-        {% endblock %}
-    </ul>
+    <div {{ attributes.nested('inner').defaults({ class: 'sw-product-slider__inner' }) }}>
+        {% if products|length > 0 %}
+            <ul {{ attributes.nested('list').defaults({ class: 'sw-product-slider__list list-unstyled' }) }}>
+                {% block items %}
+                    {% for product in products %}
+                        <li {{ attributes.nested('item').defaults({ class: 'sw-product-slider__item' }) }}>
+                            <twig:Sw:Product:Card :product="product"></twig:Sw:Product:Card>
+                        </li>
+                    {% endfor %}
+                {% endblock %}
+            </ul>
+
+            {% block navigation %}
+                <twig:Sw:Button
+                    class="sw-product-slider__nav-button is--backward"
+                    variant="light"
+                    :iconOnly="true"
+                    aria-label="{{ 'listing.productSliderScrollBackward'|trans|striptags }}"
+                    hidden="hidden"
+                >
+                    <twig:Sw:Icon name="arrow-head-left" size="sm" />
+                </twig:Sw:Button>
+
+                <twig:Sw:Button
+                    class="sw-product-slider__nav-button is--forward"
+                    variant="light"
+                    :iconOnly="true"
+                    aria-label="{{ 'listing.productSliderScrollForward'|trans|striptags }}"
+                    hidden="hidden"
+                >
+                    <twig:Sw:Icon name="arrow-head-right" size="sm" />
+                </twig:Sw:Button>
+            {% endblock %}
+        {% else %}
+            <p class="visually-hidden">{{ 'listing.emptyResultMessage'|trans|sw_sanitize }}</p>
+            <ul class="sw-product-slider__list list-unstyled">
+                {% for i in 1..9 %}
+                    <li class="sw-product-slider__item">
+                        <twig:Sw:Product:Card></twig:Sw:Product:Card>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 </section>

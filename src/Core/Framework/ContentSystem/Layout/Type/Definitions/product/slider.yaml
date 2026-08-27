@@ -9,14 +9,6 @@ meta:
       - "Select the products to be shown."
 
 properties:
-  title:
-    type: string
-    translatable: true
-    title: "Title"
-    description: "Optional headline shown above the slider."
-    adminUI:
-      component: "text"
-
   products:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection
     required: true
@@ -26,3 +18,11 @@ properties:
     adminUI:
       component: "sw-entity-multi-id-select"
       entity: "product"
+      
+  title:
+    type: string
+    translatable: true
+    title: "Title"
+    description: "Optional headline shown above the slider."
+    adminUI:
+      component: "text"    

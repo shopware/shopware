@@ -1,9 +1,15 @@
-sw-product-slider {
+.sw-product-slider {
     --sw-product-slider-gap: var(--spacer-md);
     --sw-product-slider-item-width: 300px;
     --sw-product-slider-scrollbar-size: 3px;
     --sw-product-slider-scrollbar-track-color: var(--bs-gray-200);
     --sw-product-slider-scrollbar-thumb-color: var(--bs-gray-600);
+    --sw-product-slider-list-padding-bottom: var(--spacer-md);
+    max-width: 100%;
+}
+
+.sw-product-slider__inner {
+    position: relative;
 }
 
 .sw-product-slider__list {
@@ -17,7 +23,7 @@ sw-product-slider {
     overscroll-behavior-x: contain;
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
-    padding-bottom: var(--spacer-md);
+    padding-bottom: var(--sw-product-slider-list-padding-bottom);
 }
 
 @supports not selector(::-webkit-scrollbar) {
@@ -56,4 +62,22 @@ sw-product-slider {
     flex: 1 0 auto;
     height: 100%;
     min-width: 100%;
+}
+
+.sw-product-slider__nav-button {
+    --bs-btn-border-color: var(--bs-gray-300);
+
+    position: absolute;
+    z-index: 1;
+    /* Center against the scrollable area only, ignoring the space reserved for the scrollbar */
+    top: calc(50% - var(--sw-product-slider-list-padding-bottom) / 2);
+    transform: translateY(-50%);
+
+    &.is--backward {
+        left: 0;
+    }
+
+    &.is--forward {
+        right: 0;
+    }
 }

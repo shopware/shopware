@@ -603,7 +603,9 @@
     "listPriceLabel": "Sale price:",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist",
-    "productSliderAriaLabel": "Product slider with %total% products"
+    "productSliderAriaLabel": "Product slider with %total% products",
+    "productSliderScrollBackward": "Previous products",
+    "productSliderScrollForward": "Next products"
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",

@@ -42,11 +42,19 @@ function isTheme(value: unknown): value is Theme {
 
 async function loadUserTheme(): Promise<void> {
     const response = await Shopware.Service('userConfigService').search([USER_THEME_CONFIG_KEY]);
-    const value = response?.data?.[USER_THEME_CONFIG_KEY] as { theme?: unknown } | undefined;
 
-    if (value && isTheme(value.theme)) {
-        useTheme().setTheme(value.theme);
+    // The service swallows request errors and resolves without a response.
+    // Keep the current preference then instead of resetting a valid choice.
+    if (!response) {
+        return;
     }
+
+    const value = response.data?.[USER_THEME_CONFIG_KEY] as { theme?: unknown } | undefined;
+
+    // `localStorage` is shared by every user of the browser, so a user without
+    // a server-side preference has to fall back to the default instead of
+    // inheriting the choice of whoever logged in here before.
+    useTheme().setTheme(value && isTheme(value.theme) ? value.theme : DEFAULT_THEME);
 }
 
 async function saveUserTheme(theme: Theme): Promise<void> {

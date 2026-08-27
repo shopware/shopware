@@ -77,15 +77,25 @@ describe('src/app/composables/use-theme.ts', () => {
         expect(useTheme().theme.value).toBe('dark');
     });
 
-    it('keeps the current preference when nothing is persisted', async () => {
+    it('falls back to the default when nothing is persisted', async () => {
         useTheme().setTheme('system');
 
         await useTheme().loadUserTheme();
 
-        expect(useTheme().theme.value).toBe('system');
+        expect(useTheme().theme.value).toBe('light');
     });
 
-    it('ignores invalid persisted values', async () => {
+    it('keeps the current preference when the request fails', async () => {
+        (Shopware.Service('userConfigService').search as jest.Mock).mockResolvedValueOnce(undefined);
+
+        useTheme().setTheme('dark');
+
+        await useTheme().loadUserTheme();
+
+        expect(useTheme().theme.value).toBe('dark');
+    });
+
+    it('falls back to the default for invalid persisted values', async () => {
         (Shopware.Service('userConfigService').search as jest.Mock).mockResolvedValueOnce({
             data: {
                 [USER_THEME_CONFIG_KEY]: { theme: 'not-a-theme' },

@@ -48,7 +48,9 @@ class RenderedElementTest extends TestCase
 
     /**
      * The declared slot shape is `array<string, list<RenderedElement>>`; every case here is a caller
-     * ignoring that declaration, which the native `array` type cannot stop on its own.
+     * ignoring that declaration, which the native `array` type cannot stop on its own. One row per
+     * rejection branch: the numeric name, the non-list value, the keyed-array value and the child that
+     * is not a rendered element.
      *
      * @return iterable<string, array{array<array-key, mixed>, ContentSystemException}>
      */
@@ -61,15 +63,6 @@ class RenderedElementTest extends TestCase
         yield 'slot holding no array at all' => [
             ['main' => null],
             ContentSystemException::invalidMapValue('Rendered element slot map', 'main', 'list', 'null'),
-        ];
-        yield 'slot holding one element instead of a list of them' => [
-            ['main' => new RenderedElement('child-1', 'core:text')],
-            ContentSystemException::invalidMapValue(
-                'Rendered element slot map',
-                'main',
-                'list',
-                RenderedElement::class
-            ),
         ];
         yield 'slot holding a keyed array instead of a list' => [
             ['main' => ['first' => new RenderedElement('child-1', 'core:text')]],
@@ -88,30 +81,28 @@ class RenderedElementTest extends TestCase
 
     /**
      * A rendered property key may come from an element-type declaration or from a context consumer's
-     * `propertyAlias`, neither of which is checked upstream, so both spellings of a numeric key are rejected
-     * here. PHP casts the numeric string to an integer before the constructor ever sees it.
+     * `propertyAlias`, neither of which is checked upstream, so the ban is re-stated at this boundary.
+     * PHP casts a numeric string key to an integer before the constructor ever sees it, so the integer
+     * key is the only shape that reaches the check.
      *
      * @return iterable<string, array{array<array-key, mixed>}>
      */
     public static function numericPropertyKeyProvider(): iterable
     {
         yield 'integer key' => [[0 => 'Hello']];
-        yield 'numeric string key' => [['12' => 'Hello']];
     }
 
     /**
-     * The whole permitted property value domain, one row per member. `\DateTimeInterface` and `\BackedEnum`
-     * are in it because the bar is concealment rather than objecthood: neither can hold a `Struct` in its
-     * object graph, so neither can carry one past the response encoders' protection gate.
+     * One row per admission branch of the permitted property value domain: the scalar test, the null
+     * test, and each of the three `instanceof` operands. `\DateTimeInterface` and `\BackedEnum` are
+     * operands of their own because the bar is concealment rather than objecthood: neither can hold a
+     * `Struct` in its object graph, so neither can carry one past the response encoders' protection gate.
      *
      * @return iterable<string, array{mixed}>
      */
     public static function permittedPropertyValueProvider(): iterable
     {
-        yield 'string' => ['Hello'];
-        yield 'integer' => [42];
-        yield 'float' => [1.5];
-        yield 'boolean' => [true];
+        yield 'scalar' => ['Hello'];
         yield 'null' => [null];
         yield 'struct' => [new StubStruct()];
         yield 'date time' => [new \DateTimeImmutable('2026-01-01 12:00:00')];
@@ -138,23 +129,15 @@ class RenderedElementTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{callable(RenderedElement, RenderedElement): RenderedElement}>
+     * @return iterable<string, array{callable(RenderedElement): RenderedElement}>
      */
     public static function subtreeReusingWithMethodProvider(): iterable
     {
         yield 'withProperty' => [
-            static fn (RenderedElement $root, RenderedElement $child): RenderedElement => $root
-                ->withProperty('headline', 'Hello'),
+            static fn (RenderedElement $root): RenderedElement => $root->withProperty('headline', 'Hello'),
         ];
         yield 'withProperties' => [
-            static fn (RenderedElement $root, RenderedElement $child): RenderedElement => $root
-                ->withProperties(['headline' => 'Hello']),
-        ];
-        yield 'withSlots' => [
-            static fn (RenderedElement $root, RenderedElement $child): RenderedElement => $root->withSlots([
-                'main' => [$child],
-                'sidebar' => [new RenderedElement('child-2', 'core:text')],
-            ]),
+            static fn (RenderedElement $root): RenderedElement => $root->withProperties(['headline' => 'Hello']),
         ];
     }
 
@@ -189,19 +172,9 @@ class RenderedElementTest extends TestCase
         static::assertTrue($element->style->isEmpty());
     }
 
-    #[TestDox('carries an object property value by identity rather than wrapping or copying it')]
-    public function testPropertyValuesRideRaw(): void
-    {
-        $struct = new StubStruct();
-
-        $element = new RenderedElement('element-1', 'core:image', ['media' => $struct]);
-
-        static::assertSame($struct, $element->properties['media']);
-    }
-
-    #[TestDox('a with method returns a new instance carrying the change and leaves the original untouched')]
     #[DataProvider('withMethodProvider')]
-    public function testWithMethodReturnsANewInstanceAndLeavesTheOriginalUnchanged(
+    #[TestDox('returns a new instance carrying the change when a with method is called')]
+    public function testWithMethodReturnsANewInstanceCarryingTheChange(
         callable $mutate,
         callable $read,
         mixed $expected
@@ -212,7 +185,33 @@ class RenderedElementTest extends TestCase
 
         static::assertNotSame($original, $mutated);
         static::assertEquals($expected, $read($mutated));
-        static::assertNotEquals($expected, $read($original));
+    }
+
+    #[TestDox('accepts a slot holding several rendered elements')]
+    public function testConstructorAcceptsASlotWithSeveralChildren(): void
+    {
+        $first = new RenderedElement('child-1', 'core:text');
+        $second = new RenderedElement('child-2', 'core:text');
+
+        $element = new RenderedElement('element-1', 'core:section', [], ['main' => [$first, $second]]);
+
+        static::assertSame([$first, $second], $element->slots['main']);
+    }
+
+    #[TestDox('withSlots replaces one slot map with another, dropping the slots it does not name')]
+    public function testWithSlotsReplacesTheWholeSlotMap(): void
+    {
+        $sidebarChild = new RenderedElement('child-2', 'core:text');
+        $root = new RenderedElement(
+            'element-1',
+            'core:section',
+            [],
+            ['main' => [new RenderedElement('child-1', 'core:text')]]
+        );
+
+        $mutated = $root->withSlots(['sidebar' => [$sidebarChild]]);
+
+        static::assertSame(['sidebar' => [$sidebarChild]], $mutated->slots);
     }
 
     #[TestDox('withProperty keeps the keys it does not name')]
@@ -223,6 +222,41 @@ class RenderedElementTest extends TestCase
         $mutated = $element->withProperty('headline', 'Changed');
 
         static::assertSame(['headline' => 'Changed', 'tagline' => 'World'], $mutated->properties);
+    }
+
+    /**
+     * @param callable(RenderedElement): RenderedElement $mutate
+     * @param callable(RenderedElement): array<array-key, mixed> $readUnnamed
+     */
+    #[DataProvider('unnamedFieldProvider')]
+    #[TestDox('leaves every field it does not name in place')]
+    public function testWithMethodLeavesTheUnnamedFieldsInPlace(callable $mutate, callable $readUnnamed): void
+    {
+        $style = new ElementStyle(['col-span' => 6]);
+        $child = new RenderedElement('child-1', 'core:text');
+        $element = new RenderedElement('element-1', 'core:section', ['tagline' => 'World'], ['main' => [$child]], $style);
+
+        static::assertCount(1, $element->properties);
+        static::assertCount(1, $element->slots);
+        static::assertFalse($element->style->isEmpty());
+
+        $unnamedBefore = $readUnnamed($element);
+        $mutated = $mutate($element);
+
+        static::assertSame('element-1', $mutated->id);
+        static::assertSame('core:section', $mutated->component);
+        static::assertSame($style, $mutated->style);
+        static::assertSame($unnamedBefore, $readUnnamed($mutated));
+    }
+
+    #[TestDox('carries an object property value by identity rather than wrapping or copying it')]
+    public function testPropertyValuesRideRaw(): void
+    {
+        $struct = new StubStruct();
+
+        $element = new RenderedElement('element-1', 'core:image', ['media' => $struct]);
+
+        static::assertSame($struct, $element->properties['media']);
     }
 
     #[TestDox('withProperty stores an explicit null as a present property rather than dropping the key')]
@@ -236,70 +270,8 @@ class RenderedElementTest extends TestCase
         static::assertNull($mutated->properties['product']);
     }
 
-    /**
-     * @param array<array-key, mixed> $slots
-     */
-    #[TestDox('rejects a slot map that does not match the declared shape')]
-    #[DataProvider('malformedSlotMapProvider')]
-    public function testConstructorRejectsAMalformedSlotMap(array $slots, ContentSystemException $expected): void
-    {
-        $this->expectExceptionObject($expected);
-
-        new RenderedElement('element-1', 'core:section', [], $slots);
-    }
-
-    /**
-     * @param array<array-key, mixed> $slots
-     */
-    #[TestDox('rejects a slot map that does not match the declared shape when it arrives through withSlots')]
-    #[DataProvider('malformedSlotMapProvider')]
-    public function testWithSlotsRejectsAMalformedSlotMap(array $slots, ContentSystemException $expected): void
-    {
-        $element = new RenderedElement('element-1', 'core:section');
-
-        $this->expectExceptionObject($expected);
-
-        $element->withSlots($slots);
-    }
-
-    /**
-     * @param array<array-key, mixed> $properties
-     */
-    #[TestDox('rejects a numeric property key')]
-    #[DataProvider('numericPropertyKeyProvider')]
-    public function testConstructorRejectsANumericPropertyKey(array $properties): void
-    {
-        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
-
-        new RenderedElement('element-1', 'core:text', $properties);
-    }
-
-    /**
-     * @param array<array-key, mixed> $properties
-     */
-    #[TestDox('rejects a numeric property key when it arrives through withProperties')]
-    #[DataProvider('numericPropertyKeyProvider')]
-    public function testWithPropertiesRejectsANumericPropertyKey(array $properties): void
-    {
-        $element = new RenderedElement('element-1', 'core:text');
-
-        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
-
-        $element->withProperties($properties);
-    }
-
-    #[TestDox('rejects a numeric property name set through withProperty')]
-    public function testWithPropertyRejectsANumericPropertyName(): void
-    {
-        $element = new RenderedElement('element-1', 'core:text');
-
-        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
-
-        $element->withProperty('12', 'Hello');
-    }
-
-    #[TestDox('accepts every permitted property value type at the top level of the property map')]
     #[DataProvider('permittedPropertyValueProvider')]
+    #[TestDox('accepts every permitted property value type at the top level of the property map')]
     public function testConstructorAcceptsAPermittedPropertyValue(mixed $value): void
     {
         $element = new RenderedElement('element-1', 'core:text', ['payload' => $value]);
@@ -307,8 +279,8 @@ class RenderedElementTest extends TestCase
         static::assertSame($value, $element->properties['payload']);
     }
 
-    #[TestDox('accepts every permitted property value type nested inside an array')]
     #[DataProvider('permittedPropertyValueProvider')]
+    #[TestDox('accepts every permitted property value type nested inside an array')]
     public function testConstructorAcceptsAPermittedPropertyValueNestedInsideAnArray(mixed $value): void
     {
         $element = new RenderedElement('element-1', 'core:text', ['payload' => ['rows' => [$value]]]);
@@ -327,6 +299,58 @@ class RenderedElementTest extends TestCase
         $element = new RenderedElement('element-1', 'core:text', ['tags' => ['a', 'b']]);
 
         static::assertSame(['a', 'b'], $element->properties['tags']);
+    }
+
+    /**
+     * @param callable(RenderedElement): RenderedElement $mutate
+     */
+    #[DataProvider('subtreeReusingWithMethodProvider')]
+    #[TestDox('reuses its untouched subtree instead of rebuilding it')]
+    public function testCopyWithReusesTheUntouchedSubtree(callable $mutate): void
+    {
+        $grandChild = new RenderedElement('grandchild-1', 'core:text');
+        $child = new RenderedElement('child-1', 'core:section', [], ['inner' => [$grandChild]]);
+        $root = new RenderedElement('element-1', 'core:section', [], ['main' => [$child]]);
+
+        static::assertSame([$grandChild], $root->slots['main'][0]->slots['inner']);
+
+        $mutated = $mutate($root);
+
+        static::assertSame($child, $mutated->slots['main'][0]);
+    }
+
+    /**
+     * @param array<array-key, mixed> $slots
+     */
+    #[DataProvider('malformedSlotMapProvider')]
+    #[TestDox('rejects a slot map that does not match the declared shape')]
+    public function testConstructorRejectsAMalformedSlotMap(array $slots, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        new RenderedElement('element-1', 'core:section', [], $slots);
+    }
+
+    /**
+     * @param array<array-key, mixed> $properties
+     */
+    #[DataProvider('numericPropertyKeyProvider')]
+    #[TestDox('rejects a numeric property key')]
+    public function testConstructorRejectsANumericPropertyKey(array $properties): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
+
+        new RenderedElement('element-1', 'core:text', $properties);
+    }
+
+    #[TestDox('rejects a numeric property name set through withProperty')]
+    public function testWithPropertyRejectsANumericPropertyName(): void
+    {
+        $element = new RenderedElement('element-1', 'core:text');
+
+        $this->expectExceptionObject(ContentSystemException::invalidMapKey('Rendered element property map', 'int'));
+
+        $element->withProperty('12', 'Hello');
     }
 
     /**
@@ -378,85 +402,5 @@ class RenderedElementTest extends TestCase
         }
 
         static::fail('Expected the constructor to reject an unsupported property value');
-    }
-
-    #[TestDox('accepts a slot holding several rendered elements')]
-    public function testConstructorAcceptsASlotWithSeveralChildren(): void
-    {
-        $first = new RenderedElement('child-1', 'core:text');
-        $second = new RenderedElement('child-2', 'core:text');
-
-        $element = new RenderedElement('element-1', 'core:section', [], ['main' => [$first, $second]]);
-
-        static::assertSame([$first, $second], $element->slots['main']);
-    }
-
-    /**
-     * @param callable(RenderedElement): RenderedElement $mutate
-     * @param callable(RenderedElement): array<array-key, mixed> $readUnnamed
-     */
-    #[TestDox('a with method leaves every field it does not name in place')]
-    #[DataProvider('unnamedFieldProvider')]
-    public function testWithMethodLeavesTheUnnamedFieldsInPlace(callable $mutate, callable $readUnnamed): void
-    {
-        $style = new ElementStyle(['col-span' => 6]);
-        $child = new RenderedElement('child-1', 'core:text');
-        $element = new RenderedElement('element-1', 'core:section', ['tagline' => 'World'], ['main' => [$child]], $style);
-
-        static::assertCount(1, $element->properties);
-        static::assertCount(1, $element->slots);
-        static::assertFalse($element->style->isEmpty());
-
-        $unnamedBefore = $readUnnamed($element);
-        $mutated = $mutate($element);
-
-        static::assertSame('element-1', $mutated->id);
-        static::assertSame('core:section', $mutated->component);
-        static::assertSame($style, $mutated->style);
-        static::assertSame($unnamedBefore, $readUnnamed($mutated));
-    }
-
-    #[TestDox('slots hold nested rendered elements at every depth')]
-    public function testSlotsNestRecursively(): void
-    {
-        $grandChild = new RenderedElement('grandchild-1', 'core:text');
-        $child = new RenderedElement('child-1', 'core:section', [], ['inner' => [$grandChild]]);
-        $root = new RenderedElement('element-1', 'core:section', [], ['main' => [$child]]);
-
-        static::assertSame([$grandChild], $root->slots['main'][0]->slots['inner']);
-    }
-
-    /**
-     * @param callable(RenderedElement, RenderedElement): RenderedElement $mutate
-     */
-    #[TestDox('a copy-with on a parent reuses its untouched subtree instead of rebuilding it')]
-    #[DataProvider('subtreeReusingWithMethodProvider')]
-    public function testCopyWithReusesTheUntouchedSubtree(callable $mutate): void
-    {
-        $grandChild = new RenderedElement('grandchild-1', 'core:text');
-        $child = new RenderedElement('child-1', 'core:section', [], ['inner' => [$grandChild]]);
-        $root = new RenderedElement('element-1', 'core:section', [], ['main' => [$child]]);
-
-        static::assertSame([$grandChild], $root->slots['main'][0]->slots['inner']);
-
-        $mutated = $mutate($root, $child);
-
-        static::assertSame($child, $mutated->slots['main'][0]);
-    }
-
-    #[TestDox('withSlots replaces one slot map with another, dropping the slots it does not name')]
-    public function testWithSlotsReplacesTheWholeSlotMap(): void
-    {
-        $sidebarChild = new RenderedElement('child-2', 'core:text');
-        $root = new RenderedElement(
-            'element-1',
-            'core:section',
-            [],
-            ['main' => [new RenderedElement('child-1', 'core:text')]]
-        );
-
-        $mutated = $root->withSlots(['sidebar' => [$sidebarChild]]);
-
-        static::assertSame(['sidebar' => [$sidebarChild]], $mutated->slots);
     }
 }

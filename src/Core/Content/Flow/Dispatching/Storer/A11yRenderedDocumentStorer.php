@@ -79,19 +79,16 @@ class A11yRenderedDocumentStorer extends FlowStorer
     }
 
     /**
-     * The configured file formats only decide what gets attached; the accessible html is linked in the
-     * mail body for every document of the mail, so only the resolved document ids matter here.
-     *
      * @return array<string>
      */
     private function resolveDocumentIds(StorableFlow $storableFlow): array
     {
-        $stored = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
+        $a11yDocumentIds = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
         $orderId = $storableFlow->getData(OrderAware::ORDER_ID);
 
         return array_keys($this->documentResolver->resolve(
             $storableFlow->getConfig(),
-            \is_array($stored) ? array_values($stored) : [],
+            \is_array($a11yDocumentIds) ? array_values($a11yDocumentIds) : [],
             \is_string($orderId) && $orderId !== '' ? $orderId : null,
             $storableFlow->getContext(),
         ));

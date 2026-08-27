@@ -1,0 +1,24 @@
+meta:
+  label: "Product Manufacturer"
+  description: "Displays the current product's manufacturer name or logo, with an optional link to the manufacturer's website."
+  icon: "regular-factory"
+  category: "commerce"
+  copilot:
+    summary: "Product manufacturer name or logo."
+    hints:
+      - "Use on a product detail page; the product is resolved from the current product-page context."
+      - "Displays the manufacturer's logo when available; otherwise it displays the manufacturer's name."
+      - "Set newTab to true to open the manufacturer's website in a new browser tab."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product that provides the manufacturer data; resolved from the current product context."
+
+  newTab:
+    type: boolean
+    title: "Open Link in New Tab"
+    description: "Whether to open the manufacturer's website in a new browser tab when a link is available."
+    default: false

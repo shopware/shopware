@@ -1212,6 +1212,10 @@ Due to inappropriate block names, the following deprecated blocks have been remo
 
 * `sw_entity_single_select_base_results_list_result_label` -> `sw_product_cross_selling_assignment_select_result_item_inner`
 
+#### sw-users-permissions-user-listing.html.twig
+
+* `sw_settings_user_list_delete_modal_input__confirm_password` -> `sw_settings_user_detail_content_confirm_password_modal_input__confirm_password`
+
 ## Migrating Options API overrides to the Composition API Extension System
 
 Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.

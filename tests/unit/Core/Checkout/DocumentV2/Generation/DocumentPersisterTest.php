@@ -177,7 +177,6 @@ class DocumentPersisterTest extends TestCase
             null,
             $this->context,
         );
-
     }
 
     public function testPersistCarriesDisplayInCustomerAccountFromTheDocumentTypeConfig(): void

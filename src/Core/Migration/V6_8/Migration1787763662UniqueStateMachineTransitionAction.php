@@ -38,8 +38,11 @@ class Migration1787763662UniqueStateMachineTransitionAction extends MigrationSte
         if (!$this->indexExists($connection, 'state_machine_transition', self::UNIQUE_INDEX_NAME)) {
             $this->executeDdlStatement(
                 $connection,
-                'ALTER TABLE `state_machine_transition`
-                 ADD UNIQUE `uniq.state_machine_transition.action_name_state_machine` (`action_name`, `state_machine_id`, `from_state_id`)'
+                \sprintf(
+                    'ALTER TABLE `state_machine_transition`
+                     ADD UNIQUE `%s` (`action_name`, `state_machine_id`, `from_state_id`)',
+                    self::UNIQUE_INDEX_NAME
+                )
             );
         }
     }

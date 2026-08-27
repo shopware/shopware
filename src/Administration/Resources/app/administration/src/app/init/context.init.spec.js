@@ -12,9 +12,23 @@ import {
     getUserInformation,
     getUserTimezone,
     getShopId,
+    getTheme,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
 import { isService } from '@shopware-ag/meteor-admin-sdk/es/_private/context';
 import { getId } from '@shopware-ag/meteor-admin-sdk/es/window';
+import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import { nextTick } from 'vue';
+import useTheme from 'src/app/composables/use-theme';
+
+jest.mock('@shopware-ag/meteor-admin-sdk/es/channel', () => {
+    const actual = jest.requireActual('@shopware-ag/meteor-admin-sdk/es/channel');
+
+    return {
+        __esModule: true,
+        ...actual,
+        publish: jest.fn(actual.publish),
+    };
+});
 
 describe('src/app/init/context.init.ts', () => {
     beforeAll(() => {
@@ -257,5 +271,53 @@ describe('src/app/init/context.init.ts', () => {
         Shopware.Store.get('context').app.config.shopId = 'shop-id';
 
         expect(await getShopId()).toBe('shop-id');
+    });
+
+    describe('theme', () => {
+        afterEach(async () => {
+            useTheme().setTheme('system');
+            await nextTick();
+
+            localStorage.removeItem('mt-theme');
+        });
+
+        it('should handle the resolved theme', async () => {
+            useTheme().setTheme('dark');
+            await nextTick();
+
+            await expect(getTheme()).resolves.toBe('dark');
+
+            useTheme().setTheme('light');
+            await nextTick();
+
+            await expect(getTheme()).resolves.toBe('light');
+        });
+
+        it('should resolve the system preference to a concrete theme', async () => {
+            await expect(getTheme()).resolves.toBe('light');
+        });
+
+        it('should publish the resolved theme on change', async () => {
+            publish.mockClear();
+
+            useTheme().setTheme('dark');
+            await nextTick();
+
+            expect(publish).toHaveBeenCalledWith('contextTheme', 'dark');
+        });
+
+        it('should not publish when the resolved theme stays the same', async () => {
+            publish.mockClear();
+
+            useTheme().setTheme('light');
+            await nextTick();
+
+            publish.mockClear();
+
+            useTheme().setTheme('system');
+            await nextTick();
+
+            expect(publish).not.toHaveBeenCalledWith('contextTheme', expect.anything());
+        });
     });
 });

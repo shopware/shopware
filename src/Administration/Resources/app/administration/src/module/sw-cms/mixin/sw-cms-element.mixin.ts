@@ -78,7 +78,7 @@ export default Mixin.register(
                             return;
                         }
 
-                        const newValue: unknown = get(this.element, `translated.${path}`, value);
+                        const newValue: unknown = cloneDeep(get(this.element, `translated.${path}`, value));
 
                         set(this.element, path, newValue);
                     },

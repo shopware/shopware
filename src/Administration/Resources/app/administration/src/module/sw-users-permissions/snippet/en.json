@@ -153,7 +153,7 @@
                 "labelPassword": "Password",
                 "labelProfilePicture": "Profile picture",
                 "labelUserInterface": "User interface",
-                "labelLanguage": "User interface language",
+                "labelLanguage": "Language",
                 "labelLanguagePlaceholder": "Choose language...",
                 "labelChangePassword": "Change password",
                 "labelActive": "Active",
@@ -205,6 +205,9 @@
                     },
                     "saveSuccess": {
                         "message": "User \"{name}\" saved."
+                    },
+                    "themeSaveError": {
+                        "message": "The theme preference could not be saved."
                     },
                     "invalidEmailErrorMessage": "Please enter a valid email address.",
                     "duplicateEmailErrorMessage": "This email address has been registered already."

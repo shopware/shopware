@@ -12,7 +12,7 @@
       "SHOPWARE_INVALID_IP_CIDR": "Bitte gib eine gültige IP-Adresse oder eine IP-Adresse mit CIDR-Maske ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
-      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
+      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warte {seconds} Sekunden, bevor Du es erneut versuchst.",
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
@@ -20,7 +20,8 @@
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
       "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
       "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\".",
-      "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "Das Zahlungsziel muss ein relatives Datum sein, z. B. \"+14 days\"."
+      "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "Das Zahlungsziel muss ein relatives Datum sein, z. B. \"+14 days\".",
+      "INVALID_GARAN_GUARANTEE_MONTHS": "Die Garantiedauer muss leer sein oder ein Halbjahreswert von mehr als 24 Monaten, z. B. 30, 36 oder 42."
     },
     "default": {
       "add": "Hinzufügen",
@@ -161,8 +162,11 @@
     "sw-admin-menu": {
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü einklappen",
+      "linkExpandMenu": "Menü ausklappen",
+      "linkCloseMenu": "Menü schließen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "textVersion": "Version:",
       "administrator": "Administrator",
       "navigation": {
         "label": "Hauptnavigation",
@@ -636,6 +640,8 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
     "sw-search-bar": {
+      "ariaLabelCloseSearch": "Suche schließen",
+      "ariaLabelOpenSearch": "Suche öffnen",
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
@@ -1728,8 +1734,7 @@
   "sidebar": {
     "ariaLabelButtonClose": "Seitenleiste schließen",
     "ariaLabelButtonOpen": "Seitenleiste öffnen",
-    "ariaLabelButtonCollapse": "Seitenleiste minimieren",
-    "buttonCollapse": "minimieren"
+    "ariaLabelButtonCollapse": "Seitenleiste minimieren"
   },
   "help-center": {
     "sidebar": {
@@ -1798,5 +1803,26 @@
     "acceptButton": "Zustimmen",
     "declineButton": "Ablehnen",
     "updateFailed": "Beim Aktualisieren Deiner Zustimmung ist ein Fehler aufgetreten. Es wird Deine vorherige Entscheidung, falls vorhanden, beibehalten."
+  },
+  "sw-ui-shell-update-2026-modal": {
+    "title": "Ein neuer Look für Deine Administration",
+    "nextButton": "Weiter",
+    "finishButton": "Fertig",
+    "seenSaveError": "Deine Auswahl konnte nicht gespeichert werden. Dieser Dialog wird Dir möglicherweise erneut angezeigt.",
+    "pages": {
+      "adminNavigation": {
+        "headline": "Eine klarere, übersichtlichere Navigation",
+        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur."
+      },
+      "darkMode": {
+        "headline": "Dunkles Erscheinungsbild",
+        "badge": "Experimentell",
+        "description": "Die Administration bietet jetzt ein dunkles Erscheinungsbild der Benutzeroberfläche, für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
+        "profileSettingsLink": "Deinen Profileinstellungen",
+        "themeSelectLabel": "Erscheinungsbild",
+        "themeSelectHint": "Diese Einstellung kannst Du jederzeit in {profileSettingsLink} ändern.",
+        "themeSaveError": "Das Erscheinungsbild konnte nicht gespeichert werden."
+      }
+    }
   }
 }

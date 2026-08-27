@@ -1,5 +1,20 @@
 {% block sw_bulk_edit_order_documents_generate_invoice %}
 <div class="sw-bulk-edit-order-documents-generate-invoice">
+    {% block sw_bulk_edit_order_documents_generate_invoice_file_formats %}
+    <mt-select
+        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+        v-model="generateData.fileFormats"
+        class="sw-bulk-edit-order-documents-generate-invoice__item"
+        label-property="label"
+        value-property="value"
+        :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelFileFormats')"
+        :placeholder="$t('sw-bulk-edit.order.documents.generateInvoice.placeholderFileFormats')"
+        :options="fileFormatOptions"
+        :enable-multi-selection="true"
+        required
+    />
+    {% endblock %}
+
     {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
     <mt-datepicker
         v-model="generateData.documentDate"

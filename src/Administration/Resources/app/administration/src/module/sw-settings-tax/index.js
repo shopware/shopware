@@ -50,7 +50,7 @@ Module.register('sw-settings-tax', {
     description: 'Tax section in the settings module',
     color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'tax',
 
     routes: {

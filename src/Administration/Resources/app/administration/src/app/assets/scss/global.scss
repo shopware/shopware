@@ -17,6 +17,11 @@ body,
     overflow: hidden;
 }
 
+html,
+body {
+    background: var(--color-elevation-surface-default);
+}
+
 .sw-drag-select-box {
     position: absolute;
     background: $color-drag-select-box;
@@ -106,7 +111,7 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
     flex-basis: 100%;
     padding: 30px;
     background-color: var(--color-elevation-surface-sunken);
-    border-bottom: 1px solid var(--color-border-primary-default);
+    border-bottom: 1px solid var(--color-border-secondary-default);
 }
 
 .mt-button {

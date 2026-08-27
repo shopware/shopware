@@ -39,8 +39,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(StoredTreeConstraints::class)]
-#[CoversClass(StoredElementCodec::class)]
 #[CoversClass(StoredTreeCodec::class)]
 class StoredTreeShapeConformanceTest extends TestCase
 {

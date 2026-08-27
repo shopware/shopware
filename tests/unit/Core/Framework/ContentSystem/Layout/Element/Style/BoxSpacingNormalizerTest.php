@@ -74,6 +74,14 @@ class BoxSpacingNormalizerTest extends TestCase
         static::assertSame('8px 0 0 16px', (new BoxSpacingNormalizer())->normalizeCssValue('8px   16px'));
     }
 
+    #[TestDox('trims surrounding whitespace before the literal-space split decides the branch')]
+    public function testTrimsBeforeSplitting(): void
+    {
+        // Trailing whitespace would otherwise make this a four-part split; it is trimmed off first, so
+        // the two-value shorthand branch applies instead.
+        static::assertSame('20px 20px 20px 20px', (new BoxSpacingNormalizer())->normalizeCssValue('20px  20px '));
+    }
+
     #[TestDox('throws instead of substituting a split when the pattern cannot run on the value')]
     public function testPcreFailureThrowsInsteadOfSubstitutingAResult(): void
     {
@@ -88,13 +96,5 @@ class BoxSpacingNormalizerTest extends TestCase
         ));
 
         (new BoxSpacingNormalizer())->normalizeCssValue($value);
-    }
-
-    #[TestDox('trims surrounding whitespace before the literal-space split decides the branch')]
-    public function testTrimsBeforeSplitting(): void
-    {
-        // Trailing whitespace would otherwise make this a four-part split; it is trimmed off first, so
-        // the two-value shorthand branch applies instead.
-        static::assertSame('20px 20px 20px 20px', (new BoxSpacingNormalizer())->normalizeCssValue('20px  20px '));
     }
 }

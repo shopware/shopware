@@ -29,7 +29,7 @@ class PropertyTypeConformanceValidatorTest extends TestCase
     /**
      * @param array<array-key, mixed> $properties
      */
-    #[DataProvider('acceptsProvider')]
+    #[DataProvider('acceptsConformingElementProvider')]
     #[TestDox('reports no violation for $_dataName')]
     public function testAcceptsAConformingElement(array $properties): void
     {
@@ -39,7 +39,7 @@ class PropertyTypeConformanceValidatorTest extends TestCase
     /**
      * @return iterable<string, array{array<array-key, mixed>}>
      */
-    public static function acceptsProvider(): iterable
+    public static function acceptsConformingElementProvider(): iterable
     {
         yield 'a string under a string declaration' => [['headline' => 'Hi']];
         yield 'an integer under an integer declaration' => [['count' => 5]];
@@ -58,37 +58,6 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a scalar under a declared reference property' => [['product' => 'oops']];
         yield 'a value under a key the type does not declare' => [['mediaId' => ['not', 'a', 'string']]];
         yield 'an element carrying no properties at all' => [[]];
-    }
-
-    /**
-     * @param array<array-key, mixed> $properties
-     */
-    #[DataProvider('rejectsProvider')]
-    #[TestDox('reports one violation naming the declared and actual type for $_dataName')]
-    public function testRejectsANonConformingElement(array $properties, string $key, string $declaredType, string $actualType): void
-    {
-        $violations = $this->validate($this->element($properties));
-
-        static::assertCount(1, $violations);
-        static::assertSame('[properties][' . $key . ']', $violations->get(0)->getPropertyPath());
-        static::assertSame(
-            \sprintf('Property "%s" is declared as "%s" but carries a value of type "%s".', $key, $declaredType, $actualType),
-            (string) $violations->get(0)->getMessage()
-        );
-    }
-
-    /**
-     * @return iterable<string, array{array<array-key, mixed>, string, string, string}>
-     */
-    public static function rejectsProvider(): iterable
-    {
-        yield 'an integer under a string declaration' => [['headline' => 42], 'headline', 'string', 'int'];
-        yield 'a string under an integer declaration' => [['count' => 'five'], 'count', 'integer', 'string'];
-        yield 'a float under an integer declaration' => [['count' => 1.5], 'count', 'integer', 'float'];
-        yield 'a string under a number declaration' => [['ratio' => '1.5'], 'ratio', 'number', 'string'];
-        yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
-        yield 'a list under a string declaration' => [['headline' => ['a', 'b']], 'headline', 'string', 'array'];
-        yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
     }
 
     #[TestDox('reports one violation per disagreeing key rather than one for the element')]
@@ -113,6 +82,35 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         $element = ['id' => 'el-1', 'component' => 'Sw:Ghost', 'properties' => ['headline' => 42]];
 
         static::assertCount(0, $this->validate($element, $registry));
+    }
+
+    /**
+     * @param array<array-key, mixed> $properties
+     */
+    #[DataProvider('rejectsNonConformingElementProvider')]
+    #[TestDox('reports one violation naming the declared and actual type for $_dataName')]
+    public function testRejectsANonConformingElement(array $properties, string $key, string $declaredType, string $actualType): void
+    {
+        $violations = $this->validate($this->element($properties));
+
+        static::assertCount(1, $violations);
+        static::assertSame('[properties][' . $key . ']', $violations->get(0)->getPropertyPath());
+        static::assertSame(
+            \sprintf('Property "%s" is declared as "%s" but carries a value of type "%s".', $key, $declaredType, $actualType),
+            (string) $violations->get(0)->getMessage()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<array-key, mixed>, string, string, string}>
+     */
+    public static function rejectsNonConformingElementProvider(): iterable
+    {
+        yield 'a non-string value under a string declaration' => [['headline' => ['a', 'b']], 'headline', 'string', 'array'];
+        yield 'a non-integer value under an integer declaration' => [['count' => 'five'], 'count', 'integer', 'string'];
+        yield 'a string under a number declaration' => [['ratio' => '1.5'], 'ratio', 'number', 'string'];
+        yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
+        yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
     }
 
     /**

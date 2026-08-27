@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -97,17 +98,30 @@ class StoredElementListFieldSerializerTest extends TestCase
      * reconcile, in that sequence rather than merely running each step: the three boundary passes record into
      * one shared log through the collaborators each of them reaches, and the two rejection tests below pin the
      * two links ahead of them by showing that neither an undecodable nor an ill-formed payload gets that far.
+     * Each pass also leaves its own trace in the returned data — the seeder's default, the style
+     * normalizer's expanded breakpoint map, and the reconciler's marker composed from the already-seeded
+     * headline — so the final result, not just the call log, shows all three ran on each other's output.
      */
     #[TestDox('runs seeding, style normalization and attribution reconciliation in the pinned order')]
     public function testNormalizeRunsTheWriteChainInThePinnedOrder(): void
     {
         $calls = [];
         $field = $this->createField();
-        $data = ['id' => 'layout-1', 'elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+        $data = ['id' => 'layout-1', 'elements' => [
+            ['id' => 'el', 'component' => 'Sw:Block', 'properties' => [], 'style' => ['display' => ['xs' => false]]],
+        ]];
 
-        $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
+        $result = $this->recordingSerializer($calls)->normalize($field, $data, $this->parameters());
 
         static::assertSame(['seed', 'style', 'reconcile'], $calls);
+
+        $element = $result['elements'][0];
+        static::assertSame('seeded', $element['properties']['headline']);
+        static::assertSame('reconciled:seeded', $element['properties']['reconciledFrom']);
+        static::assertSame(
+            ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
+            $element['style']['display']
+        );
     }
 
     #[TestDox('rejects an undecodable payload before any write-boundary pass runs')]
@@ -293,7 +307,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     /**
      * @param array<array-key, mixed> $payload
      */
-    #[DataProvider('numericWiringKeyProvider')]
+    #[DataProvider('remapsANumericWiringKeyProvider')]
     #[TestDox('rejects $_dataName at the write boundary as a constraint violation rather than an unhandled error')]
     public function testEncodeRemapsANumericWiringKeyToAConstraintViolation(array $payload): void
     {
@@ -319,29 +333,54 @@ class StoredElementListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<array-key, mixed>}>
+     * The cached-constraint seam, reached the only way production reaches it: `encode()` validates through
+     * `AbstractFieldSerializer::validateIfNeeded()`, which asks `getCachedConstraints()` for the descriptor.
+     * The inherited implementation memoizes it per field instance for the life of the process, which would
+     * freeze the style part of the descriptor against the registry as it stood on the first validated write.
+     * The override defeats that cache, so an option the registry has since dropped is rejected on the very
+     * next write instead of staying admissible until the process restarts.
+     *
+     * Both writes must go through the SAME field instance. The inherited cache keys on the property name and
+     * the field's object id, so two instances miss the cache and this passes whether or not the override
+     * exists, pinning nothing.
      */
-    public static function numericWiringKeyProvider(): iterable
+    #[TestDox('validates each write against the style option registry as it stands, not as it stood on the first write')]
+    public function testEncodeValidatesAgainstTheCurrentStyleOptionRegistryPerWrite(): void
     {
-        yield 'a numeric property key' => [
-            ['id' => 'elem-1', 'component' => 'text', 'properties' => [12 => 'x']],
+        $options = [
+            'display' => new StyleOptionSpecification(
+                'display',
+                new StyleOptionValueType(StyleOptionValueType::TYPE_BOOLEAN, null, null, null, null),
+                false,
+                null,
+                'test',
+            ),
         ];
 
-        yield 'a numeric data requirement key' => [
-            [
-                'id' => 'elem-1',
-                'component' => 'text',
-                'dataRequirements' => [7 => ['source' => 'entity', 'config' => []]],
-            ],
-        ];
+        $serializer = $this->serializerWithMutableStyleOptions($options);
 
-        yield 'a numeric slot key' => [
-            [
-                'id' => 'elem-1',
-                'component' => 'text',
-                'slots' => [3 => [['id' => 'child-1', 'component' => 'text']]],
-            ],
-        ];
+        // One field instance for both writes: the inherited cache is keyed by property name plus object id, so
+        // a second field would miss the cache and pass even with the override removed.
+        $field = $this->createField();
+        $payload = [['id' => 'elem-1', 'component' => 'text', 'properties' => [], 'style' => ['display' => true]]];
+
+        iterator_to_array(
+            $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
+        );
+
+        $options = [];
+
+        try {
+            iterator_to_array(
+                $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
+            );
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/elements/0/style/display', $exception->getViolations()->get(0)->getPropertyPath());
+
+            return;
+        }
+
+        static::fail('The second write reused the descriptor built for the first, so the dropped style option stayed admissible.');
     }
 
     #[TestDox('decodes a JSON string to a stored element list')]
@@ -403,8 +442,8 @@ class StoredElementListFieldSerializerTest extends TestCase
         $this->serializer()->decode($invalidField, []);
     }
 
-    #[TestDox('throws invalidFieldValueType on an invalid decode value: $_dataName')]
     #[DataProvider('throwsOnInvalidDecodeValueProvider')]
+    #[TestDox('throws invalidFieldValueType on an invalid decode value: $_dataName')]
     public function testDecodeThrowsOnInvalidValue(mixed $value, string $path, string $expected, string $given): void
     {
         $field = $this->createField();
@@ -414,23 +453,6 @@ class StoredElementListFieldSerializerTest extends TestCase
         );
 
         $this->serializer()->decode($field, $value);
-    }
-
-    /**
-     * @return iterable<string, array{mixed, string, string, string}>
-     */
-    public static function throwsOnInvalidDecodeValueProvider(): iterable
-    {
-        yield 'non-array scalar value' => [42, 'elements', 'array', 'integer'];
-
-        yield 'associative array instead of indexed list' => [
-            ['key' => ['id' => 'elem-1', 'component' => 'text', 'properties' => []]],
-            'layout',
-            'list of elements',
-            'associative array',
-        ];
-
-        yield 'array with non-array element' => [['not-an-array'], 'layout[0]', 'array', 'string'];
     }
 
     /**
@@ -479,54 +501,46 @@ class StoredElementListFieldSerializerTest extends TestCase
     }
 
     /**
-     * The cached-constraint seam, reached the only way production reaches it: `encode()` validates through
-     * `AbstractFieldSerializer::validateIfNeeded()`, which asks `getCachedConstraints()` for the descriptor.
-     * The inherited implementation memoizes it per field instance for the life of the process, which would
-     * freeze the style part of the descriptor against the registry as it stood on the first validated write.
-     * The override defeats that cache, so an option the registry has since dropped is rejected on the very
-     * next write instead of staying admissible until the process restarts.
-     *
-     * Both writes must go through the SAME field instance. The inherited cache keys on the property name and
-     * the field's object id, so two instances miss the cache and this passes whether or not the override
-     * exists, pinning nothing.
+     * @return iterable<string, array{array<array-key, mixed>}>
      */
-    #[TestDox('validates each write against the style option registry as it stands, not as it stood on the first write')]
-    public function testEncodeValidatesAgainstTheCurrentStyleOptionRegistryPerWrite(): void
+    public static function remapsANumericWiringKeyProvider(): iterable
     {
-        $options = [
-            'display' => new StyleOptionSpecification(
-                'display',
-                new StyleOptionValueType(StyleOptionValueType::TYPE_BOOLEAN, null, null, null, null),
-                false,
-                null,
-                'test',
-            ),
+        yield 'a numeric property key' => [
+            ['id' => 'elem-1', 'component' => 'text', 'properties' => [12 => 'x']],
         ];
 
-        $serializer = $this->serializerWithMutableStyleOptions($options);
+        yield 'a numeric data requirement key' => [
+            [
+                'id' => 'elem-1',
+                'component' => 'text',
+                'dataRequirements' => [7 => ['source' => 'entity', 'config' => []]],
+            ],
+        ];
 
-        // One field instance for both writes: the inherited cache is keyed by property name plus object id, so
-        // a second field would miss the cache and pass even with the override removed.
-        $field = $this->createField();
-        $payload = [['id' => 'elem-1', 'component' => 'text', 'properties' => [], 'style' => ['display' => true]]];
+        yield 'a numeric slot key' => [
+            [
+                'id' => 'elem-1',
+                'component' => 'text',
+                'slots' => [3 => [['id' => 'child-1', 'component' => 'text']]],
+            ],
+        ];
+    }
 
-        iterator_to_array(
-            $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
-        );
+    /**
+     * @return iterable<string, array{mixed, string, string, string}>
+     */
+    public static function throwsOnInvalidDecodeValueProvider(): iterable
+    {
+        yield 'non-array scalar value' => [42, 'elements', 'array', 'integer'];
 
-        $options = [];
+        yield 'associative array instead of indexed list' => [
+            ['key' => ['id' => 'elem-1', 'component' => 'text', 'properties' => []]],
+            'layout',
+            'list of elements',
+            'associative array',
+        ];
 
-        try {
-            iterator_to_array(
-                $serializer->encode($field, $this->existence(), new KeyValuePair('elements', $payload, false), $this->parameters())
-            );
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertSame('/elements/0/style/display', $exception->getViolations()->get(0)->getPropertyPath());
-
-            return;
-        }
-
-        static::fail('The second write reused the descriptor built for the first, so the dropped style option stayed admissible.');
+        yield 'array with non-array element' => [['not-an-array'], 'layout[0]', 'array', 'string'];
     }
 
     /**
@@ -642,33 +656,53 @@ class StoredElementListFieldSerializerTest extends TestCase
     }
 
     /**
-     * A serializer whose three boundary passes append their own name to $calls as they run. Each pass is
-     * recorded through a collaborator it cannot skip: the seeder asks the type registry whether a component
-     * is known, the style normalizer reads the option registry, and the reconciler is called once per forest.
+     * A serializer whose three boundary passes append their own name to $calls as they run, and also produce a
+     * real, distinguishing effect on the forest: the seeder actually seeds a declared default, the style
+     * normalizer actually expands a declared option, and the reconciler tags each element with a marker built
+     * from the value the seeder already wrote. Each pass is recorded through a collaborator it cannot skip: the
+     * seeder asks the type registry whether a component is known, the style normalizer reads the option
+     * registry, and the reconciler is called once per forest.
      *
      * @param list<string> $calls
      */
     private function recordingSerializer(array &$calls): StoredElementListFieldSerializer
     {
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $typeRegistry->method('has')->willReturnCallback(function () use (&$calls): bool {
+        $typeRegistry->method('has')->willReturnCallback(function (string $name) use (&$calls): bool {
             $calls[] = 'seed';
 
-            return false;
+            return $name === 'Sw:Block';
         });
+        $typeRegistry->method('get')->willReturn(
+            ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')->primitive('headline', 'string', default: 'seeded')->build()
+        );
 
         $styleRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $styleRegistry->method('all')->willReturnCallback(function () use (&$calls): array {
             $calls[] = 'style';
 
-            return [];
+            return [
+                'display' => new StyleOptionSpecification(
+                    'display',
+                    new StyleOptionValueType(StyleOptionValueType::TYPE_BOOLEAN, null, null, null, true),
+                    true,
+                    null,
+                    'test',
+                ),
+            ];
         });
 
         $reconciler = static::createStub(AttributionReconciler::class);
         $reconciler->method('reconcile')->willReturnCallback(function (array $forest) use (&$calls): array {
             $calls[] = 'reconcile';
 
-            return $forest;
+            return array_map(static function (StoredElement $element): StoredElement {
+                $headline = $element->property('headline')?->asString() ?? '';
+                $properties = $element->properties();
+                $properties['reconciledFrom'] = StoredValue::fromDecoded('reconciled:' . $headline);
+
+                return $element->withProperties($properties);
+            }, $forest);
         });
 
         $boundary = new LayoutWriteBoundary(

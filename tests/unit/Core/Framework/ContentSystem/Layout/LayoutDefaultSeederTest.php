@@ -12,8 +12,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
@@ -60,7 +62,6 @@ class LayoutDefaultSeederTest extends TestCase
 
         $seeded = $this->seeder()->seed([$root]);
 
-        static::assertInstanceOf(StoredElement::class, $seeded[0]);
         static::assertSame(['headline' => 'Default headline'], $this->rawProperties($seeded[0]->slots['content'][0]));
     }
 
@@ -84,11 +85,23 @@ class LayoutDefaultSeederTest extends TestCase
 
     private function seeder(): LayoutDefaultSeeder
     {
+        // 'product' carries a non-null default on a non-primitive type so the exclusion is isolated to
+        // isPrimitive() rather than being ambiguous with the "default is null" guard PrimitiveDefaultProvider
+        // also checks.
         $specs = [
-            'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')
-                ->primitive('headline', 'string', default: 'Default headline')
-                ->reference('product', SalesChannelProductEntity::class)
-                ->build(),
+            'Sw:Block' => new ContentSystemElementTypeSpecification(
+                'Sw:Block',
+                'Sw:Block',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                [
+                    'headline' => new PropertySpecification('prop', new PropertyType('string', false, null, 'Default headline'), false, '', '', null),
+                    'product' => new PropertySpecification('prop', new PropertyType(SalesChannelProductEntity::class, false, null, 'ignored-default'), false, '', '', null),
+                ],
+                [],
+            ),
         ];
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);

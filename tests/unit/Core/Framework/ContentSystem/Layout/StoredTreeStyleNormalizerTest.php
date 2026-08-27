@@ -59,20 +59,6 @@ class StoredTreeStyleNormalizerTest extends TestCase
         );
     }
 
-    #[TestDox('hands back a new forest and leaves the one it was given untouched')]
-    public function testDoesNotMutateTheForestItWasGiven(): void
-    {
-        $root = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
-            ->build();
-
-        $tree = new StoredTree([$root]);
-
-        $this->normalizer()->normalize($tree);
-
-        static::assertSame([self::BREAKPOINT_AWARE => ['xs' => false]], $tree->roots[0]->style->toArray());
-    }
-
     #[TestDox('returns an already normalised forest unchanged')]
     public function testIsIdempotent(): void
     {
@@ -85,7 +71,22 @@ class StoredTreeStyleNormalizerTest extends TestCase
         $once = $normalizer->normalize(new StoredTree([$root]));
         $twice = $normalizer->normalize($once);
 
+        static::assertSame([self::BREAKPOINT_AWARE => self::EXPANDED], $twice->roots[0]->style->toArray());
         static::assertSame($once->roots[0]->style->toArray(), $twice->roots[0]->style->toArray());
+    }
+
+    #[TestDox('hands back a new forest and leaves the one it was given untouched')]
+    public function testDoesNotMutateTheForestItWasGiven(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withStyle(new ElementStyle([self::BREAKPOINT_AWARE => ['xs' => false]]))
+            ->build();
+
+        $tree = new StoredTree([$root]);
+
+        $this->normalizer()->normalize($tree);
+
+        static::assertSame([self::BREAKPOINT_AWARE => ['xs' => false]], $tree->roots[0]->style->toArray());
     }
 
     #[TestDox('leaves everything that is not style alone, seeding no default and reconciling no attribution')]

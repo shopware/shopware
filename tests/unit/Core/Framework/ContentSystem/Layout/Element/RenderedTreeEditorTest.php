@@ -36,14 +36,13 @@ class RenderedTreeEditorTest extends TestCase
             RenderedElementBuilder::create('core:text', 'root-2')->build(),
         ];
 
-        static::assertCount(2, $tree[0]->slots['main']);
-        static::assertCount(2, $tree[0]->slots['main'][0]->slots['inner']);
-
         $mapped = (new RenderedTreeEditor())->mapNodes(
             $tree,
             static fn (RenderedElement $element): RenderedElement => $element->withProperty('marked', true)
         );
 
+        static::assertCount(2, $tree[0]->slots['main']);
+        static::assertCount(2, $tree[0]->slots['main'][0]->slots['inner']);
         static::assertTrue($mapped[0]->properties['marked']);
         static::assertTrue($mapped[0]->slots['main'][0]->properties['marked']);
         static::assertTrue($mapped[0]->slots['main'][1]->properties['marked']);
@@ -67,6 +66,7 @@ class RenderedTreeEditorTest extends TestCase
         static::assertNotSame($root, $mapped[0]);
         static::assertSame([], $root->properties);
         static::assertSame([], $root->slots['main'][0]->properties);
+        static::assertTrue($mapped[0]->properties['marked']);
     }
 
     #[TestDox('carries an object property value through the rebuild by identity, so a mapper mutating one reaches the input too')]
@@ -77,14 +77,14 @@ class RenderedTreeEditorTest extends TestCase
             ->withProperty('media', $struct)
             ->build();
 
-        static::assertSame($struct, $root->properties['media']);
-
         $mapped = (new RenderedTreeEditor())->mapNodes(
             [$root],
             static fn (RenderedElement $element): RenderedElement => $element->withProperty('marked', true)
         );
 
+        static::assertSame($struct, $root->properties['media']);
         static::assertSame($struct, $mapped[0]->properties['media']);
+        static::assertTrue($mapped[0]->properties['marked']);
     }
 
     #[TestDox('hands the mapper a parent whose slot children the mapper has already seen')]
@@ -97,8 +97,6 @@ class RenderedTreeEditorTest extends TestCase
             ])
             ->build();
 
-        static::assertCount(2, $root->slots['main']);
-
         $mapped = (new RenderedTreeEditor())->mapNodes([$root], static function (RenderedElement $element): RenderedElement {
             $childTags = array_map(
                 static fn (RenderedElement $child): mixed => $child->properties['tag'] ?? null,
@@ -108,6 +106,7 @@ class RenderedTreeEditorTest extends TestCase
             return $element->withProperty('tag', 'tagged')->withProperty('childTags', $childTags);
         });
 
+        static::assertCount(2, $root->slots['main']);
         static::assertSame(['tagged', 'tagged'], $mapped[0]->properties['childTags']);
     }
 
@@ -151,6 +150,5 @@ class RenderedTreeEditorTest extends TestCase
         );
 
         static::assertSame($introduced, $mapped[0]->slots['main'][0]);
-        static::assertSame([], $mapped[0]->slots['main'][0]->properties);
     }
 }

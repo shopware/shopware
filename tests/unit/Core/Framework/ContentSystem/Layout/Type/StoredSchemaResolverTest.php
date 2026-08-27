@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -287,11 +288,21 @@ class StoredSchemaResolverTest extends TestCase
         $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification($configKeys));
 
-        $dataLoaderProvider = static::createStub(DataLoaderProvider::class);
-        $dataLoaderProvider->method('get')->willReturn($loader);
+        // A real ServiceLocator, keyed by every loader name the given specifications actually reference, so
+        // get() genuinely depends on the requested name instead of an unconditional stub masking a mis-wired one.
+        $loaderNames = [];
+        foreach ($specifications as $specification) {
+            foreach ($specification->resolves() as $binding) {
+                $loaderNames[$binding->loader] = static fn (): AbstractContentDataLoader => $loader;
+            }
+        }
 
-        $bindingSpecificationRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $bindingSpecificationRegistry->method('all')->willReturn($specifications);
+        $dataLoaderProvider = new DataLoaderProvider(new ServiceLocator($loaderNames));
+
+        // expects(once()) locks in the source class's own documented invariant (lines 76-79): resolve() reads
+        // the registry in one traversal, never one read per kind, so two different snapshots can never disagree.
+        $bindingSpecificationRegistry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingSpecificationRegistry->expects($this->once())->method('all')->willReturn($specifications);
 
         return new StoredSchemaResolver($bindingSpecificationRegistry, $dataLoaderProvider);
     }

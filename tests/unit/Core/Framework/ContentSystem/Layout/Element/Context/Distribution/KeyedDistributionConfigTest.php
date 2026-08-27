@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Element\Context\Distribution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -63,34 +64,21 @@ class KeyedDistributionConfigTest extends TestCase
         );
     }
 
-    #[TestDox('rejects a present keyProperty of the wrong type instead of substituting the default')]
-    public function testFromArrayRejectsANonStringKeyProperty(): void
+    /**
+     * keyProperty rejects a present null via `array_key_exists` rather than `??`, so a present null is not
+     * treated as absent-and-defaulted the way consumerAlias treats it; the null case and the non-string case
+     * each guard a distinct regression (see {@see KeyedDistributionConfig::fromArray()}'s docblock), so both
+     * stay even though today's code throws from the same `is_string` check.
+     *
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('invalidFieldDataProvider')]
+    #[TestDox('rejects invalid field type instead of substituting the default: $_dataName')]
+    public function testFromArrayRejectsInvalidFieldType(array $data, ContentSystemException $expected): void
     {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('keyProperty', 'string', 'int')
-        );
+        $this->expectExceptionObject($expected);
 
-        KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'keyProperty' => 5]);
-    }
-
-    #[TestDox('rejects a keyProperty present as null instead of substituting the default')]
-    public function testFromArrayRejectsANullKeyProperty(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('keyProperty', 'string', 'null')
-        );
-
-        KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'keyProperty' => null]);
-    }
-
-    #[TestDox('rejects a present consumerAlias of the wrong type instead of substituting the default')]
-    public function testFromArrayRejectsANonStringConsumerAlias(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int')
-        );
-
-        KeyedDistributionConfig::fromArray(['distribution' => 'keyed', 'consumerAlias' => 42]);
+        KeyedDistributionConfig::fromArray($data);
     }
 
     #[TestDox('returns constraint mapping with keyProperty NotBlank+Type and consumerAlias Type constraints')]
@@ -185,5 +173,26 @@ class KeyedDistributionConfigTest extends TestCase
         $result = $config->distribute($data, $consumers);
 
         static::assertSame([null], $result);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
+     */
+    public static function invalidFieldDataProvider(): iterable
+    {
+        yield 'non-string keyProperty' => [
+            ['distribution' => 'keyed', 'keyProperty' => 5],
+            ContentSystemException::invalidFieldValueType('keyProperty', 'string', 'int'),
+        ];
+
+        yield 'null keyProperty' => [
+            ['distribution' => 'keyed', 'keyProperty' => null],
+            ContentSystemException::invalidFieldValueType('keyProperty', 'string', 'null'),
+        ];
+
+        yield 'non-string consumerAlias' => [
+            ['distribution' => 'keyed', 'consumerAlias' => 42],
+            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int'),
+        ];
     }
 }

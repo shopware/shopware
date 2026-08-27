@@ -66,22 +66,6 @@ class StoredTreeConstraintsTest extends TestCase
         static::assertCount(0, $this->validate($forest));
     }
 
-    #[TestDox('reports a violation for a style option the registry does not know')]
-    public function testRejectsAnUnknownStyleOption(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'style' => ['removed-plugin-option' => ['md' => 2]],
-            ],
-        ]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][style][removed-plugin-option]', $violations->get(0)->getPropertyPath());
-    }
-
     #[TestDox('reports no violation for a style option the registry knows')]
     public function testAcceptsAKnownStyleOption(): void
     {
@@ -127,6 +111,50 @@ class StoredTreeConstraintsTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, mixed> $style
+     */
+    #[DataProvider('acceptsStyleProvider')]
+    #[TestDox('reports no violation for $_dataName')]
+    public function testAcceptsAValidStyle(array $style): void
+    {
+        static::assertCount(0, $this->validate([$this->element(['style' => $style])]));
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     */
+    #[DataProvider('acceptsDistributionProvider')]
+    #[TestDox('reports no violation for $_dataName')]
+    public function testAcceptsAWellFormedDistribution(array $provider): void
+    {
+        static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
+    }
+
+    #[TestDox('derives the style constraints fresh on each call so a changed registry reaches the next write')]
+    public function testDerivesStyleConstraintsFreshPerCall(): void
+    {
+        // An app install/update/activation that changed the option set must take effect on the next write
+        // without a process restart, so each build() re-reads the registry and never memoizes. The registry
+        // below has no `display` option on the first read and only that option on the second, so the same
+        // payload is rejected and then accepted; assertCount(0, $afterChange) fails if anything is memoized.
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
+        $registry->method('all')->willReturnOnConsecutiveCalls(
+            ['col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), true, null, 'core')],
+            ['display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), true, null, 'core')],
+        );
+
+        $constraints = new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver());
+        $validator = $this->validator();
+        $forest = [$this->element(['style' => ['display' => ['xs' => false]]])];
+
+        $beforeChange = $validator->validate($forest, $constraints->build());
+        $afterChange = $validator->validate($forest, $constraints->build());
+
+        static::assertGreaterThanOrEqual(1, $beforeChange->count());
+        static::assertCount(0, $afterChange);
+    }
+
     #[TestDox('reaches a nested slot child and reports its violation at a path identifying that child')]
     public function testReportsAViolationOnANestedSlotChild(): void
     {
@@ -152,6 +180,42 @@ class StoredTreeConstraintsTest extends TestCase
             '[0][slots][main][0].[slots][inner][0].[id]',
             $violations->get(0)->getPropertyPath()
         );
+    }
+
+    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
+    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
+    {
+        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
+    }
+
+    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
+    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
+    {
+        $provider = ['type' => 'single', 'distribution' => 'unknown'];
+
+        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
+    }
+
+    #[TestDox('reports a violation for a style option the registry does not know')]
+    public function testRejectsAnUnknownStyleOption(): void
+    {
+        $violations = $this->validate([
+            [
+                'id' => 'root-1',
+                'component' => 'core:text',
+                'properties' => [],
+                'style' => ['removed-plugin-option' => ['md' => 2]],
+            ],
+        ]);
+
+        static::assertCount(1, $violations);
+        static::assertSame('[0][style][removed-plugin-option]', $violations->get(0)->getPropertyPath());
     }
 
     #[TestDox('reports a violation for a forest whose root keys are not a sequential list')]
@@ -252,11 +316,28 @@ class StoredTreeConstraintsTest extends TestCase
     /**
      * @param array<string, mixed> $style
      */
-    #[DataProvider('acceptsStyleProvider')]
-    #[TestDox('reports no violation for $_dataName')]
-    public function testAcceptsAValidStyle(array $style): void
+    #[DataProvider('rejectsStyleProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAnInvalidStyle(array $style, string $expectedPath): void
     {
-        static::assertCount(0, $this->validate([$this->element(['style' => $style])]));
+        $violations = $this->validate([$this->element(['style' => $style])]);
+
+        static::assertGreaterThanOrEqual(1, $violations->count());
+        // The path proves the violation fires on the offending option/breakpoint, not a stray top-level one
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     */
+    #[DataProvider('rejectsDistributionProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAMalformedDistribution(array $provider, string $expectedPath): void
+    {
+        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
     }
 
     /**
@@ -275,20 +356,6 @@ class StoredTreeConstraintsTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $style
-     */
-    #[DataProvider('rejectsStyleProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAnInvalidStyle(array $style, string $expectedPath): void
-    {
-        $violations = $this->validate([$this->element(['style' => $style])]);
-
-        static::assertGreaterThanOrEqual(1, $violations->count());
-        // The path proves the violation fires on the offending option/breakpoint, not a stray top-level one
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
-    }
-
-    /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
     public static function rejectsStyleProvider(): iterable
@@ -302,40 +369,6 @@ class StoredTreeConstraintsTest extends TestCase
         yield 'a flat integer option sent as a breakpoint map' => [['z-index' => ['md' => 10]], '[0][style][z-index]'];
         yield 'a breakpoint-aware option sent as a bare scalar' => [['col-span' => 6], '[0][style][col-span]'];
         yield 'a flat string option exceeding its maxLength' => [['flat-label' => '123456789'], '[0][style][flat-label]'];
-    }
-
-    #[TestDox('derives the style constraints fresh on each call so a changed registry reaches the next write')]
-    public function testDerivesStyleConstraintsFreshPerCall(): void
-    {
-        // An app install/update/activation that changed the option set must take effect on the next write
-        // without a process restart, so each build() re-reads the registry and never memoizes. The registry
-        // below has no `display` option on the first read and only that option on the second, so the same
-        // payload is rejected and then accepted; assertCount(0, $afterChange) fails if anything is memoized.
-        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
-        $registry->method('all')->willReturnOnConsecutiveCalls(
-            ['col-span' => new StyleOptionSpecification('col-span', new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null), true, null, 'core')],
-            ['display' => new StyleOptionSpecification('display', new StyleOptionValueType('boolean', null, null, null, null), true, null, 'core')],
-        );
-
-        $constraints = new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver());
-        $validator = $this->validator();
-        $forest = [$this->element(['style' => ['display' => ['xs' => false]]])];
-
-        $beforeChange = $validator->validate($forest, $constraints->build());
-        $afterChange = $validator->validate($forest, $constraints->build());
-
-        static::assertGreaterThanOrEqual(1, $beforeChange->count());
-        static::assertCount(0, $afterChange);
-    }
-
-    /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('acceptsDistributionProvider')]
-    #[TestDox('reports no violation for $_dataName')]
-    public function testAcceptsAWellFormedDistribution(array $provider): void
-    {
-        static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
     }
 
     /**
@@ -362,19 +395,6 @@ class StoredTreeConstraintsTest extends TestCase
         yield 'a sliced provider carrying its slice size' => [
             ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 5],
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('rejectsDistributionProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAMalformedDistribution(array $provider, string $expectedPath): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
     }
 
     /**
@@ -406,26 +426,6 @@ class StoredTreeConstraintsTest extends TestCase
             ['type' => 'collection', 'distribution' => 'sliced'],
             '[0][providesContext][product][sliceSize]',
         ];
-    }
-
-    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
-    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
-    }
-
-    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
-    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
-    {
-        $provider = ['type' => 'single', 'distribution' => 'unknown'];
-
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
     }
 
     /**

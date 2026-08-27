@@ -38,32 +38,38 @@ class VirtualRootWrapperTest extends TestCase
         $this->wrapper = new VirtualRootWrapper();
     }
 
-    #[TestDox('returns true when specification has data requirements and elements exist')]
-    public function testRequiresWrapping(): void
+    /**
+     * @param list<StoredElement> $elements
+     */
+    #[DataProvider('requiresWrappingProvider')]
+    #[TestDox('reports whether wrapping is required: $_dataName')]
+    public function testRequiresWrapping(bool $expected, RenderingSpecification $specification, array $elements): void
     {
-        $element = StoredElementBuilder::create('Sw:Text')->build();
-
-        static::assertTrue($this->wrapper->requiresWrapping($this->specificationWithLanguageRequirement(), [$element]));
+        static::assertSame($expected, $this->wrapper->requiresWrapping($specification, $elements));
     }
 
-    #[TestDox('returns false when specification has no data requirements')]
-    public function testRequiresWrappingNoRequirements(): void
+    /**
+     * @return iterable<string, array{bool, RenderingSpecification, list<StoredElement>}>
+     */
+    public static function requiresWrappingProvider(): iterable
     {
-        $specification = new RenderingSpecification(
+        yield 'data requirements and elements both present' => [
+            true,
+            self::specificationWithLanguageRequirement(),
+            [StoredElementBuilder::create('Sw:Text')->build()],
+        ];
+
+        yield 'no data requirements' => [
+            false,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            [StoredElementBuilder::create('Sw:Text')->build()],
+        ];
+
+        yield 'no elements' => [
+            false,
+            self::specificationWithLanguageRequirement(),
             [],
-            PlaceholderValues::from([]),
-            new Request(),
-        );
-
-        $element = StoredElementBuilder::create('Sw:Text')->build();
-
-        static::assertFalse($this->wrapper->requiresWrapping($specification, [$element]));
-    }
-
-    #[TestDox('returns false when elements array is empty')]
-    public function testRequiresWrappingNoElements(): void
-    {
-        static::assertFalse($this->wrapper->requiresWrapping($this->specificationWithLanguageRequirement(), []));
+        ];
     }
 
     #[TestDox('creates virtual root with correct identity and broadcast providers')]
@@ -209,7 +215,7 @@ class VirtualRootWrapperTest extends TestCase
         return new RenderedElement($element->id, $element->component, [], $slots);
     }
 
-    private function specificationWithLanguageRequirement(): RenderingSpecification
+    private static function specificationWithLanguageRequirement(): RenderingSpecification
     {
         $requirement = new DataRequirement('language', 'language', new LanguageLoaderConfig());
 

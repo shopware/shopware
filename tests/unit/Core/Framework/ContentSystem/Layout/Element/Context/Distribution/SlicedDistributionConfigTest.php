@@ -143,24 +143,35 @@ class SlicedDistributionConfigTest extends TestCase
         );
     }
 
-    #[TestDox('rejects a present sliceSize of the wrong type instead of substituting the default')]
-    public function testFromArrayRejectsANonIntSliceSize(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, \Exception}>
+     */
+    public static function invalidFieldTypeProvider(): iterable
     {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('sliceSize', 'int', 'string')
-        );
-
-        SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => '10']);
+        yield 'sliceSize non-int' => [
+            ['distribution' => 'sliced', 'sliceSize' => '10'],
+            ContentSystemException::invalidFieldValueType('sliceSize', 'int', 'string'),
+        ];
+        yield 'sliceSize null' => [
+            ['distribution' => 'sliced', 'sliceSize' => null],
+            ContentSystemException::invalidFieldValueType('sliceSize', 'int', 'null'),
+        ];
+        yield 'consumerAlias non-string' => [
+            ['distribution' => 'sliced', 'sliceSize' => 5, 'consumerAlias' => 42],
+            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int'),
+        ];
     }
 
-    #[TestDox('rejects a sliceSize present as null instead of substituting the default')]
-    public function testFromArrayRejectsANullSliceSize(): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('invalidFieldTypeProvider')]
+    #[TestDox('rejects invalid field type: $_dataName')]
+    public function testRejectsInvalidFieldType(array $data, \Exception $exception): void
     {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('sliceSize', 'int', 'null')
-        );
+        $this->expectExceptionObject($exception);
 
-        SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => null]);
+        SlicedDistributionConfig::fromArray($data);
     }
 
     #[TestDox('accepts a present sliceSize of exactly 1')]
@@ -172,16 +183,7 @@ class SlicedDistributionConfigTest extends TestCase
         static::assertSame(1, $config->sliceSize);
     }
 
-    /**
-     * @return iterable<string, array{int}>
-     */
-    public static function provideSubOneSliceSizes(): iterable
-    {
-        yield 'zero' => [0];
-        yield 'negative' => [-1];
-    }
-
-    #[DataProvider('provideSubOneSliceSizes')]
+    #[DataProvider('rejectsSubOneSliceSizeProvider')]
     #[TestDox('rejects a present sliceSize below 1 instead of clamping it')]
     public function testFromArrayRejectsASubOneSliceSize(int $sliceSize): void
     {
@@ -192,7 +194,7 @@ class SlicedDistributionConfigTest extends TestCase
         SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => $sliceSize]);
     }
 
-    #[DataProvider('provideSubOneSliceSizes')]
+    #[DataProvider('rejectsSubOneSliceSizeProvider')]
     #[TestDox('rejects a sliceSize below 1 passed to withSliceSize() instead of clamping it')]
     public function testWithSliceSizeRejectsASubOneSliceSize(int $sliceSize): void
     {
@@ -201,16 +203,6 @@ class SlicedDistributionConfigTest extends TestCase
         );
 
         SlicedDistributionConfig::withSliceSize($sliceSize);
-    }
-
-    #[TestDox('rejects a present consumerAlias of the wrong type instead of substituting the default')]
-    public function testFromArrayRejectsANonStringConsumerAlias(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('consumerAlias', 'string', 'int')
-        );
-
-        SlicedDistributionConfig::fromArray(['distribution' => 'sliced', 'sliceSize' => 5, 'consumerAlias' => 42]);
     }
 
     #[TestDox('returns constraint mapping with sliceSize NotBlank+Type(int)+GreaterThanOrEqual(1) and consumerAlias Type(string) constraints')]
@@ -230,5 +222,14 @@ class SlicedDistributionConfigTest extends TestCase
         static::assertCount(1, $constraints['consumerAlias']);
         static::assertInstanceOf(Type::class, $constraints['consumerAlias'][0]);
         static::assertSame('string', $constraints['consumerAlias'][0]->type);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function rejectsSubOneSliceSizeProvider(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-1];
     }
 }

@@ -391,7 +391,7 @@ class ElementStyleNormalizerTest extends TestCase
      * @param array<string, string|int|float|bool|array<string, string|int|float|bool>> $values
      */
     #[DataProvider('idempotenceProvider')]
-    #[TestDox('normalizing an already normalized style changes nothing')]
+    #[TestDox('changes nothing when normalizing an already normalized style')]
     public function testNormalizingTwiceEqualsNormalizingOnce(array $values): void
     {
         $normalizer = $this->normalizer(

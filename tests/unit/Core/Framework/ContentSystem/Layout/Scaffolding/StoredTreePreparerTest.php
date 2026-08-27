@@ -43,12 +43,49 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('Product prod-1', $prepared[0]->property('title')?->asString());
     }
 
+    #[TestDox('substitutes tokens in slot children at every depth')]
+    public function testPrepareRecursesIntoSlotChildren(): void
+    {
+        $grandchild = StoredElementBuilder::create('text', 'grandchild-id')
+            ->withProperty('title', 'Deep {{productId}}')
+            ->build();
+        $child = StoredElementBuilder::create('section', 'child-id')
+            ->withSlot('default', [$grandchild])
+            ->build();
+        $root = StoredElementBuilder::create('section', 'root-id')
+            ->withSlot('default', [$child])
+            ->build();
+
+        $prepared = $this->prepare([$root], ['productId' => 'prod-1']);
+
+        $preparedGrandchild = $prepared[0]->slots['default'][0]->slots['default'][0];
+        static::assertSame('Deep prod-1', $preparedGrandchild->property('title')?->asString());
+    }
+
+    #[TestDox('prunes away the sibling of the addressed target element while preserving the discarded subtree in the pre-prune forest')]
+    public function testPreparePrunesAndPreservesPrePruneForest(): void
+    {
+        $prepared = $this->preparer()->prepare(
+            [$this->targetAndSiblingRoot()],
+            $this->targetedSpecification('target-id'),
+            RenderingMode::SKELETON
+        );
+
+        // The target consumes context, so the prune keeps its ancestor for the data flow and drops the
+        // sibling only; the pipeline's partial extract removes that ancestor after hydration.
+        static::assertSame(['root-id', 'target-id'], $this->collectIds($prepared->tree));
+        static::assertSame('target-id', $prepared->scaffolding->extractTargetId);
+        // The sibling is what the prune drops. Wiring validation runs on this forest, so a defect in a
+        // discarded subtree still has something to be judged against.
+        static::assertSame(['root-id', 'target-id', 'sibling-id'], $this->collectIds($prepared->prePruneForest));
+    }
+
     /**
      * @param scalar|null $value
      */
     #[DataProvider('nonStringPropertyProvider')]
-    #[TestDox('leaves a $variant property untouched')]
-    public function testPrepareLeavesNonStringPropertiesUntouched(string $variant, string|int|float|bool|null $value): void
+    #[TestDox('leaves a $_dataName property untouched')]
+    public function testPrepareLeavesNonStringPropertiesUntouched(string|int|float|bool|null $value): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
             ->withProperty('value', $value)
@@ -60,16 +97,58 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, scalar|null}>
+     * @return array<string, array{scalar|null}>
      */
     public static function nonStringPropertyProvider(): array
     {
         return [
-            'int' => ['int', 42],
-            'float' => ['float', 4.2],
-            'bool' => ['bool', true],
-            'null' => ['null', null],
+            'int' => [42],
+            'float' => [4.2],
+            'bool' => [true],
+            'null' => [null],
         ];
+    }
+
+    #[TestDox('leaves the roots unwrapped when the specification carries no page-level data requirement')]
+    public function testPrepareLeavesTheRootsUnwrappedWithoutPageLevelDataRequirements(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')->build();
+
+        $prepared = $this->preparer()->prepare([$root], $this->specification([]), RenderingMode::SKELETON);
+
+        static::assertSame([$root], $prepared->tree);
+        static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
+    }
+
+    #[TestDox('returns the tree unchanged in SKELETON mode')]
+    public function testPrepareResolvesNothingInSkeletonMode(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Product {{productId}}')
+            ->build();
+
+        $prepared = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['productId' => 'prod-1']),
+            RenderingMode::SKELETON
+        );
+
+        static::assertSame([$element], $prepared->tree);
+    }
+
+    #[TestDox('wraps the roots in a virtual root and carries the wrapped forest as the pre-prune forest for page-level data requirements')]
+    public function testPrepareWrapsRootAndCarriesForestForPageLevelDataRequirements(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')->build();
+
+        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON);
+
+        // The wrap runs before the prune, so the wrapper is part of what validation judges.
+        static::assertCount(1, $prepared->tree);
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->tree[0]->id);
+        static::assertCount(1, $prepared->prePruneForest);
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->prePruneForest[0]->id);
+        static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
     }
 
     #[TestDox('leaves a list property untouched, its string items included')]
@@ -102,25 +181,6 @@ class StoredTreePreparerTest extends TestCase
         );
     }
 
-    #[TestDox('substitutes tokens in slot children at every depth')]
-    public function testPrepareRecursesIntoSlotChildren(): void
-    {
-        $grandchild = StoredElementBuilder::create('text', 'grandchild-id')
-            ->withProperty('title', 'Deep {{productId}}')
-            ->build();
-        $child = StoredElementBuilder::create('section', 'child-id')
-            ->withSlot('default', [$grandchild])
-            ->build();
-        $root = StoredElementBuilder::create('section', 'root-id')
-            ->withSlot('default', [$child])
-            ->build();
-
-        $prepared = $this->prepare([$root], ['productId' => 'prod-1']);
-
-        $preparedGrandchild = $prepared[0]->slots['default'][0]->slots['default'][0];
-        static::assertSame('Deep prod-1', $preparedGrandchild->property('title')?->asString());
-    }
-
     #[TestDox('leaves the element style untouched')]
     public function testPrepareLeavesStyleUntouched(): void
     {
@@ -145,86 +205,6 @@ class StoredTreePreparerTest extends TestCase
         $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
 
         static::assertSame('Category {{categoryId}}', $prepared[0]->property('title')?->asString());
-    }
-
-    #[TestDox('returns the tree unchanged in SKELETON mode')]
-    public function testPrepareResolvesNothingInSkeletonMode(): void
-    {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Product {{productId}}')
-            ->build();
-
-        $prepared = $this->preparer()->prepare(
-            [$element],
-            $this->specification(['productId' => 'prod-1']),
-            RenderingMode::SKELETON
-        );
-
-        static::assertSame([$element], $prepared->tree);
-    }
-
-    #[TestDox('wraps the roots in a virtual root when the specification carries page-level data requirements')]
-    public function testPrepareWrapsTheRootsForPageLevelDataRequirements(): void
-    {
-        $root = StoredElementBuilder::create('section', 'root-id')->build();
-
-        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON);
-
-        static::assertCount(1, $prepared->tree);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->tree[0]->id);
-        static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
-    }
-
-    #[TestDox('leaves the roots unwrapped when the specification carries no page-level data requirement')]
-    public function testPrepareLeavesTheRootsUnwrappedWithoutPageLevelDataRequirements(): void
-    {
-        $root = StoredElementBuilder::create('section', 'root-id')->build();
-
-        $prepared = $this->preparer()->prepare([$root], $this->specification([]), RenderingMode::SKELETON);
-
-        static::assertSame([$root], $prepared->tree);
-        static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
-    }
-
-    #[TestDox('prunes away the sibling of the addressed target element')]
-    public function testPreparePrunesToTheTargetElement(): void
-    {
-        $prepared = $this->preparer()->prepare(
-            [$this->targetAndSiblingRoot()],
-            $this->targetedSpecification('target-id'),
-            RenderingMode::SKELETON
-        );
-
-        // The target consumes context, so the prune keeps its ancestor for the data flow and drops the
-        // sibling only; the pipeline's partial extract removes that ancestor after hydration.
-        static::assertSame(['root-id', 'target-id'], $this->collectIds($prepared->tree));
-        static::assertSame('target-id', $prepared->scaffolding->extractTargetId);
-    }
-
-    #[TestDox('keeps the subtree the prune discarded in the pre-prune forest')]
-    public function testPreparePreservesTheDiscardedSubtreeInThePrePruneForest(): void
-    {
-        $prepared = $this->preparer()->prepare(
-            [$this->targetAndSiblingRoot()],
-            $this->targetedSpecification('target-id'),
-            RenderingMode::SKELETON
-        );
-
-        // The sibling is what the prune drops. Wiring validation runs on this forest, so a defect in a
-        // discarded subtree still has something to be judged against.
-        static::assertSame(['root-id', 'target-id', 'sibling-id'], $this->collectIds($prepared->prePruneForest));
-    }
-
-    #[TestDox('carries the wrapped forest, virtual root included, as the pre-prune forest')]
-    public function testPrepareCarriesTheWrappedForestAsThePrePruneForest(): void
-    {
-        $root = StoredElementBuilder::create('section', 'root-id')->build();
-
-        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON);
-
-        // The wrap runs before the prune, so the wrapper is part of what validation judges.
-        static::assertCount(1, $prepared->prePruneForest);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->prePruneForest[0]->id);
     }
 
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
@@ -261,6 +241,26 @@ class StoredTreePreparerTest extends TestCase
 
         static::assertNull($prepared->scaffolding->extractTargetId);
         static::assertSame([$root], $prepared->tree);
+    }
+
+    #[TestDox('leaves an empty tree of roots empty')]
+    public function testPrepareHandlesAnEmptyTreeOfRoots(): void
+    {
+        $prepared = $this->prepare([], ['productId' => 'prod-1']);
+
+        static::assertSame([], $prepared);
+    }
+
+    #[TestDox('leaves a token verbatim when the placeholder values map is empty')]
+    public function testPrepareLeavesATokenVerbatimWithAnEmptyPlaceholderValuesMap(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Product {{productId}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], []);
+
+        static::assertSame('Product {{productId}}', $prepared[0]->property('title')?->asString());
     }
 
     private function preparer(): StoredTreePreparer

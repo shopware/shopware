@@ -41,26 +41,6 @@ class StoredTreeCodecTest extends TestCase
         static::assertSame([], $codec->encode($codec->decode([])));
     }
 
-    #[TestDox('decode rejects a top-level value that is not a list')]
-    public function testDecodeRejectsANonListTopLevelValue(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('layout', 'list of elements', 'associative array')
-        );
-
-        $this->codec()->decode(['first' => ['id' => 'root-1', 'component' => 'core:text', 'properties' => []]]);
-    }
-
-    #[TestDox('decode rejects a root entry that is not an element array')]
-    public function testDecodeRejectsAMalformedEntry(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('layout[0]', 'array', 'string')
-        );
-
-        $this->codec()->decode(['root-1']);
-    }
-
     #[TestDox('decode delegates each root to the element codec, so a nested child is decoded too')]
     public function testDecodeDelegatesNestedElementsToTheElementCodec(): void
     {
@@ -96,6 +76,26 @@ class StoredTreeCodecTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame(ViolationCode::DuplicateElementId, $violations[0]->code);
         static::assertSame('root-1', $violations[0]->elementId);
+    }
+
+    #[TestDox('decode rejects a top-level value that is not a list')]
+    public function testDecodeRejectsANonListTopLevelValue(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('layout', 'list of elements', 'associative array')
+        );
+
+        $this->codec()->decode(['first' => ['id' => 'root-1', 'component' => 'core:text', 'properties' => []]]);
+    }
+
+    #[TestDox('decode rejects a root entry that is not an element array')]
+    public function testDecodeRejectsAMalformedEntry(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('layout[0]', 'array', 'string')
+        );
+
+        $this->codec()->decode(['root-1']);
     }
 
     private function codec(): StoredTreeCodec

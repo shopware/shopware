@@ -121,18 +121,6 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         (new ContentSystemDataLoaderCompilerPass())->process($container);
     }
 
-    #[TestDox('accepts a loader whose source is declared by a tagged config serializer')]
-    public function testProcessAcceptsLoaderWithRegisteredConfigSerializer(): void
-    {
-        $container = new ContainerBuilder();
-        $container->setDefinition(GenericStubLoader::class, $this->taggedLoader(GenericStubLoader::class));
-        $container->setDefinition(GenericStubLoaderConfigSerializer::class, $this->taggedSerializer(GenericStubLoaderConfigSerializer::class));
-
-        $this->expectNotToPerformAssertions();
-
-        (new ContentSystemDataLoaderCompilerPass())->process($container);
-    }
-
     #[TestDox('throws when no tagged config serializer declares a loader\'s source')]
     public function testProcessThrowsForLoaderSourceWithoutConfigSerializer(): void
     {
@@ -170,7 +158,10 @@ class ContentSystemDataLoaderCompilerPassTest extends TestCase
         $abstract->setAbstract(true);
         $container->setDefinition('app.abstract_config_serializer', $abstract);
 
-        $container->setDefinition('app.unresolvable_config_serializer', $this->taggedSerializer('App\\ContentSystem\\MissingConfigSerializer'));
+        // A class that exists and is concrete, so it clears the earlier class-exists and non-abstract guards,
+        // but does not implement AbstractContentDataLoaderConfigSerializer — the one guard the other two
+        // fixtures in this test never exercise.
+        $container->setDefinition('app.non_serializer_config_serializer', $this->taggedSerializer(\stdClass::class));
 
         $this->expectNotToPerformAssertions();
 

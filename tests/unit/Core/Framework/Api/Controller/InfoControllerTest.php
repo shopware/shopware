@@ -291,23 +291,6 @@ class InfoControllerTest extends TestCase
         static::assertSame([], $typesByName['Sw:Alert']['bindingSpecifications']);
     }
 
-    #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
-    public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
-    {
-        $spec = $this->alertTypeSpecification();
-
-        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
-
-        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
-        $response = $controller->getContentSystemElementTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"bindingSpecifications":{}', $content);
-    }
-
     #[TestDox('folds the resolved storage schema into each element type entry, keyed by stored key')]
     public function testContentSystemElementTypesFoldsInStorageSchema(): void
     {
@@ -336,44 +319,6 @@ class InfoControllerTest extends TestCase
         ], $typesByName['Sw:Content:Text']['storageSchema']);
         // A type that stores nothing carries an empty map, not the Text entry's storage schema.
         static::assertSame([], $typesByName['Sw:Alert']['storageSchema']);
-    }
-
-    #[TestDox('encodes the folded per-type storage schema as a JSON object when the type stores nothing')]
-    public function testContentSystemElementTypesEncodesEmptyStorageSchemaAsObject(): void
-    {
-        $spec = $this->alertTypeSpecification();
-
-        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
-
-        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
-        $response = $controller->getContentSystemElementTypes();
-
-        $content = $response->getContent();
-        static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"storageSchema":{}', $content);
-    }
-
-    #[TestDox('preserves floating-point precision in message stats response')]
-    public function testMessageStatsPreservesFloatingPointPrecision(): void
-    {
-        $this->statsService->method('getStats')->willReturn(
-            new MessageStatsResponseEntity(
-                true,
-                new MessageStatsEntity(1, new \DateTime('2024-01-15 10:00:00'), 1.00, new MessageTypeStatsCollection())
-            )
-        );
-        $content = $this->createController()->messageStats()->getContent();
-        static::assertIsString($content);
-
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertArrayHasKey('stats', $data);
-        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
-
-        // Check that the floating point precision is preserved for zero-padded decimal values
-        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
     }
 
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
@@ -436,19 +381,59 @@ class InfoControllerTest extends TestCase
         static::assertTrue($data['adminWorker']['enableQueueStatsWorker']);
     }
 
-    #[TestDox('returns disabled message stats when stats service is not enabled')]
-    public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
+    #[TestDox('preserves floating-point precision in message stats response')]
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
         $this->statsService->method('getStats')->willReturn(
-            new MessageStatsResponseEntity(enabled: false)
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime('2024-01-15 10:00:00'), 1.00, new MessageTypeStatsCollection())
+            )
         );
-
         $content = $this->createController()->messageStats()->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['enabled']);
-        static::assertNull($data['stats']);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+    }
+
+    #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
+    public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
+    {
+        $spec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
+    }
+
+    #[TestDox('encodes the folded per-type storage schema as a JSON object when the type stores nothing')]
+    public function testContentSystemElementTypesEncodesEmptyStorageSchemaAsObject(): void
+    {
+        $spec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"storageSchema":{}', $content);
     }
 
     #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
@@ -497,13 +482,19 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
-    /**
-     * @return iterable<string, array{string|null, string|null}>
-     */
-    public static function returnsFirstMigrationDateProvider(): iterable
+    #[TestDox('returns disabled message stats when stats service is not enabled')]
+    public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
     {
-        yield 'null when migration info returns null' => [null, null];
-        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(enabled: false)
+        );
+
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['enabled']);
+        static::assertNull($data['stats']);
     }
 
     #[DataProvider('aclProtectedRouteProvider')]
@@ -515,6 +506,15 @@ class InfoControllerTest extends TestCase
 
         static::assertNotNull($route, \sprintf('Route "%s" is not defined on %s', $routeName, InfoController::class));
         static::assertSame(['message_queue_stats:read'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
+    /**
+     * @return iterable<string, array{string|null, string|null}>
+     */
+    public static function returnsFirstMigrationDateProvider(): iterable
+    {
+        yield 'null when migration info returns null' => [null, null];
+        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
     }
 
     public static function aclProtectedRouteProvider(): \Generator

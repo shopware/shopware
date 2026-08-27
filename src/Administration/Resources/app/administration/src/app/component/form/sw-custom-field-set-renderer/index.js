@@ -585,16 +585,15 @@ export default {
                 return;
             }
 
-            if (this.feature.isActive('v6.8.0.0')) {
-                if (this.variant !== 'tabs') {
-                    return;
-                }
-
-                this.setActiveCustomFieldSetTab(firstVisibleCustomFieldSet.id);
+            if (this.variant !== 'tabs') {
                 return;
             }
 
-            this.loadCustomFieldSet(firstVisibleCustomFieldSet.id);
+            this.setActiveCustomFieldSetTab(firstVisibleCustomFieldSet.id);
+
+            if (this.feature.isActive('v6.8.0.0')) {
+                return;
+            }
 
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes

@@ -41,24 +41,8 @@ class DuplicateElementTest extends TestCase
         static::assertSame('other', $result->roots[2]->id);
     }
 
-    #[TestDox('remints every id in the cloned subtree')]
-    public function testDuplicateRemintsEverySubtreeId(): void
-    {
-        $tree = new StoredTree([new StoredElement('root', 'Sw:Block', [], [], [
-            'content' => [new StoredElement('child', 'Sw:Block')],
-        ])]);
-
-        $result = (new DuplicateElement('root'))->apply($tree);
-
-        $clone = $result->roots[1];
-        $clonedChild = $clone->slots['content'][0];
-        static::assertNotSame('root', $clone->id);
-        static::assertNotSame('child', $clonedChild->id);
-        static::assertSame('Sw:Block', $clonedChild->component);
-    }
-
-    #[TestDox('reports the cloned subtree ids as affected')]
-    public function testDuplicateAffectedAreCloneIds(): void
+    #[TestDox('remints every id in the cloned subtree and reports them as affected')]
+    public function testDuplicateRemintsEverySubtreeIdAndReportsThemAsAffected(): void
     {
         $tree = new StoredTree([new StoredElement('root', 'Sw:Block', [], [], [
             'content' => [new StoredElement('child', 'Sw:Block')],
@@ -68,7 +52,11 @@ class DuplicateElementTest extends TestCase
         $result = $duplicate->apply($tree);
 
         $clone = $result->roots[1];
-        static::assertSame([$clone->id, $clone->slots['content'][0]->id], $duplicate->affected());
+        $clonedChild = $clone->slots['content'][0];
+        static::assertNotSame('root', $clone->id);
+        static::assertNotSame('child', $clonedChild->id);
+        static::assertSame('Sw:Block', $clonedChild->component);
+        static::assertSame([$clone->id, $clonedChild->id], $duplicate->affected());
     }
 
     #[TestDox('reports only the clone id as affected when the duplicated element has no children')]

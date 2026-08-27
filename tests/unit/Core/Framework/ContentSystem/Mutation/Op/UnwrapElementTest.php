@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
@@ -80,7 +80,7 @@ class UnwrapElementTest extends TestCase
         $container = new StoredElement(
             'container',
             'Sw:Container',
-            ['hero' => new DataRequirement('hero', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
+            ['hero' => new DataRequirement('hero', 'entity', new StubLoaderConfig())],
             ['title' => StoredValue::ofString('Section'), 'spacing' => StoredValue::ofInt(3)],
             ['content' => [new StoredElement('kid', 'Sw:Block')]],
             new ContextDefinitions(

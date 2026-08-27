@@ -55,6 +55,15 @@ class WrapElementsTest extends TestCase
         static::assertSame(['a', 'b'], array_map(static fn (StoredElement $e): string => $e->id, $parentChildren[0]->slots['items']));
     }
 
+    #[TestDox('rejects wrapping an empty target list with a 400')]
+    public function testWrapEmptyTargetsRejected(): void
+    {
+        $wrap = new WrapElements($this->registry('Sw:Container'), [], 'Sw:Container', 'content');
+
+        $this->expectExceptionObject(ContentSystemException::mutationInvalidWrapTargets('at least one element is required'));
+        $wrap->apply(new StoredTree([new StoredElement('a', 'Sw:Block')]));
+    }
+
     #[TestDox('rejects wrapping non-sibling elements with a 400')]
     public function testWrapNonSiblingsRejected(): void
     {
@@ -102,15 +111,6 @@ class WrapElementsTest extends TestCase
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $wrap->apply($tree);
-    }
-
-    #[TestDox('rejects wrapping an empty target list with a 400')]
-    public function testWrapEmptyTargetsRejected(): void
-    {
-        $wrap = new WrapElements($this->registry('Sw:Container'), [], 'Sw:Container', 'content');
-
-        $this->expectExceptionObject(ContentSystemException::mutationInvalidWrapTargets('at least one element is required'));
-        $wrap->apply(new StoredTree([new StoredElement('a', 'Sw:Block')]));
     }
 
     #[TestDox('rejects wrapping elements that share a parent but sit in different slots with a 400')]

@@ -24,14 +24,17 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 #[CoversClass(MoveElement::class)]
 class MoveElementTest extends TestCase
 {
-    #[TestDox('relocates the element and its subtree into the new parent slot and reports the whole moved subtree as affected')]
+    #[TestDox('relocates the element and its subtree into the new parent slot, carries the parent attributed specifications over to the rebuilt parent, and reports the whole moved subtree as affected')]
     public function testMoveRelocatesSubtreeToNewParent(): void
     {
+        $target = StoredElementBuilder::create('Sw:Block', 'target')
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
         $tree = new StoredTree([
             new StoredElement('movable', 'Sw:Block', [], [], [
                 'content' => [new StoredElement('child', 'Sw:Block')],
             ]),
-            new StoredElement('target', 'Sw:Block'),
+            $target,
         ]);
 
         $move = new MoveElement('movable', 'target', 'content');
@@ -39,42 +42,72 @@ class MoveElementTest extends TestCase
 
         static::assertCount(1, $result->roots);
         static::assertSame('target', $result->roots[0]->id);
+        static::assertSame(['product' => 'spec-1'], $result->roots[0]->attributedSpecifications);
         $moved = $result->roots[0]->slots['content'];
         static::assertSame('movable', $moved[0]->id);
         static::assertSame('child', $moved[0]->slots['content'][0]->id);
         static::assertSame(['movable', 'child'], $move->affected());
     }
 
-    #[TestDox('treats a same-parent reorder as a pure structural change with empty affected, even under an indexed distribution')]
-    public function testReorderWithinSameSlotReportsEmptyAffected(): void
-    {
-        $parent = new StoredElement('parent', 'Sw:Block', [], [], [
-            'content' => [
-                new StoredElement('a', 'Sw:Block'),
-                new StoredElement('b', 'Sw:Block'),
-            ],
-        ], new ContextDefinitions(['list' => new ContextProvider(ContextType::Single, IndexedDistributionConfig::simple())], []));
+    /**
+     * @param array<string, list<StoredElement>> $slots
+     * @param list<string> $expectedOrder
+     */
+    #[DataProvider('sameParentMoveProvider')]
+    #[TestDox('treats a same-parent move as a pure structural change with empty affected: $_dataName')]
+    public function testSameParentMoveReportsEmptyAffected(
+        array $slots,
+        ContextDefinitions $contextDefinitions,
+        string $movedId,
+        ?string $newSlot,
+        ?int $newIndex,
+        string $expectedSlot,
+        array $expectedOrder,
+    ): void {
+        $parent = new StoredElement('parent', 'Sw:Block', [], [], $slots, $contextDefinitions);
 
-        $move = new MoveElement('b', 'parent', 'content', 0);
+        $move = new MoveElement($movedId, 'parent', $newSlot, $newIndex);
         $result = $move->apply(new StoredTree([$parent]));
 
-        static::assertSame(['b', 'a'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots[0]->slots['content']));
+        static::assertSame(
+            $expectedOrder,
+            array_map(static fn (StoredElement $e): string => $e->id, $result->roots[0]->slots[$expectedSlot])
+        );
         static::assertSame([], $move->affected());
     }
 
-    #[TestDox('treats a move to a different slot under the same parent as a pure structural change with empty affected')]
-    public function testMoveToDifferentSlotSameParentReportsEmptyAffected(): void
+    /**
+     * @return iterable<string, array{array<string, list<StoredElement>>, ContextDefinitions, string, ?string, ?int, string, list<string>}>
+     */
+    public static function sameParentMoveProvider(): iterable
     {
-        $parent = new StoredElement('parent', 'Sw:Block', [], [], [
-            'left' => [new StoredElement('child', 'Sw:Block')],
-            'right' => [],
-        ]);
+        yield 'reorder within the same slot, even under an indexed distribution' => [
+            [
+                'content' => [
+                    new StoredElement('a', 'Sw:Block'),
+                    new StoredElement('b', 'Sw:Block'),
+                ],
+            ],
+            new ContextDefinitions(['list' => new ContextProvider(ContextType::Single, IndexedDistributionConfig::simple())], []),
+            'b',
+            'content',
+            0,
+            'content',
+            ['b', 'a'],
+        ];
 
-        $move = new MoveElement('child', 'parent', 'right');
-        $result = $move->apply(new StoredTree([$parent]));
-
-        static::assertSame('child', $result->roots[0]->slots['right'][0]->id);
-        static::assertSame([], $move->affected());
+        yield 'move to a different slot under the same parent' => [
+            [
+                'left' => [new StoredElement('child', 'Sw:Block')],
+                'right' => [],
+            ],
+            new ContextDefinitions(),
+            'child',
+            'right',
+            null,
+            'right',
+            ['child'],
+        ];
     }
 
     #[TestDox('reuses the element current slot for a same-parent move that omits the new slot')]
@@ -92,20 +125,6 @@ class MoveElementTest extends TestCase
 
         static::assertSame(['child', 'a'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots[0]->slots['content']));
         static::assertSame([], $move->affected());
-    }
-
-    #[TestDox('carries attributed specifications over to the rebuilt receiving parent')]
-    public function testMovePreservesAttributedSpecificationsOnRebuiltParent(): void
-    {
-        $target = StoredElementBuilder::create('Sw:Block', 'target')
-            ->withAttributedSpecification('product', 'spec-1')
-            ->build();
-        $tree = new StoredTree([new StoredElement('movable', 'Sw:Card'), $target]);
-
-        $result = (new MoveElement('movable', 'target', 'content'))->apply($tree);
-
-        static::assertSame('target', $result->roots[0]->id);
-        static::assertSame(['product' => 'spec-1'], $result->roots[0]->attributedSpecifications);
     }
 
     #[TestDox('moves a nested element out to the root and reports the moved subtree as affected')]

@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RemoveElement::class)]
 class RemoveElementTest extends TestCase
 {
-    #[TestDox('deletes the element together with its whole subtree')]
+    #[TestDox('deletes the element together with its whole subtree and reports no affected survivor')]
     public function testRemoveDeletesElementAndSubtree(): void
     {
         $tree = new StoredTree([
@@ -30,10 +30,12 @@ class RemoveElementTest extends TestCase
             ]),
         ]);
 
-        $result = (new RemoveElement('drop'))->apply($tree);
+        $remove = new RemoveElement('drop');
+        $result = $remove->apply($tree);
 
         static::assertCount(1, $result->roots);
         static::assertSame('keep', $result->roots[0]->id);
+        static::assertSame([], $remove->affected());
     }
 
     #[TestDox('removes a nested element while keeping its siblings')]
@@ -61,15 +63,6 @@ class RemoveElementTest extends TestCase
         $result = (new RemoveElement('drop'))->apply($tree);
 
         static::assertSame(['product' => $requirement], $result->roots[0]->dataRequirements);
-    }
-
-    #[TestDox('reports no affected elements because downward-only context flow strands no survivor')]
-    public function testRemoveAffectedIsEmpty(): void
-    {
-        $remove = new RemoveElement('drop');
-        $remove->apply(new StoredTree([new StoredElement('drop', 'Sw:Block'), new StoredElement('keep', 'Sw:Block')]));
-
-        static::assertSame([], $remove->affected());
     }
 
     #[TestDox('rejects removing an element absent from the tree with a 400')]

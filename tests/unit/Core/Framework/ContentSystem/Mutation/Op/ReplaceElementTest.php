@@ -77,6 +77,31 @@ class ReplaceElementTest extends TestCase
         static::assertSame('child', $result->roots[0]->slots['content'][0]->id);
     }
 
+    #[TestDox('keeps context definitions whose key matches a new-type reference property and drops the rest')]
+    public function testReplaceContextDefinitionsCarryover(): void
+    {
+        $kept = new ContextConsumer(ContextType::Single, true);
+        $dropped = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
+        $definitions = new ContextDefinitions(['legacy' => $dropped], ['product' => $kept]);
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], $definitions)]);
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        static::assertSame(['product' => $kept], $result->roots[0]->contextDefinitions->getAllConsumers());
+        static::assertSame([], $result->roots[0]->contextDefinitions->getAllProviders());
+    }
+
+    #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
+    public function testReplaceCarriesStyleUnconditionally(): void
+    {
+        $style = new ElementStyle(['col-span' => ['md' => 6], 'display' => ['xs' => false]]);
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], new ContextDefinitions([], []), $style)]);
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
+    }
+
     /**
      * @param array<string, mixed> $oldProperties
      * @param array<string, mixed> $expectedKept
@@ -122,6 +147,8 @@ class ReplaceElementTest extends TestCase
         $result = $replace->apply(new StoredTree([$old]));
 
         static::assertSame($carriedConfig, $result->roots[0]->dataRequirements['product']->config);
+        static::assertSame($newConfig, $result->roots[0]->dataRequirements['gallery']->config);
+        static::assertSame('entity_collection', $result->roots[0]->dataRequirements['gallery']->source);
         static::assertSame(['product' => 'core:carried-spec', 'gallery' => 'core:Sw:New'], $result->roots[0]->attributedSpecifications);
     }
 
@@ -139,31 +166,6 @@ class ReplaceElementTest extends TestCase
         $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))))->apply($tree);
 
         static::assertSame($expectedValue, $result->roots[0]->property($propertyKey)?->jsonSerialize());
-    }
-
-    #[TestDox('keeps context definitions whose key matches a new-type reference property and drops the rest')]
-    public function testReplaceContextDefinitionsCarryover(): void
-    {
-        $kept = new ContextConsumer(ContextType::Single, true);
-        $dropped = new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple());
-        $definitions = new ContextDefinitions(['legacy' => $dropped], ['product' => $kept]);
-        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], $definitions)]);
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame(['product' => $kept], $result->roots[0]->contextDefinitions->getAllConsumers());
-        static::assertSame([], $result->roots[0]->contextDefinitions->getAllProviders());
-    }
-
-    #[TestDox('carries the element style over to the replacement unconditionally on a type swap')]
-    public function testReplaceCarriesStyleUnconditionally(): void
-    {
-        $style = new ElementStyle(['col-span' => ['md' => 6], 'display' => ['xs' => false]]);
-        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [], new ContextDefinitions([], []), $style)]);
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
     #[TestDox('seeds the new type primitive default for a key the old element lacked')]

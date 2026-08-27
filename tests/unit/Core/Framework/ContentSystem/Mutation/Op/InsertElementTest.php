@@ -35,8 +35,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(InsertElement::class)]
 class InsertElementTest extends TestCase
 {
-    #[TestDox('appends a fresh element of the type to the root with a server-minted id and no seeded style')]
-    public function testInsertAppendsRootElement(): void
+    #[TestDox('appends a fresh element of the type to the root with a server-minted id and no seeded style, and reports that id as the only affected element')]
+    public function testInsertAppendsRootElementAndReportsMintedIdAsAffected(): void
     {
         $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
@@ -48,15 +48,7 @@ class InsertElementTest extends TestCase
         static::assertSame('Sw:Card', $result->roots[1]->component);
         static::assertTrue(Uuid::isValid($result->roots[1]->id));
         static::assertTrue($result->roots[1]->style->isEmpty());
-    }
-
-    #[TestDox('reports the minted id as the only affected element')]
-    public function testInsertAffectedIsMintedId(): void
-    {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply(new StoredTree([]));
-
-        static::assertSame([$result->roots[0]->id], $insert->affected());
+        static::assertSame([$result->roots[1]->id], $insert->affected());
     }
 
     #[TestDox('splices the new element into a parent slot at the given index')]
@@ -175,7 +167,7 @@ class InsertElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
     }
 
-    #[TestDox('fill-applies the type default first, then applies the explicit binding specification on top so only the shared key becomes attributed to the explicit choice')]
+    #[TestDox('fill-applies the type default first, then applies the explicit binding specification on top, attributing the shared key to the explicit choice')]
     public function testInsertExplicitBindingAppliesOnTopOfDefault(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);

@@ -6,9 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
@@ -21,41 +23,36 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(MutationResult::class)]
 class MutationResultTest extends TestCase
 {
-    #[TestDox('lands every fromParts argument on the field its position names')]
-    public function testFromPartsLandsEveryArgumentOnItsOwnField(): void
+    #[TestDox('narrows resolutions to the mutation\'s affected elements')]
+    public function testFromAnalyzedMutationNarrowsResolutionsToAffectedElements(): void
     {
         $layout = new StoredTree([new StoredElement('el-1', 'Sw:Card')]);
-        $resolutions = ['el-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')]];
-        $diagnostics = new DiagnosticsReport([]);
+
+        $affectedResolution = [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')];
+        $unaffectedResolution = [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'stale')];
+        $report = new DiagnosticsReport([]);
+        $analysis = new LayoutAnalysis($report, [
+            'el-1' => $affectedResolution,
+            'el-2' => $unaffectedResolution,
+        ]);
+
         $orphan = new StoredElement('orphan-1', 'Sw:Block');
-        $droppedValue = StoredValue::ofString('Old headline');
+        $droppedValue = StoredValue::ofString('dropped-property-value');
 
-        $result = MutationResult::fromParts(
-            $layout,
-            $resolutions,
-            $diagnostics,
-            ['el-1'],
-            [$orphan],
-            ['wiring-legacy'],
-            ['headline' => $droppedValue],
-        );
+        $mutation = static::createStub(LayoutMutation::class);
+        $mutation->method('affected')->willReturn(['el-1']);
+        $mutation->method('orphaned')->willReturn([$orphan]);
+        $mutation->method('droppedWiring')->willReturn(['dropped-wiring-key']);
+        $mutation->method('droppedProperties')->willReturn(['legacy-headline' => $droppedValue]);
 
-        static::assertSame($layout, $result->layout);
-        static::assertSame($resolutions, $result->resolutions);
-        static::assertSame($diagnostics, $result->diagnostics);
+        $result = MutationResult::fromAnalyzedMutation($layout, $analysis, $mutation);
+
+        static::assertSame(['el-1' => $affectedResolution], $result->resolutions);
         static::assertSame(['el-1'], $result->affectedElementIds);
         static::assertSame([$orphan], $result->orphaned);
-        static::assertSame(['wiring-legacy'], $result->droppedWiring);
-        static::assertSame(['headline' => $droppedValue], $result->droppedProperties);
-    }
-
-    #[TestDox('defaults orphaned, dropped wiring and dropped properties to empty arrays')]
-    public function testFromPartsDefaultsTheOptionalFieldsToEmptyArrays(): void
-    {
-        $result = MutationResult::fromParts(new StoredTree([]), [], new DiagnosticsReport([]), []);
-
-        static::assertSame([], $result->orphaned);
-        static::assertSame([], $result->droppedWiring);
-        static::assertSame([], $result->droppedProperties);
+        static::assertSame(['dropped-wiring-key'], $result->droppedWiring);
+        static::assertSame(['legacy-headline' => $droppedValue], $result->droppedProperties);
+        static::assertSame($layout, $result->layout);
+        static::assertSame($report, $result->diagnostics);
     }
 }

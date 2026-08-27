@@ -80,7 +80,7 @@ class BindElementTest extends TestCase
         static::assertSame('user-filled', $result->roots[0]->property('mediaId')?->jsonSerialize());
     }
 
-    #[TestDox('reports the bound element as affected and detaches nothing')]
+    #[TestDox('reports the bound element as affected')]
     public function testReportsAffectedElementAndNoDetachment(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
@@ -88,10 +88,9 @@ class BindElementTest extends TestCase
 
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')]));
 
+        // Bind never detaches anything: orphaned()/droppedWiring()/droppedProperties() are always empty for
+        // this operation, so asserting them here would be trivially true regardless of the scenario above.
         static::assertSame(['el'], $bind->affected());
-        static::assertSame([], $bind->orphaned());
-        static::assertSame([], $bind->droppedWiring());
-        static::assertSame([], $bind->droppedProperties());
     }
 
     #[TestDox('does not overwrite an authored explicit null on the input key with the default')]

@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -51,7 +53,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([]), // dependency check with empty result
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -89,6 +91,76 @@ class DocumentDeleteSubscriberTest extends TestCase
         }
     }
 
+    public function testBeforeDeleteDeletesDocumentV2FileMediaOnSuccess(): void
+    {
+        $documentId = Uuid::randomBytes();
+        $pdfMediaId = Uuid::randomHex();
+        $htmlMediaId = Uuid::randomHex();
+
+        $pdfDocumentFile = (new DocumentFileEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'documentId' => Uuid::fromBytesToHex($documentId),
+            'documentFormat' => 'pdf',
+            'mediaId' => $pdfMediaId,
+        ]);
+        $htmlDocumentFile = (new DocumentFileEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'documentId' => Uuid::fromBytesToHex($documentId),
+            'documentFormat' => 'html',
+            'mediaId' => $htmlMediaId,
+        ]);
+
+        $document = (new DocumentEntity())->assign([
+            'id' => $documentId,
+            'documentFiles' => new DocumentFileCollection([$pdfDocumentFile, $htmlDocumentFile]),
+        ]);
+
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
+
+        $documentDefinition = new DocumentDefinition();
+        $documentDefinition->compile($definitionInstanceRegistry);
+
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([]), // dependency check with empty result
+            new EntitySearchResult(
+                DocumentDefinition::ENTITY_NAME,
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria([$documentId]),
+                Context::createDefaultContext(),
+            ),
+        ], $documentDefinition);
+
+        $mediaDefinition = new MediaDefinition();
+        $mediaDefinition->compile($definitionInstanceRegistry);
+
+        $mediaRepository = new StaticEntityRepository(
+            [],
+            $mediaDefinition,
+        );
+
+        $subscriber = new DocumentDeleteSubscriber(
+            $documentRepository,
+            $mediaRepository,
+        );
+
+        $entityDeleteEvent = $this->createEntityDeleteEvent(
+            $documentDefinition,
+            $documentId
+        );
+
+        $subscriber->beforeDelete($entityDeleteEvent);
+        $entityDeleteEvent->success();
+
+        $deleted = $mediaRepository->deletes;
+        static::assertCount(1, $deleted);
+        static::assertCount(2, $deleted[0]);
+        foreach ($deleted[0] as $mediaFile) {
+            static::assertContains($mediaFile['id'], [$pdfMediaId, $htmlMediaId]);
+        }
+    }
+
     public function testBeforeDeleteShouldThrowExceptionWhenDependenciesOnOtherDocumentsExists(): void
     {
         $documentId = Uuid::randomBytes();
@@ -114,7 +186,7 @@ class DocumentDeleteSubscriberTest extends TestCase
 
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$dependingDocument]),
                 null,

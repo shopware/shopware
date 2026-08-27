@@ -41,7 +41,7 @@ Module.register('sw-media', {
     targetVersion: '1.0.0',
     color: 'var(--color-pink-500)',
     icon: 'regular-image',
-    favicon: 'icon-module-content.png',
+    favicon: 'icon-module-content.svg',
     entity: 'media',
 
     routes: {

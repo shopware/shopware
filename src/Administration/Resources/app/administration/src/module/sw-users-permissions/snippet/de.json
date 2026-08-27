@@ -153,7 +153,7 @@
                 "labelPassword": "Passwort",
                 "labelProfilePicture": "Profilbild",
                 "labelUserInterface": "Benutzeroberfläche",
-                "labelLanguage": "Sprache der Benutzeroberfläche",
+                "labelLanguage": "Sprache",
                 "labelLanguagePlaceholder": "Sprache auswählen ...",
                 "labelChangePassword": "Passwort ändern",
                 "labelActive": "Aktiv",
@@ -205,6 +205,9 @@
                     },
                     "saveSuccess": {
                         "message": "Benutzer \"{name}\" gespeichert."
+                    },
+                    "themeSaveError": {
+                        "message": "Die Design-Einstellung konnte nicht gespeichert werden."
                     },
                     "invalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
                     "duplicateEmailErrorMessage": "Diese E-Mail-Adresse wird bereits verwendet."

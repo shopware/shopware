@@ -73,11 +73,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
 
     public function load(string $locale, Context $context, bool $activate = true): void
     {
-        $language = $this->config->languages->get($locale);
-
-        if (!$language instanceof Language) {
-            throw SnippetException::languageDoesNotExist($locale);
-        }
+        $language = $this->resolveLanguage($locale);
 
         $this->download($locale);
 
@@ -85,6 +81,45 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         $this->createSnippetSet($language, $context);
 
         $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
+    }
+
+    /**
+     * Creates the language and snippet set for translation files that are already on the
+     * filesystem, without contacting the translation repository.
+     *
+     * This exists for deployments that provision the files once up front — when building an
+     * image, for example — and then only need each installation to point at them. Presence of
+     * the files is verified first, so an incomplete provisioning step fails here instead of
+     * silently leaving a language with no translations behind it.
+     */
+    public function link(string $locale, Context $context, bool $activate = true): void
+    {
+        $language = $this->resolveLanguage($locale);
+
+        if (!$this->hasTranslationFiles($locale)) {
+            throw SnippetException::translationsUnavailable([$locale]);
+        }
+
+        $this->createLanguage($language, $context, $activate);
+        $this->createSnippetSet($language, $context);
+
+        $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
+    }
+
+    public function hasTranslationFiles(string $locale): bool
+    {
+        return $this->translationWriter->directoryExists($this->getLocalePath($locale));
+    }
+
+    private function resolveLanguage(string $locale): Language
+    {
+        $language = $this->config->languages->get($locale);
+
+        if (!$language instanceof Language) {
+            throw SnippetException::languageDoesNotExist($locale);
+        }
+
+        return $language;
     }
 
     public function download(string $locale): void

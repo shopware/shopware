@@ -40,11 +40,17 @@ class InstallTranslationCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
         $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
         $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
+        $this->addOption('offline', null, InputOption::VALUE_NONE, 'Install from translation files that are already on the filesystem, without contacting the translation repository');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locales = $this->getLocales($input, $output);
+        $activate = !$input->getOption('skip-activation');
+
+        if ($input->getOption('offline')) {
+            return $this->installOffline($locales, $activate, $output);
+        }
 
         try {
             $metadata = $this->metadataStore->getUpdatedLocalMetadata($locales);
@@ -55,29 +61,64 @@ class InstallTranslationCommand extends Command
         }
 
         $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
+
         if ($localesRequiringUpdate === []) {
             TranslationCommandHelper::printNoTranslationsToUpdate($output);
-
-            return self::SUCCESS;
         }
 
         $localesDiff = array_diff($locales, $localesRequiringUpdate);
         if ($localesDiff !== []) {
-            TranslationCommandHelper::printSkippedLocales($output, $localesDiff);
+            TranslationCommandHelper::printLocalesNotDownloadedAgain($output, $localesDiff);
         }
 
         $context = Context::createCLIContext();
-        $activate = !$input->getOption('skip-activation');
 
         TranslationCommandHelper::executeLoadWithProgressBar(
-            $localesRequiringUpdate,
+            $locales,
             $output,
-            fn (string $locale) => $this->translationLoader->load($locale, $context, $activate),
+            function (string $locale) use ($context, $activate, $localesRequiringUpdate): void {
+                // Whether a translation is up to date and whether it is actually installed are
+                // two different questions. Files are only re-fetched when the repository has
+                // something newer, or when they are missing locally, but the language and the
+                // snippet set are ensured for every requested locale either way.
+                if (\in_array($locale, $localesRequiringUpdate, true) || !$this->translationLoader->hasTranslationFiles($locale)) {
+                    $this->translationLoader->load($locale, $context, $activate);
+
+                    return;
+                }
+
+                $this->translationLoader->link($locale, $context, $activate);
+            },
         );
 
         $output->write(\PHP_EOL);
 
-        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
+        if ($localesRequiringUpdate !== []) {
+            TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
+        }
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * The metadata store is deliberately left untouched here. Reading it would contact the
+     * translation repository, which is the one thing this mode promises not to do, and writing
+     * it would make a later run believe every locale is current and skip creating the
+     * languages it is being asked for.
+     *
+     * @param list<string> $locales
+     */
+    private function installOffline(array $locales, bool $activate, OutputInterface $output): int
+    {
+        $context = Context::createCLIContext();
+
+        TranslationCommandHelper::executeLoadWithProgressBar(
+            $locales,
+            $output,
+            fn (string $locale) => $this->translationLoader->link($locale, $context, $activate),
+        );
+
+        $output->write(\PHP_EOL);
 
         return self::SUCCESS;
     }

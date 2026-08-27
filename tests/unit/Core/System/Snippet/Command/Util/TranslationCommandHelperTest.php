@@ -97,4 +97,14 @@ class TranslationCommandHelperTest extends TestCase
         $content = $output->fetch();
         static::assertStringContainsString('The following locales are already up to date and will be skipped: de-DE, fr-FR', $content);
     }
+
+    public function testPrintLocalesNotDownloadedAgain(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printLocalesNotDownloadedAgain($output, ['de-DE', 'fr-FR']);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('The following locales are already up to date, their files will not be downloaded again: de-DE, fr-FR', $content);
+    }
 }

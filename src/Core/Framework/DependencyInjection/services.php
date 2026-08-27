@@ -454,6 +454,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLocaleCodeProvider::class),
             service(SnippetService::class),
             service(CacheTagCollector::class),
+            param('kernel.cache_dir'),
+            service('filesystem'),
         ])
         ->tag('monolog.logger');
 

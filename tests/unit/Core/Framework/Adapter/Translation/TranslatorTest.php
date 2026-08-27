@@ -18,9 +18,13 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Translation\Formatter\MessageFormatter;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
+use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -192,6 +196,79 @@ class TranslatorTest extends TestCase
         static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
     }
 
+    public function testGetCatalogueRecoversWhenCachedCatalogueIncludeReturnsFalse(): void
+    {
+        $filesystem = new Filesystem();
+        $kernelCacheDir = sys_get_temp_dir() . '/sw-translator-catalogue-' . uniqid('', true);
+        $catalogueCacheDir = $kernelCacheDir . '/translations';
+        $filesystem->mkdir($catalogueCacheDir);
+
+        try {
+            $this->createCachedSymfonyTranslator($catalogueCacheDir)->getCatalogue('en-GB');
+
+            $catalogueFiles = (new Finder())->files()->name('catalogue.en-GB.*.php')->in($catalogueCacheDir);
+            static::assertTrue($catalogueFiles->hasResults(), 'Symfony should have dumped a catalogue cache file.');
+
+            foreach ($catalogueFiles as $file) {
+                $filesystem->dumpFile($file->getPathname(), '<?php return false;');
+            }
+
+            $translator = $this->createShopwareTranslator(
+                $this->createCachedSymfonyTranslator($catalogueCacheDir),
+                $kernelCacheDir,
+                $filesystem,
+            );
+
+            $catalogue = $translator->getCatalogue('en-GB');
+
+            static::assertSame('Hello', $catalogue->get('hello'));
+        } finally {
+            $filesystem->remove($kernelCacheDir);
+        }
+    }
+
+    public function testGetCatalogueFallsBackToUncachedLoadWhenCacheFileStaysBroken(): void
+    {
+        $filesystem = new Filesystem();
+        $kernelCacheDir = sys_get_temp_dir() . '/sw-translator-catalogue-uncached-' . uniqid('', true);
+        $catalogueCacheDir = $kernelCacheDir . '/translations';
+        $filesystem->mkdir($catalogueCacheDir);
+
+        try {
+            $this->createCachedSymfonyTranslator($catalogueCacheDir)->getCatalogue('en-GB');
+
+            foreach ((new Finder())->files()->name('catalogue.en-GB.*.php')->in($catalogueCacheDir) as $file) {
+                $filesystem->dumpFile($file->getPathname(), '<?php return false;');
+            }
+
+            $translator = $this->createShopwareTranslator(
+                $this->createCachedSymfonyTranslator($catalogueCacheDir),
+            );
+
+            $catalogue = $translator->getCatalogue('en-GB');
+
+            static::assertSame('Hello', $catalogue->get('hello'));
+        } finally {
+            $filesystem->remove($kernelCacheDir);
+        }
+    }
+
+    public function testGetCatalogueRethrowsUnrelatedTypeError(): void
+    {
+        $unrelatedTypeError = new \TypeError('Unrelated type error');
+
+        $decorated = static::createStub(SymfonyTranslator::class);
+        $decorated->method('getLocale')->willReturn('en-GB');
+        $decorated->method('getFallbackLocales')->willReturn(['en_GB', 'en']);
+        $decorated->method('getCatalogue')->willThrowException($unrelatedTypeError);
+
+        $translator = $this->createShopwareTranslator($decorated);
+
+        $this->expectException(\TypeError::class);
+
+        $translator->getCatalogue('en-GB');
+    }
+
     public function testResetRestoresConfiguredFallbackLocalesAndLocale(): void
     {
         $decorated = $this->createMock(SymfonyTranslator::class);
@@ -323,6 +400,35 @@ class TranslatorTest extends TestCase
                 SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID => $snippetSetId,
                 PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => $salesChannelId,
             ]),
+        );
+    }
+
+    private function createCachedSymfonyTranslator(string $catalogueCacheDir): SymfonyTranslator
+    {
+        $translator = new SymfonyTranslator('en-GB', new MessageFormatter(), $catalogueCacheDir, debug: false);
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', ['hello' => 'Hello'], 'en-GB', 'messages');
+
+        return $translator;
+    }
+
+    private function createShopwareTranslator(
+        SymfonyTranslator $decorated,
+        ?string $cacheDir = null,
+        ?Filesystem $filesystem = null,
+    ): Translator {
+        return new Translator(
+            $decorated,
+            new RequestStack(),
+            static::createStub(CacheInterface::class),
+            static::createStub(MessageFormatterInterface::class),
+            'prod',
+            static::createStub(Connection::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
+            static::createStub(SnippetService::class),
+            static::createStub(CacheTagCollector::class),
+            $cacheDir,
+            $filesystem,
         );
     }
 }

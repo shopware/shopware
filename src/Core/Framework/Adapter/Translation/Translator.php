@@ -15,6 +15,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleException;
 use Shopware\Core\System\Snippet\SnippetService;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Intl\Locale;
@@ -68,6 +69,8 @@ class Translator extends AbstractTranslator
      */
     private array $defaultFallbackLocales = ['en_GB', 'en'];
 
+    private readonly CatalogueCacheRecoverer $catalogueCacheRecoverer;
+
     /**
      * @internal
      */
@@ -81,7 +84,14 @@ class Translator extends AbstractTranslator
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly SnippetService $snippetService,
         private readonly CacheTagCollector $cacheTagCollector,
+        ?string $cacheDir = null,
+        ?Filesystem $filesystem = null,
+        ?CatalogueCacheRecoverer $catalogueCacheRecoverer = null,
     ) {
+        $this->catalogueCacheRecoverer = $catalogueCacheRecoverer ?? new CatalogueCacheRecoverer(
+            $cacheDir,
+            $filesystem ?? new Filesystem(),
+        );
         $this->defaultLocale = $translator->getLocale();
 
         if (!$translator instanceof SymfonyTranslator) {
@@ -137,11 +147,11 @@ class Translator extends AbstractTranslator
      */
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
-        $catalog = $this->translator->getCatalogue($locale);
+        $catalog = $this->getInnerCatalogue($locale);
 
         $fallbackLocale = $this->getFallbackLocale($catalog->getLocale());
         if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $fallbackLocale)) {
-            $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
+            $catalog->addFallbackCatalogue($this->getInnerCatalogue($fallbackLocale));
         } else {
             /**
              * fallback locale and current locale has the same localization -> reset fallback
@@ -295,6 +305,37 @@ class Translator extends AbstractTranslator
     public function getCatalogues(): array
     {
         return array_values($this->isCustomized);
+    }
+
+    /**
+     * Symfony compiles catalogues to PHP files and includes them. After `cache:clear`, PHP-FPM can
+     * keep a stale OPcache/realpath entry so `include` returns false, which then fails the
+     * `getCatalogue()` return type until the FPM workers are restarted.
+     */
+    private function getInnerCatalogue(?string $locale): MessageCatalogueInterface
+    {
+        $recoverer = $this->catalogueCacheRecoverer;
+
+        try {
+            return $this->translator->getCatalogue($locale);
+            // @phpstan-ignore catch.neverThrown (Symfony getCatalogue() can return false from a stale catalogue include, which then fails the declared return type)
+        } catch (\TypeError $exception) {
+            if (!$recoverer->isBrokenCatalogueCacheError($exception) || !$this->translator instanceof SymfonyTranslator) {
+                throw $exception;
+            }
+
+            $recoverer->recover($this->translator, $locale);
+
+            try {
+                return $this->translator->getCatalogue($locale);
+            } catch (\TypeError $retryException) {
+                if (!$recoverer->isBrokenCatalogueCacheError($retryException)) {
+                    throw $retryException;
+                }
+
+                return $recoverer->rebuildWithoutCache($this->translator, $locale);
+            }
+        }
     }
 
     private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool

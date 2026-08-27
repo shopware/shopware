@@ -5,10 +5,9 @@
 /**
  * Runs `callback` with `product.type` flagged as required in the entity schema.
  *
- * The entity schema mock is a 6.7 snapshot in which `product.type` is optional, so tests for the
- * v6.8 schema have to simulate the flag. The import/export mapping spec verifies that the mock
- * matches the active feature state; once it is regenerated from a v6.8 instance, drop this helper
- * and assert against the real schema instead.
+ * The entity schema mock is dumped before Jest enables feature flags for individual tests. In the
+ * regular unit-test run, it therefore contains the legacy optional field while the v6.8 tests run
+ * with the feature enabled. Simulate the required flag for those tests.
  *
  * @private
  */

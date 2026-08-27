@@ -53,22 +53,6 @@ class ProductListingResult extends EntitySearchResult
     }
 
     /**
-     * Intentionally not deprecated, unlike the parent method: listing processors modify the page after construction by design.
-     */
-    public function setPage(int $page): void
-    {
-        $this->page = $page;
-    }
-
-    /**
-     * Intentionally not deprecated, unlike the parent method: listing processors modify the limit after construction by design.
-     */
-    public function setLimit(int $limit): void
-    {
-        $this->limit = $limit;
-    }
-
-    /**
      * @param int|float|string|bool|array<mixed>|null $value
      */
     public function addCurrentFilter(string $key, $value): void

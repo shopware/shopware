@@ -377,7 +377,13 @@ Changes affecting all three classes:
 `ProductListingResult`:
 
 - Convert from a base search result with `ProductListingResult::fromSearchResult(...)`.
-- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`, `$page`, `$limit`) stays mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()`, `setStreamId()`, `setPage()`, and `setLimit()` remain available — the latter two were only removed from `EntitySearchResult`.
+- The listing state (`$sorting`, `$currentFilters`, `$availableSortings`, `$streamId`) stayed mutable: listing processors (`AbstractListingProcessor`) modify the result after construction by design, so `addCurrentFilter()`, `setSorting()`, `setAvailableSortings()` and `setStreamId()` remained available.
+- `setPage()` and `setLimit()` were removed. A result reports the page and limit of the criteria that was executed, so page the criteria in `AbstractListingProcessor::prepare()` instead:
+
+```php
+$criteria->setOffset(($page - 1) * $limit);
+$criteria->setLimit($limit);
+```
 
 `ProductReviewResult`:
 

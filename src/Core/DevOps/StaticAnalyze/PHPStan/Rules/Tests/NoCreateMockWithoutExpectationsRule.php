@@ -79,7 +79,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private readonly array $unitTestClassNamespaces;
 
     /**
-     * Narrows enforcement to matching test namespaces; an empty list enforces every unit test class.
+     * Narrows enforcement to matching test namespaces; an empty list disables the rule.
      * Consumers rolling the rule out domain by domain grow this list via the
      * `shopware.createMockWithoutExpectationsEnabledNamespaces` parameter of their PHPStan config.
      *
@@ -1298,7 +1298,7 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     private function isEnabledNamespace(string $className): bool
     {
-        return $this->enabledNamespaces === [] || self::matchesAny($className, $this->enabledNamespaces);
+        return self::matchesAny($className, $this->enabledNamespaces);
     }
 
     /**

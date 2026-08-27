@@ -5,7 +5,7 @@
 
 import { captures } from '../public-api-source-files';
 
-const POSITION_IDENTIFIER_REGEX = /position-identifier="(.+)"/gm;
+const POSITION_IDENTIFIER_REGEX = /position-identifier="([^"]+)"/g;
 
 export function extractPositionIdentifiers(code: string): string[] {
     // An empty or `null` value is a placeholder, not a registered extension point. Filtering here

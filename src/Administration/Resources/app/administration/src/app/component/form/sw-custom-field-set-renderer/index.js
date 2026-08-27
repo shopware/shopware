@@ -594,6 +594,8 @@ export default {
                 return;
             }
 
+            this.loadCustomFieldSet(firstVisibleCustomFieldSet.id);
+
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
                 this.$refs.tabComponent.mountedComponent();

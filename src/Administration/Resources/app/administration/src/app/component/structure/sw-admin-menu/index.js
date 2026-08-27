@@ -821,9 +821,16 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             const activeNames = getActiveRouteNames(this.$route, this.$router);
-            const owner = this.mainMenuEntries.find(
-                (entry) => (entry.children?.length ?? 0) > 0 && isEntryOnActiveRoute(entry, this.$route, activeNames),
+            const activeEntries = this.mainMenuEntries.filter((entry) =>
+                isEntryOnActiveRoute(entry, this.$route, activeNames),
             );
+
+            // Pages the menu does not list at all own no branch — leave the tree as the user left it
+            if (!activeEntries.length) {
+                return;
+            }
+
+            const owner = activeEntries.find((entry) => (entry.children?.length ?? 0) > 0);
             const ownerKey = owner ? (owner.id ?? owner.path) : null;
 
             // The cached owner may have been collapsed manually
@@ -831,7 +838,7 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
-            // Branches only stay open while they own the active item.
+            // Branches only stay open while they own the active item, or while nothing in the menu does.
             this.collapseInactiveBranches(owner);
             this.activeBranchKey = ownerKey;
 

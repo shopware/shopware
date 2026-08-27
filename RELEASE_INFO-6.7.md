@@ -14,6 +14,11 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 ## Administration
 
+### Shipping prices can be linked to the tax rate
+
+The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.
+
+Extensions that override the `sw_settings_shipping_price_matrix_price_grid_currencies_list` block or style the removed `.sw-settings-shipping-price-matrix__price-input` class must be adjusted to the `sw-price-field` markup. The gross and net input `name` attributes are unchanged.
 ### Admin UI shell rework (sidebar, top bar, smart bar)
 
 The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.

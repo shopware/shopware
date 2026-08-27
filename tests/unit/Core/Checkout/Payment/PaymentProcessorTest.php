@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -1020,6 +1021,93 @@ class PaymentProcessorTest extends TestCase
             $salesChannelContext,
             $token,
         );
+    }
+
+    /**
+     * The transaction can reach a state that cannot be failed while the handler is running. Failing it then throws,
+     * and that follow-up error must not take the place of the payment error the caller has to act on.
+     */
+    public function testPayKeepsTheErrorRedirectWhenTheTransactionCanNoLongerBeFailed(): void
+    {
+        $orderTransaction = new OrderTransactionEntity();
+        $orderTransaction->setId('order-transaction-id');
+        $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
+        $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
+
+        $paymentHandlerRegistry = static::createStub(PaymentHandlerRegistry::class);
+        $paymentHandlerRegistry->method('getPaymentMethodHandler')->willReturn(null);
+
+        $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
+        $stateHandler->expects($this->once())
+            ->method('fail')
+            ->willThrowException(new IllegalTransitionException('paid-state-id', 'fail', ['refund']));
+
+        $tokenGenerator = static::createStub(PaymentTokenGenerator::class);
+        $tokenGenerator->method('encode')
+            ->willReturnCallback(static function (PaymentToken $token): string {
+                $token->jti = 'token-id';
+                $token->exp = new \DateTimeImmutable();
+
+                return 'token';
+            });
+
+        $processor = $this->createProcessor(
+            tokenGenerator: $tokenGenerator,
+            paymentHandlerRegistry: $paymentHandlerRegistry,
+            stateHandler: $stateHandler,
+        );
+
+        $response = $processor->pay(
+            'order-id',
+            new Request(),
+            Generator::generateSalesChannelContext(),
+            'finish-url',
+            'error-url',
+        );
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame(
+            'error-url?error-code=' . PaymentException::PAYMENT_UNKNOWN_PAYMENT_METHOD,
+            $response->getTargetUrl()
+        );
+    }
+
+    public function testFinalizeReportsThePaymentErrorWhenTheTransactionCanNoLongerBeFailed(): void
+    {
+        $handler = $this->createMock(AbstractPaymentHandler::class);
+        $handler->expects($this->once())
+            ->method('finalize')
+            ->willThrowException(PaymentException::asyncFinalizeInterrupted('order-transaction-id', 'handler said no'));
+
+        $paymentHandlerRegistry = static::createStub(PaymentHandlerRegistry::class);
+        $paymentHandlerRegistry->method('getPaymentMethodHandler')->willReturn($handler);
+
+        $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
+        $stateHandler->expects($this->once())
+            ->method('fail')
+            ->willThrowException(new IllegalTransitionException('paid-state-id', 'fail', ['refund']));
+
+        $processor = $this->createProcessor(
+            paymentHandlerRegistry: $paymentHandlerRegistry,
+            stateHandler: $stateHandler,
+        );
+
+        $token = new PaymentToken();
+        $token->transactionId = 'order-transaction-id';
+        $token->paymentMethodId = 'payment-method-id';
+
+        $fakeTokenStruct = null;
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
+            $fakeTokenStruct = new TokenStruct();
+        });
+        static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
+
+        $this->expectExceptionObject(
+            PaymentException::asyncFinalizeInterrupted('order-transaction-id', 'handler said no')
+        );
+
+        $processor->finalize($fakeTokenStruct, new Request(), Generator::generateSalesChannelContext(), $token);
     }
 
     public function testValidate(): void

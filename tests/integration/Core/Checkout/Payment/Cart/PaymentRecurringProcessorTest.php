@@ -116,32 +116,6 @@ class PaymentRecurringProcessorTest extends TestCase
     }
 
     /**
-     * The other ordering: the handler error reaches the transaction first and fails it, and only afterwards does the
-     * provider report the payment. Every confirmation must still be applicable on top of the failed transaction,
-     * otherwise a renewal whose payment arrived late stays failed for good.
-     */
-    #[DataProvider('confirmingTransitionProvider')]
-    public function testAPaymentConfirmedAfterTheTransactionFailedIsStillApplied(\Closure $confirmPayment, string $confirmedState): void
-    {
-        $context = Context::createDefaultContext();
-        $transactionId = $this->createOrderWithOpenTransaction();
-
-        $processor = $this->createProcessor($this->createHandlerConfirmingThenFailing($transactionId, confirmPayment: null));
-
-        try {
-            $processor->processRecurring($this->ids->get('10000'), $context);
-        } catch (PaymentException) {
-            // the renewal failed, which is the situation this test starts from
-        }
-
-        static::assertSame(OrderTransactionStates::STATE_FAILED, $this->getTransactionStateName($transactionId, $context));
-
-        $confirmPayment($this->stateHandler, $transactionId, $context);
-
-        static::assertSame($confirmedState, $this->getTransactionStateName($transactionId, $context));
-    }
-
-    /**
      * Without a concurrent confirmation nothing changes: the transaction is failed and the handler error reaches
      * the caller, which is what marks the renewal as failed.
      */

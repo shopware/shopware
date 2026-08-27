@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\Test\Integration\Builder\Order\OrderBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureBuilder;
@@ -215,6 +216,42 @@ class PaymentRefundProcessorTest extends TestCase
     }
 
     /**
+     * The refund can reach a state that cannot be failed while the handler is running, for example because it
+     * completed concurrently. The refund error must still be the one that reaches the caller.
+     */
+    public function testTheRefundErrorSurvivesAnImpossibleFailTransition(): void
+    {
+        $handlerMock = $this->createMock(AbstractPaymentHandler::class);
+        $handlerMock->method('supports')->willReturn(true);
+        $handlerMock->expects($this->once())
+            ->method('refund')
+            ->willThrowException(PaymentException::refundInterrupted($this->ids->get('refund'), 'handler said no'));
+
+        $handlerRegistryMock = $this->createMock(PaymentHandlerRegistry::class);
+        $handlerRegistryMock->method('getPaymentMethodHandler')->willReturn($handlerMock);
+
+        $stateHandler = $this->createMock(OrderTransactionCaptureRefundStateHandler::class);
+        $stateHandler->expects($this->once())
+            ->method('fail')
+            ->willThrowException(new IllegalTransitionException('completed-state-id', 'fail', ['reopen']));
+
+        $processor = new PaymentRefundProcessor(
+            static::getContainer()->get(Connection::class),
+            $stateHandler,
+            $handlerRegistryMock,
+            static::getContainer()->get(PaymentTransactionStructFactory::class),
+        );
+
+        $this->createOpenRefund();
+
+        $this->expectExceptionObject(
+            PaymentException::refundInterrupted($this->ids->get('refund'), 'handler said no')
+        );
+
+        $processor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
+    }
+
+    /**
      * @return iterable<array<int, string>>
      */
     public static function getInvalidStatesForTransitions(): iterable
@@ -223,5 +260,39 @@ class PaymentRefundProcessorTest extends TestCase
         yield [OrderTransactionCaptureRefundStates::STATE_COMPLETED];
         yield [OrderTransactionCaptureRefundStates::STATE_FAILED];
         yield [OrderTransactionCaptureRefundStates::STATE_IN_PROGRESS];
+    }
+
+    private function createOpenRefund(): void
+    {
+        $refund = (new OrderTransactionCaptureRefundBuilder($this->ids, 'refund', $this->ids->get('capture')))
+            ->add('stateId', $this->getStateMachineState(
+                OrderTransactionCaptureRefundStates::STATE_MACHINE,
+                OrderTransactionCaptureRefundStates::STATE_OPEN
+            ))
+            ->build();
+
+        $capture = (new OrderTransactionCaptureBuilder($this->ids, 'capture', $this->ids->get('transaction')))
+            ->addRefund('refund', $refund)
+            ->build();
+
+        $transaction = (new OrderTransactionBuilder($this->ids, '10000'))
+            ->addCapture('capture', $capture)
+            ->add('paymentMethod', [
+                'id' => $this->ids->get('payment_method'),
+                'technicalName' => 'payment_test',
+                'handlerIdentifier' => AbstractPaymentHandler::class,
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'foo',
+                    ],
+                ],
+            ])
+            ->build();
+
+        $order = (new OrderBuilder($this->ids, '10000'))
+            ->addTransaction('transaction', $transaction)
+            ->build();
+
+        $this->orderRepository->upsert([$order], Context::createDefaultContext());
     }
 }

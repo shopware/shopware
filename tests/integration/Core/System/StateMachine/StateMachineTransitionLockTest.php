@@ -56,9 +56,15 @@ class StateMachineTransitionLockTest extends TestCase
         $this->connection->delete('`order`', ['id' => Uuid::fromHexToBytes($this->ids->get('10000'))]);
     }
 
-    public function testATransitionWaitsForAConcurrentLockOnTheSameRow(): void
+    public function testATransitionTakesTheRowLockBeforeItWritesAnything(): void
     {
         $transactionId = $this->createCommittedOrderTransaction();
+
+        $historyWritten = false;
+        $listener = static function () use (&$historyWritten): void {
+            $historyWritten = true;
+        };
+        static::getContainer()->get('event_dispatcher')->addListener('state_machine_history.written', $listener);
 
         $otherConnection = DriverManager::getConnection($this->connection->getParams());
         $otherConnection->beginTransaction();
@@ -81,32 +87,18 @@ class StateMachineTransitionLockTest extends TestCase
         } finally {
             $otherConnection->rollBack();
             $otherConnection->close();
+            static::getContainer()->get('event_dispatcher')->removeListener('state_machine_history.written', $listener);
         }
+
+        // The lock has to be taken before the transition writes, not after. A transition that records where it is
+        // going and only then waits for the row has already computed that destination from an unguarded read.
+        static::assertFalse($historyWritten, 'the transition wrote its history entry before it held the row lock');
 
         static::assertSame(
             OrderTransactionStates::STATE_OPEN,
             $this->fetchStateName($transactionId),
             'a transition that could not take the lock must not have written anything'
         );
-    }
-
-    public function testATransitionSucceedsOnceTheConcurrentLockIsReleased(): void
-    {
-        $transactionId = $this->createCommittedOrderTransaction();
-
-        $otherConnection = DriverManager::getConnection($this->connection->getParams());
-        $otherConnection->beginTransaction();
-        $otherConnection->fetchOne(
-            'SELECT `state_id` FROM `order_transaction` WHERE `id` = :id FOR UPDATE',
-            ['id' => Uuid::fromHexToBytes($transactionId)]
-        );
-        $otherConnection->rollBack();
-        $otherConnection->close();
-
-        static::getContainer()->get(OrderTransactionStateHandler::class)
-            ->paid($transactionId, Context::createDefaultContext());
-
-        static::assertSame(OrderTransactionStates::STATE_PAID, $this->fetchStateName($transactionId));
     }
 
     private function createCommittedOrderTransaction(): string

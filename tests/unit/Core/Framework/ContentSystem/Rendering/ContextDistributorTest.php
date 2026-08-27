@@ -16,7 +16,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\It
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
-use Shopware\Core\Framework\ContentSystem\Rendering\ContextDelivery;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
@@ -31,7 +30,6 @@ use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
  */
 #[Package('framework')]
 #[CoversClass(ContextDistributor::class)]
-#[CoversClass(ContextDelivery::class)]
 class ContextDistributorTest extends TestCase
 {
     /**
@@ -183,73 +181,6 @@ class ContextDistributorTest extends TestCase
         $deliveries = $this->distributor()->distribute($parent, ['product' => 'product-data'], [$child]);
 
         static::assertSame(['product' => 'product-data'], $deliveries[0]->context);
-    }
-
-    /**
-     * The gate that makes every other null in this class mean something. `BroadcastDistributionConfig`
-     * carries no null check, so without it a null provider value would be written into every consumer key.
-     */
-    #[TestDox('delivers nothing at all when the provider value is null')]
-    public function testNullProviderValueDeliversNothing(): void
-    {
-        $children = [$this->consumerOf('child-1', 'product')];
-        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
-
-        $deliveries = $this->distributor()->distribute($parent, ['product' => null], $children);
-
-        static::assertSame([], $deliveries[0]->context);
-    }
-
-    #[TestDox('delivers an explicit null to an optional consumer whose path cannot be resolved')]
-    public function testOptionalConsumerWithUnresolvablePathGetsAnExplicitNull(): void
-    {
-        $children = [$this->consumerOf('child-1', 'product.cover')];
-        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
-
-        $deliveries = $this->distributor()->distribute($parent, ['product' => 'not-a-struct'], $children);
-
-        static::assertSame(['product.cover' => null], $deliveries[0]->context);
-    }
-
-    #[TestDox('throws naming the offending element when a required consumer path cannot be resolved')]
-    public function testRequiredConsumerWithUnresolvablePathThrowsNamingTheElement(): void
-    {
-        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
-            ->withConsumer('product.cover', ContextType::Single, required: true)
-            ->build();
-        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
-
-        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
-            'product.cover',
-            'child-1',
-            'Context data is not a Struct instance'
-        ));
-
-        $this->distributor()->distribute($parent, ['product' => 'not-a-struct'], [$child]);
-    }
-
-    /**
-     * @param array<string, mixed> $expectedFirst
-     * @param array<string, mixed> $expectedSecond
-     */
-    #[TestDox('under-supplies a strategy and delivers its own shape of nothing')]
-    #[DataProvider('underSuppliedStrategyProvider')]
-    public function testEachStrategyHasItsOwnUnderSupplyShape(
-        DistributionConfig $config,
-        mixed $providerData,
-        array $expectedFirst,
-        array $expectedSecond,
-    ): void {
-        $children = [
-            $this->keyedConsumerOf('child-1', 'items', 'present'),
-            $this->keyedConsumerOf('child-2', 'items', 'absent'),
-        ];
-        $parent = $this->providerOf('items', $config);
-
-        $deliveries = $this->distributor()->distribute($parent, ['items' => $providerData], $children);
-
-        static::assertSame($expectedFirst, $deliveries[0]->context);
-        static::assertSame($expectedSecond, $deliveries[1]->context);
     }
 
     #[TestDox('lets the last provider win when two providers deliver under the same consumer key')]
@@ -412,6 +343,56 @@ class ContextDistributorTest extends TestCase
         static::assertSame(['items' => null], $deliveries[0]->context);
     }
 
+    /**
+     * The gate that makes every other null in this class mean something. `BroadcastDistributionConfig`
+     * carries no null check, so without it a null provider value would be written into every consumer key.
+     */
+    #[TestDox('delivers nothing at all when the provider value is null')]
+    public function testNullProviderValueDeliversNothing(): void
+    {
+        $children = [$this->consumerOf('child-1', 'product')];
+        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
+
+        $deliveries = $this->distributor()->distribute($parent, ['product' => null], $children);
+
+        static::assertSame([], $deliveries[0]->context);
+    }
+
+    #[TestDox('delivers an explicit null to an optional consumer whose path cannot be resolved')]
+    public function testOptionalConsumerWithUnresolvablePathGetsAnExplicitNull(): void
+    {
+        $children = [$this->consumerOf('child-1', 'product.cover')];
+        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
+
+        $deliveries = $this->distributor()->distribute($parent, ['product' => 'not-a-struct'], $children);
+
+        static::assertSame(['product.cover' => null], $deliveries[0]->context);
+    }
+
+    /**
+     * @param array<string, mixed> $expectedFirst
+     * @param array<string, mixed> $expectedSecond
+     */
+    #[DataProvider('underSuppliedStrategyProvider')]
+    #[TestDox('under-supplies a strategy and delivers its own shape of nothing')]
+    public function testEachStrategyHasItsOwnUnderSupplyShape(
+        DistributionConfig $config,
+        mixed $providerData,
+        array $expectedFirst,
+        array $expectedSecond,
+    ): void {
+        $children = [
+            $this->keyedConsumerOf('child-1', 'items', 'present'),
+            $this->keyedConsumerOf('child-2', 'items', 'absent'),
+        ];
+        $parent = $this->providerOf('items', $config);
+
+        $deliveries = $this->distributor()->distribute($parent, ['items' => $providerData], $children);
+
+        static::assertSame($expectedFirst, $deliveries[0]->context);
+        static::assertSame($expectedSecond, $deliveries[1]->context);
+    }
+
     #[TestDox('returns no deliveries for a parent with no children')]
     public function testParentWithoutChildrenYieldsNoDeliveries(): void
     {
@@ -420,6 +401,23 @@ class ContextDistributorTest extends TestCase
         $deliveries = $this->distributor()->distribute($parent, ['product' => 'product-data'], []);
 
         static::assertSame([], $deliveries);
+    }
+
+    #[TestDox('throws naming the offending element when a required consumer path cannot be resolved')]
+    public function testRequiredConsumerWithUnresolvablePathThrowsNamingTheElement(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.cover', ContextType::Single, required: true)
+            ->build();
+        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
+
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+            'product.cover',
+            'child-1',
+            'Context data is not a Struct instance'
+        ));
+
+        $this->distributor()->distribute($parent, ['product' => 'not-a-struct'], [$child]);
     }
 
     private function distributor(): ContextDistributor

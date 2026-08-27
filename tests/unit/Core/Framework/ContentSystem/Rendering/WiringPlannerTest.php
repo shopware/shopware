@@ -38,6 +38,50 @@ class WiringPlannerTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
+    /**
+     * The derived provider is serialized verbatim into a full-format response, so its distribution config
+     * is wire-visible. A derivation that always carried an alias would rename nothing yet still change the
+     * body of every plain redistribution.
+     */
+    #[DataProvider('derivedProviderWireShapeProvider')]
+    #[TestDox('serializes a derived redistribute provider carrying an alias only where the key is renamed')]
+    public function testDerivedRedistributeProviderSerializesItsConsumerAlias(?string $consumerAlias, ?string $expectedSerializedAlias): void
+    {
+        $middle = StoredElementBuilder::create('section', 'middle-id')
+            ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: $consumerAlias)
+            ->withSlot('default', [
+                StoredElementBuilder::create('text', 'grandchild-id')
+                    ->withConsumer($consumerAlias ?? 'featuredProduct', ContextType::Single)
+                    ->build(),
+            ])
+            ->build();
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', 'root-id')
+                ->withProvider('featuredProduct', BroadcastDistributionConfig::simple())
+                ->withProperty('featuredProduct', 'product-payload')
+                ->withSlot('default', [$middle])
+                ->build()
+        );
+
+        $derived = $this->planner()->plan($layout->elements, $layout->elements);
+
+        $serialized = $derived[0]->slots['default'][0]->jsonSerialize();
+
+        static::assertSame(
+            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => $expectedSerializedAlias],
+            $serialized['providesContext']['featuredProduct']
+        );
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string}>
+     */
+    public static function derivedProviderWireShapeProvider(): iterable
+    {
+        yield 'no alias keeps the plain config' => [null, null];
+        yield 'alias is carried through' => ['product', 'product'];
+    }
+
     #[TestDox('rejects a redistributing consumer whose context key is a dotted path')]
     public function testRedistributeExpansionRejectsADottedConsumerKey(): void
     {
@@ -166,50 +210,6 @@ class WiringPlannerTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
 
         $this->planner()->plan($forest, $pruned);
-    }
-
-    /**
-     * The derived provider is serialized verbatim into a full-format response, so its distribution config
-     * is wire-visible. A derivation that always carried an alias would rename nothing yet still change the
-     * body of every plain redistribution.
-     */
-    #[TestDox('serializes a derived redistribute provider carrying an alias only where the key is renamed')]
-    #[DataProvider('derivedProviderWireShapeProvider')]
-    public function testDerivedRedistributeProviderSerializesItsConsumerAlias(?string $consumerAlias, ?string $expectedSerializedAlias): void
-    {
-        $middle = StoredElementBuilder::create('section', 'middle-id')
-            ->withConsumer('featuredProduct', ContextType::Single, redistribute: true, consumerAlias: $consumerAlias)
-            ->withSlot('default', [
-                StoredElementBuilder::create('text', 'grandchild-id')
-                    ->withConsumer($consumerAlias ?? 'featuredProduct', ContextType::Single)
-                    ->build(),
-            ])
-            ->build();
-        $layout = $this->createSingleRootLayout(
-            StoredElementBuilder::create('section', 'root-id')
-                ->withProvider('featuredProduct', BroadcastDistributionConfig::simple())
-                ->withProperty('featuredProduct', 'product-payload')
-                ->withSlot('default', [$middle])
-                ->build()
-        );
-
-        $derived = $this->planner()->plan($layout->elements, $layout->elements);
-
-        $serialized = $derived[0]->slots['default'][0]->jsonSerialize();
-
-        static::assertSame(
-            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => $expectedSerializedAlias],
-            $serialized['providesContext']['featuredProduct']
-        );
-    }
-
-    /**
-     * @return iterable<string, array{?string, ?string}>
-     */
-    public static function derivedProviderWireShapeProvider(): iterable
-    {
-        yield 'no alias keeps the plain config' => [null, null];
-        yield 'alias is carried through' => ['product', 'product'];
     }
 
     /**

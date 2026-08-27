@@ -5,13 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
-use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryIndex;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +22,6 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
  */
 #[Package('framework')]
 #[CoversClass(ContextDeliveryResolver::class)]
-#[CoversClass(ContextDeliveryIndex::class)]
 class ContextDeliveryResolverTest extends TestCase
 {
     #[TestDox('delivers a parent value to its own children')]
@@ -266,6 +265,25 @@ class ContextDeliveryResolverTest extends TestCase
 
         static::assertTrue($index->has('child-1'));
         static::assertFalse($index->has('not-in-this-forest'));
+    }
+
+    #[TestDox('throws when a required dotted consumer receives a provider value that is not a Struct')]
+    public function testRequiredDottedConsumerRejectsANonStructProviderValue(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.name', ContextType::Single, required: true)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withProperty('product', 'not-a-struct')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+
+        $this->expectExceptionObject(
+            ContentSystemException::contextPathNotResolvable('product.name', 'child-1', 'Context data is not a Struct instance')
+        );
+
+        $this->resolver()->resolve([$root], []);
     }
 
     private function resolver(): ContextDeliveryResolver

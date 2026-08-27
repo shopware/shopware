@@ -33,7 +33,6 @@ use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
  */
 #[Package('framework')]
 #[CoversClass(RenderedTreeFactory::class)]
-#[CoversClass(ContextDeliveryIndex::class)]
 class RenderedTreeFactoryTest extends TestCase
 {
     #[TestDox('mints one rendered root per stored root, in order')]
@@ -83,40 +82,6 @@ class RenderedTreeFactoryTest extends TestCase
         $tree = $this->mint([$root], $this->indexFor([]), [], RenderingMode::FULL);
 
         static::assertSame('grandchild-1', $tree[0]->slots['main'][0]->slots['inner'][0]->id);
-    }
-
-    /**
-     * The property that justifies one fold rather than two traversals. Everything structural is compared at
-     * once, so a mode branch reaching anything but the mint call shows up here — and the property assertion
-     * below keeps the test from passing if the two modes stopped differing at all.
-     */
-    #[TestDox('produces the same structure in both modes, differing only in properties')]
-    public function testBothModesProduceTheSameStructure(): void
-    {
-        $root = $this->threeLevelTree();
-        $index = $this->indexFor(['grandchild-1' => new ContextDelivery('grandchild-1', ['headline' => 'delivered'])]);
-
-        $full = $this->mint([$root], $index, [], RenderingMode::FULL);
-        $skeleton = $this->mint([$root], $index, [], RenderingMode::SKELETON);
-
-        static::assertSame($this->structureOf($full[0]), $this->structureOf($skeleton[0]));
-        static::assertSame(
-            ['headline' => 'delivered'],
-            $full[0]->slots['main'][0]->slots['inner'][0]->properties
-        );
-        static::assertSame([], $skeleton[0]->slots['main'][0]->slots['inner'][0]->properties);
-    }
-
-    #[TestDox('mints no properties at all in skeleton mode')]
-    public function testSkeletonModeMintsNoProperties(): void
-    {
-        $root = StoredElementBuilder::create('Sw:Text', 'root-1')
-            ->withProperty('headline', 'stored')
-            ->build();
-
-        $tree = $this->mint([$root], $this->indexFor([]), [], RenderingMode::SKELETON);
-
-        static::assertSame([], $tree[0]->properties);
     }
 
     #[TestDox('carries the delivered context of each element onto that element')]
@@ -182,18 +147,6 @@ class RenderedTreeFactoryTest extends TestCase
         static::assertSame(ValueOrigin::LoaderResolved, $result->provenance['root-1']['product']->origin);
     }
 
-    #[TestDox('records no provenance entry for an element that carries no properties')]
-    public function testProvenanceOmitsAPropertylessElement(): void
-    {
-        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
-            ->withSlot('main', [StoredElementBuilder::create('Sw:Text', 'child-1')->withProperty('headline', 'Nested')->build()])
-            ->build();
-
-        $result = $this->mintResult([$root], $this->indexFor([]), [], RenderingMode::FULL);
-
-        static::assertSame(['child-1'], $this->sortedKeys($result->provenance));
-    }
-
     /**
      * A stored key a keyed distribution named survives onto the rendered element only because the index's
      * referenced-key list is passed through. `data_key` is declared by no type, so the declared tier cannot
@@ -212,6 +165,40 @@ class RenderedTreeFactoryTest extends TestCase
         static::assertSame(['data_key' => 'present'], $tree[0]->properties);
     }
 
+    /**
+     * The property that justifies one fold rather than two traversals. Everything structural is compared at
+     * once, so a mode branch reaching anything but the mint call shows up here — and the property assertion
+     * below keeps the test from passing if the two modes stopped differing at all.
+     */
+    #[TestDox('produces the same structure in both modes, differing only in properties')]
+    public function testBothModesProduceTheSameStructure(): void
+    {
+        $root = $this->threeLevelTree();
+        $index = $this->indexFor(['grandchild-1' => new ContextDelivery('grandchild-1', ['headline' => 'delivered'])]);
+
+        $full = $this->mint([$root], $index, [], RenderingMode::FULL);
+        $skeleton = $this->mint([$root], $index, [], RenderingMode::SKELETON);
+
+        static::assertSame($this->structureOf($full[0]), $this->structureOf($skeleton[0]));
+        static::assertSame(
+            ['headline' => 'delivered'],
+            $full[0]->slots['main'][0]->slots['inner'][0]->properties
+        );
+        static::assertSame([], $skeleton[0]->slots['main'][0]->slots['inner'][0]->properties);
+    }
+
+    #[TestDox('mints no properties at all in skeleton mode')]
+    public function testSkeletonModeMintsNoProperties(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Text', 'root-1')
+            ->withProperty('headline', 'stored')
+            ->build();
+
+        $tree = $this->mint([$root], $this->indexFor([]), [], RenderingMode::SKELETON);
+
+        static::assertSame([], $tree[0]->properties);
+    }
+
     #[TestDox('keeps the stored style on the rendered element in both modes')]
     public function testStyleSurvivesInBothModes(): void
     {
@@ -226,16 +213,6 @@ class RenderedTreeFactoryTest extends TestCase
         static::assertSame($style, $skeleton[0]->style);
     }
 
-    #[TestDox('fails naming the element when the index was built from a different forest')]
-    public function testMissingDeliveryFailsNamingTheElement(): void
-    {
-        $root = StoredElementBuilder::create('Sw:Text', 'root-1')->build();
-
-        $this->expectExceptionObject(ContentSystemException::contextDeliveryMissing('root-1'));
-
-        $this->mint([$root], new ContextDeliveryIndex(), [], RenderingMode::FULL);
-    }
-
     #[TestDox('renders a skeleton without consulting the delivery index at all')]
     public function testSkeletonModeNeedsNoDeliveries(): void
     {
@@ -244,6 +221,18 @@ class RenderedTreeFactoryTest extends TestCase
         $tree = $this->mint([$root], new ContextDeliveryIndex(), [], RenderingMode::SKELETON);
 
         static::assertSame('root-1', $tree[0]->id);
+    }
+
+    #[TestDox('records no provenance entry for an element that carries no properties')]
+    public function testProvenanceOmitsAPropertylessElement(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [StoredElementBuilder::create('Sw:Text', 'child-1')->withProperty('headline', 'Nested')->build()])
+            ->build();
+
+        $result = $this->mintResult([$root], $this->indexFor([]), [], RenderingMode::FULL);
+
+        static::assertSame(['child-1'], $this->sortedKeys($result->provenance));
     }
 
     #[TestDox('returns no rendered elements for an empty forest')]
@@ -255,6 +244,16 @@ class RenderedTreeFactoryTest extends TestCase
         static::assertSame([], $result->provenance);
 
         static::assertSame([], $tree);
+    }
+
+    #[TestDox('fails naming the element when the index was built from a different forest')]
+    public function testMissingDeliveryFailsNamingTheElement(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Text', 'root-1')->build();
+
+        $this->expectExceptionObject(ContentSystemException::contextDeliveryMissing('root-1'));
+
+        $this->mint([$root], new ContextDeliveryIndex(), [], RenderingMode::FULL);
     }
 
     /**

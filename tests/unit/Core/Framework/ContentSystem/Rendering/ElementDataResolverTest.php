@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Rendering;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ResolvedLoaderValue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubStruct;
@@ -91,8 +92,17 @@ class ElementDataResolverTest extends TestCase
         // Taken from the value the LOADER returned, which is what lets the response index tell that value
         // apart from one a finalization listener replaced it with.
         static::assertSame((new ValueFingerprinter())->fingerprint($data), $identity->producedFingerprint);
-        static::assertNotSame('', $identity->configHash);
-        static::assertNotSame('', $identity->inputsHash);
+        // Computed the same way LoaderValueIdentityFactory does (encode+canonicalize for config, resolved
+        // inputs key-sorted for inputs), so these prove the hash actually reflects this resolution's
+        // config/inputs rather than merely being non-empty.
+        static::assertSame(
+            Hasher::hash(['activeProperty' => 'activeId', 'entity' => 'product']),
+            $identity->configHash
+        );
+        static::assertSame(
+            Hasher::hash(['activeProperty' => 'the-active-id', 'entity' => 'product']),
+            $identity->inputsHash
+        );
     }
 
     #[TestDox('gives two requirements resolving different inputs different identities')]
@@ -103,18 +113,13 @@ class ElementDataResolverTest extends TestCase
             ContentDataLoaderResult::cached(new StubStruct()),
         );
 
-        $resolved = $this->resolveWith($loader, $this->elementWithTwoRequirements());
+        $first = $this->resolveWith($loader, $this->elementWithRequirement('product', 'the-first-active-id'))['product']->identity;
+        $second = $this->resolveWith($loader, $this->elementWithRequirement('product', 'the-second-active-id'))['product']->identity;
 
-        // Same source and same config on both requirements, so the inputs hash is the only component that can
+        // Same source and same config on both resolutions, so the inputs hash is the only component that can
         // keep them apart — and it must, or two loads of different things would share one response reference.
-        static::assertSame(
-            $resolved['product']->identity->configHash,
-            $resolved['category']->identity->configHash,
-        );
-        static::assertNotSame(
-            $resolved['product']->identity->producedFingerprint,
-            $resolved['category']->identity->producedFingerprint,
-        );
+        static::assertSame($first->configHash, $second->configHash);
+        static::assertNotSame($first->inputsHash, $second->inputsHash);
     }
 
     /**
@@ -195,10 +200,10 @@ class ElementDataResolverTest extends TestCase
         static::assertSame([], $resolved);
     }
 
-    private function elementWithRequirement(string $key): StoredElement
+    private function elementWithRequirement(string $key, string $activeId = 'the-active-id'): StoredElement
     {
         return StoredElementBuilder::create('Sw:ProductBox', 'element-1')
-            ->withProperty('activeId', 'the-active-id')
+            ->withProperty('activeId', $activeId)
             ->withDataRequirement($key, 'entity', $this->config())
             ->build();
     }
@@ -233,12 +238,12 @@ class ElementDataResolverTest extends TestCase
     }
 
     /**
-     * @param AbstractContentDataLoader<Struct>&MockObject $loader
+     * @param AbstractContentDataLoader<Struct>&Stub $loader
      *
      * @return array<string, ResolvedLoaderValue>
      */
     private function resolveWith(
-        AbstractContentDataLoader&MockObject $loader,
+        AbstractContentDataLoader&Stub $loader,
         StoredElement $stored,
         ?RenderingCacheContext $cacheContext = null,
     ): array {
@@ -256,9 +261,9 @@ class ElementDataResolverTest extends TestCase
     }
 
     /**
-     * @return AbstractContentDataLoader<Struct>&MockObject
+     * @return AbstractContentDataLoader<Struct>&Stub
      */
-    private function loaderReturning(ContentDataLoaderResult ...$results): AbstractContentDataLoader&MockObject
+    private function loaderReturning(ContentDataLoaderResult ...$results): AbstractContentDataLoader&Stub
     {
         $loader = $this->loader();
         $loader->method('load')->willReturnOnConsecutiveCalls(...array_values($results));
@@ -267,11 +272,11 @@ class ElementDataResolverTest extends TestCase
     }
 
     /**
-     * @return AbstractContentDataLoader<Struct>&MockObject
+     * @return AbstractContentDataLoader<Struct>&Stub
      */
-    private function loader(): AbstractContentDataLoader&MockObject
+    private function loader(): AbstractContentDataLoader&Stub
     {
-        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader = static::createStub(AbstractContentDataLoader::class);
         $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
             new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false),

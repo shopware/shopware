@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -56,20 +57,23 @@ class ElementLoweringTest extends TestCase
     /**
      * An effort-negative claim: the never-expectation is the behaviour under test, not decoration. A skeleton
      * is a structural answer, so the element's declared data requirement must not reach a loader at all, and
-     * the rendered properties must stay empty rather than being filled from anywhere.
+     * the rendered properties must stay empty rather than being filled from anywhere. The two cache facts are
+     * whole-value assertions because absence is the claim: a run would disable the context on an uncacheable
+     * result and would leave a tag behind, so either fact appearing proves a loader ran.
      */
-    #[TestDox('renders structure with empty properties in skeleton mode without running any loader')]
+    #[TestDox('renders structure with empty properties and leaves the cache context untouched in skeleton mode without running any loader')]
     public function testSkeletonModeRendersStructureWithoutRunningAnyLoader(): void
     {
         $loader = $this->loader();
         $loader->expects($this->never())->method('load');
+        $cacheContext = new RenderingCacheContext();
 
         $lowered = $this->lowering($loader)->lower(
             [$this->rootOverRequiringChild()],
             RenderingMode::SKELETON,
             static::createStub(SalesChannelContext::class),
             new Request(),
-            new RenderingCacheContext()
+            $cacheContext
         );
 
         $tree = $lowered->tree;
@@ -83,30 +87,6 @@ class ElementLoweringTest extends TestCase
         static::assertSame('child-1', $tree[0]->slots['main'][0]->id);
         static::assertSame('Sw:Product', $tree[0]->slots['main'][0]->component);
         static::assertSame([], $tree[0]->slots['main'][0]->properties);
-    }
-
-    /**
-     * Both cache facts are whole-value assertions because absence is the claim. The two requirements are what
-     * make them falsifiable: a run would disable the context on the uncacheable result and would leave the
-     * second result's tag behind, so either fact appearing proves a loader ran.
-     */
-    #[TestDox('leaves the cache context undisabled and untagged in skeleton mode')]
-    public function testSkeletonModeLeavesTheCacheContextUntouched(): void
-    {
-        $loader = $this->loaderReturning(
-            ContentDataLoaderResult::uncacheable(new StubStruct()),
-            ContentDataLoaderResult::cached(new StubStruct(), 'category-1')
-        );
-        $cacheContext = new RenderingCacheContext();
-
-        $this->lowering($loader)->lower(
-            [$this->rootOverRequiringChild()],
-            RenderingMode::SKELETON,
-            static::createStub(SalesChannelContext::class),
-            new Request(),
-            $cacheContext
-        );
-
         static::assertFalse($cacheContext->isDisabled());
         static::assertSame([], $cacheContext->getTags());
     }
@@ -159,6 +139,32 @@ class ElementLoweringTest extends TestCase
         $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cached($loaded)), [$parent]);
 
         static::assertSame(['product' => $loaded], $tree[0]->slots['main'][0]->properties);
+    }
+
+    /**
+     * A required consumer with a dot path pulls a nested property off the value it is delivered, which needs
+     * a Struct to traverse. A provider that hands over a bare scalar leaves the path unresolvable, and a
+     * required consumer must fail rather than silently deliver null.
+     */
+    #[TestDox('throws when a required consumer resolves a dot path into a provided value that is not a struct')]
+    public function testFullModeThrowsWhenRequiredConsumerPathIsUnresolvable(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.manufacturer', ContextType::Single, required: true)
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:Section', 'parent-1')
+            ->withProperty('product', 'T-shirt')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+            'product.manufacturer',
+            'child-1',
+            'Context data is not a Struct instance'
+        ));
+
+        $this->lower($this->loader(), [$parent]);
     }
 
     /**

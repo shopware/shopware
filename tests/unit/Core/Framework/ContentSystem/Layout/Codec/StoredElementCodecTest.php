@@ -46,6 +46,228 @@ class StoredElementCodecTest extends TestCase
         static::assertSame($wire, $codec->encode($codec->decode($wire)));
     }
 
+    #[TestDox('encode omits every empty optional key, leaving the three always-present ones')]
+    public function testEncodeOmitsEmptyOptionalKeys(): void
+    {
+        $wire = [
+            'id' => 'el-1',
+            'component' => 'core:text',
+            'properties' => ['title' => 'Hello'],
+            'dataRequirements' => [],
+            'slots' => [],
+            'providesContext' => [],
+            'acceptsContext' => [],
+            'style' => [],
+            'attributedSpecifications' => [],
+        ];
+
+        $codec = $this->codec();
+
+        static::assertSame(
+            ['id' => 'el-1', 'component' => 'core:text', 'properties' => ['title' => 'Hello']],
+            $codec->encode($codec->decode($wire))
+        );
+    }
+
+    #[TestDox('encode produces the canonical storage shape of an element it did not decode')]
+    public function testEncodeProducesTheCanonicalShape(): void
+    {
+        $element = StoredElementBuilder::create('core:text', 'el-1')
+            ->withProperty('title', 'Hello')
+            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
+            ->build();
+
+        static::assertSame(
+            [
+                'id' => 'el-1',
+                'component' => 'core:text',
+                'properties' => ['title' => 'Hello'],
+                'style' => ['col-span' => ['md' => 6]],
+            ],
+            $this->codec()->encode($element)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $requirement
+     */
+    #[DataProvider('dataRequirementKeyProvider')]
+    #[TestDox('resolves the data requirement key to $_dataName')]
+    public function testDecodeResolvesTheDataRequirementKey(array $requirement, string $expected): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['dataRequirements' => ['products' => $requirement]]));
+
+        // The map key always stays the outer one; only the requirement's own key falls back to it.
+        static::assertSame(['products'], array_keys($element->dataRequirements));
+        static::assertSame($expected, $element->dataRequirements['products']->key);
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     * @param class-string<DistributionConfig> $expected
+     * @param array<string, mixed> $expectedConfig
+     */
+    #[DataProvider('distributionStrategyProvider')]
+    #[TestDox('decode builds the config of $_dataName')]
+    public function testDecodeDispatchesEveryDistributionStrategy(array $provider, string $expected, array $expectedConfig): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['providesContext' => ['product' => $provider]]));
+
+        $config = $element->contextDefinitions->getAllProviders()['product']->distributionConfig;
+
+        static::assertInstanceOf($expected, $config);
+        static::assertSame($expectedConfig, $config->toArray());
+    }
+
+    #[TestDox('decode accepts an id that only looks numeric')]
+    public function testDecodeAcceptsANonCastableNumericLookingId(): void
+    {
+        $element = $this->codec()->decode(['id' => '012', 'component' => 'core:text', 'properties' => []]);
+
+        static::assertSame('012', $element->id);
+    }
+
+    /**
+     * @param array<string, mixed> $wire
+     */
+    #[DataProvider('acceptsNestingAtTheLimitProvider')]
+    #[TestDox('accepts $_dataName')]
+    public function testDecodeAcceptsNestingAtTheLimit(array $wire): void
+    {
+        $codec = $this->codec();
+
+        static::assertSame($wire, $codec->encode($codec->decode($wire)));
+    }
+
+    #[TestDox('keeps a well-formed style entry the registry no longer knows')]
+    public function testDecodeKeepsAnUnknownButWellFormedStyleOption(): void
+    {
+        $wire = self::baseWire([
+            'style' => [
+                'flat-option' => 'red',
+                'breakpoint-option' => ['md' => 10],
+            ],
+        ]);
+
+        $codec = $this->codec();
+
+        static::assertSame($wire, $codec->encode($codec->decode($wire)));
+    }
+
+    #[TestDox('decode rejects a top-level key the element wire shape does not carry')]
+    public function testDecodeRejectsAnUnknownTopLevelKey(): void
+    {
+        $this->expectExceptionObject(
+            ContentSystemException::invalidFieldValueType('element', 'only known element keys', 'unknown key "elements"')
+        );
+
+        $this->codec()->decode([
+            'id' => 'el-1',
+            'component' => 'core:text',
+            'properties' => [],
+            'elements' => [],
+        ]);
+    }
+
+    #[DataProvider('rejectedElementIdProvider')]
+    #[TestDox('decode rejects $_dataName as an element id')]
+    public function testDecodeRejectsIdsOutsideTheValueDomain(string $id, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode(['id' => $id, 'component' => 'core:text', 'properties' => []]);
+    }
+
+    /**
+     * @param array<array-key, mixed> $wire
+     */
+    #[DataProvider('rejectsNumericWiringKeysProvider')]
+    #[TestDox('rejects $_dataName')]
+    public function testDecodeRejectsNumericWiringKeys(array $wire, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode($wire);
+    }
+
+    /**
+     * @param array<string, mixed> $wire
+     */
+    #[DataProvider('rejectsNestingPastTheLimitProvider')]
+    #[TestDox('rejects $_dataName')]
+    public function testDecodeRejectsNestingPastTheLimit(array $wire, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode($wire);
+    }
+
+    /**
+     * @param array<string, mixed> $wire
+     */
+    #[DataProvider('throwsForStructuralDefectProvider')]
+    #[TestDox('throws for $_dataName')]
+    public function testDecodeThrowsForAStructuralDefect(array $wire, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode($wire);
+    }
+
+    #[TestDox('names the element whose data requirement points at an unregistered config serializer source')]
+    public function testDecodeThrowsWithElementIdWhenSourceUnregistered(): void
+    {
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
+        $codec = new StoredElementCodec($provider);
+
+        $wire = self::baseWire([
+            'id' => 'el-unregistered',
+            'dataRequirements' => [
+                'products' => ['source' => 'removed_plugin_source', 'config' => []],
+            ],
+        ]);
+
+        $expected = ContentSystemException::configSerializerNotRegistered('removed_plugin_source', 'el-unregistered');
+
+        $this->expectExceptionObject($expected);
+
+        $codec->decode($wire);
+    }
+
+    #[TestDox('propagates an unrelated ContentSystemException from a data requirement unchanged')]
+    public function testDecodePropagatesUnrelatedContentSystemExceptionFromDataRequirements(): void
+    {
+        $internalFault = ContentSystemException::invalidFieldType(AbstractContentDataLoaderConfig::class, 'string');
+
+        $failingSerializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $failingSerializer->method('decode')->willThrowException($internalFault);
+
+        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['broken_source' => static fn () => $failingSerializer]));
+        $codec = new StoredElementCodec($provider);
+
+        $wire = self::baseWire([
+            'dataRequirements' => [
+                'products' => ['source' => 'broken_source', 'config' => []],
+            ],
+        ]);
+
+        $this->expectExceptionObject($internalFault);
+
+        $codec->decode($wire);
+    }
+
+    /**
+     * @param array<array-key, mixed> $style
+     */
+    #[DataProvider('rejectsMalformedStyleProvider')]
+    #[TestDox('decode rejects $_dataName')]
+    public function testDecodeRejectsMalformedStyle(array $style, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode(self::baseWire(['style' => $style]));
+    }
+
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
@@ -103,62 +325,6 @@ class StoredElementCodecTest extends TestCase
         ]];
     }
 
-    #[TestDox('encode omits every empty optional key, leaving the three always-present ones')]
-    public function testEncodeOmitsEmptyOptionalKeys(): void
-    {
-        $wire = [
-            'id' => 'el-1',
-            'component' => 'core:text',
-            'properties' => ['title' => 'Hello'],
-            'dataRequirements' => [],
-            'slots' => [],
-            'providesContext' => [],
-            'acceptsContext' => [],
-            'style' => [],
-            'attributedSpecifications' => [],
-        ];
-
-        $codec = $this->codec();
-
-        static::assertSame(
-            ['id' => 'el-1', 'component' => 'core:text', 'properties' => ['title' => 'Hello']],
-            $codec->encode($codec->decode($wire))
-        );
-    }
-
-    #[TestDox('encode produces the canonical storage shape of an element it did not decode')]
-    public function testEncodeProducesTheCanonicalShape(): void
-    {
-        $element = StoredElementBuilder::create('core:text', 'el-1')
-            ->withProperty('title', 'Hello')
-            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
-            ->build();
-
-        static::assertSame(
-            [
-                'id' => 'el-1',
-                'component' => 'core:text',
-                'properties' => ['title' => 'Hello'],
-                'style' => ['col-span' => ['md' => 6]],
-            ],
-            $this->codec()->encode($element)
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $requirement
-     */
-    #[DataProvider('dataRequirementKeyProvider')]
-    #[TestDox('decode takes $_dataName')]
-    public function testDecodeResolvesTheDataRequirementKey(array $requirement, string $expected): void
-    {
-        $element = $this->codec()->decode(self::baseWire(['dataRequirements' => ['products' => $requirement]]));
-
-        // The map key always stays the outer one; only the requirement's own key falls back to it.
-        static::assertSame(['products'], array_keys($element->dataRequirements));
-        static::assertSame($expected, $element->dataRequirements['products']->key);
-    }
-
     /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
@@ -183,71 +349,39 @@ class StoredElementCodecTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $provider
-     * @param class-string<DistributionConfig> $expected
-     */
-    #[DataProvider('distributionStrategyProvider')]
-    #[TestDox('decode builds the config of $_dataName')]
-    public function testDecodeDispatchesEveryDistributionStrategy(array $provider, string $expected): void
-    {
-        $element = $this->codec()->decode(self::baseWire(['providesContext' => ['product' => $provider]]));
-
-        static::assertInstanceOf($expected, $element->contextDefinitions->getAllProviders()['product']->distributionConfig);
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>, class-string<DistributionConfig>}>
+     * @return iterable<string, array{array<string, mixed>, class-string<DistributionConfig>, array<string, mixed>}>
      */
     public static function distributionStrategyProvider(): iterable
     {
         yield 'a broadcast provider' => [
             ['type' => 'collection', 'distribution' => 'broadcast'],
             BroadcastDistributionConfig::class,
+            ['distribution' => 'broadcast', 'consumerAlias' => null],
         ];
 
         yield 'an indexed provider' => [
             ['type' => 'collection', 'distribution' => 'indexed'],
             IndexedDistributionConfig::class,
+            ['distribution' => 'indexed', 'consumerAlias' => null],
         ];
 
         yield 'an iterator provider' => [
             ['type' => 'collection', 'distribution' => 'iterator'],
             IteratorDistributionConfig::class,
+            ['distribution' => 'iterator', 'consumerAlias' => null],
         ];
 
         yield 'a keyed provider' => [
             ['type' => 'single', 'distribution' => 'keyed', 'keyProperty' => 'sku'],
             KeyedDistributionConfig::class,
+            ['distribution' => 'keyed', 'keyProperty' => 'sku', 'consumerAlias' => null],
         ];
 
         yield 'a sliced provider' => [
             ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 4],
             SlicedDistributionConfig::class,
+            ['distribution' => 'sliced', 'sliceSize' => 4, 'consumerAlias' => null],
         ];
-    }
-
-    #[TestDox('decode rejects a top-level key the element wire shape does not carry')]
-    public function testDecodeRejectsAnUnknownTopLevelKey(): void
-    {
-        $this->expectExceptionObject(
-            ContentSystemException::invalidFieldValueType('element', 'only known element keys', 'unknown key "elements"')
-        );
-
-        $this->codec()->decode([
-            'id' => 'el-1',
-            'component' => 'core:text',
-            'properties' => [],
-            'elements' => [],
-        ]);
-    }
-
-    #[DataProvider('rejectedElementIdProvider')]
-    #[TestDox('decode rejects $_dataName as an element id')]
-    public function testDecodeRejectsIdsOutsideTheValueDomain(string $id, ContentSystemException $expected): void
-    {
-        $this->expectExceptionObject($expected);
-
-        $this->codec()->decode(['id' => $id, 'component' => 'core:text', 'properties' => []]);
     }
 
     /**
@@ -276,30 +410,10 @@ class StoredElementCodecTest extends TestCase
         ];
     }
 
-    #[TestDox('decode accepts an id that only looks numeric')]
-    public function testDecodeAcceptsANonCastableNumericLookingId(): void
-    {
-        $element = $this->codec()->decode(['id' => '012', 'component' => 'core:text', 'properties' => []]);
-
-        static::assertSame('012', $element->id);
-    }
-
-    /**
-     * @param array<array-key, mixed> $wire
-     */
-    #[DataProvider('numericWiringKeyProvider')]
-    #[TestDox('decode rejects $_dataName')]
-    public function testDecodeRejectsNumericWiringKeys(array $wire, ContentSystemException $expected): void
-    {
-        $this->expectExceptionObject($expected);
-
-        $this->codec()->decode($wire);
-    }
-
     /**
      * @return iterable<string, array{array<array-key, mixed>, ContentSystemException}>
      */
-    public static function numericWiringKeyProvider(): iterable
+    public static function rejectsNumericWiringKeysProvider(): iterable
     {
         yield 'a numeric-string property key arriving over the wire' => [
             // PHP turns the JSON member name "12" into an integer array key, so the numeric-string case
@@ -332,21 +446,9 @@ class StoredElementCodecTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $wire
-     */
-    #[DataProvider('depthRejectionProvider')]
-    #[TestDox('decode rejects $_dataName')]
-    public function testDecodeRejectsNestingPastTheLimit(array $wire, ContentSystemException $expected): void
-    {
-        $this->expectExceptionObject($expected);
-
-        $this->codec()->decode($wire);
-    }
-
-    /**
      * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
      */
-    public static function depthRejectionProvider(): iterable
+    public static function rejectsNestingPastTheLimitProvider(): iterable
     {
         yield 'an element chain one level past the nesting limit' => [
             self::nestedElements(52),
@@ -364,36 +466,12 @@ class StoredElementCodecTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $wire
-     */
-    #[DataProvider('depthAcceptanceProvider')]
-    #[TestDox('decode accepts $_dataName')]
-    public function testDecodeAcceptsNestingAtTheLimit(array $wire): void
-    {
-        $codec = $this->codec();
-
-        static::assertSame($wire, $codec->encode($codec->decode($wire)));
-    }
-
-    /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function depthAcceptanceProvider(): iterable
+    public static function acceptsNestingAtTheLimitProvider(): iterable
     {
         yield 'an element chain exactly at the nesting limit' => [self::nestedElements(51)];
         yield 'a property payload exactly at the nesting limit' => [self::elementWithNestedValue(51)];
-    }
-
-    /**
-     * @param array<string, mixed> $wire
-     */
-    #[DataProvider('structuralDefectProvider')]
-    #[TestDox('decode throws for $_dataName')]
-    public function testDecodeThrowsForAStructuralDefect(array $wire, ContentSystemException $expected): void
-    {
-        $this->expectExceptionObject($expected);
-
-        $this->codec()->decode($wire);
     }
 
     /**
@@ -402,7 +480,7 @@ class StoredElementCodecTest extends TestCase
      *
      * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
      */
-    public static function structuralDefectProvider(): iterable
+    public static function throwsForStructuralDefectProvider(): iterable
     {
         yield 'a non-array dataRequirements' => [
             self::baseWire(['dataRequirements' => 'not-an-array']),
@@ -509,79 +587,10 @@ class StoredElementCodecTest extends TestCase
         ];
     }
 
-    #[TestDox('decode names the element whose data requirement points at an unregistered config serializer source')]
-    public function testDecodeThrowsWithElementIdWhenSourceUnregistered(): void
-    {
-        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator([]));
-        $codec = new StoredElementCodec($provider);
-
-        $wire = self::baseWire([
-            'id' => 'el-unregistered',
-            'dataRequirements' => [
-                'products' => ['source' => 'removed_plugin_source', 'config' => []],
-            ],
-        ]);
-
-        $expected = ContentSystemException::configSerializerNotRegistered('removed_plugin_source', 'el-unregistered');
-
-        $this->expectExceptionObject($expected);
-
-        $codec->decode($wire);
-    }
-
-    #[TestDox('decode propagates an unrelated ContentSystemException from a data requirement unchanged')]
-    public function testDecodePropagatesUnrelatedContentSystemExceptionFromDataRequirements(): void
-    {
-        $internalFault = ContentSystemException::invalidFieldType(AbstractContentDataLoaderConfig::class, 'string');
-
-        $failingSerializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
-        $failingSerializer->method('decode')->willThrowException($internalFault);
-
-        $provider = new DataLoaderConfigSerializerProvider(new ServiceLocator(['broken_source' => static fn () => $failingSerializer]));
-        $codec = new StoredElementCodec($provider);
-
-        $wire = self::baseWire([
-            'dataRequirements' => [
-                'products' => ['source' => 'broken_source', 'config' => []],
-            ],
-        ]);
-
-        $this->expectExceptionObject($internalFault);
-
-        $codec->decode($wire);
-    }
-
-    #[TestDox('decode keeps a well-formed style entry the registry no longer knows')]
-    public function testDecodeKeepsAnUnknownButWellFormedStyleOption(): void
-    {
-        $wire = self::baseWire([
-            'style' => [
-                'flat-option' => 'red',
-                'breakpoint-option' => ['md' => 10],
-            ],
-        ]);
-
-        $codec = $this->codec();
-
-        static::assertSame($wire, $codec->encode($codec->decode($wire)));
-    }
-
-    /**
-     * @param array<array-key, mixed> $style
-     */
-    #[DataProvider('malformedStyleProvider')]
-    #[TestDox('decode rejects $_dataName')]
-    public function testDecodeRejectsMalformedStyle(array $style, ContentSystemException $expected): void
-    {
-        $this->expectExceptionObject($expected);
-
-        $this->codec()->decode(self::baseWire(['style' => $style]));
-    }
-
     /**
      * @return iterable<string, array{array<array-key, mixed>, ContentSystemException}>
      */
-    public static function malformedStyleProvider(): iterable
+    public static function rejectsMalformedStyleProvider(): iterable
     {
         yield 'a non-string style option name' => [
             [0 => ['md' => 1]],

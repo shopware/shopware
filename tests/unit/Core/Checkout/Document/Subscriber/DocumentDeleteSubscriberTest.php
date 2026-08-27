@@ -53,7 +53,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([]), // dependency check with empty result
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -123,7 +123,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([]), // dependency check with empty result
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -186,7 +186,7 @@ class DocumentDeleteSubscriberTest extends TestCase
 
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$dependingDocument]),
                 null,

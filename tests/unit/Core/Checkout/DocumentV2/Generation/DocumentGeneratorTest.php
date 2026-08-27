@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -549,9 +550,10 @@ class DocumentGeneratorTest extends TestCase
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
-        $providerRegistry = new DocumentDataProviderRegistry(
-            $providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])],
-        );
+        $providerRegistry = new DocumentDataProviderRegistry([
+            ...($providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])]),
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
+        ]);
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(

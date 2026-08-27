@@ -111,17 +111,6 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         return $this->translationWriter->directoryExists($this->getLocalePath($locale));
     }
 
-    private function resolveLanguage(string $locale): Language
-    {
-        $language = $this->config->languages->get($locale);
-
-        if (!$language instanceof Language) {
-            throw SnippetException::languageDoesNotExist($locale);
-        }
-
-        return $language;
-    }
-
     public function download(string $locale): void
     {
         if (!$this->config->languages->has($locale)) {
@@ -179,6 +168,17 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         }
 
         return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);
+    }
+
+    private function resolveLanguage(string $locale): Language
+    {
+        $language = $this->config->languages->get($locale);
+
+        if (!$language instanceof Language) {
+            throw SnippetException::languageDoesNotExist($locale);
+        }
+
+        return $language;
     }
 
     private function memoizePluginLocaleTranslations(): void

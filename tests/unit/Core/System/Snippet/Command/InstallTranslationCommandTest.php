@@ -180,13 +180,21 @@ class InstallTranslationCommandTest extends TestCase
         $collection->get('es-ES')?->markForUpdate();
 
         $this->initMetadataLoader($collection);
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
 
         $this->translationLoader->expects($this->exactly(1))
             ->method('load')
             ->willReturnCallback(static function (string $locale): void {
-                $expectedLocales = ['es-ES'];
+                static::assertSame('es-ES', $locale);
+            });
 
-                static::assertTrue(\in_array($locale, $expectedLocales, true));
+        // The other two are not skipped, only their download is: their language and snippet
+        // set are ensured just the same.
+        $linked = [];
+        $this->translationLoader->expects($this->exactly(2))
+            ->method('link')
+            ->willReturnCallback(static function (string $locale) use (&$linked): void {
+                $linked[] = $locale;
             });
 
         $command = $this->getCommand();
@@ -195,10 +203,58 @@ class InstallTranslationCommandTest extends TestCase
         $tester->execute(['--locales' => 'en-GB,es-ES,de-DE']);
         $tester->assertCommandIsSuccessful();
 
+        static::assertSame(['en-GB', 'de-DE'], $linked);
+
         $output = $tester->getDisplay();
-        static::assertStringContainsString('The following locales are already up to date and will be skipped: en-GB, de-DE', $output);
+        static::assertStringContainsString('The following locales are already up to date, their files will not be downloaded again: en-GB, de-DE', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
+    }
+
+    public function testCommandDownloadsUpToDateLocalesWhoseFilesAreMissing(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $this->initMetadataLoader($collection);
+
+        // Metadata says the locale is current, but nothing is on the filesystem, so linking
+        // would leave a language with no translations behind it.
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(false);
+
+        $this->translationLoader->expects($this->once())->method('load');
+        $this->translationLoader->expects($this->never())->method('link');
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--locales' => 'es-ES']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function testOfflineInstallCreatesLanguagesWithoutTouchingTheMetadata(): void
+    {
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+        $this->metadataStore->expects($this->never())->method('save');
+
+        $this->translationLoader->expects($this->never())->method('load');
+
+        $linked = [];
+        $this->translationLoader->expects($this->exactly(2))
+            ->method('link')
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate) use (&$linked): void {
+                static::assertTrue($activate);
+                $linked[] = $locale;
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--locales' => 'en-GB,de-DE', '--offline' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertSame(['en-GB', 'de-DE'], $linked);
     }
 
     public function testCommandOutputsErrorIfMetadataCannotBeWritten(): void
@@ -230,7 +286,7 @@ class InstallTranslationCommandTest extends TestCase
         static::assertStringContainsString('An error occurred while saving metadata: "Something went wrong"', $output);
     }
 
-    public function testCommandSkipsLoadingIfEverythingIsUpToDate(): void
+    public function testCommandSkipsTheDownloadButStillInstallsIfEverythingIsUpToDate(): void
     {
         $collection = new MetadataCollection([
             MetadataEntry::create([
@@ -241,13 +297,18 @@ class InstallTranslationCommandTest extends TestCase
         ]);
 
         $this->initMetadataLoader($collection);
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
 
+        // Nothing is re-fetched, but the language and snippet set are still ensured: a locale
+        // whose files are current may well have no language row yet.
         $this->translationLoader->expects($this->never())->method('load');
+        $this->translationLoader->expects($this->once())->method('link');
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
         $tester->execute(['--locales' => 'es-ES']);
+        $tester->assertCommandIsSuccessful();
         $output = $tester->getDisplay();
 
         static::assertStringContainsString('All translations are already up to date.', $output);

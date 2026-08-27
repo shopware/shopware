@@ -93,6 +93,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('base-context-factory::sales-channel');
         $criteria->addAssociation('currency');
+        $criteria->addAssociation('currencies');
         $criteria->addAssociation('domains');
 
         if (!Feature::isActive('v6.8.0.0')) {
@@ -122,6 +123,11 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
             if (!$currency instanceof CurrencyEntity) {
                 throw SalesChannelException::currencyNotFound($currencyId);
+            }
+
+            $availableCurrencies = $salesChannel->getCurrencies();
+            if ($availableCurrencies === null || !$availableCurrencies->has($currencyId)) {
+                throw SalesChannelException::providedCurrencyNotAvailable($currencyId, $availableCurrencies?->getIds() ?? []);
             }
         }
 

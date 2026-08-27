@@ -176,6 +176,15 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $currency->setItemRounding($rounding);
         $currency->setId($currencyId);
         $currency->setFactor(1);
+        $salesChannelEntity->setCurrencies(new CurrencyCollection([$currency]));
+
+        $unassignedCurrencyId = Uuid::randomHex();
+        $unassignedCurrency = new CurrencyEntity();
+        $unassignedCurrency->setUniqueIdentifier($unassignedCurrencyId);
+        $unassignedCurrency->setTotalRounding($rounding);
+        $unassignedCurrency->setItemRounding($rounding);
+        $unassignedCurrency->setId($unassignedCurrencyId);
+        $unassignedCurrency->setFactor(1);
 
         $country = new CountryEntity();
         $country->setUniqueIdentifier($countryId);
@@ -295,6 +304,29 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                 ],
             ],
             'expectedException' => SalesChannelException::currencyNotFound('3ebb5fe2e29a4d70aa5854ce7ce3e20b'),
+        ];
+
+        yield 'provided currency not available' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $unassignedCurrencyId,
+            ],
+            'fetchDataResult' => [
+                'sales_channel_default_language_id' => Uuid::randomBytes(),
+                'sales_channel_currency_factor' => 1,
+                'sales_channel_currency_id' => Uuid::randomBytes(),
+                'sales_channel_language_ids' => Defaults::LANGUAGE_SYSTEM,
+            ],
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => [
+                SalesChannelDefinition::ENTITY_NAME => [
+                    TestDefaults::SALES_CHANNEL => $salesChannelEntity,
+                ],
+                CurrencyDefinition::ENTITY_NAME => [
+                    $unassignedCurrencyId => $unassignedCurrency,
+                ],
+            ],
+            'expectedException' => SalesChannelException::providedCurrencyNotAvailable($unassignedCurrencyId, [$currencyId]),
         ];
 
         yield 'currency not set in options and not in sales channel' => [

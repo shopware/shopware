@@ -27,6 +27,7 @@ class SalesChannelException extends HttpException
     final public const CUSTOMER_GROUP_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__CUSTOMER_GROUP_DOES_NOT_EXISTS_EXCEPTION';
     final public const SHIPPING_METHOD_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__SHIPPING_METHOD_DOES_NOT_EXISTS_EXCEPTION';
     final public const SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION = 'SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION';
+    final public const SALES_CHANNEL_CURRENCY_NOT_AVAILABLE_EXCEPTION = 'SYSTEM__SALES_CHANNEL_CURRENCY_NOT_AVAILABLE_EXCEPTION';
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
     final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
@@ -158,6 +159,18 @@ class SalesChannelException extends HttpException
             Response::HTTP_PRECONDITION_FAILED,
             self::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION,
             \sprintf('Provided language "%s" is not in list of available languages: %s', $languageId, implode(', ', $availableLanguages)),
+        );
+    }
+
+    /**
+     * @param array<string> $availableCurrencies
+     */
+    public static function providedCurrencyNotAvailable(string $currencyId, array $availableCurrencies): self
+    {
+        return new self(
+            Response::HTTP_PRECONDITION_FAILED,
+            self::SALES_CHANNEL_CURRENCY_NOT_AVAILABLE_EXCEPTION,
+            \sprintf('Provided currency "%s" is not in list of available currencies: %s', $currencyId, implode(', ', $availableCurrencies)),
         );
     }
 

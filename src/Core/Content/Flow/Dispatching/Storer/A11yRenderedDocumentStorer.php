@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -34,7 +34,7 @@ class A11yRenderedDocumentStorer extends FlowStorer
     public function __construct(
         private readonly EntityRepository $documentRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly MailAttachmentsBuilder $mailAttachmentsBuilder,
+        private readonly DocumentResolver $documentResolver,
         private readonly DocumentFileResolver $documentFileResolver
     ) {
     }
@@ -79,33 +79,22 @@ class A11yRenderedDocumentStorer extends FlowStorer
     }
 
     /**
+     * The configured file formats only decide what gets attached; the accessible html is linked in the
+     * mail body for every document of the mail, so only the resolved document ids matter here.
+     *
      * @return array<string>
      */
     private function resolveDocumentIds(StorableFlow $storableFlow): array
     {
-        $config = $storableFlow->getConfig();
+        $stored = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
         $orderId = $storableFlow->getData(OrderAware::ORDER_ID);
 
-        // v1 config shape
-        $documentTypeIds = $config['documentTypeIds'] ?? null;
-        if ($orderId && \is_array($documentTypeIds) && $documentTypeIds !== []) {
-            return $this->mailAttachmentsBuilder->getLatestDocumentsOfTypes($orderId, $documentTypeIds);
-        }
-
-        $stored = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
-        $ids = \is_array($stored) ? $stored : [];
-
-        // v2 config shape
-        $documentType = $config['documentType'] ?? null;
-        if ($orderId && \is_string($documentType) && $documentType !== '') {
-            $documentId = $this->mailAttachmentsBuilder->getLatestDocumentIdByTechnicalName($orderId, $documentType, $storableFlow->getContext());
-
-            if ($documentId !== null && !\in_array($documentId, $ids, true)) {
-                $ids[] = $documentId;
-            }
-        }
-
-        return $ids;
+        return array_keys($this->documentResolver->resolve(
+            $storableFlow->getConfig(),
+            \is_array($stored) ? array_values($stored) : [],
+            \is_string($orderId) && $orderId !== '' ? $orderId : null,
+            $storableFlow->getContext(),
+        ));
     }
 
     /**

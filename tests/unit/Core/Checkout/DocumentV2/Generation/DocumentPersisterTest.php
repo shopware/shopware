@@ -160,7 +160,50 @@ class DocumentPersisterTest extends TestCase
         static::assertSame([self::FORMAT, DocumentFormat::HTML->value], $formats);
     }
 
-    public function testPersistNeverUsesHtmlAsPrimaryMediaFile(): void
+    public function testPersistPrefersAnyOtherFormatOverHtmlAsPrimaryMediaFile(): void
+    {
+        $htmlMediaId = Uuid::randomHex();
+        $xmlMediaId = Uuid::randomHex();
+
+        $renderState = new RenderState();
+        $renderState->add(new RenderResult(
+            DocumentFormat::HTML->value,
+            '<html lang="en">content</html>',
+            'filename',
+            'html',
+            'text/html',
+        ));
+        $renderState->add(new RenderResult(
+            DocumentFormat::ZUGFERD_XML->value,
+            '<invoice/>',
+            'filename',
+            'xml',
+            'application/xml',
+        ));
+
+        $mediaService = static::createMock(MediaService::class);
+        $mediaService->method('saveFile')
+            ->willReturnCallback(static fn (string $content, string $extension) => $extension === 'html' ? $htmlMediaId : $xmlMediaId);
+
+        [$persister, $documentRepository] = $this->createPersister(
+            Uuid::randomHex(),
+            mediaService: $mediaService,
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $renderState,
+            [DocumentFormat::HTML->value, DocumentFormat::ZUGFERD_XML->value],
+            null,
+            $this->context,
+        );
+
+        static::assertSame($xmlMediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
+        static::assertSame($htmlMediaId, $documentRepository->creates[0][0]['documentA11yMediaFileId']);
+    }
+
+    public function testPersistUsesHtmlAsPrimaryMediaFileWhenItIsTheOnlyFile(): void
     {
         $htmlMediaId = Uuid::randomHex();
 
@@ -187,7 +230,8 @@ class DocumentPersisterTest extends TestCase
             $this->context,
         );
 
-        static::assertNull($documentRepository->creates[0][0]['documentMediaFileId']);
+        // an empty `document_media_file_id` makes v1 consumers re-render the document through the v1 pipeline
+        static::assertSame($htmlMediaId, $documentRepository->creates[0][0]['documentMediaFileId']);
         static::assertSame($htmlMediaId, $documentRepository->creates[0][0]['documentA11yMediaFileId']);
 
         $formats = array_column($documentFileRepository->creates[0], 'documentFormat');

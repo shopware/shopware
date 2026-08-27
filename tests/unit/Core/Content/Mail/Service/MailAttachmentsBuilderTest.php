@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +21,7 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,8 +46,6 @@ class MailAttachmentsBuilderTest extends TestCase
 
     private DocumentGenerator&Stub $documentGenerator;
 
-    private Connection&Stub $connection;
-
     /**
      * @var EntityRepository<DocumentCollection>&Stub
      */
@@ -61,7 +58,6 @@ class MailAttachmentsBuilderTest extends TestCase
         $this->mediaService = static::createStub(MediaService::class);
         $this->mediaRepository = static::createStub(EntityRepository::class);
         $this->documentGenerator = static::createStub(DocumentGenerator::class);
-        $this->connection = static::createStub(Connection::class);
         $this->documentRepository = static::createStub(EntityRepository::class);
         $this->logger = new NullLogger();
     }
@@ -136,24 +132,6 @@ class MailAttachmentsBuilderTest extends TestCase
         $eventConfig = ['documentTypeIds' => [$idA, $idB]];
         $orderId = Uuid::randomHex();
 
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->with(
-                static::anything(),
-                ['orderId' => Uuid::fromHexToBytes($orderId), 'documentTypeIds' => Uuid::fromHexToBytesList($eventConfig['documentTypeIds'])],
-                ['documentTypeIds' => ArrayParameterType::BINARY]
-            )
-            ->willReturn([
-                ['doc_type' => 'foo', 'doc_id' => '1'],
-                ['doc_type' => 'bar', 'doc_id' => '2'],
-                ['doc_type' => 'foo', 'doc_id' => '3'],
-                ['doc_type' => 'foo', 'doc_id' => $idC],
-                ['doc_type' => 'bar', 'doc_id' => $idD],
-            ]);
-        $this->connection = $connection;
-
         $document = new RenderedDocument();
         $document->setContent('');
         $documentGenerator = $this->createMock(DocumentGenerator::class);
@@ -162,6 +140,39 @@ class MailAttachmentsBuilderTest extends TestCase
             ->method('readDocument')
             ->willReturn($document);
         $this->documentGenerator = $documentGenerator;
+
+        $createDocument = static function (string $id, ?string $typeId = null): DocumentEntity {
+            // legacy documents carry no document_files, so each one falls back to the legacy media file
+            $document = new DocumentEntity();
+            $document->setId($id);
+            $document->setDocumentTypeId($typeId ?? Uuid::randomHex());
+
+            return $document;
+        };
+
+        $typeFoo = Uuid::randomHex();
+        $typeBar = Uuid::randomHex();
+
+        // sorted ascending, so the last document of each type is the latest one
+        $documentsOfOrder = new DocumentCollection([
+            $createDocument(Uuid::randomHex(), $typeFoo),
+            $createDocument(Uuid::randomHex(), $typeBar),
+            $createDocument($idC, $typeFoo),
+            $createDocument($idD, $typeBar),
+        ]);
+
+        $attachableDocuments = new DocumentCollection(array_map($createDocument, [$idA, $idB, $idC, $idD]));
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository
+            ->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnCallback(static function (Criteria $criteria, Context $context) use ($documentsOfOrder, $attachableDocuments) {
+                $documents = $criteria->getTitle() === 'send-mail::latest-documents-by-type' ? $documentsOfOrder : $attachableDocuments;
+
+                return new EntitySearchResult('document', $documents->count(), $documents, null, $criteria, $context);
+            });
+        $this->documentRepository = $documentRepository;
 
         $criteria = new Criteria($extension->getMediaIds());
         $criteria->setTitle('send-mail::load-media');
@@ -758,6 +769,100 @@ class MailAttachmentsBuilderTest extends TestCase
         static::assertSame('pdf-content', $attachments[0]['content']);
     }
 
+    public function testBuildTemplateDocumentAttachmentsLogsWhenOnlyTheAccessibleHtmlWasGenerated(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $documentId = Uuid::randomHex();
+
+        // pre-resolved document ids carry no requested formats, so nothing can be reported as missing
+        $extension = new MailSendSubscriberConfig(false, [$documentId]);
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDocumentFiles(new DocumentFileCollection([$this->createHtmlDocumentFile($documentId)]));
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                $criteria,
+                $context,
+            ));
+        $this->documentRepository = $documentRepository;
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->never())->method('loadFile');
+        $this->mediaService = $mediaService;
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(
+                static::anything(),
+                static::callback(static function (array $logContext) use ($documentId) {
+                    static::assertSame($documentId, $logContext['documentId']);
+                    static::assertSame([], $logContext['requestedFormats']);
+                    static::assertSame(['html'], $logContext['availableFormats']);
+
+                    return true;
+                })
+            );
+        $this->logger = $logger;
+
+        $attachments = $this->createBuilder()->buildAttachments($context, $mailTemplate, $extension, [], Uuid::randomHex());
+
+        static::assertSame([], $attachments);
+    }
+
+    public function testBuildTemplateDocumentAttachmentsDoesNotLogForADocumentWithoutFiles(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $documentId = Uuid::randomHex();
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setDocumentFiles(new DocumentFileCollection([]));
+
+        $documentGenerator = static::createStub(DocumentGenerator::class);
+        $documentGenerator->method('readDocument')->willReturn(null);
+        $this->documentGenerator = $documentGenerator;
+
+        $documentRepository = static::createStub(EntityRepository::class);
+        $documentRepository
+            ->method('search')
+            ->willReturnCallback(static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                $criteria,
+                $context,
+            ));
+        $this->documentRepository = $documentRepository;
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+        $this->logger = $logger;
+
+        $attachments = $this->createBuilder()->buildAttachments(
+            $context,
+            $mailTemplate,
+            new MailSendSubscriberConfig(false, [$documentId]),
+            [],
+            Uuid::randomHex(),
+        );
+
+        static::assertSame([], $attachments);
+    }
+
     private function createHtmlDocumentFile(string $documentId): DocumentFileEntity
     {
         $htmlMedia = new MediaEntity();
@@ -782,9 +887,9 @@ class MailAttachmentsBuilderTest extends TestCase
             $this->mediaService,
             $this->mediaRepository,
             $this->documentGenerator,
-            $this->connection,
             $this->documentRepository,
-            $this->logger
+            $this->logger,
+            new DocumentResolver($this->documentRepository)
         );
     }
 }

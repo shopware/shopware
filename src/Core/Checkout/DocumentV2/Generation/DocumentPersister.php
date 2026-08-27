@@ -118,7 +118,7 @@ final readonly class DocumentPersister
     }
 
     /**
-     * v1 surfaces attach and download the primary file by default, so it must never be the html.
+     * v1 surfaces attach and download the primary file by default, so html is only used when the document has no other file
      *
      * @param array<string, string> $persistedFiles map<format, mediaId>
      *
@@ -130,9 +130,11 @@ final readonly class DocumentPersister
             return $persistedFiles[DocumentFormat::PDF->value];
         }
 
+        $htmlMediaId = $persistedFiles[DocumentFormat::HTML->value] ?? null;
+
         unset($persistedFiles[DocumentFormat::HTML->value]);
 
-        return array_values($persistedFiles)[0] ?? null;
+        return array_values($persistedFiles)[0] ?? $htmlMediaId;
     }
 
     /**

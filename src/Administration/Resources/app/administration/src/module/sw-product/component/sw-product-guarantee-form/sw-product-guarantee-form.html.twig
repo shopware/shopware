@@ -19,8 +19,6 @@
                 <sw-number-field
                     :map-inheritance="props"
                     number-type="int"
-                    :min="30"
-                    :max="600"
                     :step="6"
                     :allow-empty="true"
                     :error="productGuaranteeMonthsError"
@@ -47,8 +45,8 @@
                     <sw-switch-field
                         :map-inheritance="props"
                         :error="productGuaranteeConfirmedError"
-                        :label="$tc('sw-product.settingsForm.labelGuaranteeConfirmed')"
-                        :help-text="$tc('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
+                        :label="$t('sw-product.settingsForm.labelGuaranteeConfirmed')"
+                        :help-text="$t('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
                         :disabled="props.isInherited || !allowEdit"
                         :value="props.currentValue"
                         @update:value="props.updateCurrentValue"

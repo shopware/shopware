@@ -16,7 +16,11 @@
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
       "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
-      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator."
+      "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
+      "THEME__INVALID_SCSS_VAR": "SCSS value \"{value}\" is not valid for type \"{type}\".",
+      "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "The payment due date must be a relative date such as \"+14 days\".",
+      "INVALID_GARAN_GUARANTEE_MONTHS": "The guarantee duration must be empty or a half-year value of more than 24 months, e.g. 30, 36 or 42."
     },
     "default": {
       "add": "Add",

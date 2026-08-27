@@ -54,11 +54,6 @@ class DocumentDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
-    protected function getParentDefinitionClass(): ?string
-    {
-        return OrderDefinition::class;
-    }
-
     protected function defineFields(): FieldCollection
     {
         $orderIdField = (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware());

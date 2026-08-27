@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentEntity extends Entity
 {

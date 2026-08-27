@@ -12,6 +12,14 @@ import type { Theme, UseThemeReturn } from '@shopware-ag/meteor-component-librar
  */
 export const USER_THEME_CONFIG_KEY = 'core.userTheme';
 
+/**
+ * Preference used before the user has chosen a theme. The Administration
+ * starts in light mode instead of following the operating system.
+ *
+ * @private
+ */
+export const DEFAULT_THEME: Theme = 'light';
+
 type UseAdminThemeReturn = UseThemeReturn & {
     /**
      * Loads the persisted theme preference of the current user from the
@@ -61,7 +69,7 @@ export default function useTheme(): UseAdminThemeReturn {
         const scope = effectScope(true);
 
         themeState = {
-            ...scope.run(() => useMeteorTheme())!,
+            ...scope.run(() => useMeteorTheme({ defaultTheme: DEFAULT_THEME }))!,
             loadUserTheme,
             saveUserTheme,
         };

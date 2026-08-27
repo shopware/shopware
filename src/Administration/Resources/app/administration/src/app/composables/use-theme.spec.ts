@@ -11,7 +11,7 @@ describe('src/app/composables/use-theme.ts', () => {
     });
 
     afterEach(async () => {
-        useTheme().setTheme('system');
+        useTheme().setTheme('light');
         await nextTick();
 
         localStorage.removeItem('mt-theme');
@@ -21,10 +21,10 @@ describe('src/app/composables/use-theme.ts', () => {
         expect(useTheme()).toBe(useTheme());
     });
 
-    it('defaults to the system preference', () => {
+    it('defaults to the light theme', () => {
         const { theme, resolvedTheme } = useTheme();
 
-        expect(theme.value).toBe('system');
+        expect(theme.value).toBe('light');
         expect(resolvedTheme.value).toBe('light');
     });
 
@@ -78,11 +78,11 @@ describe('src/app/composables/use-theme.ts', () => {
     });
 
     it('keeps the current preference when nothing is persisted', async () => {
-        useTheme().setTheme('light');
+        useTheme().setTheme('system');
 
         await useTheme().loadUserTheme();
 
-        expect(useTheme().theme.value).toBe('light');
+        expect(useTheme().theme.value).toBe('system');
     });
 
     it('ignores invalid persisted values', async () => {
@@ -94,6 +94,6 @@ describe('src/app/composables/use-theme.ts', () => {
 
         await useTheme().loadUserTheme();
 
-        expect(useTheme().theme.value).toBe('system');
+        expect(useTheme().theme.value).toBe('light');
     });
 });

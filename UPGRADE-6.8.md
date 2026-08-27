@@ -1176,6 +1176,15 @@ The method must raise the stored increment state to at least the given value wit
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
 
+## Removed `integrationService.updateAdmin()`
+
+`Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
 <details>
 
 ### Block removals
@@ -2078,6 +2087,14 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## Footer collapse headlines and columns now use semantic elements
+
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements. 
+
+- Collapse section headlines: `<div role="heading">` became `<h2>`.
+- Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column: `<div role="listitem">` became `<li>`.
 
 ## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
 

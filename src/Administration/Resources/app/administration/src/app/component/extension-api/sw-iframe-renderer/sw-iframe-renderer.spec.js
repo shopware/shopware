@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { location } from '@shopware-ag/meteor-admin-sdk';
+import useTheme from 'src/app/composables/use-theme';
 
 let $routeMock = {
     query: {},
@@ -89,6 +90,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         expect(wrapper.vm.signedIframeSrc).toBeNull();
+
+        // Plugin iframes must stay keyboard-reachable inside focus traps as well
+        expect(wrapper.find('iframe').attributes('tabindex')).toBe('0');
     });
 
     it('should call signIframeSrc for apps', async () => {
@@ -105,8 +109,33 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         expect(wrapper.vm.signedIframeSrc).toBe(
-            'https://example.com/?location-id=foo&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+            'https://example.com/?location-id=foo&color-scheme=light&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
         );
+    });
+
+    it('should append the resolved dark theme as color-scheme to the iFrame src', async () => {
+        useTheme().setTheme('dark');
+
+        Shopware.Store.get('extensions').addExtension({
+            name: 'foo',
+            baseUrl: 'https://example.com',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            active: true,
+        });
+
+        try {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.signedIframeSrc).toBe(
+                'https://example.com/?location-id=foo&color-scheme=dark&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+            );
+        } finally {
+            useTheme().setTheme('system');
+            localStorage.removeItem('mt-theme');
+        }
     });
 
     it('should render correct iFrame src when parameters are given', async () => {
@@ -132,7 +161,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const iframeSrc = iframe.attributes('src');
 
         expect(iframeSrc).toBe(
-            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&color-scheme=light&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
         );
     });
 
@@ -151,6 +180,9 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         const iFrame = wrapper.find('iframe');
         expect(iFrame.exists()).toBe(true);
+
+        // Keeps the iframe reachable inside focus traps, e.g. the sidebar overlay
+        expect(iFrame.attributes('tabindex')).toBe('0');
 
         const testComponent = wrapper.find('#my-replacement-component');
         expect(testComponent.exists()).toBe(false);
@@ -214,7 +246,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         expect(wrapper.vm.signedIframeSrc).toBe(
-            'https://my-great-extension.com/app/?location-id=my-great-extension-main-module&shop-id=__SHOP_ID&shop-signature=__SIGNED__&search=T-Shirt#/detail/1',
+            'https://my-great-extension.com/app/?location-id=my-great-extension-main-module&color-scheme=light&shop-id=__SHOP_ID&shop-signature=__SIGNED__&search=T-Shirt#/detail/1',
         );
     });
 
@@ -346,7 +378,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const iframeSrc = iframe.attributes('src');
 
         expect(iframeSrc).toBe(
-            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&color-scheme=light&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
         );
 
         // Update location ID
@@ -360,7 +392,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const updatedIframeSrc = updatedIframe.attributes('src');
 
         expect(updatedIframeSrc).toBe(
-            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
+            'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&color-scheme=light&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
         );
     });
 

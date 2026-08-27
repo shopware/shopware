@@ -99,6 +99,16 @@
                     "403": {
                         "description": "Forbidden."
                     },
+                    "429": {
+                        "description": "Too many guest authentication attempts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Document not found."
                     },
@@ -207,6 +217,16 @@
                     },
                     "403": {
                         "description": "Forbidden."
+                    },
+                    "429": {
+                        "description": "Too many guest authentication attempts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Document not found."

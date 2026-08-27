@@ -24,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,6 +51,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         private readonly DocumentGenerator $documentGenerator,
         private readonly DocumentReader $documentReader,
         private readonly EntityRepository $documentRepository,
+        private readonly RateLimiter $rateLimiter,
         private readonly GuestAuthenticator $guestAuthenticator,
         private readonly iterable $renderers,
     ) {
@@ -73,14 +76,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         ?string $fileType = null,
         ?string $format = null,
     ): Response {
-        $documentEntity = $this->loadDocument($documentId, $context->getContext());
-
-        $this->checkAuth($documentEntity, $request, $context);
-
-        $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
-        if ($isGuest && $deepLinkCode === '') {
-            throw DocumentException::customerNotLoggedIn();
-        }
+        $documentEntity = $this->checkAuth($documentId, $deepLinkCode, $request, $context);
 
         $download = $request->query->getBoolean('download');
 
@@ -202,44 +198,75 @@ final class DocumentRoute extends AbstractDocumentRoute
         return $response;
     }
 
-    private function loadDocument(string $documentId, Context $context): DocumentEntity
+    private function checkAuth(string $documentId, string $deepLinkCode, Request $request, SalesChannelContext $context): DocumentEntity
     {
         $criteria = (new Criteria([$documentId]))
             ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress', 'documentFiles']);
 
-        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
+        $document = $this->documentRepository->search($criteria, $context->getContext())->getEntities()->first();
+
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
-        return $document;
-    }
-
-    private function checkAuth(DocumentEntity $document, Request $request, SalesChannelContext $context): void
-    {
         $order = $document->getOrder();
+
         if (!$order) {
             throw DocumentException::orderNotFound($document->getOrderId());
         }
 
         $orderCustomer = $order->getOrderCustomer();
+        $contextCustomer = $context->getCustomer();
 
         if ($orderCustomer === null || $orderCustomer->getCustomerId() === null) {
             throw DocumentException::customerNotLoggedIn();
         }
 
-        if ($orderCustomer->getCustomerId() === $context->getCustomer()?->getId()) {
-            return;
+        $isGuestContext = $contextCustomer === null || $contextCustomer->getGuest();
+        $isOwner = $orderCustomer->getCustomerId() === $contextCustomer?->getId();
+
+        if ($isGuestContext && $deepLinkCode === '') {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        if ($isOwner) {
+            return $document;
+        }
+
+        if (!$orderCustomer->getCustomer()?->getGuest()) {
+            if (Feature::isActive('v6.8.0.0')) {
+                // always throws here: the validator rejects an order that was not placed by a guest
+                $this->guestAuthenticator->validate($order, $request);
+            }
+
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        $cacheKey = strtolower($documentId) . '-' . ($request->getClientIp() ?? '');
+
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
+        } catch (RateLimitExceededException $exception) {
+            throw DocumentException::documentAuthThrottledException($exception->getWaitTime());
+        }
+
+        if ($document->getDeepLinkCode() !== $deepLinkCode) {
+            throw DocumentException::documentNotFound($documentId);
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
             // feature flag due to different exceptions
             Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $orderCustomer, $request));
 
-            return;
+            $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
+
+            return $document;
         }
 
         $this->guestAuthenticator->validate($order, $request);
+        $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
+
+        return $document;
     }
 
     /**

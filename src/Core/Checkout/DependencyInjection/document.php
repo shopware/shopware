@@ -213,6 +213,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentGenerator::class),
             service(DocumentReader::class),
             service('document.repository'),
+            service('shopware.rate_limiter'),
             service(GuestAuthenticator::class),
             tagged_iterator('document_type.renderer', 'key'),
         ]);

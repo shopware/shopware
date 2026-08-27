@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
@@ -140,6 +141,9 @@ class BCChangeAttributeUsageRule implements Rule
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
             $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
             $specific = $this->validateClassLevel($attribute, $class, $classLine);
+            if ($specific === [] && $attribute->getName() === ClassHierarchyChange::class) {
+                $specific = $this->validateClassHierarchyChange($attribute, $node->getClassReflection(), $methodNodes, $classLine);
+            }
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
             }
@@ -253,6 +257,77 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return [];
+    }
+
+    /**
+     * @param array<string, ClassMethod> $methodNodes
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassHierarchyChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, array $methodNodes, int $line): array
+    {
+        $newParentClass = $this->argument($attribute, 'newParentClass', 2);
+        $newParentMethods = [];
+        if (\is_string($newParentClass) && $this->reflectionProvider->hasClass($newParentClass)) {
+            foreach ($this->reflectionProvider->getClass($newParentClass)->getNativeReflection()->getMethods() as $method) {
+                if ($method->isPrivate()) {
+                    continue;
+                }
+
+                $newParentMethods[strtolower($method->getName())] = true;
+            }
+        }
+
+        $removedParentMethods = [];
+        for ($parent = $class->getParentClass(); $parent !== null; $parent = $parent->getParentClass()) {
+            if (\is_string($newParentClass) && $this->isInHierarchy($parent, $newParentClass)) {
+                continue;
+            }
+
+            foreach ($parent->getNativeReflection()->getMethods() as $method) {
+                if ($method->isPrivate() || $method->getDeclaringClass()->getName() !== $parent->getName()) {
+                    continue;
+                }
+
+                $removedParentMethods[strtolower($method->getName())] ??= $method;
+            }
+        }
+
+        $errors = [];
+        foreach ($removedParentMethods as $methodName => $parentMethod) {
+            if ($this->isDeprecated($parentMethod) || isset($newParentMethods[$methodName])) {
+                continue;
+            }
+
+            $methodNode = $methodNodes[$methodName] ?? null;
+            if ($methodNode !== null && \str_contains($methodNode->getDocComment()?->getText() ?? '', '@deprecated')) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'ClassHierarchyChange on "%s": inherited method "%s()" from "%s" will be removed from the hierarchy. Override it explicitly and mark the override as @deprecated, unless the new parent also provides the method.',
+                $this->shortClassName($class->getName()),
+                $parentMethod->getName(),
+                $parentMethod->getDeclaringClass()->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    private function isInHierarchy(ClassReflection $class, string $possibleDescendant): bool
+    {
+        if (!$this->reflectionProvider->hasClass($possibleDescendant)) {
+            return false;
+        }
+
+        for ($ancestor = $this->reflectionProvider->getClass($possibleDescendant); $ancestor !== null; $ancestor = $ancestor->getParentClass()) {
+            if ($ancestor->getName() === $class->getName()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -582,6 +657,18 @@ class BCChangeAttributeUsageRule implements Rule
     private function isMarkedInternal(string|false $doc): bool
     {
         return \is_string($doc) && \str_contains($doc, '@internal');
+    }
+
+    private function isDeprecated(\ReflectionMethod $method): bool
+    {
+        return $method->isDeprecated() || (\is_string($method->getDocComment()) && \str_contains($method->getDocComment(), '@deprecated'));
+    }
+
+    private function shortClassName(string $className): string
+    {
+        $parts = explode('\\', $className);
+
+        return end($parts);
     }
 
     private function shortName(ReflectionAttribute|FakeReflectionAttribute $attribute): string

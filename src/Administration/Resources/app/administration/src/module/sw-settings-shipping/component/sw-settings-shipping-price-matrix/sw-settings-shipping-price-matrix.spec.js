@@ -143,7 +143,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             shippingMethod.taxId = 'taxId';
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.taxRate).toEqual({ id: 'taxId' });
+            expect(wrapper.vm.taxRateId).toBe('taxId');
         });
 
         it.each([
@@ -157,7 +157,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             shippingMethod.taxId = 'taxId';
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.vm.taxRate).toEqual({ id: null });
+            expect(wrapper.vm.taxRateId).toBeNull();
         });
 
         it('should link gross and net for a newly initialised currency price', async () => {

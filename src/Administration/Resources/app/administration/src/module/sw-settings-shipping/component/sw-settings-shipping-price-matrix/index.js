@@ -95,10 +95,8 @@ export default {
         },
 
         // Only a "fixed" tax type has a known rate; "auto" and "highest" depend on the cart.
-        taxRate() {
-            return {
-                id: this.shippingMethod.taxType === 'fixed' ? this.shippingMethod.taxId : null,
-            };
+        taxRateId() {
+            return this.shippingMethod.taxType === 'fixed' ? this.shippingMethod.taxId : null;
         },
 
         ruleRepository() {

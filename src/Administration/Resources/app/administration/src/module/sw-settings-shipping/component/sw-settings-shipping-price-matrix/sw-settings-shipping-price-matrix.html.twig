@@ -188,7 +188,7 @@
                         <sw-price-field
                             :value="[props.currentValue]"
                             :currency="currency"
-                            :tax-rate="taxRate"
+                            :tax-rate="{ id: taxRateId }"
                             :inherited="props.isInherited"
                             :disabled="disabled"
                             :compact="compact"

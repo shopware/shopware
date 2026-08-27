@@ -4,7 +4,7 @@ const { Application, Store } = Shopware;
  * @private
  * @sw-package framework
  */
-export default function createLicenseViolationsService(storeService, extensionStoreActionService) {
+export default function createLicenseViolationsService(storeService) {
     /** {VueInstance|null} applicationRoot  */
     let applicationRoot = null;
 
@@ -106,14 +106,8 @@ export default function createLicenseViolationsService(storeService, extensionSt
         if (!isTimeExpired(lastLicenseFetchedKey)) {
             const cachedViolations = getViolationsFromCache();
 
-            return getInstalledExtensions().then((installedExtensions) => {
-                // Remove stale cached violations for extensions removed since the last license check.
-                const currentViolations = filterByInstalledExtensions(cachedViolations, installedExtensions);
-
-                saveViolationsToCache(currentViolations);
-
-                return handleResponse(currentViolations);
-            });
+            // handle response with cached violations
+            return handleResponse(cachedViolations);
         }
 
         return fetchLicenseViolations().then((response) => {
@@ -201,28 +195,6 @@ export default function createLicenseViolationsService(storeService, extensionSt
         return storeService.getLicenseViolationList().then((response) => {
             return response.items;
         });
-    }
-
-    function getInstalledExtensions() {
-        if (!extensionStoreActionService?.getMyExtensions) {
-            return Promise.resolve(null);
-        }
-
-        return extensionStoreActionService.getMyExtensions().catch(() => {
-            // Keep cached violations when the local lookup fails so a temporary API error
-            // does not hide valid warnings.
-            return null;
-        });
-    }
-
-    function filterByInstalledExtensions(violations, installedExtensions) {
-        if (!Array.isArray(installedExtensions)) {
-            return violations;
-        }
-
-        const installedExtensionNames = new Set(installedExtensions.map((extension) => extension.name));
-
-        return violations.filter((violation) => installedExtensionNames.has(violation.name));
     }
 
     function resetLicenseViolations() {

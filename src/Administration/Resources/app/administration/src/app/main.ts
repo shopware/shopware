@@ -194,10 +194,7 @@ Application.addServiceProvider('feature', () => {
         return new ShortcutService(factoryContainer.shortcut);
     })
     .addServiceProvider('licenseViolationService', () => {
-        return LicenseViolationsService(
-            Application.getContainer('service').storeService,
-            Shopware.Service('extensionStoreActionService'),
-        );
+        return LicenseViolationsService(Application.getContainer('service').storeService);
     })
     .addServiceProvider('localeHelper', () => {
         return new LocaleHelperService({

@@ -151,8 +151,7 @@ class DocumentV2ControllerTest extends TestCase
             $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
-            $this->documentFileRepository,
-            $this->documentTypeRepository,
+            $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
             $this->createDocumentFileResolver(),
@@ -326,6 +325,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $this->documentTypeRepository->searches[] = [];
         $this->documentTypeRepository->searches[] = [$sentinelId];
+        $this->documentRepository->searches[] = $this->createUploadedDocumentSearch();
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(DocumentFormat::PDF),
@@ -337,8 +337,10 @@ class DocumentV2ControllerTest extends TestCase
             $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
-            $this->documentFileRepository,
-            $this->documentTypeRepository,
+            $this->createDocumentPersister(
+                null,
+                $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
+            ),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
             $this->createDocumentFileResolver(),
@@ -1024,16 +1026,27 @@ class DocumentV2ControllerTest extends TestCase
         );
     }
 
-    private function createDocumentPersister(?MediaService $mediaService = null): DocumentPersister
-    {
+    private function createDocumentPersister(
+        ?MediaService $mediaService = null,
+        ?DocumentTypeRegistry $documentTypeRegistry = null,
+    ): DocumentPersister {
         return new DocumentPersister(
             $this->documentRepository,
             $this->documentFileRepository,
             $this->documentTypeRepository,
             $mediaService ?? static::createStub(MediaService::class),
+            $documentTypeRegistry ?? $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
         );
+    }
+
+    private function createEmptyDocumentTypeRegistry(): DocumentTypeRegistry
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+
+        return new DocumentTypeRegistry([], $storage);
     }
 
     /**

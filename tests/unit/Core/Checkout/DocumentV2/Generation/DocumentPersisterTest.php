@@ -243,6 +243,7 @@ class DocumentPersisterTest extends TestCase
             $documentFileRepository,
             $documentTypeRepository,
             static::createStub(MediaService::class),
+            $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             $eventDispatcher,
         );
@@ -389,6 +390,7 @@ class DocumentPersisterTest extends TestCase
             $documentFileRepository,
             $documentTypeRepository,
             $mediaService,
+            $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
         );
@@ -484,5 +486,13 @@ class DocumentPersisterTest extends TestCase
             $documentRepository,
             $documentFileRepository,
         ];
+    }
+
+    private function createEmptyDocumentTypeRegistry(): DocumentTypeRegistry
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+
+        return new DocumentTypeRegistry([], $storage);
     }
 }

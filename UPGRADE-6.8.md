@@ -1477,9 +1477,17 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
-## `sw-tabs` remains available until 6.9
+## `sw-tabs` automatic wrapper switch deferred
 
-The deprecated Administration `sw-tabs` component remains available in 6.8 and keeps rendering its legacy implementation, including when the `v6.8.0.0` feature flag is active. No migration is required for 6.8. The component will be removed in 6.9, so migrate extensions directly to `mt-tabs` before upgrading to 6.9.
+The previously announced automatic switch from the deprecated Administration `sw-tabs` wrapper to `mt-tabs` when the `v6.8.0.0` feature flag is active will not happen. `sw-tabs` keeps rendering its legacy implementation regardless of the feature flag and remains deprecated for removal in 6.9.
+
+When an extension has already prepared for the Meteor API, it can opt in to the wrapper's temporary compatibility path with `use-meteor-component`. This renders the underlying `mt-tabs` implementation regardless of the `v6.8.0.0` feature flag:
+
+```html
+<sw-tabs use-meteor-component />
+```
+
+Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
 
 The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
 

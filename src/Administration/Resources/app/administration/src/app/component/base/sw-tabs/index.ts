@@ -13,7 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         /**
-         * Enables the temporary Meteor compatibility path when the v6.8.0.0 feature flag is active.
+         * Enables the temporary Meteor compatibility path.
          */
         useMeteorComponent: {
             type: Boolean,
@@ -32,7 +32,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         shouldUseMeteorComponent() {
-            return Shopware.Feature.isActive('V6_8_0_0') && this.useMeteorComponent;
+            return this.useMeteorComponent;
         },
 
         itemsBackwardCompatible(): TabItem[] {

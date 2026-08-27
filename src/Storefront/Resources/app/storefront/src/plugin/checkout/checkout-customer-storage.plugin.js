@@ -2,11 +2,14 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 
 const CUSTOMER_COMMENT_KEY = 'customerComment';
-const TOS_KEY = 'tos';
 
 /**
  * Persists checkout customer-specific form data so drafts do not leak
  * across account switches on the same device.
+ *
+ * The terms of service acceptance is intentionally NOT persisted: the customer
+ * must actively accept the terms and conditions every time they enter checkout,
+ * because the terms may have changed since a previous acceptance.
  *
  * @sw-package checkout
  */
@@ -69,16 +72,6 @@ export default class CheckoutCustomerStoragePlugin extends Plugin {
                     if (typeof value === 'string') {
                         element.value = value;
                     }
-                },
-            },
-            {
-                key: TOS_KEY,
-                resolveElement: () => this._getFormElementByName(TOS_KEY),
-                events: ['change'],
-                normalizeValue: (value) => value === true ? true : null,
-                readValue: (element) => element.checked ? true : null,
-                writeValue: (element, value) => {
-                    element.checked = value === true;
                 },
             },
         ];

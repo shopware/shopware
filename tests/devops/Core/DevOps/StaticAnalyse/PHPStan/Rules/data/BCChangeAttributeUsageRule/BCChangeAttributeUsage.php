@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\MyFakeNamespace;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
@@ -296,4 +298,31 @@ class ParameterRemovalCases
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
         }
     }
+}
+
+class PropertyLevelViolations
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    protected string $alreadyProtected;
+
+    #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+    protected string $unchangedType;
+
+    #[BecomesReadonly(version: 'v6.8.0')]
+    protected readonly string $alreadyReadonly;
+}
+
+class PromotedPropertyLevelViolations
+{
+    public function __construct(
+        #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+        protected string $unchangedType,
+    ) {
+    }
+}
+
+class ValidPropertyUsage
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    public string $becomesProtected;
 }

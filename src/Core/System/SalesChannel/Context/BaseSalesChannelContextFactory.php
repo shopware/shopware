@@ -118,7 +118,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         }
 
         $currency = $availableCurrencies->get($currencyId);
-        \assert($currency instanceof CurrencyEntity);
 
         // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);

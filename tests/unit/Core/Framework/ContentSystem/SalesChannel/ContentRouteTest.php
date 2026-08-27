@@ -74,7 +74,8 @@ class ContentRouteTest extends TestCase
         $this->specificationResolver->method('resolve')->willReturn($this->createResolved($request, ['product-abc']));
         $this->responseFactory->method('getRenderingMode')->willReturn(RenderingMode::FULL);
         $this->contentPipeline->method('load')->willReturn($renderResult);
-        $this->responseFactory->method('createResponse')->willReturn(new ContentRouteResponse($renderResult));
+        $this->responseFactory->method('createResponse')
+            ->willReturnCallback(fn (RenderResult $passed): ContentRouteResponse => new ContentRouteResponse($passed));
 
         $route = $this->createRoute($this->createLayoutRepository($this->createLayoutEntity()));
 

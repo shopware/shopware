@@ -36,28 +36,6 @@ class AttributionReconcilerTest extends TestCase
         $this->canonicalizer = new ConfigCanonicalizer();
     }
 
-    #[TestDox('drops a key whose attribution no longer matches the specification wiring, leaving the wiring itself untouched')]
-    public function testDropsAttributionOnWiringMismatch(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['entity' => 'media', 'limit' => 5]),
-        ]);
-
-        $config = new StubArrayLoaderConfig(['entity' => 'media', 'limit' => 10]);
-        $element = StoredElementBuilder::create('card', 'elem-1')
-            ->withDataRequirement('product', 'entity', $config)
-            ->withAttributedSpecification('product', 'spec-1')
-            ->build();
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
-
-        $reconciled = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciled);
-        static::assertSame([], $reconciled->attributedSpecifications);
-        static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
-    }
-
     #[TestDox('keeps attribution when wiring matches after canonicalization, unaffected by key and list order differences')]
     public function testKeepsAttributionWhenWiringMatchesModuloCanonicalOrder(): void
     {
@@ -84,6 +62,78 @@ class AttributionReconcilerTest extends TestCase
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
         static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
+    }
+
+    #[TestDox('keeps attribution and passes properties through unchanged, since stored property values are never compared')]
+    public function testKeepsAttributionRegardlessOfPropertyValueChanges(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', ['limit' => 5]),
+        ]);
+
+        $config = new StubArrayLoaderConfig(['limit' => 5]);
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withProperty('mediaId', 'edited-after-binding')
+            ->withDataRequirement('product', 'entity', $config)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element]);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
+        static::assertSame('edited-after-binding', $reconciled->property('mediaId')?->jsonSerialize());
+    }
+
+    #[TestDox('recurses into slot children, dropping a nested element\'s stale attribution too')]
+    public function testRecursesIntoSlotsAndDropsStaleAttributionOnChild(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', ['limit' => 5]),
+        ]);
+
+        $staleConfig = new StubArrayLoaderConfig(['limit' => 999]);
+        $child = StoredElementBuilder::create('card', 'child-1')
+            ->withDataRequirement('product', 'entity', $staleConfig)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $parent = StoredElementBuilder::create('container', 'parent-1')
+            ->withSlot('content', [$child])
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$parent]);
+
+        $reconciledParent = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciledParent);
+
+        $reconciledChild = $reconciledParent->slots['content'][0];
+        static::assertSame([], $reconciledChild->attributedSpecifications);
+    }
+
+    #[TestDox('drops a key whose attribution no longer matches the specification wiring, leaving the wiring itself untouched')]
+    public function testDropsAttributionOnWiringMismatch(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', ['entity' => 'media', 'limit' => 5]),
+        ]);
+
+        $config = new StubArrayLoaderConfig(['entity' => 'media', 'limit' => 10]);
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', $config)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element]);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame([], $reconciled->attributedSpecifications);
+        static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
     }
 
     #[TestDox('drops attribution when the specification no longer resolves from the registry')]
@@ -124,6 +174,32 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame($element->dataRequirements, $reconciled->dataRequirements);
     }
 
+    #[TestDox('drops only the key whose wiring diverged, keeping every other key\'s attribution independently')]
+    public function testDropsOnlyDivergedKeyAmongMultipleAttributedKeys(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', ['limit' => 5]),
+            'media' => new LoaderBinding('entity', ['limit' => 1]),
+        ]);
+
+        $matchingConfig = new StubArrayLoaderConfig(['limit' => 5]);
+        $divergedConfig = new StubArrayLoaderConfig(['limit' => 2]); // was 1, edited away from the specification
+
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', $matchingConfig)
+            ->withDataRequirement('media', 'entity', $divergedConfig)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->withAttributedSpecification('media', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element]);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
+    }
+
     #[TestDox('rejects the write when the element wiring source has no registered config serializer, instead of dropping the attribution')]
     public function testThrowsWhenElementSourceUnregistered(): void
     {
@@ -154,82 +230,6 @@ class AttributionReconcilerTest extends TestCase
         $this->expectExceptionObject($expected);
 
         $reconciler->reconcile([$element]);
-    }
-
-    #[TestDox('keeps attribution and passes properties through unchanged, since stored property values are never compared')]
-    public function testKeepsAttributionRegardlessOfPropertyValueChanges(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        $config = new StubArrayLoaderConfig(['limit' => 5]);
-        $element = StoredElementBuilder::create('card', 'elem-1')
-            ->withProperty('mediaId', 'edited-after-binding')
-            ->withDataRequirement('product', 'entity', $config)
-            ->withAttributedSpecification('product', 'spec-1')
-            ->build();
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
-
-        $reconciled = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciled);
-        static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
-        static::assertSame('edited-after-binding', $reconciled->property('mediaId')?->jsonSerialize());
-    }
-
-    #[TestDox('drops only the key whose wiring diverged, keeping every other key\'s attribution independently')]
-    public function testDropsOnlyDivergedKeyAmongMultipleAttributedKeys(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-            'media' => new LoaderBinding('entity', ['limit' => 1]),
-        ]);
-
-        $matchingConfig = new StubArrayLoaderConfig(['limit' => 5]);
-        $divergedConfig = new StubArrayLoaderConfig(['limit' => 2]); // was 1, edited away from the specification
-
-        $element = StoredElementBuilder::create('card', 'elem-1')
-            ->withDataRequirement('product', 'entity', $matchingConfig)
-            ->withDataRequirement('media', 'entity', $divergedConfig)
-            ->withAttributedSpecification('product', 'spec-1')
-            ->withAttributedSpecification('media', 'spec-1')
-            ->build();
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element]);
-
-        $reconciled = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciled);
-        static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
-    }
-
-    #[TestDox('recurses into slot children, dropping a nested element\'s stale attribution too')]
-    public function testRecursesIntoSlotsAndDropsStaleAttributionOnChild(): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', ['limit' => 5]),
-        ]);
-
-        $staleConfig = new StubArrayLoaderConfig(['limit' => 999]);
-        $child = StoredElementBuilder::create('card', 'child-1')
-            ->withDataRequirement('product', 'entity', $staleConfig)
-            ->withAttributedSpecification('product', 'spec-1')
-            ->build();
-
-        $parent = StoredElementBuilder::create('container', 'parent-1')
-            ->withSlot('content', [$child])
-            ->build();
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$parent]);
-
-        $reconciledParent = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciledParent);
-
-        $reconciledChild = $reconciledParent->slots['content'][0];
-        static::assertSame([], $reconciledChild->attributedSpecifications);
     }
 
     #[TestDox('rethrows a non-client-defect ContentSystemException instead of dropping the key')]

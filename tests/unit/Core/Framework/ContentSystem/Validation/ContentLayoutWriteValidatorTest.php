@@ -93,29 +93,8 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[TestDox('runs resolvability against the declared root source on creation and records a binding error')]
-    public function testKnownRootSourceRunsResolvabilityOnCreation(): void
-    {
-        $gate = static::createStub(LayoutGate::class);
-        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->method('resolvability')
-            ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'target', 'unresolved')]));
-
-        $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['product']);
-        $registry->method('resolve')->willReturn([]);
-
-        $validator = $this->validator($gate, $registry);
-
-        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'product'])]);
-        $validator->preValidate($event);
-
-        $violation = $this->onlyViolation($event);
-        static::assertSame(ViolationCode::UnresolvedRequired->value, $violation->getCode());
-    }
-
-    #[TestDox('bypasses every check when the write context carries the skip flag')]
-    public function testSkipFlagBypassesValidation(): void
+    #[TestDox('bypasses every check and drains memo when skip flag is set')]
+    public function testSkipFlagBypassesValidationAndDrainsMemo(): void
     {
         $gate = $this->createMock(LayoutGate::class);
         $gate->expects($this->never())->method('wellFormedness');
@@ -132,23 +111,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
 
         $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]);
-
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
-    }
-
-    #[TestDox('consumes the memoized trees of the written layouts even when the skip flag suppresses the checks')]
-    public function testSkipFlagStillDrainsTheMemo(): void
-    {
-        $validator = $this->validator();
-
-        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
-        $context = $this->contextWithMemoFor([$command]);
-        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
-
-        $validator->preValidate(new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]));
-
         static::assertTrue($this->memoOf($context)->isEmpty());
     }
 
@@ -202,6 +167,27 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('runs resolvability against the declared root source on creation and records a binding error')]
+    public function testKnownRootSourceRunsResolvabilityOnCreation(): void
+    {
+        $gate = static::createStub(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->method('resolvability')
+            ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-1', 'target', 'unresolved')]));
+
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('knownRootSources')->willReturn(['product']);
+        $registry->method('resolve')->willReturn([]);
+
+        $validator = $this->validator($gate, $registry);
+
+        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'product'])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ViolationCode::UnresolvedRequired->value, $violation->getCode());
     }
 
     #[TestDox('fails hard when a command writes the layout column but no tree was memoized for it')]

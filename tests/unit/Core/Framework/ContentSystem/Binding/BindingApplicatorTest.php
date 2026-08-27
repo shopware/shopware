@@ -56,7 +56,10 @@ class BindingApplicatorTest extends TestCase
 
         $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
 
-        static::assertEquals(['media' => new DataRequirement('media', 'entity', $newConfig)], $result->dataRequirements);
+        static::assertSame(['media'], array_keys($result->dataRequirements));
+        static::assertSame('media', $result->dataRequirements['media']->key);
+        static::assertSame('entity', $result->dataRequirements['media']->source);
+        static::assertSame($newConfig, $result->dataRequirements['media']->config);
         static::assertSame(['media' => 'core:media-picker'], $result->attributedSpecifications);
     }
 
@@ -81,7 +84,10 @@ class BindingApplicatorTest extends TestCase
 
         $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image');
 
-        static::assertEquals(['media' => new DataRequirement('media', 'entity', $oldConfig)], $result->dataRequirements);
+        static::assertSame(['media'], array_keys($result->dataRequirements));
+        static::assertSame('media', $result->dataRequirements['media']->key);
+        static::assertSame('entity', $result->dataRequirements['media']->source);
+        static::assertSame($oldConfig, $result->dataRequirements['media']->config);
         static::assertSame(['media' => 'core:old-spec'], $result->attributedSpecifications);
     }
 
@@ -95,8 +101,12 @@ class BindingApplicatorTest extends TestCase
         $result = $this->applicator($newConfig)->applyFillOnly($element, $this->twoKeySpecification(), 'core:Sw:Media:Image');
 
         static::assertSame(['media' => 'core:old-spec', 'gallery' => 'core:Sw:Media:Image'], $result->attributedSpecifications);
-        static::assertEquals(new DataRequirement('media', 'entity', $oldConfig), $result->dataRequirements['media']);
-        static::assertEquals(new DataRequirement('gallery', 'entity_collection', $newConfig), $result->dataRequirements['gallery']);
+        static::assertSame('media', $result->dataRequirements['media']->key);
+        static::assertSame('entity', $result->dataRequirements['media']->source);
+        static::assertSame($oldConfig, $result->dataRequirements['media']->config);
+        static::assertSame('gallery', $result->dataRequirements['gallery']->key);
+        static::assertSame('entity_collection', $result->dataRequirements['gallery']->source);
+        static::assertSame($newConfig, $result->dataRequirements['gallery']->config);
     }
 
     #[TestDox('does not seed an input whose specification declares no default')]

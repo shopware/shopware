@@ -109,6 +109,47 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['el-1'][0]->resolved->origin);
     }
 
+    #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
+    public function testOrphanedProviderWarning(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [new StoredElement('child-1', 'Sw:Block')])
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$root], null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
+        static::assertSame('root-1', $warning->elementId);
+    }
+
+    #[TestDox('reports no property-type violation for a stored value matching its declared primitive type')]
+    public function testConformingPropertyValueProducesNoViolation(): void
+    {
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', 5)->build()];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
+            ->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
+    #[TestDox('reports no style violation for an option the registry knows')]
+    public function testRegisteredStyleOptionProducesNoViolation(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
+            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
+        )->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
     #[DataProvider('filledInputValueProvider')]
     #[TestDox('emits no unfilled_required_input, and stays resolvable, when the stored-wired input property carries a value')]
     public function testStoredRequiredReferenceWithFilledInputIsResolvable(string $storedValue): void
@@ -132,72 +173,6 @@ class LayoutDiagnosticsTest extends TestCase
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset, emits no binding errors and exposes the analysed element in the resolutions map')]
-    public function testWellFormednessSubsetIgnoresBinding(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block')];
-
-        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
-            ->analyze($tree, null);
-
-        static::assertTrue($analysis->report->isWellFormed());
-        static::assertSame([], $analysis->report->bindingErrors());
-        static::assertArrayHasKey('el-1', $analysis->resolutions);
-    }
-
-    #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
-    public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
-    {
-        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->build();
-        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
-            ->withConsumer('product', ContextType::Single, redistribute: true)
-            ->withSlot('content', [$level2])
-            ->build();
-
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
-            ->analyze([$root], $rootContext)->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
-    public function testAppliedWiringBacksDeclaredProviderAndSatisfiesDescendantChain(): void
-    {
-        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
-            ->withConsumer('product', ContextType::Single, required: true)
-            ->build();
-        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->withSlot('content', [$child])
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
-
-        $analysis = $this->diagnostics(
-            [
-                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
-                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
-            ],
-            loaderProvider: $this->loaderProvider($loader),
-        )->analyze([$root], []);
-
-        static::assertSame([], $analysis->report->bindingErrors());
-        static::assertNotNull($analysis->resolutions['root-1'][0]->resolved);
-        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['root-1'][0]->resolved->origin);
     }
 
     #[TestDox('emits no unfilled_required_input when parent context satisfies a required reference instead of stored wiring')]
@@ -257,8 +232,98 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->bindingErrors());
     }
 
-    #[TestDox('does not gate a required reference whose loader declares only a defaulted propertyReference key (the navigation shape)')]
-    public function testDefaultedPropertyReferenceKeyNeverGates(): void
+    #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
+    public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
+    {
+        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+            ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withSlot('content', [$level2])
+            ->build();
+
+        $rootContext = [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
+            distribution: DistributionStrategy::Broadcast,
+        )];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$root], $rootContext)->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
+    public function testAppliedWiringBacksDeclaredProviderAndSatisfiesDescendantChain(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withSlot('content', [$child])
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $analysis = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$root], []);
+
+        static::assertSame([], $analysis->report->bindingErrors());
+        static::assertNotNull($analysis->resolutions['root-1'][0]->resolved);
+        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['root-1'][0]->resolved->origin);
+    }
+
+    #[TestDox('diagnoses a replacement that stored its new type primitive default as resolvable')]
+    public function testReplacementWithSeededDefaultIsDiagnosedResolvable(): void
+    {
+        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->primitive('headline', 'string', required: true, default: 'Default headline')->build()];
+
+        // ReplaceElement seeds the new type's default (fully covered in ReplaceElementTest); here we pin the
+        // replacement output — the new component plus the seeded default — so the diagnostics assertion cannot pass
+        // vacuously on a no-op replacement, then assert the strict primitive rule credits the stored value so the
+        // replaced tree diagnoses as resolvable.
+        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $bindingRegistry->method('all')->willReturn([]);
+        $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
+
+        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))
+            ->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
+
+        static::assertSame('Sw:New', $replaced->roots[0]->component);
+        static::assertSame('Default headline', $replaced->roots[0]->property('headline')?->jsonSerialize());
+        static::assertSame(
+            [],
+            $this->diagnostics($specs)->analyze($replaced->roots, [])->report->bindingErrors()
+        );
+    }
+
+    #[TestDox('accepts an unsatisfied required reference in the well-formedness subset, emits no binding errors and exposes the analysed element in the resolutions map')]
+    public function testWellFormednessSubsetIgnoresBinding(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
+
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
+            ->analyze($tree, null);
+
+        static::assertTrue($analysis->report->isWellFormed());
+        static::assertSame([], $analysis->report->bindingErrors());
+        static::assertArrayHasKey('el-1', $analysis->resolutions);
+    }
+
+    #[TestDox('does not gate a required reference whose loader declares an optional propertyReference key, mirroring the navigation shape')]
+    public function testOptionalPropertyReferenceKeyNeverGates(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withDataRequirement('tree', 'navigation_loader', static::createStub(AbstractContentDataLoaderConfig::class))
@@ -301,43 +366,16 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->bindingErrors());
     }
 
-    #[TestDox('diagnoses a replacement that stored its new type primitive default as resolvable')]
-    public function testReplacementWithSeededDefaultIsDiagnosedResolvable(): void
+    #[TestDox('reports no property-type violation for a stored null under a declared primitive, leaving that to the required-input rule')]
+    public function testStoredNullUnderAPrimitiveProducesNoPropertyTypeViolation(): void
     {
-        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->primitive('headline', 'string', required: true, default: 'Default headline')->build()];
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', null)->build()];
 
-        // ReplaceElement seeds the new type's default (fully covered in ReplaceElementTest); here we pin the
-        // replacement output — the new component plus the seeded default — so the diagnostics assertion cannot pass
-        // vacuously on a no-op replacement, then assert the strict primitive rule credits the stored value so the
-        // replaced tree diagnoses as resolvable.
-        $bindingRegistry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
-        $bindingRegistry->method('all')->willReturn([]);
-        $bindingApplicator = new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class));
-
-        $replaced = (new ReplaceElement($this->registry($specs), 'el', 'Sw:New', $bindingRegistry, $bindingApplicator))
-            ->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
-
-        static::assertSame('Sw:New', $replaced->roots[0]->component);
-        static::assertSame('Default headline', $replaced->roots[0]->property('headline')?->jsonSerialize());
-        static::assertSame(
-            [],
-            $this->diagnostics($specs)->analyze($replaced->roots, [])->report->bindingErrors()
-        );
-    }
-
-    #[TestDox('emits an orphaned_provider warning without blocking when a provider has no consumer in scope')]
-    public function testOrphanedProviderWarning(): void
-    {
-        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('content', [new StoredElement('child-1', 'Sw:Block')])
-            ->build();
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$root], null)->report;
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
+            ->analyze($tree, null)->report;
 
         static::assertTrue($report->isWellFormed());
-        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
-        static::assertSame('root-1', $warning->elementId);
+        static::assertSame([], $report->intrinsicErrors());
     }
 
     #[TestDox('reports a required reference whose only candidates are incomplete loaders as unresolved_required, not ambiguous_required')]
@@ -514,44 +552,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('el-1', $violation->elementId);
         static::assertSame('count', $violation->key);
         static::assertSame('Property "count" is declared as "integer" but carries a value of type "string".', $violation->message);
-    }
-
-    #[TestDox('reports no property-type violation for a stored value matching its declared primitive type')]
-    public function testConformingPropertyValueProducesNoViolation(): void
-    {
-        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', 5)->build()];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
-            ->analyze($tree, null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        static::assertSame([], $report->intrinsicErrors());
-    }
-
-    #[TestDox('reports no property-type violation for a stored null under a declared primitive, leaving that to the required-input rule')]
-    public function testStoredNullUnderAPrimitiveProducesNoPropertyTypeViolation(): void
-    {
-        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', null)->build()];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
-            ->analyze($tree, null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        static::assertSame([], $report->intrinsicErrors());
-    }
-
-    #[TestDox('reports no style violation for an option the registry knows')]
-    public function testRegisteredStyleOptionProducesNoViolation(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
-            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
-        )->analyze($tree, null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        static::assertSame([], $report->intrinsicErrors());
     }
 
     #[TestDox('produces an invalid_config intrinsic error for a data requirement naming an unknown entity')]

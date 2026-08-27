@@ -21,40 +21,38 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(LoaderInputResolver::class)]
 class LoaderInputResolverTest extends TestCase
 {
-    #[TestDox('a literal key takes its configured value')]
-    public function testLiteralKeyTakesConfiguredValue(): void
+    /**
+     * @param array{hasDefault?: bool, default?: mixed} $keySpecOptions
+     */
+    #[DataProvider('literalKeyResolutionProvider')]
+    #[TestDox('resolves a literal key: $_dataName')]
+    public function testLiteralKeyResolution(?string $configuredValue, array $keySpecOptions, mixed $expected): void
     {
         $specification = new LoaderConfigSpecification([
-            new ConfigKeySpecification('label', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'headline'),
+            new ConfigKeySpecification('label', ConfigKeyKind::Literal, 'string', false, ...$keySpecOptions),
         ]);
 
-        $inputs = (new LoaderInputResolver())->resolve($specification, new ResolverStubConfig(label: 'title'), []);
+        $inputs = (new LoaderInputResolver())->resolve($specification, new ResolverStubConfig(label: $configuredValue), []);
 
-        static::assertSame('title', $inputs->get('label'));
+        static::assertSame($expected, $inputs->get('label'));
     }
 
-    #[TestDox('a literal key falls back to its declared default when the config carries no value')]
-    public function testLiteralKeyFallsBackToDeclaredDefault(): void
+    /**
+     * @return iterable<string, array{?string, array{hasDefault?: bool, default?: mixed}, mixed}>
+     */
+    public static function literalKeyResolutionProvider(): iterable
     {
-        $specification = new LoaderConfigSpecification([
-            new ConfigKeySpecification('label', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'headline'),
-        ]);
+        yield 'configured value takes precedence over the declared default' => [
+            'title', ['hasDefault' => true, 'default' => 'headline'], 'title',
+        ];
 
-        $inputs = (new LoaderInputResolver())->resolve($specification, new ResolverStubConfig(), []);
+        yield 'falls back to the declared default when the config carries no value' => [
+            null, ['hasDefault' => true, 'default' => 'headline'], 'headline',
+        ];
 
-        static::assertSame('headline', $inputs->get('label'));
-    }
-
-    #[TestDox('a literal key without a declared default resolves to null when the config carries no value')]
-    public function testLiteralKeyWithoutDefaultResolvesToNull(): void
-    {
-        $specification = new LoaderConfigSpecification([
-            new ConfigKeySpecification('label', ConfigKeyKind::Literal, 'string', required: false),
-        ]);
-
-        $inputs = (new LoaderInputResolver())->resolve($specification, new ResolverStubConfig(), []);
-
-        static::assertNull($inputs->get('label'));
+        yield 'resolves to null when neither the config nor a declared default carries a value' => [
+            null, [], null,
+        ];
     }
 
     #[TestDox('an entityName key takes its configured value without dereferencing it')]
@@ -124,7 +122,7 @@ class LoaderInputResolverTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $properties
+     * @param array<array-key, mixed> $properties
      */
     #[DataProvider('unresolvedReferenceProvider')]
     #[TestDox('a propertyReference key resolves to null: $_dataName')]
@@ -164,18 +162,6 @@ class LoaderInputResolverTest extends TestCase
         static::assertNull($inputs->get('associationOverride'));
     }
 
-    #[TestDox('throws when a declared key has no public property on the config class')]
-    public function testThrowsWhenDeclaredKeyHasNoConfigProperty(): void
-    {
-        $specification = new LoaderConfigSpecification([
-            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false),
-        ]);
-
-        $this->expectExceptionObject(ContentSystemException::loaderConfigKeyWithoutProperty(ResolverStubConfig::class, 'rootId'));
-
-        (new LoaderInputResolver())->resolve($specification, new ResolverStubConfig(), []);
-    }
-
     #[TestDox('a merging key folds its resolved list into the target, target entries first')]
     public function testMergeAppendsMergerAfterTarget(): void
     {
@@ -188,7 +174,7 @@ class LoaderInputResolverTest extends TestCase
         static::assertSame(['configured', 'stored'], $inputs->get('associations'));
     }
 
-    #[TestDox('a merging key is absent from the resolved inputs')]
+    #[TestDox('removes the merging key from resolved inputs after a merge')]
     public function testMergingKeyIsRemovedFromInputs(): void
     {
         $inputs = (new LoaderInputResolver())->resolve(
@@ -226,16 +212,34 @@ class LoaderInputResolverTest extends TestCase
         static::assertSame(['media', 'media'], $inputs->get('associations'));
     }
 
+    #[TestDox('throws when a declared key has no public property on the config class')]
+    public function testThrowsWhenDeclaredKeyHasNoConfigProperty(): void
+    {
+        $specification = new LoaderConfigSpecification([
+            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false),
+        ]);
+
+        $this->expectExceptionObject(ContentSystemException::loaderConfigKeyWithoutProperty(ResolverStubConfig::class, 'rootId'));
+
+        (new LoaderInputResolver())->resolve($specification, new ResolverStubConfig(), []);
+    }
+
     /**
-     * @return iterable<string, array{mixed, array<string, mixed>}>
+     * @return iterable<string, array{mixed, array<array-key, mixed>}>
      */
     public static function unresolvedReferenceProvider(): iterable
     {
-        yield 'the token is null' => [null, ['entityId' => 'product-alice']];
-        yield 'the token is an empty string' => ['', ['entityId' => 'product-alice']];
-        yield 'the token is not a string' => [42, ['entityId' => 'product-alice']];
-        yield 'the referenced key is absent' => ['entityId', []];
-        yield 'the referenced value is null' => ['entityId', ['entityId' => null]];
+        // 'the token is null' and 'the token is not a string' both fail the `!is_string($token)` sub-predicate
+        // of guard 1 and are merged into the one below. Each guard-1 row's properties carry a sentinel keyed
+        // by the token's own value: if guard 1 (`!is_string($token) || $token === ''`) were deleted, dereference
+        // would fall through to guard 2 and resolve the sentinel instead of null, so the row fails rather than
+        // sliding through to guard 2's identical null result.
+        yield 'the token is not a string' => [42, [42 => 'guard2-pass']];
+        yield 'the token is an empty string' => ['', ['' => 'guard2-pass']];
+
+        // 'the referenced key is absent' and 'the referenced value is null' both collapse through the `??` into
+        // the same $value === null path in guard 2, so one row covers both.
+        yield 'the referenced key is absent or its value is null' => ['entityId', []];
     }
 
     private static function referenceSpecification(): LoaderConfigSpecification

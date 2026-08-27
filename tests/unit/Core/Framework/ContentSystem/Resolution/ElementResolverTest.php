@@ -125,6 +125,25 @@ class ElementResolverTest extends TestCase
         static::assertSame(['entity' => 'product'], $resolutions[0]->candidates[0]->configTemplate);
     }
 
+    #[TestDox('leaves a reference unresolved with an incomplete candidate when its only loader\'s config fails to decode as a client defect')]
+    public function testReferenceWithLoaderConfigDecodeFailureIsIncomplete(): void
+    {
+        $resolutions = $this->resolve(
+            ContentSystemElementTypeSpecificationBuilder::create()->reference('category', CategoryEntity::class, required: true)->build(),
+            new ResolutionContext('el-1', []),
+            new ContentSystemDataLoaderMap(
+                ['category_fixed' => [new LoaderTypeCapability(CategoryEntity::class)]],
+                ['category_fixed' => new LoaderConfigSpecification([])],
+            ),
+            $this->serializersDecoding(succeeds: false),
+        );
+
+        static::assertNull($resolutions[0]->resolved);
+        static::assertCount(1, $resolutions[0]->candidates);
+        static::assertSame(CandidateOrigin::Loader, $resolutions[0]->candidates[0]->origin);
+        static::assertFalse($resolutions[0]->candidates[0]->configComplete);
+    }
+
     #[TestDox('leaves a reference unresolved and lists every candidate when multiple complete loaders match')]
     public function testReferenceWithMultipleSourcesIsAmbiguous(): void
     {
@@ -159,22 +178,6 @@ class ElementResolverTest extends TestCase
 
         static::assertNull($resolutions[0]->resolved);
         static::assertSame([], $resolutions[0]->candidates);
-    }
-
-    #[TestDox('yields no resolutions for an unregistered element type, leaving the defect to the diagnostics layer')]
-    public function testUnregisteredTypeYieldsNoResolutions(): void
-    {
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(false);
-
-        $resolver = new ElementResolver(
-            $registry,
-            $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
-            static::createStub(DataLoaderConfigSerializerProvider::class),
-            static::createStub(DataLoaderProvider::class),
-        );
-
-        static::assertSame([], $resolver->resolve('Sw:Unknown', new ResolutionContext('el-1', [])));
     }
 
     #[TestDox('resolves a required reference to the applied Stored candidate over a deterministic environment default, leaving the environment candidates list unchanged')]
@@ -233,6 +236,22 @@ class ElementResolverTest extends TestCase
 
         static::assertNotNull($resolutions[0]->resolved);
         static::assertSame(CandidateOrigin::Parent, $resolutions[0]->resolved->origin);
+    }
+
+    #[TestDox('yields no resolutions for an unregistered element type, leaving the defect to the diagnostics layer')]
+    public function testUnregisteredTypeYieldsNoResolutions(): void
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(false);
+
+        $resolver = new ElementResolver(
+            $registry,
+            $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderProvider::class),
+        );
+
+        static::assertSame([], $resolver->resolve('Sw:Unknown', new ResolutionContext('el-1', [])));
     }
 
     #[TestDox('yields no Stored resolution when applied wiring resolution throws a client-defect exception')]

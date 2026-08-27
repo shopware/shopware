@@ -62,6 +62,17 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    #[DataProvider('configSerializerMessageFormProvider')]
+    #[TestDox('formats the message for $_dataName')]
+    public function testConfigSerializerNotRegisteredMessageForm(string $source, ?string $elementId, string $expectedMessage): void
+    {
+        $exception = ContentSystemException::configSerializerNotRegistered($source, $elementId);
+
+        static::assertSame($expectedMessage, $exception->getMessage());
+        static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
     #[TestDox('rejects a non content-system throwable as a client defect')]
     public function testForeignThrowableIsNotAClientDefect(): void
     {
@@ -84,23 +95,6 @@ class ContentSystemExceptionTest extends TestCase
         $e = ContentSystemException::invalidLoaderConfig('navigation', $previous);
 
         static::assertSame($previous, $e->getPrevious());
-    }
-
-    #[TestDox('configSerializerNotRegistered keeps today\'s message verbatim without an element id, and names the element when one is given')]
-    public function testConfigSerializerNotRegisteredMessageForm(): void
-    {
-        $withoutId = ContentSystemException::configSerializerNotRegistered('yaml');
-        static::assertSame('Config serializer for source "yaml" is not registered', $withoutId->getMessage());
-        static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $withoutId->getErrorCode());
-        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $withoutId->getStatusCode());
-
-        $withId = ContentSystemException::configSerializerNotRegistered('yaml', 'elem-1');
-        static::assertSame(
-            'Config serializer for source "yaml" is not registered. Element ID: "elem-1"',
-            $withId->getMessage()
-        );
-        static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $withId->getErrorCode());
-        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $withId->getStatusCode());
     }
 
     /**
@@ -423,6 +417,19 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
             'Sw:Media:Image',
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{string, string|null, string}>
+     */
+    public static function configSerializerMessageFormProvider(): iterable
+    {
+        yield 'without element id' => [
+            'yaml', null, 'Config serializer for source "yaml" is not registered',
+        ];
+        yield 'with element id' => [
+            'yaml', 'elem-1', 'Config serializer for source "yaml" is not registered. Element ID: "elem-1"',
         ];
     }
 }

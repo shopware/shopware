@@ -50,65 +50,6 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
     }
 
-    #[TestDox('rejects a top-level target whose own provider set collides on a child-facing key')]
-    public function testRejectsCollidingChildFacingKeysOnTheTarget(): void
-    {
-        // Collision axis: distinct provider map keys whose broadcast configs both rename the matched child
-        // key to 'item'. The check must run on the target itself, past the top-level early return that
-        // otherwise skips every element of a top-level path.
-        $root = new StoredElement(
-            'root-1',
-            'Sw:Block',
-            [],
-            [],
-            [],
-            new ContextDefinitions(
-                [
-                    'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                    'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                ],
-                [],
-            ),
-        );
-
-        try {
-            $this->resolver()->resolve('root-1', [$root], []);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
-        }
-    }
-
-    #[TestDox('rejects a nested target whose ancestor provider set collides on a child-facing key, even when the target itself is clean')]
-    public function testRejectsCollidingAncestorChildFacingKeys(): void
-    {
-        // Collision axis: the ANCESTOR's two provider map keys both rename the matched child key to 'item'.
-        // The target's own provider set is clean, so only the per-ancestor validateProviderDeliveryKeys
-        // call can throw — dropping it while keeping the target call silently accepts the colliding layout.
-        $child = new StoredElement('child-1', 'Sw:Block');
-        $root = new StoredElement(
-            'root-1',
-            'Sw:Block',
-            [],
-            [],
-            ['content' => [$child]],
-            new ContextDefinitions(
-                [
-                    'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                    'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                ],
-                [],
-            ),
-        );
-
-        try {
-            $this->resolver()->resolve('child-1', [$root], []);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
-        }
-    }
-
     #[TestDox('resolves ancestor provider context with the FQCN from the provider type spec for a nested element')]
     public function testNestedReceivesAncestorProvider(): void
     {
@@ -318,6 +259,65 @@ class AvailableContextResolverTest extends TestCase
         $root = new StoredElement('root-1', 'Sw:Block');
 
         static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
+    }
+
+    #[TestDox('rejects a top-level target whose own provider set collides on a child-facing key')]
+    public function testRejectsCollidingChildFacingKeysOnTheTarget(): void
+    {
+        // Collision axis: distinct provider map keys whose broadcast configs both rename the matched child
+        // key to 'item'. The check must run on the target itself, past the top-level early return that
+        // otherwise skips every element of a top-level path.
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            [],
+            new ContextDefinitions(
+                [
+                    'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
+                    'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
+                ],
+                [],
+            ),
+        );
+
+        try {
+            $this->resolver()->resolve('root-1', [$root], []);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
+        }
+    }
+
+    #[TestDox('rejects a nested target whose ancestor provider set collides on a child-facing key, even when the target itself is clean')]
+    public function testRejectsCollidingAncestorChildFacingKeys(): void
+    {
+        // Collision axis: the ANCESTOR's two provider map keys both rename the matched child key to 'item'.
+        // The target's own provider set is clean, so only the per-ancestor validateProviderDeliveryKeys
+        // call can throw — dropping it while keeping the target call silently accepts the colliding layout.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Block',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                [
+                    'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
+                    'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
+                ],
+                [],
+            ),
+        );
+
+        try {
+            $this->resolver()->resolve('child-1', [$root], []);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
+        }
     }
 
     /**

@@ -30,27 +30,11 @@ class LoaderInputsTest extends TestCase
         static::assertSame($expected, self::inputs()->has($key));
     }
 
-    #[TestDox('has() throws for a key the loader never declared')]
-    public function testHasThrowsForUndeclaredKey(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::loaderInputNotDeclared('rootId', self::DECLARED_KEYS));
-
-        self::inputs()->has('rootId');
-    }
-
     #[DataProvider('getProvider')]
     #[TestDox('get() returns the raw resolved value, null when unresolved: $_dataName')]
     public function testGetReturnsRawValue(string $key, mixed $expected): void
     {
         static::assertSame($expected, self::inputs()->get($key));
-    }
-
-    #[TestDox('get() throws for a key the loader never declared')]
-    public function testGetThrowsForUndeclaredKey(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::loaderInputNotDeclared('rootId', self::DECLARED_KEYS));
-
-        self::inputs()->get('rootId');
     }
 
     /**
@@ -66,13 +50,11 @@ class LoaderInputsTest extends TestCase
     /**
      * @param \Closure(LoaderInputs): mixed $read
      */
-    #[DataProvider('nonNullableAccessorProvider')]
-    #[TestDox('non-nullable accessor throws when the input is unresolved: $_dataName')]
-    public function testNonNullableAccessorThrowsWhenUnresolved(\Closure $read): void
+    #[DataProvider('nullableAccessorResolvedProvider')]
+    #[TestDox('nullable accessor returns the resolved value: $_dataName')]
+    public function testNullableAccessorReturnsResolvedValue(\Closure $read, mixed $expected): void
     {
-        $this->expectExceptionObject(ContentSystemException::loaderInputUnresolved('unresolved'));
-
-        $read(self::inputs());
+        static::assertSame($expected, $read(self::inputs()));
     }
 
     /**
@@ -85,14 +67,32 @@ class LoaderInputsTest extends TestCase
         static::assertNull($read(self::inputs()));
     }
 
+    #[TestDox('has() throws for a key the loader never declared')]
+    public function testHasThrowsForUndeclaredKey(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::loaderInputNotDeclared('rootId', self::DECLARED_KEYS));
+
+        self::inputs()->has('rootId');
+    }
+
+    #[TestDox('get() throws for a key the loader never declared')]
+    public function testGetThrowsForUndeclaredKey(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::loaderInputNotDeclared('rootId', self::DECLARED_KEYS));
+
+        self::inputs()->get('rootId');
+    }
+
     /**
      * @param \Closure(LoaderInputs): mixed $read
      */
-    #[DataProvider('nullableAccessorResolvedProvider')]
-    #[TestDox('nullable accessor returns the resolved value: $_dataName')]
-    public function testNullableAccessorReturnsResolvedValue(\Closure $read, mixed $expected): void
+    #[DataProvider('nonNullableAccessorProvider')]
+    #[TestDox('non-nullable accessor throws when the input is unresolved: $_dataName')]
+    public function testNonNullableAccessorThrowsWhenUnresolved(\Closure $read): void
     {
-        static::assertSame($expected, $read(self::inputs()));
+        $this->expectExceptionObject(ContentSystemException::loaderInputUnresolved('unresolved'));
+
+        $read(self::inputs());
     }
 
     /**

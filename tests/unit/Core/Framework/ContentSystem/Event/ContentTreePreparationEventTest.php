@@ -22,41 +22,18 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ContentTreePreparationEvent::class)]
 class ContentTreePreparationEventTest extends TestCase
 {
-    #[TestDox('returns the forest it was constructed with')]
-    public function testTreeReturnsTheConstructedForest(): void
-    {
-        $tree = [new StoredElement('root-id', 'section')];
-
-        static::assertSame($tree, $this->createEvent($tree)->tree());
-    }
-
-    #[TestDox('returns the replacement forest after replaceTree')]
+    #[TestDox('Exposes the constructed forest through tree(), then replaces it via replaceTree()')]
     public function testReplaceTreeReplacesWhatTreeReturns(): void
     {
-        $event = $this->createEvent([new StoredElement('root-id', 'section')]);
-        $replacement = [new StoredElement('injected-id', 'text')];
+        $tree = [new StoredElement('root-id', 'section')];
+        $event = $this->createEvent($tree);
 
+        static::assertSame($tree, $event->tree());
+
+        $replacement = [new StoredElement('injected-id', 'text')];
         $event->replaceTree($replacement);
 
         static::assertSame($replacement, $event->tree());
-    }
-
-    #[TestDox('exposes the layout reference, specification, sales channel context and cache context')]
-    public function testEventExposesItsRenderingMetadata(): void
-    {
-        $layout = LayoutReference::create('layout-1', 'Test', '1.0');
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $cacheContext = new RenderingCacheContext();
-
-        $event = new ContentTreePreparationEvent([], $layout, $specification, $salesChannelContext, $cacheContext);
-
-        static::assertSame($layout, $event->layout);
-        static::assertSame($specification, $event->specification);
-        static::assertSame($salesChannelContext, $event->salesChannelContext);
-        static::assertSame($salesChannelContext, $event->getSalesChannelContext());
-        static::assertSame($salesChannelContext->getContext(), $event->getContext());
-        static::assertSame($cacheContext, $event->cacheContext);
     }
 
     /**

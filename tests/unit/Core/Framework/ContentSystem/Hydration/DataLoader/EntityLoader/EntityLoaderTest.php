@@ -53,6 +53,15 @@ class EntityLoaderTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{list<EntityDefinition>, EntityDefinition, class-string, array<string, mixed>}>
+     */
+    public static function declaresProducibleTypeProvider(): iterable
+    {
+        yield 'an entity with a sales-channel variant' => [[new SalesChannelProductDefinition()], new ProductDefinition(), SalesChannelProductEntity::class, ['entity' => 'product']];
+        yield 'an entity without a sales-channel variant' => [[], new MediaDefinition(), MediaEntity::class, ['entity' => 'media']];
+    }
+
+    /**
      * @param list<EntityDefinition> $salesChannelDefinitions
      * @param class-string $expectedProducedType
      * @param array<string, mixed> $expectedConfigTemplate
@@ -195,10 +204,7 @@ class EntityLoaderTest extends TestCase
         $productId = $this->ids->get('product');
         $entity = $this->createEntityWithId($productId);
 
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn('product-' . $productId);
-
-        $loader = $this->createLoaderWithSalesChannelRepo('product', new EntityCollection([$entity]), $cacheTagResolver);
+        $loader = $this->createLoaderWithSalesChannelRepo('product', new EntityCollection([$entity]), new EntityCacheTagResolver());
         $result = $this->loadEntity($loader, 'product', $productId);
 
         static::assertSame($entity, $result->data);
@@ -218,9 +224,6 @@ class EntityLoaderTest extends TestCase
         $definition = static::createStub(EntityDefinition::class);
         $definition->method('getEntityName')->willReturn('category');
 
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
-
         $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')
             ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
@@ -230,7 +233,7 @@ class EntityLoaderTest extends TestCase
         $defRegistry->method('getRepository')->willReturn($plainRepo);
         $defRegistry->method('getByEntityName')->willReturn($definition);
 
-        $loader = new EntityLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+        $loader = new EntityLoader($scDefRegistry, $defRegistry, new EntityCacheTagResolver());
         $result = $this->loadEntity($loader, 'category', $categoryId);
 
         static::assertSame($entity, $result->data);
@@ -340,15 +343,6 @@ class EntityLoaderTest extends TestCase
         $result = $this->loadEntity($loader, 'ghost', 'some-id');
 
         $this->assertNotFoundResult($result);
-    }
-
-    /**
-     * @return iterable<string, array{list<EntityDefinition>, EntityDefinition, class-string, array<string, mixed>}>
-     */
-    public static function declaresProducibleTypeProvider(): iterable
-    {
-        yield 'an entity with a sales-channel variant' => [[new SalesChannelProductDefinition()], new ProductDefinition(), SalesChannelProductEntity::class, ['entity' => 'product']];
-        yield 'an entity without a sales-channel variant' => [[], new MediaDefinition(), MediaEntity::class, ['entity' => 'media']];
     }
 
     private function assertNotFoundResult(ContentDataLoaderResult $result): void

@@ -515,8 +515,8 @@ class ContentPipelineTest extends TestCase
      * that always carried the alias would deliver nothing in the un-aliased case; one that never carried it
      * would deliver nothing in the aliased case.
      */
-    #[TestDox('derives a redistribute provider that renames the key for children only where an alias was declared')]
     #[DataProvider('derivedProviderKeyProvider')]
+    #[TestDox('derives a redistribute provider that renames the key for children only where an alias was declared')]
     public function testDerivedRedistributeProviderRenamesTheKeyOnlyWhereAliased(?string $consumerAlias, string $expectedDeliveredKey): void
     {
         $middle = StoredElementBuilder::create('section', 'middle-id')
@@ -767,165 +767,6 @@ class ContentPipelineTest extends TestCase
         static::assertSame('added-title', $this->renderedElement($result->tree, 'added-id')->properties['title']);
     }
 
-    #[DataProvider('renderingModeProvider')]
-    #[TestDox('rejects a stored forest that repeats an element id across two roots, in either rendering mode')]
-    public function testLoadRejectsARepeatedStoredElementId(RenderingMode $mode): void
-    {
-        $layout = $this->createTwinRootLayout('twin-id');
-
-        // Fixture guard: the twins share an id and differ in everything else, so a passing run means the
-        // id collision was detected rather than two indistinguishable nodes collapsing into one.
-        $inRootA = $this->findStoredChild($layout->elements[0], 'twin-id');
-        $inRootB = $this->findStoredChild($layout->elements[1], 'twin-id');
-        static::assertNotNull($inRootA);
-        static::assertNotNull($inRootB);
-        static::assertSame('in-root-a', $inRootA->property('title')?->asString());
-        static::assertSame('in-root-b', $inRootB->property('title')?->asString());
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->assertLoadFailsWithDuplicateId(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
-            $mode,
-            'twin-id'
-        );
-    }
-
-    #[TestDox('rejects twins straddling two roots on a partial render, which the finished forest no longer shows')]
-    public function testLoadRejectsRepeatedStoredIdsStraddlingTwoRootsOnAPartialRender(): void
-    {
-        $layout = $this->createTwinRootLayout('twin-id');
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'twin-id');
-
-        // Fixture guard, and what this test discriminates: the prune runs on EVERY root and keeps a survivor
-        // from each one that holds the target, so both twins come through it (each as its own root here, the
-        // twin needing no ancestor context). The later extract then returns the first match and discards the
-        // other, so the FINISHED forest carries exactly one node under that id — a guard placed there sees
-        // nothing wrong and serves one of two ambiguous elements. So this test pins "a check runs before the
-        // extract", and no more: a check reading the post-prune tree still passes it. What pins the check to
-        // the PRE-prune forest is testLoadRejectsARepeatedStoredIdWhoseTwinThePruneDiscards below.
-        $pruned = (new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()))
-            ->pruneToTarget($layout->elements, 'twin-id');
-        static::assertSame(['twin-id', 'twin-id'], $this->collectStoredIds($pruned));
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->assertLoadFailsWithDuplicateId($layout, $specification, RenderingMode::FULL, 'twin-id');
-    }
-
-    #[TestDox('rejects a repeated element id whose twin the partial prune discards, which the pruned tree no longer shows')]
-    public function testLoadRejectsARepeatedStoredIdWhoseTwinThePruneDiscards(): void
-    {
-        $layout = RenderableLayout::create(
-            LayoutReference::create($this->ids->get('layout'), 'Discarded Twin Layout', '1.0'),
-            [
-                StoredElementBuilder::create('section', 'target-id')
-                    ->withSlot('default', [
-                        StoredElementBuilder::create('text', 'twin-id')
-                            ->withProperty('title', 'under-the-target')
-                            ->build(),
-                    ])
-                    ->build(),
-                StoredElementBuilder::create('text', 'twin-id')
-                    ->withProperty('title', 'in-the-discarded-root')
-                    ->build(),
-            ]
-        );
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id');
-
-        // Fixture guard: the pre-prune forest carries TWO twins, sharing an id and differing in the one
-        // property `text` declares, so a pass means the collision was detected rather than two
-        // indistinguishable nodes collapsing into one.
-        static::assertSame(['target-id', 'twin-id', 'twin-id'], $this->collectStoredIds($layout->elements));
-
-        // Fixture guard, and the whole point of this test: the extract target lives in one root only, so the
-        // prune drops the OTHER root wholesale and the post-prune tree carries exactly ONE twin. A check
-        // reading `$preparation->tree` — or running anywhere after the prune — sees a well-formed forest and
-        // serves one of two ambiguous elements. Only a check on the pre-prune forest fails this render.
-        $pruned = (new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()))
-            ->pruneToTarget($layout->elements, 'target-id');
-        static::assertSame(['target-id', 'twin-id'], $this->collectStoredIds($pruned));
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $this->assertLoadFailsWithDuplicateId($layout, $specification, RenderingMode::FULL, 'twin-id');
-    }
-
-    #[DataProvider('renderingModeProvider')]
-    #[TestDox('rejects a repeated element id a finalization subscriber put into the forest, in either rendering mode')]
-    public function testLoadRejectsARepeatedElementIdIntroducedDuringFinalization(RenderingMode $mode): void
-    {
-        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
-
-        // Fixture guard: the stored forest repeats nothing, so the check over it cannot be what fires — the
-        // duplicate exists only in the forest the subscriber hands back.
-        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
-
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    // The twins share an id and differ in their title, so the throw can only come from the
-                    // id collision and not from two identical nodes being folded together.
-                    $event->replaceTree([
-                        new RenderedElement('twin-id', 'text', ['title' => 'first-twin']),
-                        new RenderedElement('twin-id', 'text', ['title' => 'second-twin']),
-                    ]);
-                }
-
-                return $event;
-            }
-        );
-
-        $this->assertLoadFailsWithDuplicateId(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
-            $mode,
-            'twin-id'
-        );
-    }
-
-    #[TestDox('rejects a repeated element id a finalization subscriber buried inside a slot')]
-    public function testLoadRejectsARepeatedElementIdNestedBySubscriber(): void
-    {
-        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
-
-        // Fixture guard: the stored forest repeats nothing, so the check over it cannot be what fires.
-        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
-
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                if ($event instanceof RenderedTreeFinalizationEvent) {
-                    // The second twin sits two slots deep, so only a walk that descends into `slots`
-                    // reaches it: a check that compared root ids alone would serve this forest. The two
-                    // share an id and differ in their title, so the throw is the collision and not two
-                    // identical nodes folding together.
-                    $event->replaceTree([
-                        new RenderedElement('twin-id', 'text', ['title' => 'the-root-twin']),
-                        new RenderedElement('holder-id', 'section', [], [
-                            'default' => [
-                                new RenderedElement('inner-id', 'section', [], [
-                                    'default' => [
-                                        new RenderedElement('twin-id', 'text', ['title' => 'the-buried-twin']),
-                                    ],
-                                ]),
-                            ],
-                        ]),
-                    ]);
-                }
-
-                return $event;
-            }
-        );
-
-        $this->assertLoadFailsWithDuplicateId(
-            $layout,
-            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
-            RenderingMode::FULL,
-            'twin-id'
-        );
-    }
-
     #[TestDox('delivers a derived redistribute provider to a child inside the surviving partial-render subtree')]
     public function testRedistributeDerivationSurvivesThePartialPrune(): void
     {
@@ -1116,6 +957,165 @@ class ContentPipelineTest extends TestCase
 
         static::assertSame(['target-id'], $this->collectRenderedIds($result->tree));
         static::assertSame('text', $result->tree[0]->component);
+    }
+
+    #[DataProvider('renderingModeProvider')]
+    #[TestDox('rejects a stored forest that repeats an element id across two roots, in either rendering mode')]
+    public function testLoadRejectsARepeatedStoredElementId(RenderingMode $mode): void
+    {
+        $layout = $this->createTwinRootLayout('twin-id');
+
+        // Fixture guard: the twins share an id and differ in everything else, so a passing run means the
+        // id collision was detected rather than two indistinguishable nodes collapsing into one.
+        $inRootA = $this->findStoredChild($layout->elements[0], 'twin-id');
+        $inRootB = $this->findStoredChild($layout->elements[1], 'twin-id');
+        static::assertNotNull($inRootA);
+        static::assertNotNull($inRootB);
+        static::assertSame('in-root-a', $inRootA->property('title')?->asString());
+        static::assertSame('in-root-b', $inRootB->property('title')?->asString());
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->assertLoadFailsWithDuplicateId(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            $mode,
+            'twin-id'
+        );
+    }
+
+    #[TestDox('rejects twins straddling two roots on a partial render, which the finished forest no longer shows')]
+    public function testLoadRejectsRepeatedStoredIdsStraddlingTwoRootsOnAPartialRender(): void
+    {
+        $layout = $this->createTwinRootLayout('twin-id');
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'twin-id');
+
+        // Fixture guard, and what this test discriminates: the prune runs on EVERY root and keeps a survivor
+        // from each one that holds the target, so both twins come through it (each as its own root here, the
+        // twin needing no ancestor context). The later extract then returns the first match and discards the
+        // other, so the FINISHED forest carries exactly one node under that id — a guard placed there sees
+        // nothing wrong and serves one of two ambiguous elements. So this test pins "a check runs before the
+        // extract", and no more: a check reading the post-prune tree still passes it. What pins the check to
+        // the PRE-prune forest is testLoadRejectsARepeatedStoredIdWhoseTwinThePruneDiscards below.
+        $pruned = (new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()))
+            ->pruneToTarget($layout->elements, 'twin-id');
+        static::assertSame(['twin-id', 'twin-id'], $this->collectStoredIds($pruned));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->assertLoadFailsWithDuplicateId($layout, $specification, RenderingMode::FULL, 'twin-id');
+    }
+
+    #[TestDox('rejects a repeated element id whose twin the partial prune discards, which the pruned tree no longer shows')]
+    public function testLoadRejectsARepeatedStoredIdWhoseTwinThePruneDiscards(): void
+    {
+        $layout = RenderableLayout::create(
+            LayoutReference::create($this->ids->get('layout'), 'Discarded Twin Layout', '1.0'),
+            [
+                StoredElementBuilder::create('section', 'target-id')
+                    ->withSlot('default', [
+                        StoredElementBuilder::create('text', 'twin-id')
+                            ->withProperty('title', 'under-the-target')
+                            ->build(),
+                    ])
+                    ->build(),
+                StoredElementBuilder::create('text', 'twin-id')
+                    ->withProperty('title', 'in-the-discarded-root')
+                    ->build(),
+            ]
+        );
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'target-id');
+
+        // Fixture guard: the pre-prune forest carries TWO twins, sharing an id and differing in the one
+        // property `text` declares, so a pass means the collision was detected rather than two
+        // indistinguishable nodes collapsing into one.
+        static::assertSame(['target-id', 'twin-id', 'twin-id'], $this->collectStoredIds($layout->elements));
+
+        // Fixture guard, and the whole point of this test: the extract target lives in one root only, so the
+        // prune drops the OTHER root wholesale and the post-prune tree carries exactly ONE twin. A check
+        // reading `$preparation->tree` — or running anywhere after the prune — sees a well-formed forest and
+        // serves one of two ambiguous elements. Only a check on the pre-prune forest fails this render.
+        $pruned = (new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()))
+            ->pruneToTarget($layout->elements, 'target-id');
+        static::assertSame(['target-id', 'twin-id'], $this->collectStoredIds($pruned));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->assertLoadFailsWithDuplicateId($layout, $specification, RenderingMode::FULL, 'twin-id');
+    }
+
+    #[DataProvider('renderingModeProvider')]
+    #[TestDox('rejects a repeated element id a finalization subscriber put into the forest, in either rendering mode')]
+    public function testLoadRejectsARepeatedElementIdIntroducedDuringFinalization(RenderingMode $mode): void
+    {
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
+
+        // Fixture guard: the stored forest repeats nothing, so the check over it cannot be what fires — the
+        // duplicate exists only in the forest the subscriber hands back.
+        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
+
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (object $event) {
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    // The twins share an id and differ in their title, so the throw can only come from the
+                    // id collision and not from two identical nodes being folded together.
+                    $event->replaceTree([
+                        new RenderedElement('twin-id', 'text', ['title' => 'first-twin']),
+                        new RenderedElement('twin-id', 'text', ['title' => 'second-twin']),
+                    ]);
+                }
+
+                return $event;
+            }
+        );
+
+        $this->assertLoadFailsWithDuplicateId(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            $mode,
+            'twin-id'
+        );
+    }
+
+    #[TestDox('rejects a repeated element id a finalization subscriber buried inside a slot')]
+    public function testLoadRejectsARepeatedElementIdNestedBySubscriber(): void
+    {
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
+
+        // Fixture guard: the stored forest repeats nothing, so the check over it cannot be what fires.
+        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
+
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (object $event) {
+                if ($event instanceof RenderedTreeFinalizationEvent) {
+                    // The second twin sits two slots deep, so only a walk that descends into `slots`
+                    // reaches it: a check that compared root ids alone would serve this forest. The two
+                    // share an id and differ in their title, so the throw is the collision and not two
+                    // identical nodes folding together.
+                    $event->replaceTree([
+                        new RenderedElement('twin-id', 'text', ['title' => 'the-root-twin']),
+                        new RenderedElement('holder-id', 'section', [], [
+                            'default' => [
+                                new RenderedElement('inner-id', 'section', [], [
+                                    'default' => [
+                                        new RenderedElement('twin-id', 'text', ['title' => 'the-buried-twin']),
+                                    ],
+                                ]),
+                            ],
+                        ]),
+                    ]);
+                }
+
+                return $event;
+            }
+        );
+
+        $this->assertLoadFailsWithDuplicateId(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            RenderingMode::FULL,
+            'twin-id'
+        );
     }
 
     private function createPipeline(): ContentPipeline

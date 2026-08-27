@@ -173,6 +173,8 @@ export default {
             });
             this.isLoading = true;
 
+            Shopware.Store.get('shopwareApps').selectedIds = this.promotionId ? [this.promotionId] : [];
+
             if (!this.promotionId) {
                 // set language to system language
                 if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
@@ -184,10 +186,6 @@ export default {
 
                 return;
             }
-
-            Shopware.Store.get('shopwareApps').selectedIds = [
-                this.promotionId,
-            ];
 
             this.loadEntityData();
         },

@@ -72,6 +72,8 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_ARCHIVE_UNAVAILABLE = 'DOCUMENT_V2__ARCHIVE_UNAVAILABLE';
 
+    public const DOCUMENT_ARCHIVE_LIMIT_EXCEEDED = 'DOCUMENT_V2__ARCHIVE_LIMIT_EXCEEDED';
+
     public const DOCUMENT_ARCHIVE_FAILED = 'DOCUMENT_V2__ARCHIVE_FAILED';
 
     public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
@@ -211,13 +213,26 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentArchiveUnavailable(string $documentId): self
+    /**
+     * @param list<string> $documentIds
+     */
+    public static function documentArchiveUnavailable(array $documentIds): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_ARCHIVE_UNAVAILABLE,
-            'Document with id "{{ documentId }}" has no generated files to archive.',
-            ['documentId' => $documentId],
+            'None of the requested documents have generated files to archive: "{{ documentIds }}".',
+            ['documentIds' => implode(', ', $documentIds)],
+        );
+    }
+
+    public static function documentArchiveLimitExceeded(int $requested, int $limit): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_ARCHIVE_LIMIT_EXCEEDED,
+            'Cannot archive {{ requested }} documents at once, the limit is {{ limit }}.',
+            ['requested' => $requested, 'limit' => $limit],
         );
     }
 

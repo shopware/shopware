@@ -69,11 +69,6 @@ class PaymentRecurringProcessorTest extends TestCase
         $this->stateHandler = static::getContainer()->get(OrderTransactionStateHandler::class);
     }
 
-    /**
-     * A payment service provider can confirm the payment through a webhook while the recurring handler is still
-     * running, and the handler can fail afterwards anyway. The confirmation wins: the transaction keeps the state
-     * the provider gave it, and the caller is told the renewal succeeded, because the money was collected.
-     */
     #[DataProvider('confirmingTransitionProvider')]
     public function testAPaymentConfirmedWhileTheHandlerRunsIsNotFailed(\Closure $confirmPayment, string $confirmedState): void
     {
@@ -115,10 +110,6 @@ class PaymentRecurringProcessorTest extends TestCase
         ];
     }
 
-    /**
-     * Without a concurrent confirmation nothing changes: the transaction is failed and the handler error reaches
-     * the caller, which is what marks the renewal as failed.
-     */
     public function testAFailingHandlerStillFailsTheTransaction(): void
     {
         $context = Context::createDefaultContext();
@@ -136,10 +127,6 @@ class PaymentRecurringProcessorTest extends TestCase
         static::assertSame(OrderTransactionStates::STATE_FAILED, $this->getTransactionStateName($transactionId, $context));
     }
 
-    /**
-     * A transaction that reached a state which can neither be failed nor counts as confirmed - here cancelled -
-     * must surface the handler error, not the state machine error about the impossible fail transition.
-     */
     public function testTheHandlerErrorSurvivesAnImpossibleFailTransition(): void
     {
         $context = Context::createDefaultContext();
@@ -185,8 +172,7 @@ class PaymentRecurringProcessorTest extends TestCase
     }
 
     /**
-     * Stands in for a handler that moves the transaction to unconfirmed, has the payment confirmed underneath it by
-     * a provider webhook, and then fails anyway - the interleaving the provider webhook creates in production.
+     * A handler that goes to unconfirmed, has the payment confirmed underneath it, and then fails anyway.
      */
     private function createHandlerConfirmingThenFailing(string $transactionId, ?\Closure $confirmPayment): AbstractPaymentHandler
     {

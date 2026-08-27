@@ -19,9 +19,7 @@ use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
- * Runs against a real database and without the usual test transaction, because the behaviour under test is that
- * one connection waits for a row another connection has locked. A wrapping transaction would keep the fixture
- * invisible to the second connection.
+ * Runs without the usual test transaction, which would keep the fixture invisible to the second connection.
  *
  * @internal
  */
@@ -50,8 +48,7 @@ class StateMachineTransitionLockTest extends TestCase
     {
         $this->connection->executeStatement('SET SESSION innodb_lock_wait_timeout = DEFAULT');
 
-        // Nothing rolls these writes back, and state_machine_history has no foreign key to the transaction it
-        // refers to, so it has to be cleaned up by hand or it leaks into tests that count history entries.
+        // Nothing rolls these writes back, and the history has no foreign key, so clean it up by hand.
         $this->connection->delete('state_machine_history', ['referenced_id' => Uuid::fromHexToBytes($this->ids->get('transaction'))]);
         $this->connection->delete('`order`', ['id' => Uuid::fromHexToBytes($this->ids->get('10000'))]);
     }
@@ -82,16 +79,14 @@ class StateMachineTransitionLockTest extends TestCase
 
             static::fail('the transition should have waited for the row lock held by the other connection');
         } catch (LockWaitTimeoutException) {
-            // The transition asked the database for the row and had to queue behind the other connection,
-            // which is what keeps two processes from computing a transition from the same state.
+            // The transition had to queue behind the other connection for the row.
         } finally {
             $otherConnection->rollBack();
             $otherConnection->close();
             static::getContainer()->get('event_dispatcher')->removeListener('state_machine_history.written', $listener);
         }
 
-        // The lock has to be taken before the transition writes, not after. A transition that records where it is
-        // going and only then waits for the row has already computed that destination from an unguarded read.
+        // The lock has to be taken before the transition writes, or the destination came from an unguarded read.
         static::assertFalse($historyWritten, 'the transition wrote its history entry before it held the row lock');
 
         static::assertSame(

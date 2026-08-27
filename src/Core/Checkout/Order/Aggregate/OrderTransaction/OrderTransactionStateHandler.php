@@ -46,7 +46,7 @@ class OrderTransactionStateHandler
      * @throws StateMachineException
      * @throws IllegalTransitionException
      */
-    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'skipIfInStates', parameterType: 'array', defaultValue: [], description: 'Technical names of states the transaction must not be failed from, checked against the state that is current when the transition runs. Use this when a concurrent process may have confirmed the payment in the meantime.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'skipIfInStates', parameterType: 'array', defaultValue: [], description: 'Technical names of states the transaction must not be failed from, checked against the state that is current when the transition runs.')]
     public function fail(string $transactionId, Context $context/* , array $skipIfInStates = [] */): void
     {
         /** @deprecated tag:v6.8.0 - Remove next line as $skipIfInStates will become part of the method signature */

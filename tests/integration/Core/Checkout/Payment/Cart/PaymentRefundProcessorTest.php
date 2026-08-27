@@ -215,10 +215,6 @@ class PaymentRefundProcessorTest extends TestCase
         );
     }
 
-    /**
-     * The refund can reach a state that cannot be failed while the handler is running, for example because it
-     * completed concurrently. The refund error must still be the one that reaches the caller.
-     */
     public function testTheRefundErrorSurvivesAnImpossibleFailTransition(): void
     {
         $handlerMock = $this->createMock(AbstractPaymentHandler::class);

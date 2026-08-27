@@ -203,8 +203,7 @@ class StateMachineRegistryTest extends TestCase
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
-        // The history entry is written first inside the transaction; if it fails, the state must not be
-        // updated, so no entity-written events are dispatched for a state change that never commits.
+        // The history is written first, so a failure there must not update the state.
         $fixture->historyRepository->expects($this->once())
             ->method('create')
             ->willThrowException(new \RuntimeException('history write failed'));
@@ -288,8 +287,7 @@ class StateMachineRegistryTest extends TestCase
 
         $fixture->registry->transition($transition, $context);
 
-        // A lock taken outside the transaction that writes the state is released before the write and guards
-        // nothing, which is exactly the race this class has to prevent.
+        // A lock taken outside the writing transaction is released before the write and guards nothing.
         static::assertCount(1, $this->lockingReads);
         static::assertTrue(
             $this->lockingReads[0]['insideTransaction'],
@@ -512,8 +510,7 @@ class StateMachineRegistryTest extends TestCase
 
         $fixture->registry->transition($transition, $context);
 
-        // An inherited state can come from the parent row, which this row lock would not cover. Such a transition
-        // keeps working the way it did before, just without being serialized.
+        // An inherited state can come from the parent row, so it keeps the unlocked read.
         static::assertSame([], $this->lockingReads);
     }
 
@@ -667,10 +664,8 @@ class StateMachineRegistryTest extends TestCase
                 }
             });
 
-        // Stands in for the locking read of the entity row, and records whether the transaction was already open
-        // when it ran. The statement itself is covered against a real database by
-        // \Shopware\Tests\Integration\Core\System\StateMachine\StateMachineTransitionLockTest.
-        // Returning false is how the database reports that the row does not exist.
+        // Stands in for the locking read and records whether the transaction was already open when it ran.
+        // False is how the database reports a missing row. StateMachineTransitionLockTest covers the real query.
         $connection->method('fetchOne')
             ->willReturnCallback(function (string $sql, array $parameters) use ($lockedStateId, &$insideTransaction): string|false {
                 $this->lockingReads[] = ['insideTransaction' => $insideTransaction];
@@ -696,8 +691,7 @@ class StateMachineRegistryTest extends TestCase
         ?EntityDefinition $definition = null,
         bool $entityRowExists = true
     ): StateMachineRegistryFixture {
-        // The state the row actually carries when the transition locks it, which is not necessarily the one the
-        // caller saw. Passing a different state here is how a concurrent state change is expressed in these tests.
+        // The state the row carries when the transition locks it, which is not necessarily the one the caller saw.
         $lockedPlace ??= $fromPlace;
         $context = Context::createDefaultContext();
         /** @var EntityRepository<StateMachineCollection>&Stub $stateMachineRepository */

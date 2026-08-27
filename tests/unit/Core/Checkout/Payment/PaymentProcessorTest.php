@@ -1023,10 +1023,6 @@ class PaymentProcessorTest extends TestCase
         );
     }
 
-    /**
-     * The transaction can reach a state that cannot be failed while the handler is running. Failing it then throws,
-     * and that follow-up error must not take the place of the payment error the caller has to act on.
-     */
     public function testPayKeepsTheErrorRedirectWhenTheTransactionCanNoLongerBeFailed(): void
     {
         $orderTransaction = new OrderTransactionEntity();

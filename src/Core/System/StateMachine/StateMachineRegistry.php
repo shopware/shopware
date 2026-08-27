@@ -166,17 +166,12 @@ class StateMachineRegistry implements ResetInterface
             throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
         }
 
-        // The whole transition runs inside one transaction that starts by locking the entity row. Everything
-        // below - the state we come from, the state we go to, the history entry and the state update - is derived
-        // from that locked read, so a concurrent transition can neither commit between our read and our write nor
-        // have its own result overwritten by ours. Without the lock the destination was computed from a state that
-        // another process could still change, which silently reverted state changes it had already committed.
+        // Locks the entity row for the whole transition, so concurrent transitions serialize instead of
+        // overwriting state the other one already committed.
         return RetryableTransaction::transactional($this->connection, function () use ($transition, $context, $stateMachine, $stateField, $definition, $repository): StateMachineTransitionResult {
             $fromPlace = $this->readCurrentPlace($definition, $stateField, $transition, $context, $repository);
 
             if (\in_array($fromPlace->getTechnicalName(), $transition->getSkipIfInStates(), true)) {
-                // The caller declared this state as one it must not transition away from. It was reached after the
-                // caller read the entity, so the caller cannot have checked it itself without reintroducing the race.
                 return $this->unchangedResult($stateMachine, $fromPlace);
             }
 
@@ -249,10 +244,7 @@ class StateMachineRegistry implements ResetInterface
     }
 
     /**
-     * Reads the current state directly from the entity row and keeps that row locked for the rest of the
-     * transaction. Reading through the DAL would return the same state but would not lock anything, which is the
-     * whole point of this read. An inherited state field is the one case that cannot be locked this way and keeps
-     * the DAL read.
+     * Reads the state from the entity row with FOR UPDATE and holds that lock for the rest of the transaction.
      *
      * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
      *
@@ -266,9 +258,8 @@ class StateMachineRegistry implements ResetInterface
         EntityRepository $repository
     ): StateMachineStateEntity {
         if ($stateField->is(Inherited::class)) {
-            // An inherited state can be resolved from the parent row, which a lock on this row would not cover.
-            // No core or first-party entity declares one, so rather than refuse the transition outright, keep the
-            // unlocked read this class used before. Such a transition is not serialized against concurrent changes.
+            // An inherited state can come from the parent row, which this lock would not cover, so keep the
+            // unlocked read. No core entity declares one.
             return $this->getFromPlace(
                 $transition->getEntityName(),
                 $transition->getEntityId(),
@@ -297,9 +288,7 @@ class StateMachineRegistry implements ResetInterface
 
         $versionField = $definition->getFields()->filterInstance(VersionField::class)->first();
         if ($versionField instanceof VersionField) {
-            // Scoped to the context version, matching what a transition could reach before: the DAL read this
-            // through the entity's unique identifier, which for a versioned entity carries the version, so a row
-            // that only exists in the live version was never reachable from another version either.
+            // Scoped to the context version, matching the DAL read this replaces.
             $query .= \sprintf(' AND %s = :versionId', EntityDefinitionQueryHelper::escape($versionField->getStorageName()));
             $parameters['versionId'] = Uuid::fromHexToBytes($context->getVersionId());
         }

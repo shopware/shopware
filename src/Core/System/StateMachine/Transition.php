@@ -8,10 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 class Transition
 {
     /**
-     * @param list<string> $skipIfInStates Technical names of states this transition must not be executed from, even
-     *                                     when the state machine allows it. They are checked against the state that
-     *                                     is current when the transition actually runs, which is the only point at
-     *                                     which a caller can rule out a state another process reached in the meantime.
+     * @param list<string> $skipIfInStates Technical names of states the transition is skipped from, checked
+     *                                     against the state that is current when the transition runs
      */
     public function __construct(
         private readonly string $entityName,

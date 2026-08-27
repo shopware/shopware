@@ -66,8 +66,7 @@ class PaymentRefundProcessor
             try {
                 $this->stateHandler->fail($refundId, $context);
             } catch (IllegalTransitionException) {
-                // The refund reached a state that cannot be failed, for example because it completed
-                // concurrently. The refund error is the one worth reporting.
+                // The refund can no longer be failed, so the refund error is the one worth reporting.
             }
 
             throw $e;

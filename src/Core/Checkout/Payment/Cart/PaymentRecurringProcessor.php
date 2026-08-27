@@ -23,10 +23,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 class PaymentRecurringProcessor
 {
     /**
-     * States that mean the payment service provider confirmed the payment. Reaching one of them while the handler
-     * was still running makes the handler error obsolete: the provider accepted the payment - captured it, or in
-     * the case of "authorized" committed to it - so the transaction must not be failed behind the provider's back,
-     * and the caller must not be told the renewal failed.
+     * States in which the provider accepted the payment, so the transaction must not be failed.
      */
     private const CONFIRMED_STATES = [
         OrderTransactionStates::STATE_PAID,
@@ -70,8 +67,7 @@ class PaymentRecurringProcessor
             try {
                 $this->stateHandler->fail($transaction->getId(), $context, self::CONFIRMED_STATES);
             } catch (IllegalTransitionException $illegalTransition) {
-                // The transaction left the states that can fail while the handler was running, so there is nothing
-                // to fail. Report the handler error, not the follow-up error about the state machine.
+                // Nothing left to fail, so report the handler error rather than the state machine one.
                 $this->logger->error(
                     'The order transaction could not be failed after the payment error',
                     ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $illegalTransition->getMessage()]
@@ -80,9 +76,7 @@ class PaymentRecurringProcessor
                 throw $e;
             }
 
-            // Asked after the guarded transition on purpose: the guard is what rules out failing a confirmed
-            // transaction, and only once it has run is the state safe to interpret. Checking beforehand would leave
-            // the window this guards against wide open.
+            // Checked after the guarded transition, because only then can the state no longer race.
             if ($this->isConfirmed($transaction->getId(), $context)) {
                 $this->logger->info(
                     'The payment was confirmed while the recurring payment handler was running, the handler error is ignored',

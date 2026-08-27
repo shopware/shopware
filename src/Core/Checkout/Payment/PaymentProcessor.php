@@ -199,9 +199,7 @@ class PaymentProcessor
     }
 
     /**
-     * The transaction can reach a state that cannot be failed while the payment handler is running, for example
-     * when the payment provider confirms it through a webhook. Failing is then neither possible nor wanted, and
-     * the payment error is the one the caller has to act on, so it must not be replaced by this one.
+     * A transaction that can no longer be failed must not replace the payment error the caller has to act on.
      */
     private function failTransaction(string $transactionId, Context $context): void
     {

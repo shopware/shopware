@@ -218,11 +218,6 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
 
-    /**
-     * The payment provider can confirm the payment while the handler is still running and the handler can still
-     * fail afterwards. The money was collected, so the caller must not be told the payment failed - otherwise a
-     * subscription renewal is marked as failed for a payment that actually went through.
-     */
     #[DataProvider('confirmedStateProvider')]
     public function testAPaymentConfirmedWhileTheHandlerRanIsNotReportedAsFailed(string $confirmedState): void
     {
@@ -253,10 +248,6 @@ class PaymentRecurringProcessorTest extends TestCase
         yield 'an authorized payment is confirmed, even though it may legally be failed' => [OrderTransactionStates::STATE_AUTHORIZED];
     }
 
-    /**
-     * When the transaction ended up in a state that can neither be failed nor counts as confirmed, the payment
-     * error is the one worth reporting - not the follow-up error about the impossible state transition.
-     */
     public function testTheHandlerErrorSurvivesAnImpossibleFailTransition(): void
     {
         $stateHandler = $this->createMock(OrderTransactionStateHandler::class);
@@ -326,8 +317,8 @@ class PaymentRecurringProcessorTest extends TestCase
         $searches = [new OrderTransactionCollection($returnEntity ? [$entity] : [])];
 
         if ($stateAfterFailing !== null) {
-            // Once the processor has tried to fail the transaction it reads it back to find out whether a
-            // concurrent confirmation kept it out of the failed state.
+            // The processor reads the transaction back to see whether a concurrent confirmation kept it
+            // out of the failed state.
             $state = new StateMachineStateEntity();
             $state->setId('state-id');
             $state->setTechnicalName($stateAfterFailing);

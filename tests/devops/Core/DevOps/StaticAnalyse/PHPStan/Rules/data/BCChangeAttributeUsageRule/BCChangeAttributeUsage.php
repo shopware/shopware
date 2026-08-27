@@ -364,4 +364,8 @@ class ValidHierarchyChange extends OldHierarchyParent
     public function overriddenWithoutDeprecation(): void
     {
     }
+
+    public function providedByProtectedNewParent(): void
+    {
+    }
 }

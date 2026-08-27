@@ -7,4 +7,8 @@ class NewHierarchyParent
     public function providedByNewParent(): void
     {
     }
+
+    protected function providedByProtectedNewParent(): void
+    {
+    }
 }

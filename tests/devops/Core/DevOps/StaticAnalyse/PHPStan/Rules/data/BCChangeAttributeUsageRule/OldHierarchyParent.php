@@ -28,6 +28,10 @@ class OldHierarchyParent extends HierarchyRoot
     {
     }
 
+    public function providedByProtectedNewParent(): void
+    {
+    }
+
     public function providedByTrait(): void
     {
     }

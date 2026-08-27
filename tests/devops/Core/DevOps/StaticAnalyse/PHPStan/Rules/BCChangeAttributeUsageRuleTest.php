@@ -149,6 +149,10 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 334,
             ],
             [
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "providedByProtectedNewParent()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                305,
+            ],
+            [
                 'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "providedByTrait()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
                 334,
             ],

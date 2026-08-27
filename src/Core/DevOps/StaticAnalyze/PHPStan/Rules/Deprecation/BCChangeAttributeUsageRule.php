@@ -280,7 +280,7 @@ class BCChangeAttributeUsageRule implements Rule
         $newParentMethods = [];
         if (\is_string($newParentClass) && $this->reflectionProvider->hasClass($newParentClass)) {
             foreach ($this->reflectionProvider->getClass($newParentClass)->getNativeReflection()->getMethods() as $method) {
-                if ($method->isPrivate()) {
+                if (!$method->isPublic()) {
                     continue;
                 }
 

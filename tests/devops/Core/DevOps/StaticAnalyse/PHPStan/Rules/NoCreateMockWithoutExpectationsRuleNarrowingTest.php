@@ -23,7 +23,7 @@ class NoCreateMockWithoutExpectationsRuleNarrowingTest extends RuleTestCase
     public function testEnabledNamespacesSilenceTheOtherTrees(): void
     {
         // the fixtures live under Shopware\Tests\Unit\Core; narrowing enforcement to a commercial
-        // namespace must silence them even though they stay inside the supported boundary
+        // namespace must silence them
         $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/Cases.php'], []);
     }
 

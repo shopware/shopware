@@ -74,25 +74,14 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     ];
 
     /**
-     * Hard boundary: the rule never fires outside these trees, so third-party plugins reusing the
-     * core PHPStan config do not inherit enforcement. Consumers narrow further via $enabledNamespaces.
-     *
-     * @var list<string>
-     */
-    private const SUPPORTED_NAMESPACES = [
-        'Shopware\\Tests\\Unit\\',
-        'Shopware\\Commercial\\Tests\\Unit\\',
-    ];
-
-    /**
      * @var list<string>
      */
     private readonly array $unitTestClassNamespaces;
 
     /**
-     * Narrows enforcement to matching test namespaces; an empty list enforces every unit test class
-     * inside SUPPORTED_NAMESPACES. Consumers rolling the rule out domain by domain grow this list via
-     * the `shopware.createMockWithoutExpectationsEnabledNamespaces` parameter of their PHPStan config.
+     * Narrows enforcement to matching test namespaces; an empty list enforces every unit test class.
+     * Consumers rolling the rule out domain by domain grow this list via the
+     * `shopware.createMockWithoutExpectationsEnabledNamespaces` parameter of their PHPStan config.
      *
      * @var list<string>
      */
@@ -1309,10 +1298,6 @@ class NoCreateMockWithoutExpectationsRule implements Rule
 
     private function isEnabledNamespace(string $className): bool
     {
-        if (!self::matchesAny($className, self::SUPPORTED_NAMESPACES)) {
-            return false;
-        }
-
         return $this->enabledNamespaces === [] || self::matchesAny($className, $this->enabledNamespaces);
     }
 

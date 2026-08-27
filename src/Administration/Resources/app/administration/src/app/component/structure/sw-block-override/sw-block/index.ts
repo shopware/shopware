@@ -16,6 +16,7 @@ import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-in
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
 import { createShimSlot } from '../shim/create-shim-slot';
+import reduceToSingleRoot from '../reduce-to-single-root';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
 
 /**
@@ -175,6 +176,6 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
     render() {
-        return this.template;
+        return reduceToSingleRoot(this.template);
     },
 });

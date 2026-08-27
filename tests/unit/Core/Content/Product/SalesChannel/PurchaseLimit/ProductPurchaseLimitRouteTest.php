@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -65,6 +66,9 @@ class ProductPurchaseLimitRouteTest extends TestCase
             'stock' => 3,
         ]);
 
+        $productA->internalSetEntityData('product', new FieldVisibility([]));
+        $productB->internalSetEntityData('product', new FieldVisibility([]));
+
         $this->productRepository->method('search')->willReturn(
             new EntitySearchResult('product', 2, new EntityCollection([$productA, $productB]), null, new Criteria(), $context->getContext())
         );
@@ -102,6 +106,8 @@ class ProductPurchaseLimitRouteTest extends TestCase
         $product = (new PartialEntity())->assign([
             'id' => $productId,
         ]);
+
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $this->productRepository->method('search')->willReturn(
             new EntitySearchResult('product', 1, new EntityCollection([$product]), null, new Criteria(), $context->getContext())

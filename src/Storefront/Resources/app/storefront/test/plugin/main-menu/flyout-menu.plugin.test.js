@@ -4,7 +4,7 @@ import Feature from 'src/helper/feature.helper';
 const html = `<div class="main-navigation" id="mainNavigation" data-flyout-menu="true">
             <div class="container">
             <nav class="nav main-navigation-menu" itemscope="itemscope" itemtype="https://schema.org/SiteNavigationElement">
-                <a class="nav-link main-navigation-link home-link" href="/" itemprop="url" title="Home">
+                <a class="nav-link main-navigation-link home-link nav-item-1-link" href="/" itemprop="url" title="Home">
                     <div class="main-navigation-link-text">
                         <span itemprop="name">Home</span>
                     </div>
@@ -217,5 +217,24 @@ describe('FlyoutMenu tests', () => {
         jest.runAllTimers();
         expect(plugin._hasOpenedFlyouts).toBe(false);
         expect(plugin._flyoutEls[0].style.top).toBe('');
+    });
+
+    test('_setAriaCurrentPage should be called during initialization', () => {
+        jest.spyOn(plugin, '_setAriaCurrentPage');
+
+        plugin.init();
+
+        expect(plugin._setAriaCurrentPage).toHaveBeenCalled();
+    });
+
+    test('if aria-current is set for one nav-item', () => {
+        window.activeNavigationId = 1; // Set the activeNavigationId
+
+        plugin._setAriaCurrentPage();
+
+        const activeElement = document.querySelector(`.nav-item-${window.activeNavigationId}-link`);
+
+        expect(activeElement).not.toBeNull();
+        expect(activeElement.getAttribute('aria-current')).toBe('page');
     });
 });

@@ -48,6 +48,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -235,6 +236,10 @@ class GenerateDocumentActionTest extends TestCase
     private function createDocumentV2Generator(EntityRepository $orderRepository, string $documentTypeId): array
     {
         $document = new DocumentEntity();
+        // The generated event reads these off the persisted document, which the DAL always hydrates.
+        $document->setId(Uuid::randomHex());
+        $document->setOrderId(Uuid::randomHex());
+        $document->setOrderVersionId(Uuid::randomHex());
 
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
@@ -282,6 +287,7 @@ class GenerateDocumentActionTest extends TestCase
                 $documentTypeRepository,
                 $mediaService,
                 static::createStub(FileNameProvider::class),
+                static::createStub(EventDispatcherInterface::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(

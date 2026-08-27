@@ -47,6 +47,7 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencingDocumentDataProvider;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -536,6 +537,8 @@ class DocumentGeneratorTest extends TestCase
             ) use ($document): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 $document->setId($repository->creates[0][0]['id']);
+                $document->setOrderId($repository->creates[0][0]['orderId']);
+                $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
 
                 return new DocumentCollection([$document]);
             },
@@ -584,6 +587,7 @@ class DocumentGeneratorTest extends TestCase
                 $documentTypeRepository,
                 $mediaService,
                 $fileNameProvider,
+                static::createStub(EventDispatcherInterface::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),

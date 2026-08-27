@@ -186,6 +186,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(ClockInterface::class),
             service(DocumentFileResolver::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(DocumentMerger::class)
@@ -306,6 +307,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service('media.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber');
 

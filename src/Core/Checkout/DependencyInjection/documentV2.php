@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
-use Shopware\Core\Checkout\DocumentV2\Compatibility\LegacyDocumentEventBridge;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
@@ -235,12 +234,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ]);
 
-    // @deprecated tag:v6.9.0 - Remove together with document generation v1
-    $services->set(LegacyDocumentEventBridge::class)
-        ->args([
-            service('event_dispatcher'),
-        ]);
-
     $services->set(DocumentGenerator::class)
         ->public()
         ->args([
@@ -251,7 +244,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentDependencyResolver::class),
             service(ReferencedDocumentResolver::class),
             service('order.repository'),
-            service(LegacyDocumentEventBridge::class),
         ]);
 
     $services->set(DocumentGenerationRequestResolver::class)

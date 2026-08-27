@@ -232,6 +232,11 @@ The landing page copy moved to the new snippets `sw-extension-store.landing-page
 - `sw-extension-store.landing-page.activationDescriptionTitleDescription`
 
 The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.sw-extension-store-landing-page__wrapper` no longer carries a background, border or fixed width, and `__wrapper-content` / `__wrapper-activated` no longer carry styles.
+### Extension empty states use `mt-empty-state`
+
+The empty states of Extensions > My extensions and the Shopware Store activation page render `mt-empty-state`. The Twig blocks and snippet keys are unchanged, but overrides that build on the previous markup need to adapt: the listing empty state is no longer a `sw-meteor-card`, and on the activation page the "Now available" badge (`.sw-extension-store-landing-page__wrapper-label`) and the `sw-label` of the success and error states no longer exist.
+
+The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
 

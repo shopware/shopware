@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -40,10 +41,13 @@ import {
     MtSkeletonBar,
     MtSwitch,
     MtTabs,
+    MtText,
     MtTextField,
     MtTextarea,
+    MtThemeSelect,
     MtToast,
     MtTextEditor,
+    MtTooltip,
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
@@ -238,6 +242,12 @@ config.global.mocks = {
         removeResizeListener: jest.fn(),
         getSystemKey: jest.fn(() => 'CTRL'),
         getViewportWidth: jest.fn(() => 1920),
+        getMediaQuery: jest.fn((query) => ({
+            matches: false,
+            media: query,
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+        })),
     },
     $router: {
         replace: jest.fn(),
@@ -304,10 +314,13 @@ config.global.stubs = {
     'mt-skeleton-bar': MtSkeletonBar,
     'mt-switch': MtSwitch,
     'mt-tabs': MtTabs,
+    'mt-text': MtText,
     'mt-text-field': MtTextField,
     'mt-textarea': MtTextarea,
+    'mt-theme-select': MtThemeSelect,
     'mt-toast': MtToast,
     'mt-text-editor': MtTextEditor,
+    'mt-tooltip': MtTooltip,
     ...config.global.stubs,
 };
 
@@ -330,10 +343,22 @@ const i18n = createI18n({
     },
 });
 
+// Mirrors the $dataScope global property of vue.adapter.ts, so native setup SFCs with
+// <sw-block> templates can render in tests.
+const BlockDataScopePlugin = {
+    install(app) {
+        Object.defineProperty(app.config.globalProperties, '$dataScope', {
+            get: getBlockDataScope,
+            enumerable: true,
+        });
+    },
+};
+
 // Add global plugins
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    BlockDataScopePlugin,
     i18n,
 ];
 

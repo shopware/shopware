@@ -11,6 +11,9 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductExportEntity extends Entity
 {

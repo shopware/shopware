@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -68,13 +69,14 @@ class UserDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return [
+            'admin' => false,
             'timeZone' => 'UTC',
         ];
     }
 
     protected function defineProtections(): EntityProtectionCollection
     {
-        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE)]);
+        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection
@@ -89,7 +91,9 @@ class UserDefinition extends EntityDefinition
             (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Title of the user.'),
             (new EmailField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Email of the user.'),
             (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the user is enabled.'),
-            (new BoolField('admin', 'admin'))->setDescription('Parameter that indicates if the user is an admin.'),
+            // The regular Admin API CRUD endpoint authorizes elevated admin changes in the controller; direct DAL writes remain write-protected.
+            // @see \Shopware\Core\Framework\Api\Controller\UserController
+            (new BoolField('admin', 'admin'))->addFlags((new WriteProtected(Context::SYSTEM_SCOPE))->allowWriteThroughAdminApi())->setDescription('Parameter that indicates if the user is an admin.'),
             (new JsonField('mcp_allowlist', 'mcpAllowlist'))->setDescription(
                 'Optional per-type MCP allowlist for this user. Structured as {tools, resources, prompts} '
                 . 'where each key is null (unrestricted) or a list of allowed names/URIs.'

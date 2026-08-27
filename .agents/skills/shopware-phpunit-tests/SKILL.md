@@ -58,8 +58,8 @@ Tests should read like executable examples.
 ## Meta-information of test classes
 
 - Give every test class a `#[Package('…')]` attribute (import `Shopware\Core\Framework\Log\Package`) so failing CI jobs — especially the nightlies — can be routed to the owning domain team. A Danger rule fails PRs that add test classes without it.
-- In unit and migration tests, copy the value from the `#[CoversClass]` target's `#[Package]`.
-- Integration tests carry no `#[CoversClass]`; use the dominant `#[Package]` value of the `src/` directory the test path mirrors (e.g. `tests/integration/Core/Checkout/Cart/…` → `src/Core/Checkout/Cart`).
+- In unit and migration tests, copy the value from the `#[CoversClass]` target's `#[Package]`. A PHPStan rule (`TestPackageMatchRule`) fails on mismatches; `fundamentals@<area>` counts as equal to `<area>`.
+- Integration tests carry no `#[CoversClass]`; use a `#[Package]` value that occurs in the `src/` directory the test path mirrors (e.g. `tests/integration/Core/Checkout/Cart/…` → `src/Core/Checkout/Cart`). The same PHPStan rule fails when the value matches none of the packages found there.
 - When a change moves the covered class to another package, update the test's attribute in the same change so the two stay in sync.
 - Every test class needs to be marked as internal with `@internal` PHPDoc class annotation.
 

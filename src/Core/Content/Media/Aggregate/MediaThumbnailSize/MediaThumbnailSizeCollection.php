@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MediaThumbnailSizeEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class MediaThumbnailSizeCollection extends EntityCollection

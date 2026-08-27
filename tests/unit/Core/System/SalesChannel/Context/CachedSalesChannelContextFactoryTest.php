@@ -6,11 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Generator;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 /**
  * @internal
@@ -30,10 +31,10 @@ class CachedSalesChannelContextFactoryTest extends TestCase
             ->with('token', 'sales-channel-id', $options)
             ->willReturn($context);
 
-        $cache = $this->createMock(CacheInterface::class);
-        $cache->expects($this->never())->method('get');
-
-        $factory = new CachedSalesChannelContextFactory($inner, $cache);
+        $factory = new CachedSalesChannelContextFactory(
+            $inner,
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+        );
 
         static::assertSame($context, $factory->create('token', 'sales-channel-id', $options));
     }
@@ -49,14 +50,7 @@ class CachedSalesChannelContextFactoryTest extends TestCase
             ->with('token', 'sales-channel-id', $options)
             ->willReturn($context);
 
-        $storedValue = null;
-        $cache = $this->createMock(CacheInterface::class);
-        $cache->expects($this->exactly(2))
-            ->method('get')
-            ->willReturnCallback(static function (string $key, callable $callback) use (&$storedValue) {
-                // the second call replays the stored payload like a warm cache pool would
-                return $storedValue ??= $callback(static::createStub(ItemInterface::class));
-            });
+        $cache = new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter()));
 
         $factory = new CachedSalesChannelContextFactory($inner, $cache);
 
@@ -69,5 +63,30 @@ class CachedSalesChannelContextFactoryTest extends TestCase
         static::assertNotSame($context, $second, 'a cache hit is unserialized into a fresh instance');
         static::assertSame('other-token', $second->getToken());
         static::assertSame($context->getSalesChannelId(), $second->getSalesChannelId());
+    }
+
+    public function testDoesNotCacheContextWhenTheMarkerWasInvalidatedDuringCreation(): void
+    {
+        $firstContext = Generator::generateSalesChannelContext();
+        $secondContext = Generator::generateSalesChannelContext();
+        $cache = new TagAwareAdapter(new ArrayAdapter());
+        $calls = 0;
+        $inner = $this->createMock(SalesChannelContextFactory::class);
+        $inner->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnCallback(function () use ($firstContext, $secondContext, $cache, &$calls) {
+                if ($calls++ === 0) {
+                    $cache->invalidateTags([CachedSalesChannelContextFactory::ALL_TAG]);
+
+                    return $firstContext;
+                }
+
+                return $secondContext;
+            });
+
+        $factory = new CachedSalesChannelContextFactory($inner, new InvalidationRaceAwareCache($cache));
+
+        static::assertSame($firstContext, $factory->create('token', 'sales-channel-id'));
+        static::assertSame($secondContext, $factory->create('another-token', 'sales-channel-id'));
     }
 }

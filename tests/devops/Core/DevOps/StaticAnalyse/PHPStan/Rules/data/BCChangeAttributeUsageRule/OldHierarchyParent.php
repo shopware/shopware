@@ -31,4 +31,8 @@ class OldHierarchyParent extends HierarchyRoot
     public function providedByTrait(): void
     {
     }
+
+    protected function protectedMethod(): void
+    {
+    }
 }

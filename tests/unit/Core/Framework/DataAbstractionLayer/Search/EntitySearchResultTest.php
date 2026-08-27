@@ -98,16 +98,6 @@ class EntitySearchResultTest extends TestCase
         static::assertSame([$existingEntity, $additionalEntity], array_values($entitySearchResult->getEntities()->getElements()));
     }
 
-    public function testRetainedCollectionMethodsAreDeprecated(): void
-    {
-        foreach (['getExpectedClass', 'validateType'] as $methodName) {
-            $method = new \ReflectionMethod(EntitySearchResult::class, $methodName);
-
-            static::assertSame(EntitySearchResult::class, $method->getDeclaringClass()->getName());
-            static::assertStringContainsString(\sprintf('@%s', 'deprecated tag:v6.8.0'), (string) $method->getDocComment());
-        }
-    }
-
     public static function resultPageCriteriaDataProvider(): \Generator
     {
         // Criteria, Page

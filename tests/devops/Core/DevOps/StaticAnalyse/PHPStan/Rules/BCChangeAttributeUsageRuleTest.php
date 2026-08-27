@@ -141,15 +141,15 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
                 318,
             ],
             [
-                'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "inheritedMethod()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "inheritedMethod()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
                 334,
             ],
             [
-                'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "ancestorMethod()" from "HierarchyRoot" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "ancestorMethod()" from "HierarchyRoot" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
                 334,
             ],
             [
-                'ClassHierarchyChange on "InvalidHierarchyChange": inherited method "providedByTrait()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "providedByTrait()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
                 334,
             ],
         ]);

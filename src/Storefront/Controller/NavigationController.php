@@ -7,8 +7,6 @@ use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
-use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
-use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,7 +45,6 @@ class NavigationController extends StorefrontController
         private readonly FooterPageletLoaderInterface $footerLoader,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
-        private readonly AbstractContentRoute $contentRoute,
     ) {
     }
 
@@ -234,22 +231,5 @@ class NavigationController extends StorefrontController
         $path = '/category/' . $categoryId;
 
         return $this->loadContentPage($path, $request, $context);
-    }
-
-    private function loadContentPage(string $path, Request $request, SalesChannelContext $context): ?ContentPage
-    {
-        try {
-            $contentPageResponse = $this->contentRoute->load($path, $request, $context);
-
-            if (!$contentPageResponse instanceof ContentRouteResponse) {
-                return null;
-            }
-
-            $contentPage = $contentPageResponse->getContentPage();
-        } catch (\Exception) {
-            $contentPage = null;
-        }
-
-        return $contentPage;
     }
 }

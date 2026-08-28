@@ -1,0 +1,77 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    videoId = null,
+    videoTitle = null,
+    previewMedia = null,
+    autoplay = false,
+    loop = false,
+    showControls = true,
+    advancedPrivacyMode = false,
+    needsConfirmation = false,
+    start = null,
+    end = null,
+%}
+
+{# Accept a bare video id or a full YouTube URL (watch, youtu.be, embed, shorts) and normalize to the id #}
+{% set resolvedVideoId = videoId %}
+{% if resolvedVideoId is not empty %}
+    {% if 'youtu.be/' in resolvedVideoId %}
+        {% set resolvedVideoId = resolvedVideoId|split('youtu.be/')|last %}
+    {% elseif 'v=' in resolvedVideoId %}
+        {% set resolvedVideoId = resolvedVideoId|split('v=')|last %}
+    {% elseif '/embed/' in resolvedVideoId %}
+        {% set resolvedVideoId = resolvedVideoId|split('/embed/')|last %}
+    {% elseif '/shorts/' in resolvedVideoId %}
+        {% set resolvedVideoId = resolvedVideoId|split('/shorts/')|last %}
+    {% endif %}
+    {# strip any trailing query string, fragment or extra path segment #}
+    {% set resolvedVideoId = resolvedVideoId|split('?')|first|split('&')|first|split('#')|first|split('/')|first %}
+{% endif %}
+
+{% set host = advancedPrivacyMode ? 'https://www.youtube-nocookie.com/embed/' : 'https://www.youtube.com/embed/' %}
+{% set locale = app.request.locale|split('-')|first|default('en') %}
+
+{# initialize with default values #}
+{% set queryParams = {
+    rel: '0',
+    cc_load_policy: '1',
+    cc_lang_pref: locale,
+    hl: locale,
+    disablekb: '1',
+} %}
+
+{% if autoplay %}
+    {% set queryParams = queryParams|merge({ autoplay: '1', mute: '1' }) %}
+{% endif %}
+
+{% if loop %}
+    {% set queryParams = queryParams|merge({ loop: '1', playlist: resolvedVideoId }) %}
+{% endif %}
+
+{% if not showControls %}
+    {% set queryParams = queryParams|merge({ controls: '0' }) %}
+{% endif %}
+
+{% if start > 0 %}
+    {% set queryParams = queryParams|merge({ start: start }) %}
+{% endif %}
+
+{% if end > 0 %}
+    {% set queryParams = queryParams|merge({ end: end }) %}
+{% endif %}
+
+{% set videoUrl = resolvedVideoId is not empty ? host ~ resolvedVideoId ~ '?' ~ (queryParams|url_encode) : null %}
+
+<twig:Sw:Media:EmbedVideo
+    {{ ...attributes }}
+    :videoUrl="videoUrl"
+    :videoTitle="videoTitle"
+    :previewMedia="previewMedia"
+    :needsConfirmation="needsConfirmation"
+    cookieName="youtube-video"
+    platform="YouTube"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+></twig:Sw:Media:EmbedVideo>

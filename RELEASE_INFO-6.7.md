@@ -17,6 +17,25 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### `JsonField::addPropertyMapping()` for entity extensions
+
+`Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.
+
+```php
+public function modifyFields(FieldCollection $collection): void
+{
+    $hitCount = $collection->get('hitCount');
+    if (!$hitCount instanceof JsonField) {
+        return;
+    }
+
+    $hitCount->addPropertyMapping(new JsonField('landing_page', 'landing_page', [
+        new IntField('maxSuggestCount', 'maxSuggestCount'),
+        new IntField('maxSearchCount', 'maxSearchCount'),
+    ]));
+}
+```
+
 ### App payment method translations are preserved
 
 Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.

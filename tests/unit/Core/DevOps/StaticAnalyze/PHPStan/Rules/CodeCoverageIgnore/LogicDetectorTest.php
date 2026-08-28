@@ -59,6 +59,36 @@ class LogicDetectorTest extends TestCase
         yield 'try catch' => ['try {} catch (\Throwable $e) {}', true];
         yield 'ternary' => ['return $x ? "a" : "b";', true];
         yield 'nested logic inside method-call argument' => ['call_user_func(fn () => $x ? 1 : 2);', true];
+
+        yield 'single local write then return' => ['$values = $this->load(); return $values;', false];
+        yield 'two different locals written once each' => ['$a = 1; $b = $a; return $b;', false];
+        yield 'local built from a literal in one write' => ['$config = ["a" => 1, "b" => 2]; return json_encode($config);', false];
+        yield 'destructuring into fresh locals' => ['[$a, $b] = $this->pair(); return $a . $b;', false];
+        yield 'write inside a closure does not count against the outer local' => ['$x = 1; $fn = static function () { $x = 2; return $x; }; return $fn();', false];
+        yield 'write inside an arrow function does not count against the outer local' => ['$x = 1; $fn = static fn () => $x = 2; return $fn();', false];
+
+        yield 'unset on a local offset' => ['$data = $this->load(); unset($data["extensions"]); return $data;', true];
+        yield 'unset on a property offset' => ['unset($this->payload[$key]);', true];
+        yield 'compound array union' => ['$values = $this->attributes(); $values += $this->children(); return $values;', true];
+        yield 'compound string concat' => ['$sql .= " AND deleted = 0";', true];
+        yield 'compound arithmetic on a property' => ['$this->count += 1;', true];
+        yield 'null-coalescing assignment' => ['$token ??= $this->generate();', true];
+        yield 'increment' => ['$this->position++;', true];
+        yield 'local reassigned as a whole' => ['$values = $this->load(); $values = array_merge($values, $this->more()); return $values;', true];
+        yield 'local written then extended through an offset' => ['$data = []; $data["x"] = $this->x; return $data;', true];
+        yield 'local written then extended through a property' => ['$dto = new \stdClass(); $dto->x = 1; return $dto;', true];
+        yield 'parameter reassigned' => ['$name = trim($name); return $name;', true];
+        yield 'destructuring over an existing local' => ['$a = 1; [$a, $b] = $this->pair(); return $a . $b;', true];
+
+        yield 'discarded call on $this is the class acting for effect' => ['$this->checkIfPropertyAccessIsAllowed("password"); return $this->password;', true];
+        yield 'discarded nullsafe call on $this' => ['$this?->refresh();', true];
+        yield 'discarded self:: call' => ['self::validate($name);', true];
+        yield 'discarded static:: call' => ['static::boot();', true];
+        yield 'discarded call on a collaborator is delegation' => ['$this->dep->call();', false];
+        yield 'discarded parent:: call chains to the parent' => ['parent::boot();', false];
+        yield 'discarded call on another class' => ['\\Shopware\\Core\\Framework\\Feature::triggerDeprecationOrThrow("v6.8.0.0", "msg");', false];
+        yield 'own call whose result is returned is a delegating getter' => ['return $this->compute();', false];
+        yield 'own call whose result is assigned once' => ['$value = $this->compute(); return $value;', false];
     }
 
     #[TestDox('in a Throwable context, methodContainsLogic($_dataName)')]
@@ -86,12 +116,15 @@ class LogicDetectorTest extends TestCase
         yield 'try catch is still logic' => ['try {} catch (\Throwable $e) {}', true];
         yield 'match is still logic' => ['return match ($x) { 1 => "a", default => "b" };', true];
         yield 'multi-statement throw is still logic' => ['$x = 1; throw new \RuntimeException("");', true];
+        yield 'compound assignment is still logic' => ['$m = "a"; $m .= "b"; return new \RuntimeException($m);', true];
+        yield 'unset is still logic' => ['unset($params["secret"]); return new \RuntimeException("");', true];
+        yield 'discarded own call is still logic' => ['$this->log(); return new \RuntimeException("");', true];
     }
 
     private function parseMethod(string $body): ClassMethod
     {
         $parser = (new ParserFactory())->createForHostVersion();
-        $stmts = $parser->parse("<?php class T { public function m() { {$body} } }");
+        $stmts = $parser->parse("<?php class T { public function m(string \$name = '', string \$key = '') { {$body} } }");
         static::assertNotNull($stmts);
 
         $method = (new NodeFinder())->findFirstInstanceOf($stmts, ClassMethod::class);

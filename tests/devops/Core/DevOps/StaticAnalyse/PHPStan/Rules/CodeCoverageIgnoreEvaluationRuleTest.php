@@ -119,6 +119,11 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             [],
         ];
 
+        yield '@see pointing to existing devops test exempts the class' => [
+            ['SeeDevOpsTestClass.php'],
+            [],
+        ];
+
         yield '@see short-form resolved via use statement also exempts' => [
             ['SeeShortFormIntegrationTestClass.php'],
             [],
@@ -188,6 +193,49 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
         yield 'static configuration construction with json_encode and self:: dispatch is not logic' => [
             ['ConfigConstructionClass.php'],
             [],
+        ];
+
+        yield 'single write to a local and destructuring into fresh locals are not logic' => [
+            ['SingleLocalWriteClass.php'],
+            [],
+        ];
+
+        yield 'unset on a value fails' => [
+            ['UnsetMutationClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'UnsetMutationClass is annotated @codeCoverageIgnore but method strip() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                15,
+            ]],
+        ];
+
+        yield 'compound assignment fails' => [
+            ['CompoundAssignClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'CompoundAssignClass is annotated @codeCoverageIgnore but method merge() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                16,
+            ]],
+        ];
+
+        yield 'getter running an access guard on $this fails' => [
+            ['GuardedGetterClass.php'],
+            [
+                [
+                    'Class ' . self::FQCN_PREFIX . 'GuardedGetterClass is annotated @codeCoverageIgnore but method getPassword() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                    12,
+                ],
+                [
+                    'Class ' . self::FQCN_PREFIX . 'GuardedGetterClass is annotated @codeCoverageIgnore but method checkIfPropertyAccessIsAllowed() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                    19,
+                ],
+            ],
+        ];
+
+        yield 'second write to a local fails' => [
+            ['LocalReassignClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'LocalReassignClass is annotated @codeCoverageIgnore but method build() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                13,
+            ]],
         ];
     }
 

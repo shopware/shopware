@@ -57,6 +57,8 @@ final readonly class DocumentResolver
      * v1 config shape: the latest document per configured type, union with whatever the caller
      * already resolved. Formats were not configurable, so every generated format applies.
      *
+     * @deprecated tag:v6.9.0 - Remove this method, the v1 config shape is deprecated and will be removed in v6.9.0
+     *
      * @param array<string> $documentTypeIds
      * @param array<string> $preResolvedIds
      *

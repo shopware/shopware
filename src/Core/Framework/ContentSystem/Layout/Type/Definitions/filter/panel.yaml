@@ -13,18 +13,18 @@ meta:
       - "Use additional filter slots to extend built-in filters."
 
 properties:
-  filterAggregations:
-    type: Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection
+  productListing:
+    type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
     required: true
-    title: "Filter Aggregations"
-    description: "Hydrated listing aggregations the filters are built from."
+    title: "Product Listing"
+    description: "Hydrated listing result. The panel reads its aggregations to build the filters."
     resolvedBy:
-      product_listing_aggregations: {}
+      product_listing: {}
 
   navigationId:
     type: string
     title: "Navigation ID"
-    description: "Category id the product_listing loader loads the aggregations from. Resolved per request from the layout's category root, so it needs no editorial input."
+    description: "Category id the product_listing loader loads from. Resolved per request from the layout's category root, so it needs no editorial input."
     default: "{{categoryId}}"
     adminUI:
       helpText: "Filled automatically from the page you are on, so leave this as it is."

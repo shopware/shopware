@@ -65,10 +65,7 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfigSerializer;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingAggregationsDataLoader;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingAggregationsLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingElementLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingLoaderConfigSerializer;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfigSerializer;
@@ -878,28 +875,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.entity.definition');
 
-    $services->set(ProductListingElementLoader::class)
-        ->args([
-            service(ProductListingRoute::class),
-            service('product_sorting.repository'),
-        ]);
-
     $services->set(ProductListingDataLoader::class)
         ->args([
-            service(ProductListingElementLoader::class),
+            service(ProductListingRoute::class),
         ])
         ->tag('content_system.data_loader');
 
     $services->set(ProductListingLoaderConfigSerializer::class)
-        ->tag('content_system.config_serializer');
-
-    $services->set(ProductListingAggregationsDataLoader::class)
-        ->args([
-            service(ProductListingElementLoader::class),
-        ])
-        ->tag('content_system.data_loader');
-
-    $services->set(ProductListingAggregationsLoaderConfigSerializer::class)
         ->tag('content_system.config_serializer');
 
     $services->set(CrossSellingDataLoader::class)

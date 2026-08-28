@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
@@ -10,9 +11,12 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+
+use function Symfony\Component\String\u;
 
 /**
  * @internal
@@ -26,8 +30,9 @@ class ProductListingDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'product_listing';
 
-    public function __construct(private readonly ProductListingElementLoader $listingLoader)
-    {
+    public function __construct(
+        private readonly AbstractProductListingRoute $listingRoute
+    ) {
     }
 
     public static function getRequirementType(): string
@@ -40,7 +45,6 @@ class ProductListingDataLoader extends AbstractContentDataLoader
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: null),
             new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
-            new ConfigKeySpecification('aggregations', ConfigKeyKind::Literal, 'boolean', required: false, hasDefault: true, default: true),
         ]);
     }
 
@@ -56,21 +60,44 @@ class ProductListingDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        $result = $this->listingLoader->load(
-            $element,
-            $context,
-            $request,
-            $config->property,
-            $config->associations,
-            // An element that renders no filters would otherwise pay for every aggregation on the page.
-            $config->aggregations ? [] : ['no-aggregations' => true]
-        );
+        $propertyName = $config->property ?? 'navigationId';
+        $navigationId = $element->getProperty($propertyName);
 
-        if ($result === null) {
+        if (!\is_string($navigationId)) {
             return ContentDataLoaderResult::notFound();
         }
 
+        $navigationId = u($navigationId)->lower()->toString();
+
+        $criteria = $this->buildCriteria($element, $config);
+
+        $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
+        $result = $response->getResult();
+
         // ProductListingRoute internally adds cache tags via CacheTagCollector
         return ContentDataLoaderResult::cachedExternally($result);
+    }
+
+    /**
+     * Element properties can override requirement config associations.
+     */
+    private function buildCriteria(ContentElement $element, ProductListingLoaderConfig $config): Criteria
+    {
+        $criteria = new Criteria();
+
+        foreach ($config->associations as $association) {
+            $criteria->addAssociation($association);
+        }
+
+        $elementAssociations = $element->getProperty('associations');
+        if (\is_array($elementAssociations)) {
+            foreach ($elementAssociations as $association) {
+                if (\is_string($association)) {
+                    $criteria->addAssociation($association);
+                }
+            }
+        }
+
+        return $criteria;
     }
 }

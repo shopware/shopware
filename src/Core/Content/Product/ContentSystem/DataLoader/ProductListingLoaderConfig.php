@@ -8,8 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @phpstan-type ProductListingLoaderConfigData array{
  *   property?: non-empty-string,
- *   associations?: list<non-empty-string>,
- *   aggregations?: bool
+ *   associations?: list<non-empty-string>
  * }
  *
  * @internal
@@ -20,12 +19,10 @@ final readonly class ProductListingLoaderConfig extends AbstractContentDataLoade
     /**
      * @param non-empty-string|null $property Element property name to read navigation ID from
      * @param list<non-empty-string> $associations
-     * @param bool $aggregations Whether the element renders filters and therefore needs the aggregations
      */
     public function __construct(
         public ?string $property = null,
-        public array $associations = [],
-        public bool $aggregations = true
+        public array $associations = []
     ) {
     }
 
@@ -42,10 +39,6 @@ final readonly class ProductListingLoaderConfig extends AbstractContentDataLoade
 
         if ($this->associations !== []) {
             $data['associations'] = $this->associations;
-        }
-
-        if ($this->aggregations === false) {
-            $data['aggregations'] = false;
         }
 
         return $data;

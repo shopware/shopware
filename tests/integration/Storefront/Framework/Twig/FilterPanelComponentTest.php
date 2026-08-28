@@ -5,6 +5,10 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -12,9 +16,12 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,7 +39,7 @@ class FilterPanelComponentTest extends TestCase
      * The canonicity test only validates bindings that exist, so dropping `resolvedBy` would pass it while
      * leaving the element unwired.
      */
-    public function testElementTypeBindsTheAggregationsLoader(): void
+    public function testElementTypeBindsTheListingLoader(): void
     {
         $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
         static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
@@ -41,9 +48,9 @@ class FilterPanelComponentTest extends TestCase
         static::assertInstanceOf(BindingSpecification::class, $specification);
         static::assertSame('Sw:Filter:Panel', $specification->type());
 
-        $binding = $specification->resolves()['filterAggregations'] ?? null;
+        $binding = $specification->resolves()['productListing'] ?? null;
         static::assertInstanceOf(LoaderBinding::class, $binding);
-        static::assertSame('product_listing_aggregations', $binding->loader);
+        static::assertSame('product_listing', $binding->loader);
 
         // The loader reads `navigationId` by default. Naming that key in the binding would be read as
         // a resolvedBy storage key and rejected for colliding with the declared property of the same
@@ -76,8 +83,8 @@ class FilterPanelComponentTest extends TestCase
     {
         $aggregations = $this->manufacturerAggregation('Shopware AG');
 
-        $inline = $this->render(['filterAggregations' => $aggregations, 'displayType' => 'inline']);
-        $stacked = $this->render(['filterAggregations' => $aggregations, 'displayType' => 'stacked']);
+        $inline = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'inline']);
+        $stacked = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'stacked']);
 
         static::assertStringContainsString('is--dropdown', $inline);
         static::assertStringContainsString('data-bs-toggle="dropdown"', $inline);
@@ -90,7 +97,7 @@ class FilterPanelComponentTest extends TestCase
 
     public function testRendersFiltersFromTheAggregations(): void
     {
-        $html = $this->render(['filterAggregations' => $this->manufacturerAggregation('Shopware AG')]);
+        $html = $this->render(['productListing' => $this->listing($this->manufacturerAggregation('Shopware AG'))]);
 
         static::assertStringContainsString('data-component="Sw:Filter:Panel"', $html);
         static::assertStringContainsString('Shopware AG', $html);
@@ -102,7 +109,7 @@ class FilterPanelComponentTest extends TestCase
      */
     public function testRendersTheActiveFiltersSummary(): void
     {
-        $html = $this->render(['filterAggregations' => $this->manufacturerAggregation('Shopware AG')]);
+        $html = $this->render(['productListing' => $this->listing($this->manufacturerAggregation('Shopware AG'))]);
 
         static::assertStringContainsString('data-component="Sw:Filter:ActiveFilters"', $html);
     }
@@ -114,7 +121,7 @@ class FilterPanelComponentTest extends TestCase
      */
     public function testRendersTheSummaryInsideItsSingleRootElement(): void
     {
-        $html = $this->render(['filterAggregations' => $this->manufacturerAggregation('Shopware AG')]);
+        $html = $this->render(['productListing' => $this->listing($this->manufacturerAggregation('Shopware AG'))]);
 
         $document = new \DOMDocument();
         libxml_use_internal_errors(true);
@@ -156,7 +163,7 @@ class FilterPanelComponentTest extends TestCase
      */
     public function testRendersTheFreeShippingFilterAsAFilterItem(): void
     {
-        $html = $this->render(['filterAggregations' => $this->shippingFreeAggregation()]);
+        $html = $this->render(['productListing' => $this->listing($this->shippingFreeAggregation())]);
 
         static::assertStringContainsString('data-component="Sw:Filter:Type:BooleanFilter"', $html);
         static::assertSame(1, substr_count($html, 'data-component="Sw:Filter:Item"'));
@@ -164,6 +171,27 @@ class FilterPanelComponentTest extends TestCase
         // Only the wrapper may carry the item class; a second one would be counted twice by the panel's
         // collapse, which selects `.sw-filter-item` to decide what `visibleFilterCount` hides.
         static::assertStringNotContainsString('sw-boolean-filter sw-filter sw-filter-item', $html);
+    }
+
+    /**
+     * The toggles are the panel's only say over which filters it offers, so they have to act on the render.
+     * They used to be applied by switching the matching listing filter handler off through a request
+     * parameter, which no longer happens now that the panel does not shape the query.
+     */
+    public function testADisabledToggleHidesOnlyItsOwnFilter(): void
+    {
+        $aggregations = new AggregationResultCollection([
+            new EntityResult('manufacturer', new ProductManufacturerCollection([$this->manufacturer('Shopware AG')])),
+            new MaxResult('shipping-free', 1),
+        ]);
+
+        $html = $this->render([
+            'productListing' => $this->listing($aggregations),
+            'showManufacturerFilter' => false,
+        ]);
+
+        static::assertStringNotContainsString('name="manufacturer"', $html);
+        static::assertStringContainsString('name="shipping-free"', $html);
     }
 
     /**
@@ -190,15 +218,32 @@ class FilterPanelComponentTest extends TestCase
             ->render(['props' => $props]);
     }
 
+    private function listing(AggregationResultCollection $aggregations): ProductListingResult
+    {
+        return ProductListingResult::fromSearchResult(new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
+            0,
+            new ProductCollection(),
+            $aggregations,
+            new Criteria(),
+            Context::createDefaultContext()
+        ), new ProductSortingCollection());
+    }
+
     private function manufacturerAggregation(string $name): AggregationResultCollection
+    {
+        return new AggregationResultCollection([
+            new EntityResult('manufacturer', new ProductManufacturerCollection([$this->manufacturer($name)])),
+        ]);
+    }
+
+    private function manufacturer(string $name): ProductManufacturerEntity
     {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId(Uuid::randomHex());
         $manufacturer->setTranslated(['name' => $name]);
 
-        return new AggregationResultCollection([
-            new EntityResult('manufacturer', new ProductManufacturerCollection([$manufacturer])),
-        ]);
+        return $manufacturer;
     }
 
     private function shippingFreeAggregation(): AggregationResultCollection

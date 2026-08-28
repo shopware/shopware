@@ -3,7 +3,7 @@
 {# @internal #}
 
 {% props
-    filterAggregations = null,
+    productListing = null,
     filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
     showPriceFilter = true,
     showRatingFilter = true,
@@ -37,6 +37,8 @@
     'data-component-options': filterPanelOptions|json_encode,
 } %}
 
+{% set filterAggregations = productListing.aggregations ?? null %}
+
 {% set manufacturerAggregation = null %}
 {% set priceAggregation = null %}
 {% set ratingAggregation = null %}
@@ -52,7 +54,7 @@
 {% endif %}
 
 {% set manufacturerFilter %}
-    {% if manufacturerAggregation is not null and manufacturerAggregation.entities|length > 0 %}
+    {% if showManufacturerFilter and manufacturerAggregation is not null and manufacturerAggregation.entities|length > 0 %}
         {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
         {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
 
@@ -70,7 +72,7 @@
 {% endset%}
 
 {% set ratingFilter %}
-    {% if ratingAggregation is not null %}
+    {% if showRatingFilter and ratingAggregation is not null %}
         {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
 
         <twig:Sw:Filter:Item
@@ -83,7 +85,7 @@
 {% endset%}
 
 {% set priceFilter %}
-    {% if priceAggregation is not null %}
+    {% if showPriceFilter and priceAggregation is not null %}
         {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
 
         <twig:Sw:Filter:Item
@@ -102,7 +104,7 @@
 {% endset%}
 
 {% set propertiesFilter %}
-    {% if propertiesAggregation is not null and propertiesAggregation.entities|length > 0 %}
+    {% if showPropertyFilter and propertiesAggregation is not null and propertiesAggregation.entities|length > 0 %}
         {% for property in propertiesAggregation.entities %}
             <twig:Sw:Filter:Item
                 :filterName="property.translated.name"
@@ -120,7 +122,7 @@
 {% endset %}
 
 {% set shippingFreeFilter %}
-    {% if shippingFreeAggregation is not null and shippingFreeAggregation.max > 0 %}
+    {% if showShippingFreeFilter and shippingFreeAggregation is not null and shippingFreeAggregation.max > 0 %}
         {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
 
         <twig:Sw:Filter:Item

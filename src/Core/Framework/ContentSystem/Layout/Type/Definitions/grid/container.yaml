@@ -10,6 +10,18 @@ meta:
       - "Configure breakpoint-specific columns and rows."
 
 properties:
+  productListing:
+    type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
+    required: false
+    title: "Product Listing"
+    description: "Listing result loaded by this container and provided to its children via context."
+
+  navigationId:
+    type: string
+    required: false
+    title: "Navigation ID"
+    description: "Category id the product_listing requirement loads from. Only read when a listing requirement is wired on this container."
+
   mode:
     type: string
     title: "Mode"

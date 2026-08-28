@@ -99,29 +99,6 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         $this->serializer->decode($data);
     }
 
-    #[TestDox('decodes the aggregations flag and defaults it to true')]
-    public function testDecodeAggregationsFlag(): void
-    {
-        $default = $this->serializer->decode([]);
-        $disabled = $this->serializer->decode(['aggregations' => false]);
-
-        static::assertInstanceOf(ProductListingLoaderConfig::class, $default);
-        static::assertInstanceOf(ProductListingLoaderConfig::class, $disabled);
-
-        static::assertTrue($default->aggregations);
-        static::assertFalse($disabled->aggregations);
-    }
-
-    #[TestDox('throws exception when the aggregations flag is not a bool')]
-    public function testDecodeWithNonBoolAggregationsThrowsException(): void
-    {
-        $this->expectExceptionObject(
-            ProductException::invalidFieldValueType('aggregations', 'bool', 'string')
-        );
-
-        $this->serializer->decode(['aggregations' => 'no']);
-    }
-
     #[TestDox('throws exception when associations is not an array')]
     public function testDecodeWithNonArrayAssociationsThrowsException(): void
     {
@@ -208,16 +185,6 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         ], $result);
     }
 
-    #[TestDox('encodes ProductListingLoaderConfig with disabled aggregations into array containing aggregations key')]
-    public function testEncodeConfigWithDisabledAggregationsIncludesAggregationsKey(): void
-    {
-        $config = new ProductListingLoaderConfig(aggregations: false);
-
-        $result = $this->serializer->encode($config);
-
-        static::assertSame(['aggregations' => false], $result);
-    }
-
     /**
      * @param array<string, mixed> $original
      */
@@ -239,7 +206,6 @@ class ProductListingLoaderConfigSerializerTest extends TestCase
         yield 'empty config' => [[]];
         yield 'property only' => [['property' => 'categoryProperty']];
         yield 'associations only' => [['associations' => ['options', 'cover']]];
-        yield 'aggregations disabled' => [['aggregations' => false]];
         yield 'full config' => [
             ['property' => 'myProperty', 'associations' => ['manufacturer', 'media']],
         ];

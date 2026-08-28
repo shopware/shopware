@@ -46,15 +46,7 @@ class ProductListingLoaderConfigSerializer extends AbstractContentDataLoaderConf
             }
         }
 
-        $aggregations = true;
-        if (\array_key_exists('aggregations', $data) && $data['aggregations'] !== null) {
-            if (!\is_bool($data['aggregations'])) {
-                throw ProductException::invalidFieldValueType('aggregations', 'bool', \gettype($data['aggregations']));
-            }
-            $aggregations = $data['aggregations'];
-        }
-
-        return new ProductListingLoaderConfig($property, $associations, $aggregations);
+        return new ProductListingLoaderConfig($property, $associations);
     }
 
     /**

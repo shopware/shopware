@@ -25,7 +25,6 @@ properties:
     description: "Hydrated listing result containing products, sorting, and aggregations."
     resolvedBy:
       product_listing:
-        aggregations: false
         associations:
           - cover
           - cover.media
